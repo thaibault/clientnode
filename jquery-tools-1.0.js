@@ -18,8 +18,6 @@
     plugin.
 */
 
-// TODO determine result with initialize() return statement.
-
 /**
     @name jQuery
     @see www.jquery.com
@@ -40,12 +38,14 @@
 
         @example
 
-# Direct access of a method in "Tools".
+// Direct access of a method in "Tools".
 
 jQuery.Tools().log('test');
 
-# Use as extension for object orientated jquery plugin using inheritance and
-# dom node reference.
+-------------------------------------------------------------------------------
+
+// Use as extension for object orientated jquery plugin using inheritance and
+// dom node reference. This plugin pattern givens their instance back.
 
 (function(jQuery) {
     var Example = function(domNode) {
@@ -55,6 +55,10 @@ jQuery.Tools().log('test');
             // "this" points to this "Examples" instance extended by "Tools".
             if (options)
                 jQuery.extend(true, this._options, options);
+            ...
+            return this;
+        };
+        this.staticMethod = function(anArgument) {
             ...
             return this;
         };
@@ -67,10 +71,15 @@ jQuery.Tools().log('test');
     };
 })(window.jQuery);
 
+// Initialisation:
 var examplesInstance = jQuery('#domNode').Example({'firstOption': 'value'...});
+// Static function call:
+var exampleInstance = jQuery('#domNode').Example('staticMethod', 'anArgument');
 
-# Use as extension for object orientated jquery plugin using inheritance,
-# dom node reference and chaining support.
+-------------------------------------------------------------------------------
+
+// Use as extension for object orientated jquery plugin using inheritance,
+// dom node reference and chaining support.
 
 (function(jQuery) {
     var Example = function(domNode) {
@@ -81,20 +90,29 @@ var examplesInstance = jQuery('#domNode').Example({'firstOption': 'value'...});
             if (options)
                 jQuery.extend(true, this._options, options);
             ...
+            return domNode;
+        };
+        this.staticMethod = function(anArgument) {
+            ...
+            return domNode;
         };
         ...
     };
-    jQuery.Example = function() {
+    jQuery.fn.Example = function() {
         var self = jQuery.Tools()._extend(new Example(this));
         self.__name__ = 'Example';
-        self._controller.apply(self, arguments);
-        return this;
+        return self._controller.apply(self, arguments);
     };
 })(window.jQuery);
 
+// Initialisation:
 var domNode = jQuery('#domNode').Example({'firstOption': 'value'...});
+// Static function call:
+var domNode = jQuery('#domNode').Example('staticMethod', 'anArgument');
 
-# Use as extension for object orientated jquery plugin using inheritance.
+-------------------------------------------------------------------------------
+
+// Use as extension for object orientated jquery plugin using inheritance.
 
 (function(jQuery) {
     var Example = function() {
@@ -103,6 +121,10 @@ var domNode = jQuery('#domNode').Example({'firstOption': 'value'...});
             // "this" points to this "Examples" instance extended by "Tools".
             if (options)
                 jQuery.extend(true, this._options, options);
+            ...
+            return this;
+        };
+        this.staticMethod = function(anArgument) {
             ...
             return this;
         };
@@ -115,30 +137,15 @@ var domNode = jQuery('#domNode').Example({'firstOption': 'value'...});
     };
 })(window.jQuery);
 
+// Initialisation:
 var exampleInstance = jQuery.Example({'firstOption': 'value'...});
+// Static function call:
+var exampleInstance = jQuery.Example('staticMethod', 'anArgument');
 
-# Use as extension for functional orientated jquery plugin using context
-# switching and chaining support.
+-------------------------------------------------------------------------------
 
-(function(jQuery) {
-    var options = {...};
-    var example = function(options) {
-        // "this" points to an instance of "Tools".
-        if (options)
-            jQuery.extend(true, this._options, options);
-        ...
-    };
-    jQuery.fn.example = function() {
-        var self = jQuery.Tools()._extend(example);
-        self.__name__ = 'example';
-        return self._controller.apply(self, arguments);
-    };
-})(window.jQuery);
-
-var domNode = jQuery('body').example({'firstOption': 'value'...});
-
-# Use as extension for default jquery plugin pattern using composition, dom
-# node reference and chaining support.
+// Use as extension for default functional orientated jquery plugin pattern
+// using composition, dom node reference and chaining support.
 
 (function(jQuery) {
     var options = {...};
@@ -161,7 +168,8 @@ var domNode = jQuery('body').example({'firstOption': 'value'...});
     };
 })(window.jQuery);
 
-jQuery('#domNode').example({'firstOption': 'value'...});
+// Function call:
+var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
     */
     var Tools = function() {
 
@@ -720,8 +728,8 @@ jQuery('div#id').InheritedFromTools(options);
             if (this[attribute])
                 return this[attribute].apply(this, parameter.slice(1));
             /*
-                An options object is expected as first argument if initializer
-                is called.
+                If an options object or no method name is given the
+                initializer will be called.
             */
             else if (jQuery.type(attribute) === 'object' || !attribute)
                 return this.initialize.apply(this, parameter);
