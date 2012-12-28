@@ -3,7 +3,7 @@
 // region header
 
 /*!
-    jQuery plugin for "jquery-1.8.2".
+    jQuery plugin for "jquery-1.8.3".
 
     Copyright see require on https://github.com/thaibault/require
 
@@ -12,7 +12,7 @@
     @author t.sickert@gmail.com (Torben Sickert)
     @version 1.0 stable
     @requires require-1.0+
-              jquery-1.8.2+
+              jquery-1.8.3+
     @fileOverview
     This module provides common resuable logic for every jquery non trivial
     plugin.
@@ -23,7 +23,7 @@
     @see www.jquery.com
 */
 /// standalone ;(function(jQuery) {
-;window.require([['jQuery', 'jquery-1.8.2']], function(jQuery) {
+;window.require([['jQuery', 'jquery-1.8.3']], function(jQuery) {
 
 // endregion
 
@@ -185,7 +185,9 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
             'domNodeSelectorPrefix': 'body'};
         /**
             Used for internal mutual exclusion in critical areas. To prevent
-            race conditions.
+            race conditions. Represents a map with critical area description
+            and queues saving all functions waiting for unlocking their
+            mapped critical area.
 
             @property {Object}
         */
@@ -372,10 +374,9 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
             if (this._options && this._options.domNodeSelectorPrefix &&
                 domNodeSelector.substring(
                     0, this._options.domNodeSelectorPrefix.length
-                ) === this._options.domNodeSelectorPrefix) {
+                ) === this._options.domNodeSelectorPrefix)
                 return jQuery.trim(domNodeSelector.substring(
                     this._options.domNodeSelectorPrefix.length));
-            }
             return domNodeSelector;
         };
         /**
@@ -638,8 +639,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
         */
         this.addSeperatorToPath = function(path, pathSeperator) {
             path = jQuery.trim(path);
-            if (path.substr(-1) !== pathSeperator &&
-                path.length)
+            if (path.substr(-1) !== pathSeperator && path.length)
                 return path + pathSeperator;
             return path;
         };
