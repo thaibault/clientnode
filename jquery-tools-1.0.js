@@ -410,19 +410,30 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @param {Boolean} force If set to "true" given input will be shown
                                    independly from current logging
                                    configuration.
+            @param {Boolean} noModuleAnnotation If set to "true" given input
+                                                has no module specified
+                                                annotation.
 
             @returns {jQuery.Tools} Returns the current instance.
         */
-        this.log = function(object, force) {
+        this.log = function(object, force, noModuleAnnotation) {
             if (this._options.logging || force) {
-                var message = object;
-                if (jQuery.type(object) === 'string')
-                    message = this.__name__ + ': ' + this.stringFormat.apply(
-                        this, arguments);
-                if (window.console && window.console.log)
-                    window.console.log(message);
-                else
-                    window.alert(message);
+                if (noModuleAnnotation)
+                    var message = object;
+                else if (jQuery.type(object) === 'string')
+                    var message = (
+                        this.__name__ + ': ' + this.stringFormat.apply(
+                            this, arguments));
+                else {
+                    this.log(',--------------------------------------------,');
+                    this.log(object, force, true);
+                    this.log("'--------------------------------------------'");
+                }
+                if (message)
+                    if (window.console && window.console.log)
+                        window.console.log(message);
+                    else
+                        window.alert(message);
             }
             return this;
         };
