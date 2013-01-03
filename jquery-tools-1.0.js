@@ -205,6 +205,8 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
             @returns {jQuery.Tools} Returns the current instance.
         */
         this.initialize = function(options) {
+            if (options)
+                jQuery.extend(true, this._options, options);
             return this;
         };
         /**
