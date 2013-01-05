@@ -40,7 +40,8 @@
 
 // Direct access of a method in "Tools".
 
-jQuery.Tools().log('test');
+var tools = jQuery.Tools({'logging': true});
+tools.log('test');
 
 -------------------------------------------------------------------------------
 
