@@ -1,9 +1,9 @@
-require
-=======
+jquery-tools
+============
 
-This native javaScript module provides a full featured import mechanism like
-python, php, c++ etc.
+Provides mutual exclusion, generic interface controller, object orientated
+design through the original jquery pattern and selector scoping.
 
 Usage
 
-    see second more line comment in "./require-1.0.js".
+    see second more line comment in "./jquery-tools-1.0.js".
