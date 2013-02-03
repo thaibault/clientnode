@@ -46,7 +46,7 @@ tools.log('test');
 -------------------------------------------------------------------------------
 
 // Use as extension for object orientated jquery plugin using inheritance and
-// dom node reference. This plugin pattern givens their instance back.
+// dom node reference. This plugin pattern gives their instance back.
 
 (function(jQuery) {
     var Example = function(domNode) {
