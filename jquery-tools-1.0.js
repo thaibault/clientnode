@@ -75,7 +75,7 @@ tools.log('test');
 // Initialisation:
 var examplesInstance = jQuery('#domNode').Example({'firstOption': 'value'...});
 // Static function call:
-var exampleInstance = jQuery('#domNode').Example('staticMethod', 'anArgument');
+var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
 
 -------------------------------------------------------------------------------
 
@@ -109,7 +109,7 @@ var exampleInstance = jQuery('#domNode').Example('staticMethod', 'anArgument');
 // Initialisation:
 var domNode = jQuery('#domNode').Example({'firstOption': 'value'...});
 // Static function call:
-var domNode = jQuery('#domNode').Example('staticMethod', 'anArgument');
+var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
 
 -------------------------------------------------------------------------------
 
@@ -141,7 +141,7 @@ var domNode = jQuery('#domNode').Example('staticMethod', 'anArgument');
 // Initialisation:
 var exampleInstance = jQuery.Example({'firstOption': 'value'...});
 // Static function call:
-var exampleInstance = jQuery.Example('staticMethod', 'anArgument');
+var returnValue = jQuery.Example('staticMethod', 'anArgument');
 
 -------------------------------------------------------------------------------
 
