@@ -12,7 +12,7 @@
     @author t.sickert@gmail.com (Torben Sickert)
     @version 1.0 stable
     @requires require-1.0+
-              jquery-1.8.3+
+              jquery-1.9.1+
     @fileOverview
     This module provides common resuable logic for every jquery non trivial
     plugin.
@@ -23,7 +23,7 @@
     @see www.jquery.com
 */
 /// standalone ;(function(jQuery) {
-;window.require([['jQuery', 'jquery-1.8.3']], function(jQuery) {
+;window.require([['jQuery', 'jquery-1.9.1']], function(jQuery) {
 
 // endregion
 
