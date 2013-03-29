@@ -427,6 +427,8 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                     var message = (
                         this.__name__ + ': ' + this.stringFormat.apply(
                             this, arguments));
+                else if (jQuery.isNumeric(object))
+                    var message = this.__name__ + ': ' + object;
                 else {
                     this.log(',--------------------------------------------,');
                     this.log(object, force, true);
@@ -472,6 +474,9 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                 }
                 domNodes[key] = jQuery(value);
             });
+            if (this._options && this._options.domNodeSelectorPrefix)
+                domNodes.parent = jQuery(this._options.domNodeSelectorPrefix);
+            domNodes.window = jQuery(window);
             return domNodes;
         };
         /**
@@ -490,19 +495,19 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
         */
         this.getMethod = function(method, scope) {
             var self = (scope) ? scope : this;
+            /*
+                This following outcomment line would be responsible for a
+                bug in yuicompressor.
+                Because of declaration of arguments the parser things that
+                arguments is a local variable and could be renamed.
+                It doesn't care about that the magic arguments object is
+                neccessary to generate the arguments array in this context.
+
+                var arguments = this.argumentsObjectToArray(arguments);
+            */
+            var parameter = this.argumentsObjectToArray(arguments);
             if (jQuery.type(method) === 'string' &&
                 jQuery.type(self) === 'object') {
-                /*
-                    This following outcomment line would be responsible for a
-                    bug in yuicompressor.
-                    Because of declaration of arguments the parser things that
-                    arguments is a local variable and could be renamed.
-                    It doesn't care about that the magic arguments object is
-                    neccessary to generate the arguments array in this context.
-
-                    var arguments = this.argumentsObjectToArray(arguments);
-                */
-                var parameter = this.argumentsObjectToArray(arguments);
                 var additionalArguments = parameter.slice(2);
                 return function() {
                     if (!self[method])
@@ -517,7 +522,9 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                         additionalArguments));
                 };
             }
-            return jQuery.proxy(method, self);
+            parameter.unshift(self);
+            parameter.unshift(method);
+            return jQuery.proxy.apply(jQuery, parameter);
         };
         /**
             @description A wrapper method for "jQuery.bind()".
