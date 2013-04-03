@@ -22,8 +22,8 @@
     @name jQuery
     @see www.jquery.com
 */
-/// standalone ;(function(jQuery) {
-;window.require([['jQuery', 'jquery-1.9.1']], function(jQuery) {
+/// standalone (function(jQuery) {
+this.require([['jQuery', 'jquery-1.9.1']], function(jQuery) {
 
 // endregion
 
@@ -70,7 +70,7 @@ tools.log('test');
         self.__name__ = 'Example';
         return self._controller.apply(self, arguments);
     };
-})(window.jQuery);
+}).call(this, this.jQuery);
 
 // Initialisation:
 var examplesInstance = jQuery('#domNode').Example({'firstOption': 'value'...});
@@ -104,7 +104,7 @@ var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
         self.__name__ = 'Example';
         return self._controller.apply(self, arguments);
     };
-})(window.jQuery);
+}).call(this, this.jQuery);
 
 // Initialisation:
 var domNode = jQuery('#domNode').Example({'firstOption': 'value'...});
@@ -136,7 +136,7 @@ var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
         self.__name__ = 'Example';
         return self._controller.apply(self, arguments);
     };
-})(window.jQuery);
+}).call(this, this.jQuery);
 
 // Initialisation:
 var exampleInstance = jQuery.Example({'firstOption': 'value'...});
@@ -167,7 +167,7 @@ var returnValue = jQuery.Example('staticMethod', 'anArgument');
         else
             $.error('Method ' + method + ' does not exist on jQuery.example');
     };
-})(window.jQuery);
+}).call(this, this.jQuery);
 
 // Function call:
 var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
@@ -792,5 +792,5 @@ jQuery('div#id').InheritedFromTools(options);
 
 // endregion
 
-/// standalone })(window.jQuery);
+/// standalone }).call(this, this.jQuery);
 });
