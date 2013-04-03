@@ -72,7 +72,7 @@ Structure of meta documenting classes. (see rc15)
 
     // region header
 
-    ;window.require([['ia', 'ia-1.0'], ['ib', 'ib-2.0']]), function(ia) {
+    window.require([['ia', 'ia-1.0'], ['ib', 'ib-2.0']]), function(ia) {
 
     // endregion
 
@@ -195,7 +195,7 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
 
             @property {DomNode}
         */
-        require.scriptNode;
+        require.headNode;
         /**
             Saves all loaded script ressources to prevent double script
             loading.
@@ -217,16 +217,19 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
         */
         require.referenceSafe;
         /**
-            Describes file endings for script to be included.
+            Describes all supported scripts with their needed properties to
+            load them. A Mapping from file endings to their script node types.
 
-            @property {String}
+            @property {Json}
         */
-        require.extension;
+        require.scriptTypes;
         /**
-            Defines which node type is needed to by interpreted as module
-            including file.
+            Describes a mapping from regex pattern which detects all modules
+            to load via ajax to their corresponding handler functions.
+            
+            @property {Json]
         */
-        require.scriptNodeType;
+        require.asyncronModulePatternHandling;
 
     // endregion
 
@@ -257,7 +260,8 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
         require.initialize = function() {
             if (require.basePath === undefined) {
                 var firstScriptSource = document.getElementsByTagName(
-                    'script')[0].src;
+                    'script'
+                )[0].src;
                 require.basePath = firstScriptSource.substring(
                     0, firstScriptSource.lastIndexOf('/') + 1);
             }
@@ -271,16 +275,25 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
                 require.noConflict = false;
             if (require.initializedLoadings === undefined)
                 require.initializedLoadings = new Array();
-            if (require.scriptNode === undefined)
-                require.scriptNode = document.getElementsByTagName('head')[0];
+            if (require.headNode === undefined)
+                require.headNode = document.getElementsByTagName('head')[0];
             if (require.basePath &&
                 require.basePath.substring(require.basePath.length - 1) != '/')
                 require.basePath += '/';
-            if (require.extension === undefined)
-                require.extension = '.js';
-            if (require.scriptNodeType === undefined)
-                require.scriptNodeType = 'text/javascript';
-
+            if (require.scriptTypes === undefined)
+                require.scriptTypes = {
+                    '.js': 'text/javascript'
+                };
+            if (require.asyncronModulePatternHandling === undefined)
+                require.asyncronModulePatternHandling = {
+                    '^.+\.css$': function(cssContent) {
+                        var styleNode = document.createElement('style');
+                        styleNode.type = 'text/css';
+                        styleNode.appendChild(document.createTextNode(
+                            cssContent));
+                        require.headNode.appendChild(styleNode);
+                    }
+                };
             if (require._callQueue === undefined)
                 require._callQueue = new Array();
             return require._load.apply(require, arguments);
@@ -350,9 +363,7 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
                             'Prevent loading module "' + module[0] +
                             '" in passiv mode.');
                     else
-                        require._appendScriptNode(
-                            require._createScriptLoadingNode(module[1]),
-                            module, parameter);
+                        require._initializeRessourceLoading(module, parameter);
                 }
             } else {
                 /*
@@ -374,6 +385,58 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
             if (require && require._handleNoConflict)
                 return require._handleNoConflict();
             return undefined;
+        };
+        /**
+            @description Initialize loading of needed ressources.
+            
+            @param {String[]} module A tuple (consisting of module indicator
+                                     and module file path) which should be
+                                     loaded.
+            @param {Object[]} parameters Saves arguments indented to be given
+                                         to the onload function.
+
+            @returns {require} Returns the current instance.
+        */
+        require._initializeRessourceLoading = function(module, parameter) {
+            var isAsyncronRequest = false;
+            for (var asyncronModulePattern in
+                 require.asyncronModulePatternHandling)
+                if (new RegExp(asyncronModulePattern).test(module[1])) {
+                    if (window.XMLHttpRequest)
+                        var ajaxObject = new XMLHttpRequest();
+                    else
+                        var ajaxObject = new ActiveXObject(
+                            'Microsoft.XMLHTTP');
+                    ajaxObject.open(
+                        'GET', require._getScriptFilePath(module[1]), true);
+                    ajaxObject.onreadystatechange = function() {
+                        if (ajaxObject.readyState === 4 &&
+                            ajaxObject.status === 200) {
+                            require.asyncronModulePatternHandling[
+                                asyncronModulePattern](
+                                    ajaxObject.responseText);
+                            require._scriptLoaded(module, parameter);
+                            // Delete event after passing it once.
+                            ajaxObject.onreadystatechange = null;
+                        } else if (ajaxObject.status !== 200)
+                            require._log(
+                                'Loading ressource "' + module[1] +
+                                '" failed via ajax with status "' +
+                                ajaxObject.status + '" in state "' +
+                                ajaxObject.readyState + '".');
+                    };
+                    ajaxObject.send(null);
+                    isAsyncronRequest = true;
+                    break;
+                }
+            if (!isAsyncronRequest)
+                require._appendRessourceDomNode(
+                    require._createScriptLoadingNode(module[1]), module,
+                    parameter);
+            require._log(
+                'Initialized script loading of "' + module[1] + '" via ' +
+                ((isAsyncronRequest) ? 'ajax' : 'header dom node') + '.');
+            return require;
         };
         /**
             @description Generates an array of arguments from initially given
@@ -426,7 +489,7 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
 
             @returns {require} Returns the current instance.
         */
-        require._appendScriptNode = function(scriptNode, module, parameters) {
+        require._appendRessourceDomNode = function(scriptNode, module, parameters) {
             /*
                 Internet explorer workaround for capturing event when
                 script is loaded.
@@ -447,8 +510,20 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
                     scriptNode.onload = null;
                 };
             }
-            require.scriptNode.appendChild(scriptNode);
+            require.headNode.appendChild(scriptNode);
             return require;
+        };
+        /**
+            @description Creates a new script loading tag.
+
+            @param {String} scriptFilePath Path pointing to the file ressource.
+            
+            @returns {String} The absolute path to needed ressource.
+        */
+        require._getScriptFilePath = function(scriptFilePath) {
+            if (scriptFilePath.substring(0, 'http://'.length) === 'http://')
+                return scriptFilePath;
+            return require.basePath + scriptFilePath;
         };
         /**
             @description Creates a new script loading tag.
@@ -459,17 +534,19 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
                                ressource.
         */
         require._createScriptLoadingNode = function(scriptFilePath) {
-            require._log(
-                'Initialize script loading of "' + scriptFilePath + '".');
             var scriptNode = document.createElement('script');
-            scriptNode.src = require.basePath + scriptFilePath;
-            if (scriptFilePath.substring(0, 7) === 'http://')
-                scriptNode.src = scriptFilePath;
-            if (scriptNode.src.substr(require.extension.length) != require.extension.length)
-                scriptNode.src += require.extension.length;
+            scriptNode.src = require._getScriptFilePath(scriptFilePath);
+            var hasExtension = false;
+            for (var extension in require.scriptTypes)
+                if (scriptNode.src.substr(-extension.length) == extension) {
+                    hasExtension = true;
+                    break;
+                }
+            if (!hasExtension)
+                scriptNode.src += extension;
+            scriptNode.type = require.scriptTypes[extension];
             if (require.appendTimeStamp)
                 scriptNode.src += '?timestamp=' + (new Date).getTime();
-            scriptNode.type = require.scriptNodeType;
             return scriptNode;
         };
         /**
@@ -615,6 +692,6 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
     if (require.referenceSafe === undefined)
         require.referenceSafe = context.require;
     context.require = require;
-})(window);
+}).call(this, this);
 
 // endregion
