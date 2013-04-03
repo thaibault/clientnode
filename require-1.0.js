@@ -141,7 +141,7 @@ Structure of dependencies
                                          reference which has to be available
                                          after script was loading and the
                                          module name (basename of script file
-                                         without ".js" extension).
+                                         with or without file extension).
         @param {Function} onLoaded A callback function to load after all
                                    dependences are available.
         @param {Object} onLoadedArguments A various number of arguments given
@@ -216,6 +216,17 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
             @property {Mixed}
         */
         require.referenceSafe;
+        /**
+            Describes file endings for script to be included.
+
+            @property {String}
+        */
+        require.extension;
+        /**
+            Defines which node type is needed to by interpreted as module
+            including file.
+        */
+        require.scriptNodeType;
 
     // endregion
 
@@ -265,6 +276,10 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
             if (require.basePath &&
                 require.basePath.substring(require.basePath.length - 1) != '/')
                 require.basePath += '/';
+            if (require.extension === undefined)
+                require.extension = '.js';
+            if (require.scriptNodeType === undefined)
+                require.scriptNodeType = 'text/javascript';
 
             if (require._callQueue === undefined)
                 require._callQueue = new Array();
@@ -450,11 +465,11 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
             scriptNode.src = require.basePath + scriptFilePath;
             if (scriptFilePath.substring(0, 7) === 'http://')
                 scriptNode.src = scriptFilePath;
-            if (scriptNode.src.substr(-3) != '.js')
-                scriptNode.src += '.js';
+            if (scriptNode.src.substr(require.extension.length) != require.extension.length)
+                scriptNode.src += require.extension.length;
             if (require.appendTimeStamp)
                 scriptNode.src += '?timestamp=' + (new Date).getTime();
-            scriptNode.type = 'text/javascript';
+            scriptNode.type = require.scriptNodeType;
             return scriptNode;
         };
         /**
