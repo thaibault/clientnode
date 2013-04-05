@@ -155,19 +155,19 @@ class require
 
         @property {Boolean}
     ###
-    this.appendTimeStamp = null
+    this.appendTimeStamp
     ###*
         Indicates if debugging is active.
 
         @property {Boolean}
     ###
-    this.logging = null
+    this.logging
     ###*
         Saves the base path for relative defined module locations.
 
-        @property {String}
+        @property {Object}
     ###
-    this.basePath = null
+    this.basePath
     ###*
         If the require scope should be deleted after serving all
         dependencies this property should be an array with a callback
@@ -177,53 +177,53 @@ class require
 
         @property {Boolean}
     ###
-    this.noConflict = null
+    this.noConflict
     ###*
         Caches a reference to the head for injecting needed script tags.
 
         @property {DomNode}
     ###
-    this.headNode = null
+    this.headNode
     ###*
         Saves all loaded script ressources to prevent double script
         loading.
 
         @property {String[]}
     ###
-    this.initializedLoadings = null
+    this.initializedLoadings
     ###*
         Indicates if require should load ressource on its own.
 
         @property {Boolean}
     ###
-    this.passiv = null
+    this.passiv
     ###*
         Saves the initially pointed target of global variable
         "window.require" to reset that reference in "noConflict" mode.
 
         @property {Mixed}
     ###
-    this.referenceSafe = null
+    this.referenceSafe
     ###*
         Describes all supported scripts with their needed properties to
         load them. A Mapping from file endings to their script node types.
 
-        @property {Json}
+        @property {Object}
     ###
-    this.scriptTypes = null
+    this.scriptTypes
     ###*
         Describes a mapping from regex pattern which detects all modules
         to load via ajax to their corresponding handler functions.
 
-        @property {Json}
+        @property {Object}
     ###
-    this.asyncronModulePatternHandling = null
+    this.asyncronModulePatternHandling
     ###*
         Defines in which scope the required dependencies have to be present.
 
         @property {Object}
     ###
-    this.context = null
+    this.context
 
     # endregion
 
@@ -237,7 +237,7 @@ class require
 
         @property {Object[]}
     ###
-    this._callQueue = null
+    this._callQueue
 
     # endregion
 
@@ -266,39 +266,47 @@ class require
         @returns {require} Returns the current instance.
     ###
     constructor: (modules, onLoaded, onLoadedArguments) ->
-        if require.context is null
+        # Set class property default values.
+        if not require.context?
             require.context = this
-        if require.referenceSafe is null
+        if not require.referenceSafe?
             require.referenceSafe = this.require
-        if require.basePath is null
-            firstScriptSource = document.getElementsByTagName('script')[0].src
-            require.basePath = firstScriptSource.substring(
-                0, firstScriptSource.lastIndexOf('/') + 1)
-        if(require.basePath and
-           require.basePath.substring require.basePath.length - 1 isnt '/')
-            require.basePath += '/'
-        if require.appendTimeStamp is null
+        if not require.basePath?
+            require.basePath = {}
+            for scriptNode in document.getElementsByTagName 'script'
+                if not require.basePath.default
+                    require.basePath.default = scriptNode.src.substring(
+                        0, scriptNode.src.lastIndexOf('/') + 1)
+                extension = scriptNode.src.substring(
+                    scriptNode.src.lastIndexOf('.') + 1)
+                if extension and not require.basePath[extension]
+                    require.basePath[extension] = scriptNode.src.substring(
+                        0, scriptNode.src.lastIndexOf('/') + 1)
+        for type, path of require.basePath
+            if path.substring(path.length - 1) isnt '/'
+                require.basePath[type] += '/'
+        if not require.appendTimeStamp?
             require.appendTimeStamp = false
-        if require.passiv is null
+        if not require.passiv?
             require.passiv = false
-        if require.logging is null
+        if not require.logging?
             require.logging = false
-        if require.noConflict is null
+        if not require.noConflict?
             require.noConflict = false
-        if require.initializedLoadings is null
+        if not require.initializedLoadings?
             require.initializedLoadings = []
-        if require.headNode is null
+        if not require.headNode?
             require.headNode = document.getElementsByTagName('head')[0]
-        if require.scriptTypes is null
+        if not require.scriptTypes?
             require.scriptTypes = '.js': 'text/javascript'
-        if require.asyncronModulePatternHandling is null
+        if not require.asyncronModulePatternHandling?
             require.asyncronModulePatternHandling =
                 '^.+\.css$': (cssContent) ->
                     styleNode = document.createElement 'style'
                     styleNode.type = 'text/css'
                     styleNode.appendChild document.createTextNode cssContent
                     require.headNode.appendChild styleNode
-        if require._callQueue is null
+        if not require._callQueue?
             require._callQueue = []
         return require::_load.apply require, arguments
 
@@ -499,7 +507,11 @@ class require
     _getScriptFilePath: (scriptFilePath) ->
         if scriptFilePath.substring(0, 'http://'.length) is 'http://'
             return scriptFilePath
-        return require.basePath + scriptFilePath
+        extension = scriptFilePath.substring(
+            scriptFilePath.lastIndexOf('.') + 1)
+        if require.basePath[extension]
+            return require.basePath[extension] + scriptFilePath
+        return require.basePath.default + scriptFilePath
     ###*
         @description Creates a new script loading tag.
 
