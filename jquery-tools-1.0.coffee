@@ -1,8 +1,10 @@
-/// require
+## require
 
-// region header
+# TODO write coffee script pattern variants.
 
-/*!
+# region header
+
+###!
     jQuery plugin for "jquery-1.8.3".
 
     Copyright see require on https://github.com/thaibault/require
@@ -16,20 +18,20 @@
     @fileOverview
     This module provides common resuable logic for every jquery non trivial
     plugin.
-*/
+###
 
-/**
+###*
     @name jQuery
     @see www.jquery.com
-*/
-/// standalone (function(jQuery) {
-this.require([['jQuery', 'jquery-1.9.1']], function(jQuery) {
+###
+## standalone ((jQuery) ->
+this.require([['jQuery', 'jquery-1.9.1']], (jQuery) ->
 
-// endregion
+# endregion
 
-// region plugins
+    # region plugins
 
-    /**
+    ###*
         Provides such interface logic like generic controller logic, mutual
         exclusion for depending gui elements or logging.
 
@@ -50,9 +52,11 @@ tools.log('test');
 
 (function(jQuery) {
     var Example = function(domNode) {
+        self.__name__ = 'Example';
+        this._domNode = domNode;
         this._options = {...};
         this.initialize = function(options) {
-            // "domNode" points to jQuery's wrapped dom node.
+            // "this._domNode" points to jQuery's wrapped dom node.
             // "this" points to this "Examples" instance extended by "Tools".
             if (options)
                 jQuery.extend(true, this._options, options);
@@ -67,7 +71,6 @@ tools.log('test');
     };
     jQuery.fn.Example = function() {
         var self = jQuery.Tools()._extend(new Example(this));
-        self.__name__ = 'Example';
         return self._controller.apply(self, arguments);
     };
 }).call(this, this.jQuery);
@@ -84,9 +87,11 @@ var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
 
 (function(jQuery) {
     var Example = function(domNode) {
+        self.__name__ = 'Example';
+        this._domNode = domNode;
         this._options = {...};
         this.initialize = function(options) {
-            // "domNode" points to jQuery's wrapped dom node.
+            // "this._domNode" points to jQuery's wrapped dom node.
             // "this" points to this "Examples" instance extended by "Tools".
             if (options)
                 jQuery.extend(true, this._options, options);
@@ -101,7 +106,6 @@ var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
     };
     jQuery.fn.Example = function() {
         var self = jQuery.Tools()._extend(new Example(this));
-        self.__name__ = 'Example';
         return self._controller.apply(self, arguments);
     };
 }).call(this, this.jQuery);
@@ -117,6 +121,7 @@ var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
 
 (function(jQuery) {
     var Example = function() {
+        this.__name__ = 'Example';
         this._options = {...};
         this.initialize = function(options) {
             // "this" points to this "Examples" instance extended by "Tools".
@@ -132,8 +137,7 @@ var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
         ...
     };
     jQuery.Example = function() {
-        var self = jQuery.Tools()._extend(new Example());
-        self.__name__ = 'Example';
+        var self = jQuery.Tools()._extend(new Example);
         return self._controller.apply(self, arguments);
     };
 }).call(this, this.jQuery);
@@ -162,7 +166,7 @@ var returnValue = jQuery.Example('staticMethod', 'anArgument');
         if (methods[method])
             return methods[method].apply(
                 this, Array.prototype.slice.call(arguments, 1));
-        else if (jQuery.type(method) === 'object' || !method)
+        else if (jQuery.type(method) is 'object' || !method)
             return methods.init.apply(this, arguments);
         else
             $.error('Method ' + method + ' does not exist on jQuery.example');
@@ -171,59 +175,92 @@ var returnValue = jQuery.Example('staticMethod', 'anArgument');
 
 // Function call:
 var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
-    */
-    var Tools = function() {
+    ###
+    class Tools
 
-    // region protected properties
+    # region private properties
 
-        /**
+        ###*
+            Saves the class name for introspection.
+
+            @property {String}
+        ###
+        __name__: 'Tools'
+
+    # endregion
+
+    # region protected properties
+
+        ###*
+            Saves the jquery wrapped dom node.
+
+            @property {Object}
+        ###
+        _domNode: null
+        ###*
             Saves default options for manipulating the default behaviour.
 
             @property {Object}
-        */
-        this._options = {
-            'logging': false,
-            'domNodeSelectorPrefix': 'body'};
-        /**
+        ###
+        _options:
+            logging: false
+            domNodeSelectorPrefix: 'body'
+        ###*
             Used for internal mutual exclusion in critical areas. To prevent
             race conditions. Represents a map with critical area description
             and queues saving all functions waiting for unlocking their
             mapped critical area.
 
             @property {Object}
-        */
-        this._mutex = {};
+        ###
+        _mutex: {}
 
-    // endregion
+    # endregion
 
-    // region public methods
+    # region public methods
 
-        /**
-            @description This method should be overwritten normally.
+        # region special methods
 
-            @param {Object} options An options object.
+        ###*
+            @description This method should be overwritten normally. It is
+                         triggered if current opject is created via the "new"
+                         keyword.
 
             @returns {jQuery.Tools} Returns the current instance.
-        */
-        this.initialize = function(options) {
-            if (options)
-                jQuery.extend(true, this._options, options);
-            return this;
-        };
-        /**
+        ###
+        constructor: (@_domNode) ->
+            return this
+        ###*
             @description This method could be overwritten normally.
                          It acts like a destructor.
 
             @returns {jQuery.Tools} Returns the current instance.
-        */
-        this.destruct = function() {
-            this.unbind('*');
-            return this;
-        };
+        ###
+        destructor: ->
+            this.unbind '*'
+            return this
+        ###*
+            @description This method should be overwritten normally. It is
+                         triggered if current opject was created via the "new"
+                         keyword and is called now.
 
-        // region mutual exclusion
+            @param {Object} options An options object.
 
-        /**
+            @returns {jQuery.Tools} Returns the current instance.
+        ###
+        initialize: (options={}) ->
+            this._options.domNodeSelectorPrefix = this.stringFormat(
+                this._options.domNodeSelectorPrefix,
+                this.camelCaseStringToDelimited this.__name__)
+            if (options)
+                this._options = jQuery.extend true, this._options, options
+            return this
+
+        # endregion
+
+        # region mutual exclusion
+
+        ###*
             @description Calling this method introduces a starting point for a
                          critical area with potential race conditions.
                          The area will be binded to this string. So don't use
@@ -233,15 +270,14 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
                                         areas properties.
 
             @returns {jQuery.Tools} Returns the current instance.
-        */
-        this.lock = function(description) {
-            var self = this;
-            this.checkLock(description, function() {
-                self._mutex[description] = new Array();
-            }, true);
-            return this;
-        };
-        /**
+        ###
+        lock: (description) ->
+            self = this
+            this.checkLock description, ->
+                self._mutex[description] = []
+            , true
+            return this
+        ###*
             @description Calling this method the given critical area will be
                          finished and all functions given to "this.checkLock()"
                          will be executed in right order.
@@ -250,15 +286,14 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
                                         areas properties.
 
             @returns {jQuery.Tools} Returns the current instance.
-        */
-        this.unlock = function(description) {
-            while (jQuery.isArray(this._mutex[description]) &&
+        ###
+        unlock: (description) ->
+            while (jQuery.isArray this._mutex[description] and
                    this._mutex[description].length)
-                this._mutex[description].shift()();
-            this._mutex[description] = undefined;
-            return this;
-        };
-        /**
+                this._mutex[description].shift()()
+            this._mutex[description] = undefined
+            return this
+        ###*
             @description Takes a procedure given by a function which only
                          should executed if the given critical area isn't
                          present. If the interpreter is in the critical area
@@ -272,22 +307,24 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
                                                executed if the interpreter
                                                isn't in the given critical
                                                area.
+            @param {Boolean} noEnqueue If set to "true" callback function will
+                                       be called emidiatly if possible or
+                                       never.
 
             @returns {jQuery.Tools} Returns the current instance.
-        */
-        this.checkLock = function(description, callbackFunction, noEnqueue) {
-            if (this._mutex[description] === undefined)
-                callbackFunction();
-            else if (!noEnqueue)
-                this._mutex[description].push(callbackFunction);
-            return this;
-        };
+        ###
+        checkLock: (description, callbackFunction, noEnqueue=false) ->
+            if (this._mutex[description] is undefined)
+                callbackFunction()
+            else if (not noEnqueue)
+                this._mutex[description].push callbackFunction
+            return this
 
-        // endregion
+        # endregion
 
-        // region language fixes
+        # region language fixes
 
-        /**
+        ###*
             @description This method fixes an ugly javascript bug.
                          If you add a mouseout event listener to a dom node
                          the given handler will be called each time any dom
@@ -300,25 +337,22 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
 
             @returns {Function} Returns the given function wrapped by the
                                 workaround logic.
-        */
-        this.mouseOutEventHandlerFix = function(eventHandler) {
-            var self = this;
-            return function(event) {
-                var relatedTarget = event.toElement;
-                if (event.relatedTarget)
-                    relatedTarget = event.relatedTarget;
-                while (relatedTarget && relatedTarget.tagName != 'BODY') {
-                    if (relatedTarget === this)
-                        return;
-                    relatedTarget = relatedTarget.parentNode;
-                }
-                eventHandler.apply(self, arguments);
-            };
-        };
+        ###
+        mouseOutEventHandlerFix: (eventHandler) ->
+            self = this
+            return (event) ->
+                relatedTarget = event.toElement
+                if event.relatedTarget
+                    relatedTarget = event.relatedTarget
+                while relatedTarget and relatedTarget.tagName isnt 'BODY'
+                    if relatedTarget is this
+                        return
+                    relatedTarget = relatedTarget.parentNode
+                eventHandler.apply self, arguments
 
-        // endregion
+        # endregion
 
-        /**
+        ###*
             @description Read a page's GET URL variables and return them as an
                          associative array.
 
@@ -329,42 +363,37 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
             @returns {Mixed} Returns the current get array or requested value.
                                      If requested key doesn't exist "undefined"
                                      is returned.
-        */
-        this.getUrlVariables = function(key) {
-            var variables = new Array();
+        ###
+        getUrlVariables: (key) ->
+            variables = []
             jQuery.each(window.location.href.slice(
                 window.location.href.indexOf('?') + 1
-            ).split('&'), function(key, value) {
-                variables.push(value.split('=')[0]);
-                variables[value.split('=')[0]] = value.split('=')[1];
-            });
-            if (jQuery.type(key) === 'string')
-                if (key in variables)
-                    return variables[key];
+            ).split('&'), (key, value) ->
+                variables.push value.split('=')[0]
+                variables[value.split('=')[0]] = value.split('=')[1])
+            if (jQuery.type(key) is 'string')
+                if key in variables
+                    return variables[key]
                 else
-                    return undefined;
-            return variables;
-        };
-        /**
+                    return undefined
+            return variables
+        ###*
             @description Dumps a given object in a human readable format.
 
             @param {Object} object Any type.
 
             @returns {String} Returns the searialized object.
-        */
-        this.show = function(object) {
-            var output = '';
-            if (jQuery.type(object) === 'string')
-                output = object;
+        ###
+        show: (object) ->
+            output = ''
+            if jQuery.type(object) is 'string'
+                output = object
             else
-                jQuery.each(object, function(key, value) {
-                    output += key.toString() + ': ' + value.toString() +
-                              '\n';
-                });
-            return jQuery.trim((output) ? output : object.toString()) +
-                this.stringFormat('\n(Type: "{1}")', jQuery.type(object));
-        };
-        /**
+                jQuery.each(object, (key, value) ->
+                    output += key.toString() + ': ' + value.toString() + '\n')
+            output = output.toString() if not output
+            return jQuery.trim(output) + "\n(Type: \"#{jQuery.type(object)}\")"
+        ###*
             @description Removes a selector prefix from a given selector.
                          This methods searches in the options object for a
                          given "domNodeSelectorPrefix".
@@ -372,17 +401,16 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
             @param {String} domNodeSelector The dom node selector to slice.
 
             @return {String} Returns the silced selector.
-        */
-        this.sliceDomNodeSelectorPrefix = function(domNodeSelector) {
-            if (this._options && this._options.domNodeSelectorPrefix &&
-                domNodeSelector.substring(
-                    0, this._options.domNodeSelectorPrefix.length
-                ) === this._options.domNodeSelectorPrefix)
+        ###
+        sliceDomNodeSelectorPrefix: (domNodeSelector) ->
+            if(this._options and this._options.domNodeSelectorPrefix and
+               domNodeSelector.substring(
+                   0, this._options.domNodeSelectorPrefix.length
+               ) is this._options.domNodeSelectorPrefix)
                 return jQuery.trim(domNodeSelector.substring(
-                    this._options.domNodeSelectorPrefix.length));
-            return domNodeSelector;
-        };
-        /**
+                    this._options.domNodeSelectorPrefix.length))
+            return domNodeSelector
+        ###*
             @description Determines the dom node name of a given dom node
                          string.
 
@@ -400,11 +428,10 @@ jQuery.Tools.getDomNodeName('&lt;div&gt;&lt;/div&gt;');
 
 jQuery.Tools.getDomNodeName('&lt;br/&gt;');
 'br'
-        */
-        this.getDomNodeName = function(domNode) {
-            return domNode.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1];
-        };
-        /**
+        ###
+        getDomNodeName: (domNode) ->
+            return domNode.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1]
+        ###*
             @description Shows the given object's representation in the
                          browsers console if possible or in a standalone
                          alert-window as fallback.
@@ -418,31 +445,27 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                                                 annotation.
 
             @returns {jQuery.Tools} Returns the current instance.
-        */
-        this.log = function(object, force, noModuleAnnotation) {
-            if (this._options.logging || force) {
-                if (noModuleAnnotation)
-                    var message = object;
-                else if (jQuery.type(object) === 'string')
-                    var message = (
-                        this.__name__ + ': ' + this.stringFormat.apply(
-                            this, arguments));
-                else if (jQuery.isNumeric(object))
-                    var message = this.__name__ + ': ' + object;
-                else {
-                    this.log(',--------------------------------------------,');
-                    this.log(object, force, true);
-                    this.log("'--------------------------------------------'");
-                }
-                if (message)
-                    if (window.console && window.console.log)
-                        window.console.log(message);
+        ###
+        log: (object, force=false, noModuleAnnotation=false) ->
+            if this._options.logging or force
+                if noModuleAnnotation
+                    message = object
+                else if jQuery.type(object) is 'string'
+                    message = "#{this.__name__}: #{this.stringFormat.apply(
+                        this, arguments)}"
+                else if jQuery.isNumeric object
+                    message = "#{this.__name__}: #{object}"
+                else
+                    this.log ',--------------------------------------------,'
+                    this.log object, force, true
+                    this.log "'--------------------------------------------'"
+                if message
+                    if window.console and window.console.log
+                        window.console.log message
                     else
-                        window.alert(message);
-            }
-            return this;
-        };
-        /**
+                        window.alert message
+            return this
+        ###*
             @description Converts an object of dom selectors to an array of
                          jQuery wrapped dom nodes. Note if selector
                          description as one of "class" or "id" as suffix
@@ -452,34 +475,30 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
 
             @returns {Object} Returns all jQuery wrapped dom nodes
                               corressponding to given selectors.
-        */
-        this.grapDomNodes = function(domNodeSelectors) {
-            var domNodes = {};
-            var self = this;
-            jQuery.each(domNodeSelectors, function(key, value) {
-                if (key.substring(key.length - 2) !== 'Id' &&
-                    key.substring(key.length - 5) !== 'Class') {
-                    var match = value.match(', *');
-                    if (match)
+        ###
+        grapDomNodes: (domNodeSelectors) ->
+            domNodes = {}
+            self = this
+            jQuery.each(domNodeSelectors, (key, value) ->
+                if(key.substring(key.length - 2) isnt 'Id' and
+                   key.substring(key.length - 5) isnt 'Class')
+                    match = value.match ', *'
+                    if match
                         jQuery.each(
-                            value.split(match[0]), function(key, valuePart) {
-                            if (key)
-                                value += ', ' + self._grapDomNodesHelper(
-                                    key, valuePart, domNodeSelectors);
-                            else
-                                value = valuePart;
-                        });
+                            value.split(match[0]), (key, valuePart) ->
+                                if key
+                                    value += ', ' + self._grapDomNodesHelper(
+                                        key, valuePart, domNodeSelectors)
+                                else
+                                    value = valuePart)
                     value = self._grapDomNodesHelper(
-                        key, value, domNodeSelectors);
-                }
-                domNodes[key] = jQuery(value);
-            });
-            if (this._options && this._options.domNodeSelectorPrefix)
-                domNodes.parent = jQuery(this._options.domNodeSelectorPrefix);
-            domNodes.window = jQuery(window);
-            return domNodes;
-        };
-        /**
+                        key, value, domNodeSelectors)
+                domNodes[key] = jQuery value)
+            if this._options and this._options.domNodeSelectorPrefix
+                domNodes.parent = jQuery this._options.domNodeSelectorPrefix
+            domNodes.window = jQuery window
+            return domNodes
+        ###*
             @description Methods given by this method has the plugin scope
                          referenced with "this". Otherwise "this" usualy
                          points to the object the given method was attached to.
@@ -492,10 +511,9 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @param {Object|String} scope A given scope.
 
             @returns {Mixed} Returns the given methods return value.
-        */
-        this.getMethod = function(method, scope) {
-            var self = (scope) ? scope : this;
-            /*
+        ###
+        getMethod: (method, scope=this) ->
+            ###
                 This following outcomment line would be responsible for a
                 bug in yuicompressor.
                 Because of declaration of arguments the parser things that
@@ -504,61 +522,53 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                 neccessary to generate the arguments array in this context.
 
                 var arguments = this.argumentsObjectToArray(arguments);
-            */
-            var parameter = this.argumentsObjectToArray(arguments);
-            if (jQuery.type(method) === 'string' &&
-                jQuery.type(self) === 'object') {
-                var additionalArguments = parameter.slice(2);
-                return function() {
-                    if (!self[method])
-                        throw jQuery.Tools().stringFormat(
-                            'Method "{1}" doesn\'t exists in "{2}".', method,
-                            self);
-                    var thisFunction = arguments.callee;
+            ###
+            parameter = this.argumentsObjectToArray arguments
+            if(jQuery.type(method) is 'string' and
+               jQuery.type(scope) is 'object')
+                additionalArguments = parameter.slice 2
+                return ->
+                    if not scope[method]
+                        throw "Method \"#{method}\" doesn't exists in \"#{scope}\"."
+                    thisFunction = arguments.callee
                     parameter = jQuery.Tools().argumentsObjectToArray(
-                        arguments);
-                    parameter.push(thisFunction);
-                    return self[method].apply(self, parameter.concat(
-                        additionalArguments));
-                };
-            }
-            parameter.unshift(self);
-            parameter.unshift(method);
-            return jQuery.proxy.apply(jQuery, parameter);
-        };
-        /**
+                        arguments)
+                    parameter.push thisFunction
+                    return scope[method].apply(scope, parameter.concat(
+                        additionalArguments))
+            parameter.unshift scope
+            parameter.unshift method
+            return jQuery.proxy.apply jQuery, parameter
+        ###*
             @description A wrapper method for "jQuery.bind()".
                          It sets current plugin name as event scope if no scope
                          is given. Given arguments are modified and passed
                          through "jquery.bind()".
 
             @returns {jQuery} Returns jQuery's graped dom node.
-        */
-        this.bind = function() {
-            return this._bindHelper(arguments);
-        };
-        /**
+        ###
+        bind: ->
+            return this._bindHelper arguments
+        ###*
             @description A wrapper method fo "jQuery.unbind()".
                          It sets current plugin name as event scope if no scope
                          is given. Given arguments are modified and passed
                          through "jquery.unbind()".
 
             @returns {jQuery} Returns jQuery's graped dom node.
-        */
-        this.unbind = function() {
-            return this._bindHelper(arguments, true);
-        };
-        /**
+        ###
+        unbind: ->
+            return this._bindHelper arguments, true
+        ###*
             @description Converts a given argument object to an array.
 
             @param {Object} argumentsObject The arguments object to convert.
 
             @returns {Object[]} Returns the given arguments as array.
-        */
-        this.argumentsObjectToArray = function(argumentsObject) {
-            return Array.prototype.slice.call(argumentsObject);
-        };
-        /**
+        ###
+        argumentsObjectToArray: (argumentsObject) ->
+            return Array.prototype.slice.call argumentsObject
+        ###*
             @description Searches for internal event handler methods and runs
                          them by default. In addition this method searches for
                          a given event method by the options object.
@@ -572,12 +582,13 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
 
             @returns {Boolean} Returns "true" if an event handler was called
                                and "false" otherwise.
-        */
-        this.fireEvent = function(eventName, callOnlyOptionsMethod, scope) {
-            var self = (scope) ? scope : this;
-            var eventHandlerName = 'on' +
-                eventName.substr(0, 1).toUpperCase() + eventName.substr(1);
-            /*
+        ###
+        fireEvent: (eventName, callOnlyOptionsMethod=false, scope=this) ->
+            scope = this if not scope
+            eventHandlerName =
+                'on' + eventName.substr(0, 1).toUpperCase() +
+                eventName.substr 1
+            ###
                 This following outcomment line would be responsible for a bug
                 in yuicompressor.
                 Because of declaration of arguments the parser things that
@@ -586,23 +597,21 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                 neccessary to generate the arguments array in this context.
 
                 var arguments = this.argumentsObjectToArray(arguments);
-            */
-            var parameter = this.argumentsObjectToArray(arguments);
-            var additionalArguments = parameter.slice(3);
-            if (!callOnlyOptionsMethod)
-                if (self[eventHandlerName])
-                    self[eventHandlerName].apply(self, additionalArguments);
-                else if (self['_' + eventHandlerName])
-                    self['_' + eventHandlerName].apply(
-                        self, additionalArguments);
-            if (self._options && self._options[eventHandlerName]) {
-                self._options[eventHandlerName].apply(
-                    self, additionalArguments);
-                return true;
-            }
-            return false;
-        };
-        /**
+            ###
+            parameter = this.argumentsObjectToArray arguments
+            additionalArguments = parameter.slice 3
+            if not callOnlyOptionsMethod
+                if scope[eventHandlerName]
+                    scope[eventHandlerName].apply scope, additionalArguments
+                else if scope['_' + eventHandlerName]
+                    scope['_' + eventHandlerName].apply(
+                        scope, additionalArguments)
+            if scope._options and scope._options[eventHandlerName]
+                scope._options[eventHandlerName].apply(
+                    scope, additionalArguments)
+                return true
+            return false
+        ###*
             @description Rounds a given number accurate to given number of
                          digits.
 
@@ -610,29 +619,25 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @param {Integer} digits The number of digits after comma.
 
             @returns {Float} Returns the rounded number.
-        */
-        this.round = function(number, digits) {
-            if (!digits)
-                digits = 0;
+        ###
+        round: (number, digits=0) ->
             return Math.round(number * Math.pow(10, digits)) /
-                Math.pow(10, digits);
-        };
-        /**
+                Math.pow(10, digits)
+        ###*
             @description Performs a string formation. Replaces every
                          placeholder "{i}" with the i'th argument.
 
             @param {String} string The string to format.
 
             @returns {String} The formatted string.
-        */
-        this.stringFormat = function(string) {
-            jQuery.each(arguments, function(key, value) {
+        ###
+        stringFormat: (string) ->
+            jQuery.each(arguments, (key, value) ->
                 string = string.replace(new RegExp(
-                    '\\{' + key + '\\}', 'gm'), value);
-            });
-            return string;
-        };
-        /**
+                    '\\{' + key + '\\}', 'gm'),
+                    value))
+            return string
+        ###*
             @description Converts a camel case string to a string with given
                          delimiter between each camel case seperation.
 
@@ -641,15 +646,12 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                                       seperation.
 
             @returns {String} The formatted string.
-        */
-        this.camelCaseStringToDelimited = function(string, delimiter) {
-            if (delimiter === undefined)
-                delimiter = '-';
-            return string.replace(new RegExp('(.)([A-Z])', 'g'), function() {
-                return arguments[1] + delimiter + arguments[2];
-            }).toLowerCase();
-        };
-        /**
+        ###
+        camelCaseStringToDelimited: (string, delimiter='-') ->
+            return string.replace(new RegExp('(.)([A-Z])', 'g'), ->
+                return arguments[1] + delimiter + arguments[2]
+            ).toLowerCase()
+        ###*
             @description Appends a path selector to the given path if there
                          isn't one yet.
 
@@ -657,19 +659,18 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @param {String} pathSeperator The selector for appending to path.
 
             @returns {String} The appended path.
-        */
-        this.addSeperatorToPath = function(path, pathSeperator) {
-            path = jQuery.trim(path);
-            if (path.substr(-1) !== pathSeperator && path.length)
-                return path + pathSeperator;
-            return path;
-        };
+        ###
+        addSeperatorToPath: (path, pathSeperator='/') ->
+            path = jQuery.trim path
+            if path.substr(-1) isnt pathSeperator and path.length
+                return path + pathSeperator
+            return path
 
-    // endregion
+    # endregion
 
-    // region protected methods
+    # region protected methods
 
-        /**
+        ###*
             @description Helper method for "bind()" and "unbind()".
 
             @param {Object} bindArguments Arguments object given to "bind()" or
@@ -678,41 +679,34 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                                     given.
 
             @returns {jQuery} Returns jQuery's graped dom node.
-        */
-        this._bindHelper = function(bindArguments, unbind) {
-            var jQueryObject = jQuery(bindArguments[0]);
-            if (jQuery.type(bindArguments[1]) === 'object' && !unbind) {
-                var self = this;
-                jQuery.each(bindArguments[1], function(eventType, handler) {
-                    self.bind(jQueryObject, eventType, handler);
-                });
-                return jQueryObject;
-            }
-            bindArguments = this.argumentsObjectToArray(
-                bindArguments
-            ).slice(1);
-            if (bindArguments.length === 0)
-                bindArguments.push('');
-            if (bindArguments[0].indexOf('.') === -1)
-                bindArguments[0] += '.' + this.__name__;
-            if (unbind)
-                return jQueryObject.unbind.apply(
-                    jQueryObject, bindArguments);
-            return jQueryObject.bind.apply(jQueryObject, bindArguments);
-        };
-        /**
+        ###
+        _bindHelper: (bindArguments, unbind) ->
+            jQueryObject = jQuery bindArguments[0]
+            if jQuery.type(bindArguments[1]) is 'object' and not unbind
+                self = this
+                jQuery.each(bindArguments[1], (eventType, handler) ->
+                    self.bind jQueryObject, eventType, handler)
+                return jQueryObject
+            bindArguments = this.argumentsObjectToArray(bindArguments).slice 1
+            if bindArguments.length is 0
+                bindArguments.push ''
+            if bindArguments[0].indexOf('.') is -1
+                bindArguments[0] += '.' + this.__name__
+            if unbind
+                return jQueryObject.unbind.apply jQueryObject, bindArguments
+            return jQueryObject.bind.apply jQueryObject, bindArguments
+        ###*
             @description Extends a given object with the tools attributes.
 
             @param {Object} childAttributs The attributes from child.
 
             @returns {jQuery.Tools} Returns the current instance.
-        */
-        this._extend = function(childAttributes) {
-            if (childAttributes)
-                jQuery.extend(true, this, childAttributes);
-            return this;
-        };
-        /**
+        ###
+        _extend: (childAttributes) ->
+            if childAttributes
+                jQuery.extend true, this, childAttributes
+            return this
+        ###*
             @description Defines a generic controller for jQuery plugings.
 
             @param {Function | Object} attribute A called method from outside
@@ -733,9 +727,9 @@ jQuery('body').InheritedFromTools(options).method();
 // Call the initializer.
 
 jQuery('div#id').InheritedFromTools(options);
-        */
-        this._controller = function(attribute) {
-            /*
+        ###
+        _controller: (attribute) ->
+            ###
                 This following outcomment line would be responsible for a bug
                 in yuicompressor.
                 Because of declaration of arguments the parser things that
@@ -744,21 +738,20 @@ jQuery('div#id').InheritedFromTools(options);
                 neccessary to generate the arguments array in this context.
 
                 var arguments = this.argumentsObjectToArray(arguments);
-            */
-            var parameter = this.argumentsObjectToArray(arguments);
-            if (this[attribute])
-                return this[attribute].apply(this, parameter.slice(1));
-            /*
-                If an options object or no method name is given the
-                initializer will be called.
-            */
-            else if (jQuery.type(attribute) === 'object' || !attribute)
-                return this.initialize.apply(this, parameter);
+            ###
+            parameter = this.argumentsObjectToArray arguments
+            if this[attribute]
+                return this[attribute].apply this, parameter.slice 1
+            else if jQuery.type(attribute) is 'object' or not attribute
+                ###
+                    If an options object or no method name is given the
+                    initializer will be called.
+                ###
+                return this.initialize.apply this, parameter
             return jQuery.error(
-                'Method "' + attribute + '" does not exist on ' +
-                'jQuery-extension "' + this.__name__ + '".');
-        };
-        /**
+                "Method \"#{attribute}\" does not exist on " +
+                "jQuery-extension \"#{this.__name__}\".")
+        ###*
             @description Converts a dom selector to a prefixed dom selector
                          string.
 
@@ -767,30 +760,32 @@ jQuery('div#id').InheritedFromTools(options);
             @param {Object} domNodeSelectors An object with dom node selectors.
 
             @returns {Object}
-        */
-        this._grapDomNodesHelper = function(key, selector, domNodeSelectors) {
-            var domNodeSelectorPrefix = 'body';
-            if (this._options && this._options.domNodeSelectorPrefix)
-                domNodeSelectorPrefix = this._options.domNodeSelectorPrefix;
-            if (selector.substr(0, domNodeSelectorPrefix.length) !==
+        ###
+        _grapDomNodesHelper: (key, selector, domNodeSelectors) ->
+            domNodeSelectorPrefix = 'body'
+            if this._options and this._options.domNodeSelectorPrefix
+                domNodeSelectorPrefix = this._options.domNodeSelectorPrefix
+            if (selector.substr(0, domNodeSelectorPrefix.length) isnt
                     domNodeSelectorPrefix)
                 return domNodeSelectors[key] = domNodeSelectorPrefix + ' ' +
-                    selector;
-            return selector;
-        };
+                    selector
+            return selector
 
-    // endregion
+    # endregion
 
-    };
+    ###* @ignore ###
+    jQuery.fn.Tools = ->
+        self = new Tools this
+        self._controller.apply self, arguments
+        return this
+    ###* @ignore ###
+    jQuery.Tools = ->
+        self = new Tools
+        return self._controller.apply self, arguments
+    ###* @ignore ###
+    jQuery.Tools.class = Tools
 
-    /** @ignore */
-    jQuery.Tools = function() {
-        var self = new Tools();
-        self.__name__ = 'Tools';
-        return self._controller.apply(self, arguments);
-    };
+# endregion
 
-// endregion
-
-/// standalone }).call(this, this.jQuery);
-});
+## standalone ).call this, this.jQuery
+)
