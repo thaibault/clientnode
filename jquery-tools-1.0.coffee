@@ -42,14 +42,46 @@ this.require([['jQuery', 'jquery-1.9.1']], (jQuery) ->
 
 // Direct access of a method in "Tools".
 
+// java script version
 var tools = jQuery.Tools({'logging': true});
 tools.log('test');
+
+// coffee script version
+tools = jQuery.Tools logging: true
+tools.log test
 
 -------------------------------------------------------------------------------
 
 // Use as extension for object orientated jquery plugin using inheritance and
 // dom node reference. This plugin pattern gives their instance back.
 
+// java script version
+(function(jQuery) {
+    var Example = function(domNode) {
+        self.__name__ = 'Example';
+        this._domNode = domNode;
+        this._options = {...};
+        this.initialize = function(options) {
+            // "this._domNode" points to jQuery's wrapped dom node.
+            // "this" points to this "Examples" instance extended by "Tools".
+            if (options)
+                jQuery.extend(true, this._options, options);
+            ...
+            return this;
+        };
+        this.staticMethod = function(anArgument) {
+            ...
+            return this;
+        };
+        ...
+    };
+    jQuery.fn.Example = function() {
+        var self = jQuery.Tools()._extend(new Example(this));
+        return self._controller.apply(self, arguments);
+    };
+}).call(this, this.jQuery);
+
+// coffee script version TODO (das untere bearbeiten)
 (function(jQuery) {
     var Example = function(domNode) {
         self.__name__ = 'Example';
