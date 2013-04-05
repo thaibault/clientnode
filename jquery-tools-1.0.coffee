@@ -389,8 +389,10 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
             if jQuery.type(object) is 'string'
                 output = object
             else
-                jQuery.each(object, (key, value) ->
-                    output += key.toString() + ': ' + value.toString() + '\n')
+                jQuery.each object, (key, value) ->
+                    if value is undefined
+                        value = 'undefined'
+                    output += "#{key.toString()}: #{value.toString()}\n"
             output = output.toString() if not output
             return jQuery.trim(output) + "\n(Type: \"#{jQuery.type(object)}\")"
         ###*

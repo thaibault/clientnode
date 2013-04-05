@@ -9,8 +9,8 @@ test 'show', ->
         jQuery.Tools().show(A: 'a', B: 'b'),
         'A: a\nB: b\n(Type: "object")')
     ok new RegExp(
-        '^function \\(\\) \\{(.|\\n)+\}\n\\(Type: "function"\\)$').test(
-            jQuery.Tools().show jQuery.Tools)
+        '^(.+\n)+\\(Type: "function"\\)$').test jQuery.Tools().show(
+            jQuery.Tools)
     ok new RegExp('^.+: .+\\n(.|\\n)+$').test jQuery.Tools().show(
         jQuery.Tools())
 
@@ -26,14 +26,20 @@ test 'getDomNodeName', ->
     strictEqual jQuery.Tools().getDomNodeName('<a></a>'), 'a'
 
 test 'grapdomNodes', ->
-    deepEqual jQuery.Tools().grapDomNodes(
+    domNodes = jQuery.Tools().grapDomNodes(
         qunit: 'body div#qunit'
-        qunitFixture: 'body div#qunit-fixture'),
+        qunitFixture: 'body div#qunit-fixture')
+    delete domNodes.window
+    deepEqual domNodes,
         qunit: jQuery 'body div#qunit'
         qunitFixture: jQuery 'body div#qunit-fixture'
+        parent: jQuery 'body'
 
-    deepEqual jQuery.Tools().grapDomNodes(
+    domNodes = jQuery.Tools().grapDomNodes(
         qunit: 'div#qunit'
-        qunitFixture: 'div#qunit-fixture'),
+        qunitFixture: 'div#qunit-fixture')
+    delete domNodes.window
+    deepEqual domNodes,
+        parent: jQuery 'body'
         qunit: jQuery 'body div#qunit'
         qunitFixture: jQuery 'body div#qunit-fixture'
