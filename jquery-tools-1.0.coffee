@@ -1,7 +1,5 @@
 ## require
 
-# TODO write coffee script pattern variants.
-
 # region header
 
 ###!
@@ -82,7 +80,7 @@ tools.log test
 }).call(this, this.jQuery);
 
 // coffee script version TODO (das untere bearbeiten)
-(function(jQuery) {
+    class Example
     var Example = function(domNode) {
         self.__name__ = 'Example';
         this._domNode = domNode;
