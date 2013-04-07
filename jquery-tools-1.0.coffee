@@ -498,7 +498,6 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
                domNodeSelector.substring(
                 0, this._options.domNodeSelectorPrefix.length) is
                this._options.domNodeSelectorPrefix)
-                this.log 'A'
                 return jQuery.trim(domNodeSelector.substring(
                     this._options.domNodeSelectorPrefix.length))
             domNodeSelector
