@@ -302,9 +302,8 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
             @returns {jQuery.Tools} Returns the current instance.
         ###
         lock: (description) ->
-            self = this
-            this.checkLock description, ->
-                self._mutex[description] = []
+            this.checkLock description, =>
+                this._mutex[description] = []
             , true
             return this
         ###*
@@ -424,7 +423,7 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
                         value = 'undefined'
                     output += "#{key.toString()}: #{value.toString()}\n"
             output = output.toString() if not output
-            return jQuery.trim(output) + "\n(Type: \"#{jQuery.type(object)}\")"
+            return "#{jQuery.trim(output)}\n(Type: \"#{jQuery.type(object)}\")"
         ###*
             @description Removes a selector prefix from a given selector.
                          This methods searches in the options object for a
@@ -492,7 +491,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                     this.log object, force, true
                     this.log "'--------------------------------------------'"
                 if message
-                    if window.console and window.console.log
+                    if window.console?.log?
                         window.console.log message
                     else
                         window.alert message
@@ -510,8 +509,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
         ###
         grapDomNodes: (domNodeSelectors) ->
             domNodes = {}
-            self = this
-            jQuery.each(domNodeSelectors, (key, value) ->
+            jQuery.each(domNodeSelectors, (key, value) =>
                 if(key.substring(key.length - 2) isnt 'Id' and
                    key.substring(key.length - 5) isnt 'Class')
                     match = value.match ', *'
@@ -519,11 +517,11 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                         jQuery.each(
                             value.split(match[0]), (key, valuePart) ->
                                 if key
-                                    value += ', ' + self._grapDomNodesHelper(
+                                    value += ', ' + this._grapDomNodesHelper(
                                         key, valuePart, domNodeSelectors)
                                 else
                                     value = valuePart)
-                    value = self._grapDomNodesHelper(
+                    value = this._grapDomNodesHelper(
                         key, value, domNodeSelectors)
                 domNodes[key] = jQuery value)
             if this._options and this._options.domNodeSelectorPrefix
@@ -544,7 +542,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
 
             @returns {Mixed} Returns the given methods return value.
         ###
-        getMethod: (method, scope=this) ->
+        getMethod: (method, scope=this, additionalArguments...) ->
             ###
                 This following outcomment line would be responsible for a
                 bug in yuicompressor.
@@ -554,11 +552,14 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                 neccessary to generate the arguments array in this context.
 
                 var arguments = this.argumentsObjectToArray(arguments);
+
+                use something like this instead:
+
+                var parameter = this.argumentsObjectToArray(arguments);
             ###
             parameter = this.argumentsObjectToArray arguments
             if(jQuery.type(method) is 'string' and
                jQuery.type(scope) is 'object')
-                additionalArguments = parameter.slice 2
                 return ->
                     if not scope[method]
                         throw "Method \"#{method}\" doesn't exists in \"#{scope}\"."
@@ -615,28 +616,19 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @returns {Boolean} Returns "true" if an event handler was called
                                and "false" otherwise.
         ###
-        fireEvent: (eventName, callOnlyOptionsMethod=false, scope=this) ->
+        fireEvent: (
+            eventName, callOnlyOptionsMethod=false, scope=this,
+            additionalArguments...
+        ) ->
             scope = this if not scope
             eventHandlerName =
                 'on' + eventName.substr(0, 1).toUpperCase() +
                 eventName.substr 1
-            ###
-                This following outcomment line would be responsible for a bug
-                in yuicompressor.
-                Because of declaration of arguments the parser things that
-                arguments is a local variable and could be renamed.
-                It doesn't care about that the magic arguments object is
-                neccessary to generate the arguments array in this context.
-
-                var arguments = this.argumentsObjectToArray(arguments);
-            ###
-            parameter = this.argumentsObjectToArray arguments
-            additionalArguments = parameter.slice 3
             if not callOnlyOptionsMethod
                 if scope[eventHandlerName]
                     scope[eventHandlerName].apply scope, additionalArguments
-                else if scope['_' + eventHandlerName]
-                    scope['_' + eventHandlerName].apply(
+                else if scope["_#{eventHandlerName}"]
+                    scope["_#{eventHandlerName}"].apply(
                         scope, additionalArguments)
             if scope._options and scope._options[eventHandlerName]
                 scope._options[eventHandlerName].apply(
@@ -666,7 +658,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
         stringFormat: (string) ->
             jQuery.each(arguments, (key, value) ->
                 string = string.replace(new RegExp(
-                    '\\{' + key + '\\}', 'gm'),
+                    "\\{#{key}\\}", 'gm'),
                     value))
             return string
         ###*
@@ -715,15 +707,14 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
         _bindHelper: (bindArguments, unbind) ->
             jQueryObject = jQuery bindArguments[0]
             if jQuery.type(bindArguments[1]) is 'object' and not unbind
-                self = this
-                jQuery.each(bindArguments[1], (eventType, handler) ->
-                    self.bind jQueryObject, eventType, handler)
+                jQuery.each(bindArguments[1], (eventType, handler) =>
+                    this.bind jQueryObject, eventType, handler)
                 return jQueryObject
             bindArguments = this.argumentsObjectToArray(bindArguments).slice 1
             if bindArguments.length is 0
                 bindArguments.push ''
             if bindArguments[0].indexOf('.') is -1
-                bindArguments[0] += '.' + this.__name__
+                bindArguments[0] += ".#{this.__name__}"
             if unbind
                 return jQueryObject.unbind.apply jQueryObject, bindArguments
             return jQueryObject.bind.apply jQueryObject, bindArguments
@@ -760,7 +751,7 @@ jQuery('body').InheritedFromTools(options).method();
 
 jQuery('div#id').InheritedFromTools(options);
         ###
-        _controller: (attribute) ->
+        _controller: (attribute, additionalArguments...) ->
             ###
                 This following outcomment line would be responsible for a bug
                 in yuicompressor.
@@ -773,7 +764,7 @@ jQuery('div#id').InheritedFromTools(options);
             ###
             parameter = this.argumentsObjectToArray arguments
             if this[attribute]
-                return this[attribute].apply this, parameter.slice 1
+                return this[attribute].apply this, additionalArguments
             else if jQuery.type(attribute) is 'object' or not attribute
                 ###
                     If an options object or no method name is given the
@@ -781,7 +772,7 @@ jQuery('div#id').InheritedFromTools(options);
                 ###
                 return this.initialize.apply this, parameter
             return jQuery.error(
-                "Method \"#{attribute}\" does not exist on " +
+                "Method \"#{attribute}\" does not exist on "
                 "jQuery-extension \"#{this.__name__}\".")
         ###*
             @description Converts a dom selector to a prefixed dom selector
@@ -799,8 +790,8 @@ jQuery('div#id').InheritedFromTools(options);
                 domNodeSelectorPrefix = this._options.domNodeSelectorPrefix
             if (selector.substr(0, domNodeSelectorPrefix.length) isnt
                     domNodeSelectorPrefix)
-                return domNodeSelectors[key] = domNodeSelectorPrefix + ' ' +
-                    selector
+                return domNodeSelectors[key] =
+                    "#{domNodeSelectorPrefix} #{selector}"
             return selector
 
     # endregion

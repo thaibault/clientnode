@@ -139,7 +139,7 @@ window.require([['jQuery', 'jquery-1.8.3']], function() {
     jQuery('div#id').show('slow');
 });
 ###
-class require
+class Require
     ###
         These properties could be understand as static (or class instead of
         object) properties.
@@ -147,6 +147,13 @@ class require
 
     # region public properties
 
+    ###
+        @ignore
+        
+        This variable saves a static reference to this class to make self
+        referncing via introspection possible.
+    ###
+    self = Require
     ###*
         If setted all ressources will be appended by a timestamp string to
         make each request unique.
@@ -267,48 +274,49 @@ class require
     ###
     constructor: (modules, onLoaded, onLoadedArguments) ->
         # Set class property default values.
-        if not require.context?
-            require.context = this
-        if not require.referenceSafe?
-            require.referenceSafe = this.require
-        if not require.basePath?
-            require.basePath = {}
+        if not self.context?
+            self.context = this
+        if not self.referenceSafe?
+            self.referenceSafe = this.require
+        if not self.basePath?
+            self.basePath = {}
             for scriptNode in document.getElementsByTagName 'script'
-                if not require.basePath.default
-                    require.basePath.default = scriptNode.src.substring(
+                if not self.basePath.default
+                    self.basePath.default = scriptNode.src.substring(
                         0, scriptNode.src.lastIndexOf('/') + 1)
                 extension = scriptNode.src.substring(
                     scriptNode.src.lastIndexOf('.') + 1)
-                if extension and not require.basePath[extension]
-                    require.basePath[extension] = scriptNode.src.substring(
+                if extension and not self.basePath[extension]
+                    self.basePath[extension] = scriptNode.src.substring(
                         0, scriptNode.src.lastIndexOf('/') + 1)
-        for type, path of require.basePath
+        for type, path of self.basePath
             if path.substring(path.length - 1) isnt '/'
-                require.basePath[type] += '/'
-        if not require.appendTimeStamp?
-            require.appendTimeStamp = false
-        if not require.passiv?
-            require.passiv = false
-        if not require.logging?
-            require.logging = false
-        if not require.noConflict?
-            require.noConflict = false
-        if not require.initializedLoadings?
-            require.initializedLoadings = []
-        if not require.headNode?
-            require.headNode = document.getElementsByTagName('head')[0]
-        if not require.scriptTypes?
-            require.scriptTypes = '.js': 'text/javascript'
-        if not require.asyncronModulePatternHandling?
-            require.asyncronModulePatternHandling =
+                self.basePath[type] += '/'
+        if not self.appendTimeStamp?
+            self.appendTimeStamp = false
+        if not self.passiv?
+            self.passiv = false
+        if not self.logging?
+            self.logging = false
+        if not self.noConflict?
+            self.noConflict = false
+        if not self.initializedLoadings?
+            self.initializedLoadings = []
+        if not self.headNode?
+            self.headNode = document.getElementsByTagName('head')[0]
+        if not self.scriptTypes?
+            self.scriptTypes = '.js': 'text/javascript'
+        if not self.asyncronModulePatternHandling?
+            # TODO don't overwrite default values if they aren't provided by user.
+            self.asyncronModulePatternHandling =
                 '^.+\.css$': (cssContent) ->
                     styleNode = document.createElement 'style'
                     styleNode.type = 'text/css'
                     styleNode.appendChild document.createTextNode cssContent
-                    require.headNode.appendChild styleNode
-        if not require._callQueue?
-            require._callQueue = []
-        return require::_load.apply require, arguments
+                    self.headNode.appendChild styleNode
+        if not self._callQueue?
+            self._callQueue = []
+        return self::_load.apply require, arguments
 
         # endregion
 
@@ -323,13 +331,13 @@ class require
 
         @returns {require} Returns the current instance.
     ###
-    _load: ->
+    _load: (parameter...) ->
         ###
             This method is alway working with arguments array for easy
             recursive calling itself with a dynamic number of arguments.
         ###
         ###
-            Convert arguments object to an array.
+            If you convert arguments object to an array.
 
             This following outcomment line would be responsible for a bug
             in yuicompressor.
@@ -339,8 +347,11 @@ class require
             neccessary to generate the arguments array in this context.
 
             var arguments = Array.prototype.slice.call(arguments);
+
+            use something like this instead:
+
+            var parameter = Array.prototype.slice.call(arguments);
         ###
-        parameter = Array.prototype.slice.call arguments
         ###
             Make sure that we have a copy of given array containing needed
             dependencies.
@@ -354,15 +365,15 @@ class require
             # Grab first needed dependency from given queue.
             module = parameter[0].shift()
             if(typeof(module) is 'object' and
-               require::_isModuleLoaded module)
+               self::_isModuleLoaded module)
                 ###
                     If module is already there make a recursive call with
                     one module dependency less.
                 ###
-                require::_load.apply require, parameter
+                self::_load.apply require, parameter
             else if (
                 typeof(module) is 'string' or
-                not require::_isLoadingInitialized module[0], parameter
+                not self::_isLoadingInitialized module[0], parameter
             )
                 ###
                     If module is currently not loading put current function
@@ -370,12 +381,12 @@ class require
                 ###
                 if typeof(module) is 'string'
                     module = ['', module]
-                if require.passiv
-                    require::_log(
-                        'Prevent loading module "' + module[0] +
-                        '" in passiv mode.')
+                if self.passiv
+                    self::_log(
+                        "Prevent loading module \"#{module[0]}\" in passiv " +
+                        "mode.")
                 else
-                    require::_initializeRessourceLoading module, parameter
+                    self::_initializeRessourceLoading module, parameter
         else
             ###
                 Call a given event handler (if provided as second argument)
@@ -383,17 +394,17 @@ class require
             ###
             if parameter.length > 3
                 parameter[1].apply(
-                    require.context, require::_generateLoadedHandlerArguments(
+                    self.context, self::_generateLoadedHandlerArguments(
                         parameter))
             ###
                 If other dependencies aren't determined yet try to
                 determine it now after a new dependency was loaded.
             ###
-            if(require._callQueue.length and require::_isModuleLoaded(
-               require._callQueue[require._callQueue.length - 1]))
-                require::_load.apply require, require._callQueue.pop()[1]
-        if require and require._handleNoConflict
-            return require::_handleNoConflict()
+            if(self._callQueue.length and self::_isModuleLoaded(
+               self._callQueue[self._callQueue.length - 1]))
+                self::_load.apply require, self._callQueue.pop()[1]
+        if require and self._handleNoConflict
+            return self::_handleNoConflict()
         return require
     ###*
         @description Initialize loading of needed ressources.
@@ -408,7 +419,7 @@ class require
     ###
     _initializeRessourceLoading: (module, parameter) ->
         isAsyncronRequest = false
-        for asyncronModulePattern, callback of require.asyncronModulePatternHandling
+        for asyncronModulePattern, callback of self.asyncronModulePatternHandling
             if new RegExp(asyncronModulePattern).test module[1]
                 if window.XMLHttpRequest
                     ajaxObject = new XMLHttpRequest
@@ -416,31 +427,29 @@ class require
                     ajaxObject = new ActiveXObject(
                         'Microsoft.XMLHTTP')
                 ajaxObject.open(
-                    'GET', require::_getScriptFilePath module[1] , true)
+                    'GET', self::_getScriptFilePath module[1], true)
                 ajaxObject.onreadystatechange = ->
                     if ajaxObject.readyState is 4 and ajaxObject.status is 200
-                        require.asyncronModulePatternHandling[asyncronModulePattern](
+                        self.asyncronModulePatternHandling[asyncronModulePattern](
                             ajaxObject.responseText, module, parameter)
-                        require::_scriptLoaded module, parameter
+                        self::_scriptLoaded module, parameter
                         # Delete event after passing it once.
                         ajaxObject.onreadystatechange = null
                     else if ajaxObject.status isnt 200
-                        require::_log(
-                            'Loading ressource "' + module[1] +
-                            '" failed via ajax with status "' +
-                            ajaxObject.status + '" in state "' +
-                            ajaxObject.readyState + '".')
+                        self::_log(
+                            "Loading ressource \"#{module[1]}\" failed via " +
+                            "ajax with status \"#{ajaxObject.status}\" in " +
+                            "state \"#{ajaxObject.readyState}\".")
                 ajaxObject.send null
                 isAsyncronRequest = true
                 break
         if not isAsyncronRequest
-            require::_appendRessourceDomNode(
-                require::_createScriptLoadingNode(module[1]), module,
-                parameter)
+            self::_appendRessourceDomNode(
+                self::_createScriptLoadingNode(module[1]), module, parameter)
         type = 'header dom node'
         if isAsyncronRequest
             type = 'ajax'
-        require::_log "Initialized loading of \"#{module[1]}\" via #{type}."
+        self::_log "Initialized loading of \"#{module[1]}\" via #{type}."
         return require
     ###*
         @description Generates an array of arguments from initially given
@@ -458,7 +467,7 @@ class require
             if parameters[parameters.length - 2][index].length is 2
                 moduleObjects =
                     parameters[parameters.length - 2][index][0].split '.'
-                query = require.context
+                query = self.context
                 for subIndex in [0..moduleObjects.length - 1]
                     query = query[moduleObjects[subIndex]]
                     additionalArguments.push query
@@ -487,15 +496,15 @@ class require
             scriptNode.onreadystatechange = ->
                 if(scriptNode.readyState is 'loaded' or
                    scriptNode.readyState is 'complete')
-                    require::_scriptLoaded module, parameters
+                    self::_scriptLoaded module, parameters
                     # Delete event after passing it once.
                     scriptNode.onreadystatechange = null
         else
             scriptNode.onload = ->
-                require::_scriptLoaded module, parameters
+                self::_scriptLoaded module, parameters
                 # Delete event after passing it once.
                 scriptNode.onload = null
-        require.headNode.appendChild scriptNode
+        self.headNode.appendChild scriptNode
         return require
     ###*
         @description Creates a new script loading tag.
@@ -509,9 +518,9 @@ class require
             return scriptFilePath
         extension = scriptFilePath.substring(
             scriptFilePath.lastIndexOf('.') + 1)
-        if require.basePath[extension]
-            return require.basePath[extension] + scriptFilePath
-        return require.basePath.default + scriptFilePath
+        if self.basePath[extension]
+            return self.basePath[extension] + scriptFilePath
+        return self.basePath.default + scriptFilePath
     ###*
         @description Creates a new script loading tag.
 
@@ -522,17 +531,17 @@ class require
     ###
     _createScriptLoadingNode: (scriptFilePath) ->
         scriptNode = document.createElement 'script'
-        scriptNode.src = require::_getScriptFilePath scriptFilePath
+        scriptNode.src = self::_getScriptFilePath scriptFilePath
         hasExtension = false
-        for extension, scriptType of require.scriptTypes
+        for extension, scriptType of self.scriptTypes
             if scriptNode.src.substr(-extension.length) is extension
                 hasExtension = true
                 break
         if not hasExtension
             scriptNode.src += extension
         scriptNode.type = scriptType
-        if require.appendTimeStamp
-            scriptNode.src += '?timestamp=' + (new Date).getTime()
+        if self.appendTimeStamp
+            scriptNode.src += "?timestamp=#{(new Date).getTime()}"
         return scriptNode
     ###*
         @description If script was loaded it will be deleted from the
@@ -550,14 +559,14 @@ class require
         @returns {require} Returns the current instance.
     ###
     _scriptLoaded: (module, parameters) ->
-        for key, value in require.initializedLoadings
+        for key, value in self.initializedLoadings
             if module[0] is value
-                require.initializedLoadings.splice key, 1
+                self.initializedLoadings.splice key, 1
                 break
-        if require::_isModuleLoaded module
-            require::_load.apply require, parameters
+        if self::_isModuleLoaded module
+            self::_load.apply require, parameters
         else
-            require._callQueue.push [module[0], parameters]
+            self._callQueue.push [module[0], parameters]
         return require
     ###*
         @description If "noConflict" property is set it will be handled
@@ -569,20 +578,20 @@ class require
         @returns {require} Returns the current instance.
     ###
     _handleNoConflict: ->
-        if (require._callQueue.length is 0 and require.initializedLoadings.length is 0)
-            require::_log 'All ressources are loaded so far.'
-            if require and require.noConflict
-                if require.noConflict is true
+        if (self._callQueue.length is 0 and self.initializedLoadings.length is 0)
+            self::_log 'All ressources are loaded so far.'
+            if require and self.noConflict
+                if self.noConflict is true
                     ###
                         Restore previous setted value to the "require"
                         reference.
                     ###
-                    require = require.referenceSafe
+                    require = self.referenceSafe
                 else
                     # Workaround to not copy not only the reference.
-                    callback = require.noConflict.slice()
+                    callback = self.noConflict.slice()
                     require = undefined
-                    callback[0].apply require.context, callback.slice 1
+                    callback[0].apply self.context, callback.slice 1
         return require
     ###*
         @description Determines if the given moduleObject is currently
@@ -599,12 +608,12 @@ class require
                            "true" will be given back and "false" otherwise.
     ###
     _isLoadingInitialized: (moduleName, parameters) ->
-        for key, value in require.initializedLoadings
+        for key, value in self.initializedLoadings
             if moduleName is value
-                require._callQueue.push [moduleName, parameters]
+                self._callQueue.push [moduleName, parameters]
                 return true
         if moduleName
-            require.initializedLoadings.push moduleName
+            self.initializedLoadings.push moduleName
         return false
     ###*
         @description Determines if the given moduleObject is present in the
@@ -617,21 +626,21 @@ class require
                            will return "true" and "false" otherwise.
     ###
     _isModuleLoaded: (module) ->
-        query = require.context
+        query = self.context
         if module[0]
             moduleObjects = module[0].split '.'
             for index in [0..moduleObjects.length - 1]
                 if query[moduleObjects[index]]
                     query = query[moduleObjects[index]]
                 else
-                    require::_log(
-                        '"' + module[0] + '" isn\'t available because "' +
-                        moduleObjects[index] + '" is missing in "' +
-                        query.toString() + '".')
+                    self::_log(
+                        "\"#{module[0]}\" isn\'t available because \"" +
+                        "#{moduleObjects[index]}\" is missing in \"" +
+                        "#{query.toString()}\".")
                     return false
-            require::_log '"' + module[0] + '" is loaded complete.'
+            self::_log "\"#{module[0]}\" is loaded complete."
         else
-            require::_log '"' + module[1] + '" is loaded complete.'
+            self::_log "\"#{module[1]}\" is loaded complete."
         return true
     ###*
         @description If logging is enabled. Method shows the given message
@@ -646,15 +655,15 @@ class require
                                    is disabled.
     ###
     _log: (message) ->
-        if require.logging
+        if self.logging
             if window.console and window.console.log
-                return window.console.log 'require: ' + message
-            return window.alert 'require: ' + message
+                return window.console.log "require: #{message}"
+            return window.alert "require: #{message}"
         return false
 
     # endregion
 
 ###* @ignore ###
-this.require = require
+this.require = Require
 
 # endregion
