@@ -494,11 +494,12 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
             @return {String} Returns the silced selector.
         ###
         sliceDomNodeSelectorPrefix: (domNodeSelector) ->
-            if(this._options and this._options.domNodeSelectorPrefix and
+            if(this._options?.domNodeSelectorPrefix? and
                domNodeSelector.substring(
-                0, this._options.domNodeSelectorPrefix.length
-               ) is this._options.domNodeSelectorPrefix)
-                jQuery.trim(domNodeSelector.substring(
+                0, this._options.domNodeSelectorPrefix.length) is
+               this._options.domNodeSelectorPrefix)
+                this.log 'A'
+                return jQuery.trim(domNodeSelector.substring(
                     this._options.domNodeSelectorPrefix.length))
             domNodeSelector
         ###*
@@ -546,7 +547,9 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                         "#{this.__name__}: " + this.stringFormat.apply(
                             this, arguments))
                 else if jQuery.isNumeric object
-                    message = "#{this.__name__}: #{object}"
+                    message = "#{this.__name__}: #{object.toString()}"
+                else if jQuery.type(object) is 'boolean'
+                    message = "#{this.__name__}: #{object.toString()}"
                 else
                     this.log ',--------------------------------------------,'
                     this.log object, force, true
