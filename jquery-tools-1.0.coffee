@@ -56,33 +56,7 @@ tools.log test
 // java script version
 (function(jQuery) {
     var Example = function(domNode) {
-        self.__name__ = 'Example';
-        this._domNode = domNode;
-        this._options = {...};
-        this.initialize = function(options) {
-            // "this._domNode" points to jQuery's wrapped dom node.
-            // "this" points to this "Examples" instance extended by "Tools".
-            if (options)
-                jQuery.extend(true, this._options, options);
-            ...
-            return this;
-        };
-        this.staticMethod = function(anArgument) {
-            ...
-            return this;
-        };
-        ...
-    };
-    jQuery.fn.Example = function() {
-        var self = jQuery.Tools()._extend(new Example(this));
-        return self._controller.apply(self, arguments);
-    };
-}).call(this, this.jQuery);
-
-// coffee script version TODO (das untere bearbeiten)
-    class Example
-    var Example = function(domNode) {
-        self.__name__ = 'Example';
+        this.__name__ = 'Example';
         this._domNode = domNode;
         this._options = {...};
         this.initialize = function(options) {
@@ -110,14 +84,36 @@ var examplesInstance = jQuery('#domNode').Example({'firstOption': 'value'...});
 // Static function call:
 var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
 
+// coffee script version
+class Example extends jQuery.Tools.class
+    __name__: 'Example'
+    _options: {...}
+    initialize: (options={}) ->
+        # "this._domNode" points to jQuery's wrapped dom node.
+        # "this" points to this "Examples" instance extended by "Tools".
+        super options
+    staticMethod: (anArgument) ->
+        ...
+        this
+    ...
+jQuery.fn.Example = ->
+    self = new Example this
+    self._controller.apply self, arguments
+
+# Initialisation:
+examplesInstance = jQuery('#domNode').Example firstOption: 'value'...
+# Static function call:
+returnValue = jQuery('#domNode').Example 'staticMethod', 'anArgument'
+
 -------------------------------------------------------------------------------
 
 // Use as extension for object orientated jquery plugin using inheritance,
 // dom node reference and chaining support.
 
+// java script version
 (function(jQuery) {
     var Example = function(domNode) {
-        self.__name__ = 'Example';
+        this.__name__ = 'Example';
         this._domNode = domNode;
         this._options = {...};
         this.initialize = function(options) {
@@ -145,10 +141,32 @@ var domNode = jQuery('#domNode').Example({'firstOption': 'value'...});
 // Static function call:
 var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
 
+// coffee script version
+class Example extends jQuery.Tools.class
+    __name__: 'Example'
+    _options: {...}
+    initialize: (options={}) ->
+        # "this._domNode" points to jQuery's wrapped dom node.
+        # "this" points to this "Examples" instance extended by "Tools".
+        super(options)._domNode
+    staticMethod: (anArgument) ->
+        ...
+        this._domNode
+    ...
+jQuery.fn.Example = ->
+    self = new Example this
+    self._controller.apply self, arguments
+
+# Initialisation:
+domNode = jQuery('#domNode').Example firstOption: 'value'...
+# Static function call:
+returnValue = jQuery('#domNode').Example 'staticMethod', 'anArgument'
+
 -------------------------------------------------------------------------------
 
 // Use as extension for object orientated jquery plugin using inheritance.
 
+// java script version
 (function(jQuery) {
     var Example = function() {
         this.__name__ = 'Example';
@@ -177,11 +195,32 @@ var exampleInstance = jQuery.Example({'firstOption': 'value'...});
 // Static function call:
 var returnValue = jQuery.Example('staticMethod', 'anArgument');
 
+// coffee script version
+class Example extends jQuery.Tools.class
+    __name__: 'Example'
+    _options: {...}
+    initialize: (options={}) ->
+        # "this" points to this "Examples" instance extended by "Tools".
+        super options
+    staticMethod: (anArgument) ->
+        ...
+        this
+    ...
+jQuery.Example = ->
+    self = new Example
+    self._controller.apply self, arguments
+
+# Initialisation:
+exampleInstance = jQuery.Example firstOption: 'value'...
+# Static function call:
+returnValue = jQuery.Example 'staticMethod', 'anArgument'
+
 -------------------------------------------------------------------------------
 
 // Use as extension for default functional orientated jquery plugin pattern
 // using composition, dom node reference and chaining support.
 
+// java script version
 (function(jQuery) {
     var options = {...};
     var tools = jQuery.Tools();
@@ -196,7 +235,7 @@ var returnValue = jQuery.Example('staticMethod', 'anArgument');
         if (methods[method])
             return methods[method].apply(
                 this, Array.prototype.slice.call(arguments, 1));
-        else if (jQuery.type(method) is 'object' || !method)
+        else if (jQuery.type(method) === 'object' || !method)
             return methods.init.apply(this, arguments);
         else
             $.error('Method ' + method + ' does not exist on jQuery.example');
@@ -205,6 +244,27 @@ var returnValue = jQuery.Example('staticMethod', 'anArgument');
 
 // Function call:
 var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
+
+// coffee script version
+jQuery = this.jQuery
+defaultOptions = {...}
+tools = jQuery.Tools
+example = (options={}) ->
+    # "this" points to dom node graped by jQuery.
+    jQuery.extend true, defaultOptions, options
+    tools.log 'initialized.'
+    ...
+jQuery.fn.example = ->
+    if methods[method]
+        methods[method].apply(
+            this, Array.prototype.slice.call arguments, 1)
+    else if jQuery.type(method) is 'object' or not method
+        methods.init.apply this, arguments
+    else
+        $.error "Method \"#{method}\" does not exist on jQuery.example."
+
+# Function call:
+domNode = jQuery('#domNode').example firstOption: 'value'...
     ###
     class Tools
 
@@ -259,7 +319,7 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
             @returns {jQuery.Tools} Returns the current instance.
         ###
         constructor: (@_domNode) ->
-            return this
+            this
         ###*
             @description This method could be overwritten normally.
                          It acts like a destructor.
@@ -268,7 +328,7 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
         ###
         destructor: ->
             this.unbind '*'
-            return this
+            this
         ###*
             @description This method should be overwritten normally. It is
                          triggered if current opject was created via the "new"
@@ -284,7 +344,7 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
                 this.camelCaseStringToDelimited this.__name__)
             if (options)
                 this._options = jQuery.extend true, this._options, options
-            return this
+            this
 
         # endregion
 
@@ -305,7 +365,7 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
             this.checkLock description, =>
                 this._mutex[description] = []
             , true
-            return this
+            this
         ###*
             @description Calling this method the given critical area will be
                          finished and all functions given to "this.checkLock()"
@@ -321,7 +381,7 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
                    this._mutex[description].length)
                 this._mutex[description].shift()()
             this._mutex[description] = undefined
-            return this
+            this
         ###*
             @description Takes a procedure given by a function which only
                          should executed if the given critical area isn't
@@ -347,7 +407,7 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
                 callbackFunction()
             else if (not noEnqueue)
                 this._mutex[description].push callbackFunction
-            return this
+            this
 
         # endregion
 
@@ -369,7 +429,7 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
         ###
         mouseOutEventHandlerFix: (eventHandler) ->
             self = this
-            return (event) ->
+            (event) ->
                 relatedTarget = event.toElement
                 if event.relatedTarget
                     relatedTarget = event.relatedTarget
@@ -405,7 +465,7 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
                     return variables[key]
                 else
                     return undefined
-            return variables
+            variables
         ###*
             @description Dumps a given object in a human readable format.
 
@@ -423,7 +483,7 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
                         value = 'undefined'
                     output += "#{key.toString()}: #{value.toString()}\n"
             output = output.toString() if not output
-            return "#{jQuery.trim(output)}\n(Type: \"#{jQuery.type(object)}\")"
+            "#{jQuery.trim(output)}\n(Type: \"#{jQuery.type(object)}\")"
         ###*
             @description Removes a selector prefix from a given selector.
                          This methods searches in the options object for a
@@ -436,11 +496,11 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
         sliceDomNodeSelectorPrefix: (domNodeSelector) ->
             if(this._options and this._options.domNodeSelectorPrefix and
                domNodeSelector.substring(
-                   0, this._options.domNodeSelectorPrefix.length
+                0, this._options.domNodeSelectorPrefix.length
                ) is this._options.domNodeSelectorPrefix)
-                return jQuery.trim(domNodeSelector.substring(
+                jQuery.trim(domNodeSelector.substring(
                     this._options.domNodeSelectorPrefix.length))
-            return domNodeSelector
+            domNodeSelector
         ###*
             @description Determines the dom node name of a given dom node
                          string.
@@ -461,7 +521,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
 'br'
         ###
         getDomNodeName: (domNode) ->
-            return domNode.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1]
+            domNode.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1]
         ###*
             @description Shows the given object's representation in the
                          browsers console if possible or in a standalone
@@ -482,8 +542,9 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                 if noModuleAnnotation
                     message = object
                 else if jQuery.type(object) is 'string'
-                    message = "#{this.__name__}: #{this.stringFormat.apply(
-                        this, arguments)}"
+                    message = (
+                        "#{this.__name__}: " + this.stringFormat.apply(
+                            this, arguments))
                 else if jQuery.isNumeric object
                     message = "#{this.__name__}: #{object}"
                 else
@@ -495,7 +556,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                         window.console.log message
                     else
                         window.alert message
-            return this
+            this
         ###*
             @description Converts an object of dom selectors to an array of
                          jQuery wrapped dom nodes. Note if selector
@@ -527,7 +588,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             if this._options and this._options.domNodeSelectorPrefix
                 domNodes.parent = jQuery this._options.domNodeSelectorPrefix
             domNodes.window = jQuery window
-            return domNodes
+            domNodes
         ###*
             @description Methods given by this method has the plugin scope
                          referenced with "this". Otherwise "this" usualy
@@ -562,16 +623,18 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                jQuery.type(scope) is 'object')
                 return ->
                     if not scope[method]
-                        throw "Method \"#{method}\" doesn't exists in \"#{scope}\"."
+                        throw Error(
+                            "Method \"#{method}\" doesn't exists in " +
+                            "\"#{scope}\".")
                     thisFunction = arguments.callee
                     parameter = jQuery.Tools().argumentsObjectToArray(
                         arguments)
                     parameter.push thisFunction
-                    return scope[method].apply(scope, parameter.concat(
+                    scope[method].apply(scope, parameter.concat(
                         additionalArguments))
             parameter.unshift scope
             parameter.unshift method
-            return jQuery.proxy.apply jQuery, parameter
+            jQuery.proxy.apply jQuery, parameter
         ###*
             @description A wrapper method for "jQuery.bind()".
                          It sets current plugin name as event scope if no scope
@@ -581,7 +644,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @returns {jQuery} Returns jQuery's graped dom node.
         ###
         bind: ->
-            return this._bindHelper arguments
+            this._bindHelper arguments
         ###*
             @description A wrapper method fo "jQuery.unbind()".
                          It sets current plugin name as event scope if no scope
@@ -591,7 +654,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @returns {jQuery} Returns jQuery's graped dom node.
         ###
         unbind: ->
-            return this._bindHelper arguments, true
+            this._bindHelper arguments, true
         ###*
             @description Converts a given argument object to an array.
 
@@ -600,7 +663,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @returns {Object[]} Returns the given arguments as array.
         ###
         argumentsObjectToArray: (argumentsObject) ->
-            return Array.prototype.slice.call argumentsObject
+            Array.prototype.slice.call argumentsObject
         ###*
             @description Searches for internal event handler methods and runs
                          them by default. In addition this method searches for
@@ -634,7 +697,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                 scope._options[eventHandlerName].apply(
                     scope, additionalArguments)
                 return true
-            return false
+            false
         ###*
             @description Rounds a given number accurate to given number of
                          digits.
@@ -645,8 +708,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @returns {Float} Returns the rounded number.
         ###
         round: (number, digits=0) ->
-            return Math.round(number * Math.pow(10, digits)) /
-                Math.pow(10, digits)
+            Math.round(number * Math.pow 10, digits) / Math.pow 10, digits
         ###*
             @description Performs a string formation. Replaces every
                          placeholder "{i}" with the i'th argument.
@@ -657,10 +719,9 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
         ###
         stringFormat: (string) ->
             jQuery.each(arguments, (key, value) ->
-                string = string.replace(new RegExp(
-                    "\\{#{key}\\}", 'gm'),
-                    value))
-            return string
+                string = string.replace(
+                    new RegExp("\\{#{key}\\}", 'gm'), value))
+            string
         ###*
             @description Converts a camel case string to a string with given
                          delimiter between each camel case seperation.
@@ -672,8 +733,8 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @returns {String} The formatted string.
         ###
         camelCaseStringToDelimited: (string, delimiter='-') ->
-            return string.replace(new RegExp('(.)([A-Z])', 'g'), ->
-                return arguments[1] + delimiter + arguments[2]
+            string.replace(new RegExp('(.)([A-Z])', 'g'), ->
+                arguments[1] + delimiter + arguments[2]
             ).toLowerCase()
         ###*
             @description Appends a path selector to the given path if there
@@ -688,7 +749,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             path = jQuery.trim path
             if path.substr(-1) isnt pathSeperator and path.length
                 return path + pathSeperator
-            return path
+            path
 
     # endregion
 
@@ -717,7 +778,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                 bindArguments[0] += ".#{this.__name__}"
             if unbind
                 return jQueryObject.unbind.apply jQueryObject, bindArguments
-            return jQueryObject.bind.apply jQueryObject, bindArguments
+            jQueryObject.bind.apply jQueryObject, bindArguments
         ###*
             @description Extends a given object with the tools attributes.
 
@@ -728,7 +789,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
         _extend: (childAttributes) ->
             if childAttributes
                 jQuery.extend true, this, childAttributes
-            return this
+            this
         ###*
             @description Defines a generic controller for jQuery plugings.
 
@@ -771,8 +832,8 @@ jQuery('div#id').InheritedFromTools(options);
                     initializer will be called.
                 ###
                 return this.initialize.apply this, parameter
-            return jQuery.error(
-                "Method \"#{attribute}\" does not exist on "
+            jQuery.error(
+                "Method \"#{attribute}\" does not exist on " +
                 "jQuery-extension \"#{this.__name__}\".")
         ###*
             @description Converts a dom selector to a prefixed dom selector
@@ -792,7 +853,7 @@ jQuery('div#id').InheritedFromTools(options);
                     domNodeSelectorPrefix)
                 return domNodeSelectors[key] =
                     "#{domNodeSelectorPrefix} #{selector}"
-            return selector
+            selector
 
     # endregion
 
@@ -800,11 +861,11 @@ jQuery('div#id').InheritedFromTools(options);
     jQuery.fn.Tools = ->
         self = new Tools this
         self._controller.apply self, arguments
-        return this
+        this
     ###* @ignore ###
     jQuery.Tools = ->
         self = new Tools
-        return self._controller.apply self, arguments
+        self._controller.apply self, arguments
     ###* @ignore ###
     jQuery.Tools.class = Tools
 

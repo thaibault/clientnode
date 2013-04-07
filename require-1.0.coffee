@@ -307,16 +307,19 @@ class Require
         if not self.scriptTypes?
             self.scriptTypes = '.js': 'text/javascript'
         if not self.asyncronModulePatternHandling?
-            # TODO don't overwrite default values if they aren't provided by user.
-            self.asyncronModulePatternHandling =
-                '^.+\.css$': (cssContent) ->
-                    styleNode = document.createElement 'style'
-                    styleNode.type = 'text/css'
-                    styleNode.appendChild document.createTextNode cssContent
-                    self.headNode.appendChild styleNode
+            self.asyncronModulePatternHandling = {}
+        cssFilePathPattern = '^.+\.css$'
+        if not self.asyncronModulePatternHandling[cssFilePathPattern]?
+            self.asyncronModulePatternHandling[cssFilePathPattern] = (
+                cssContent
+            ) ->
+                styleNode = document.createElement 'style'
+                styleNode.type = 'text/css'
+                styleNode.appendChild document.createTextNode cssContent
+                self.headNode.appendChild styleNode
         if not self._callQueue?
             self._callQueue = []
-        return self::_load.apply require, arguments
+        self::_load.apply require, arguments
 
         # endregion
 
@@ -401,11 +404,12 @@ class Require
                 determine it now after a new dependency was loaded.
             ###
             if(self._callQueue.length and self::_isModuleLoaded(
-               self._callQueue[self._callQueue.length - 1]))
+                self._callQueue[self._callQueue.length - 1])
+            )
                 self::_load.apply require, self._callQueue.pop()[1]
         if require and self._handleNoConflict
             return self::_handleNoConflict()
-        return require
+        self
     ###*
         @description Initialize loading of needed ressources.
 
@@ -419,7 +423,8 @@ class Require
     ###
     _initializeRessourceLoading: (module, parameter) ->
         isAsyncronRequest = false
-        for asyncronModulePattern, callback of self.asyncronModulePatternHandling
+        shortcut = self.asyncronModulePatternHandling
+        for asyncronModulePattern, callback of shortcut
             if new RegExp(asyncronModulePattern).test module[1]
                 if window.XMLHttpRequest
                     ajaxObject = new XMLHttpRequest
@@ -430,7 +435,7 @@ class Require
                     'GET', self::_getScriptFilePath module[1], true)
                 ajaxObject.onreadystatechange = ->
                     if ajaxObject.readyState is 4 and ajaxObject.status is 200
-                        self.asyncronModulePatternHandling[asyncronModulePattern](
+                        shortcut[asyncronModulePattern](
                             ajaxObject.responseText, module, parameter)
                         self::_scriptLoaded module, parameter
                         # Delete event after passing it once.
@@ -450,7 +455,7 @@ class Require
         if isAsyncronRequest
             type = 'ajax'
         self::_log "Initialized loading of \"#{module[1]}\" via #{type}."
-        return require
+        self
     ###*
         @description Generates an array of arguments from initially given
                      arguments to the require constructor. The generated
@@ -471,7 +476,7 @@ class Require
                 for subIndex in [0..moduleObjects.length - 1]
                     query = query[moduleObjects[subIndex]]
                     additionalArguments.push query
-        return parameters.slice(2, parameters.length - 2).concat(
+        parameters.slice(2, parameters.length - 2).concat(
             additionalArguments, parameters[parameters.length - 2])
     ###*
         @description Appends a given script loading tag inside the dom
@@ -505,7 +510,7 @@ class Require
                 # Delete event after passing it once.
                 scriptNode.onload = null
         self.headNode.appendChild scriptNode
-        return require
+        self
     ###*
         @description Creates a new script loading tag.
 
@@ -520,7 +525,7 @@ class Require
             scriptFilePath.lastIndexOf('.') + 1)
         if self.basePath[extension]
             return self.basePath[extension] + scriptFilePath
-        return self.basePath.default + scriptFilePath
+        self.basePath.default + scriptFilePath
     ###*
         @description Creates a new script loading tag.
 
@@ -542,7 +547,7 @@ class Require
         scriptNode.type = scriptType
         if self.appendTimeStamp
             scriptNode.src += "?timestamp=#{(new Date).getTime()}"
-        return scriptNode
+        scriptNode
     ###*
         @description If script was loaded it will be deleted from the
                      "initializedLoading" array. If all dependencies for
@@ -567,7 +572,7 @@ class Require
             self::_load.apply require, parameters
         else
             self._callQueue.push [module[0], parameters]
-        return require
+        self
     ###*
         @description If "noConflict" property is set it will be handled
                      by this method. It clear the called scope from the
@@ -578,7 +583,7 @@ class Require
         @returns {require} Returns the current instance.
     ###
     _handleNoConflict: ->
-        if (self._callQueue.length is 0 and self.initializedLoadings.length is 0)
+        if self._callQueue.length is 0 and self.initializedLoadings.length is 0
             self::_log 'All ressources are loaded so far.'
             if require and self.noConflict
                 if self.noConflict is true
@@ -592,7 +597,7 @@ class Require
                     callback = self.noConflict.slice()
                     require = undefined
                     callback[0].apply self.context, callback.slice 1
-        return require
+        self
     ###*
         @description Determines if the given moduleObject is currently
                      loading. If the given module is currently loading
@@ -614,7 +619,7 @@ class Require
                 return true
         if moduleName
             self.initializedLoadings.push moduleName
-        return false
+        false
     ###*
         @description Determines if the given moduleObject is present in the
                      global (window) scope.
@@ -641,7 +646,7 @@ class Require
             self::_log "\"#{module[0]}\" is loaded complete."
         else
             self::_log "\"#{module[1]}\" is loaded complete."
-        return true
+        true
     ###*
         @description If logging is enabled. Method shows the given message
                      in the browsers console if possible or in a standalone
@@ -659,7 +664,7 @@ class Require
             if window.console and window.console.log
                 return window.console.log "require: #{message}"
             return window.alert "require: #{message}"
-        return false
+        false
 
     # endregion
 
