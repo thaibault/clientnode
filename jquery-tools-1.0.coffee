@@ -327,7 +327,7 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
             @returns {jQuery.Tools} Returns the current instance.
         ###
         destructor: ->
-            this.unbind '*'
+            this.off '*'
             this
         ###*
             @description This method should be overwritten normally. It is
@@ -638,6 +638,46 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             parameter.unshift method
             jQuery.proxy.apply jQuery, parameter
         ###*
+            @description A wrapper method for "jQuery.delegate()".
+                         It sets current plugin name as event scope if no scope
+                         is given. Given arguments are modified and passed
+                         through "jquery.delegate()".
+
+            @returns {jQuery} Returns jQuery's graped dom node.
+        ###
+        delegate: ->
+            this._bindHelper arguments, false, 'delegate'
+        ###*
+            @description A wrapper method fo "jQuery.undelegate()".
+                         It sets current plugin name as event scope if no scope
+                         is given. Given arguments are modified and passed
+                         through "jquery.undelegate()".
+
+            @returns {jQuery} Returns jQuery's graped dom node.
+        ###
+        undelegate: ->
+            this._bindHelper arguments, true, 'undelegate'
+        ###*
+            @description A wrapper method for "jQuery.on()".
+                         It sets current plugin name as event scope if no scope
+                         is given. Given arguments are modified and passed
+                         through "jquery.on()".
+
+            @returns {jQuery} Returns jQuery's graped dom node.
+        ###
+        on: ->
+            this._bindHelper arguments, false, 'on'
+        ###*
+            @description A wrapper method fo "jQuery.off()".
+                         It sets current plugin name as event scope if no scope
+                         is given. Given arguments are modified and passed
+                         through "jquery.off()".
+
+            @returns {jQuery} Returns jQuery's graped dom node.
+        ###
+        off: ->
+            this._bindHelper arguments, true, 'off'
+        ###*
             @description A wrapper method for "jQuery.bind()".
                          It sets current plugin name as event scope if no scope
                          is given. Given arguments are modified and passed
@@ -758,29 +798,31 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
     # region protected methods
 
         ###*
-            @description Helper method for "bind()" and "unbind()".
+            @description Helper method for atach event handler methods and
+                         their event handler removings pendants.
 
-            @param {Object} bindArguments Arguments object given to "bind()" or
-                                          "unbind()".
-            @param {Boolean} unbind Indicates if "unbind()" or "bind()" was
-                                    given.
+            @param {Object} parameter Arguments object given to methods
+                                      like "bind()" or "unbind()".
+            @param {Boolean} removeEvent Indicates if "unbind()" or "bind()"
+                                         was given.
+            @param {String} eventFunctionName Name of function to wrap.
 
-            @returns {jQuery} Returns jQuery's graped dom node.
+            @returns {jQuery} Returns jQuery's wrapped dom node.
         ###
-        _bindHelper: (bindArguments, unbind) ->
-            jQueryObject = jQuery bindArguments[0]
-            if jQuery.type(bindArguments[1]) is 'object' and not unbind
-                jQuery.each(bindArguments[1], (eventType, handler) =>
-                    this.bind jQueryObject, eventType, handler)
+        _bindHelper: (parameter, removeEvent=false, eventFunctionName='bind') ->
+            jQueryObject = jQuery parameter[0]
+            if jQuery.type(parameter[1]) is 'object' and not removeEvent
+                jQuery.each(parameter[1], (eventType, handler) =>
+                    this[eventFunctionName] jQueryObject, eventType, handler)
                 return jQueryObject
-            bindArguments = this.argumentsObjectToArray(bindArguments).slice 1
-            if bindArguments.length is 0
-                bindArguments.push ''
-            if bindArguments[0].indexOf('.') is -1
-                bindArguments[0] += ".#{this.__name__}"
-            if unbind
-                return jQueryObject.unbind.apply jQueryObject, bindArguments
-            jQueryObject.bind.apply jQueryObject, bindArguments
+            parameter = this.argumentsObjectToArray(parameter).slice 1
+            if parameter.length is 0
+                parameter.push ''
+            if parameter[0].indexOf('.') is -1
+                parameter[0] += ".#{this.__name__}"
+            if removeEvent
+                return jQueryObject[eventFunctionName].apply jQueryObject, parameter
+            jQueryObject[eventFunctionName].apply jQueryObject, parameter
         ###*
             @description Extends a given object with the tools attributes.
 
