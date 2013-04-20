@@ -809,7 +809,9 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
 
             @returns {jQuery} Returns jQuery's wrapped dom node.
         ###
-        _bindHelper: (parameter, removeEvent=false, eventFunctionName='bind') ->
+        _bindHelper: (
+            parameter, removeEvent=false, eventFunctionName='bind'
+        ) ->
             jQueryObject = jQuery parameter[0]
             if jQuery.type(parameter[1]) is 'object' and not removeEvent
                 jQuery.each(parameter[1], (eventType, handler) =>
@@ -821,7 +823,8 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             if parameter[0].indexOf('.') is -1
                 parameter[0] += ".#{this.__name__}"
             if removeEvent
-                return jQueryObject[eventFunctionName].apply jQueryObject, parameter
+                return jQueryObject[eventFunctionName].apply(
+                    jQueryObject, parameter)
             jQueryObject[eventFunctionName].apply jQueryObject, parameter
         ###*
             @description Extends a given object with the tools attributes.
