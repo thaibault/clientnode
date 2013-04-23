@@ -16,9 +16,13 @@
         <script type="text/javascript" src="javaScript/jquery-scrollTo-1.4.3.1.js"></script>
         <script type="text/javascript">
             jQuery(function(jQuery) {
-                jQuery('body div.toc a[href^="#"]').click(function(event) {
-                    event.preventDefault();
+                jQuery('body div.toc a[href^="#"]').click(function() {
                     jQuery.scrollTo(jQuery(this).attr('href'), 'slow');
+                });
+                jQuery('body a[href="#legal-notice"]').click(function() {
+                    jQuery('body section#main_content').fadeOut('slow', function() {
+                        jQuery('body section#legal-notice').fadeIn('slow');
+                    });
                 });
             });
         </script>
@@ -182,6 +186,23 @@
                 var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
                 </code></pre>
             </section>
+            <section id="legal-notice" class="legal-notice">
+                <p>
+                    Anbieter:
+                    <br />
+                    Torben Sickert
+                    <br />
+                    Christoph-Mang-Str. 14
+                    <br />
+                    79100 Freiburg
+                    <br />
+                    Tel. 0049 (0) 176 / 10248185
+                    <br />
+                    Internet: <a href="http://thaibault.github.io/jQuery-tools">http://thaibault.github.io/jQuery-tools</a>
+                    <br />
+                    Email: <a href="mailto:t.sickert@gmail.com">t.sickert@gmail.com</a>
+                </p>
+            </section>
         </div>
 
     <!--region footer-->
@@ -191,6 +212,7 @@
                 <p class="copyright">
                     jQuery-tools maintained by <a href="https://github.com/thaibault">thaibault</a>
                 </p>
+                <a href="#legal-notice">legal notice</a>
             </footer>
         </div>
         
