@@ -11,8 +11,6 @@
 
     @author t.sickert@gmail.com (Torben Sickert)
     @version 1.0 stable
-    @requires require-1.0+
-              jquery-1.9.1+
     @fileOverview
     This module provides common resuable logic for every jquery non trivial
     plugin.
