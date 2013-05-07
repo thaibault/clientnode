@@ -10,12 +10,12 @@ Usage
 
     var tools = jQuery.Tools({'logging': true});
     tools.log('test');
-    
+
     -------------------------------------------------------------------------------
-    
+
     // Use as extension for object orientated jquery plugin using inheritance and
     // dom node reference. This plugin pattern gives their instance back.
-    
+
     (function(jQuery) {
         var Example = function(domNode) {
             this._options = {...};
@@ -39,17 +39,17 @@ Usage
             return self._controller.apply(self, arguments);
         };
     })(window.jQuery);
-    
+
     // Initialisation:
     var examplesInstance = jQuery('#domNode').Example({'firstOption': 'value'...});
     // Static function call:
     var exampleInstance = jQuery('#domNode').Example('staticMethod', 'anArgument');
-    
+
     -------------------------------------------------------------------------------
-    
+
     // Use as extension for object orientated jquery plugin using inheritance,
     // dom node reference and chaining support.
-    
+
     (function(jQuery) {
         var Example = function(domNode) {
             this._options = {...};
@@ -73,16 +73,16 @@ Usage
             return self._controller.apply(self, arguments);
         };
     })(window.jQuery);
-    
+
     // Initialisation:
     var domNode = jQuery('#domNode').Example({'firstOption': 'value'...});
     // Static function call:
     var domNode = jQuery('#domNode').Example('staticMethod', 'anArgument');
-    
+
     -------------------------------------------------------------------------------
-    
+
     // Use as extension for object orientated jquery plugin using inheritance.
-    
+
     (function(jQuery) {
         var Example = function() {
             this._options = {...};
@@ -105,17 +105,17 @@ Usage
             return self._controller.apply(self, arguments);
         };
     })(window.jQuery);
-    
+
     // Initialisation:
     var exampleInstance = jQuery.Example({'firstOption': 'value'...});
     // Static function call:
     var exampleInstance = jQuery.Example('staticMethod', 'anArgument');
-    
+
     -------------------------------------------------------------------------------
-    
+
     // Use as extension for default functional orientated jquery plugin pattern
     // using composition, dom node reference and chaining support.
-    
+
     (function(jQuery) {
         var options = {...};
         var tools = jQuery.Tools();
@@ -136,6 +136,6 @@ Usage
                 $.error('Method ' + method + ' does not exist on jQuery.example');
         };
     })(window.jQuery);
-    
+
     // Function call:
     var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
