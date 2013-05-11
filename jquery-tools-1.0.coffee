@@ -1,5 +1,8 @@
 ## require
 
+# vim: set tabstop=4 shiftwidth=4 expandtab:
+# vim: foldmethod=marker foldmarker=region,endregion:
+
 # region header
 
 ###!
