@@ -1,3 +1,5 @@
+<!--Copyright Torben Sickert 2013-->
+
 jquery-tools
 ============
 
