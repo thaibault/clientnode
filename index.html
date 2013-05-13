@@ -174,7 +174,7 @@ img{width:100%;max-width:100%;}
 #main_content_wrap{background:#f2f2f2;border-top:1px solid #111;border-bottom:1px solid #111;}
 #main_content{padding-top:40px;}
 #footer_wrap{background:#212121;}
-@media screen and (max-width:480px){body{font-size:14px;} #downloads{display:none;} .inner{min-width:320px;max-width:480px;} #project_title{font-size:32px;} h1{font-size:28px;} h2{font-size:24px;} h3{font-size:21px;} h4{font-size:18px;} h5{font-size:14px;} h6{font-size:12px;} code,pre{min-width:320px;max-width:480px;font-size:11px;}}section#legal-notice{display:none;}
+@media screen and (max-width:480px){body{font-size:14px;} #downloads{display:none;} .inner{min-width:320px;max-width:480px;} #project_title{font-size:32px;} h1{font-size:28px;} h2{font-size:24px;} h3{font-size:21px;} h4{font-size:18px;} h5{font-size:14px;} h6{font-size:12px;} code,pre{min-width:320px;max-width:480px;font-size:11px;}}section#imprint{display:none;}
 </style>
 <script type="text/javaScript">
 /// region build/javaScript/jquery-1.9.1.js build/javaScript/jquery-tools-1.0.js build/javaScript/bootstrap-2.3.1.js build/javaScript/jquery-scrollTo-1.4.3.1.js build/javaScript/jquery-documentation-1.0.js build/javaScript/main.js
@@ -10427,7 +10427,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
             if (match) {
               jQuery.each(value.split(match[0]), function(key, valuePart) {
                 if (key) {
-                  return value += ', ' + this._grapDomNodesHelper(key, valuePart, domNodeSelectors);
+                  return value += ', ' + _this._grapDomNodesHelper(key, valuePart, domNodeSelectors);
                 } else {
                   return value = valuePart;
                 }
@@ -13680,7 +13680,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
                 var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
                 </code></pre>
             </section>
-            <section id="legal-notice" class="legal-notice">
+            <section id="imprint" class="imprint">
                 <p>
                     Anbieter:
                     <br />
@@ -13706,7 +13706,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
                 <p class="copyright">
                     jQuery-tools maintained by <a href="https://github.com/thaibault">thaibault</a>
                 </p>
-                <a href="#legal-notice">legal notice</a>
+                <a href="#imprint">imprint</a>
             </footer>
         </div>
         
