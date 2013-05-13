@@ -579,7 +579,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                     match = value.match ', *'
                     if match
                         jQuery.each(
-                            value.split(match[0]), (key, valuePart) ->
+                            value.split(match[0]), (key, valuePart) =>
                                 if key
                                     value += ', ' + this._grapDomNodesHelper(
                                         key, valuePart, domNodeSelectors)
