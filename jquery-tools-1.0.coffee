@@ -288,7 +288,7 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
         ###
         __name__: 'Tools'
 
-    # endregion
+    # endregion 
 
     # region protected properties
 
@@ -314,7 +314,7 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
 
             @property {Object}
         ###
-        _mutex: {}
+        _locks: {}
 
     # endregion
 
@@ -369,55 +369,67 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
 
             @param {String} description A short string describing the criticial
                                         areas properties.
-
-            @returns {jQuery.Tools} Returns the current instance.
-        ###
-        lock: (description) ->
-            this.checkLock description, =>
-                this._mutex[description] = []
-            , true
-            this
-        ###*
-            @description Calling this method the given critical area will be
-                         finished and all functions given to "this.checkLock()"
-                         will be executed in right order.
-
-            @param {String} description A short string describing the criticial
-                                        areas properties.
-
-            @returns {jQuery.Tools} Returns the current instance.
-        ###
-        unlock: (description) ->
-            while (jQuery.isArray this._mutex[description] and
-                   this._mutex[description].length)
-                this._mutex[description].shift()()
-            this._mutex[description] = undefined
-            this
-        ###*
-            @description Takes a procedure given by a function which only
-                         should executed if the given critical area isn't
-                         present. If the interpreter is in the critical area
-                         the procedure will be saved and executed if the
-                         critical area is finished by calling "this.unlock()"
-                         method.
-
-            @param {String} description A short string describing the criticial
-                                        areas properties.
             @param {Function} callbackFunction A procedure which should only be
                                                executed if the interpreter
                                                isn't in the given critical
-                                               area.
-            @param {Boolean} noEnqueue If set to "true" callback function will
-                                       be called emidiatly if possible or
-                                       never.
+                                               area. The lock description
+                                               string will be given to the
+                                               callback function.
+            @param {Boolean} autoRelease Release the lock after execution of
+                                         given callback.
 
             @returns {jQuery.Tools} Returns the current instance.
         ###
-        checkLock: (description, callbackFunction, noEnqueue=false) ->
-            if (this._mutex[description] is undefined)
-                callbackFunction()
-            else if (not noEnqueue)
-                this._mutex[description].push callbackFunction
+        acquireLock: (description, callbackFunction, autoRelease=false) ->
+            ###
+                NOTE: The "window.setTimeout()" wrapper guarantees that the
+                following function will be executed without any context
+                switches in all browsers.
+                If you want to understand more about that,
+                "What are event loops?" might be a good question.
+            ###
+            window.setTimeout(
+                (=>
+                    wrappedCallbackFunction = (description) =>
+                        callbackFunction(description)
+                        if autoRelease
+                            this.releaseLock(description)
+                    if not this._locks[description]?
+                        this._locks[description] = []
+                        wrappedCallbackFunction description
+                    else
+                        this._locks[description].push wrappedCallbackFunction
+                ),
+                0)
+            this
+        ###*
+            @description Calling this method the given critical area will be
+                         finished and all functions given to
+                         "this.acquireLock()" will be executed in right order.
+
+            @param {String} description A short string describing the criticial
+                                        areas properties.
+
+            @returns {jQuery.Tools} Returns the current instance.
+        ###
+        releaseLock: (description) ->
+            ###
+                NOTE: The "window.setTimeout()" wrapper guarantees that the
+                following function will be executed without any context
+                switches in all browsers.
+                If you want to understand more about that,
+                "What are event loops?" might be a good question.
+            ###
+            window.setTimeout(
+                (=>
+                    if this._locks[description]?
+                        if this._locks[description].length
+                            this._locks[description].shift()(description)
+                            if not this._locks[description].length
+                                this._locks[description] = undefined
+                        else
+                            this._locks[description] = undefined),
+                0)
             this
 
         # endregion
