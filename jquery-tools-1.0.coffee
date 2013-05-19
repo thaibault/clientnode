@@ -582,6 +582,9 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                     else
                         window.alert message
             this
+        # TODO
+        debug: ->
+            window.console.debug.apply window.console, arguments
         ###*
             @description Converts an object of dom selectors to an array of
                          jQuery wrapped dom nodes. Note if selector
