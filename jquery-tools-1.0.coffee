@@ -1,8 +1,5 @@
 ## require
 
-# vim: set tabstop=4 shiftwidth=4 expandtab:
-# vim: foldmethod=marker foldmarker=region,endregion:
-
 # region header
 
 # Copyright Torben Sickert 16.12.2012
@@ -38,11 +35,16 @@ this.require([['jQuery', 'jquery-1.9.1']], (jQuery) ->
 
 # endregion
 
-    # region plugins
+# region plugins
+
+    # region description
 
     ###*
-        Provides such interface logic like generic controller logic, mutual
-        exclusion for depending gui elements or logging.
+        This plugin provides such interface logic like generic controller
+        logic for integrating plugins into jQuery, mutual exclusion for
+        depending gui elements, logging additional string, array or function
+        handling. A set of helper functions to parse option objects dom trees
+        or handle events is also provided.
 
         @memberOf jQuery
         @class
@@ -274,6 +276,8 @@ jQuery.fn.example = ->
     else
         $.error "Method \"#{method}\" does not exist on jQuery.example."
 
+    # endregion
+
 # Function call:
 domNode = jQuery('#domNode').example firstOption: 'value'...
     ###
@@ -315,6 +319,15 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
             @property {Object}
         ###
         _locks: {}
+        ###*
+            This variable contains a collection of methods usually binded to
+            the console object.
+        ###
+        _consoleMethods: [
+            'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
+            'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
+            'markTimeline', 'profile', 'profileEnd', 'table', 'time',
+            'timeEnd', 'timeStamp', 'trace', 'warn']
 
     # endregion
 
@@ -330,6 +343,13 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
             @returns {jQuery.Tools} Returns the current instance.
         ###
         constructor: (@_domNode) ->
+            # Avoid errors in browsers that lack a console.
+            for method in this._consoleMethods
+                if not window.console?
+                    window.console = {}
+                # Only stub the jQuery empty method.
+                if not window.console[method]?
+                    console[method] = jQuery.noop()
             this
         ###*
             @description This method could be overwritten normally.
@@ -464,31 +484,113 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
 
         # endregion
 
+        # region logging methods
+
         ###*
-            @description Read a page's GET URL variables and return them as an
-                         associative array.
+            @description Shows the given object's representation in the
+                         browsers console if possible or in a standalone
+                         alert-window as fallback.
 
-            @param {String} key A get array key. If given only the
-                                corresponding value is returned and full array
-                                otherwise.
+            @param {Mixed} object Any type to show.
+            @param {Boolean} force If set to "true" given input will be shown
+                                   independly from current logging
+                                   configuration or interpreter's console
+                                   implementation.
+            @param {Boolean} avoidAnnotation If set to "true" given input
+                                             has no module or log level
+                                             specific annotations.
 
-            @returns {Mixed} Returns the current get array or requested value.
-                                     If requested key doesn't exist "undefined"
-                                     is returned.
+            @returns {jQuery.Tools} Returns the current instance.
         ###
-        getUrlVariables: (key) ->
-            variables = []
-            jQuery.each(window.location.href.slice(
-                window.location.href.indexOf('?') + 1
-            ).split('&'), (key, value) ->
-                variables.push value.split('=')[0]
-                variables[value.split('=')[0]] = value.split('=')[1])
-            if (jQuery.type(key) is 'string')
-                if key in variables
-                    return variables[key]
+        log: (object, force=false, avoidAnnotation=false, level='info') ->
+            if this._options.logging or force
+                if avoidAnnotation
+                    message = object
+                else if jQuery.type(object) is 'string'
+                    message = (
+                        "#{this.__name__} (#{level}): " + this.stringFormat.apply(
+                            this, arguments))
+                else if jQuery.isNumeric object
+                    message = "#{this.__name__} (#{level}): #{object.toString()}"
+                else if jQuery.type(object) is 'boolean'
+                    message = "#{this.__name__} (#{level}): #{object.toString()}"
                 else
-                    return undefined
-            variables
+                    this.log ",--------------------------------------------,"
+                    this.log object, force, true
+                    this.log "'--------------------------------------------'"
+                if message
+                    if window.console?[level]? == jQuery.noop() and force
+                        window.alert message
+                    window.console[level] message
+            this
+        ###*
+            @description Wrapper method for the native console method usually
+                         provided by interpreter.
+
+            @param {Mixed} object Any type to show.
+            @param {Boolean} force If set to "true" given input will be shown
+                                   independly from current logging
+                                   configuration or interpreter's console
+                                   implementation.
+            @param {Boolean} avoidAnnotation If set to "true" given input
+                                             has no module or log level
+                                             specific annotations.
+
+            @returns {jQuery.Tools} Returns the current instance.
+        ###
+        info: (object, force=false, avoidAnnotation=false, level='info') ->
+            this.log object, force, avoidAnnotation, level
+        ###*
+            @description Wrapper method for the native console method usually
+                         provided by interpreter.
+
+            @param {Mixed} object Any type to show.
+            @param {Boolean} force If set to "true" given input will be shown
+                                   independly from current logging
+                                   configuration or interpreter's console
+                                   implementation.
+            @param {Boolean} avoidAnnotation If set to "true" given input
+                                             has no module or log level
+                                             specific annotations.
+
+            @returns {jQuery.Tools} Returns the current instance.
+        ###
+        debug: (object, force=false, avoidAnnotation=false, level='debug') ->
+            this.log object, force, avoidAnnotation, level
+        ###*
+            @description Wrapper method for the native console method usually
+                         provided by interpreter.
+
+            @param {Mixed} object Any type to show.
+            @param {Boolean} force If set to "true" given input will be shown
+                                   independly from current logging
+                                   configuration or interpreter's console
+                                   implementation.
+            @param {Boolean} avoidAnnotation If set to "true" given input
+                                             has no module or log level
+                                             specific annotations.
+
+            @returns {jQuery.Tools} Returns the current instance.
+        ###
+        error: (object, force=false, avoidAnnotation=false, level='error') ->
+            this.log object, force, avoidAnnotation, level
+        ###*
+            @description Wrapper method for the native console method usually
+                         provided by interpreter.
+
+            @param {Mixed} object Any type to show.
+            @param {Boolean} force If set to "true" given input will be shown
+                                   independly from current logging
+                                   configuration or interpreter's console
+                                   implementation.
+            @param {Boolean} avoidAnnotation If set to "true" given input
+                                             has no module or log level
+                                             specific annotations.
+
+            @returns {jQuery.Tools} Returns the current instance.
+        ###
+        warn: (object, force=false, avoidAnnotation=false, level='warn') ->
+            this.log object, force, avoidAnnotation, level
         ###*
             @description Dumps a given object in a human readable format.
 
@@ -507,6 +609,11 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
                     output += "#{key.toString()}: #{value.toString()}\n"
             output = output.toString() if not output
             "#{jQuery.trim(output)}\n(Type: \"#{jQuery.type(object)}\")"
+
+        # endregion
+
+        # region dom node handling
+
         ###*
             @description Removes a selector prefix from a given selector.
                          This methods searches in the options object for a
@@ -546,46 +653,6 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
         getDomNodeName: (domNode) ->
             domNode.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1]
         ###*
-            @description Shows the given object's representation in the
-                         browsers console if possible or in a standalone
-                         alert-window as fallback.
-
-            @param {Mixed} object Any type to show.
-            @param {Boolean} force If set to "true" given input will be shown
-                                   independly from current logging
-                                   configuration.
-            @param {Boolean} noModuleAnnotation If set to "true" given input
-                                                has no module specified
-                                                annotation.
-
-            @returns {jQuery.Tools} Returns the current instance.
-        ###
-        log: (object, force=false, noModuleAnnotation=false) ->
-            if this._options.logging or force
-                if noModuleAnnotation
-                    message = object
-                else if jQuery.type(object) is 'string'
-                    message = (
-                        "#{this.__name__}: " + this.stringFormat.apply(
-                            this, arguments))
-                else if jQuery.isNumeric object
-                    message = "#{this.__name__}: #{object.toString()}"
-                else if jQuery.type(object) is 'boolean'
-                    message = "#{this.__name__}: #{object.toString()}"
-                else
-                    this.log ',--------------------------------------------,'
-                    this.log object, force, true
-                    this.log "'--------------------------------------------'"
-                if message
-                    if window.console?.log?
-                        window.console.log message
-                    else
-                        window.alert message
-            this
-        # TODO
-        debug: ->
-            window.console.debug.apply window.console, arguments
-        ###*
             @description Converts an object of dom selectors to an array of
                          jQuery wrapped dom nodes. Note if selector
                          description as one of "class" or "id" as suffix
@@ -617,6 +684,11 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                 domNodes.parent = jQuery this._options.domNodeSelectorPrefix
             domNodes.window = jQuery window
             domNodes
+
+        # endregion
+
+        # region function handling
+
         ###*
             @description Methods given by this method has the plugin scope
                          referenced with "this". Otherwise "this" usualy
@@ -663,6 +735,45 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             parameter.unshift scope
             parameter.unshift method
             jQuery.proxy.apply jQuery, parameter
+
+        # endregion
+
+        # region event handling
+
+        ###*
+            @description Searches for internal event handler methods and runs
+                         them by default. In addition this method searches for
+                         a given event method by the options object.
+
+            @param {String} eventName An event name.
+            @param {Boolean} callOnlyOptionsMethod Prevents from trying to
+                                                   call an internal event
+                                                   handler.
+            @param {Object} scope The scope from where the given event handler
+                                  should be called.
+
+            @returns {Boolean} Returns "true" if an event handler was called
+                               and "false" otherwise.
+        ###
+        fireEvent: (
+            eventName, callOnlyOptionsMethod=false, scope=this,
+            additionalArguments...
+        ) ->
+            scope = this if not scope
+            eventHandlerName =
+                'on' + eventName.substr(0, 1).toUpperCase() +
+                eventName.substr 1
+            if not callOnlyOptionsMethod
+                if scope[eventHandlerName]
+                    scope[eventHandlerName].apply scope, additionalArguments
+                else if scope["_#{eventHandlerName}"]
+                    scope["_#{eventHandlerName}"].apply(
+                        scope, additionalArguments)
+            if scope._options and scope._options[eventHandlerName]
+                scope._options[eventHandlerName].apply(
+                    scope, additionalArguments)
+                return true
+            false
         ###*
             @description A wrapper method for "jQuery.delegate()".
                          It sets current plugin name as event scope if no scope
@@ -730,42 +841,27 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
 
             @returns {Object[]} Returns the given arguments as array.
         ###
+
+        # endregion
+
+        # region array handling
+
+        ###*
+            @description Converts the interpreter given magic arguments
+                         object to a standart array object.
+
+            @param {Object} argumentsObject An argument object.
+
+            @returns {Object[]} Returns the array containing all elements in
+                                given arguments object.
+        ###
         argumentsObjectToArray: (argumentsObject) ->
             Array.prototype.slice.call argumentsObject
-        ###*
-            @description Searches for internal event handler methods and runs
-                         them by default. In addition this method searches for
-                         a given event method by the options object.
 
-            @param {String} eventName An event name.
-            @param {Boolean} callOnlyOptionsMethod Prevents from trying to
-                                                   call an internal event
-                                                   handler.
-            @param {Object} scope The scope from where the given event handler
-                                  should be called.
+        # endregion
 
-            @returns {Boolean} Returns "true" if an event handler was called
-                               and "false" otherwise.
-        ###
-        fireEvent: (
-            eventName, callOnlyOptionsMethod=false, scope=this,
-            additionalArguments...
-        ) ->
-            scope = this if not scope
-            eventHandlerName =
-                'on' + eventName.substr(0, 1).toUpperCase() +
-                eventName.substr 1
-            if not callOnlyOptionsMethod
-                if scope[eventHandlerName]
-                    scope[eventHandlerName].apply scope, additionalArguments
-                else if scope["_#{eventHandlerName}"]
-                    scope["_#{eventHandlerName}"].apply(
-                        scope, additionalArguments)
-            if scope._options and scope._options[eventHandlerName]
-                scope._options[eventHandlerName].apply(
-                    scope, additionalArguments)
-                return true
-            false
+        # region number handling
+
         ###*
             @description Rounds a given number accurate to given number of
                          digits.
@@ -777,6 +873,11 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
         ###
         round: (number, digits=0) ->
             Math.round(number * Math.pow 10, digits) / Math.pow 10, digits
+
+        # endregion
+
+        # region string manipulating
+
         ###*
             @description Performs a string formation. Replaces every
                          placeholder "{i}" with the i'th argument.
@@ -818,6 +919,33 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             if path.substr(-1) isnt pathSeperator and path.length
                 return path + pathSeperator
             path
+        ###*
+            @description Read a page's GET URL variables and return them as an
+                         associative array.
+
+            @param {String} key A get array key. If given only the
+                                corresponding value is returned and full array
+                                otherwise.
+
+            @returns {Mixed} Returns the current get array or requested value.
+                                     If requested key doesn't exist "undefined"
+                                     is returned.
+        ###
+        getUrlVariables: (key) ->
+            variables = []
+            jQuery.each(window.location.href.slice(
+                window.location.href.indexOf('?') + 1
+            ).split('&'), (key, value) ->
+                variables.push value.split('=')[0]
+                variables[value.split('=')[0]] = value.split('=')[1])
+            if (jQuery.type(key) is 'string')
+                if key in variables
+                    return variables[key]
+                else
+                    return undefined
+            variables
+
+        # endregion
 
     # endregion
 
@@ -930,6 +1058,8 @@ jQuery('div#id').InheritedFromTools(options);
 
     # endregion
 
+    # region handle jQuery extending
+
     ###* @ignore ###
     jQuery.fn.Tools = ->
         self = new Tools this
@@ -941,6 +1071,8 @@ jQuery('div#id').InheritedFromTools(options);
         self._controller.apply self, arguments
     ###* @ignore ###
     jQuery.Tools.class = Tools
+
+    # endregion
 
 # endregion
 
