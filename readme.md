@@ -1,4 +1,9 @@
-<!--
+<!-- region modline
+
+vim: set tabstop=4 shiftwidth=4 expandtab:
+vim: foldmethod=marker foldmarker=region,endregion:
+
+endregion
 
 region header
 
@@ -9,12 +14,7 @@ License
    naming 3.0 unported license.
    see http://creativecommons.org/licenses/by/3.0/deed.de
 
-vim: set tabstop=4 shiftwidth=4 expandtab:
-vim: foldmethod=marker foldmarker=region,endregion:
-
-endregion
-
--->
+endregion -->
 
 jquery-tools
 ============

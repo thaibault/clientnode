@@ -1,5 +1,12 @@
 ## require
 
+# region vim modline
+
+# vim: set tabstop=4 shiftwidth=4 expandtab:
+# vim: foldmethod=marker foldmarker=region,endregion:
+
+# endregion
+
 # region header
 
 # Copyright Torben Sickert 16.12.2012
@@ -8,9 +15,6 @@
 #    This library written by Torben Sickert stand under a creative commons
 #    naming 3.0 unported license.
 #    see http://creativecommons.org/licenses/by/3.0/deed.de
-
-# vim: set tabstop=4 shiftwidth=4 expandtab:
-# vim: foldmethod=marker foldmarker=region,endregion:
 
 ###!
     jQuery plugin for "jquery-1.8.3".
@@ -292,7 +296,7 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
         ###
         __name__: 'Tools'
 
-    # endregion 
+    # endregion
 
     # region protected properties
 
@@ -508,12 +512,14 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
                     message = object
                 else if jQuery.type(object) is 'string'
                     message = (
-                        "#{this.__name__} (#{level}): " + this.stringFormat.apply(
-                            this, arguments))
+                        "#{this.__name__} (#{level}): " +
+                        this.stringFormat.apply(this, arguments))
                 else if jQuery.isNumeric object
-                    message = "#{this.__name__} (#{level}): #{object.toString()}"
+                    message = (
+                        "#{this.__name__} (#{level}): #{object.toString()}")
                 else if jQuery.type(object) is 'boolean'
-                    message = "#{this.__name__} (#{level}): #{object.toString()}"
+                    message = (
+                        "#{this.__name__} (#{level}): #{object.toString()}")
                 else
                     this.log ",--------------------------------------------,"
                     this.log object, force, true
