@@ -201,7 +201,7 @@ body.documentation .icon-white,body.documentation .nav-pills>.active>a>[class^="
 body.documentation .icon-arrow-left{background-position:-240px -96px;}
 body.documentation .icon-arrow-home{margin-right:10px;margin-top:12px;float:left;}
 body.documentation header h1 a,body.documentation header h2 a{color:#fff;}
-body.documentation a[href="#top"]{position:fixed;z-index:4;bottom:35px;right:30px;}
+body.documentation a[href="#top"]{position:fixed;z-index:4;bottom:35px;right:45px;}
 body.documentation div.window-loading-cover{background-color:white;position:fixed;height:100%;width:100%;z-index:20;}body.documentation div.window-loading-cover div{position:absolute;top:50%;left:50%;background-color:#1b1b1b;}
 body.documentation section.imprint p{margin-bottom:45px;}
 body.documentation section.imprint a[href="#"]{float:left;margin-top:7px;}
@@ -14460,6 +14460,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
             top: "-=" + distanceToScroll + "px",
             left: '-=0'
           }, {
+            duration: 'normal',
             onAfter: onAfter
           });
         }
