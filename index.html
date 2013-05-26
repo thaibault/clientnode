@@ -14441,8 +14441,8 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
         if (onAfter == null) {
           onAfter = jQuery.noop();
         }
-        distanceToTop = this._domNodes.window.scrollTop();
         if (this._options.scrollInLinearTime) {
+          distanceToTop = this._domNodes.window.scrollTop();
           menuHeight = this._domNodes.topDomNode.find('div.navbar').outerHeight();
           distanceToScroll = distanceToTop + menuHeight;
           if (distanceToTop < menuHeight) {
@@ -14457,10 +14457,10 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
           });
         } else {
           jQuery.scrollTo({
-            top: "-=" + distanceToScroll + "px",
-            left: '-=0'
+            top: 0,
+            left: 0
           }, {
-            duration: 'normal',
+            duration: 'slow',
             onAfter: onAfter
           });
         }
