@@ -17014,140 +17014,239 @@ endregion -->
 <p>Provides mutual exclusion, generic interface controller, object orientated<br />
 design through the original jquery pattern and selector scoping.</p>
 <p>Usage</p>
-<div class="codehilite"><pre><span class="c1">// Direct access of a method in &quot;Tools&quot;.</span>
+<p>Direct access of a method in "Tools".</p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="codehilite"><pre><span class="kd">var</span> <span class="nx">tools</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">Tools</span><span class="p">({</span><span class="s1">&#39;logging&#39;</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
+<span class="nx">tools</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">);</span>
+</pre></div>
+</td></tr></table>
 
-<span class="k">var</span> <span class="n">tools</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">.</span><span class="n">Tools</span><span class="p">({&#39;</span><span class="n">logging</span><span class="p">&#39;</span><span class="o">:</span> <span class="n">true</span><span class="p">});</span>
-<span class="n">tools</span><span class="p">.</span><span class="n">log</span><span class="p">(&#39;</span><span class="n">test</span><span class="p">&#39;);</span>
-
-<span class="o">-------------------------------------------------------------------------------</span>
-
-<span class="c1">// Use as extension for object orientated jquery plugin using inheritance and</span>
-<span class="c1">// dom node reference. This plugin pattern gives their instance back.</span>
-
-<span class="p">(</span><span class="k">function</span><span class="p">(</span><span class="n">jQuery</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">var</span> <span class="n">Example</span> <span class="o">=</span> <span class="k">function</span><span class="p">(</span><span class="n">domNode</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">this</span><span class="p">.</span><span class="n">_options</span> <span class="o">=</span> <span class="p">{...};</span>
-        <span class="k">this</span><span class="p">.</span><span class="n">initialize</span> <span class="o">=</span> <span class="k">function</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="p">{</span>
+<p>Use as extension for object orientated jquery plugin using inheritance and<br />
+dom node reference. This plugin pattern gives their instance back.</p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">Example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">domNode</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">_options</span> <span class="o">=</span> <span class="p">{...};</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
             <span class="c1">// &quot;domNode&quot; points to jQuery&#39;s wrapped dom node.</span>
             <span class="c1">// &quot;this&quot; points to this &quot;Examples&quot; instance extended by &quot;Tools&quot;.</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">options</span><span class="p">)</span>
-                <span class="n">jQuery</span><span class="p">.</span><span class="n">extend</span><span class="p">(</span><span class="n">true</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">options</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+                <span class="nx">jQuery</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_options</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
             <span class="p">...</span>
             <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
         <span class="p">};</span>
-        <span class="k">this</span><span class="p">.</span><span class="n">staticMethod</span> <span class="o">=</span> <span class="k">function</span><span class="p">(</span><span class="n">anArgument</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">staticMethod</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">anArgument</span><span class="p">)</span> <span class="p">{</span>
             <span class="p">...</span>
             <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
         <span class="p">};</span>
         <span class="p">...</span>
     <span class="p">};</span>
-    <span class="n">jQuery</span><span class="p">.</span><span class="n">fn</span><span class="p">.</span><span class="n">Example</span> <span class="o">=</span> <span class="k">function</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">var</span> <span class="n">self</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">.</span><span class="n">Tools</span><span class="p">().</span><span class="n">_extend</span><span class="p">(</span><span class="k">new</span> <span class="n">Example</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="p">&#39;</span><span class="n">Example</span><span class="p">&#39;;</span>
-        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_controller</span><span class="p">.</span><span class="n">apply</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">arguments</span><span class="p">);</span>
+    <span class="nx">jQuery</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">Example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">Tools</span><span class="p">().</span><span class="nx">_extend</span><span class="p">(</span><span class="k">new</span> <span class="nx">Example</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+        <span class="nx">self</span><span class="p">.</span><span class="nx">__name__</span> <span class="o">=</span> <span class="s1">&#39;Example&#39;</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nx">self</span><span class="p">.</span><span class="nx">_controller</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
     <span class="p">};</span>
-<span class="p">})(</span><span class="n">window</span><span class="p">.</span><span class="n">jQuery</span><span class="p">);</span>
+<span class="p">})(</span><span class="nb">window</span><span class="p">.</span><span class="nx">jQuery</span><span class="p">);</span>
 
 <span class="c1">// Initialisation:</span>
-<span class="k">var</span> <span class="n">examplesInstance</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">(&#39;#</span><span class="n">domNode</span><span class="p">&#39;).</span><span class="n">Example</span><span class="p">({&#39;</span><span class="n">firstOption</span><span class="p">&#39;</span><span class="o">:</span> <span class="p">&#39;</span><span class="n">value</span><span class="p">&#39;...});</span>
+<span class="kd">var</span> <span class="nx">examplesInstance</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#domNode&#39;</span><span class="p">).</span><span class="nx">Example</span><span class="p">({</span><span class="s1">&#39;firstOption&#39;</span><span class="o">:</span> <span class="s1">&#39;value&#39;</span><span class="p">...});</span>
 <span class="c1">// Static function call:</span>
-<span class="k">var</span> <span class="n">exampleInstance</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">(&#39;#</span><span class="n">domNode</span><span class="p">&#39;).</span><span class="n">Example</span><span class="p">(&#39;</span><span class="n">staticMethod</span><span class="p">&#39;,</span> <span class="p">&#39;</span><span class="n">anArgument</span><span class="p">&#39;);</span>
+<span class="kd">var</span> <span class="nx">exampleInstance</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#domNode&#39;</span><span class="p">).</span><span class="nx">Example</span><span class="p">(</span><span class="s1">&#39;staticMethod&#39;</span><span class="p">,</span> <span class="s1">&#39;anArgument&#39;</span><span class="p">);</span>
+</pre></div>
+</td></tr></table>
 
-<span class="o">-------------------------------------------------------------------------------</span>
-
-<span class="c1">// Use as extension for object orientated jquery plugin using inheritance,</span>
-<span class="c1">// dom node reference and chaining support.</span>
-
-<span class="p">(</span><span class="k">function</span><span class="p">(</span><span class="n">jQuery</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">var</span> <span class="n">Example</span> <span class="o">=</span> <span class="k">function</span><span class="p">(</span><span class="n">domNode</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">this</span><span class="p">.</span><span class="n">_options</span> <span class="o">=</span> <span class="p">{...};</span>
-        <span class="k">this</span><span class="p">.</span><span class="n">initialize</span> <span class="o">=</span> <span class="k">function</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="p">{</span>
+<p>Use as extension for object orientated jquery plugin using inheritance,<br />
+dom node reference and chaining support.</p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">Example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">domNode</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">_options</span> <span class="o">=</span> <span class="p">{...};</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
             <span class="c1">// &quot;domNode&quot; points to jQuery&#39;s wrapped dom node.</span>
             <span class="c1">// &quot;this&quot; points to this &quot;Examples&quot; instance extended by &quot;Tools&quot;.</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">options</span><span class="p">)</span>
-                <span class="n">jQuery</span><span class="p">.</span><span class="n">extend</span><span class="p">(</span><span class="n">true</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">options</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+                <span class="nx">jQuery</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_options</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
             <span class="p">...</span>
-            <span class="k">return</span> <span class="n">domNode</span><span class="p">;</span>
+            <span class="k">return</span> <span class="nx">domNode</span><span class="p">;</span>
         <span class="p">};</span>
-        <span class="k">this</span><span class="p">.</span><span class="n">staticMethod</span> <span class="o">=</span> <span class="k">function</span><span class="p">(</span><span class="n">anArgument</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">staticMethod</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">anArgument</span><span class="p">)</span> <span class="p">{</span>
             <span class="p">...</span>
-            <span class="k">return</span> <span class="n">domNode</span><span class="p">;</span>
+            <span class="k">return</span> <span class="nx">domNode</span><span class="p">;</span>
         <span class="p">};</span>
         <span class="p">...</span>
     <span class="p">};</span>
-    <span class="n">jQuery</span><span class="p">.</span><span class="n">fn</span><span class="p">.</span><span class="n">Example</span> <span class="o">=</span> <span class="k">function</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">var</span> <span class="n">self</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">.</span><span class="n">Tools</span><span class="p">().</span><span class="n">_extend</span><span class="p">(</span><span class="k">new</span> <span class="n">Example</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="p">&#39;</span><span class="n">Example</span><span class="p">&#39;;</span>
-        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_controller</span><span class="p">.</span><span class="n">apply</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">arguments</span><span class="p">);</span>
+    <span class="nx">jQuery</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">Example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">Tools</span><span class="p">().</span><span class="nx">_extend</span><span class="p">(</span><span class="k">new</span> <span class="nx">Example</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+        <span class="nx">self</span><span class="p">.</span><span class="nx">__name__</span> <span class="o">=</span> <span class="s1">&#39;Example&#39;</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nx">self</span><span class="p">.</span><span class="nx">_controller</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
     <span class="p">};</span>
-<span class="p">})(</span><span class="n">window</span><span class="p">.</span><span class="n">jQuery</span><span class="p">);</span>
+<span class="p">})(</span><span class="nb">window</span><span class="p">.</span><span class="nx">jQuery</span><span class="p">);</span>
 
 <span class="c1">// Initialisation:</span>
-<span class="k">var</span> <span class="n">domNode</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">(&#39;#</span><span class="n">domNode</span><span class="p">&#39;).</span><span class="n">Example</span><span class="p">({&#39;</span><span class="n">firstOption</span><span class="p">&#39;</span><span class="o">:</span> <span class="p">&#39;</span><span class="n">value</span><span class="p">&#39;...});</span>
+<span class="kd">var</span> <span class="nx">domNode</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#domNode&#39;</span><span class="p">).</span><span class="nx">Example</span><span class="p">({</span><span class="s1">&#39;firstOption&#39;</span><span class="o">:</span> <span class="s1">&#39;value&#39;</span><span class="p">...});</span>
 <span class="c1">// Static function call:</span>
-<span class="k">var</span> <span class="n">domNode</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">(&#39;#</span><span class="n">domNode</span><span class="p">&#39;).</span><span class="n">Example</span><span class="p">(&#39;</span><span class="n">staticMethod</span><span class="p">&#39;,</span> <span class="p">&#39;</span><span class="n">anArgument</span><span class="p">&#39;);</span>
+<span class="kd">var</span> <span class="nx">domNode</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#domNode&#39;</span><span class="p">).</span><span class="nx">Example</span><span class="p">(</span><span class="s1">&#39;staticMethod&#39;</span><span class="p">,</span> <span class="s1">&#39;anArgument&#39;</span><span class="p">);</span>
+</pre></div>
+</td></tr></table>
 
-<span class="o">-------------------------------------------------------------------------------</span>
-
-<span class="c1">// Use as extension for object orientated jquery plugin using inheritance.</span>
-
-<span class="p">(</span><span class="k">function</span><span class="p">(</span><span class="n">jQuery</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">var</span> <span class="n">Example</span> <span class="o">=</span> <span class="k">function</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">this</span><span class="p">.</span><span class="n">_options</span> <span class="o">=</span> <span class="p">{...};</span>
-        <span class="k">this</span><span class="p">.</span><span class="n">initialize</span> <span class="o">=</span> <span class="k">function</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="p">{</span>
+<p>Use as extension for object orientated jquery plugin using inheritance.</p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">Example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">_options</span> <span class="o">=</span> <span class="p">{...};</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
             <span class="c1">// &quot;this&quot; points to this &quot;Examples&quot; instance extended by &quot;Tools&quot;.</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">options</span><span class="p">)</span>
-                <span class="n">jQuery</span><span class="p">.</span><span class="n">extend</span><span class="p">(</span><span class="n">true</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">options</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+                <span class="nx">jQuery</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_options</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
             <span class="p">...</span>
             <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
         <span class="p">};</span>
-        <span class="k">this</span><span class="p">.</span><span class="n">staticMethod</span> <span class="o">=</span> <span class="k">function</span><span class="p">(</span><span class="n">anArgument</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">staticMethod</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">anArgument</span><span class="p">)</span> <span class="p">{</span>
             <span class="p">...</span>
             <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
         <span class="p">};</span>
         <span class="p">...</span>
     <span class="p">};</span>
-    <span class="n">jQuery</span><span class="p">.</span><span class="n">Example</span> <span class="o">=</span> <span class="k">function</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">var</span> <span class="n">self</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">.</span><span class="n">Tools</span><span class="p">().</span><span class="n">_extend</span><span class="p">(</span><span class="k">new</span> <span class="n">Example</span><span class="p">());</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="p">&#39;</span><span class="n">Example</span><span class="p">&#39;;</span>
-        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_controller</span><span class="p">.</span><span class="n">apply</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">arguments</span><span class="p">);</span>
+    <span class="nx">jQuery</span><span class="p">.</span><span class="nx">Example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">Tools</span><span class="p">().</span><span class="nx">_extend</span><span class="p">(</span><span class="k">new</span> <span class="nx">Example</span><span class="p">());</span>
+        <span class="nx">self</span><span class="p">.</span><span class="nx">__name__</span> <span class="o">=</span> <span class="s1">&#39;Example&#39;</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nx">self</span><span class="p">.</span><span class="nx">_controller</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
     <span class="p">};</span>
-<span class="p">})(</span><span class="n">window</span><span class="p">.</span><span class="n">jQuery</span><span class="p">);</span>
+<span class="p">})(</span><span class="nb">window</span><span class="p">.</span><span class="nx">jQuery</span><span class="p">);</span>
 
 <span class="c1">// Initialisation:</span>
-<span class="k">var</span> <span class="n">exampleInstance</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">.</span><span class="n">Example</span><span class="p">({&#39;</span><span class="n">firstOption</span><span class="p">&#39;</span><span class="o">:</span> <span class="p">&#39;</span><span class="n">value</span><span class="p">&#39;...});</span>
+<span class="kd">var</span> <span class="nx">exampleInstance</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">Example</span><span class="p">({</span><span class="s1">&#39;firstOption&#39;</span><span class="o">:</span> <span class="s1">&#39;value&#39;</span><span class="p">...});</span>
 <span class="c1">// Static function call:</span>
-<span class="k">var</span> <span class="n">exampleInstance</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">.</span><span class="n">Example</span><span class="p">(&#39;</span><span class="n">staticMethod</span><span class="p">&#39;,</span> <span class="p">&#39;</span><span class="n">anArgument</span><span class="p">&#39;);</span>
+<span class="kd">var</span> <span class="nx">exampleInstance</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">Example</span><span class="p">(</span><span class="s1">&#39;staticMethod&#39;</span><span class="p">,</span> <span class="s1">&#39;anArgument&#39;</span><span class="p">);</span>
+</pre></div>
+</td></tr></table>
 
-<span class="o">-------------------------------------------------------------------------------</span>
-
-<span class="c1">// Use as extension for default functional orientated jquery plugin pattern</span>
-<span class="c1">// using composition, dom node reference and chaining support.</span>
-
-<span class="p">(</span><span class="k">function</span><span class="p">(</span><span class="n">jQuery</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">var</span> <span class="n">options</span> <span class="o">=</span> <span class="p">{...};</span>
-    <span class="k">var</span> <span class="n">tools</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">.</span><span class="n">Tools</span><span class="p">();</span>
-    <span class="k">var</span> <span class="n">example</span> <span class="o">=</span> <span class="k">function</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="p">{</span>
+<p>Use as extension for default functional orientated jquery plugin pattern<br />
+using composition, dom node reference and chaining support.</p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{...};</span>
+    <span class="kd">var</span> <span class="nx">tools</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">Tools</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
         <span class="c1">// &quot;this&quot; points to dom node graped by jQuery.</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">options</span><span class="p">)</span>
-            <span class="n">jQuery</span><span class="p">.</span><span class="n">extend</span><span class="p">(</span><span class="n">true</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">options</span><span class="p">);</span>
-        <span class="n">tools</span><span class="p">.</span><span class="n">log</span><span class="p">(&#39;</span><span class="n">initialized</span><span class="p">.&#39;);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+            <span class="nx">jQuery</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_options</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+        <span class="nx">tools</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;initialized.&#39;</span><span class="p">);</span>
         <span class="p">...</span>
     <span class="p">};</span>
-    <span class="n">jQuery</span><span class="p">.</span><span class="n">fn</span><span class="p">.</span><span class="n">example</span> <span class="o">=</span> <span class="k">function</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="p">])</span>
-            <span class="k">return</span> <span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="p">].</span><span class="n">apply</span><span class="p">(</span>
-                <span class="k">this</span><span class="p">,</span> <span class="n">Array</span><span class="p">.</span><span class="n">prototype</span><span class="p">.</span><span class="n">slice</span><span class="p">.</span><span class="n">call</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="mh">1</span><span class="p">));</span>
-        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">jQuery</span><span class="p">.</span><span class="k">type</span><span class="p">(</span><span class="n">method</span><span class="p">)</span> <span class="o">===</span> <span class="p">&#39;</span><span class="n">object</span><span class="p">&#39;</span> <span class="o">||</span> <span class="o">!</span><span class="n">method</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">methods</span><span class="p">.</span><span class="n">init</span><span class="p">.</span><span class="n">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="n">arguments</span><span class="p">);</span>
+    <span class="nx">jQuery</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">methods</span><span class="p">[</span><span class="nx">method</span><span class="p">])</span>
+            <span class="k">return</span> <span class="nx">methods</span><span class="p">[</span><span class="nx">method</span><span class="p">].</span><span class="nx">apply</span><span class="p">(</span>
+                <span class="k">this</span><span class="p">,</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">jQuery</span><span class="p">.</span><span class="nx">type</span><span class="p">(</span><span class="nx">method</span><span class="p">)</span> <span class="o">===</span> <span class="s1">&#39;object&#39;</span> <span class="o">||</span> <span class="o">!</span><span class="nx">method</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nx">methods</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
         <span class="k">else</span>
-            <span class="err">$</span><span class="p">.</span><span class="n">error</span><span class="p">(&#39;</span><span class="n">Method</span> <span class="p">&#39;</span> <span class="o">+</span> <span class="n">method</span> <span class="o">+</span> <span class="p">&#39;</span> <span class="n">does</span> <span class="k">not</span> <span class="n">exist</span> <span class="n">on</span> <span class="n">jQuery</span><span class="p">.</span><span class="n">example</span><span class="p">&#39;);</span>
+            <span class="nx">$</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Method &#39;</span> <span class="o">+</span> <span class="nx">method</span> <span class="o">+</span> <span class="s1">&#39; does not exist on jQuery.example&#39;</span><span class="p">);</span>
     <span class="p">};</span>
-<span class="p">})(</span><span class="n">window</span><span class="p">.</span><span class="n">jQuery</span><span class="p">);</span>
+<span class="p">})(</span><span class="nb">window</span><span class="p">.</span><span class="nx">jQuery</span><span class="p">);</span>
 
 <span class="c1">// Function call:</span>
-<span class="k">var</span> <span class="n">domNode</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">(&#39;#</span><span class="n">domNode</span><span class="p">&#39;).</span><span class="n">example</span><span class="p">({&#39;</span><span class="n">firstOption</span><span class="p">&#39;</span><span class="o">:</span> <span class="p">&#39;</span><span class="n">value</span><span class="p">&#39;...});</span>
+<span class="kd">var</span> <span class="nx">domNode</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#domNode&#39;</span><span class="p">).</span><span class="nx">example</span><span class="p">({</span><span class="s1">&#39;firstOption&#39;</span><span class="o">:</span> <span class="s1">&#39;value&#39;</span><span class="p">...});</span>
 </pre></div>
+</td></tr></table>
             </section>
 
         <!-- endregion -->
