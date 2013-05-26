@@ -14099,6 +14099,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
         addtionalPageLoadingTimeInMilliseconds: 0,
         mediaQueryCssIndicatorStyleType: 'border-left-style',
         trackingCode: 'UA-0-0',
+        scrollInLinearTime: false,
         mediaQueryCssIndicator: {
           desktop: 'dashed',
           tablet: 'solid',
@@ -14441,18 +14442,27 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
           onAfter = jQuery.noop();
         }
         distanceToTop = this._domNodes.window.scrollTop();
-        menuHeight = this._domNodes.topDomNode.find('div.navbar').outerHeight();
-        distanceToScroll = distanceToTop + menuHeight;
-        if (distanceToTop < menuHeight) {
-          distanceToScroll = distanceToScroll + menuHeight - distanceToTop;
+        if (this._options.scrollInLinearTime) {
+          menuHeight = this._domNodes.topDomNode.find('div.navbar').outerHeight();
+          distanceToScroll = distanceToTop + menuHeight;
+          if (distanceToTop < menuHeight) {
+            distanceToScroll = distanceToScroll + menuHeight - distanceToTop;
+          }
+          jQuery.scrollTo({
+            top: "-=" + distanceToScroll + "px",
+            left: '-=0'
+          }, {
+            duration: distanceToScroll,
+            onAfter: onAfter
+          });
+        } else {
+          jQuery.scrollTo({
+            top: "-=" + distanceToScroll + "px",
+            left: '-=0'
+          }, {
+            onAfter: onAfter
+          });
         }
-        jQuery.scrollTo({
-          top: "-=" + distanceToScroll + "px",
-          left: '-=0'
-        }, {
-          duration: distanceToScroll,
-          onAfter: onAfter
-        });
         return this;
       };
 
