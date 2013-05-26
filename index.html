@@ -203,9 +203,9 @@ body.documentation .icon-arrow-home{margin-right:10px;margin-top:12px;float:left
 body.documentation header h1 a,body.documentation header h2 a{color:#fff;}
 body.documentation a[href="#top"]{position:fixed;z-index:4;bottom:35px;right:45px;}
 body.documentation div.window-loading-cover{background-color:white;position:fixed;height:100%;width:100%;z-index:20;}body.documentation div.window-loading-cover div{position:absolute;top:50%;left:50%;background-color:#1b1b1b;}
-body.documentation section.imprint p{margin-bottom:45px;}
-body.documentation section.imprint a[href="#"]{float:left;margin-top:7px;}
-body.documentation section.imprint a:hover{color:#0069ba;}
+body.documentation section.about-this-website p{margin-bottom:45px;}
+body.documentation section.about-this-website a[href="#"]{float:left;margin-top:7px;}
+body.documentation section.about-this-website a:hover{color:#0069ba;}
 body.documentation footer a:hover{color:#0069ba;}
 </style>
 <script type="text/javaScript">
@@ -16841,9 +16841,9 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
         domNodeSelectorPrefix: 'body.{1}',
         domNodes: {
           tableOfContentLinks: 'div.toc a[href^="#"]',
-          imprintLink: 'a[href="#imprint"]',
+          legalNotesLink: 'a[href="#about-this-website"]',
           homeLink: 'a[href="#"]',
-          imprintContent: 'section.imprint',
+          legalNotesContent: 'section.about-this-website',
           mainContent: 'section#main_content'
         },
         trackingCode: 'UA-0-0'
@@ -16870,17 +16870,17 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
       Documentation.prototype.initialize = function(options) {
         var _this = this;
         Documentation.__super__.initialize.call(this, options);
-        this._domNodes.imprintContent.hide();
+        this._domNodes.legalNotesContent.hide();
         this.on(this._domNodes.tableOfContentLinks, 'click', function() {
           return jQuery.scrollTo(jQuery(this).attr('href'), 'slow');
         });
-        this.on(this._domNodes.imprintLink, 'click', function() {
+        this.on(this._domNodes.legalNotesLink, 'click', function() {
           return _this._domNodes.mainContent.fadeOut('slow', function() {
-            return _this._domNodes.imprintContent.fadeIn('slow');
+            return _this._domNodes.legalNotesContent.fadeIn('slow');
           });
         });
         return this.on(this._domNodes.homeLink, 'click', function() {
-          return _this._domNodes.imprintContent.fadeOut('slow', function() {
+          return _this._domNodes.legalNotesContent.fadeOut('slow', function() {
             return _this._domNodes.mainContent.fadeIn('slow');
           });
         });
@@ -16895,12 +16895,12 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
 
       Documentation.prototype._onSwitchSection = function(hash) {
         var _this = this;
-        if (hash !== '#imprint') {
-          this._domNodes.imprintContent.fadeOut('slow', function() {
+        if (hash !== '#about-this-website') {
+          this._domNodes.legalNotesContent.fadeOut('slow', function() {
             return _this._domNodes.mainContent.fadeIn('slow');
           });
         }
-        this._domNodes.tableOfContentLinks.add(this._domNodes.imprintLink).filter("a[href=\"" + hash + "\"]").trigger('click');
+        this._domNodes.tableOfContentLinks.add(this._domNodes.legalNotesLink).filter("a[href=\"" + hash + "\"]").trigger('click');
         return Documentation.__super__._onSwitchSection.call(this);
       };
 
@@ -16913,7 +16913,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
 
 
       Documentation.prototype._onStartUpAnimationComplete = function() {
-        return this._domNodes.tableOfContentLinks.add(this._domNodes.imprintLink).filter("a[href=\"" + (window.location.href.substr(window.location.href.indexOf('#'))) + "\"]").trigger('click', Documentation.__super__._onStartUpAnimationComplete.call(this));
+        return this._domNodes.tableOfContentLinks.add(this._domNodes.legalNotesLink).filter("a[href=\"" + (window.location.href.substr(window.location.href.indexOf('#'))) + "\"]").trigger('click', Documentation.__super__._onStartUpAnimationComplete.call(this));
       };
 
       return Documentation;
@@ -17152,10 +17152,10 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
 
         <!-- endregion -->
 
-        <!-- region imprint -->
+        <!-- region legal notes -->
 
-            <section class="imprint inner">
-                <h1>Imprint</h1>
+            <section class="about-this-website inner">
+                <h1>About this website</h1>
                 <p>
                     Anbieter von <a href="http://thaibault.github.io/jQuery-tools">http://thaibault.github.io/jQuery-tools</a>:
                     <br />
@@ -17185,7 +17185,7 @@ var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
         <div id="footer_wrap" class="outer">
             <footer class="inner">
                 <p class="start-up-animation-number-8 copyright">
-                    jQuery-tools maintained by <a href="https://github.com/thaibault">thaibault</a> &middot; &copy; 2013 Torben Sickert, Inc. &middot; <a href="#imprint">imprint</a>
+                    jQuery-tools maintained by <a href="https://github.com/thaibault">thaibault</a> &middot; &copy; 2013 Torben Sickert, Inc. &middot; <a href="#about-this-website">about this website</a>
                 </p>
                 <p class="pull-right"><a href="#top">top</a></p>
             </footer>
