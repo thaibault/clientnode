@@ -14382,14 +14382,14 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
         if (!jQuery.isNumeric(elementNumber)) {
           elementNumber = 1;
         }
-        window.setTimeout(function() {
+        window.setTimeout((function() {
           jQuery(_this._options.domNodes.startUpAnimationClassPrefix + elementNumber).fadeIn(_this._options.startUpFadeInOptions);
           if ((jQuery(_this._options.domNodes.startUpAnimationClassPrefix + (elementNumber + 1)).length)) {
             return _this._handleStartUpEffects(elementNumber + 1);
           } else if (window.location.href.indexOf('#') !== -1) {
             return _this.fireEvent('startUpAnimationComplete');
           }
-        }, this._options.startUpAnimationElementDelayInMiliseconds);
+        }), this._options.startUpAnimationElementDelayInMiliseconds);
         return this;
       };
 
