@@ -27,6 +27,7 @@ Usage
 Direct access of a method in "Tools".
 
     #!/usr/bin/env javaScript
+
     var tools = jQuery.Tools({'logging': true});
     tools.log('test');
 
@@ -34,6 +35,7 @@ Use as extension for object orientated jquery plugin using inheritance and
 dom node reference. This plugin pattern gives their instance back.
 
     #!/usr/bin/env javaScript
+
     (function(jQuery) {
         var Example = function(domNode) {
             this._options = {...};
@@ -67,6 +69,7 @@ Use as extension for object orientated jquery plugin using inheritance,
 dom node reference and chaining support.
 
     #!/usr/bin/env javaScript
+
     (function(jQuery) {
         var Example = function(domNode) {
             this._options = {...};
@@ -99,6 +102,7 @@ dom node reference and chaining support.
 Use as extension for object orientated jquery plugin using inheritance.
 
     #!/usr/bin/env javaScript
+
     (function(jQuery) {
         var Example = function() {
             this._options = {...};
@@ -131,6 +135,7 @@ Use as extension for default functional orientated jquery plugin pattern
 using composition, dom node reference and chaining support.
 
     #!/usr/bin/env javaScript
+
     (function(jQuery) {
         var options = {...};
         var tools = jQuery.Tools();
