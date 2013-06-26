@@ -115,7 +115,9 @@
 */
 (function(){var a={}.hasOwnProperty,b=function(f,d){for(var c in d){if(a.call(d,c)){f[c]=d[c]}}function e(){this.constructor=f}e.prototype=d.prototype;f.prototype=new e();f.__super__=d.prototype;return f};(function(e){var d,c;d=(function(f){b(g,f);function g(){c=g.__super__.constructor.apply(this,arguments);return c}g.prototype.__name__="Documentation";g.prototype._options={domNodeSelectorPrefix:"body.{1}",domNodes:{tableOfContentLinks:'div.toc a[href^="#"]',legalNotesLink:'a[href="#about-this-website"]',homeLink:'a[href="#"]',legalNotesContent:"section.about-this-website",mainContent:"section.main-content"},trackingCode:"UA-0-0"};g.prototype._domNodes={};g.prototype.initialize=function(h){var i=this;g.__super__.initialize.call(this,h);this._domNodes.legalNotesContent.hide();this.on(this._domNodes.tableOfContentLinks,"click",function(){return e.scrollTo(e(this).attr("href"),"slow")});this.on(this._domNodes.legalNotesLink,"click",function(){return i._domNodes.mainContent.fadeOut("slow",function(){return i._domNodes.legalNotesContent.fadeIn("slow")})});return this.on(this._domNodes.homeLink,"click",function(){return i._domNodes.legalNotesContent.fadeOut("slow",function(){return i._domNodes.mainContent.fadeIn("slow")})})};g.prototype._onSwitchSection=function(h){var i=this;if(h!=="#about-this-website"){this._domNodes.legalNotesContent.fadeOut("slow",function(){return i._domNodes.mainContent.fadeIn("slow")})}this._domNodes.tableOfContentLinks.add(this._domNodes.legalNotesLink).filter('a[href="'+h+'"]').trigger("click");return g.__super__._onSwitchSection.call(this)};g.prototype._onStartUpAnimationComplete=function(){return this._domNodes.tableOfContentLinks.add(this._domNodes.legalNotesLink).filter('a[href="'+(window.location.href.substr(window.location.href.indexOf("#")))+'"]').trigger("click",g.__super__._onStartUpAnimationComplete.call(this))};return g})(e.Website["class"]);e.Documentation=function(){var f;f=new d;return f._controller.apply(f,arguments)};return e.Documentation["class"]=d}).call(this,this.jQuery)}).call(this);(function(){this.jQuery.noConflict(true)(function(a){return a.Documentation(window.OPTIONS)})}).call(this);</script></head><body class=documentation><div class=window-loading-cover><div></div></div><div class="header-wrap outer"><header class=inner><a class="start-up-animation-number-2 forkme-banner" href="//github.com/thaibault/jQuery-tools"> View on GitHub </a><h1 class=start-up-animation-number-3 class=project-title><a href="//thaibault.github.io/jQuery-tools">jQuery-tools</a></h1><h2 class="start-up-animation-number-4 project-tagline">Provides mutual exclusion, generic interface controller, object orientated design through the original jquery pattern and selector scoping</h2><section class=downloads><a class="start-up-animation-number-5 zip-source-download" href="//github.com/thaibault/jQuery-tools/zipball/master"> src.zip </a><a class="start-up-animation-number-6 zip-distribution-bundle-download" href="distributionBundle.zip"> app.zip </a></section></header></div><div class="main-content-wrap outer"><section class="main-content inner start-up-animation-number-7"><h1 id=jquery-tools>jquery-tools</h1><p>Provides mutual exclusion, generic interface controller, object orientated<br/>design through the original jquery pattern and selector scoping.</p><p>Usage</p><p>Direct access of a method in "Tools".</p><table class=codehilitetable><tr><td class=linenos><div class=linenodiv><pre>1
 2
-3</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
+3
+4</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
+
 <span class="kd">var</span> <span class="nx">tools</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">Tools</span><span class="p">({</span><span class="s1">&#39;logging&#39;</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
 <span class="nx">tools</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">);</span>
 </pre></div></td></tr></table><p>Use as extension for object orientated jquery plugin using inheritance and<br/>dom node reference. This plugin pattern gives their instance back.</p><table class=codehilitetable><tr><td class=linenos><div class=linenodiv><pre> 1
@@ -146,7 +148,9 @@
 26
 27
 28
-29</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
+29
+30</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
+
 <span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">Example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">domNode</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">this</span><span class="p">.</span><span class="nx">_options</span> <span class="o">=</span> <span class="p">{...};</span>
@@ -203,7 +207,9 @@
 26
 27
 28
-29</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
+29
+30</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
+
 <span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">Example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">domNode</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">this</span><span class="p">.</span><span class="nx">_options</span> <span class="o">=</span> <span class="p">{...};</span>
@@ -259,7 +265,9 @@
 25
 26
 27
-28</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
+28
+29</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
+
 <span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">Example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="k">this</span><span class="p">.</span><span class="nx">_options</span> <span class="o">=</span> <span class="p">{...};</span>
@@ -310,7 +318,9 @@
 21
 22
 23
-24</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
+24
+25</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
+
 <span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{...};</span>
     <span class="kd">var</span> <span class="nx">tools</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">Tools</span><span class="p">();</span>
