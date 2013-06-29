@@ -45,8 +45,8 @@ test 'getDomNodeName', ->
     strictEqual jQuery.Tools().getDomNodeName('<a />'), 'a'
     strictEqual jQuery.Tools().getDomNodeName('<a></a>'), 'a'
 
-test 'grapdomNodes', ->
-    domNodes = jQuery.Tools().grapDomNodes(
+test 'grabdomNodes', ->
+    domNodes = jQuery.Tools().grabDomNodes(
         qunit: 'body div#qunit'
         qunitFixture: 'body div#qunit-fixture')
     delete domNodes.window
@@ -55,7 +55,7 @@ test 'grapdomNodes', ->
         qunitFixture: jQuery 'body div#qunit-fixture'
         parent: jQuery 'body'
 
-    domNodes = jQuery.Tools().grapDomNodes(
+    domNodes = jQuery.Tools().grabDomNodes(
         qunit: 'div#qunit'
         qunitFixture: 'div#qunit-fixture')
     delete domNodes.window

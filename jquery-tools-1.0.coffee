@@ -242,7 +242,7 @@ returnValue = jQuery.Example 'staticMethod', 'anArgument'
     var options = {...};
     var tools = jQuery.Tools();
     var example = function(options) {
-        // "this" points to dom node graped by jQuery.
+        // "this" points to dom node grabed by jQuery.
         if (options)
             jQuery.extend(true, this._options, options);
         tools.log('initialized.');
@@ -267,7 +267,7 @@ jQuery = this.jQuery
 defaultOptions = {...}
 tools = jQuery.Tools
 example = (options={}) ->
-    # "this" points to dom node graped by jQuery.
+    # "this" points to dom node grabed by jQuery.
     jQuery.extend true, defaultOptions, options
     tools.log 'initialized.'
     ...
@@ -669,7 +669,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @returns {Object} Returns all jQuery wrapped dom nodes
                               corressponding to given selectors.
         ###
-        grapDomNodes: (domNodeSelectors) ->
+        grabDomNodes: (domNodeSelectors) ->
             domNodes = {}
             jQuery.each(domNodeSelectors, (key, value) =>
                 if(key.substring(key.length - 2) isnt 'Id' and
@@ -679,11 +679,11 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                         jQuery.each(
                             value.split(match[0]), (key, valuePart) =>
                                 if key
-                                    value += ', ' + this._grapDomNodesHelper(
+                                    value += ', ' + this._grabDomNodesHelper(
                                         key, valuePart, domNodeSelectors)
                                 else
                                     value = valuePart)
-                    value = this._grapDomNodesHelper(
+                    value = this._grabDomNodesHelper(
                         key, value, domNodeSelectors)
                 domNodes[key] = jQuery value)
             if this._options and this._options.domNodeSelectorPrefix
@@ -786,17 +786,17 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                          is given. Given arguments are modified and passed
                          through "jquery.delegate()".
 
-            @returns {jQuery} Returns jQuery's graped dom node.
+            @returns {jQuery} Returns jQuery's grabed dom node.
         ###
         delegate: ->
             this._bindHelper arguments, false, 'delegate'
         ###*
-            @description A wrapper method fo "jQuery.undelegate()".
+            @description A wrapper method for "jQuery.undelegate()".
                          It sets current plugin name as event scope if no scope
                          is given. Given arguments are modified and passed
                          through "jquery.undelegate()".
 
-            @returns {jQuery} Returns jQuery's graped dom node.
+            @returns {jQuery} Returns jQuery's grabed dom node.
         ###
         undelegate: ->
             this._bindHelper arguments, true, 'undelegate'
@@ -806,7 +806,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                          is given. Given arguments are modified and passed
                          through "jquery.on()".
 
-            @returns {jQuery} Returns jQuery's graped dom node.
+            @returns {jQuery} Returns jQuery's grabed dom node.
         ###
         on: ->
             this._bindHelper arguments, false, 'on'
@@ -816,7 +816,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                          is given. Given arguments are modified and passed
                          through "jquery.off()".
 
-            @returns {jQuery} Returns jQuery's graped dom node.
+            @returns {jQuery} Returns jQuery's grabed dom node.
         ###
         off: ->
             this._bindHelper arguments, true, 'off'
@@ -826,7 +826,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                          is given. Given arguments are modified and passed
                          through "jquery.bind()".
 
-            @returns {jQuery} Returns jQuery's graped dom node.
+            @returns {jQuery} Returns jQuery's grabed dom node.
         ###
         bind: ->
             this._bindHelper arguments
@@ -836,7 +836,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                          is given. Given arguments are modified and passed
                          through "jquery.unbind()".
 
-            @returns {jQuery} Returns jQuery's graped dom node.
+            @returns {jQuery} Returns jQuery's grabed dom node.
         ###
         unbind: ->
             this._bindHelper arguments, true
@@ -1046,13 +1046,13 @@ jQuery('div#id').InheritedFromTools(options);
             @description Converts a dom selector to a prefixed dom selector
                          string.
 
-            @param {Integer} key Current element in options array to grap.
+            @param {Integer} key Current element in options array to grab.
             @param {String} selector A dom node selector.
             @param {Object} domNodeSelectors An object with dom node selectors.
 
             @returns {Object}
         ###
-        _grapDomNodesHelper: (key, selector, domNodeSelectors) ->
+        _grabDomNodesHelper: (key, selector, domNodeSelectors) ->
             domNodeSelectorPrefix = 'body'
             if this._options and this._options.domNodeSelectorPrefix
                 domNodeSelectorPrefix = this._options.domNodeSelectorPrefix
