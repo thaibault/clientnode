@@ -135,7 +135,7 @@ Structure of dependencies
 
 # endregion
 
-# region objects
+# region classes
 
 ###*
     This class can be used as function for defining dependencies for
@@ -448,7 +448,8 @@ class Require
                 ajaxObject.open(
                     'GET', self::_getScriptFilePath module[1], true)
                 ajaxObject.onreadystatechange = ->
-                    if ajaxObject.readyState is 4 and ajaxObject.status is 200
+                    # TODO check if in is ok here. and shorten line width.
+                    if ajaxObject.readyState is 4 and ajaxObject.status in [200, 0]
                         shortcut[asyncronModulePattern](
                             ajaxObject.responseText, module, parameter)
                         self::_scriptLoaded module, parameter
@@ -456,7 +457,7 @@ class Require
                         ajaxObject.onreadystatechange = null
                     else if ajaxObject.status isnt 200
                         self::_log(
-                            "Loading ressource \"#{module[1]}\" failed via " +
+                            "Loading resource \"#{module[1]}\" failed via " +
                             "ajax with status \"#{ajaxObject.status}\" in " +
                             "state \"#{ajaxObject.readyState}\".")
                 ajaxObject.send null

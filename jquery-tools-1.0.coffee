@@ -39,7 +39,7 @@ this.require([['jQuery', 'jquery-1.9.1']], (jQuery) ->
 
 # endregion
 
-# region plugins
+# region plugins/classes
 
     # region description
 
