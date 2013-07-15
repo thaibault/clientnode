@@ -448,8 +448,8 @@ class Require
                 ajaxObject.open(
                     'GET', self::_getScriptFilePath module[1], true)
                 ajaxObject.onreadystatechange = ->
-                    # TODO check if in is ok here. and shorten line width.
-                    if ajaxObject.readyState is 4 and ajaxObject.status in [200, 0]
+                    if ajaxObject.readyState is 4 and
+                       ajaxObject.status in [200, 0]
                         shortcut[asyncronModulePattern](
                             ajaxObject.responseText, module, parameter)
                         self::_scriptLoaded module, parameter
