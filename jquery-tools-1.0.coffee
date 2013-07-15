@@ -854,7 +854,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
 
         ###*
             @description Converts the interpreter given magic arguments
-                         object to a standart array object.
+                         object to a standard array object.
 
             @param {Object} argumentsObject An argument object.
 
