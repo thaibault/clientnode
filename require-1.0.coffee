@@ -361,7 +361,7 @@ class Require
             Because of declaration of arguments the parser things that
             arguments is a local variable and could be renamed.
             It doesn't care about that the magic arguments object is
-            neccessary to generate the arguments array in this context.
+            necessary to generate the arguments array in this context.
 
             var arguments = Array.prototype.slice.call(arguments);
 
