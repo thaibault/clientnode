@@ -140,7 +140,7 @@ Structure of dependencies
 ###*
     This class can be used as function for defining dependencies for
     modules.
-    Note that this function searches in the same ressource as the first
+    Note that this function searches in the same resource as the first
     javascript include tag in your markup if given dependency resource
     doesn't start with "http://".
     You can manually change this behavior by adding a search base via
@@ -169,7 +169,7 @@ class Require
     ###
     self = Require
     ###*
-        If setted all ressources will be appended by a timestamp string to
+        If setted all resources will be appended by a timestamp string to
         make each request unique.
         This is usefull to workaround some browsers caching mechanisms
         which aren't required.
@@ -206,14 +206,14 @@ class Require
     ###
     this.headNode
     ###*
-        Saves all loaded script ressources to prevent double script
+        Saves all loaded script resources to prevent double script
         loading.
 
         @property {String[]}
     ###
     this.initializedLoadings
     ###*
-        Indicates if require should load ressource on its own.
+        Indicates if require should load resource on its own.
 
         @property {Boolean}
     ###
@@ -394,7 +394,7 @@ class Require
             )
                 ###
                     If module is currently not loading put current function
-                    call initialize loading needed ressource.
+                    call initialize loading needed resource.
                 ###
                 if typeof(module) is 'string'
                     module = ['', module]
@@ -403,7 +403,7 @@ class Require
                         "Prevent loading module \"#{module[0]}\" in passiv " +
                         "mode.")
                 else
-                    self::_initializeRessourceLoading module, parameter
+                    self::_initializeResourceLoading module, parameter
         else
             ###
                 Call a given event handler (if provided as second argument)
@@ -425,7 +425,7 @@ class Require
             return self::_handleNoConflict()
         self
     ###*
-        @description Initialize loading of needed ressources.
+        @description Initialize loading of needed resources.
 
         @param {String[]} module A tuple (consisting of module indicator
                                  and module file path) which should be
@@ -435,7 +435,7 @@ class Require
 
         @returns {require} Returns the current instance.
     ###
-    _initializeRessourceLoading: (module, parameter) ->
+    _initializeResourceLoading: (module, parameter) ->
         isAsyncronRequest = false
         shortcut = self.asyncronModulePatternHandling
         for asyncronModulePattern, callback of shortcut
@@ -464,7 +464,7 @@ class Require
                 isAsyncronRequest = true
                 break
         if not isAsyncronRequest
-            self::_appendRessourceDomNode(
+            self::_appendResourceDomNode(
                 self::_createScriptLoadingNode(module[1]), module, parameter)
         type = 'header dom node'
         if isAsyncronRequest
@@ -507,7 +507,7 @@ class Require
 
         @returns {require} Returns the current instance.
     ###
-    _appendRessourceDomNode: (scriptNode, module, parameters) ->
+    _appendResourceDomNode: (scriptNode, module, parameters) ->
         ###
             Internet explorer workaround for capturing event when
             script is loaded.
@@ -529,9 +529,9 @@ class Require
     ###*
         @description Creates a new script loading tag.
 
-        @param {String} scriptFilePath Path pointing to the file ressource.
+        @param {String} scriptFilePath Path pointing to the file resource.
 
-        @returns {String} The absolute path to needed ressource.
+        @returns {String} The absolute path to needed resource.
     ###
     _getScriptFilePath: (scriptFilePath) ->
         if scriptFilePath.substring(0, 'http://'.length) is 'http://'
@@ -544,10 +544,10 @@ class Require
     ###*
         @description Creates a new script loading tag.
 
-        @param {String} scriptFilePath Path pointing to the file ressource.
+        @param {String} scriptFilePath Path pointing to the file resource.
 
         @returns {DomNode} Returns script node needed to load given script
-                           ressource.
+                           resource.
     ###
     _createScriptLoadingNode: (scriptFilePath) ->
         scriptNode = document.createElement 'script'
@@ -572,7 +572,7 @@ class Require
                      continue later.
 
         @param {String[]} module A tuple of module name to indicate if a
-                          module is presence and its file path ressource.
+                          module is presence and its file path resource.
         @param {Object[]} parameters Saves arguments indented to be given
                                      to the onload function.
 
@@ -599,7 +599,7 @@ class Require
     ###
     _handleNoConflict: ->
         if self._callQueue.length is 0 and self.initializedLoadings.length is 0
-            self::_log 'All ressources are loaded so far.'
+            self::_log 'All resources are loaded so far.'
             if require and self.noConflict
                 if self.noConflict is true
                     ###

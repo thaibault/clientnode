@@ -34,7 +34,7 @@
     @name jQuery
     @see www.jquery.com
 ###
-## standalone ((jQuery) ->
+## standalone do (jQuery) ->
 this.require([['jQuery', 'jquery-1.9.1']], (jQuery) ->
 
 # endregion
@@ -242,7 +242,7 @@ returnValue = jQuery.Example 'staticMethod', 'anArgument'
     var options = {...};
     var tools = jQuery.Tools();
     var example = function(options) {
-        // "this" points to dom node grabed by jQuery.
+        // "this" points to dom node grabbed by jQuery.
         if (options)
             jQuery.extend(true, this._options, options);
         tools.log('initialized.');
@@ -267,7 +267,7 @@ jQuery = this.jQuery
 defaultOptions = {...}
 tools = jQuery.Tools
 example = (options={}) ->
-    # "this" points to dom node grabed by jQuery.
+    # "this" points to dom node grabbed by jQuery.
     jQuery.extend true, defaultOptions, options
     tools.log 'initialized.'
     ...
@@ -786,7 +786,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                          is given. Given arguments are modified and passed
                          through "jquery.delegate()".
 
-            @returns {jQuery} Returns jQuery's grabed dom node.
+            @returns {jQuery} Returns jQuery's grabbed dom node.
         ###
         delegate: ->
             this._bindHelper arguments, false, 'delegate'
@@ -796,7 +796,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                          is given. Given arguments are modified and passed
                          through "jquery.undelegate()".
 
-            @returns {jQuery} Returns jQuery's grabed dom node.
+            @returns {jQuery} Returns jQuery's grabbed dom node.
         ###
         undelegate: ->
             this._bindHelper arguments, true, 'undelegate'
@@ -806,7 +806,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                          is given. Given arguments are modified and passed
                          through "jquery.on()".
 
-            @returns {jQuery} Returns jQuery's grabed dom node.
+            @returns {jQuery} Returns jQuery's grabbed dom node.
         ###
         on: ->
             this._bindHelper arguments, false, 'on'
@@ -816,7 +816,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                          is given. Given arguments are modified and passed
                          through "jquery.off()".
 
-            @returns {jQuery} Returns jQuery's grabed dom node.
+            @returns {jQuery} Returns jQuery's grabbed dom node.
         ###
         off: ->
             this._bindHelper arguments, true, 'off'
@@ -826,7 +826,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                          is given. Given arguments are modified and passed
                          through "jquery.bind()".
 
-            @returns {jQuery} Returns jQuery's grabed dom node.
+            @returns {jQuery} Returns jQuery's grabbed dom node.
         ###
         bind: ->
             this._bindHelper arguments
@@ -836,7 +836,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                          is given. Given arguments are modified and passed
                          through "jquery.unbind()".
 
-            @returns {jQuery} Returns jQuery's grabed dom node.
+            @returns {jQuery} Returns jQuery's grabbed dom node.
         ###
         unbind: ->
             this._bindHelper arguments, true
@@ -1082,5 +1082,5 @@ jQuery('div#id').InheritedFromTools(options);
 
 # endregion
 
-## standalone ).call this, this.jQuery
+## standalone
 )

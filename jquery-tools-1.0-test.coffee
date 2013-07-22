@@ -1,5 +1,3 @@
-# region header
-
 # region vim modline
 
 # vim: set tabstop=4 shiftwidth=4 expandtab:
@@ -19,6 +17,8 @@
 module 'Tools'
 
 # endregion
+
+# region tests
 
 test 'initialize', ->
     ok jQuery.Tools()
@@ -63,3 +63,5 @@ test 'grabdomNodes', ->
         parent: jQuery 'body'
         qunit: jQuery 'body div#qunit'
         qunitFixture: jQuery 'body div#qunit-fixture'
+
+# endregion
