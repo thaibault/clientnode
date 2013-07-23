@@ -252,7 +252,7 @@ class Require
 
     ###*
         Saves function calls to require for running them in right order to
-        guarantee dependencies. It consits of a list of tuples storing
+        guarantee dependencies. It consist of a list of tuples storing
         needed dependency as string and arguments to be given to callback
         function if dependency is determined.
 
@@ -275,9 +275,9 @@ class Require
             if self.basePath.coffee
                 sourceRootPath = self.basePath.coffee
             coffeeScriptCompilerOptions =
+                header: false
                 sourceMap: true
                 filename: module[1]
-                header: false
                 generatedFile: module[1].substr(
                     0, module[1].lastIndexOf('.') + 1
                 ) + 'js'
@@ -292,7 +292,7 @@ class Require
                 window.eval(
                     "#{js}\n//@ sourceMappingURL=data:application/json;" +
                     "base64," + btoa unescape encodeURIComponent v3SourceMap +
-                    "\n//@ sourceURL=" + coffeeScriptCompilerOptions.filename)
+                    "\n//@ sourceURL=" + sourceRootPath + module[1])
             else
                 window.CoffeeScript.run(
                     coffeeScriptCode, coffeeScriptCompilerOptions)
