@@ -54,12 +54,12 @@
                1. Import all standard modules and packages,
                2. then all from third party,
                3. now import your own modules or packages.
-               4. Sort import names alphabetically and seperate the previous
+               4. Sort import names alphabetically and separate the previous
                   defined parts with blank lines.
-    - rc11 Import everthing by its whole name and reference path and use it by
+    - rc11 Import everything by its whole name and reference path and use it by
            its full reference path (even builtin units).
     - rc12 Don't use any abbreviations.
-    - rc13 Try to use small cyclomatice complexity in all units.
+    - rc13 Try to use small cyclomatic complexity in all units.
            (e.g. less than 20 or 30).
     - rc14 Use one of the plugin pattern described in "jQuery.Tools".
     - rc15 Use the area statement syntax to structure your code and make it
@@ -81,6 +81,11 @@
                     parameter2,
                     parameter3,
                     parameter4)
+
+            or:
+
+            function(parameter1, parameter2, parameter3,
+                     parameter4)
 
 Structure of meta documenting classes. (see rc15)
 
@@ -141,7 +146,7 @@ Structure of dependencies
     This class can be used as function for defining dependencies for
     modules.
     Note that this function searches in the same resource as the first
-    javascript include tag in your markup if given dependency resource
+    javaScript include tag in your markup if given dependency resource
     doesn't start with "http://".
     You can manually change this behavior by adding a search base via
     "window.require.basePath".
@@ -290,9 +295,10 @@ class Require
                 {js, v3SourceMap} = window.CoffeeScript.compile(
                     coffeeScriptCode, coffeeScriptCompilerOptions)
                 window.eval(
-                    "#{js}\n//@ sourceMappingURL=data:application/json;" +
-                    "base64," + btoa unescape encodeURIComponent v3SourceMap +
-                    "\n//@ sourceURL=" + sourceRootPath + module[1])
+                    js + '\n//@ sourceMappingURL=data:application/json;' +
+                    'base64,' +
+                    (btoa unescape encodeURIComponent v3SourceMap) + '\n//@ ' +
+                    'sourceURL=' + module[1])
             else
                 window.CoffeeScript.run(
                     coffeeScriptCode, coffeeScriptCompilerOptions)
@@ -462,7 +468,7 @@ class Require
                                  and module file path) which should be
                                  loaded.
         @param {Object[]} parameters Saves arguments indented to be given
-                                     to the onload function.
+                                     to the on load function.
 
         @returns {require} Returns the current instance.
     ###
@@ -533,7 +539,7 @@ class Require
                                  and module file path) which should be
                                  loaded.
         @param {Object[]} parameters Saves arguments indented to be given
-                                     to the onload function.
+                                     to the on load function.
 
         @returns {require} Returns the current instance.
     ###
@@ -604,7 +610,7 @@ class Require
         @param {String[]} module A tuple of module name to indicate if a
                           module is presence and its file path resource.
         @param {Object[]} parameters Saves arguments indented to be given
-                                     to the onload function.
+                                     to the on load function.
 
         @returns {require} Returns the current instance.
     ###
