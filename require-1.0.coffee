@@ -1,4 +1,4 @@
-#!/usr/bin/env coffee
+#!/usr/bin/env require
 
 # region vim modline
 
