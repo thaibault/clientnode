@@ -17,8 +17,6 @@
 #    see http://creativecommons.org/licenses/by/3.0/deed.de
 
 ###!
-    jQuery plugin for "jquery-1.8.3".
-
     Copyright see require on https://github.com/thaibault/require
 
     Conventions see require on https://github.com/thaibault/require

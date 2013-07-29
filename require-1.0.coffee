@@ -154,7 +154,7 @@ Structure of dependencies
     @class
 
     @example
-window.require([['jQuery', 'jquery-1.8.3']], function() {
+window.require([['jQuery', 'jquery-3.0.1']], function() {
     jQuery('div#id').show('slow');
 });
 ###
