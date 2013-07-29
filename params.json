@@ -1,1 +1,8 @@
-{"name":"jQuery-tools","tagline":"Provides mutual exclusion, generic interface controller, object orientated design through the original jquery pattern and selector scoping","body":"","google":"UA-40282801-1","note":"Don't delete this file! It's used internally to help with page regeneration."}
+{
+    "name": "jQuery-tools",
+    "tagline": "Provides mutual exclusion, generic interface controller, object orientated design through the original jquery pattern and selector scoping",
+    "body": "",
+    "google": "UA-40282801-1",
+    "language": "en",
+    "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
