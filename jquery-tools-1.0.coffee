@@ -35,7 +35,7 @@
     @see www.jquery.com
 ###
 ## standalone do (jQuery) ->
-this.require([['jQuery', 'jquery-1.9.1']], (jQuery) ->
+this.require([['jQuery', 'jquery-2.0.3']], (jQuery) ->
 
 # endregion
 
