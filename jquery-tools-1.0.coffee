@@ -24,7 +24,7 @@
     @author t.sickert@gmail.com (Torben Sickert)
     @version 1.0 stable
     @fileOverview
-    This module provides common resuable logic for every jquery non trivial
+    This module provides common reusable logic for every jquery non trivial
     plugin.
 ###
 
@@ -278,10 +278,10 @@ jQuery.fn.example = ->
     else
         $.error "Method \"#{method}\" does not exist on jQuery.example."
 
-    # endregion
-
 # Function call:
 domNode = jQuery('#domNode').example firstOption: 'value'...
+
+    # endregion
     ###
     class Tools
 
