@@ -20,7 +20,6 @@ module 'Tools'
 
 # region tests
 
-# TODO hier ist jQuery manchmal noch nicht geladen!
 test 'initialize', ->
     ok jQuery.Tools()
 
