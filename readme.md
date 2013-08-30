@@ -183,7 +183,8 @@ using composition, dom node reference and chaining support.
             else if (jQuery.type(method) === 'object' || !method)
                 return methods.init.apply(this, arguments);
             else
-                $.error('Method ' + method + ' does not exist on jQuery.example');
+                $.error(
+                    'Method ' + method + ' does not exist on jQuery.example');
         };
     }).call(this, this.jQuery);
 
