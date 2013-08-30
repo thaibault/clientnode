@@ -296,7 +296,8 @@
 20
 21
 22
-23</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
+23
+24</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
 
 <span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{...};</span>
@@ -316,7 +317,8 @@
             <span class="k">return</span> <span class="nx">methods</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
         <span class="k">else</span>
             <span class="nx">$</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span>
-                <span class="s1">&#39;Method &#39;</span> <span class="o">+</span> <span class="nx">method</span> <span class="o">+</span> <span class="s1">&#39; does not exist on jQuery.example&#39;</span><span class="p">);</span>
+                <span class="s1">&#39;Method &#39;</span> <span class="o">+</span> <span class="nx">method</span> <span class="o">+</span> <span class="s1">&#39; does not exist on &#39;</span> <span class="o">+</span>
+                <span class="s1">&#39;jQuery.example&#39;</span><span class="p">);</span>
     <span class="p">};</span>
 <span class="p">}).</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">jQuery</span><span class="p">);</span>
 </pre></div></td></tr></table><p>Function call:</p><div class=codehilite><pre><span class="n">var</span> <span class="n">domNode</span> <span class="o">=</span> <span class="n">jQuery</span><span class="p">(</span><span class="err">&#39;#</span><span class="n">domNode</span><span class="err">&#39;</span><span class="p">).</span><span class="n">example</span><span class="p">({</span><span class="err">&#39;</span><span class="n">firstOption</span><span class="err">&#39;</span><span class="o">:</span> <span class="err">&#39;</span><span class="n">value</span><span class="err">&#39;</span><span class="p">...});</span>
