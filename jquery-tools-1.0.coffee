@@ -24,7 +24,7 @@
     @author t.sickert@gmail.com (Torben Sickert)
     @version 1.0 stable
     @fileOverview
-    This module provides common reusable logic for every jquery non trivial
+    This module provides common reusable logic for every jQuery non trivial
     plugin.
 ###
 
@@ -39,8 +39,6 @@ this.require([['jQuery', 'jquery-2.0.3']], (jQuery) ->
 
 # region plugins/classes
 
-    # region description
-
     ###*
         This plugin provides such interface logic like generic controller
         logic for integrating plugins into jQuery, mutual exclusion for
@@ -50,238 +48,6 @@ this.require([['jQuery', 'jquery-2.0.3']], (jQuery) ->
 
         @memberOf jQuery
         @class
-
-        @example
-
-// Direct access of a method in "Tools".
-
-// java script version
-var tools = jQuery.Tools({'logging': true});
-tools.log('test');
-
-// coffee script version
-tools = jQuery.Tools logging: true
-tools.log test
-
--------------------------------------------------------------------------------
-
-// Use as extension for object orientated jquery plugin using inheritance and
-// dom node reference. This plugin pattern gives their instance back.
-
-// java script version
-(function(jQuery) {
-    var Example = function(domNode) {
-        this.__name__ = 'Example';
-        this._domNode = domNode;
-        this._options = {...};
-        this.initialize = function(options) {
-            // "this._domNode" points to jQuery's wrapped dom node.
-            // "this" points to this "Examples" instance extended by "Tools".
-            if (options)
-                jQuery.extend(true, this._options, options);
-            ...
-            return this;
-        };
-        this.staticMethod = function(anArgument) {
-            ...
-            return this;
-        };
-        ...
-    };
-    jQuery.fn.Example = function() {
-        var self = jQuery.Tools()._extend(new Example(this));
-        return self._controller.apply(self, arguments);
-    };
-}).call(this, this.jQuery);
-
-// Initialisation:
-var examplesInstance = jQuery('#domNode').Example({'firstOption': 'value'...});
-// Static function call:
-var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
-
-// coffee script version
-class Example extends jQuery.Tools.class
-    __name__: 'Example'
-    _options: {...}
-    initialize: (options={}) ->
-        # "this._domNode" points to jQuery's wrapped dom node.
-        # "this" points to this "Examples" instance extended by "Tools".
-        super options
-    staticMethod: (anArgument) ->
-        ...
-        this
-    ...
-jQuery.fn.Example = ->
-    self = new Example this
-    self._controller.apply self, arguments
-
-# Initialisation:
-examplesInstance = jQuery('#domNode').Example firstOption: 'value'...
-# Static function call:
-returnValue = jQuery('#domNode').Example 'staticMethod', 'anArgument'
-
--------------------------------------------------------------------------------
-
-// Use as extension for object orientated jquery plugin using inheritance,
-// dom node reference and chaining support.
-
-// java script version
-(function(jQuery) {
-    var Example = function(domNode) {
-        this.__name__ = 'Example';
-        this._domNode = domNode;
-        this._options = {...};
-        this.initialize = function(options) {
-            // "this._domNode" points to jQuery's wrapped dom node.
-            // "this" points to this "Examples" instance extended by "Tools".
-            if (options)
-                jQuery.extend(true, this._options, options);
-            ...
-            return domNode;
-        };
-        this.staticMethod = function(anArgument) {
-            ...
-            return domNode;
-        };
-        ...
-    };
-    jQuery.fn.Example = function() {
-        var self = jQuery.Tools()._extend(new Example(this));
-        return self._controller.apply(self, arguments);
-    };
-}).call(this, this.jQuery);
-
-// Initialisation:
-var domNode = jQuery('#domNode').Example({'firstOption': 'value'...});
-// Static function call:
-var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
-
-// coffee script version
-class Example extends jQuery.Tools.class
-    __name__: 'Example'
-    _options: {...}
-    initialize: (options={}) ->
-        # "this._domNode" points to jQuery's wrapped dom node.
-        # "this" points to this "Examples" instance extended by "Tools".
-        super(options)._domNode
-    staticMethod: (anArgument) ->
-        ...
-        this._domNode
-    ...
-jQuery.fn.Example = ->
-    self = new Example this
-    self._controller.apply self, arguments
-
-# Initialisation:
-domNode = jQuery('#domNode').Example firstOption: 'value'...
-# Static function call:
-returnValue = jQuery('#domNode').Example 'staticMethod', 'anArgument'
-
--------------------------------------------------------------------------------
-
-// Use as extension for object orientated jquery plugin using inheritance.
-
-// java script version
-(function(jQuery) {
-    var Example = function() {
-        this.__name__ = 'Example';
-        this._options = {...};
-        this.initialize = function(options) {
-            // "this" points to this "Examples" instance extended by "Tools".
-            if (options)
-                jQuery.extend(true, this._options, options);
-            ...
-            return this;
-        };
-        this.staticMethod = function(anArgument) {
-            ...
-            return this;
-        };
-        ...
-    };
-    jQuery.Example = function() {
-        var self = jQuery.Tools()._extend(new Example);
-        return self._controller.apply(self, arguments);
-    };
-}).call(this, this.jQuery);
-
-// Initialisation:
-var exampleInstance = jQuery.Example({'firstOption': 'value'...});
-// Static function call:
-var returnValue = jQuery.Example('staticMethod', 'anArgument');
-
-// coffee script version
-class Example extends jQuery.Tools.class
-    __name__: 'Example'
-    _options: {...}
-    initialize: (options={}) ->
-        # "this" points to this "Examples" instance extended by "Tools".
-        super options
-    staticMethod: (anArgument) ->
-        ...
-        this
-    ...
-jQuery.Example = ->
-    self = new Example
-    self._controller.apply self, arguments
-
-# Initialisation:
-exampleInstance = jQuery.Example firstOption: 'value'...
-# Static function call:
-returnValue = jQuery.Example 'staticMethod', 'anArgument'
-
--------------------------------------------------------------------------------
-
-// Use as extension for default functional orientated jquery plugin pattern
-// using composition, dom node reference and chaining support.
-
-// java script version
-(function(jQuery) {
-    var options = {...};
-    var tools = jQuery.Tools();
-    var example = function(options) {
-        // "this" points to dom node grabbed by jQuery.
-        if (options)
-            jQuery.extend(true, this._options, options);
-        tools.log('initialized.');
-        ...
-    };
-    jQuery.fn.example = function() {
-        if (methods[method])
-            return methods[method].apply(
-                this, Array.prototype.slice.call(arguments, 1));
-        else if (jQuery.type(method) === 'object' || !method)
-            return methods.init.apply(this, arguments);
-        else
-            $.error('Method ' + method + ' does not exist on jQuery.example');
-    };
-}).call(this, this.jQuery);
-
-// Function call:
-var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
-
-// coffee script version
-jQuery = this.jQuery
-defaultOptions = {...}
-tools = jQuery.Tools
-example = (options={}) ->
-    # "this" points to dom node grabbed by jQuery.
-    jQuery.extend true, defaultOptions, options
-    tools.log 'initialized.'
-    ...
-jQuery.fn.example = ->
-    if methods[method]
-        methods[method].apply(
-            this, Array.prototype.slice.call arguments, 1)
-    else if jQuery.type(method) is 'object' or not method
-        methods.init.apply this, arguments
-    else
-        $.error "Method \"#{method}\" does not exist on jQuery.example."
-
-# Function call:
-domNode = jQuery('#domNode').example firstOption: 'value'...
-
-    # endregion
     ###
     class Tools
 
@@ -299,7 +65,7 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
     # region protected properties
 
         ###*
-            Saves the jquery wrapped dom node.
+            Saves the jQuery wrapped dom node.
 
             @property {Object}
         ###
@@ -339,7 +105,7 @@ domNode = jQuery('#domNode').example firstOption: 'value'...
 
         ###*
             @description This method should be overwritten normally. It is
-                         triggered if current opject is created via the "new"
+                         triggered if current object is created via the "new"
                          keyword.
 
             @returns {jQuery.Tools} Returns the current instance.
@@ -698,7 +464,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                          referenced with "this". Otherwise "this" usualy
                          points to the object the given method was attached to.
                          If "method" doesn't match string arguments are passed
-                         through "jquery.proxy()" with "context" setted as
+                         through "jQuery.proxy()" with "context" setted as
                          "scope" or "this" if nothing is provided.
 
             @param {String|Function|Object} method A method name of given
@@ -782,7 +548,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @description A wrapper method for "jQuery.delegate()".
                          It sets current plugin name as event scope if no scope
                          is given. Given arguments are modified and passed
-                         through "jquery.delegate()".
+                         through "jQuery.delegate()".
 
             @returns {jQuery} Returns jQuery's grabbed dom node.
         ###
@@ -792,7 +558,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @description A wrapper method for "jQuery.undelegate()".
                          It sets current plugin name as event scope if no scope
                          is given. Given arguments are modified and passed
-                         through "jquery.undelegate()".
+                         through "jQuery.undelegate()".
 
             @returns {jQuery} Returns jQuery's grabbed dom node.
         ###
@@ -802,7 +568,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @description A wrapper method for "jQuery.on()".
                          It sets current plugin name as event scope if no scope
                          is given. Given arguments are modified and passed
-                         through "jquery.on()".
+                         through "jQuery.on()".
 
             @returns {jQuery} Returns jQuery's grabbed dom node.
         ###
@@ -812,7 +578,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @description A wrapper method fo "jQuery.off()".
                          It sets current plugin name as event scope if no scope
                          is given. Given arguments are modified and passed
-                         through "jquery.off()".
+                         through "jQuery.off()".
 
             @returns {jQuery} Returns jQuery's grabbed dom node.
         ###
@@ -832,7 +598,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
             @description A wrapper method fo "jQuery.unbind()".
                          It sets current plugin name as event scope if no scope
                          is given. Given arguments are modified and passed
-                         through "jquery.unbind()".
+                         through "jQuery.unbind()".
 
             @returns {jQuery} Returns jQuery's grabbed dom node.
         ###
@@ -996,7 +762,7 @@ jQuery.Tools.getDomNodeName('&lt;br/&gt;');
                 jQuery.extend true, this, childAttributes
             this
         ###*
-            @description Defines a generic controller for jQuery plugings.
+            @description Defines a generic controller for jQuery plugins.
 
             @param {Function | Object} attribute A called method from outside
                                                  via the controller.
