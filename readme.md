@@ -184,7 +184,8 @@ using composition, dom node reference and chaining support.
                 return methods.init.apply(this, arguments);
             else
                 $.error(
-                    'Method ' + method + ' does not exist on jQuery.example');
+                    'Method ' + method + ' does not exist on ' +
+                    'jQuery.example');
         };
     }).call(this, this.jQuery);
 
