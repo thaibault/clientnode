@@ -25,21 +25,14 @@ depending gui elements, logging additional string, array or function
 handling. A set of helper functions to parse option objects dom trees
 or handle events is also provided.
 
-Examples (in coffeeScript and javaScript):
-------------------------------------------
+Examples (in javaScript):
+-------------------------
 
 Direct access of a method in "Tools".
-
-java script version
 
 ```javaScript
 var tools = jQuery.Tools({'logging': true});
 tools.log('test');
-```
-
-```coffee
-tools = jQuery.Tools logging: true
-tools.log test
 ```
 
 Use as extension for object orientated jQuery plugin using inheritance and
@@ -85,35 +78,6 @@ Static function call:
 var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
 ```
 
-    #!/usr/bin/env coffee
-
-    class Example extends jQuery.Tools.class
-        __name__: 'Example'
-        _options: {...}
-        initialize: (options={}) ->
-            # "this._domNode" points to jQuery's wrapped dom node.
-            # "this" points to this "Examples" instance extended by "Tools".
-            super options
-        staticMethod: (anArgument) ->
-            ...
-            this
-        ...
-    jQuery.fn.Example = ->
-        self = new Example this
-        self._controller.apply self, arguments
-
-Initialisation:
-
-```coffee
-examplesInstance = jQuery('#domNode').Example firstOption: 'value'...
-```
-
-Static function call:
-
-```coffee
-returnValue = jQuery('#domNode').Example 'staticMethod', 'anArgument'
-```
-
 Use as extension for object orientated jQuery plugin using inheritance, dom
 node reference and chaining support.
 
@@ -157,35 +121,6 @@ Static function call:
 var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
 ```
 
-    #!/usr/bin/env coffee
-
-    class Example extends jQuery.Tools.class
-        __name__: 'Example'
-        _options: {...}
-        initialize: (options={}) ->
-            # "this._domNode" points to jQuery's wrapped dom node.
-            # "this" points to this "Examples" instance extended by "Tools".
-            super(options)._domNode
-        staticMethod: (anArgument) ->
-            ...
-            this._domNode
-        ...
-    jQuery.fn.Example = ->
-        self = new Example this
-        self._controller.apply self, arguments
-
-Initialisation:
-
-```coffee
-domNode = jQuery('#domNode').Example firstOption: 'value'...
-```
-
-Static function call:
-
-```coffee
-returnValue = jQuery('#domNode').Example 'staticMethod', 'anArgument'
-```
-
 Use as extension for object orientated jQuery plugin using inheritance.
 
     #!/usr/bin/env javaScript
@@ -226,34 +161,6 @@ Static function call:
 var returnValue = jQuery.Example('staticMethod', 'anArgument');
 ```
 
-    #!/usr/bin/env coffee
-
-    class Example extends jQuery.Tools.class
-        __name__: 'Example'
-        _options: {...}
-        initialize: (options={}) ->
-            # "this" points to this "Examples" instance extended by "Tools".
-            super options
-        staticMethod: (anArgument) ->
-            ...
-            this
-        ...
-    jQuery.Example = ->
-        self = new Example
-        self._controller.apply self, arguments
-
-Initialisation:
-
-```coffee
-exampleInstance = jQuery.Example firstOption: 'value'...
-```
-
-Static function call:
-
-```coffee
-returnValue = jQuery.Example 'staticMethod', 'anArgument'
-```
-
 Use as extension for default functional orientated jQuery plugin pattern
 using composition, dom node reference and chaining support.
 
@@ -285,6 +192,113 @@ Function call:
 ```javaScript
 var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
 ```
+
+Examples (in coffeeScript):
+---------------------------
+
+Direct access of a method in "Tools".
+
+```coffee
+tools = jQuery.Tools logging: true
+tools.log test
+```
+
+Use as extension for object orientated jQuery plugin using inheritance and
+dom node reference. This plugin pattern gives their instance back.
+
+    #!/usr/bin/env coffee
+
+    class Example extends jQuery.Tools.class
+        __name__: 'Example'
+        _options: {...}
+        initialize: (options={}) ->
+            # "this._domNode" points to jQuery's wrapped dom node.
+            # "this" points to this "Examples" instance extended by "Tools".
+            super options
+        staticMethod: (anArgument) ->
+            ...
+            this
+        ...
+    jQuery.fn.Example = ->
+        self = new Example this
+        self._controller.apply self, arguments
+
+Initialisation:
+
+```coffee
+examplesInstance = jQuery('#domNode').Example firstOption: 'value'...
+```
+
+Static function call:
+
+```coffee
+returnValue = jQuery('#domNode').Example 'staticMethod', 'anArgument'
+```
+
+Use as extension for object orientated jQuery plugin using inheritance, dom
+node reference and chaining support.
+
+    #!/usr/bin/env coffee
+
+    class Example extends jQuery.Tools.class
+        __name__: 'Example'
+        _options: {...}
+        initialize: (options={}) ->
+            # "this._domNode" points to jQuery's wrapped dom node.
+            # "this" points to this "Examples" instance extended by "Tools".
+            super(options)._domNode
+        staticMethod: (anArgument) ->
+            ...
+            this._domNode
+        ...
+    jQuery.fn.Example = ->
+        self = new Example this
+        self._controller.apply self, arguments
+
+Initialisation:
+
+```coffee
+domNode = jQuery('#domNode').Example firstOption: 'value'...
+```
+
+Static function call:
+
+```coffee
+returnValue = jQuery('#domNode').Example 'staticMethod', 'anArgument'
+```
+
+Use as extension for object orientated jQuery plugin using inheritance.
+
+    #!/usr/bin/env coffee
+
+    class Example extends jQuery.Tools.class
+        __name__: 'Example'
+        _options: {...}
+        initialize: (options={}) ->
+            # "this" points to this "Examples" instance extended by "Tools".
+            super options
+        staticMethod: (anArgument) ->
+            ...
+            this
+        ...
+    jQuery.Example = ->
+        self = new Example
+        self._controller.apply self, arguments
+
+Initialisation:
+
+```coffee
+exampleInstance = jQuery.Example firstOption: 'value'...
+```
+
+Static function call:
+
+```coffee
+returnValue = jQuery.Example 'staticMethod', 'anArgument'
+```
+
+Use as extension for default functional orientated jQuery plugin pattern
+using composition, dom node reference and chaining support.
 
     #!/usr/bin/env coffee
 
