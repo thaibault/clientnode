@@ -16,7 +16,7 @@ License
 
 endregion -->
 
-jquery-tools
+jQuery-tools
 ============
 
 This plugin provides such interface logic like generic controller
@@ -24,6 +24,12 @@ logic for integrating plugins into jQuery, mutual exclusion for
 depending gui elements, logging additional string, array or function
 handling. A set of helper functions to parse option objects dom trees
 or handle events is also provided.
+
+Inhalt
+======
+
+<!--Place for automatic generated table of contents.-->
+[TOC]
 
 Examples (in javaScript):
 -------------------------
