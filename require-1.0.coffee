@@ -499,9 +499,9 @@ class Require
                             ajaxObject.onreadystatechange = null
                         else if ajaxObject.status isnt 200
                             self::_log(
-                                "Loading resource \"#{module[1]}\" failed via " +
-                                "ajax with status \"#{ajaxObject.status}\" in " +
-                                "state \"#{ajaxObject.readyState}\".")
+                                "Loading resource \"#{module[1]}\" failed " +
+                                "via ajax with status \"#{ajaxObject.status}" +
+                                "\" in state \"#{ajaxObject.readyState}\".")
                     catch error
                         self::_log(
                             "Loading resource \"#{module[1]}\" failed via " +
