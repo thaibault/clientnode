@@ -281,7 +281,7 @@ class Require
                 sourceRootPath = self.basePath.coffee
             coffeeScriptCompilerOptions =
                 header: false
-                sourceMap: true
+                sourceMap: false
                 filename: module[1]
                 generatedFile: module[1].substr(
                     0, module[1].lastIndexOf('.') + 1
@@ -290,15 +290,18 @@ class Require
                 sourceFiles: [module[1]]
             if window.btoa? and window.JSON? and window.unescape? and
                window.encodeURIComponent?
+                coffeeScriptCompilerOptions.sourceMap = true
                 # NOTE: Workaround to enable source maps for asynchron loaded
                 # coffee scripts.
                 {js, v3SourceMap} = window.CoffeeScript.compile(
                     coffeeScriptCode, coffeeScriptCompilerOptions)
+                # NOTE: Additional commend syntax with "/*...*/" is necessary
+                # to support internet explorer.
                 window.eval(
-                    js + '\n//@ sourceMappingURL=data:application/json;' +
+                    js + '\n/*//@ sourceMappingURL=data:application/json;' +
                     'base64,' +
                     (btoa unescape encodeURIComponent v3SourceMap) + '\n//@ ' +
-                    'sourceURL=' + module[1])
+                    'sourceURL=' + module[1] + '*/')
             else
                 window.CoffeeScript.run(
                     coffeeScriptCode, coffeeScriptCompilerOptions)
@@ -484,18 +487,25 @@ class Require
                 ajaxObject.open(
                     'GET', self::_getScriptFilePath module[1], true)
                 ajaxObject.onreadystatechange = ->
-                    if ajaxObject.readyState is 4 and
-                       ajaxObject.status in [0, 200]
-                        shortcut[asyncronModulePattern](
-                            ajaxObject.responseText, module, parameter)
-                        self::_scriptLoaded module, parameter
-                        # Delete event after passing it once.
-                        ajaxObject.onreadystatechange = null
-                    else if ajaxObject.status isnt 200
+                    # NOTE: Internet explorer throws an exception here instead
+                    # of showing the error code in the "status" property.
+                    try
+                        if ajaxObject.readyState is 4 and
+                           ajaxObject.status in [0, 200]
+                            shortcut[asyncronModulePattern](
+                                ajaxObject.responseText, module, parameter)
+                            self::_scriptLoaded module, parameter
+                            # Delete event after passing it once.
+                            ajaxObject.onreadystatechange = null
+                        else if ajaxObject.status isnt 200
+                            self::_log(
+                                "Loading resource \"#{module[1]}\" failed via " +
+                                "ajax with status \"#{ajaxObject.status}\" in " +
+                                "state \"#{ajaxObject.readyState}\".")
+                    catch error
                         self::_log(
                             "Loading resource \"#{module[1]}\" failed via " +
-                            "ajax with status \"#{ajaxObject.status}\" in " +
-                            "state \"#{ajaxObject.readyState}\".")
+                            "ajax cased by exception: \"#{error}\".")
                 ajaxObject.send null
                 isAsyncronRequest = true
                 break
