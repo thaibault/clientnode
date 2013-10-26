@@ -50,6 +50,7 @@ test 'grabdomNodes', ->
         qunit: 'body div#qunit'
         qunitFixture: 'body div#qunit-fixture')
     delete domNodes.window
+    delete domNodes.document
     deepEqual domNodes,
         qunit: jQuery 'body div#qunit'
         qunitFixture: jQuery 'body div#qunit-fixture'
@@ -59,6 +60,7 @@ test 'grabdomNodes', ->
         qunit: 'div#qunit'
         qunitFixture: 'div#qunit-fixture')
     delete domNodes.window
+    delete domNodes.document
     deepEqual domNodes,
         parent: jQuery 'body'
         qunit: jQuery 'body div#qunit'
