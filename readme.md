@@ -34,8 +34,6 @@ Inhalt
 Examples (in javaScript):
 -------------------------
 
-TODO adapt js version.
-
 Direct access of a method in "Tools".
 
 ```javaScript
@@ -44,129 +42,54 @@ tools.log('test');
 ```
 
 Use as extension for object orientated jQuery plugin using inheritance and
-dom node reference. This plugin pattern gives their instance back.
+dom node reference. This plugin pattern gives their instance back if no dom
+node is provided. Direct initializing the plugin without providing a dom node
+is also provided.
 
-    #!/usr/bin/env javaScript
+    //!/usr/bin/env javaScript
 
-    (function(jQuery) {
-        var Example = function(domNode) {
-            this.__name__ = 'Example';
-            this._domNode = domNode;
-            this._options = {...};
-            this.initialize = function(options) {
-                // "this._domNode" points to jQuery's wrapped dom node.
-                // "this" points to this "Examples" instance extended by
-                // "Tools".
-                if (options)
-                    jQuery.extend(true, this._options, options);
-                ...
-                return this;
-            };
-            this.staticMethod = function(anArgument) {
-                ...
-                return computedValue;
-            };
+    var Example = function(domNode) {
+        this.$domNode = domNode;
+        this._options = {...};
+        this.__name__ = 'Example';
+        this.initialize = function(options) {
+            # "this.$domNode" points to jQuery's wrapped dom node
+            # (if provided).
+            # "this" points to this "Example" instance extended by "Tools".
+            # Merges given options with default options recursively.
+            if(options)
+                $.extend(true, this._options, options);
+            if(this.$domNode)
+                return this.$domNode;
+            return this;
+        };
+        this.method = function(anArgument) {
             ...
+            return returnValue;
         };
-        jQuery.fn.Example = function() {
-            var self = jQuery.Tools()._extend(new Example(this));
-            return self._controller.apply(self, arguments);
-        };
-    }).call(this, this.jQuery);
+        ...
+    };
+    $.fn.Example = function() {
+        return $.Tools().controller(Example, arguments, this);
+    };
+    $.Example = function() {return $.Tools().controller(Example, arguments);};
+    # Allows to reference the native class, e.g. to inherit from Example.
+    $.Example.class = Example;
 
-Initialisation:
+Initialisation with given dom node and without:
 
 ```javaScript
-var exampleInstance = jQuery('#domNode').Example({'firstOption': 'value'...});
+$domNode = $('#domNode').Example({firstOption: 'value'...});
+exampleInstance = $.Example({firstOption: 'value'...});
+$domNode = exampleInstance.$domNode;
 ```
 
-Static function call:
+Function call from previous generated instance via dom node or instance
+reference:
 
-```javaScript
-var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
-```
-
-Use as extension for object orientated jQuery plugin using inheritance, dom
-node reference and chaining support.
-
-    #!/usr/bin/env javaScript
-
-    (function(jQuery) {
-        var Example = function(domNode) {
-            this.__name__ = 'Example';
-            this._domNode = domNode;
-            this._options = {...};
-            this.initialize = function(options) {
-                // "this._domNode" points to jQuery's wrapped dom node.
-                // "this" points to this "Examples" instance extended by
-                // "Tools".
-                if (options)
-                    jQuery.extend(true, this._options, options);
-                ...
-                return domNode;
-            };
-            this.staticMethod = function(anArgument) {
-                ...
-                return domNode;
-            };
-            ...
-        };
-        jQuery.fn.Example = function() {
-            var self = jQuery.Tools()._extend(new Example(this));
-            return self._controller.apply(self, arguments);
-        };
-    }).call(this, this.jQuery);
-
-Initialisation:
-
-```javaScript
-var domNode = jQuery('#domNode').Example({'firstOption': 'value'...});
-```
-
-Static function call:
-
-```javaScript
-var returnValue = jQuery('#domNode').Example('staticMethod', 'anArgument');
-```
-
-Use as extension for object orientated jQuery plugin using inheritance.
-
-    #!/usr/bin/env javaScript
-
-    (function(jQuery) {
-        var Example = function() {
-            this.__name__ = 'Example';
-            this._options = {...};
-            this.initialize = function(options) {
-                // "this" points to this "Examples" instance extended by
-                // "Tools".
-                if (options)
-                    jQuery.extend(true, this._options, options);
-                ...
-                return this;
-            };
-            this.staticMethod = function(anArgument) {
-                ...
-                return this;
-            };
-            ...
-        };
-        jQuery.Example = function() {
-            var self = jQuery.Tools()._extend(new Example);
-            return self._controller.apply(self, arguments);
-        };
-    }).call(this, this.jQuery);
-
-Initialisation:
-
-```javaScript
-var exampleInstance = jQuery.Example({'firstOption': 'value'...});
-```
-
-Static function call:
-
-```javaScript
-var returnValue = jQuery.Example('staticMethod', 'anArgument');
+```coffee
+returnValue = $('#domNode').Example({'method', 'anArgument'});
+returnValue = exampleInstance.method('anArgument');
 ```
 
 Use as extension for default functional orientated jQuery plugin pattern
@@ -214,8 +137,9 @@ tools.log test
 ```
 
 Use as extension for object orientated jQuery plugin using inheritance and
-dom node reference. This plugin pattern gives their instance back. Direct
-initializing the plugin without providing a dom node is also provided.
+dom node reference. This plugin pattern gives their instance back if no dom
+node is provided. Direct initializing the plugin without providing a dom node
+is also provided.
 
     #!/usr/bin/env coffee
 
@@ -228,61 +152,31 @@ initializing the plugin without providing a dom node is also provided.
             # "this" points to this "Example" instance extended by "Tools".
             # Merges given options with default options recursively.
             super options
+            return this.$domNode if this.$domNode
+            this
         method: (anArgument) ->
             ...
             returnValue
         ...
     $.fn.Example = -> $.Tools().controller Example, arguments, this
     $.Example = -> $.Tools().controller Example, arguments
+    # Allows to reference the native class, e.g. to inherit from Example.
+    $.Example.class = Example
 
-Initialisation with given dom node:
+Initialisation with given dom node and without:
 
 ```coffee
-exampleInstance = $('#domNode').Example firstOption: 'value'...
+$domNode = $('#domNode').Example firstOption: 'value'...
+exampleInstance = $.Example firstOption: 'value'...
 $domNode = exampleInstance.$domNode
 ```
 
-Function call from previous generated instance:
+Function call from previous generated instance via dom node or instance
+reference:
 
 ```coffee
 returnValue = $('#domNode').Example 'method', 'anArgument'
-```
-
-Initialisation without given dom node and function call:
-
-```coffee
-exampleInstance = $.Example firstOption: 'value'...
-exampleInstance.method 'anArgument'
-```
-
-Use as extension for object orientated jQuery plugin using inheritance, dom
-node reference and chaining support.
-
-    #!/usr/bin/env coffee
-
-    class Example extends jQuery.Tools.class
-        __name__: 'Example'
-        _options: {...}
-        initialize: (options={}) ->
-            # "this._domNode" points to jQuery's wrapped dom node.
-            # "this" points to this "Examples" instance extended by "Tools".
-            super(options).$domNode
-        method: (anArgument) ->
-            ...
-            this.$domNode
-        ...
-    $.fn.Example = -> $.controller Example, arguments, this
-
-Initialisation:
-
-```coffee
-$domNode = jQuery('#domNode').Example firstOption: 'value'...
-```
-
-Function call from same instance:
-
-```coffee
-$domNode = jQuery('#domNode').Example 'staticMethod', 'anArgument'
+returnValue = exampleInstance.method 'anArgument'
 ```
 
 Use as extension for default functional orientated jQuery plugin pattern
@@ -290,7 +184,6 @@ using composition, dom node reference and chaining support.
 
     #!/usr/bin/env coffee
 
-    $ = this.jQuery
     defaultOptions = {...}
     tools = $.Tools
     example = (options={}) ->
