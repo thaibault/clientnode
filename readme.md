@@ -53,10 +53,12 @@ is also provided.
         this._options = {...};
         this.__name__ = 'Example';
         this.initialize = function(options) {
-            # "this.$domNode" points to jQuery's wrapped dom node
-            # (if provided).
-            # "this" points to this "Example" instance extended by "Tools".
-            # Merges given options with default options recursively.
+            /*
+                "this.$domNode" points to jQuery's wrapped dom node
+                (if provided).
+                "this" points to this "Example" instance extended by "Tools".
+                Merges given options with default options recursively.
+            */
             if(options)
                 $.extend(true, this._options, options);
             if(this.$domNode)
@@ -73,7 +75,7 @@ is also provided.
         return $.Tools().controller(Example, arguments, this);
     };
     $.Example = function() {return $.Tools().controller(Example, arguments);};
-    # Allows to reference the native class, e.g. to inherit from Example.
+    // Allows to reference the native class, e.g. to inherit from Example.
     $.Example.class = Example;
 
 Initialisation with given dom node and without:
@@ -147,10 +149,12 @@ is also provided.
         __name__: 'Example'
         _options: {...}
         initialize: (options={}) ->
-            # "this.$domNode" points to jQuery's wrapped dom node
-            # (if provided).
-            # "this" points to this "Example" instance extended by "Tools".
-            # Merges given options with default options recursively.
+            ###
+                "this.$domNode" points to jQuery's wrapped dom node
+                (if provided).
+                "this" points to this "Example" instance extended by "Tools".
+                Merges given options with default options recursively.
+            ###
             super options
             return this.$domNode if this.$domNode
             this
