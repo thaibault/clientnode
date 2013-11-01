@@ -160,17 +160,21 @@
 26
 27
 28
-29</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
+29
+30
+31</pre></div></td><td class=code><div class=codehilite><pre><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env javaScript</span>
 
 <span class="kd">var</span> <span class="nx">Example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">domNode</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">$domNode</span> <span class="o">=</span> <span class="nx">domNode</span><span class="p">;</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">_options</span> <span class="o">=</span> <span class="p">{...};</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">__name__</span> <span class="o">=</span> <span class="s1">&#39;Example&#39;</span><span class="p">;</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
-        <span class="err">#</span> <span class="s2">&quot;this.$domNode&quot;</span> <span class="nx">points</span> <span class="nx">to</span> <span class="nx">jQuery</span><span class="err">&#39;</span><span class="nx">s</span> <span class="nx">wrapped</span> <span class="nx">dom</span> <span class="nx">node</span>
-        <span class="err">#</span> <span class="p">(</span><span class="k">if</span> <span class="nx">provided</span><span class="p">).</span>
-        <span class="err">#</span> <span class="s2">&quot;this&quot;</span> <span class="nx">points</span> <span class="nx">to</span> <span class="k">this</span> <span class="s2">&quot;Example&quot;</span> <span class="nx">instance</span> <span class="nx">extended</span> <span class="nx">by</span> <span class="s2">&quot;Tools&quot;</span><span class="p">.</span>
-        <span class="err">#</span> <span class="nx">Merges</span> <span class="nx">given</span> <span class="nx">options</span> <span class="kd">with</span> <span class="k">default</span> <span class="nx">options</span> <span class="nx">recursively</span><span class="p">.</span>
+        <span class="cm">/*</span>
+<span class="cm">            &quot;this.$domNode&quot; points to jQuery&#39;s wrapped dom node</span>
+<span class="cm">            (if provided).</span>
+<span class="cm">            &quot;this&quot; points to this &quot;Example&quot; instance extended by &quot;Tools&quot;.</span>
+<span class="cm">            Merges given options with default options recursively.</span>
+<span class="cm">        */</span>
         <span class="k">if</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
             <span class="nx">$</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_options</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
         <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">$domNode</span><span class="p">)</span>
@@ -187,7 +191,7 @@
     <span class="k">return</span> <span class="nx">$</span><span class="p">.</span><span class="nx">Tools</span><span class="p">().</span><span class="nx">controller</span><span class="p">(</span><span class="nx">Example</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
 <span class="p">};</span>
 <span class="nx">$</span><span class="p">.</span><span class="nx">Example</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="nx">$</span><span class="p">.</span><span class="nx">Tools</span><span class="p">().</span><span class="nx">controller</span><span class="p">(</span><span class="nx">Example</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);};</span>
-<span class="err">#</span> <span class="nx">Allows</span> <span class="nx">to</span> <span class="nx">reference</span> <span class="nx">the</span> <span class="kr">native</span> <span class="kr">class</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nx">g</span><span class="p">.</span> <span class="nx">to</span> <span class="nx">inherit</span> <span class="nx">from</span> <span class="nx">Example</span><span class="p">.</span>
+<span class="c1">// Allows to reference the native class, e.g. to inherit from Example.</span>
 <span class="nx">$</span><span class="p">.</span><span class="nx">Example</span><span class="p">.</span><span class="kr">class</span> <span class="o">=</span> <span class="nx">Example</span><span class="p">;</span>
 </pre></div></td></tr></table><p>Initialisation with given dom node and without:</p><div class=codehilite><pre><span class="err">$</span><span class="n">domNode</span> <span class="o">=</span> <span class="err">$</span><span class="p">(</span><span class="err">&#39;#</span><span class="n">domNode</span><span class="err">&#39;</span><span class="p">).</span><span class="n">Example</span><span class="p">({</span><span class="n">firstOption</span><span class="o">:</span> <span class="err">&#39;</span><span class="n">value</span><span class="err">&#39;</span><span class="p">...});</span>
 <span class="n">exampleInstance</span> <span class="o">=</span> <span class="err">$</span><span class="p">.</span><span class="n">Example</span><span class="p">({</span><span class="n">firstOption</span><span class="o">:</span> <span class="err">&#39;</span><span class="n">value</span><span class="err">&#39;</span><span class="p">...});</span>
@@ -264,16 +268,20 @@
 18
 19
 20
-21</pre></div></td><td class=code><div class=codehilite><pre><span class="cp">#!/usr/bin/env coffee</span>
+21
+22
+23</pre></div></td><td class=code><div class=codehilite><pre><span class="cp">#!/usr/bin/env coffee</span>
 
 <span class="n">class</span> <span class="n">Example</span> <span class="n">extends</span> <span class="err">$</span><span class="p">.</span><span class="n">Tools</span><span class="p">.</span><span class="n">class</span>
     <span class="nl">__name__:</span> <span class="err">&#39;</span><span class="n">Example</span><span class="err">&#39;</span>
     <span class="nl">_options:</span> <span class="p">{...}</span>
     <span class="nl">initialize:</span> <span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">{})</span> <span class="o">-&gt;</span>
-        <span class="err">#</span> <span class="s">&quot;this.$domNode&quot;</span> <span class="n">points</span> <span class="n">to</span> <span class="n">jQuery</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">wrapped</span> <span class="n">dom</span> <span class="n">node</span>
-        <span class="err">#</span> <span class="p">(</span><span class="k">if</span> <span class="n">provided</span><span class="p">).</span>
-        <span class="err">#</span> <span class="s">&quot;this&quot;</span> <span class="n">points</span> <span class="n">to</span> <span class="n">this</span> <span class="s">&quot;Example&quot;</span> <span class="n">instance</span> <span class="n">extended</span> <span class="n">by</span> <span class="s">&quot;Tools&quot;</span><span class="p">.</span>
-        <span class="err">#</span> <span class="n">Merges</span> <span class="n">given</span> <span class="n">options</span> <span class="n">with</span> <span class="k">default</span> <span class="n">options</span> <span class="n">recursively</span><span class="p">.</span>
+        <span class="err">###</span>
+            <span class="s">&quot;this.$domNode&quot;</span> <span class="n">points</span> <span class="n">to</span> <span class="n">jQuery</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">wrapped</span> <span class="n">dom</span> <span class="n">node</span>
+            <span class="p">(</span><span class="k">if</span> <span class="n">provided</span><span class="p">).</span>
+            <span class="s">&quot;this&quot;</span> <span class="n">points</span> <span class="n">to</span> <span class="n">this</span> <span class="s">&quot;Example&quot;</span> <span class="n">instance</span> <span class="n">extended</span> <span class="n">by</span> <span class="s">&quot;Tools&quot;</span><span class="p">.</span>
+            <span class="n">Merges</span> <span class="n">given</span> <span class="n">options</span> <span class="n">with</span> <span class="k">default</span> <span class="n">options</span> <span class="n">recursively</span><span class="p">.</span>
+        <span class="err">###</span>
         <span class="n">super</span> <span class="n">options</span>
         <span class="k">return</span> <span class="n">this</span><span class="p">.</span><span class="err">$</span><span class="n">domNode</span> <span class="k">if</span> <span class="n">this</span><span class="p">.</span><span class="err">$</span><span class="n">domNode</span>
         <span class="n">this</span>
