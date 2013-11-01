@@ -46,7 +46,7 @@ dom node reference. This plugin pattern gives their instance back if no dom
 node is provided. Direct initializing the plugin without providing a dom node
 is also provided.
 
-    //!/usr/bin/env javaScript
+    #!/usr/bin/env javaScript
 
     var Example = function(domNode) {
         this.$domNode = domNode;
@@ -87,7 +87,7 @@ $domNode = exampleInstance.$domNode;
 Function call from previous generated instance via dom node or instance
 reference:
 
-```coffee
+```javaScript
 returnValue = $('#domNode').Example({'method', 'anArgument'});
 returnValue = exampleInstance.method('anArgument');
 ```
