@@ -13,6 +13,10 @@ develop-eggs
 lib
 lib64
 
+# Documentation generation
+documentationWebsite
+distributionBundle
+
 # Installer logs
 pip-log.txt
 
