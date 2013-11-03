@@ -21,49 +21,41 @@ module 'Tools'
 # region tests
 
 test 'initialize', ->
-    ok jQuery.Tools()
+    ok $.Tools()
 
 test 'show', ->
-    strictEqual jQuery.Tools().show('hans'), 'hans\n(Type: "string")'
+    strictEqual $.Tools().show('hans'), 'hans\n(Type: "string")'
     strictEqual(
-        jQuery.Tools().show(A: 'a', B: 'b'),
-        'A: a\nB: b\n(Type: "object")')
+        $.Tools().show(A: 'a', B: 'b'), 'A: a\nB: b\n(Type: "object")')
     ok new RegExp(
-        '^(.+\n)+\\(Type: "function"\\)$').test jQuery.Tools().show(
-            jQuery.Tools)
-    ok new RegExp('^.+: .+\\n(.|\\n)+$').test jQuery.Tools().show(
-        jQuery.Tools())
+        '^(.+\n)+\\(Type: "function"\\)$').test $.Tools().show $.Tools
+    ok new RegExp('^.+: .+\\n(.|\\n)+$').test $.Tools().show $.Tools()
 
 test 'getDomNodeName', ->
-    strictEqual jQuery.Tools().getDomNodeName('div'), 'div'
-    strictEqual jQuery.Tools().getDomNodeName('<div>'), 'div'
-    strictEqual jQuery.Tools().getDomNodeName('<div />'), 'div'
-    strictEqual jQuery.Tools().getDomNodeName('<div></div>'), 'div'
+    strictEqual $.Tools().getDomNodeName('div'), 'div'
+    strictEqual $.Tools().getDomNodeName('<div>'), 'div'
+    strictEqual $.Tools().getDomNodeName('<div />'), 'div'
+    strictEqual $.Tools().getDomNodeName('<div></div>'), 'div'
 
-    strictEqual jQuery.Tools().getDomNodeName('a'), 'a'
-    strictEqual jQuery.Tools().getDomNodeName('<a>'), 'a'
-    strictEqual jQuery.Tools().getDomNodeName('<a />'), 'a'
-    strictEqual jQuery.Tools().getDomNodeName('<a></a>'), 'a'
+    strictEqual $.Tools().getDomNodeName('a'), 'a'
+    strictEqual $.Tools().getDomNodeName('<a>'), 'a'
+    strictEqual $.Tools().getDomNodeName('<a />'), 'a'
+    strictEqual $.Tools().getDomNodeName('<a></a>'), 'a'
 
-test 'grabdomNodes', ->
-    domNodes = jQuery.Tools().grabDomNodes(
-        qunit: 'body div#qunit'
-        qunitFixture: 'body div#qunit-fixture')
-    delete domNodes.window
-    delete domNodes.document
-    deepEqual domNodes,
-        qunit: jQuery 'body div#qunit'
-        qunitFixture: jQuery 'body div#qunit-fixture'
-        parent: jQuery 'body'
-
-    domNodes = jQuery.Tools().grabDomNodes(
-        qunit: 'div#qunit'
-        qunitFixture: 'div#qunit-fixture')
-    delete domNodes.window
-    delete domNodes.document
-    deepEqual domNodes,
-        parent: jQuery 'body'
-        qunit: jQuery 'body div#qunit'
-        qunitFixture: jQuery 'body div#qunit-fixture'
+test 'grabDomNode', ->
+    $domNodes = $.Tools().grabDomNode
+        qunit: 'body div#qunit', qunitFixture: 'body div#qunit-fixture'
+    delete $domNodes.window
+    delete $domNodes.document
+    deepEqual $domNodes,
+        qunit: $('body div#qunit'), qunitFixture: $('body div#qunit-fixture')
+        parent: $ 'body'
+    $domNodes = $.Tools().grabDomNode
+        qunit: 'div#qunit', qunitFixture: 'div#qunit-fixture'
+    delete $domNodes.window
+    delete $domNodes.document
+    deepEqual $domNodes,
+        parent: $('body'), qunit: $('body div#qunit')
+        qunitFixture: $ 'body div#qunit-fixture'
 
 # endregion
