@@ -93,7 +93,14 @@ test 'show', ->
 
         # region dom node handling
 
-test 'sliceDomNodeSelectorPrefix', -> # TODO
+test 'sliceDomNodeSelectorPrefix', ->
+    strictEqual $.Tools().sliceDomNodeSelectorPrefix('body div'), 'div'
+    strictEqual $.Tools(
+        domNodeSelectorPrefix: 'body div'
+    ).sliceDomNodeSelectorPrefix('body div'), ''
+    strictEqual $.Tools(
+        domNodeSelectorPrefix: ''
+    ).sliceDomNodeSelectorPrefix('body div'), 'body div'
 test 'getDomNodeName', ->
     strictEqual $.Tools().getDomNodeName('div'), 'div'
     strictEqual $.Tools().getDomNodeName('<div>'), 'div'
@@ -124,13 +131,30 @@ test 'grabDomNode', ->
 
         # region function handling
 
-test 'getMethod', -> # TODO
+test 'getMethod', ->
+    testObject = value: false
+
+    $.Tools().getMethod(-> testObject.value = true)()
+    ok testObject.value
+
+    $.Tools().getMethod((-> this.value = false), testObject)()
+    ok not testObject.value
+
+    strictEqual $.Tools().getMethod(
+        ((thisFunction, context, five, two, three) ->
+            context.value = five + two + three
+        ), testObject, 5
+    )(2, 3), 10
 
         # endregion
 
         # region event handling
 
-test 'debounce', -> # TODO
+test 'debounce', ->
+    testValue = false
+    $.Tools().debounce(-> testValue = true)()
+
+    ok testValue
 test 'fireEvent', -> # TODO
 test 'delegate', -> # TODO
 test 'undelegate', -> # TODO
@@ -149,14 +173,31 @@ test 'argumentsObjectToArray', -> # TODO
 
         # region number handling
 
-test 'round', -> # TODO
+test 'round', ->
+    strictEqual $.Tools().round(1.2345), 1
+    strictEqual $.Tools().round(1.2345, 2), 1.23
+    strictEqual $.Tools().round(1.2345, 3), 1.235
+    strictEqual $.Tools().round(1.2345, 4), 1.2345
 
         # endregion
 
         # region string manipulating
 
-test 'stringFormat', -> # TODO
-test 'camelCaseStringToDelimited', -> # TODO
+test 'stringFormat', ->
+    strictEqual $.Tools().stringFormat('{1}', 'test'), 'test'
+    strictEqual $.Tools().stringFormat('', 'test'), ''
+    strictEqual $.Tools().stringFormat('{1}'), '{1}'
+    strictEqual $.Tools().stringFormat(
+        '{1} test {2} - {2}', 1, 2
+    ), '1 test 2 - 2'
+test 'camelCaseStringToDelimited', ->
+    strictEqual $.Tools().camelCaseStringToDelimited('hansPeter'), 'hans-peter'
+    strictEqual $.Tools().camelCaseStringToDelimited(
+        'hansPeter', '|'
+    ), 'hans|peter'
+    strictEqual $.Tools().camelCaseStringToDelimited(''), ''
+    strictEqual $.Tools().camelCaseStringToDelimited('h'), 'h'
+    strictEqual $.Tools().camelCaseStringToDelimited('hP', ''), 'hp'
 test 'addSeperatorToPath', -> # TODO
 test 'getUrlVariables', -> # TODO
 
