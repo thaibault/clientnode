@@ -37,7 +37,7 @@ Examples (in javaScript):
 Direct access of a method in "Tools".
 
 ```javaScript
-var tools = jQuery.Tools({'logging': true});
+var tools = $.Tools({'logging': true});
 tools.log('test');
 ```
 
@@ -48,35 +48,40 @@ is also provided.
 
     #!/usr/bin/env javaScript
 
-    var Example = function(domNode) {
-        this.$domNode = domNode;
-        this._options = {...};
-        this.__name__ = 'Example';
-        this.initialize = function(options) {
-            /*
-                "this.$domNode" points to jQuery's wrapped dom node
-                (if provided).
-                "this" points to this "Example" instance extended by "Tools".
-                Merges given options with default options recursively.
-            */
-            if(options)
-                $.extend(true, this._options, options);
-            if(this.$domNode)
-                return this.$domNode;
-            return this;
-        };
-        this.method = function(anArgument) {
+    ;(function($) {
+        var Example = function(domNode) {
+            this.$domNode = domNode;
+            this._options = {...};
+            this.__name__ = 'Example';
+            this.initialize = function(options) {
+                /*
+                    "this.$domNode" points to jQuery's wrapped dom node
+                    (if provided).
+                    "this" points to this "Example" instance extended by
+                    "Tools". Merges given options with default options
+                    recursively.
+                */
+                if(options)
+                    this._options = $.extend(true, {}, this._options, options);
+                if(this.$domNode)
+                    return this.$domNode;
+                return this;
+            };
+            this.method = function(anArgument) {
+                ...
+                return returnValue;
+            };
             ...
-            return returnValue;
         };
-        ...
-    };
-    $.fn.Example = function() {
-        return $.Tools().controller(Example, arguments, this);
-    };
-    $.Example = function() {return $.Tools().controller(Example, arguments);};
-    // Allows to reference the native class, e.g. to inherit from Example.
-    $.Example.class = Example;
+        $.fn.Example = function() {
+            return $.Tools().controller(Example, arguments, this);
+        };
+        $.Example = function() {
+            return $.Tools().controller(Example, arguments);
+        };
+        // Allows to reference the native class, e.g. to inherit from Example.
+        $.Example.class = Example;
+    }).call(this, this.jQuery);
 
 Initialisation with given dom node and without:
 
@@ -99,21 +104,21 @@ using composition, dom node reference and chaining support.
 
     #!/usr/bin/env javaScript
 
-    (function(jQuery) {
+    ;(function($) {
         var options = {...};
-        var tools = jQuery.Tools();
+        var tools = $.Tools();
         var example = function(options) {
             // "this" points to dom node grabbed by jQuery.
             if (options)
-                jQuery.extend(true, this._options, options);
+                this._options = $.extend(true, {}, this._options, options);
             tools.log('initialized.');
             ...
         };
-        jQuery.fn.example = function() {
+        $.fn.example = function() {
             if (methods[method])
                 return methods[method].apply(
                     this, Array.prototype.slice.call(arguments, 1));
-            else if (jQuery.type(method) === 'object' || !method)
+            else if ($.type(method) === 'object' || !method)
                 return methods.init.apply(this, arguments);
             else
                 $.error(
@@ -125,7 +130,7 @@ using composition, dom node reference and chaining support.
 Function call:
 
 ```javaScript
-var domNode = jQuery('#domNode').example({'firstOption': 'value'...});
+var domNode = $('#domNode').example({'firstOption': 'value'...});
 ```
 
 Examples (in coffeeScript):
@@ -134,7 +139,7 @@ Examples (in coffeeScript):
 Direct access of a method in "Tools".
 
 ```coffee
-tools = jQuery.Tools logging: true
+tools = $.Tools logging: true
 tools.log test
 ```
 
