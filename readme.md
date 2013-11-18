@@ -16,8 +16,8 @@ License
 
 endregion -->
 
-jQuery-tools
-============
+Use case
+--------
 
 This plugin provides such interface logic like generic controller
 logic for integrating plugins into jQuery, mutual exclusion for
@@ -26,7 +26,7 @@ handling. A set of helper functions to parse option objects dom trees
 or handle events is also provided.
 
 Inhalt
-======
+------
 
 <!--Place for automatic generated table of contents.-->
 [TOC]
