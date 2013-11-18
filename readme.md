@@ -16,8 +16,8 @@ License
 
 endregion -->
 
-Use case
---------
+Use case<!--deDE:Einsatz--><!--frFR:Utilisier-->
+------------------------------------------------
 
 This plugin provides such interface logic like generic controller
 logic for integrating plugins into jQuery, mutual exclusion for
