@@ -153,21 +153,46 @@ test 'getMethod', ->
 test 'debounce', ->
     testValue = false
     $.Tools().debounce(-> testValue = true)()
-
     ok testValue
-test 'fireEvent', -> # TODO
-test 'delegate', -> # TODO
-test 'undelegate', -> # TODO
-test 'on', -> # TODO
-test 'off', -> # TODO
-test 'bind', -> # TODO
-test 'unbind', -> # TODO
+    $.Tools().debounce((-> testValue = false), 1000)()
+    ok not testValue
+test 'fireEvent', ->
+    testValue = false
+    tools = $.Tools()
+
+    $.Tools('onClick': -> testValue = true).fireEvent 'click', true
+    ok testValue
+    $.Tools('onClick': -> testValue = false).fireEvent 'click', true
+    ok not testValue
+    tools.fireEvent 'click'
+    ok not testValue
+    tools.onClick = -> testValue = true
+    tools.fireEvent 'click'
+    ok testValue
+    tools.onClick = -> testValue = false
+    tools.fireEvent 'click', true
+    ok testValue
+test 'on', ->
+    testValue = false
+    $.Tools().on 'body', 'click', -> testValue = true
+
+    $('body').trigger 'click'
+    ok testValue
+test 'off', ->
+    testValue = false
+    $.Tools().on 'body', 'click', -> testValue = true
+    $.Tools().off 'body', 'click'
+
+    $('body').trigger 'click'
+    ok not testValue
 
         # endregion
 
         # region array handling
 
-test 'argumentsObjectToArray', -> # TODO
+test 'argumentsObjectToArray', ->
+    ok not $.isArray arguments
+    ok $.isArray $.Tools().argumentsObjectToArray arguments
 
         # endregion
 
@@ -198,8 +223,17 @@ test 'camelCaseStringToDelimited', ->
     strictEqual $.Tools().camelCaseStringToDelimited(''), ''
     strictEqual $.Tools().camelCaseStringToDelimited('h'), 'h'
     strictEqual $.Tools().camelCaseStringToDelimited('hP', ''), 'hp'
-test 'addSeperatorToPath', -> # TODO
-test 'getUrlVariables', -> # TODO
+test 'addSeperatorToPath', ->
+    strictEqual $.Tools().addSeperatorToPath(''), ''
+    strictEqual $.Tools().addSeperatorToPath('/'), '/'
+    strictEqual $.Tools().addSeperatorToPath('/a'), '/a/'
+    strictEqual $.Tools().addSeperatorToPath('/a/bb/'), '/a/bb/'
+    strictEqual $.Tools().addSeperatorToPath('/a/bb'), '/a/bb/'
+    strictEqual $.Tools().addSeperatorToPath('/a/bb', '|'), '/a/bb|'
+    strictEqual $.Tools().addSeperatorToPath('/a/bb/', '|'), '/a/bb/|'
+test 'getUrlVariables', ->
+    ok $.isArray $.Tools().getUrlVariables()
+    ok $.Tools().getUrlVariables('not_existing') is undefined
 
         # endregion
 
@@ -207,8 +241,21 @@ test 'getUrlVariables', -> # TODO
 
     # region protected
 
-test '_bindHelper', -> # TODO
-test '_grabDomNodeHelper', -> # TODO
+test '_bindHelper', ->
+    ok $.Tools()._bindHelper ['body']
+    ok $.Tools()._bindHelper ['body'], true
+    ok $.Tools()._bindHelper ['body'], false, 'bind'
+test '_grabDomNodeHelper', ->
+    strictEqual $.Tools()._grabDomNodeHelper('test', 'div', {}), 'body div'
+    strictEqual(
+        $.Tools()._grabDomNodeHelper('test', 'body div', {}), 'body div')
+    strictEqual $.Tools()._grabDomNodeHelper('test', '', {}), 'body'
+    strictEqual $.Tools(domNodeSelectorPrefix: '')._grabDomNodeHelper(
+        'test', '', {}
+    ), ''
+    strictEqual $.Tools(domNodeSelectorPrefix: '')._grabDomNodeHelper(
+        'test', 'div', {}
+    ), 'div'
 
     # endregion
 
