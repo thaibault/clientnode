@@ -77,9 +77,9 @@ test 'mouseOutEventHandlerFix', -> ok $.Tools().mouseOutEventHandlerFix ->
         # region logging
 
 test 'log', -> ok $.Tools().log 'test'
-test 'info', -> ok $.Tools().info 'test'
+test 'info', -> ok $.Tools().info('test {1}', 'test')
 test 'debug', -> ok $.Tools().debug 'test'
-test 'error', -> ok $.Tools().error 'test'
+test 'error', -> ok $.Tools().error 'test {0}'
 test 'warn', -> ok $.Tools().warn 'test'
 test 'show', ->
     strictEqual $.Tools().show('hans'), 'hans\n(Type: "string")'
