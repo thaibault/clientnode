@@ -76,6 +76,7 @@ test 'mouseOutEventHandlerFix', -> ok $.Tools().mouseOutEventHandlerFix ->
 
         # region logging
 
+# TODO check exact return value on all ok function with strictEqual
 test 'log', -> ok $.Tools().log 'test'
 test 'info', -> ok $.Tools().info('test {1}', 'test')
 test 'debug', -> ok $.Tools().debug 'test'
