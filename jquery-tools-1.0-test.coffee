@@ -14,24 +14,29 @@
 #    naming 3.0 unported license.
 #    see http://creativecommons.org/licenses/by/3.0/deed.de
 
-module 'Tools'
+module 'tools'
 
 # endregion
 
 # region tests
 
+    # region mock-up
+
+tools = $.Tools()
+
+    # endregion
+
     # region public methods
 
         # region special
 
-test 'constructor', -> ok $.Tools()
-test 'destructor', -> ok $.Tools().destructor()
+test 'constructor', -> ok tools
+test 'destructor', -> strictEqual tools.destructor(), tools
 test 'initialize', ->
-    firstToolsInstance = $.Tools()
     secondToolsInstance = $.Tools logging: true
     thirdToolsInstance = $.Tools domNodeSelectorPrefix: 'body.{1} div.{1}'
 
-    ok not firstToolsInstance._options.logging
+    ok not tools._options.logging
     ok secondToolsInstance._options.logging
     strictEqual(
         thirdToolsInstance._options.domNodeSelectorPrefix,
@@ -42,8 +47,10 @@ test 'initialize', ->
         # region object orientation
 
 test 'controller', ->
-    ok $.Tools().controller $.Tools.class, arguments
-    ok $.Tools().controller $.Tools.class, arguments, $ 'body'
+    strictEqual tools.controller(tools, []), tools
+    strictEqual tools.controller(
+        $.Tools.class, [], $ 'body'
+    ).__name__, tools.__name__
 
         # endregion
 
@@ -51,51 +58,49 @@ test 'controller', ->
 
 test 'acquireLock|releaseLock', ->
     testValue = false
-    tools = $.Tools()
     tools.acquireLock 'test', -> testValue = true
 
     ok testValue
-    tools.acquireLock 'test', -> testValue = false
+    strictEqual tools.acquireLock('test', -> testValue = false), tools
     ok testValue
-    $.Tools().releaseLock 'test'
+    ok $.Tools().releaseLock('test')
     ok testValue
-    tools.releaseLock 'test'
+    strictEqual tools.releaseLock('test'), tools
     ok not testValue
-    tools.acquireLock 'test', (-> testValue = true), true
+    strictEqual tools.acquireLock('test', (-> testValue = true), true), tools
     ok testValue
-    tools.acquireLock 'test', -> testValue = false
+    strictEqual tools.acquireLock('test', -> testValue = false), tools
     ok not testValue
 
         # endregion
 
         # region language fixes
 
-test 'mouseOutEventHandlerFix', -> ok $.Tools().mouseOutEventHandlerFix ->
+test 'mouseOutEventHandlerFix', -> ok tools.mouseOutEventHandlerFix ->
 
         # endregion
 
         # region logging
 
-# TODO check exact return value on all ok function with strictEqual
-test 'log', -> ok $.Tools().log 'test'
-test 'info', -> ok $.Tools().info('test {1}', 'test')
-test 'debug', -> ok $.Tools().debug 'test'
-test 'error', -> ok $.Tools().error 'test {0}'
-test 'warn', -> ok $.Tools().warn 'test'
+test 'log', -> strictEqual tools.log('test'), tools
+test 'info', -> strictEqual tools.info('test {1}', 'test'), tools
+test 'debug', -> strictEqual tools.debug('test'), tools
+test 'error', -> strictEqual tools.error('test {0}'), tools
+test 'warn', -> strictEqual tools.warn('test'), tools
 test 'show', ->
-    strictEqual $.Tools().show('hans'), 'hans\n(Type: "string")'
-    strictEqual $.Tools().show(A: 'a', B: 'b'), 'A: a\nB: b\n(Type: "object")'
+    strictEqual tools.show('hans'), 'hans\n(Type: "string")'
+    strictEqual tools.show(A: 'a', B: 'b'), 'A: a\nB: b\n(Type: "object")'
     ok new RegExp(
         '^(.+\n)+\\(Type: "function"\\)$'
-    ).test $.Tools().show $.Tools
-    ok new RegExp('^.+: .+\\n(.|\\n)+$').test $.Tools().show $.Tools()
+    ).test tools.show $.Tools
+    ok new RegExp('^.+: .+\\n(.|\\n)+$').test tools.show tools
 
         # endregion
 
         # region dom node handling
 
 test 'sliceDomNodeSelectorPrefix', ->
-    strictEqual $.Tools().sliceDomNodeSelectorPrefix('body div'), 'div'
+    strictEqual tools.sliceDomNodeSelectorPrefix('body div'), 'div'
     strictEqual $.Tools(
         domNodeSelectorPrefix: 'body div'
     ).sliceDomNodeSelectorPrefix('body div'), ''
@@ -103,24 +108,24 @@ test 'sliceDomNodeSelectorPrefix', ->
         domNodeSelectorPrefix: ''
     ).sliceDomNodeSelectorPrefix('body div'), 'body div'
 test 'getDomNodeName', ->
-    strictEqual $.Tools().getDomNodeName('div'), 'div'
-    strictEqual $.Tools().getDomNodeName('<div>'), 'div'
-    strictEqual $.Tools().getDomNodeName('<div />'), 'div'
-    strictEqual $.Tools().getDomNodeName('<div></div>'), 'div'
+    strictEqual tools.getDomNodeName('div'), 'div'
+    strictEqual tools.getDomNodeName('<div>'), 'div'
+    strictEqual tools.getDomNodeName('<div />'), 'div'
+    strictEqual tools.getDomNodeName('<div></div>'), 'div'
 
-    strictEqual $.Tools().getDomNodeName('a'), 'a'
-    strictEqual $.Tools().getDomNodeName('<a>'), 'a'
-    strictEqual $.Tools().getDomNodeName('<a />'), 'a'
-    strictEqual $.Tools().getDomNodeName('<a></a>'), 'a'
+    strictEqual tools.getDomNodeName('a'), 'a'
+    strictEqual tools.getDomNodeName('<a>'), 'a'
+    strictEqual tools.getDomNodeName('<a />'), 'a'
+    strictEqual tools.getDomNodeName('<a></a>'), 'a'
 test 'grabDomNode', ->
-    $domNodes = $.Tools().grabDomNode
+    $domNodes = tools.grabDomNode
         qunit: 'body div#qunit', qunitFixture: 'body div#qunit-fixture'
     delete $domNodes.window
     delete $domNodes.document
     deepEqual $domNodes,
         qunit: $('body div#qunit'), qunitFixture: $('body div#qunit-fixture')
         parent: $ 'body'
-    $domNodes = $.Tools().grabDomNode
+    $domNodes = tools.grabDomNode
         qunit: 'div#qunit', qunitFixture: 'div#qunit-fixture'
     delete $domNodes.window
     delete $domNodes.document
@@ -135,13 +140,13 @@ test 'grabDomNode', ->
 test 'getMethod', ->
     testObject = value: false
 
-    $.Tools().getMethod(-> testObject.value = true)()
+    tools.getMethod(-> testObject.value = true)()
     ok testObject.value
 
-    $.Tools().getMethod((-> this.value = false), testObject)()
+    tools.getMethod((-> this.value = false), testObject)()
     ok not testObject.value
 
-    strictEqual $.Tools().getMethod(
+    strictEqual tools.getMethod(
         ((thisFunction, context, five, two, three) ->
             context.value = five + two + three
         ), testObject, 5
@@ -153,36 +158,39 @@ test 'getMethod', ->
 
 test 'debounce', ->
     testValue = false
-    $.Tools().debounce(-> testValue = true)()
+    tools.debounce(-> testValue = true)()
     ok testValue
-    $.Tools().debounce((-> testValue = false), 1000)()
+    tools.debounce((-> testValue = false), 1000)()
     ok not testValue
 test 'fireEvent', ->
     testValue = false
-    tools = $.Tools()
 
-    $.Tools('onClick': -> testValue = true).fireEvent 'click', true
+    strictEqual(
+        $.Tools('onClick': -> testValue = true).fireEvent('click', true),
+        true)
     ok testValue
-    $.Tools('onClick': -> testValue = false).fireEvent 'click', true
+    strictEqual(
+        $.Tools('onClick': -> testValue = false).fireEvent('click', true),
+        true)
     ok not testValue
-    tools.fireEvent 'click'
+    strictEqual tools.fireEvent('click'), false
     ok not testValue
     tools.onClick = -> testValue = true
-    tools.fireEvent 'click'
+    strictEqual tools.fireEvent('click'), false
     ok testValue
     tools.onClick = -> testValue = false
-    tools.fireEvent 'click', true
+    strictEqual tools.fireEvent('click', true), false
     ok testValue
 test 'on', ->
     testValue = false
-    $.Tools().on 'body', 'click', -> testValue = true
+    strictEqual tools.on('body', 'click', -> testValue = true)[0], $('body')[0]
 
     $('body').trigger 'click'
     ok testValue
 test 'off', ->
     testValue = false
-    $.Tools().on 'body', 'click', -> testValue = true
-    $.Tools().off 'body', 'click'
+    strictEqual tools.on('body', 'click', -> testValue = true)[0], $('body')[0]
+    strictEqual tools.off('body', 'click')[0], $('body')[0]
 
     $('body').trigger 'click'
     ok not testValue
@@ -193,48 +201,48 @@ test 'off', ->
 
 test 'argumentsObjectToArray', ->
     ok not $.isArray arguments
-    ok $.isArray $.Tools().argumentsObjectToArray arguments
+    ok $.isArray tools.argumentsObjectToArray arguments
 
         # endregion
 
         # region number handling
 
 test 'round', ->
-    strictEqual $.Tools().round(1.2345), 1
-    strictEqual $.Tools().round(1.2345, 2), 1.23
-    strictEqual $.Tools().round(1.2345, 3), 1.235
-    strictEqual $.Tools().round(1.2345, 4), 1.2345
+    strictEqual tools.round(1.2345), 1
+    strictEqual tools.round(1.2345, 2), 1.23
+    strictEqual tools.round(1.2345, 3), 1.235
+    strictEqual tools.round(1.2345, 4), 1.2345
 
         # endregion
 
         # region string manipulating
 
 test 'stringFormat', ->
-    strictEqual $.Tools().stringFormat('{1}', 'test'), 'test'
-    strictEqual $.Tools().stringFormat('', 'test'), ''
-    strictEqual $.Tools().stringFormat('{1}'), '{1}'
-    strictEqual $.Tools().stringFormat(
+    strictEqual tools.stringFormat('{1}', 'test'), 'test'
+    strictEqual tools.stringFormat('', 'test'), ''
+    strictEqual tools.stringFormat('{1}'), '{1}'
+    strictEqual tools.stringFormat(
         '{1} test {2} - {2}', 1, 2
     ), '1 test 2 - 2'
 test 'camelCaseStringToDelimited', ->
-    strictEqual $.Tools().camelCaseStringToDelimited('hansPeter'), 'hans-peter'
-    strictEqual $.Tools().camelCaseStringToDelimited(
+    strictEqual tools.camelCaseStringToDelimited('hansPeter'), 'hans-peter'
+    strictEqual tools.camelCaseStringToDelimited(
         'hansPeter', '|'
     ), 'hans|peter'
-    strictEqual $.Tools().camelCaseStringToDelimited(''), ''
-    strictEqual $.Tools().camelCaseStringToDelimited('h'), 'h'
-    strictEqual $.Tools().camelCaseStringToDelimited('hP', ''), 'hp'
+    strictEqual tools.camelCaseStringToDelimited(''), ''
+    strictEqual tools.camelCaseStringToDelimited('h'), 'h'
+    strictEqual tools.camelCaseStringToDelimited('hP', ''), 'hp'
 test 'addSeperatorToPath', ->
-    strictEqual $.Tools().addSeperatorToPath(''), ''
-    strictEqual $.Tools().addSeperatorToPath('/'), '/'
-    strictEqual $.Tools().addSeperatorToPath('/a'), '/a/'
-    strictEqual $.Tools().addSeperatorToPath('/a/bb/'), '/a/bb/'
-    strictEqual $.Tools().addSeperatorToPath('/a/bb'), '/a/bb/'
-    strictEqual $.Tools().addSeperatorToPath('/a/bb', '|'), '/a/bb|'
-    strictEqual $.Tools().addSeperatorToPath('/a/bb/', '|'), '/a/bb/|'
+    strictEqual tools.addSeperatorToPath(''), ''
+    strictEqual tools.addSeperatorToPath('/'), '/'
+    strictEqual tools.addSeperatorToPath('/a'), '/a/'
+    strictEqual tools.addSeperatorToPath('/a/bb/'), '/a/bb/'
+    strictEqual tools.addSeperatorToPath('/a/bb'), '/a/bb/'
+    strictEqual tools.addSeperatorToPath('/a/bb', '|'), '/a/bb|'
+    strictEqual tools.addSeperatorToPath('/a/bb/', '|'), '/a/bb/|'
 test 'getUrlVariables', ->
-    ok $.isArray $.Tools().getUrlVariables()
-    ok $.Tools().getUrlVariables('not_existing') is undefined
+    ok $.isArray tools.getUrlVariables()
+    ok tools.getUrlVariables('not_existing') is undefined
 
         # endregion
 
@@ -243,14 +251,14 @@ test 'getUrlVariables', ->
     # region protected
 
 test '_bindHelper', ->
-    ok $.Tools()._bindHelper ['body']
-    ok $.Tools()._bindHelper ['body'], true
-    ok $.Tools()._bindHelper ['body'], false, 'bind'
+    ok tools._bindHelper ['body']
+    ok tools._bindHelper ['body'], true
+    ok tools._bindHelper ['body'], false, 'bind'
 test '_grabDomNodeHelper', ->
-    strictEqual $.Tools()._grabDomNodeHelper('test', 'div', {}), 'body div'
+    strictEqual tools._grabDomNodeHelper('test', 'div', {}), 'body div'
     strictEqual(
-        $.Tools()._grabDomNodeHelper('test', 'body div', {}), 'body div')
-    strictEqual $.Tools()._grabDomNodeHelper('test', '', {}), 'body'
+        tools._grabDomNodeHelper('test', 'body div', {}), 'body div')
+    strictEqual tools._grabDomNodeHelper('test', '', {}), 'body'
     strictEqual $.Tools(domNodeSelectorPrefix: '')._grabDomNodeHelper(
         'test', '', {}
     ), ''
