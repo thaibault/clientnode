@@ -93,15 +93,14 @@ provided.
             this.initialize = function(options) {
                 /*
                     "this.$domNode" points to jQuery's wrapped dom node
-                    (if provided).
-                    "this" points to this "Example" instance extended by
-                    "Tools". Merges given options with default options
-                    recursively.
+                                    (if provided).
+                    "this"          points to the "Example" instance extended
+                                    by "Tools".
                 */
                 if(options)
+                    // Merges given options with default options recursively.
                     this._options = $.extend(true, {}, this._options, options);
-                if(this.$domNode)
-                    return this.$domNode;
+                if(this.$domNode) return this.$domNode;
                 return this;
             };
             this.method = function(anArgument) {
