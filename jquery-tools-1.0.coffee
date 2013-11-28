@@ -593,18 +593,18 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
             false
         on: ->
             ###
-                A wrapper method for "$.on()". It sets current plugin name as event
-                scope if no scope is given. Given arguments are modified and passed
-                through "$.on()".
+                A wrapper method for "$.on()". It sets current plugin name as
+                event scope if no scope is given. Given arguments are modified
+                and passed through "$.on()".
 
                 **returns {$}** - Returns $'s grabbed dom node.
             ###
             this._bindHelper arguments, false,
         off: ->
             ###
-                A wrapper method fo "$.off()". It sets current plugin name as event
-                scope if no scope is given. Given arguments are modified and passed
-                through "$.off()".
+                A wrapper method fo "$.off()". It sets current plugin name as
+                event scope if no scope is given. Given arguments are modified
+                and passed through "$.off()".
 
                 **returns {$}** - Returns $'s grabbed dom node.
             ###
