@@ -119,17 +119,21 @@ now.</p>
 area with potential race conditions. The area will be binded to
 given description string. So don&#39;t use same names for different
 areas.</p>
-<p><strong>description {String}</strong>        - A short string describing the
-                                  critical areas properties.
-<strong>callbackFunction {Function}</strong> - A procedure which should only
-                                  be executed if the
-                                  interpreter isn&#39;t in the
-                                  given critical area. The lock
-                                  description string will be
-                                  given to the callback
-                                  function.
-<strong>autoRelease {Boolean}</strong>       - Release the lock after
-                                  execution of given callback.</p>
+<ul>
+<li><strong>description {String}</strong>        - A short string describing<pre><code>                              the critical areas
+                              properties.</code></pre>
+</li>
+<li><strong>callbackFunction {Function}</strong> - A procedure which should<pre><code>                              only be executed if the
+                              interpreter isn&#39;t in the
+                              given critical area. The
+                              lock description string
+                              will be given to the
+                              callback function.</code></pre>
+</li>
+<li><strong>autoRelease {Boolean}</strong>       - Release the lock after<pre><code>                              execution of given
+                              callback.</code></pre>
+</li>
+</ul>
 <p><strong>returns {$.Tools}</strong>           - Returns the current instance.</p>
 
                 </div>

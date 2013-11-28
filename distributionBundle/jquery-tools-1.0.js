@@ -216,17 +216,19 @@ Version
             given description string. So don't use same names for different
             areas.
         
-            **description {String}**        - A short string describing the
-                                              critical areas properties.
-            **callbackFunction {Function}** - A procedure which should only
-                                              be executed if the
-                                              interpreter isn't in the
-                                              given critical area. The lock
-                                              description string will be
-                                              given to the callback
-                                              function.
-            **autoRelease {Boolean}**       - Release the lock after
-                                              execution of given callback.
+            + **description {String}**        - A short string describing
+                                                the critical areas
+                                                properties.
+            + **callbackFunction {Function}** - A procedure which should
+                                                only be executed if the
+                                                interpreter isn't in the
+                                                given critical area. The
+                                                lock description string
+                                                will be given to the
+                                                callback function.
+            + **autoRelease {Boolean}**       - Release the lock after
+                                                execution of given
+                                                callback.
         
             **returns {$.Tools}**           - Returns the current instance.
         */
