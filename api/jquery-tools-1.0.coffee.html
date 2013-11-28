@@ -37,14 +37,20 @@
     <div class="content column">
       
       <div id="module-docstring">
-        <p>!
-Copyright see require on <a href="https://github.com/thaibault/require">https://github.com/thaibault/require</a></p>
-<p>Conventions see require on <a href="https://github.com/thaibault/require">https://github.com/thaibault/require</a></p>
-<p>@author t.sickert@gmail.com (Torben Sickert)
-@version 1.0 stable
-@fileOverview
-This module provides common reusable logic for every jQuery non trivial
+        <p>This module provides common reusable logic for every jQuery non trivial
 plugin.</p>
+<h2 id="copyright">Copyright</h2>
+<p>Torben Sickert 16.12.2012</p>
+<h2 id="license">License</h2>
+<p>This library written by Torben Sickert stand under a creative commons
+naming 3.0 unported license.
+see <a href="http://creativecommons.org/licenses/by/3.0/deed.de">http://creativecommons.org/licenses/by/3.0/deed.de</a></p>
+<h2 id="extending-this-module">Extending this module</h2>
+<p>For conventions see require on <a href="https://github.com/thaibault/require">https://github.com/thaibault/require</a></p>
+<h2 id="author">Author</h2>
+<p>t.sickert@gmail.com (Torben Sickert)</p>
+<h2 id="version">Version</h2>
+<p>1.0 stable</p>
 
       </div>
       
@@ -58,9 +64,8 @@ plugin.</p>
             
           </div>
           <div class="class-content">
-            <p>*
-    Saves a mapping from key codes to their corresponding name.</p>
-<pre><code>@property {Object}</code></pre>
+            <p><strong>keyCode {Object}</strong>
+Saves a mapping from key codes to their corresponding name.</p>
 
             <div class="methods">
               
@@ -165,7 +170,7 @@ bug in yuicompressor.
 Because of declaration of arguments the parser things that
 arguments is a local variable and could be renamed.
 It doesn&#39;t care about that the magic arguments object is
-neccessary to generate the arguments array in this context.</p>
+necessary to generate the arguments array in this context.</p>
 <p>var arguments = this.argumentsObjectToArray(arguments);</p>
 <p>use something like this instead:</p>
 <p>var parameter = this.argumentsObjectToArray(arguments);</p>
