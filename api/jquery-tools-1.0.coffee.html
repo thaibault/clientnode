@@ -105,8 +105,8 @@ now.</p>
                   <p>Defines a generic controller for $ plugins.</p>
 <p><strong>object {Object|String}</strong> - The object or class to control. If
                              &quot;object&quot; is a class an instance
-                             will be generated.
-<strong>parameter {Arguments}</strong>  - The initially given arguments
+                             will be generated.</p>
+<p><strong>parameter {Arguments}</strong>  - The initially given arguments
                              object.</p>
 <p><strong>returns {Mixed}</strong>        - Returns whatever the initializer
                              method returns.</p>
@@ -163,16 +163,16 @@ handler is only called if the observed dom node was leaved.</p>
                   <p>Shows the given object&#39;s representation in the browsers
 console if possible or in a standalone alert-window as
 fallback.</p>
-<p><strong>object {Mixed}</strong>            - Any object to print.
-<strong>force {Boolean}</strong>           - If set to &quot;true&quot; given input
+<p><strong>object {Mixed}</strong>            - Any object to print.</p>
+<p><strong>force {Boolean}</strong>           - If set to &quot;true&quot; given input
                                 will be shown independently
                                 from current logging
                                 configuration or interpreter&#39;s
-                                console implementation.
-<strong>avoidAnnotation {Boolean}</strong> - If set to &quot;true&quot; given input
+                                console implementation.</p>
+<p><strong>avoidAnnotation {Boolean}</strong> - If set to &quot;true&quot; given input
                                 has no module or log level
-                                specific annotations.
-<strong>level {String}</strong>            - Description of log messages
+                                specific annotations.</p>
+<p><strong>level {String}</strong>            - Description of log messages
                                 importance.</p>
 <p>Additional arguments are used for string formating.</p>
 <p><strong>returns {$.Tools}</strong>         - Returns the current instance.</p>
@@ -280,8 +280,8 @@ given method was attached to. If &quot;method&quot; doesn&#39;t match string
 arguments are passed through &quot;$.proxy()&quot; with &quot;context&quot; setted
 as &quot;scope&quot; or &quot;this&quot; if nothing is provided.</p>
 <p><strong>method {String|Function|Object}</strong> - A method name of given
-                                      scope.
-<strong>scope {Object|String}</strong>           - A given scope.</p>
+                                      scope.</p>
+<p><strong>scope {Object|String}</strong>           - A given scope.</p>
 <p><strong>returns {Mixed}</strong>                 - Returns the given methods
                                       return value.</p>
 
@@ -300,11 +300,11 @@ minimal span between each function call.</p>
                   <p>Searches for internal event handler methods and runs them by
 default. In addition this method searches for a given event
 method by the options object.</p>
-<p><strong>eventName {String}                - An event name.
-</strong>callOnlyOptionsMethod {Boolean}<strong> - Prevents from trying to
+<p>**eventName {String}                - An event name.</p>
+<p><strong>callOnlyOptionsMethod {Boolean}</strong> - Prevents from trying to
                                       call an internal event
-                                      handler.
-</strong>scope {Object}**                  - The scope from where the
+                                      handler.</p>
+<p><strong>scope {Object}</strong>                  - The scope from where the
                                       given event handler
                                       should be called.</p>
 <p><strong>returns {Boolean}</strong>               - Returns &quot;true&quot; if an
@@ -345,8 +345,8 @@ standard array object.</p>
                 <div class="method">
                   <h4>round(number, digits)</h4>
                   <p>Rounds a given number accurate to given number of digits.</p>
-<p><strong>number {Float}</strong>   - The number to round.
-<strong>digits {Integer}</strong> - The number of digits after comma.</p>
+<p><strong>number {Float}</strong>   - The number to round.</p>
+<p><strong>digits {Integer}</strong> - The number of digits after comma.</p>
 <p><strong>returns {Float}</strong>  - Returns the rounded number.</p>
 
                 </div>
@@ -366,8 +366,8 @@ formating.</p>
                   <h4>camelCaseStringToDelimited(string, delimiter)</h4>
                   <p>Converts a camel case string to a string with given delimiter
 between each camel case separation.</p>
-<p><strong>string {String}</strong>    - The string to format.
-<strong>delimiter {String}</strong> - The string tu put between each camel
+<p><strong>string {String}</strong>    - The string to format.</p>
+<p><strong>delimiter {String}</strong> - The string tu put between each camel
                          case separation.</p>
 <p><strong>returns {String}</strong>   - The formatted string.</p>
 
@@ -377,8 +377,8 @@ between each camel case separation.</p>
                   <h4>addSeperatorToPath(path, pathSeperator)</h4>
                   <p>Appends a path selector to the given path if there isn&#39;t one
 yet.</p>
-<p><strong>path {String}</strong>          - The path for appending a selector.
-<strong>pathSeparator {String}</strong> - The selector for appending to
+<p><strong>path {String}</strong>          - The path for appending a selector.</p>
+<p><strong>pathSeparator {String}</strong> - The selector for appending to
                              path.</p>
 <p><strong>returns {String}</strong>       - The appended path.</p>
 
