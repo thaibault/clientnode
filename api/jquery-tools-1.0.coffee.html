@@ -16,24 +16,241 @@
   <div class="container">
     <div class="sidebar column">
       
+      <h4>Classes</h4>
+      <ul class="classlist">
+        
+        <li><a href="#Tools">Tools</a></li>
+        
+      </ul>
+      
+      
+      <h4>Functions</h4>
+      <ul class="functionlist">
+        
+        <li><a href="#$.fn.Tools">$.fn.Tools</a></li>
+        
+        <li><a href="#$.Tools">$.Tools</a></li>
+        
+      </ul>
       
     </div>
     <div class="content column">
       
       <div id="module-docstring">
         <p>!
-    Copyright see require on <a href="https://github.com/thaibault/require">https://github.com/thaibault/require</a></p>
-<pre><code>Conventions see <span class="keyword">require</span> on https:<span class="comment">//github.com/thaibault/require</span>
-
-@author t.sickert@gmail.com (Torben Sickert)
-@version <span class="number">1.0</span> stable
+Copyright see require on <a href="https://github.com/thaibault/require">https://github.com/thaibault/require</a></p>
+<p>Conventions see require on <a href="https://github.com/thaibault/require">https://github.com/thaibault/require</a></p>
+<p>@author t.sickert@gmail.com (Torben Sickert)
+@version 1.0 stable
 @fileOverview
-<span class="keyword">This</span> module provides common reusable logic <span class="keyword">for</span> every jQuery non trivial
-plugin.</code></pre>
+This module provides common reusable logic for every jQuery non trivial
+plugin.</p>
 
       </div>
       
       
+      <div id="classes">
+        <h2>Classes</h2>
+        
+        <div class="class">
+          <div class="header">
+            <a id="Tools"><h3>Tools</h3></a>
+            
+          </div>
+          <div class="class-content">
+            <p>*
+    Saves a mapping from key codes to their corresponding name.</p>
+<pre><code>@property {Object}</code></pre>
+
+            <div class="methods">
+              
+              
+              <div class="instancemethods">
+                <h3>Instance Methods</h3>
+                
+                <div class="method">
+                  <h4>constructor(@$domNode, @_options, @_defaultOptions, @_locks)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>destructor()</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>initialize(options)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>controller(object, parameter, $domNode)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>acquireLock(description, callbackFunction, autoRelease)</h4>
+                  <p>NOTE: The &quot;window.setTimeout()&quot; wrapper guarantees that the
+following function will be executed without any context
+switches in all browsers.
+If you want to understand more about that,
+&quot;What are event loops?&quot; might be a good question.</p>
+
+                </div>
+                
+                <div class="method">
+                  <h4>releaseLock(description)</h4>
+                  <p>NOTE: The &quot;window.setTimeout()&quot; wrapper guarantees that the
+following function will be executed without any context
+switches in all browsers.
+If you want to understand more about that,
+&quot;What are event loops?&quot; might be a good question.</p>
+
+                </div>
+                
+                <div class="method">
+                  <h4>mouseOutEventHandlerFix(eventHandler)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>log(object, force, avoidAnnotation, level, additionalArguments...)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>info(object, additionalArguments...)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>debug(object, additionalArguments...)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>error(object, additionalArguments...)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>warn(object, additionalArguments...)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>show(object)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>sliceDomNodeSelectorPrefix(domNodeSelector)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>getDomNodeName(domNode)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>grabDomNode(domNodeSelectors)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>getMethod(method, scope, additionalArguments...)</h4>
+                  <p>This following outcomment line would be responsible for a
+bug in yuicompressor.
+Because of declaration of arguments the parser things that
+arguments is a local variable and could be renamed.
+It doesn&#39;t care about that the magic arguments object is
+neccessary to generate the arguments array in this context.</p>
+<p>var arguments = this.argumentsObjectToArray(arguments);</p>
+<p>use something like this instead:</p>
+<p>var parameter = this.argumentsObjectToArray(arguments);</p>
+
+                </div>
+                
+                <div class="method">
+                  <h4>debounce(eventFunction, thresholdInMilliseconds)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>fireEvent(eventName, callOnlyOptionsMethod, scope, additionalArguments...)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>on()</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>off()</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>argumentsObjectToArray(argumentsObject)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>round(number, digits)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>stringFormat(string, additionalArguments...)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>camelCaseStringToDelimited(string, delimiter)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>addSeperatorToPath(path, pathSeperator)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>getUrlVariables(key)</h4>
+                  
+                </div>
+                
+              </div>
+              
+              
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      
+      <div id="functions">
+        <h2>Functions</h2>
+        
+        <div class="function">
+          <div class="header">
+            <a id="$.fn.Tools"><h3>$.fn.Tools()</h3></a>
+          </div>
+          
+        </div>
+        
+        <div class="function">
+          <div class="header">
+            <a id="$.Tools"><h3>$.Tools()</h3></a>
+          </div>
+          
+        </div>
+        
+        
+      </div>
       
     </div>
   </div>

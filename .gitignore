@@ -13,6 +13,9 @@ develop-eggs
 lib
 lib64
 
+# Temporary generated api documentation
+tempAPI
+
 # Installer logs
 pip-log.txt
 
