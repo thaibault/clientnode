@@ -91,7 +91,7 @@ test 'show', ->
     strictEqual tools.show('hans'), 'hans\n(Type: "string")'
     strictEqual tools.show(A: 'a', B: 'b'), 'A: a\nB: b\n(Type: "object")'
     ok new RegExp(
-        '^(.+\n)+\\(Type: "function"\\)$'
+        '^(.|\n|\r|\u2028|\u2029)+\\(Type: "function"\\)$'
     ).test tools.show $.Tools
     ok new RegExp('^.+: .+\\n(.|\\n)+$').test tools.show tools
 
@@ -232,14 +232,14 @@ test 'camelCaseStringToDelimited', ->
     strictEqual tools.camelCaseStringToDelimited(''), ''
     strictEqual tools.camelCaseStringToDelimited('h'), 'h'
     strictEqual tools.camelCaseStringToDelimited('hP', ''), 'hp'
-test 'addSeperatorToPath', ->
-    strictEqual tools.addSeperatorToPath(''), ''
-    strictEqual tools.addSeperatorToPath('/'), '/'
-    strictEqual tools.addSeperatorToPath('/a'), '/a/'
-    strictEqual tools.addSeperatorToPath('/a/bb/'), '/a/bb/'
-    strictEqual tools.addSeperatorToPath('/a/bb'), '/a/bb/'
-    strictEqual tools.addSeperatorToPath('/a/bb', '|'), '/a/bb|'
-    strictEqual tools.addSeperatorToPath('/a/bb/', '|'), '/a/bb/|'
+test 'addSeparatorToPath', ->
+    strictEqual tools.addSeparatorToPath(''), ''
+    strictEqual tools.addSeparatorToPath('/'), '/'
+    strictEqual tools.addSeparatorToPath('/a'), '/a/'
+    strictEqual tools.addSeparatorToPath('/a/bb/'), '/a/bb/'
+    strictEqual tools.addSeparatorToPath('/a/bb'), '/a/bb/'
+    strictEqual tools.addSeparatorToPath('/a/bb', '|'), '/a/bb|'
+    strictEqual tools.addSeparatorToPath('/a/bb/', '|'), '/a/bb/|'
 test 'getUrlVariables', ->
     ok $.isArray tools.getUrlVariables()
     ok tools.getUrlVariables('not_existing') is undefined
