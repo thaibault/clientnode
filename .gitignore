@@ -31,3 +31,4 @@ nosetests.xml
 
 # Vim temporary file
 *.swp
+.roperproject
