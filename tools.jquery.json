@@ -1,6 +1,6 @@
 {
     "name": "tools",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "title": "jQuery tools",
     "author": {
         "name": "Torben Sickert",
@@ -17,10 +17,10 @@
     },
     "description": "upgrade to object orientated rock solid plugins",
     "keywords": ["tools", "object-orientation", "dry", "pattern", "controller"],
-    "homepage": "http://thaibault.github.io/jQuery-tools",
-    "docs": "http://thaibault.github.io/jQuery-tools/api",
-    "demo": "http://thaibault.github.io/jQuery-tools",
-    "download": "http://thaibault.github.io/jQuery-tools/distributionBundle.zip",
+    "homepage": "http://thaibault.github.com/jQuery-tools",
+    "docs": "http://thaibault.github.com/jQuery-tools/api",
+    "demo": "http://thaibault.github.com/jQuery-tools",
+    "download": "http://thaibault.github.com/jQuery-tools/distributionBundle.zip",
     "bugs": "https://github.com/thaibault/jQuery-tools/issues",
     "maintainers": [{
         "name": "Torben Sickert",
