@@ -1,6 +1,6 @@
 {
     "name": "tools",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "title": "upgrade to object orientated rock solid plugins",
     "author": {
         "name": "Torben Sickert",
@@ -16,7 +16,7 @@
         "jquery-tools": ">=1.0"
     },
     "description": "This module provides common reusable logic for every non trivial jQuery plugin.",
-    "keywords": ["tools", "object orientation", "do not repeat yourself", "pattern", "controller"],
+    "keywords": ["tools", "object-orientation", "dry", "pattern", "controller"],
     "homepage": "http://thaibault.github.io/jQuery-tools",
     "docs": "http://thaibault.github.io/jQuery-tools/api",
     "demo": "http://thaibault.github.io/jQuery-tools",
