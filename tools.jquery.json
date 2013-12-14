@@ -16,7 +16,7 @@
         "jquery-tools": ">=1.0"
     },
     "description": "This module provides common reusable logic for every non trivial jQuery plugin.",
-    "keywords": ["tools", "object orientation", "don't repeat yourself", "pattern", "controller"],
+    "keywords": ["tools", "object orientation", "do not repeat yourself", "pattern", "controller"],
     "homepage": "http://thaibault.github.io/jQuery-tools",
     "docs": "http://thaibault.github.io/jQuery-tools/api",
     "demo": "http://thaibault.github.io/jQuery-tools",
