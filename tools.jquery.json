@@ -1,0 +1,30 @@
+{
+    "name": "tools",
+    "version": "1.0.0",
+    "title": "upgrade to object orientated rock solid plugins",
+    "author": {
+        "name": "Torben Sickert",
+        "email": "t.sickert@gmail.com",
+        "url": "http://thaibault.github.com"
+    },
+    "licenses": [{
+        "type": "creativecommons",
+        "url": "http://creativecommons.org/licenses/by/3.0/deed.de"
+    }],
+    "dependencies": {
+        "jquery": ">=1.10.2",
+        "jquery-tools": ">=1.0"
+    },
+    "description": "This module provides common reusable logic for every non trivial jQuery plugin.",
+    "keywords": ["tools", "object orientation", "don't repeat yourself", "pattern", "controller"],
+    "homepage": "http://thaibault.github.io/jQuery-tools",
+    "docs": "http://thaibault.github.io/jQuery-tools/api",
+    "demo": "http://thaibault.github.io/jQuery-tools",
+    "download": "http://thaibault.github.io/jQuery-tools/distributionBundle.zip",
+    "bugs": "https://github.com/thaibault/jQuery-tools/issues",
+    "maintainers": [{
+        "name": "Torben Sickert",
+        "email": "t.sickert@gmail.com",
+        "url": "http://thaibault.github.com"
+    }]
+}
