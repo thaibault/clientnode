@@ -37,23 +37,40 @@ components is integrated as well.
 
 <h2>Features<!--deDE:Merkmale--></h2>
 
-*   Mutual exclusion for depending gui elements.
-    <!--deDE:Wechselseitiger Ausschluss für abhängige GUI-Elemente-->
-*   Cross browser logging with different log levels.
-    <!--deDE:Browserübergreifender Log-Mechanismen mit diversen Log-Levels.-->
-*   Extending native JavaScript types like strings, arrays or functions.
-    <!--deDE:
-        Erweiterung der standard JavaScripttypen wie Strings, Arrays und
-        Funktionen
-    -->
-*   A set of helper functions to parse option objects.
-    <!--deDE:Hilfsfunktionen um Options-Objekte intelligent zu parsen.-->
-*   Extended dom tree handling.
-    <!--deDE:Erweitertes DOM-Baum-Management-->
-*   Plugin scoped event handling.
-    <!--deDE:Plugineigene Namensräume für Events-->
-*   Generic none-redundant plugin pattern for JavaScript and CoffeeScript
-    <!--deDE:Generischer Plugin-Muster für JavaScript und CoffeeScript-->
+<ul>
+    <li>
+        Mutual exclusion for depending gui elements.
+        <!--deDE:Wechselseitiger Ausschluss für abhängige GUI-Elemente-->
+    </li>
+    <li>
+        Cross browser logging with different log levels.
+        <!--deDE:
+            Browserübergreifender Log-Mechanismen mit diversen Log-Levels.
+        -->
+    </li>
+    <li>
+        Extending native JavaScript types like strings, arrays or functions.
+        <!--deDE:
+            Erweiterung der standard JavaScripttypen wie Strings, Arrays und
+            Funktionen
+        -->
+    </li>
+    <li>
+        A set of helper functions to parse option objects.
+        <!--deDE:Hilfsfunktionen um Options-Objekte intelligent zu parsen.-->
+    </li>
+    <li>
+        Extended dom tree handling.<!--deDE:Erweitertes DOM-Baum-Management-->
+    </li>
+    <li>
+        Plugin scoped event handling.
+        <!--deDE:Plugineigene Namensräume für Events-->
+    </li>
+    <li>
+        Generic none-redundant plugin pattern for JavaScript and CoffeeScript
+        <!--deDE:Generischer Plugin-Muster für JavaScript und CoffeeScript-->
+    </li>
+</ul>
 
 <h2>Quick start<!--deDE:Einstieg--></h2>
 
