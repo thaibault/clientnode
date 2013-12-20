@@ -16,8 +16,7 @@ License
 
 endregion -->
 
-Use case<!--deDE:Einsatz--><!--frFR:Utilisier-->
-------------------------------------------------
+<h2>Use case<!--deDE:Einsatz--><!--frFR:Utilisier--></h2>
 
 The main goal of This plugin is providing an generic interface logic like
 controller for calling instance methods or getting property values of an object
@@ -31,14 +30,12 @@ components is integrated as well.
     verschiedener GUI-Komponenten mitgeliefert.
 -->
 
-Inhalt<!--deDE:Content-->
--------------------------
+<h2>Inhalt<!--deDE:Content--></h2>
 
 <!--Place for automatic generated table of contents.-->
 [TOC]
 
-Features
---------
+<h2>Features<!--deDE:Merkmale--></h2>
 
 *   Mutual exclusion for depending gui elements.
     <!--deDE:Wechselseitiger Ausschluss für abhängige GUI-Elemente-->
@@ -58,8 +55,7 @@ Features
 *   Generic none-redundant plugin pattern for JavaScript and CoffeeScript
     <!--deDE:Generischer Plugin-Muster für JavaScript und CoffeeScript-->
 
-Quick start<!--deDE:Einstieg-->
--------------------------------
+<h2>Quick start<!--deDE:Einstieg--></h2>
 
 Easy access of a method in "$.Tools":
 <!--deDE:Einfacher Aufruf einer Method aus "$.Tools":-->
@@ -69,8 +65,7 @@ var tools = $.Tools({'logging': true});
 tools.log('test');
 ```
 
-Plugin pattern in JavaScript<!--deDE:Plugin-Vorlage in JavaScript-->
---------------------------------------------------------------------
+<h2>Plugin pattern in JavaScript<!--deDE:Plugin-Vorlage in JavaScript--></h2>
 
 Use as extension for object orientated jQuery plugin using inheritance and dom
 node reference. This plugin pattern gives their instance back if no dom node is
@@ -178,8 +173,9 @@ Function call:<!--deDE:Funktionsaufruf:-->
 var domNode = $('#domNode').example({'firstOption': 'value'...});
 ```
 
-Plugin pattern in CoffeeScript<!--deDE:Plugin-Vorlage in CoffeeScript-->
-------------------------------------------------------------------------
+<h2>
+    Plugin pattern in CoffeeScript<!--deDE:Plugin-Vorlage in CoffeeScript-->
+</h2>
 
 Use as extension for object orientated jQuery plugin using inheritance and dom
 node reference. This plugin pattern gives their instance back if no dom node is
