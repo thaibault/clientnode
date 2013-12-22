@@ -16,7 +16,9 @@ License
 
 endregion -->
 
-<h2>Use case<!--deDE:Einsatz--><!--frFR:Utilisier--></h2>
+<!--|deDE:Einsatz-->
+Use case
+--------
 
 The main goal of This plugin is providing an generic interface logic like
 controller for calling instance methods or getting property values of an object
@@ -30,12 +32,16 @@ components is integrated as well.
     verschiedener GUI-Komponenten mitgeliefert.
 -->
 
-<h2>Inhalt<!--deDE:Content--></h2>
+<!--|deDE:Content-->
+Inhalt
+------
 
 <!--Place for automatic generated table of contents.-->
 [TOC]
 
-<h2>Features<!--deDE:Merkmale--></h2>
+<!--|deDE:Merkmale-->
+Features
+--------
 
 <ul>
     <li>
@@ -72,7 +78,9 @@ components is integrated as well.
     </li>
 </ul>
 
-<h2>Quick start<!--deDE:Einstieg--></h2>
+<!--|deDE:Einstieg-->
+Quick start
+-----------
 
 Easy access of a method in "$.Tools":
 <!--deDE:Einfacher Aufruf einer Method aus "$.Tools":-->
@@ -82,7 +90,9 @@ var tools = $.Tools({'logging': true});
 tools.log('test');
 ```
 
-<h2>Plugin pattern in JavaScript<!--deDE:Plugin-Vorlage in JavaScript--></h2>
+<!--|deDE:Plugin-Vorlage in JavaScript-->
+Plugin pattern in JavaScript
+----------------------------
 
 Use as extension for object orientated jQuery plugin using inheritance and dom
 node reference. This plugin pattern gives their instance back if no dom node is
@@ -190,9 +200,9 @@ Function call:<!--deDE:Funktionsaufruf:-->
 var domNode = $('#domNode').example({'firstOption': 'value'...});
 ```
 
-<h2>
-    Plugin pattern in CoffeeScript<!--deDE:Plugin-Vorlage in CoffeeScript-->
-</h2>
+<!--|deDE:Plugin-Vorlage in CoffeeScript-->
+Plugin pattern in CoffeeScript
+------------------------------
 
 Use as extension for object orientated jQuery plugin using inheritance and dom
 node reference. This plugin pattern gives their instance back if no dom node is
