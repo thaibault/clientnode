@@ -109,8 +109,8 @@ provided.
     #!/usr/bin/env javaScript
 
     ;(function($) {
-        var Example = function(domNode) {
-            this.$domNode = domNode;
+        var Example = function($domNode) {
+            this.$domNode = $domNode;
             this._options = {...};
             this.__name__ = 'Example';
             this.initialize = function(options) {
@@ -123,8 +123,7 @@ provided.
                 if(options)
                     // Merges given options with default options recursively.
                     this._options = $.extend(true, {}, this._options, options);
-                if(this.$domNode) return this.$domNode;
-                return this;
+                return this.$domNode ? this.$domNode : this;
             };
             this.method = function(anArgument) {
                 ...
@@ -198,7 +197,7 @@ using composition, dom node reference and chaining support.
 Function call:<!--deDE:Funktionsaufruf:-->
 
 ```javaScript
-var domNode = $('#domNode').example({'firstOption': 'value'...});
+var $domNode = $('#domNode').example({'firstOption': 'value'...});
 ```
 
 <!--|deDE:Plugin-Vorlage in CoffeeScript-->
@@ -228,9 +227,9 @@ provided.
                 "this" points to this "Example" instance extended by "Tools".
                 Merges given options with default options recursively.
             ###
+            # Merges given options with default options recursively.
             super options
-            return this.$domNode if this.$domNode
-            this
+            return if this.$domNode then this.$domNode else this
         method: (anArgument) ->
             ...
             returnValue
@@ -289,5 +288,5 @@ using composition, dom node reference and chaining support.
 Function call:<!--deDE:Funktionsaufruf:-->
 
 ```coffee
-domNode = $('#domNode').example firstOption: 'value'...
+$domNode = $('#domNode').example firstOption: 'value'...
 ```
