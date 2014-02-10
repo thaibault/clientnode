@@ -33,8 +33,8 @@ components is integrated as well.
     verschiedener GUI-Komponenten mitgeliefert.
 -->
 
-<!--|deDE:Content-->
-Inhalt
+<!--|deDE:Inhalt-->
+Content
 ------
 
 <!--Place for automatic generated table of contents.-->
