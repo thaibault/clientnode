@@ -236,6 +236,14 @@ test 'camelCaseStringToDelimited', ->
     strictEqual tools.camelCaseStringToDelimited(''), ''
     strictEqual tools.camelCaseStringToDelimited('h'), 'h'
     strictEqual tools.camelCaseStringToDelimited('hP', ''), 'hp'
+test 'capitalize', ->
+    strictEqual tools.capitalize('hansPeter'), 'HansPeter'
+    strictEqual tools.capitalize(''), ''
+    strictEqual tools.capitalize('a'), 'A'
+    strictEqual tools.capitalize('A'), 'A'
+    strictEqual tools.capitalize('AA'), 'AA'
+    strictEqual tools.capitalize('Aa'), 'Aa'
+    strictEqual tools.capitalize('aa'), 'Aa'
 test 'addSeparatorToPath', ->
     strictEqual tools.addSeparatorToPath(''), ''
     strictEqual tools.addSeparatorToPath('/'), '/'
