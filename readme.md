@@ -1,11 +1,7 @@
-<!-- region modline
+<!-- !/usr/bin/env markdown
+-*- coding: utf-8 -*- -->
 
-vim: set tabstop=4 shiftwidth=4 expandtab:
-vim: foldmethod=marker foldmarker=region,endregion:
-
-endregion
-
-region header
+<!-- region header
 
 Copyright Torben Sickert 16.12.2012
 
@@ -290,3 +286,10 @@ Function call:<!--deDE:Funktionsaufruf:-->
 ```coffee
 $domNode = $('#domNode').example firstOption: 'value'...
 ```
+
+<!-- region modline
+
+vim: set tabstop=4 shiftwidth=4 expandtab:
+vim: foldmethod=marker foldmarker=region,endregion:
+
+endregion -->

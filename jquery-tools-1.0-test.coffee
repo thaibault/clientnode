@@ -1,13 +1,6 @@
 #!/usr/bin/env require
 # -*- coding: utf-8 -*-
 
-# region vim modline
-
-# vim: set tabstop=4 shiftwidth=4 expandtab:
-# vim: foldmethod=marker foldmarker=region,endregion:
-
-# endregion
-
 # region header
 
 # Copyright Torben Sickert 16.12.2012
@@ -279,5 +272,12 @@ test '_grabDomNodeHelper', ->
     ), 'div'
 
     # endregion
+
+# endregion
+
+# region vim modline
+
+# vim: set tabstop=4 shiftwidth=4 expandtab:
+# vim: foldmethod=marker foldmarker=region,endregion:
 
 # endregion
