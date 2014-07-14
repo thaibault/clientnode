@@ -102,7 +102,8 @@ provided.
     worden sein, gibt dieser Pattern seine Instanz zurück.
 -->
 
-    #!/usr/bin/env javaScript
+    //!/usr/bin/env javaScript
+    // -*- coding: utf-8 -*-
 
     ;(function($) {
         var Example = function($domNode) {
@@ -119,7 +120,7 @@ provided.
                 if(options)
                     // Merges given options with default options recursively.
                     this._options = $.extend(true, {}, this._options, options);
-                return this.$domNode ? this.$domNode : this;
+                return this.$domNode || this;
             };
             this.method = function(anArgument) {
                 ...
@@ -165,7 +166,8 @@ using composition, dom node reference and chaining support.
     beschrieben auf die Methoden von "$.Tools" zugegriffen werden.
 -->
 
-    #!/usr/bin/env javaScript
+    //!/usr/bin/env javaScript
+    // -*- coding: utf-8 -*-
 
     ;(function($) {
         var options = {...};
@@ -212,6 +214,7 @@ provided.
 -->
 
     #!/usr/bin/env coffee
+    # -*- coding: utf-8 -*-
 
     class Example extends $.Tools.class
         __name__: 'Example'
@@ -225,7 +228,7 @@ provided.
             ###
             # Merges given options with default options recursively.
             super options
-            return if this.$domNode then this.$domNode else this
+            this.$domNode or this
         method: (anArgument) ->
             ...
             returnValue
@@ -264,6 +267,7 @@ using composition, dom node reference and chaining support.
 -->
 
     #!/usr/bin/env coffee
+    # -*- coding: utf-8 -*-
 
     defaultOptions = {...}
     tools = $.Tools
