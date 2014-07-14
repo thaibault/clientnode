@@ -218,7 +218,6 @@ provided.
 
     class Example extends $.Tools.class
         __name__: 'Example'
-        _options: {...}
         initialize: (options={}) ->
             ###
                 "this.$domNode" points to jQuery's wrapped dom node
@@ -226,6 +225,7 @@ provided.
                 "this" points to this "Example" instance extended by "Tools".
                 Merges given options with default options recursively.
             ###
+            this._options: {...}
             # Merges given options with default options recursively.
             super options
             this.$domNode or this
