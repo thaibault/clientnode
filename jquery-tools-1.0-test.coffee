@@ -205,6 +205,13 @@ test 'argumentsObjectToArray', ->
         # region number handling
 
 test 'round', ->
+    strictEqual tools.round(1.5, 0), 2
+    strictEqual tools.round(1.4, 0), 1
+    strictEqual tools.round(1.4, -1), 0
+    strictEqual tools.round(1000, -2), 1000
+    strictEqual tools.round(999, -2), 1000
+    strictEqual tools.round(950, -2), 1000
+    strictEqual tools.round(949, -2), 900
     strictEqual tools.round(1.2345), 1
     strictEqual tools.round(1.2345, 2), 1.23
     strictEqual tools.round(1.2345, 3), 1.235
@@ -214,6 +221,24 @@ test 'round', ->
 
         # region string manipulating
 
+test 'stringStartsWith', ->
+    ok tools.stringStartsWith 'hans', 'ha'
+    ok tools.stringStartsWith 'ha', 'ha'
+    ok tools.stringStartsWith 'ha', 'h'
+    ok tools.stringStartsWith 'ha', ''
+    ok tools.stringStartsWith '', ''
+    ok not tools.stringStartsWith 'ha', 'a'
+    ok not tools.stringStartsWith '', 'a'
+    ok not tools.stringStartsWith 'ha', 'H'
+test 'stringEndsWith', ->
+    ok tools.stringEndsWith 'hans', 'ns'
+    ok tools.stringEndsWith 'ns', 'ns'
+    ok tools.stringEndsWith 'ns', 's'
+    ok tools.stringEndsWith 'ns', ''
+    ok tools.stringEndsWith '', ''
+    ok not tools.stringEndsWith 'ns', 'n'
+    ok not tools.stringEndsWith '', 'n'
+    ok not tools.stringEndsWith 'ns', 'S'
 test 'stringFormat', ->
     strictEqual tools.stringFormat('{1}', 'test'), 'test'
     strictEqual tools.stringFormat('', 'test'), ''
@@ -221,33 +246,49 @@ test 'stringFormat', ->
     strictEqual tools.stringFormat(
         '{1} test {2} - {2}', 1, 2
     ), '1 test 2 - 2'
-test 'camelCaseStringToDelimited', ->
-    strictEqual tools.camelCaseStringToDelimited('hansPeter'), 'hans-peter'
-    strictEqual tools.camelCaseStringToDelimited(
+test 'stringCamelCaseToDelimited', ->
+    strictEqual tools.stringCamelCaseToDelimited('hansPeter'), 'hans-peter'
+    strictEqual tools.stringCamelCaseToDelimited(
         'hansPeter', '|'
     ), 'hans|peter'
-    strictEqual tools.camelCaseStringToDelimited(''), ''
-    strictEqual tools.camelCaseStringToDelimited('h'), 'h'
-    strictEqual tools.camelCaseStringToDelimited('hP', ''), 'hp'
-test 'capitalize', ->
-    strictEqual tools.capitalize('hansPeter'), 'HansPeter'
-    strictEqual tools.capitalize(''), ''
-    strictEqual tools.capitalize('a'), 'A'
-    strictEqual tools.capitalize('A'), 'A'
-    strictEqual tools.capitalize('AA'), 'AA'
-    strictEqual tools.capitalize('Aa'), 'Aa'
-    strictEqual tools.capitalize('aa'), 'Aa'
-test 'addSeparatorToPath', ->
-    strictEqual tools.addSeparatorToPath(''), ''
-    strictEqual tools.addSeparatorToPath('/'), '/'
-    strictEqual tools.addSeparatorToPath('/a'), '/a/'
-    strictEqual tools.addSeparatorToPath('/a/bb/'), '/a/bb/'
-    strictEqual tools.addSeparatorToPath('/a/bb'), '/a/bb/'
-    strictEqual tools.addSeparatorToPath('/a/bb', '|'), '/a/bb|'
-    strictEqual tools.addSeparatorToPath('/a/bb/', '|'), '/a/bb/|'
-test 'getUrlVariables', ->
-    ok $.isArray tools.getUrlVariables()
-    ok tools.getUrlVariables('not_existing') is undefined
+    strictEqual tools.stringCamelCaseToDelimited(''), ''
+    strictEqual tools.stringCamelCaseToDelimited('h'), 'h'
+    strictEqual tools.stringCamelCaseToDelimited('hP', ''), 'hp'
+test 'stringDelimitedToCamelCase', ->
+    strictEqual tools.stringDelimitedToCamelCase('HansAN-Peter'), 'hansANPeter'
+    strictEqual tools.stringDelimitedToCamelCase('hans-peter'), 'hansPeter'
+    strictEqual tools.stringDelimitedToCamelCase(
+        'hans|peter', '|'
+    ), 'hansPeter'
+    strictEqual tools.stringDelimitedToCamelCase(''), ''
+    strictEqual tools.stringDelimitedToCamelCase('h'), 'h'
+test 'stringLowerCase', ->
+    strictEqual tools.stringLowerCase('HansPeter'), 'hansPeter'
+    strictEqual tools.stringLowerCase(''), ''
+    strictEqual tools.stringLowerCase('A'), 'a'
+    strictEqual tools.stringLowerCase('a'), 'a'
+    strictEqual tools.stringLowerCase('aa'), 'aa'
+    strictEqual tools.stringLowerCase('Aa'), 'aa'
+    strictEqual tools.stringLowerCase('aa'), 'aa'
+test 'stringCapitalize', ->
+    strictEqual tools.stringCapitalize('hansPeter'), 'HansPeter'
+    strictEqual tools.stringCapitalize(''), ''
+    strictEqual tools.stringCapitalize('a'), 'A'
+    strictEqual tools.stringCapitalize('A'), 'A'
+    strictEqual tools.stringCapitalize('AA'), 'AA'
+    strictEqual tools.stringCapitalize('Aa'), 'Aa'
+    strictEqual tools.stringCapitalize('aa'), 'Aa'
+test 'stringAddSeparatorToPath', ->
+    strictEqual tools.stringAddSeparatorToPath(''), ''
+    strictEqual tools.stringAddSeparatorToPath('/'), '/'
+    strictEqual tools.stringAddSeparatorToPath('/a'), '/a/'
+    strictEqual tools.stringAddSeparatorToPath('/a/bb/'), '/a/bb/'
+    strictEqual tools.stringAddSeparatorToPath('/a/bb'), '/a/bb/'
+    strictEqual tools.stringAddSeparatorToPath('/a/bb', '|'), '/a/bb|'
+    strictEqual tools.stringAddSeparatorToPath('/a/bb/', '|'), '/a/bb/|'
+test 'stringGetURLVariables', ->
+    ok $.isArray tools.stringGetURLVariables()
+    ok tools.stringGetURLVariables('not_existing') is undefined
 
         # endregion
 
