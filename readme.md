@@ -102,7 +102,7 @@ provided.
     worden sein, gibt dieser Pattern seine Instanz zurück.
 -->
 
-    //!/usr/bin/env javaScript
+    #!/usr/bin/env javaScript
     // -*- coding: utf-8 -*-
 
     ;(function($) {
@@ -166,7 +166,7 @@ using composition, dom node reference and chaining support.
     beschrieben auf die Methoden von "$.Tools" zugegriffen werden.
 -->
 
-    //!/usr/bin/env javaScript
+    #!/usr/bin/env javaScript
     // -*- coding: utf-8 -*-
 
     ;(function($) {
