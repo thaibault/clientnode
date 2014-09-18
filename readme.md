@@ -42,31 +42,31 @@ Features
 
 <ul>
     <li>
-        Mutual exclusion for depending gui elements.
+        Mutual exclusion for depending gui elements
         <!--deDE:Wechselseitiger Ausschluss für abhängige GUI-Elemente-->
     </li>
     <li>
-        Cross browser logging with different log levels.
+        Cross browser logging with different log levels
         <!--deDE:
-            Browserübergreifender Log-Mechanismen mit diversen Log-Levels.
+            Browserübergreifender Log-Mechanismen mit diversen Log-Levels
         -->
     </li>
     <li>
-        Extending native JavaScript types like strings, arrays or functions.
+        Extending native JavaScript types like strings, arrays or functions
         <!--deDE:
-            Erweiterung der standard JavaScripttypen wie Strings, Arrays und
+            Erweiterung der Standard-JavaScript-Typen wie Strings, Arrays und
             Funktionen
         -->
     </li>
     <li>
-        A set of helper functions to parse option objects.
-        <!--deDE:Hilfsfunktionen um Options-Objekte intelligent zu parsen.-->
+        A set of helper functions to parse option objects
+        <!--deDE:Hilfsfunktionen um Options-Objekte intelligent zu parsen-->
     </li>
     <li>
         Extended dom tree handling.<!--deDE:Erweitertes DOM-Baum-Management-->
     </li>
     <li>
-        Plugin scoped event handling.
+        Plugin scoped event handling
         <!--deDE:Plugineigene Namensräume für Events-->
     </li>
     <li>
