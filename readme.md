@@ -139,12 +139,11 @@ provided.
     }).call(this, this.jQuery);
 
 Initialisation with given dom node and without:
-<!--deDE:Aufruf mit übergebenen DOM-Knoten und ohne:-->
+<!--deDE:Aufruf mit und ohne übergebenen DOM-Knoten:-->
 
 ```javaScript
 $domNode = $('#domNode').Example({firstOption: 'value'...});
 exampleInstance = $.Example({firstOption: 'value'...});
-$domNode = exampleInstance.$domNode;
 ```
 
 Function call from previous generated instance via dom node or instance
@@ -155,8 +154,10 @@ reference:
 -->
 
 ```javaScript
-returnValue = $('#domNode').Example({'method', 'anArgument'});
-returnValue = exampleInstance.method('anArgument');
+returnValue = $('#domNode').Example('method', 'anArgument');
+returnValue = $('#domNode').Example().method('anArgument');
+exampleInstance = $.Example firstOption: 'value'...
+returnValue = exampleInstance.method 'anArgument'
 ```
 
 Use as extension for default functional orientated jQuery plugin pattern
@@ -244,7 +245,6 @@ Initialisation with given dom node and without:
 ```coffee
 $domNode = $('#domNode').Example firstOption: 'value'...
 exampleInstance = $.Example firstOption: 'value'...
-$domNode = exampleInstance.$domNode
 ```
 
 Function call from previous generated instance via dom node or instance
@@ -256,6 +256,8 @@ reference:
 
 ```coffee
 returnValue = $('#domNode').Example 'method', 'anArgument'
+returnValue = $('#domNode').Example().method 'anArgument'
+exampleInstance = $.Example firstOption: 'value'...
 returnValue = exampleInstance.method 'anArgument'
 ```
 

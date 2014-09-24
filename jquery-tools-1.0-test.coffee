@@ -58,9 +58,9 @@ test 'acquireLock|releaseLock', ->
     tools.acquireLock 'test', -> testValue = true
 
     ok testValue
-    strictEqual tools.acquireLock('test', -> testValue = false), tools
+    strictEqual tools.acquireLock('test', (-> testValue = false), true), tools
     ok testValue
-    ok $.Tools().releaseLock('test')
+    ok $.Tools().releaseLock 'test'
     ok testValue
     strictEqual tools.releaseLock('test'), tools
     ok not testValue
@@ -96,6 +96,18 @@ test 'show', ->
 
         # region dom node handling
 
+test 'generateDirectiveSelector', ->
+    strictEqual tools.generateDirectiveSelector('a-b'), 'a-b, [a-b], .a-b'
+    strictEqual tools.generateDirectiveSelector('aB'), 'a-b, [a-b], .a-b'
+    strictEqual tools.generateDirectiveSelector('a'), 'a, [a], .a'
+    strictEqual tools.generateDirectiveSelector('aa'), 'aa, [aa], .aa'
+    strictEqual tools.generateDirectiveSelector(
+        'aaBB'
+    ), 'aa-bb, [aa-bb], .aa-bb'
+test 'removeDirective', ->
+    $bodyDomNode = $ 'body'
+    $bodyDomNode = $bodyDomNode.Tools 'removeDirective', 'a'
+    equal $bodyDomNode.Tools().removeDirective('a'), $bodyDomNode
 test 'sliceDomNodeSelectorPrefix', ->
     strictEqual tools.sliceDomNodeSelectorPrefix('body div'), 'div'
     strictEqual $.Tools(
