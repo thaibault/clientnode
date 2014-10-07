@@ -144,6 +144,17 @@ test 'grabDomNode', ->
 
         # endregion
 
+        # region scope
+
+test 'determineUniqueScopeName', ->
+    ok tools.stringStartsWith tools.determineUniqueScopeName(), 'callback'
+    ok tools.stringStartsWith tools.determineUniqueScopeName('hans'), 'hans'
+    ok tools.stringStartsWith tools.determineUniqueScopeName(
+        'hans', {}
+    ), 'hans'
+
+        # endregion
+
         # region function handling
 
 test 'getMethod', ->
