@@ -131,16 +131,27 @@ test 'grabDomNode', ->
         qunit: 'body div#qunit', qunitFixture: 'body div#qunit-fixture'
     delete $domNodes.window
     delete $domNodes.document
-    deepEqual $domNodes,
+    deepEqual(
+        $domNodes
         qunit: $('body div#qunit'), qunitFixture: $('body div#qunit-fixture')
-        parent: $ 'body'
+        parent: $ 'body')
     $domNodes = tools.grabDomNode
         qunit: 'div#qunit', qunitFixture: 'div#qunit-fixture'
     delete $domNodes.window
     delete $domNodes.document
-    deepEqual $domNodes,
+    deepEqual(
+        $domNodes
         parent: $('body'), qunit: $('body div#qunit')
-        qunitFixture: $ 'body div#qunit-fixture'
+        qunitFixture: $ 'body div#qunit-fixture')
+    $domNodes = tools.grabDomNode {
+        qunit: 'div#qunit', qunitFixture: 'div#qunit-fixture'
+    }, 'body'
+    delete $domNodes.window
+    delete $domNodes.document
+    deepEqual(
+        $domNodes
+        parent: $('body'), qunit: $('body').find 'div#qunit'
+        qunitFixture: $('body').find 'div#qunit-fixture')
 
         # endregion
 
