@@ -19,7 +19,7 @@ module 'tools'
 
     # region mock-up
 
-tools = $.Tools()
+tools = $('body').Tools()
 
     # endregion
 
@@ -323,6 +323,17 @@ test 'stringAddSeparatorToPath', ->
 test 'stringGetURLVariables', ->
     ok $.isArray tools.stringGetURLVariables()
     ok tools.stringGetURLVariables('not_existing') is undefined
+
+        # endregion
+
+        # region data transfer
+
+test 'sendToIFrame', ->
+    iFrame = $('<iframe>').attr 'name', 'test'
+    $('body').append iFrame
+    ok tools.sendToIFrame iFrame, window.document.URL, {test: 5}, 'get', true
+test 'sendToExternalURL', ->
+    ok tools.sendToExternalURL window.document.URL, {test: 5}
 
         # endregion
 
