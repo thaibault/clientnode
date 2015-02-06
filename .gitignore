@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+## Generic
+
 # Packages
 *.egg
 *.egg-info
@@ -12,9 +16,7 @@ develop-eggs
 .installed.cfg
 lib
 lib64
-
-# Installer logs
-pip-log.txt
+.sass-cache
 
 # Unit test / coverage reports
 .coverage
@@ -31,4 +33,24 @@ nosetests.xml
 
 # Vim temporary file
 *.swp
-.roperproject
+.ropeproject
+
+# PHPStorm and other IDE Files
+*.idea
+*.project
+*.pydevproject
+*.settings
+*.externalToolBuilders
+
+# Gedit autosave backups.
+*~
+
+# Node Modules
+*node_modules/
+
+# region vim modline
+
+# vim: set tabstop=4 shiftwidth=4 expandtab:
+# vim: foldmethod=marker foldmarker=region,endregion:
+
+# endregion

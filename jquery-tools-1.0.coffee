@@ -1,11 +1,5 @@
-#!/usr/bin/env require
-
-# region vim modline
-
-# vim: set tabstop=4 shiftwidth=4 expandtab:
-# vim: foldmethod=marker foldmarker=region,endregion:
-
-# endregion
+#!/usr/bin/env coffee
+# -*- coding: utf-8 -*-
 
 # region header
 
@@ -14,10 +8,7 @@
 
 This module provides common reusable logic for every non trivial jQuery plugin.
 
-Copyright
----------
-
-Torben Sickert 16.12.2012
+Copyright Torben Sickert 16.12.2012
 
 License
 -------
@@ -33,7 +24,7 @@ For conventions see require on https://github.com/thaibault/require
 Author
 ------
 
-t.sickert@gmail.com (Torben Sickert)
+t.sickert["~at~"]gmail.com (Torben Sickert)
 
 Version
 -------
@@ -41,11 +32,7 @@ Version
 1.0 stable
 ###
 
-## standalone
-## do ($=this.jQuery) ->
-this.require.scopeIndicator = 'jQuery.Tools'
-this.require [['jQuery', 'jquery-2.0.3']], ($) ->
-##
+main = ($) ->
 
 # endregion
 
@@ -62,6 +49,11 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
 
     # region properties
 
+        ###
+            **self {Tools}**
+            Saves a reference to this class useful for introspection.
+        ###
+        self: this
         ###
             **keyCode {Object}**
             Saves a mapping from key codes to their corresponding name.
@@ -83,6 +75,11 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
             'markTimeline', 'profile', 'profileEnd', 'table', 'time',
             'timeEnd', 'timeStamp', 'trace', 'warn']
         ###
+            **_javaScriptDependentContentHandled {Boolean}**
+            Indicates weather javaScript dependent content where hide or shown.
+        ###
+        _javaScriptDependentContentHandled: false
+        ###
             **__tools__ {Boolean}**
             Indicates if an instance was derived from this class.
         ###
@@ -101,12 +98,24 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
 
         constructor: (
             @$domNode=null, @_options={}, @_defaultOptions={
-                logging: false, domNodeSelectorPrefix: 'body'
+                logging: false, domNodeSelectorPrefix: 'body',
+                domNode:
+                    hideJavaScriptEnabled:
+                        '.tools-hidden-on-javascript-enabled'
+                    showJavaScriptEnabled:
+                        '.tools-visible-on-javascript-enabled'
             }, @_locks={}
         ) ->
             ###
                 This method should be overwritten normally. It is triggered if
                 current object is created via the "new" keyword.
+
+                The dom node selector prefix enforces to not globally select
+                any dom nodes which aren't in the expected scope of this
+                plugin. "{1}" will be automatically replaced with this plugin
+                name suffix ("incrementer"). You don't have to use "{1}" but it
+                can help you to write code which is more reconcilable with the
+                dry concept.
 
                 **returns {$.Tools}** Returns the current instance.
             ###
@@ -115,6 +124,20 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
                 window.console = {} if not window.console?
                 # Only stub the $ empty method.
                 console[method] = $.noop() if not window.console[method]?
+            if not this.self::_javaScriptDependentContentHandled
+                this.self::_javaScriptDependentContentHandled = true
+                $(
+                    this._defaultOptions.domNodeSelectorPrefix + ' ' +
+                    this._defaultOptions.domNode.hideJavaScriptEnabled
+                ).filter(->
+                    not $(this).data 'javaScriptDependentContentHide'
+                ).data('javaScriptDependentContentHide', true).hide()
+                $(
+                    this._defaultOptions.domNodeSelectorPrefix + ' ' +
+                    this._defaultOptions.domNode.showJavaScriptEnabled
+                ).filter(->
+                    not $(this).data 'javaScriptDependentContentShow'
+                ).data('javaScriptDependentContentShow', true).show()
             # NOTE: A constructor doesn't return last statement by default.
             return this
         destructor: ->
@@ -143,8 +166,8 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
             # The selector prefix should be parsed after extending options
             # because the selector would be overwritten otherwise.
             this._options.domNodeSelectorPrefix = this.stringFormat(
-                this._options.domNodeSelectorPrefix,
-                this.camelCaseStringToDelimited this.__name__)
+                this._options.domNodeSelectorPrefix
+                this.stringCamelCaseToDelimited this.__name__)
             this
 
         # endregion
@@ -169,12 +192,10 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
             if not object.__name__?
                 object = new object $domNode
                 if not object.__tools__?
-                    object = $.extend true, new Tools(), object
-            if $domNode?
-                if $domNode.data object.__name__
-                    object = $domNode.data object.__name__
-                else
-                    $domNode.data object.__name__, object
+                    object = $.extend true, new Tools, object
+            if $domNode? and not $domNode.data object.__name__
+                # Attach extended object to the associated dom node.
+                $domNode.data object.__name__, object
             if object[parameter[0]]?
                 return object[parameter[0]].apply object, parameter.slice 1
             else if not parameter.length or $.type(parameter[0]) is 'object'
@@ -214,21 +235,14 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
 
                 **returns {$.Tools}**           - Returns the current instance.
             ###
-            ###
-                NOTE: The "window.setTimeout()" wrapper guarantees that the
-                following function will be executed without any context
-                switches in all browsers. If you want to understand more about
-                that, "What are event loops?" might be a good question.
-            ###
             wrappedCallbackFunction = (description) =>
-                callbackFunction(description)
-                if autoRelease
-                    this.releaseLock(description)
-            if not this._locks[description]?
+                callbackFunction description
+                this.releaseLock(description) if autoRelease
+            if this._locks[description]?
+                this._locks[description].push wrappedCallbackFunction
+            else
                 this._locks[description] = []
                 wrappedCallbackFunction description
-            else
-                this._locks[description].push wrappedCallbackFunction
             this
         releaseLock: (description) ->
             ###
@@ -241,20 +255,11 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
 
                 **returns {$.Tools}**    - Returns the current instance.
             ###
-            ###
-                NOTE: The "window.setTimeout()" wrapper guarantees that the
-                following function will be executed without any context
-                switches in all browsers.
-                If you want to understand more about that,
-                "What are event loops?" might be a good question.
-            ###
             if this._locks[description]?
                 if this._locks[description].length
-                    this._locks[description].shift()(description)
-                    if not this._locks[description].length
-                        this._locks[description] = undefined
+                    this._locks[description].shift() description
                 else
-                    this._locks[description] = undefined
+                    delete this._locks[description]
             this
 
         # endregion
@@ -317,7 +322,7 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
 
                 **returns {$.Tools}**         - Returns the current instance.
             ###
-            if this._options.logging or force
+            if this._options.logging or force or level in ['error', 'critical']
                 if avoidAnnotation
                     message = object
                 else if $.type(object) is 'string'
@@ -325,10 +330,7 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
                     message = (
                         "#{this.__name__} (#{level}): " +
                         this.stringFormat.apply this, additionalArguments)
-                else if $.isNumeric object
-                    message = (
-                        "#{this.__name__} (#{level}): #{object.toString()}")
-                else if $.type(object) is 'boolean'
+                else if $.isNumeric(object) or $.type(object) is 'boolean'
                     message = (
                         "#{this.__name__} (#{level}): #{object.toString()}")
                 else
@@ -336,7 +338,10 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
                     this.log object, force, true
                     this.log "'--------------------------------------------'"
                 if message
-                    if window.console?[level]? is $.noop() and force
+                    if(
+                        not window.console?[level]? or
+                        window.console[level] is $.noop()
+                    )
                         window.alert message
                     window.console[level] message
             this
@@ -380,7 +385,21 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
                 **returns {$.Tools}** - Returns the current instance.
             ###
             this.log.apply(
-                this, [object, false, false, 'error'].concat(
+                this, [object, true, false, 'error'].concat(
+                    additionalArguments))
+        critical: (object, additionalArguments...) ->
+            ###
+                Wrapper method for the native console method usually provided
+                by interpreter.
+
+                **object {Mixed}**    - Any object to print.
+
+                Additional arguments are used for string formating.
+
+                **returns {$.Tools}** - Returns the current instance.
+            ###
+            this.log.apply(
+                this, [object, true, false, 'warn'].concat(
                     additionalArguments))
         warn: (object, additionalArguments...) ->
             ###
@@ -393,9 +412,8 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
 
                 **returns {$.Tools}** - Returns the current instance.
             ###
-            this.log.apply(
-                this, [object, false, false, 'warn'].concat(
-                    additionalArguments))
+            this.log.apply this, [object, false, false, 'warn'].concat(
+                additionalArguments)
         show: (object) ->
             ###
                 Dumps a given object in a human readable format.
@@ -421,6 +439,29 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
 
         # region dom node handling
 
+        generateDirectiveSelector: (directiveName) ->
+            ###
+                Generates a directive name corresponding selector string.
+
+                **directiveName {String}** - The directive name
+
+                **return {String}**        - Returns generated selector
+            ###
+            delimitedName = this.stringCamelCaseToDelimited directiveName
+            "#{delimitedName}, [#{delimitedName}], [data-#{delimitedName}], " +
+            ".#{delimitedName}"
+        removeDirective: (directiveName) ->
+            ###
+                Removes a directive name corresponding class or attribute.
+
+                **directiveName {String}** - The directive name
+
+                **return {DomNode}**       - Returns current dom node
+            ###
+            delimitedName = this.stringCamelCaseToDelimited directiveName
+            this.$domNode.removeClass(delimitedName).removeAttr(
+                delimitedName
+            ).removeAttr "data-#{delimitedName}"
         sliceDomNodeSelectorPrefix: (domNodeSelector) ->
             ###
                 Removes a selector prefix from a given selector. This methods
@@ -431,21 +472,20 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
 
                 **return {String}**          - Returns the sliced selector.
             ###
-            if(this._options?.domNodeSelectorPrefix? and
-               domNodeSelector.substring(
-                0, this._options.domNodeSelectorPrefix.length) is
-               this._options.domNodeSelectorPrefix)
+            if this._options?.domNodeSelectorPrefix? and this.stringStartsWith(
+                domNodeSelector, this._options.domNodeSelectorPrefix
+            )
                 return $.trim(domNodeSelector.substring(
                     this._options.domNodeSelectorPrefix.length))
             domNodeSelector
-        getDomNodeName: (domNode) ->
+        getDomNodeName: (domNodeSelector) ->
             ###
                 Determines the dom node name of a given dom node string.
 
-                **domNode {String}** - A given to dom node selector to
-                                       determine its name.
+                **domNodeSelector {String}** - A given to dom node selector to
+                                               determine its name.
 
-                **returns {String}** - Returns the dom node name.
+                **returns {String}**         - Returns the dom node name.
 
                 **examples**
 
@@ -458,8 +498,8 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
                 >>> $.Tools.getDomNodeName('&lt;br/&gt;');
                 'br'
             ###
-            domNode.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1]
-        grabDomNode: (domNodeSelectors) ->
+            domNodeSelector.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1]
+        grabDomNode: (domNodeSelectors, wrapperDomNode) ->
             ###
                 Converts an object of dom selectors to an array of $ wrapped
                 dom nodes. Note if selector description as one of "class" or
@@ -468,29 +508,55 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
                 **domNodeSelectors {Object}** - An object with dom node
                                                 selectors.
 
+                **wrapperDomNode {DomNode}**  - A dom node to be the parent or
+                                                wrapper of all retrieved dom
+                                                nodes.
+
                 **returns {Object}**          - Returns all $ wrapped dom nodes
                                                 corresponding to given
                                                 selectors.
             ###
             domNodes = {}
             if domNodeSelectors?
-                $.each(domNodeSelectors, (key, value) =>
-                    match = value.match ', *'
-                    if match
-                        $.each value.split(match[0]), (key, valuePart) =>
-                            if key
-                                value += ", " + this._grabDomNodeHelper(
-                                    key, valuePart, domNodeSelectors)
-                            else
-                                value = valuePart
-                    domNodes[key] = $ this._grabDomNodeHelper(
-                        key, value, domNodeSelectors)
-                )
+                if wrapperDomNode?
+                    wrapperDomNode = $ wrapperDomNode
+                    $.each domNodeSelectors, (key, value) ->
+                        domNodes[key] = wrapperDomNode.find value
+                else
+                    $.each domNodeSelectors, (key, value) =>
+                        match = value.match ', *'
+                        if match
+                            $.each value.split(match[0]), (key, valuePart) =>
+                                if key
+                                    value += ', ' + this._grabDomNodeHelper(
+                                        key, valuePart, domNodeSelectors)
+                                else
+                                    value = valuePart
+                        domNodes[key] = $ this._grabDomNodeHelper(
+                            key, value, domNodeSelectors)
             if this._options.domNodeSelectorPrefix
                 domNodes.parent = $ this._options.domNodeSelectorPrefix
             domNodes.window = $ window
             domNodes.document = $ document
             domNodes
+
+        # endregion
+
+        # region scope
+
+        determineUniqueScopeName: (prefix='callback', scope=window) ->
+            ###
+                Generates a unique function name needed for jsonp requests.
+
+                **scope {Object}**   - A scope where the name should be unique.
+
+                **returns {String}** - The function name.
+            ###
+            while true
+                uniqueName = prefix + window.parseInt window.Math.random(
+                ) * window.Math.pow 10, 10
+                break if not scope[uniqueName]?
+            uniqueName
 
         # endregion
 
@@ -548,23 +614,32 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
 
         # region event handling
 
-        debounce: (eventFunction, thresholdInMilliseconds=300) ->
+        debounce: (
+            eventFunction, thresholdInMilliseconds=600, additionalArguments...
+        ) ->
             ###
                 Prevents event functions from triggering to often by defining a
-                minimal span between each function call.
+                minimal span between each function call. Additional arguments
+                given to this function will be forwarded to given event
+                function call.
 
-                **returns {Function}** - Returns the wrapped method.
+                **eventFunction** {Function}         - The function to call
+                                                       debounced
+
+                **thresholdInMilliseconds** {Number} - The minimum time span
+                                                       between each function
+                                                       call
+
+                **returns {Function}**               - Returns the wrapped
+                                                       method
             ###
-            timeoutID = null
+            lock = false
             ->
-                if timeoutID?
-                    window.clearTimeout timeoutID
-                    timeoutID = setTimeout(
-                        eventFunction, thresholdInMilliseconds)
-                else
-                    result = eventFunction()
-                    timeoutID = setTimeout $.noop(), thresholdInMilliseconds
-                    result
+                if not lock
+                    lock = true
+                    timeoutID = window.setTimeout(
+                        (-> lock = false), thresholdInMilliseconds)
+                    eventFunction.apply this, additionalArguments
         fireEvent: (
             eventName, callOnlyOptionsMethod=false, scope=this,
             additionalArguments...
@@ -572,7 +647,8 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
             ###
                 Searches for internal event handler methods and runs them by
                 default. In addition this method searches for a given event
-                method by the options object.
+                method by the options object. Additional arguments are
+                forwareded to respective event functions.
 
                 **eventName {String}                - An event name.
 
@@ -589,9 +665,7 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
                                                       and "false" otherwise.
             ###
             scope = this if not scope
-            eventHandlerName =
-                'on' + eventName.substr(0, 1).toUpperCase() +
-                eventName.substr 1
+            eventHandlerName = "on#{this.stringCapitalize eventName}"
             if not callOnlyOptionsMethod
                 if scope[eventHandlerName]
                     scope[eventHandlerName].apply scope, additionalArguments
@@ -611,7 +685,7 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
 
                 **returns {$}** - Returns $'s grabbed dom node.
             ###
-            this._bindHelper arguments, false,
+            this._bindHelper arguments, false
         off: ->
             ###
                 A wrapper method fo "$.off()". It sets current plugin name as
@@ -659,6 +733,34 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
 
         # region string manipulating
 
+        stringStartsWith: (string, searchString) ->
+            ###
+                Checks weather given string starts with given search string.
+
+                **string {String}**        - String to search in.
+
+                **searchString {String}**  - String to search for.
+
+                **returns {String}**       - Returns "true" if given string
+                                             starts with given search string
+                                             and "false" otherwise.
+            ###
+            string.indexOf(searchString) is 0
+        stringEndsWith: (string, searchString) ->
+            ###
+                Checks weather given string ends with given search string.
+
+                **string {String}**        - String to search in.
+
+                **searchString {String}**  - String to search for.
+
+                **returns {String}**       - Returns "true" if given string
+                                             ends with given search string
+                                             and "false" otherwise.
+            ###
+            string.length >= searchString.length and string.lastIndexOf(
+                searchString
+            ) is string.length - searchString.length
         stringFormat: (string, additionalArguments...) ->
             ###
                 Performs a string formation. Replaces every placeholder "{i}"
@@ -676,22 +778,55 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
                 string = string.replace(
                     new RegExp("\\{#{key}\\}", 'gm'), value))
             string
-        camelCaseStringToDelimited: (string, delimiter='-') ->
+        stringCamelCaseToDelimited: (string, delimiter='-') ->
             ###
                 Converts a camel case string to a string with given delimiter
                 between each camel case separation.
 
                 **string {String}**    - The string to format.
 
-                **delimiter {String}** - The string tu put between each camel
+                **delimiter {String}** - The string to put between each camel
                                          case separation.
 
                 **returns {String}**   - The formatted string.
             ###
-            string.replace(new RegExp('(.)([A-Z])', 'g'), ->
+            string.replace(new window.RegExp('(.)([A-Z])', 'g'), ->
                 arguments[1] + delimiter + arguments[2]
             ).toLowerCase()
-        addSeparatorToPath: (path, pathSeparator='/') ->
+        stringDelimitedToCamelCase: (string, delimiter='-') ->
+            ###
+                Converts a delimited string to a string with any none
+                alphanumeric value to its camel cased version.
+
+                **string {String}**    - The string to format.
+
+                **returns {String}**   - The formatted string.
+            ###
+            string = string.replace(
+                new window.RegExp('[^a-zA-Z0-9]([a-z])', 'g'), (
+                    fullMatch, firstLetter
+                ) -> firstLetter.toUpperCase()
+            ).replace window.RegExp('[^a-zA-Z0-9]', 'g'), ''
+            this.stringLowerCase string
+        stringLowerCase: (string) ->
+            ###
+                Converts a string to its lower case representation.
+
+                **string {String}**  - The string to format.
+
+                **returns {String}** - The formatted string.
+            ###
+            string.charAt(0).toLowerCase() + string.substring 1
+        stringCapitalize: (string) ->
+            ###
+                Converts a string to its capitalize representation.
+
+                **string {String}**  - The string to format.
+
+                **returns {String}** - The formatted string.
+            ###
+            string.charAt(0).toUpperCase() + string.substring 1
+        stringAddSeparatorToPath: (path, pathSeparator='/') ->
             ###
                 Appends a path selector to the given path if there isn't one
                 yet.
@@ -707,7 +842,7 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
             if path.substr(-1) isnt pathSeparator and path.length
                 return path + pathSeparator
             path
-        getUrlVariables: (key) ->
+        stringGetURLVariables: (key) ->
             ###
                 Read a page's GET URL variables and return them as an
                 associative array.
@@ -721,17 +856,90 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
                                       exist "undefined" is returned.
             ###
             variables = []
-            $.each(window.location.href.slice(
+            $.each window.location.href.slice(
                 window.location.href.indexOf('?') + 1
             ).split('&'), (key, value) ->
                 variables.push value.split('=')[0]
-                variables[value.split('=')[0]] = value.split('=')[1])
-            if ($.type(key) is 'string')
+                variables[value.split('=')[0]] = value.split('=')[1]
+            if $.type(key) is 'string'
                 if key in variables
                     return variables[key]
                 else
                     return undefined
             variables
+
+        # endregion
+
+        # region data transfer
+
+        sendToIFrame: (
+            target, url, data, requestType='post', removeAfterLoad=false
+        ) ->
+            ###
+                Send given data to a given iframe.
+
+                **target {String|DomNode}**   - Name of the target iframe or
+                                                the target iframe itself.
+
+                **url {String}**              - URL to send to data to.
+
+                **data {Object}**             - Data holding object to send
+                                                data to.
+
+                **requestType {String}**      - The forms action attribute
+                                                value. If nothing is provided
+                                                "post" will be used as default.
+
+                **removeAfterLoad {Boolean}** - Indicates if created iframe
+                                                should be removed right after
+                                                load event. Only works if an
+                                                iframe object is given instead
+                                                of a simple target name.
+
+                **returns {String|DomNode}**  - Returns the given target.
+            ###
+            form = $('<form>').attr
+                action: url
+                method: requestType
+                target: if $.type(
+                    target
+                ) is 'string' then target else target.attr 'name'
+            for name, value of data
+                form.append $('<input>').attr
+                    type: 'hidden'
+                    name: name
+                    value: value
+            form.submit().remove()
+            target.on? 'load', -> target.remove() if removeAfterLoad
+
+        sendToExternalURL: (
+            url, data, requestType='post', removeAfterLoad=true
+        ) ->
+            ###
+                Send given data to a temporary created iframe.
+
+                **url {String}**              - URL to send to data to.
+
+                **data {Object}**             - Data holding object to send
+                                                data to.
+
+                **requestType {String}**      - The forms action attribute
+                                                value. If nothing is provided
+                                                "post" will be used as default.
+
+                **removeAfterLoad {Boolean}** - Indicates if created iframe
+                                                should be removed right after
+                                                load event.
+
+                **returns {DomNode}**         - Returns the dynamically created
+                                                iframe.
+            ###
+            iFrame = $('<iframe>').attr(
+                name: this.__name__.charAt(0).toLowerCase(
+                ) + this.__name__.substring(1) + (new Date).getTime()
+            ).hide()
+            this.$domNode.after iFrame
+            this.sendToIFrame iFrame, url, data, requestType, removeAfterLoad
 
         # endregion
 
@@ -790,8 +998,9 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
             if this._options.domNodeSelectorPrefix
                 domNodeSelectorPrefix = this._options.domNodeSelectorPrefix +
                     ' '
-            if (selector.substr(0, domNodeSelectorPrefix.length) isnt
-                    domNodeSelectorPrefix)
+            if not (this.stringStartsWith(
+                selector, domNodeSelectorPrefix
+            ) or this.stringStartsWith $.trim(selector), '<')
                 domNodeSelectors[key] = domNodeSelectorPrefix + selector
                 return $.trim domNodeSelectors[key]
             $.trim selector
@@ -800,10 +1009,47 @@ this.require [['jQuery', 'jquery-2.0.3']], ($) ->
 
     # region handle $ extending
 
-    $.fn.Tools = -> new Tools().controller Tools, arguments, this
-    $.Tools = -> new Tools().controller Tools, arguments
+    $.fn.Tools = -> (new Tools).controller Tools, arguments, this
+    $.Tools = -> (new Tools).controller Tools, arguments
     $.Tools.class = Tools
 
+        # region prop fix for comments and text nodes
+
+    nativePropFunction = $.fn.prop
+    $.fn.prop = (key, value) ->
+        ###
+            JQuery's native prop implementation ignores properties for text
+            nodes, comments and attribute nodes.
+        ###
+        if arguments.length < 3 and this[0].nodeName in [
+            '#text', '#comment'
+        ] and this[0][key]?
+            if arguments.length is 1
+                return this[0][key]
+            if arguments.length is 2
+                this[0][key] = value
+                return this
+        nativePropFunction.apply this, arguments
+
+        # endregion
+
     # endregion
+
+# endregion
+
+# region dependencies
+
+if this.require?
+    this.require.scopeIndicator = 'jQuery.Tools'
+    this.require [['jQuery', 'jquery-2.1.1']], main
+else
+    main this.jQuery
+
+# endregion
+
+# region vim modline
+
+# vim: set tabstop=4 shiftwidth=4 expandtab:
+# vim: foldmethod=marker foldmarker=region,endregion:
 
 # endregion

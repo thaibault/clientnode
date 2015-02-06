@@ -1,18 +1,15 @@
-# region vim modline
-
-# vim: set tabstop=4 shiftwidth=4 expandtab:
-# vim: foldmethod=marker foldmarker=region,endregion:
-
-# endregion
+#!/usr/bin/env require
+# -*- coding: utf-8 -*-
 
 # region header
 
-# Copyright Torben Sickert 16.12.2012
+# Copyright Torben Sickert (t.sickert["~at~"]gmail.com) 16.12.2012
 
 # License
-#    This library written by Torben Sickert stand under a creative commons
-#    naming 3.0 unported license.
-#    see http://creativecommons.org/licenses/by/3.0/deed.de
+# -------
+
+# This library written by Torben Sickert stand under a creative commons naming
+# 3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
 
 module 'tools'
 
@@ -22,7 +19,7 @@ module 'tools'
 
     # region mock-up
 
-tools = $.Tools()
+tools = $('body').Tools()
 
     # endregion
 
@@ -61,9 +58,9 @@ test 'acquireLock|releaseLock', ->
     tools.acquireLock 'test', -> testValue = true
 
     ok testValue
-    strictEqual tools.acquireLock('test', -> testValue = false), tools
+    strictEqual tools.acquireLock('test', (-> testValue = false), true), tools
     ok testValue
-    ok $.Tools().releaseLock('test')
+    ok $.Tools().releaseLock 'test'
     ok testValue
     strictEqual tools.releaseLock('test'), tools
     ok not testValue
@@ -99,6 +96,18 @@ test 'show', ->
 
         # region dom node handling
 
+test 'generateDirectiveSelector', ->
+    strictEqual tools.generateDirectiveSelector('a-b'), 'a-b, [a-b], .a-b'
+    strictEqual tools.generateDirectiveSelector('aB'), 'a-b, [a-b], .a-b'
+    strictEqual tools.generateDirectiveSelector('a'), 'a, [a], .a'
+    strictEqual tools.generateDirectiveSelector('aa'), 'aa, [aa], .aa'
+    strictEqual tools.generateDirectiveSelector(
+        'aaBB'
+    ), 'aa-bb, [aa-bb], .aa-bb'
+test 'removeDirective', ->
+    $bodyDomNode = $ 'body'
+    $bodyDomNode = $bodyDomNode.Tools 'removeDirective', 'a'
+    equal $bodyDomNode.Tools().removeDirective('a'), $bodyDomNode
 test 'sliceDomNodeSelectorPrefix', ->
     strictEqual tools.sliceDomNodeSelectorPrefix('body div'), 'div'
     strictEqual $.Tools(
@@ -122,16 +131,38 @@ test 'grabDomNode', ->
         qunit: 'body div#qunit', qunitFixture: 'body div#qunit-fixture'
     delete $domNodes.window
     delete $domNodes.document
-    deepEqual $domNodes,
+    deepEqual(
+        $domNodes
         qunit: $('body div#qunit'), qunitFixture: $('body div#qunit-fixture')
-        parent: $ 'body'
+        parent: $ 'body')
     $domNodes = tools.grabDomNode
         qunit: 'div#qunit', qunitFixture: 'div#qunit-fixture'
     delete $domNodes.window
     delete $domNodes.document
-    deepEqual $domNodes,
+    deepEqual(
+        $domNodes
         parent: $('body'), qunit: $('body div#qunit')
-        qunitFixture: $ 'body div#qunit-fixture'
+        qunitFixture: $ 'body div#qunit-fixture')
+    $domNodes = tools.grabDomNode {
+        qunit: 'div#qunit', qunitFixture: 'div#qunit-fixture'
+    }, 'body'
+    delete $domNodes.window
+    delete $domNodes.document
+    deepEqual(
+        $domNodes
+        parent: $('body'), qunit: $('body').find 'div#qunit'
+        qunitFixture: $('body').find 'div#qunit-fixture')
+
+        # endregion
+
+        # region scope
+
+test 'determineUniqueScopeName', ->
+    ok tools.stringStartsWith tools.determineUniqueScopeName(), 'callback'
+    ok tools.stringStartsWith tools.determineUniqueScopeName('hans'), 'hans'
+    ok tools.stringStartsWith tools.determineUniqueScopeName(
+        'hans', {}
+    ), 'hans'
 
         # endregion
 
@@ -208,6 +239,13 @@ test 'argumentsObjectToArray', ->
         # region number handling
 
 test 'round', ->
+    strictEqual tools.round(1.5, 0), 2
+    strictEqual tools.round(1.4, 0), 1
+    strictEqual tools.round(1.4, -1), 0
+    strictEqual tools.round(1000, -2), 1000
+    strictEqual tools.round(999, -2), 1000
+    strictEqual tools.round(950, -2), 1000
+    strictEqual tools.round(949, -2), 900
     strictEqual tools.round(1.2345), 1
     strictEqual tools.round(1.2345, 2), 1.23
     strictEqual tools.round(1.2345, 3), 1.235
@@ -217,6 +255,24 @@ test 'round', ->
 
         # region string manipulating
 
+test 'stringStartsWith', ->
+    ok tools.stringStartsWith 'hans', 'ha'
+    ok tools.stringStartsWith 'ha', 'ha'
+    ok tools.stringStartsWith 'ha', 'h'
+    ok tools.stringStartsWith 'ha', ''
+    ok tools.stringStartsWith '', ''
+    ok not tools.stringStartsWith 'ha', 'a'
+    ok not tools.stringStartsWith '', 'a'
+    ok not tools.stringStartsWith 'ha', 'H'
+test 'stringEndsWith', ->
+    ok tools.stringEndsWith 'hans', 'ns'
+    ok tools.stringEndsWith 'ns', 'ns'
+    ok tools.stringEndsWith 'ns', 's'
+    ok tools.stringEndsWith 'ns', ''
+    ok tools.stringEndsWith '', ''
+    ok not tools.stringEndsWith 'ns', 'n'
+    ok not tools.stringEndsWith '', 'n'
+    ok not tools.stringEndsWith 'ns', 'S'
 test 'stringFormat', ->
     strictEqual tools.stringFormat('{1}', 'test'), 'test'
     strictEqual tools.stringFormat('', 'test'), ''
@@ -224,25 +280,60 @@ test 'stringFormat', ->
     strictEqual tools.stringFormat(
         '{1} test {2} - {2}', 1, 2
     ), '1 test 2 - 2'
-test 'camelCaseStringToDelimited', ->
-    strictEqual tools.camelCaseStringToDelimited('hansPeter'), 'hans-peter'
-    strictEqual tools.camelCaseStringToDelimited(
+test 'stringCamelCaseToDelimited', ->
+    strictEqual tools.stringCamelCaseToDelimited('hansPeter'), 'hans-peter'
+    strictEqual tools.stringCamelCaseToDelimited(
         'hansPeter', '|'
     ), 'hans|peter'
-    strictEqual tools.camelCaseStringToDelimited(''), ''
-    strictEqual tools.camelCaseStringToDelimited('h'), 'h'
-    strictEqual tools.camelCaseStringToDelimited('hP', ''), 'hp'
-test 'addSeparatorToPath', ->
-    strictEqual tools.addSeparatorToPath(''), ''
-    strictEqual tools.addSeparatorToPath('/'), '/'
-    strictEqual tools.addSeparatorToPath('/a'), '/a/'
-    strictEqual tools.addSeparatorToPath('/a/bb/'), '/a/bb/'
-    strictEqual tools.addSeparatorToPath('/a/bb'), '/a/bb/'
-    strictEqual tools.addSeparatorToPath('/a/bb', '|'), '/a/bb|'
-    strictEqual tools.addSeparatorToPath('/a/bb/', '|'), '/a/bb/|'
-test 'getUrlVariables', ->
-    ok $.isArray tools.getUrlVariables()
-    ok tools.getUrlVariables('not_existing') is undefined
+    strictEqual tools.stringCamelCaseToDelimited(''), ''
+    strictEqual tools.stringCamelCaseToDelimited('h'), 'h'
+    strictEqual tools.stringCamelCaseToDelimited('hP', ''), 'hp'
+test 'stringDelimitedToCamelCase', ->
+    strictEqual tools.stringDelimitedToCamelCase('HansAN-Peter'), 'hansANPeter'
+    strictEqual tools.stringDelimitedToCamelCase('hans-peter'), 'hansPeter'
+    strictEqual tools.stringDelimitedToCamelCase(
+        'hans|peter', '|'
+    ), 'hansPeter'
+    strictEqual tools.stringDelimitedToCamelCase(''), ''
+    strictEqual tools.stringDelimitedToCamelCase('h'), 'h'
+test 'stringLowerCase', ->
+    strictEqual tools.stringLowerCase('HansPeter'), 'hansPeter'
+    strictEqual tools.stringLowerCase(''), ''
+    strictEqual tools.stringLowerCase('A'), 'a'
+    strictEqual tools.stringLowerCase('a'), 'a'
+    strictEqual tools.stringLowerCase('aa'), 'aa'
+    strictEqual tools.stringLowerCase('Aa'), 'aa'
+    strictEqual tools.stringLowerCase('aa'), 'aa'
+test 'stringCapitalize', ->
+    strictEqual tools.stringCapitalize('hansPeter'), 'HansPeter'
+    strictEqual tools.stringCapitalize(''), ''
+    strictEqual tools.stringCapitalize('a'), 'A'
+    strictEqual tools.stringCapitalize('A'), 'A'
+    strictEqual tools.stringCapitalize('AA'), 'AA'
+    strictEqual tools.stringCapitalize('Aa'), 'Aa'
+    strictEqual tools.stringCapitalize('aa'), 'Aa'
+test 'stringAddSeparatorToPath', ->
+    strictEqual tools.stringAddSeparatorToPath(''), ''
+    strictEqual tools.stringAddSeparatorToPath('/'), '/'
+    strictEqual tools.stringAddSeparatorToPath('/a'), '/a/'
+    strictEqual tools.stringAddSeparatorToPath('/a/bb/'), '/a/bb/'
+    strictEqual tools.stringAddSeparatorToPath('/a/bb'), '/a/bb/'
+    strictEqual tools.stringAddSeparatorToPath('/a/bb', '|'), '/a/bb|'
+    strictEqual tools.stringAddSeparatorToPath('/a/bb/', '|'), '/a/bb/|'
+test 'stringGetURLVariables', ->
+    ok $.isArray tools.stringGetURLVariables()
+    ok tools.stringGetURLVariables('not_existing') is undefined
+
+        # endregion
+
+        # region data transfer
+
+test 'sendToIFrame', ->
+    iFrame = $('<iframe>').attr 'name', 'test'
+    $('body').append iFrame
+    ok tools.sendToIFrame iFrame, window.document.URL, {test: 5}, 'get', true
+test 'sendToExternalURL', ->
+    ok tools.sendToExternalURL window.document.URL, {test: 5}
 
         # endregion
 
@@ -267,5 +358,12 @@ test '_grabDomNodeHelper', ->
     ), 'div'
 
     # endregion
+
+# endregion
+
+# region vim modline
+
+# vim: set tabstop=4 shiftwidth=4 expandtab:
+# vim: foldmethod=marker foldmarker=region,endregion:
 
 # endregion

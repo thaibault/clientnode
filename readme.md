@@ -1,23 +1,21 @@
-<!-- region modline
+<!-- !/usr/bin/env markdown
+-*- coding: utf-8 -*- -->
 
-vim: set tabstop=4 shiftwidth=4 expandtab:
-vim: foldmethod=marker foldmarker=region,endregion:
-
-endregion
-
-region header
+<!-- region header
 
 Copyright Torben Sickert 16.12.2012
 
 License
-   This library written by Torben Sickert stand under a creative commons
-   naming 3.0 unported license.
-   see http://creativecommons.org/licenses/by/3.0/deed.de
+-------
+
+This library written by Torben Sickert stand under a creative commons naming
+3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
 
 endregion -->
 
-Use case<!--deDE:Einsatz--><!--frFR:Utilisier-->
-------------------------------------------------
+<!--|deDE:Einsatz-->
+Use case
+--------
 
 The main goal of This plugin is providing an generic interface logic like
 controller for calling instance methods or getting property values of an object
@@ -31,46 +29,67 @@ components is integrated as well.
     verschiedener GUI-Komponenten mitgeliefert.
 -->
 
-Inhalt<!--deDE:Content-->
--------------------------
+<!--|deDE:Inhalt-->
+Content
+------
 
 <!--Place for automatic generated table of contents.-->
 [TOC]
 
+<!--|deDE:Merkmale-->
 Features
 --------
 
-*   Mutual exclusion for depending gui elements.
-    <!--deDE:Wechselseitiger Ausschluss für abhängige GUI-Elemente-->
-*   Cross browser logging with different log levels.
-    <!--deDE:Browserübergreifender Log-Mechanismen mit diversen Log-Levels.-->
-*   Extending native JavaScript types like strings, arrays or functions.
-    <!--deDE:
-        Erweiterung der standard JavaScripttypen wie Strings, Arrays und
-        Funktionen
-    -->
-*   A set of helper functions to parse option objects.
-    <!--deDE:Hilfsfunktionen um Options-Objekte intelligent zu parsen.-->
-*   Extended dom tree handling.
-    <!--deDE:Erweitertes DOM-Baum-Management-->
-*   Plugin scoped event handling.
-    <!--deDE:Plugineigene Namensräume für Events-->
-*   Generic none-redundant plugin pattern for JavaScript and CoffeeScript
-    <!--deDE:Generischer Plugin-Muster für JavaScript und CoffeeScript-->
+<ul>
+    <li>
+        Mutual exclusion for depending gui elements
+        <!--deDE:Wechselseitiger Ausschluss für abhängige GUI-Elemente-->
+    </li>
+    <li>
+        Cross browser logging with different log levels
+        <!--deDE:
+            Browserübergreifender Log-Mechanismen mit diversen Log-Levels
+        -->
+    </li>
+    <li>
+        Extending native JavaScript types like strings, arrays or functions
+        <!--deDE:
+            Erweiterung der Standard-JavaScript-Typen wie Strings, Arrays und
+            Funktionen
+        -->
+    </li>
+    <li>
+        A set of helper functions to parse option objects
+        <!--deDE:Hilfsfunktionen um Options-Objekte intelligent zu parsen-->
+    </li>
+    <li>
+        Extended dom tree handling.<!--deDE:Erweitertes DOM-Baum-Management-->
+    </li>
+    <li>
+        Plugin scoped event handling
+        <!--deDE:Plugineigene Namensräume für Events-->
+    </li>
+    <li>
+        Generic none-redundant plugin pattern for JavaScript and CoffeeScript
+        <!--deDE:Generischer Plugin-Muster für JavaScript und CoffeeScript-->
+    </li>
+</ul>
 
-Quick start<!--deDE:Einstieg-->
--------------------------------
+<!--|deDE:Einstieg-->
+Quick start
+-----------
 
 Easy access of a method in "$.Tools":
-<!--deDE:Einfacher Aufruf einer Method aus "$.Tools":-->
+<!--deDE:Einfacher Aufruf einer Methode aus "$.Tools":-->
 
 ```javaScript
 var tools = $.Tools({'logging': true});
 tools.log('test');
 ```
 
-Plugin pattern in JavaScript<!--deDE:Plugin-Vorlage in JavaScript-->
---------------------------------------------------------------------
+<!--|deDE:Plugin-Vorlage in JavaScript-->
+Plugin pattern in JavaScript
+----------------------------
 
 Use as extension for object orientated jQuery plugin using inheritance and dom
 node reference. This plugin pattern gives their instance back if no dom node is
@@ -84,10 +103,11 @@ provided.
 -->
 
     #!/usr/bin/env javaScript
+    // -*- coding: utf-8 -*-
 
     ;(function($) {
-        var Example = function(domNode) {
-            this.$domNode = domNode;
+        var Example = function($domNode) {
+            this.$domNode = $domNode;
             this._options = {...};
             this.__name__ = 'Example';
             this.initialize = function(options) {
@@ -100,8 +120,7 @@ provided.
                 if(options)
                     // Merges given options with default options recursively.
                     this._options = $.extend(true, {}, this._options, options);
-                if(this.$domNode) return this.$domNode;
-                return this;
+                return this.$domNode || this;
             };
             this.method = function(anArgument) {
                 ...
@@ -120,12 +139,11 @@ provided.
     }).call(this, this.jQuery);
 
 Initialisation with given dom node and without:
-<!--deDE:Aufruf mit übergebenen DOM-Knoten und ohne:-->
+<!--deDE:Aufruf mit und ohne übergebenen DOM-Knoten:-->
 
 ```javaScript
 $domNode = $('#domNode').Example({firstOption: 'value'...});
 exampleInstance = $.Example({firstOption: 'value'...});
-$domNode = exampleInstance.$domNode;
 ```
 
 Function call from previous generated instance via dom node or instance
@@ -136,8 +154,10 @@ reference:
 -->
 
 ```javaScript
-returnValue = $('#domNode').Example({'method', 'anArgument'});
-returnValue = exampleInstance.method('anArgument');
+returnValue = $('#domNode').Example('method', 'anArgument');
+returnValue = $('#domNode').Example().method('anArgument');
+exampleInstance = $.Example firstOption: 'value'...
+returnValue = exampleInstance.method 'anArgument'
 ```
 
 Use as extension for default functional orientated jQuery plugin pattern
@@ -148,6 +168,7 @@ using composition, dom node reference and chaining support.
 -->
 
     #!/usr/bin/env javaScript
+    // -*- coding: utf-8 -*-
 
     ;(function($) {
         var options = {...};
@@ -175,11 +196,12 @@ using composition, dom node reference and chaining support.
 Function call:<!--deDE:Funktionsaufruf:-->
 
 ```javaScript
-var domNode = $('#domNode').example({'firstOption': 'value'...});
+var $domNode = $('#domNode').example({'firstOption': 'value'...});
 ```
 
-Plugin pattern in CoffeeScript<!--deDE:Plugin-Vorlage in CoffeeScript-->
-------------------------------------------------------------------------
+<!--|deDE:Plugin-Vorlage in CoffeeScript-->
+Plugin pattern in CoffeeScript
+------------------------------
 
 Use as extension for object orientated jQuery plugin using inheritance and dom
 node reference. This plugin pattern gives their instance back if no dom node is
@@ -193,10 +215,10 @@ provided.
 -->
 
     #!/usr/bin/env coffee
+    # -*- coding: utf-8 -*-
 
     class Example extends $.Tools.class
         __name__: 'Example'
-        _options: {...}
         initialize: (options={}) ->
             ###
                 "this.$domNode" points to jQuery's wrapped dom node
@@ -204,9 +226,10 @@ provided.
                 "this" points to this "Example" instance extended by "Tools".
                 Merges given options with default options recursively.
             ###
+            this._options: {...}
+            # Merges given options with default options recursively.
             super options
-            return this.$domNode if this.$domNode
-            this
+            this.$domNode or this
         method: (anArgument) ->
             ...
             returnValue
@@ -222,7 +245,6 @@ Initialisation with given dom node and without:
 ```coffee
 $domNode = $('#domNode').Example firstOption: 'value'...
 exampleInstance = $.Example firstOption: 'value'...
-$domNode = exampleInstance.$domNode
 ```
 
 Function call from previous generated instance via dom node or instance
@@ -234,6 +256,8 @@ reference:
 
 ```coffee
 returnValue = $('#domNode').Example 'method', 'anArgument'
+returnValue = $('#domNode').Example().method 'anArgument'
+exampleInstance = $.Example firstOption: 'value'...
 returnValue = exampleInstance.method 'anArgument'
 ```
 
@@ -245,6 +269,7 @@ using composition, dom node reference and chaining support.
 -->
 
     #!/usr/bin/env coffee
+    # -*- coding: utf-8 -*-
 
     defaultOptions = {...}
     tools = $.Tools
@@ -265,5 +290,12 @@ using composition, dom node reference and chaining support.
 Function call:<!--deDE:Funktionsaufruf:-->
 
 ```coffee
-domNode = $('#domNode').example firstOption: 'value'...
+$domNode = $('#domNode').example firstOption: 'value'...
 ```
+
+<!-- region modline
+
+vim: set tabstop=4 shiftwidth=4 expandtab:
+vim: foldmethod=marker foldmarker=region,endregion:
+
+endregion -->
