@@ -108,6 +108,8 @@ test 'removeDirective', ->
     $bodyDomNode = $ 'body'
     $bodyDomNode = $bodyDomNode.Tools 'removeDirective', 'a'
     equal $bodyDomNode.Tools().removeDirective('a'), $bodyDomNode
+test 'getDirectiveValue', ->
+    equal $('body').Tools('getDirectiveValue', 'a'), null
 test 'sliceDomNodeSelectorPrefix', ->
     strictEqual tools.sliceDomNodeSelectorPrefix('body div'), 'div'
     strictEqual $.Tools(
