@@ -521,7 +521,7 @@ Version
          */
         var delimitedName;
         delimitedName = this.stringCamelCaseToDelimited(directiveName);
-        return (delimitedName + ", [" + delimitedName + "], [data-" + delimitedName + "], ") + ("." + delimitedName);
+        return (delimitedName + ", ." + delimitedName + ", [" + delimitedName + "], ") + ("[data-" + delimitedName + "], [x-" + delimitedName + "], ") + ("[" + (delimitedName.replace('-', '\\:')) + "]");
       };
 
       Tools.prototype.removeDirective = function(directiveName) {
@@ -535,7 +535,30 @@ Version
          */
         var delimitedName;
         delimitedName = this.stringCamelCaseToDelimited(directiveName);
-        return this.$domNode.removeClass(delimitedName).removeAttr(delimitedName).removeAttr("data-" + delimitedName);
+        return this.$domNode.removeClass(delimitedName).removeAttr(delimitedName).removeAttr("data-" + delimitedName).removeAttr("x-" + delimitedName).removeAttr(delimitedName.replace('-', ':'));
+      };
+
+      Tools.prototype.getDirectiveValue = function(directiveName) {
+
+        /*
+            Determines a directive attribute value.
+        
+            **directiveName {String}** - The directive name
+        
+            **return {String|Null}**   - Returns the corresponding
+                                         attribute value or "null" if no
+                                         attribute value exists.
+         */
+        var attributeName, delimitedName, value, _i, _len, _ref;
+        delimitedName = this.stringCamelCaseToDelimited(directiveName);
+        _ref = [delimitedName, "data-" + delimitedName, "x-" + delimitedName, delimitedName.replace('-', '\\:')];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          attributeName = _ref[_i];
+          value = this.$domNode.attr(attributeName);
+          if (value != null) {
+            return value;
+          }
+        }
       };
 
       Tools.prototype.sliceDomNodeSelectorPrefix = function(domNodeSelector) {
