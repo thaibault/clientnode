@@ -159,6 +159,9 @@ test 'grabDomNode', ->
 
         # region scope
 
+test 'getURLVariable', ->
+    ok $.isArray tools.getURLVariable()
+    ok tools.getURLVariable('not_existing') is undefined
 test 'determineUniqueScopeName', ->
     ok tools.stringStartsWith tools.determineUniqueScopeName(), 'callback'
     ok tools.stringStartsWith tools.determineUniqueScopeName('hans'), 'hans'
@@ -322,9 +325,6 @@ test 'stringAddSeparatorToPath', ->
     strictEqual tools.stringAddSeparatorToPath('/a/bb'), '/a/bb/'
     strictEqual tools.stringAddSeparatorToPath('/a/bb', '|'), '/a/bb|'
     strictEqual tools.stringAddSeparatorToPath('/a/bb/', '|'), '/a/bb/|'
-test 'stringGetURLVariables', ->
-    ok $.isArray tools.stringGetURLVariables()
-    ok tools.stringGetURLVariables('not_existing') is undefined
 
         # endregion
 
