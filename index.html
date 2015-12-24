@@ -1,0 +1,473 @@
+<!DOCTYPE html><html lang=en><!-- region head--><head><title>jQuery-tools</title><!-- region meta in formations--><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content=><!-- endregion--><!-- region fav and touch icons--><link rel="shortcut icon" type=image/x-icon href=image/favicon.ico?md5=49901c52a085153e2d99503db7ba6fb7><!-- endregion--><!-- region pre load resources--><link rel=stylesheet href=cascadingStyleSheet/main.css?md5=f866fc25d2b9e24b1ff4caba57dd5989><!-- endregion--><!-- endregion--><!-- region body--><body class=documentation><div class="website-window-loading-cover tools-visible-on-javascript-enabled"><div></div></div><!-- region header--><div class="header-wrap outer"><header class=inner><a href=https://github.com/thaibault/jQuery-tools class="website-start-up-animation-number-1 forkme-banner">View on GitHub<!--deDE:GitHub-Projekt--><!--frFR:GitHub-Project--><i class=icon-github></i></a><h1 class="website-start-up-animation-number-2 project-title"><a href=http://torben.website/jQuery-tools>jQuery-tools</a></h1><h2 class="website-start-up-animation-number-3 project-tagline">upgrade to object orientated rock solid plugins<!--deDE:Schreibe Objekt orientierte solide Plugins--><br></h2><section class=header-links><!--NOTE: This elements are shown in reverse order.--><a href=https://github.com/thaibault/jQuery-tools/zipball/master class="website-start-up-animation-number-10 zip-source-download">src.zip</a><a href=data/distributionBundle.zip class="website-start-up-animation-number-9 zip-distribution-bundle-download">app.zip</a><i class="website-start-up-animation-number-8 icon-download-arrow"></i><a href=#lang-deDE class="tools-visible-on-javascript-enabled website-start-up-animation-number-7">de</a><a href=#lang-enUS class="tools-visible-on-javascript-enabled website-start-up-animation-number-6">en</a><span class="glyphicon glyphicon-arrow-left arrow-left-api website-start-up-animation-number-5"></span><a href="http://torben.website/jQuery-tools/api/" class="api-link website-start-up-animation-number-4"><langreplace>API<span> Documentation</span></langreplace><!--deDE:API<span>-Dokumentation</span>--><!--frFR:<span>Documentation de l'</span>API--></a></section></header></div><!-- endregion--><!-- region sections--><div class="main-content-wrap outer"><!-- region main content--><section class="main-content inner"><!-- !/usr/bin/env markdown
+-*- coding: utf-8 -*- -->
+
+<!-- region header
+
+Copyright Torben Sickert 16.12.2012
+
+License
+-------
+
+This library written by Torben Sickert stand under a creative commons naming
+3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
+
+endregion -->
+
+<!--|deDE:Einsatz-->
+
+<h2 id=use-case>Use case</h2>
+<p>The main goal of This plugin is providing an generic interface logic like
+controller for calling instance methods or getting property values of an object
+orientated designed plugin. A set of reusable logic elements for building gui
+components is integrated as well.
+<!--deDE:
+    Hauptziel dieses Plugins ist es einen generischen Weg zu bieten indem
+    Objekt Orientierte Plugins verfasst werden können, ohne dabei gegen
+    jQuery's Vorgaben an Plugins zu verstoßen.
+    Desweiteren werden einige wiederverwendbare Logikbausteine zum Bau
+    verschiedener GUI-Komponenten mitgeliefert.
+--></p>
+<!--|deDE:Inhalt-->
+
+<h2 id=content>Content</h2>
+<!--Place for automatic generated table of contents.-->
+
+<div class=toc>
+<ul>
+<li><a href=#use-case>Use case</a></li>
+<li><a href=#content>Content</a></li>
+<li><a href=#features>Features</a></li>
+<li><a href=#quick-start>Quick start</a></li>
+<li><a href=#plugin-pattern-in-javascript>Plugin pattern in JavaScript</a></li>
+<li><a href=#plugin-pattern-in-coffeescript>Plugin pattern in CoffeeScript</a></li>
+</ul>
+</div>
+<!--|deDE:Merkmale-->
+
+<h2 id=features>Features</h2>
+<ul>
+    <li>
+        Mutual exclusion for depending gui elements
+        <!--deDE:Wechselseitiger Ausschluss für abhängige GUI-Elemente-->
+    </li>
+    <li>
+        Cross browser logging with different log levels
+        <!--deDE:
+            Browserübergreifender Log-Mechanismen mit diversen Log-Levels
+        -->
+    </li>
+    <li>
+        Extending native JavaScript types like strings, arrays or functions
+        <!--deDE:
+            Erweiterung der Standard-JavaScript-Typen wie Strings, Arrays und
+            Funktionen
+        -->
+    </li>
+    <li>
+        A set of helper functions to parse option objects
+        <!--deDE:Hilfsfunktionen um Options-Objekte intelligent zu parsen-->
+    </li>
+    <li>
+        Extended dom tree handling.<!--deDE:Erweitertes DOM-Baum-Management-->
+    </li>
+    <li>
+        Plugin scoped event handling
+        <!--deDE:Plugineigene Namensräume für Events-->
+    </li>
+    <li>
+        Generic none-redundant plugin pattern for JavaScript and CoffeeScript
+        <!--deDE:Generischer Plugin-Muster für JavaScript und CoffeeScript-->
+    </li>
+</ul>
+
+<!--|deDE:Einstieg-->
+
+<h2 id=quick-start>Quick start</h2>
+<p>Easy access of a method in "$.Tools":
+<!--deDE:Einfacher Aufruf einer Methode aus "$.Tools":--></p>
+<div class=codehilite><pre><span class=kd>var</span> <span class=nx>tools</span> <span class=o>=</span> <span class=nx>$</span><span class=p>.</span><span class=nx>Tools</span><span class=p>({</span><span class=s1>&#39;logging&#39;</span><span class=o>:</span> <span class=kc>true</span><span class=p>});</span>
+<span class=nx>tools</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;test&#39;</span><span class=p>);</span>
+</pre></div>
+
+
+<!--|deDE:Plugin-Vorlage in JavaScript-->
+
+<h2 id=plugin-pattern-in-javascript>Plugin pattern in JavaScript</h2>
+<p>Use as extension for object orientated jQuery plugin using inheritance and dom
+node reference. This plugin pattern gives their instance back if no dom node is
+provided. Direct initializing the plugin without providing a dom node is also
+provided.
+<!--deDE:
+    Einsatz von "$.Tools" um Objekt orientierte jQuery Plugins zu verfassen,
+    indem von "$.Tools" geerbt wird und der durch jQuery erweiterte DOM-Knoten
+    referenziert wird. Sollte kein DOM-Knoten an die $-Funktion übergeben
+    worden sein, gibt dieser Pattern seine Instanz zurück.
+--></p>
+<table class=codehilitetable><tr><td class=linenos><div class=linenodiv><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35</pre></div><td class=code><div class=codehilite><pre><span class=c>#!/usr/bin/env javaScript</span>
+<span class=c1>// -*- coding: utf-8 -*-</span>
+
+<span class=p>;(</span><span class=kd>function</span><span class=p>(</span><span class=nx>$</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kd>var</span> <span class=nx>Example</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(</span><span class=nx>$domNode</span><span class=p>)</span> <span class=p>{</span>
+        <span class=k>this</span><span class=p>.</span><span class=nx>$domNode</span> <span class=o>=</span> <span class=nx>$domNode</span><span class=p>;</span>
+        <span class=k>this</span><span class=p>.</span><span class=nx>_options</span> <span class=o>=</span> <span class=p>{...};</span>
+        <span class=k>this</span><span class=p>.</span><span class=nx>__name__</span> <span class=o>=</span> <span class=s1>&#39;Example&#39;</span><span class=p>;</span>
+        <span class=k>this</span><span class=p>.</span><span class=nx>initialize</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(</span><span class=nx>options</span><span class=p>)</span> <span class=p>{</span>
+            <span class=cm>/*</span>
+<span class=cm>                &quot;this.$domNode&quot; points to jQuery&#39;s wrapped dom node</span>
+<span class=cm>                                (if provided).</span>
+<span class=cm>                &quot;this&quot;          points to the &quot;Example&quot; instance extended</span>
+<span class=cm>                                by &quot;Tools&quot;.</span>
+<span class=cm>            */</span>
+            <span class=k>if</span><span class=p>(</span><span class=nx>options</span><span class=p>)</span>
+                <span class=c1>// Merges given options with default options recursively.</span>
+                <span class=k>this</span><span class=p>.</span><span class=nx>_options</span> <span class=o>=</span> <span class=nx>$</span><span class=p>.</span><span class=nx>extend</span><span class=p>(</span><span class=kc>true</span><span class=p>,</span> <span class=p>{},</span> <span class=k>this</span><span class=p>.</span><span class=nx>_options</span><span class=p>,</span> <span class=nx>options</span><span class=p>);</span>
+            <span class=k>return</span> <span class=k>this</span><span class=p>.</span><span class=nx>$domNode</span> <span class=o>||</span> <span class=k>this</span><span class=p>;</span>
+        <span class=p>};</span>
+        <span class=k>this</span><span class=p>.</span><span class=nx>method</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(</span><span class=nx>anArgument</span><span class=p>)</span> <span class=p>{</span>
+            <span class=p>...</span>
+            <span class=k>return</span> <span class=nx>returnValue</span><span class=p>;</span>
+        <span class=p>};</span>
+        <span class=p>...</span>
+    <span class=p>};</span>
+    <span class=nx>$</span><span class=p>.</span><span class=nx>fn</span><span class=p>.</span><span class=nx>Example</span> <span class=o>=</span> <span class=kd>function</span><span class=p>()</span> <span class=p>{</span>
+        <span class=k>return</span> <span class=nx>$</span><span class=p>.</span><span class=nx>Tools</span><span class=p>().</span><span class=nx>controller</span><span class=p>(</span><span class=nx>Example</span><span class=p>,</span> <span class=nx>arguments</span><span class=p>,</span> <span class=k>this</span><span class=p>);</span>
+    <span class=p>};</span>
+    <span class=nx>$</span><span class=p>.</span><span class=nx>Example</span> <span class=o>=</span> <span class=kd>function</span><span class=p>()</span> <span class=p>{</span>
+        <span class=k>return</span> <span class=nx>$</span><span class=p>.</span><span class=nx>Tools</span><span class=p>().</span><span class=nx>controller</span><span class=p>(</span><span class=nx>Example</span><span class=p>,</span> <span class=nx>arguments</span><span class=p>);</span>
+    <span class=p>};</span>
+    <span class=c1>// Allows to reference the native class, e.g. to inherit from Example.</span>
+    <span class=nx>$</span><span class=p>.</span><span class=nx>Example</span><span class=p>.</span><span class=kr>class</span> <span class=o>=</span> <span class=nx>Example</span><span class=p>;</span>
+<span class=p>}).</span><span class=nx>call</span><span class=p>(</span><span class=k>this</span><span class=p>,</span> <span class=k>this</span><span class=p>.</span><span class=nx>jQuery</span><span class=p>);</span>
+</pre></div>
+</table>
+
+<p>Initialisation with given dom node and without:
+<!--deDE:Aufruf mit und ohne übergebenen DOM-Knoten:--></p>
+<div class=codehilite><pre><span class=nx>$domNode</span> <span class=o>=</span> <span class=nx>$</span><span class=p>(</span><span class=s1>&#39;#domNode&#39;</span><span class=p>).</span><span class=nx>Example</span><span class=p>({</span><span class=nx>firstOption</span><span class=o>:</span> <span class=s1>&#39;value&#39;</span><span class=p>...});</span>
+<span class=nx>exampleInstance</span> <span class=o>=</span> <span class=nx>$</span><span class=p>.</span><span class=nx>Example</span><span class=p>({</span><span class=nx>firstOption</span><span class=o>:</span> <span class=s1>&#39;value&#39;</span><span class=p>...});</span>
+</pre></div>
+
+
+<p>Function call from previous generated instance via dom node or instance
+reference:
+<!--deDE:
+    Aufruf einer Plugin-Method anhand der zuvor generierten Instanzreferenz
+    bzw. über den zurückgegebene DOM-Knoten:
+--></p>
+<div class=codehilite><pre><span class=nx>returnValue</span> <span class=o>=</span> <span class=nx>$</span><span class=p>(</span><span class=s1>&#39;#domNode&#39;</span><span class=p>).</span><span class=nx>Example</span><span class=p>(</span><span class=s1>&#39;method&#39;</span><span class=p>,</span> <span class=s1>&#39;anArgument&#39;</span><span class=p>);</span>
+<span class=nx>returnValue</span> <span class=o>=</span> <span class=nx>$</span><span class=p>(</span><span class=s1>&#39;#domNode&#39;</span><span class=p>).</span><span class=nx>Example</span><span class=p>().</span><span class=nx>method</span><span class=p>(</span><span class=s1>&#39;anArgument&#39;</span><span class=p>);</span>
+<span class=nx>exampleInstance</span> <span class=o>=</span> <span class=nx>$</span><span class=p>.</span><span class=nx>Example</span> <span class=nx>firstOption</span><span class=o>:</span> <span class=s1>&#39;value&#39;</span><span class=p>...</span>
+<span class=nx>returnValue</span> <span class=o>=</span> <span class=nx>exampleInstance</span><span class=p>.</span><span class=nx>method</span> <span class=s1>&#39;anArgument&#39;</span>
+</pre></div>
+
+
+<p>Use as extension for default functional orientated jQuery plugin pattern
+using composition, dom node reference and chaining support.
+<!--deDE:
+    Sollte der standard jQuery-Pattern eingesetzt werden kann wie hier
+    beschrieben auf die Methoden von "$.Tools" zugegriffen werden.
+--></p>
+<table class=codehilitetable><tr><td class=linenos><div class=linenodiv><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25</pre></div><td class=code><div class=codehilite><pre><span class=c>#!/usr/bin/env javaScript</span>
+<span class=c1>// -*- coding: utf-8 -*-</span>
+
+<span class=p>;(</span><span class=kd>function</span><span class=p>(</span><span class=nx>$</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kd>var</span> <span class=nx>options</span> <span class=o>=</span> <span class=p>{...};</span>
+    <span class=kd>var</span> <span class=nx>tools</span> <span class=o>=</span> <span class=nx>$</span><span class=p>.</span><span class=nx>Tools</span><span class=p>();</span>
+    <span class=kd>var</span> <span class=nx>example</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(</span><span class=nx>options</span><span class=p>)</span> <span class=p>{</span>
+        <span class=c1>// &quot;this&quot; points to dom node grabbed by jQuery.</span>
+        <span class=k>if</span> <span class=p>(</span><span class=nx>options</span><span class=p>)</span>
+            <span class=k>this</span><span class=p>.</span><span class=nx>_options</span> <span class=o>=</span> <span class=nx>$</span><span class=p>.</span><span class=nx>extend</span><span class=p>(</span><span class=kc>true</span><span class=p>,</span> <span class=p>{},</span> <span class=k>this</span><span class=p>.</span><span class=nx>_options</span><span class=p>,</span> <span class=nx>options</span><span class=p>);</span>
+        <span class=nx>tools</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;initialized.&#39;</span><span class=p>);</span>
+        <span class=p>...</span>
+    <span class=p>};</span>
+    <span class=nx>$</span><span class=p>.</span><span class=nx>fn</span><span class=p>.</span><span class=nx>example</span> <span class=o>=</span> <span class=kd>function</span><span class=p>()</span> <span class=p>{</span>
+        <span class=k>if</span> <span class=p>(</span><span class=nx>methods</span><span class=p>[</span><span class=nx>method</span><span class=p>])</span>
+            <span class=k>return</span> <span class=nx>methods</span><span class=p>[</span><span class=nx>method</span><span class=p>].</span><span class=nx>apply</span><span class=p>(</span>
+                <span class=k>this</span><span class=p>,</span> <span class=nb>Array</span><span class=p>.</span><span class=nx>prototype</span><span class=p>.</span><span class=nx>slice</span><span class=p>.</span><span class=nx>call</span><span class=p>(</span><span class=nx>arguments</span><span class=p>,</span> <span class=mi>1</span><span class=p>));</span>
+        <span class=k>else</span> <span class=k>if</span> <span class=p>(</span><span class=nx>$</span><span class=p>.</span><span class=nx>type</span><span class=p>(</span><span class=nx>method</span><span class=p>)</span> <span class=o>===</span> <span class=s1>&#39;object&#39;</span> <span class=o>||</span> <span class=o>!</span><span class=nx>method</span><span class=p>)</span>
+            <span class=k>return</span> <span class=nx>methods</span><span class=p>.</span><span class=nx>init</span><span class=p>.</span><span class=nx>apply</span><span class=p>(</span><span class=k>this</span><span class=p>,</span> <span class=nx>arguments</span><span class=p>);</span>
+        <span class=k>else</span>
+            <span class=nx>$</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span>
+                <span class=s1>&#39;Method &#39;</span> <span class=o>+</span> <span class=nx>method</span> <span class=o>+</span> <span class=s1>&#39; does not exist on &#39;</span> <span class=o>+</span>
+                <span class=s1>&#39;jQuery.example&#39;</span><span class=p>);</span>
+    <span class=p>};</span>
+<span class=p>}).</span><span class=nx>call</span><span class=p>(</span><span class=k>this</span><span class=p>,</span> <span class=k>this</span><span class=p>.</span><span class=nx>jQuery</span><span class=p>);</span>
+</pre></div>
+</table>
+
+<p>Function call:<!--deDE:Funktionsaufruf:--></p>
+<div class=codehilite><pre><span class=kd>var</span> <span class=nx>$domNode</span> <span class=o>=</span> <span class=nx>$</span><span class=p>(</span><span class=s1>&#39;#domNode&#39;</span><span class=p>).</span><span class=nx>example</span><span class=p>({</span><span class=s1>&#39;firstOption&#39;</span><span class=o>:</span> <span class=s1>&#39;value&#39;</span><span class=p>...});</span>
+</pre></div>
+
+
+<!--|deDE:Plugin-Vorlage in CoffeeScript-->
+
+<h2 id=plugin-pattern-in-coffeescript>Plugin pattern in CoffeeScript</h2>
+<p>Use as extension for object orientated jQuery plugin using inheritance and dom
+node reference. This plugin pattern gives their instance back if no dom node is
+provided. Direct initializing the plugin without providing a dom node is also
+provided.
+<!--deDE:
+    Einsatz von "$.Tools" um Objekt orientierte jQuery Plugins zu verfassen,
+    indem von "$.Tools" geerbt wird und der durch jQuery erweiterte DOM-Knoten
+    referenziert wird. Sollte kein DOM-Knoten an die $-Funktion übergeben
+    worden sein, gibt dieser Pattern seine Instanz zurück.
+--></p>
+<table class=codehilitetable><tr><td class=linenos><div class=linenodiv><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24</pre></div><td class=code><div class=codehilite><pre><span class=c1>#!/usr/bin/env coffee</span>
+<span class=c1># -*- coding: utf-8 -*-</span>
+
+<span class=k>class</span> <span class=nx>Example</span> <span class=k>extends</span> <span class=nx>$</span><span class=p>.</span><span class=nx>Tools</span><span class=p>.</span><span class=nx>class</span>
+    <span class=nv>__name__: </span><span class=s>&#39;Example&#39;</span>
+    <span class=nv>initialize: </span><span class=nf>(options={}) -&gt;</span>
+        <span class=cm>###</span>
+<span class=cm>            &quot;this.$domNode&quot; points to jQuery&#39;s wrapped dom node</span>
+<span class=cm>            (if provided).</span>
+<span class=cm>            &quot;this&quot; points to this &quot;Example&quot; instance extended by &quot;Tools&quot;.</span>
+<span class=cm>            Merges given options with default options recursively.</span>
+<span class=cm>        ###</span>
+        <span class=k>this</span><span class=p>.</span><span class=nv>_options: </span><span class=p>{...}</span>
+        <span class=c1># Merges given options with default options recursively.</span>
+        <span class=k>super</span> <span class=nx>options</span>
+        <span class=k>this</span><span class=p>.</span><span class=nx>$domNode</span> <span class=o>or</span> <span class=k>this</span>
+    <span class=nv>method: </span><span class=nf>(anArgument) -&gt;</span>
+        <span class=p>...</span>
+        <span class=nx>returnValue</span>
+    <span class=p>...</span>
+<span class=nv>$.fn.Example = </span><span class=nf>-&gt;</span> <span class=nx>$</span><span class=p>.</span><span class=nx>Tools</span><span class=p>().</span><span class=nx>controller</span> <span class=nx>Example</span><span class=p>,</span> <span class=nx>arguments</span><span class=p>,</span> <span class=k>this</span>
+<span class=nv>$.Example = </span><span class=nf>-&gt;</span> <span class=nx>$</span><span class=p>.</span><span class=nx>Tools</span><span class=p>().</span><span class=nx>controller</span> <span class=nx>Example</span><span class=p>,</span> <span class=nx>arguments</span>
+<span class=c1># Allows to reference the native class, e.g. to inherit from Example.</span>
+<span class=nv>$.Example.class = </span><span class=nx>Example</span>
+</pre></div>
+</table>
+
+<p>Initialisation with given dom node and without:
+<!--deDE:Aufruf mit übergebenen DOM-Knoten und ohne:--></p>
+<div class=codehilite><pre><span class=nv>$domNode = </span><span class=nx>$</span><span class=p>(</span><span class=s>&#39;#domNode&#39;</span><span class=p>).</span><span class=nx>Example</span> <span class=nv>firstOption: </span><span class=s>&#39;value&#39;</span><span class=p>...</span>
+<span class=nv>exampleInstance = </span><span class=nx>$</span><span class=p>.</span><span class=nx>Example</span> <span class=nv>firstOption: </span><span class=s>&#39;value&#39;</span><span class=p>...</span>
+</pre></div>
+
+
+<p>Function call from previous generated instance via dom node or instance
+reference:
+<!--deDE:
+    Aufruf einer Plugin-Method anhand der zuvor generierten Instanzreferenz
+    bzw. über den zurückgegebene DOM-Knoten:
+--></p>
+<div class=codehilite><pre><span class=nv>returnValue = </span><span class=nx>$</span><span class=p>(</span><span class=s>&#39;#domNode&#39;</span><span class=p>).</span><span class=nx>Example</span> <span class=s>&#39;method&#39;</span><span class=p>,</span> <span class=s>&#39;anArgument&#39;</span>
+<span class=nv>returnValue = </span><span class=nx>$</span><span class=p>(</span><span class=s>&#39;#domNode&#39;</span><span class=p>).</span><span class=nx>Example</span><span class=p>().</span><span class=nx>method</span> <span class=s>&#39;anArgument&#39;</span>
+<span class=nv>exampleInstance = </span><span class=nx>$</span><span class=p>.</span><span class=nx>Example</span> <span class=nv>firstOption: </span><span class=s>&#39;value&#39;</span><span class=p>...</span>
+<span class=nv>returnValue = </span><span class=nx>exampleInstance</span><span class=p>.</span><span class=nx>method</span> <span class=s>&#39;anArgument&#39;</span>
+</pre></div>
+
+
+<p>Use as extension for default functional orientated jQuery plugin pattern
+using composition, dom node reference and chaining support.
+<!--deDE:
+    Sollte der standard jQuery-Pattern eingesetzt werden kann wie hier
+    beschrieben auf die Methoden von "$.Tools" zugegriffen werden.
+--></p>
+<table class=codehilitetable><tr><td class=linenos><div class=linenodiv><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18</pre></div><td class=code><div class=codehilite><pre><span class=c1>#!/usr/bin/env coffee</span>
+<span class=c1># -*- coding: utf-8 -*-</span>
+
+<span class=nv>defaultOptions = </span><span class=p>{...}</span>
+<span class=nv>tools = </span><span class=nx>$</span><span class=p>.</span><span class=nx>Tools</span>
+<span class=nv>example = </span><span class=nf>(options={}) -&gt;</span>
+    <span class=c1># &quot;this&quot; points to dom node grabbed by jQuery.</span>
+    <span class=nx>$</span><span class=p>.</span><span class=nx>extend</span> <span class=kc>true</span><span class=p>,</span> <span class=nx>defaultOptions</span><span class=p>,</span> <span class=nx>options</span>
+    <span class=nx>tools</span><span class=p>.</span><span class=nx>log</span> <span class=s>&#39;initialized.&#39;</span>
+    <span class=p>...</span>
+<span class=nv>$.fn.example = </span><span class=nf>-&gt;</span>
+    <span class=k>if</span> <span class=nx>methods</span><span class=p>[</span><span class=nx>method</span><span class=p>]</span>
+        <span class=nx>methods</span><span class=p>[</span><span class=nx>method</span><span class=p>].</span><span class=nx>apply</span><span class=p>(</span>
+            <span class=k>this</span><span class=p>,</span> <span class=nb>Array</span><span class=p>.</span><span class=nx>prototype</span><span class=p>.</span><span class=nx>slice</span><span class=p>.</span><span class=nx>call</span> <span class=nx>arguments</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span>
+    <span class=k>else</span> <span class=k>if</span> <span class=nx>$</span><span class=p>.</span><span class=nx>type</span><span class=p>(</span><span class=nx>method</span><span class=p>)</span> <span class=o>is</span> <span class=s>&#39;object&#39;</span> <span class=o>or</span> <span class=o>not</span> <span class=nx>method</span>
+        <span class=nx>methods</span><span class=p>.</span><span class=nx>init</span><span class=p>.</span><span class=nx>apply</span> <span class=k>this</span><span class=p>,</span> <span class=nx>arguments</span>
+    <span class=k>else</span>
+        <span class=nx>$</span><span class=p>.</span><span class=nx>error</span> <span class=s>&quot;Method \&quot;</span><span class=si>#{</span><span class=nx>method</span><span class=si>}</span><span class=s>\&quot; does not exist on $.example.&quot;</span>
+</pre></div>
+</table>
+
+<p>Function call:<!--deDE:Funktionsaufruf:--></p>
+<div class=codehilite><pre><span class=nv>$domNode = </span><span class=nx>$</span><span class=p>(</span><span class=s>&#39;#domNode&#39;</span><span class=p>).</span><span class=nx>example</span> <span class=nv>firstOption: </span><span class=s>&#39;value&#39;</span><span class=p>...</span>
+</pre></div>
+
+
+<!-- region modline
+
+vim: set tabstop=4 shiftwidth=4 expandtab:
+vim: foldmethod=marker foldmarker=region,endregion:
+
+endregion -->
+</section><!-- endregion--><!-- region about this website--><section class="about-this-website inner"><h2 id=about-this-website>About this website<!--deDE:Impressum--><!--frFR:Mentions légales--></h2><p>Provider of<!--deDE:Anbieter von--><!--frFR:Fournisseur de--><a href=http://thaibault.github.io/jQuery-tools>http://thaibault.github.io/jQuery-tools</a>:<br>Torben Sickert<br>Christoph-Mang-Str. 14<br>79100 Freiburg<br>Phone:<!--deDE:Tel.:--><!--frFR:Téléphone:--> <a href=tel:004917610248185>+49 (0) 176<span>/</span>10 248 185</a><br>Email:<!--deDE:E-Mail:--> <a href=mailto:t.sickert@gmail.com>t.sickert@gmail.com</a><br>Website: <!--deDE:Webseite:--><!--frFR:Site:--><a href=http://thaibault.github.io/website>http://thaibault.github.io/website</a><br><span class="glyphicon glyphicon-arrow-left arrow-left-home tools-visible-on-javascript-enabled"></span><a href=#home class=tools-visible-on-javascript-enabled>home<!--deDE:Startseite--><!--frFR:Maison--></a></p><h2>Disclaimer<!--deDE:Haftungsausschluss--><!--frFR:Désistement--></h2><h3>Liability for content<!--deDE:Haftung für Inhalte--><!--frFR:Responsabilité quant au contenu--></h3><p>Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die
+Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch
+keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG
+für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen
+verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch
+nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen
+zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige
+Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der
+Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon
+unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt
+der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekannt werden
+von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend
+entfernen.</p><h3>Liability for links<!--deDE:Haftung für Links--><!--frFR:Responsabilité pour les liens--></h3><p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren
+Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden
+Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten
+Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten
+verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung
+auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum
+Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche
+Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte
+einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von
+Rechtsverletzungen werden wir derartige Links umgehend entfernen.</p><h3>Copyright<!--deDE:Urheberrecht--><!--frFR:Droit d'auteur--></h3><p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen
+Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung,
+Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der
+Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des
+jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind
+nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die
+Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die
+Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als
+solche gekennzeichnet. Sollten Sie trotzdem auf eine
+Urheberrechtsverletzung aufmerksam werden, bitten wir um einen
+entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden
+wir derartige Inhalte umgehend entfernen.</p><h3>Privacy Policy<!--deDE:Datenschutz--><!--frFR:Politique de confidentialité--></h3><p>Die Nutzung unserer Webseite ist in der Regel ohne Angabe
+personenbezogener Daten möglich. Soweit auf unseren Seiten
+personenbezogene Daten (beispielsweise Name, Anschrift oder
+E-Mail-Adressen) erhoben werden, erfolgt dies, soweit möglich, stets auf
+freiwilliger Basis. Diese Daten werden ohne Ihre ausdrückliche Zustimmung
+nicht an Dritte weitergegeben. Wir darauf hin, dass die Datenübertragung
+im Internet (z.B. bei der Kommunikation per E-Mail) Sicherheitslücken
+aufweisen kann. Ein lückenloser Schutz der Daten vor dem Zugriff durch
+Dritte ist nicht möglich. Der Nutzung von im Rahmen der Impressumspflicht
+veröffentlichten Kontaktdaten durch Dritte zur Übersendung von nicht
+ausdrücklich angeforderter Werbung und Informationsmaterialien wird
+hiermit ausdrücklich widersprochen. Die Betreiber der Seiten behalten
+sich ausdrücklich rechtliche Schritte im Falle der unverlangten Zusendung
+von Werbeinformationen, etwa durch Spam-Mails, vor.</p><h3>Privacy Statement for using Google Analytics<!--deDE:Datenschutzerklärung für die Nutzung von Google Analytics--><!--frFR:Déclaration de confidentialité de l'utilisation de Google Analytics--></h3><p>Diese Website benutzt Google Analytics, einen Webanalysedienst der Google
+Inc. ("Google"). Google Analytics verwendet sog. "Cookies", Textdateien,
+die auf Ihrem Computer gespeichert werden und die eine Analyse der
+Benutzung der Website durch Sie ermöglichen. Die durch den Cookie
+erzeugten Informationen über Ihre Benutzung dieser Website werden in der
+Regel an einen Server von Google in den USA übertragen und dort
+gespeichert. Im Falle der Aktivierung der IP-Anonymisierung auf dieser
+Webseite wird Ihre IP-Adresse von Google jedoch innerhalb von
+Mitgliedstaaten der Europäischen Union oder in anderen Vertragsstaaten
+des Abkommens über den Europäischen Wirtschaftsraum zuvor gekürzt. Nur in
+Ausnahmefällen wird die volle IP-Adresse an einen Server von Google in
+den USA übertragen und dort gekürzt. Im Auftrag des Betreibers dieser
+Website wird Google diese Informationen benutzen, um Ihre Nutzung der
+Website auszuwerten, um Reports über die Websiteaktivitäten
+zusammenzustellen und um weitere mit der Websitenutzung und der
+Internetnutzung verbundene Dienstleistungen gegenüber dem
+Websitebetreiber zu erbringen. Die im Rahmen von Google Analytics von
+Ihrem Browser übermittelte IP-Adresse wird nicht mit anderen Daten von
+Google zusammengeführt. Sie können die Speicherung der Cookies durch eine
+entsprechende Einstellung Ihrer Browser-Software verhindern; wir weisen
+Sie jedoch darauf hin, dass Sie in diesem Fall gegebenenfalls nicht
+sämtliche Funktionen dieser Website vollumfänglich werden nutzen können.
+Sie können darüber hinaus die Erfassung der durch das Cookie erzeugten
+und auf Ihre Nutzung der Website bezogenen Daten (inkl. Ihrer IP-Adresse)
+an Google sowie die Verarbeitung dieser Daten durch Google verhindern,
+indem Sie das unter dem folgenden<a href="http://tools.google.com/dlpage/gaoptout?hl=de">Link</a>verfügbare Browser-Plugin herunterladen und installieren: .</p><h3>Copyright Statement</h3><p>Unless noted otherwise, all artwork on this website is protected property
+of the website author. Any use for commercial purpose, reproduction and
+publication requires the author's written permission. Commercial work
+created in cooperation or bound by contract with third parties are
+specifically marked. Respective copyrights apply.</p></section><!-- endregion--></div><!-- endregion--><!-- region footer--><div class="footer-wrap outer"><footer class=inner><p class="website-start-up-animation-number-11 copyright">jQuery-tools maintained by<!--deDE:jQuery-tools betrieben von--><!--frFR:jQuery-tools exploité par--> <a href=https://github.com/thaibault>thaibault</a> &middot; &copy; 2013 Torben Sickert &middot; <a href=#about-this-website>about this website<!--deDE:Impressum--><!--frFR:Mentions légales--></a></p></footer></div><!-- endregion--><a href=#top>top<!--deDE:nach oben--><!--frFR:ascendant--></a><!-- region post load resources--><script src=javaScript/main.js?md5=963424e6928af576c960c33d2e78d655></script><!-- endregion--><!-- endregion-->
