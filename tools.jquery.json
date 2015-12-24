@@ -5,7 +5,7 @@
     "author": {
         "name": "Torben Sickert",
         "email": "t.sickert@gmail.com",
-        "url": "http://thaibault.github.com"
+        "url": "http://torben.website"
     },
     "licenses": [{
         "type": "creativecommons",
@@ -17,14 +17,14 @@
     },
     "description": "upgrade to object orientated rock solid plugins",
     "keywords": ["tools", "object-orientation", "dry", "pattern", "controller"],
-    "homepage": "http://thaibault.github.com/jQuery-tools",
-    "docs": "http://thaibault.github.com/jQuery-tools/api",
-    "demo": "http://thaibault.github.com/jQuery-tools",
-    "download": "http://thaibault.github.com/jQuery-tools/distributionBundle.zip",
+    "homepage": "http://torben.website/jQuery-tools",
+    "docs": "http://torben.website/jQuery-tools/api",
+    "demo": "http://torben.website/jQuery-tools",
+    "download": "http://torben.website/jQuery-tools/distributionBundle.zip",
     "bugs": "https://github.com/thaibault/jQuery-tools/issues",
     "maintainers": [{
         "name": "Torben Sickert",
         "email": "t.sickert@gmail.com",
-        "url": "http://thaibault.github.com"
+        "url": "http://torben.website"
     }]
 }
