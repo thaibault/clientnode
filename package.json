@@ -1,0 +1,28 @@
+{
+    "name": "jquery-tools",
+    "version": "1.0.0",
+    "description": "upgrade to object orientated rock solid plugins",
+    "keywords": ["jquery", "tools"],
+    "files": ["index.js"],
+    "repository": {
+        "type": "git", "url": "https://github.com/thaibault/jQuery-tools"
+    },
+    "homepage": "http://torben.website/jQuery-tools",
+    "main": "index.compiled.js",
+    "webOptimizer": {"moduleAliases": {"jquery": "jquery/src/jquery"}},
+    "scripts": {
+        "build": "webOptimizer build",
+        "clear": "webOptimizer clear",
+        "lint": "webOptimizer lint",
+        "test": "webOptimizer test",
+        "preinstall": "webOptimizer preinstall",
+        "postinstall": "webOptimizer build"
+    },
+    "license": "ISC",
+    "devDependencies": {
+        "jquery": "2.2.0",
+        "qunitjs": "*",
+        "sizzle": "*",
+        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git"
+    }
+}
