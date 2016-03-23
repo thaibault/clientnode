@@ -1,5 +1,5 @@
 {
-    "name": "jquery-tools",
+    "name": "jQuery-tools",
     "version": "1.0.0",
     "description": "upgrade to object orientated rock solid plugins",
     "keywords": ["jquery", "tools"],
@@ -20,7 +20,7 @@
     },
     "license": "ISC",
     "devDependencies": {
-        "jquery": "2.2.0",
+        "jquery": "2.2.2",
         "qunitjs": "*",
         "sizzle": "*",
         "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git"
