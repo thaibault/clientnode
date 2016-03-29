@@ -1,5 +1,6 @@
 #!/usr/bin/env coffee
 # -*- coding: utf-8 -*-
+'use strict'
 # region header
 ###
 [Project page](http://torben.website/jQuery-tools)
