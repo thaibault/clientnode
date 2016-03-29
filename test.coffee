@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # region header
-
 # Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
 # License
@@ -15,22 +14,15 @@ qunit = require 'qunit.js'
 $ = require 'jquery'
 require 'imports?$=jquery!index'
 qunit.start()
-
 # endregion
 
 # region tests
-
 ## region mock-up
-
 $bodyDomNode = $ 'body'
 tools = $bodyDomNode.Tools()
-
 ## endregion
-
 ## region public methods
-
 ## # region special
-
 qunit.test 'constructor', -> qunit.ok tools
 qunit.test 'destructor', -> qunit.strictEqual tools.destructor(), tools
 qunit.test 'initialize', ->
@@ -42,21 +34,15 @@ qunit.test 'initialize', ->
     qunit.strictEqual(
         thirdToolsInstance._options.domNodeSelectorPrefix,
         'body.tools div.tools')
-
 ## # endregion
-
 ## # region object orientation
-
 qunit.test 'controller', ->
     qunit.strictEqual tools.controller(tools, []), tools
     qunit.strictEqual tools.controller(
         $.Tools.class, [], $ 'body'
     ).__name__, tools.__name__
-
 ## # endregion
-
 ## # region mutual exclusion
-
 qunit.test 'acquireLock|releaseLock', ->
     testValue = false
     tools.acquireLock 'test', -> testValue = true
@@ -72,17 +58,11 @@ qunit.test 'acquireLock|releaseLock', ->
     qunit.ok testValue
     qunit.strictEqual tools.acquireLock('test', -> testValue = false), tools
     qunit.notOk testValue
-
 ## # endregion
-
 ## # region language fixes
-
 qunit.test 'mouseOutEventHandlerFix', -> qunit.ok tools.mouseOutEventHandlerFix ->
-
 ## # endregion
-
 ## # region logging
-
 qunit.test 'log', -> qunit.strictEqual tools.log('test'), tools
 qunit.test 'info', -> qunit.strictEqual tools.info('test {0}'), tools
 qunit.test 'debug', -> qunit.strictEqual tools.debug('test'), tools
@@ -97,11 +77,8 @@ qunit.test 'show', ->
         '^(.|\n|\r|\u2028|\u2029)+\\(Type: "function"\\)$'
     ).test tools.show $.Tools
     qunit.ok new RegExp('^.+: .+\\n(.|\\n)+$').test tools.show tools
-
 ## # endregion
-
 ## # region dom node handling
-
 qunit.test 'normalizeClassNames', ->
     qunit.strictEqual $('<div>').Tools('normalizeClassNames').$domNode.prop(
         'outerHTML'
@@ -238,11 +215,8 @@ qunit.test 'grabDomNode', ->
         $domNodes
         parent: $('body'), qunit: $('body').find 'div#qunit'
         qunitFixture: $('body').find 'div#qunit-fixture')
-
 ## # endregion
-
 ## # region scope
-
 qunit.test 'isolateScope', ->
     qunit.deepEqual tools.isolateScope({}), {}
     qunit.deepEqual tools.isolateScope(a: 2), a: 2
@@ -266,11 +240,8 @@ qunit.test 'determineUniqueScopeName', ->
     qunit.ok tools.stringStartsWith tools.determineUniqueScopeName(
         'hans', {}
     ), 'hans'
-
 ## # endregion
-
 ## # region function handling
-
 qunit.test 'getMethod', ->
     testObject = value: false
 
@@ -301,11 +272,8 @@ qunit.test 'invertArrayFilter', ->
     qunit.deepEqual tools.invertArrayFilter(tools.arrayExtractIfMatches)([
         'a', 'b'
     ], '^a$'), ['b']
-
 ## # endregion
-
 ## # region event
-
 qunit.test 'debounce', ->
     testValue = false
     tools.debounce(-> testValue = true)()
@@ -344,11 +312,8 @@ qunit.test 'off', ->
 
     $('body').trigger 'click'
     qunit.notOk testValue
-
 ## # endregion
-
 ## # region object
-
 qunit.test 'forEachSorted', ->
     result = []
     tester = (item) -> tools.forEachSorted item, (value, key) ->
@@ -432,11 +397,8 @@ qunit.test 'equals', ->
     qunit.notOk tools.equals (->), (->), null, -1, [], false
     test = ->
     qunit.ok tools.equals test, test, null, -1, [], false
-
 ## # endregion
-
 ## # region array
-
 qunit.test 'argumentsObjectToArray', ->
     qunit.notOk $.isArray arguments
     qunit.ok $.isArray tools.argumentsObjectToArray arguments
@@ -538,13 +500,9 @@ qunit.test 'arrayRemove', ->
     qunit.deepEqual tools.arrayRemove([2], 2, true), []
     qunit.deepEqual tools.arrayRemove([1, 2], 2), [1]
     qunit.deepEqual tools.arrayRemove([1, 2], 2, true), [1]
-
 ## # endregion
-
 ## # region string
-
 ## ## region url handling
-
 qunit.test 'stringEncodeURIComponent', ->
     qunit.strictEqual tools.stringEncodeURIComponent(''), ''
     qunit.strictEqual tools.stringEncodeURIComponent(' '), '+'
@@ -757,9 +715,7 @@ qunit.test 'stringRepresentURL', ->
     qunit.strictEqual tools.stringRepresentURL(true), ''
     qunit.strictEqual tools.stringRepresentURL(''), ''
     qunit.strictEqual tools.stringRepresentURL(' '), ''
-
 ## ## endregion
-
 qunit.test 'stringCamelCaseToDelimited', ->
     qunit.strictEqual tools.stringCamelCaseToDelimited('hansPeter'), 'hans-peter'
     qunit.strictEqual tools.stringCamelCaseToDelimited(
@@ -929,11 +885,8 @@ qunit.test 'stringDecodeHTMLEntities', ->
     qunit.equal tools.stringDecodeHTMLEntities(
         '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>'
     ), '<div>&äÄüÜöÖ</div>'
-
 ## # endregion
-
 ## # region number
-
 qunit.test 'numberIsNotANumber', ->
     qunit.strictEqual tools.numberIsNotANumber(window.NaN), true
     qunit.strictEqual tools.numberIsNotANumber({}), false
@@ -958,24 +911,17 @@ qunit.test 'numberRound', ->
     qunit.strictEqual tools.numberRound(699, -2), 700
     qunit.strictEqual tools.numberRound(650, -2), 700
     qunit.strictEqual tools.numberRound(649, -2), 600
-
 ## # endregion
-
 ## # region data transfer
-
 qunit.test 'sendToIFrame', ->
     iFrame = $('<iframe>').hide().attr 'name', 'test'
     $('body').append iFrame
     qunit.ok tools.sendToIFrame iFrame, window.document.URL, {test: 5}, 'get', true
 qunit.test 'sendToExternalURL', ->
     qunit.ok tools.sendToExternalURL window.document.URL, {test: 5}
-
 ## # endregion
-
 ## endregion
-
 ## region protected
-
 qunit.test '_bindHelper', ->
     qunit.ok tools._bindHelper ['body']
     qunit.ok tools._bindHelper ['body'], true
@@ -991,14 +937,9 @@ qunit.test '_grabDomNodeHelper', ->
     qunit.strictEqual $.Tools(domNodeSelectorPrefix: '')._grabDomNodeHelper(
         'test', 'div', {}
     ), 'div'
-
 ## endregion
-
 # endregion
-
 # region vim modline
-
 # vim: set tabstop=4 shiftwidth=4 expandtab:
 # vim: foldmethod=marker foldmarker=region,endregion:
-
 # endregion
