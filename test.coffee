@@ -1,6 +1,5 @@
 #!/usr/bin/env require
 # -*- coding: utf-8 -*-
-
 # region header
 # Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
@@ -9,13 +8,11 @@
 
 # This library written by Torben Sickert stand under a creative commons naming
 # 3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
-
+# endregion
 qunit = require 'qunit.js'
 $ = require 'jquery'
-require 'imports?$=jquery!index'
+require 'index'
 qunit.start()
-# endregion
-
 # region tests
 ## region mock-up
 $bodyDomNode = $ 'body'
