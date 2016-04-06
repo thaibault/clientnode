@@ -23,6 +23,7 @@
         "jquery": "2.2.2"
     },
     "devDependencies": {
-        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git"
+        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
+        "qunitjs": "*"
     }
 }
