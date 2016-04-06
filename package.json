@@ -18,10 +18,11 @@
         "postinstall": "webOptimizer build"
     },
     "license": "ISC",
-    "devDependencies": {
-        "jquery": "2.2.2",
-        "qunitjs": "*",
+    "dependencies": {
         "sizzle": "*",
+        "jquery": "2.2.2"
+    },
+    "devDependencies": {
         "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git"
     }
 }
