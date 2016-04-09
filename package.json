@@ -19,11 +19,9 @@
     },
     "license": "ISC",
     "dependencies": {
+        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
         "sizzle": "*",
         "jquery": "2.2.2"
     },
-    "devDependencies": {
-        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
-        "qunitjs": "*"
-    }
+    "devDependencies": {"qunitjs": "*"}
 }
