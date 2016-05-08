@@ -894,6 +894,146 @@ class Tools
         this._bindHelper arguments, true, 'off'
     ## endregion
     ## region object
+    # TODO
+    ###
+    /**
+     * Converts given plain object and all nested found objects to
+     * corresponding map.
+     * @param object - Object to convert to.
+     * @param deep - Indicates whether to perform a recursive conversion.
+     * @returns Given object as map.
+     */
+    static convertPlainObjectToMap<Value>(
+        object:Value, deep:boolean = true
+    ):Value|Mapping {
+        if (typeof object === 'object' && Helper.isObject(object)) {
+            const newObject:Mapping = new Map()
+            for (const key:string in object)
+                if (object.hasOwnProperty(key)) {
+                    if (deep)
+                        object[key] = Helper.convertPlainObjectToMap(
+                            object[key], deep)
+                    newObject.set(key, object[key])
+                }
+            return newObject
+        }
+        if (deep)
+            if (Array.isArray(object)) {
+                let index:number = 0
+                for (const value:Object of object) {
+                    object[index] = Helper.convertPlainObjectToMap(value, deep)
+                    index += 1
+                }
+            } else if (object instanceof Map) {
+                for (const [key:mixed, value:mixed] of object)
+                    object.set(key, Helper.convertPlainObjectToMap(
+                        value, deep))
+            }
+        return object
+    }
+    /**
+     * Converts given map and all nested found maps objects to corresponding
+     * object.
+     * @param object - Map to convert to.
+     * @param deep - Indicates whether to perform a recursive conversion.
+     * @returns Given map as object.
+     */
+    static convertMapToPlainObject<Value>(
+        object:Value, deep:boolean = true
+    ):Value|Mapping {
+        if (object instanceof Map) {
+            const newObject:Mapping = {}
+            for (let [key:any, value:mixed] of object) {
+                if (deep)
+                    value = Helper.convertMapToPlainObject(value, deep)
+                newObject[`${key}`] = value
+            }
+            return newObject
+        }
+        if (deep)
+            if (typeof object === 'object' && Helper.isObject(object)) {
+                for (const key:string in object)
+                    if (object.hasOwnProperty(key))
+                        object[key] = Helper.convertMapToPlainObject(
+                            object[key], deep)
+            } else if (Array.isArray(object)) {
+                let index:number = 0
+                for (const value:mixed of object) {
+                    object[index] = Helper.convertMapToPlainObject(value, deep)
+                    index += 1
+                }
+            }
+        return object
+    }
+    /**
+     * Adds dynamic getter and setter to any given data structure such as maps.
+     * @param object - Object to proxy.
+     * @callback getterWrapper - Function to wrap each property get.
+     * @callback setterWrapper - Function to wrap each property set.
+     * @param typesToExtend - Types which should be extended (Checks are
+     * performed via "value instanceof type".).
+     * @param deep - Indicates to perform a deep wrapping of specified types.
+     * performed via "value instanceof type".).
+     * @param containesMethodName - Method name to indicate if a key is stored
+     * in given data structure.
+     * @param getterMethodName - Method name to get a stored value by key.
+     * @param setterMethodName - Method name to set a stored value by key.
+     * @returns Returns given object wrapped with a dynamic getter proxy.
+     */
+    static addDynamicGetterAndSetter<Value>(
+        object:Value, getterWrapper:GetterFunction = (key:any):any => key,
+        setterWrapper:SetterFunction = (key:any, value:any):any => value,
+        typesToExtend:Array<mixed> = [Map], deep:boolean = true,
+        containesMethodName:string = 'has', getterMethodName:string = 'get',
+        setterMethodName:string = 'set',
+    ):Value {
+        if (deep)
+            if (typeof object === 'object' && Helper.isObject(object)) {
+                for (const key:string in object)
+                    if (object.hasOwnProperty(key))
+                        object[key] = Helper.addDynamicGetterAndSetter(
+                            object[key], getterWrapper, setterWrapper,
+                            typesToExtend, deep, containesMethodName,
+                            getterMethodName, setterMethodName)
+            } else if (object instanceof Map)
+                for (const [key:mixed, value:mixed] of object)
+                    object.set(key, Helper.addDynamicGetterAndSetter(
+                        value, getterWrapper, setterWrapper, typesToExtend,
+                        deep, containesMethodName, getterMethodName,
+                        setterMethodName))
+            else if (Array.isArray(object)) {
+                let index:number = 0
+                for (const value:mixed of object) {
+                    object[index] = Helper.addDynamicGetterAndSetter(
+                        value, getterWrapper, setterWrapper, typesToExtend,
+                        deep, containesMethodName, getterMethodName,
+                        setterMethodName)
+                    index += 1
+                }
+            }
+        for (const type:mixed of typesToExtend)
+            if (object instanceof type) {
+                if (object.__target__)
+                    return object
+                return new Proxy(object, {
+                    get: (target:Object, name:string):any => {
+                        if (name === '__target__')
+                            return target
+                        if (typeof target[name] === 'function')
+                            return target[name].bind(target)
+                        if (target[containesMethodName](name))
+                            return getterWrapper(target[getterMethodName](
+                                name))
+                        return target[name]
+                    },
+                    set: (target:Object, name:string, value:any):any =>
+                        target[setterMethodName](name, setterWrapper((
+                            name, value)))
+                })
+            }
+        return object
+    }
+    ###
     forEachSorted: (object, iterator, context) ->
         ###
             Iterates given objects own properties in sorted fashion. For
