@@ -45,19 +45,24 @@ qunit.test 'acquireLock|releaseLock', ->
     tools.acquireLock 'test', -> testValue = true
 
     qunit.ok testValue
-    qunit.strictEqual tools.acquireLock('test', (-> testValue = false), true), tools
+    qunit.strictEqual tools.acquireLock('test', (->
+        testValue = false
+    ), true), tools
     qunit.ok testValue
     qunit.ok $.Tools().releaseLock 'test'
     qunit.ok testValue
     qunit.strictEqual tools.releaseLock('test'), tools
     qunit.notOk testValue
-    qunit.strictEqual tools.acquireLock('test', (-> testValue = true), true), tools
+    qunit.strictEqual tools.acquireLock('test', (->
+        testValue = true
+    ), true), tools
     qunit.ok testValue
     qunit.strictEqual tools.acquireLock('test', -> testValue = false), tools
     qunit.notOk testValue
 ## # endregion
 ## # region language fixes
-qunit.test 'mouseOutEventHandlerFix', -> qunit.ok tools.mouseOutEventHandlerFix ->
+qunit.test 'mouseOutEventHandlerFix', -> qunit.ok(
+    tools.mouseOutEventHandlerFix ->)
 ## # endregion
 ## # region logging
 qunit.test 'log', -> qunit.strictEqual tools.log('test'), tools
@@ -69,7 +74,9 @@ qunit.test 'error', -> qunit.strictEqual tools.error(
 qunit.test 'warn', -> qunit.strictEqual tools.warn('test'), tools
 qunit.test 'show', ->
     qunit.strictEqual tools.show('hans'), 'hans\n(Type: "string")'
-    qunit.strictEqual tools.show(A: 'a', B: 'b'), 'A: a\nB: b\n(Type: "object")'
+    qunit.strictEqual tools.show(
+        A: 'a', B: 'b'
+    ), 'A: a\nB: b\n(Type: "object")'
     qunit.ok new RegExp(
         '^(.|\n|\r|\u2028|\u2029)+\\(Type: "function"\\)$'
     ).test tools.show $.Tools
@@ -232,8 +239,10 @@ qunit.test 'isolateScope', ->
     qunit.deepEqual tools.isolateScope(new scope, ['b']), a: 2, b: 3
     qunit.deepEqual tools.isolateScope(new scope), a: 2, b: undefined
 qunit.test 'determineUniqueScopeName', ->
-    qunit.ok tools.stringStartsWith tools.determineUniqueScopeName(), 'callback'
-    qunit.ok tools.stringStartsWith tools.determineUniqueScopeName('hans'), 'hans'
+    qunit.ok tools.stringStartsWith tools.determineUniqueScopeName(
+    ), 'callback'
+    qunit.ok tools.stringStartsWith(
+        tools.determineUniqueScopeName('hans'), 'hans')
     qunit.ok tools.stringStartsWith tools.determineUniqueScopeName(
         'hans', {}
     ), 'hans'
@@ -298,13 +307,17 @@ qunit.test 'fireEvent', ->
     qunit.ok testValue
 qunit.test 'on', ->
     testValue = false
-    qunit.strictEqual tools.on('body', 'click', -> testValue = true)[0], $('body')[0]
+    qunit.strictEqual tools.on('body', 'click', -> testValue = true)[0], $(
+        'body'
+    )[0]
 
     $('body').trigger 'click'
     qunit.ok testValue
 qunit.test 'off', ->
     testValue = false
-    qunit.strictEqual tools.on('body', 'click', -> testValue = true)[0], $('body')[0]
+    qunit.strictEqual tools.on('body', 'click', -> testValue = true)[0], $(
+        'body'
+    )[0]
     qunit.strictEqual tools.off('body', 'click')[0], $('body')[0]
 
     $('body').trigger 'click'
@@ -389,7 +402,8 @@ qunit.test 'equals', ->
     qunit.ok tools.equals [{a: b: 1}, b: 1], [{a: b: 1}, b: 1], null, 2
     qunit.ok tools.equals [{a: b: c: 1}, b: 1], [{a: b: 1}, b: 1], null, 2
     qunit.notOk tools.equals [{a: b: c: 1}, b: 1], [{a: b: 1}, b: 1], null, 3
-    qunit.ok tools.equals [{a: b: c: 1}, b: 1], [{a: b: 1}, b: 1], null, 3, ['b']
+    qunit.ok tools.equals [{a: b: c: 1}, b: 1], [{a: b: 1}, b: 1], null, 3, [
+        'b']
     qunit.ok tools.equals (->), ->
     qunit.notOk tools.equals (->), (->), null, -1, [], false
     test = ->
@@ -417,7 +431,8 @@ qunit.test 'arrayAggregatePropertyIfEqual', ->
     }], 'a', false), false
 qunit.test 'arrayDeleteEmptyItems', ->
     qunit.deepEqual tools.arrayDeleteEmptyItems([a: null]), []
-    qunit.deepEqual tools.arrayDeleteEmptyItems([a: null, b: 2]), [a: null, b: 2]
+    qunit.deepEqual tools.arrayDeleteEmptyItems([a: null, b: 2]), [
+        a: null, b: 2]
     qunit.deepEqual tools.arrayDeleteEmptyItems([a: null, b: 2], ['a']), []
     qunit.deepEqual tools.arrayDeleteEmptyItems([], ['a']), []
     qunit.deepEqual tools.arrayDeleteEmptyItems([]), []
@@ -425,9 +440,10 @@ qunit.test 'arrayExtract', ->
     qunit.deepEqual tools.arrayExtract([a: 'b', c: 'd'], ['a']), [a: 'b']
     qunit.deepEqual tools.arrayExtract([a: 'b', c: 'd'], ['b']), [{}]
     qunit.deepEqual tools.arrayExtract([a: 'b', c: 'd'], ['c']), [c: 'd']
-    qunit.deepEqual tools.arrayExtract([{a: 'b', c: 'd'}, a: 3], ['c']), [c: 'd', {}]
-    qunit.deepEqual tools.arrayExtract([{a: 'b', c: 'd'}, c: 3], ['c']), [c: 'd', {
-        c: 3}]
+    qunit.deepEqual tools.arrayExtract([{a: 'b', c: 'd'}, a: 3], ['c']), [
+        c: 'd', {}]
+    qunit.deepEqual tools.arrayExtract([{a: 'b', c: 'd'}, c: 3], ['c']), [
+        c: 'd', {c: 3}]
 qunit.test 'arrayExtractIfMatches', ->
     qunit.deepEqual tools.arrayExtractIfMatches(['b'], /b/), ['b']
     qunit.deepEqual tools.arrayExtractIfMatches(['b'], 'b'), ['b']
@@ -441,10 +457,13 @@ qunit.test 'arrayExtractIfPropertyExists', ->
     qunit.deepEqual tools.arrayExtractIfPropertyExists([a: 2], 'a'), [a: 2]
     qunit.deepEqual tools.arrayExtractIfPropertyExists([a: 2], 'b'), []
     qunit.deepEqual tools.arrayExtractIfPropertyExists([], 'b'), []
-    qunit.deepEqual tools.arrayExtractIfPropertyExists([{a: 2}, {b: 3}], 'a'), [a: 2]
+    qunit.deepEqual(
+        tools.arrayExtractIfPropertyExists([{a: 2}, {b: 3}], 'a'), [a: 2])
 qunit.test 'arrayExtractIfPropertyMatches', ->
-    qunit.deepEqual tools.arrayExtractIfPropertyMatches([a: 'b'], a: 'b'), [a: 'b']
-    qunit.deepEqual tools.arrayExtractIfPropertyMatches([a: 'b'], a: '.'), [a: 'b']
+    qunit.deepEqual tools.arrayExtractIfPropertyMatches([a: 'b'], a: 'b'), [
+        a: 'b']
+    qunit.deepEqual tools.arrayExtractIfPropertyMatches([a: 'b'], a: '.'), [
+        a: 'b']
     qunit.deepEqual tools.arrayExtractIfPropertyMatches([a: 'b'], a: 'a'), []
     qunit.deepEqual tools.arrayExtractIfPropertyMatches([], a: 'a'), []
     qunit.deepEqual tools.arrayExtractIfPropertyMatches([a: 2], b: /a/), []
@@ -461,18 +480,22 @@ qunit.test 'arrayIntersect', ->
     qunit.deepEqual tools.arrayIntersect([a: 3], [b: 3]), []
     qunit.deepEqual tools.arrayIntersect([a: 3], [b: 3], ['b']), []
     qunit.deepEqual tools.arrayIntersect([a: 3], [b: 3], ['b'], false), []
-    qunit.deepEqual tools.arrayIntersect([b: null], [b: null], ['b']), [b: null]
-    qunit.deepEqual tools.arrayIntersect([b: null], [b: undefined], ['b']), []
-    qunit.deepEqual tools.arrayIntersect([b: null], [b: undefined], ['b'], false), [
+    qunit.deepEqual tools.arrayIntersect([b: null], [b: null], ['b']), [
         b: null]
-    qunit.deepEqual tools.arrayIntersect([b: null], [{}], ['b'], false), [b: null]
+    qunit.deepEqual tools.arrayIntersect([b: null], [b: undefined], ['b']), []
+    qunit.deepEqual tools.arrayIntersect([b: null], [b: undefined], [
+        'b'
+    ], false), [b: null]
+    qunit.deepEqual tools.arrayIntersect([b: null], [{}], ['b'], false), [
+        b: null]
     qunit.deepEqual tools.arrayIntersect([b: undefined], [{}], ['b'], false), [
         b: undefined]
     qunit.deepEqual tools.arrayIntersect([{}], [{}], ['b'], false), [{}]
     qunit.deepEqual tools.arrayIntersect([b: null], [{}], ['b']), []
     qunit.deepEqual tools.arrayIntersect([b: undefined], [{}], ['b'], true), [
         b: undefined]
-    qunit.deepEqual tools.arrayIntersect([b: 1], [a: 1], {b: 'a'}, true), [{b: 1}]
+    qunit.deepEqual tools.arrayIntersect([b: 1], [a: 1], {b: 'a'}, true), [{
+        b: 1}]
 qunit.test 'arrayMakeRange', ->
     qunit.deepEqual tools.arrayMakeRange([0]), [0]
     qunit.deepEqual tools.arrayMakeRange([5]), [0, 1, 2, 3, 4, 5]
@@ -530,9 +553,11 @@ qunit.test 'stringGetDomainName', ->
         'https://www.test.de/site/subSite?param=value#hash'
     ), 'www.test.de'
     qunit.strictEqual tools.stringGetDomainName('a', true), true
-    qunit.strictEqual tools.stringGetDomainName('http://www.test.de'), 'www.test.de'
+    qunit.strictEqual(
+        tools.stringGetDomainName('http://www.test.de'), 'www.test.de')
     qunit.strictEqual tools.stringGetDomainName('http://a.de'), 'a.de'
-    qunit.strictEqual tools.stringGetDomainName('http://localhost'), 'localhost'
+    qunit.strictEqual(
+        tools.stringGetDomainName('http://localhost'), 'localhost')
     qunit.strictEqual tools.stringGetDomainName('localhost'), 'localhost'
     qunit.strictEqual tools.stringGetDomainName('a'), window.location.hostname
     qunit.strictEqual tools.stringGetDomainName('//a'), 'a'
@@ -553,9 +578,11 @@ qunit.test 'stringGetPortNumber', ->
         'https://www.test.de/site/subSite?param=value#hash'
     ), 443
     qunit.strictEqual tools.stringGetPortNumber('http://www.test.de'), 80
-    qunit.strictEqual tools.stringGetPortNumber('http://www.test.de', true), true
-    qunit.strictEqual tools.stringGetPortNumber('www.test.de'), window.parseInt(
-        window.location.port)
+    qunit.strictEqual(
+        tools.stringGetPortNumber('http://www.test.de', true), true)
+    qunit.strictEqual(
+        tools.stringGetPortNumber('www.test.de'), window.parseInt(
+            window.location.port))
     qunit.strictEqual tools.stringGetPortNumber('a'), window.parseInt(
         window.location.port)
     qunit.strictEqual tools.stringGetPortNumber('a', true), true
@@ -611,8 +638,10 @@ qunit.test 'stringGetURLVariable', ->
     qunit.strictEqual tools.stringGetURLVariable('test', 'test=2'), '2'
     qunit.strictEqual tools.stringGetURLVariable('test', 'test=2&a=2'), '2'
     qunit.strictEqual tools.stringGetURLVariable('test', 'b=3&test=2&a=2'), '2'
-    qunit.strictEqual tools.stringGetURLVariable('test', '?b=3&test=2&a=2'), '2'
-    qunit.strictEqual tools.stringGetURLVariable('test', '?b=3&test=2&a=2'), '2'
+    qunit.strictEqual(
+        tools.stringGetURLVariable('test', '?b=3&test=2&a=2'), '2')
+    qunit.strictEqual(
+        tools.stringGetURLVariable('test', '?b=3&test=2&a=2'), '2')
     qunit.strictEqual tools.stringGetURLVariable(
         'test', '&', '$', '!', '', '#$test=2'
     ), '2'
@@ -714,15 +743,18 @@ qunit.test 'stringRepresentURL', ->
     qunit.strictEqual tools.stringRepresentURL(' '), ''
 ## ## endregion
 qunit.test 'stringCamelCaseToDelimited', ->
-    qunit.strictEqual tools.stringCamelCaseToDelimited('hansPeter'), 'hans-peter'
+    qunit.strictEqual(
+        tools.stringCamelCaseToDelimited('hansPeter'), 'hans-peter')
     qunit.strictEqual tools.stringCamelCaseToDelimited(
         'hansPeter', '|'
     ), 'hans|peter'
     qunit.strictEqual tools.stringCamelCaseToDelimited(''), ''
     qunit.strictEqual tools.stringCamelCaseToDelimited('h'), 'h'
     qunit.strictEqual tools.stringCamelCaseToDelimited('hP', ''), 'hp'
-    qunit.strictEqual tools.stringCamelCaseToDelimited('hansPeter'), 'hans-peter'
-    qunit.strictEqual tools.stringCamelCaseToDelimited('hans-peter'), 'hans-peter'
+    qunit.strictEqual(
+        tools.stringCamelCaseToDelimited('hansPeter'), 'hans-peter')
+    qunit.strictEqual(
+        tools.stringCamelCaseToDelimited('hans-peter'), 'hans-peter')
     qunit.strictEqual tools.stringCamelCaseToDelimited(
         'hansPeter', '_'
     ), 'hans_peter'
@@ -744,16 +776,21 @@ qunit.test 'stringCapitalize', ->
     qunit.strictEqual tools.stringCapitalize('Aa'), 'Aa'
     qunit.strictEqual tools.stringCapitalize('aa'), 'Aa'
 qunit.test 'stringDelimitedToCamelCase', ->
-    qunit.strictEqual tools.stringDelimitedToCamelCase('hans-peter'), 'hansPeter'
+    qunit.strictEqual(
+        tools.stringDelimitedToCamelCase('hans-peter'), 'hansPeter')
     qunit.strictEqual tools.stringDelimitedToCamelCase(
         'hans|peter', '|'
     ), 'hansPeter'
     qunit.strictEqual tools.stringDelimitedToCamelCase(''), ''
     qunit.strictEqual tools.stringDelimitedToCamelCase('h'), 'h'
-    qunit.strictEqual tools.stringDelimitedToCamelCase('hans-peter'), 'hansPeter'
-    qunit.strictEqual tools.stringDelimitedToCamelCase('hans--peter'), 'hans-Peter'
-    qunit.strictEqual tools.stringDelimitedToCamelCase('Hans-Peter'), 'HansPeter'
-    qunit.strictEqual tools.stringDelimitedToCamelCase('-Hans-Peter'), '-HansPeter'
+    qunit.strictEqual(
+        tools.stringDelimitedToCamelCase('hans-peter'), 'hansPeter')
+    qunit.strictEqual(
+        tools.stringDelimitedToCamelCase('hans--peter'), 'hans-Peter')
+    qunit.strictEqual(
+        tools.stringDelimitedToCamelCase('Hans-Peter'), 'HansPeter')
+    qunit.strictEqual(
+        tools.stringDelimitedToCamelCase('-Hans-Peter'), '-HansPeter')
     qunit.strictEqual tools.stringDelimitedToCamelCase('-'), '-'
     qunit.strictEqual tools.stringDelimitedToCamelCase(
         'hans-peter', '_'
@@ -761,11 +798,13 @@ qunit.test 'stringDelimitedToCamelCase', ->
     qunit.strictEqual tools.stringDelimitedToCamelCase(
         'hans_peter', '_'
     ), 'hansPeter'
-    qunit.strictEqual tools.stringDelimitedToCamelCase('hans_id', '_'), 'hansID'
+    qunit.strictEqual(
+        tools.stringDelimitedToCamelCase('hans_id', '_'), 'hansID')
     qunit.strictEqual tools.stringDelimitedToCamelCase(
         'url_hans_id', '_', ['hans']
     ), 'urlHANSId'
-    qunit.strictEqual tools.stringDelimitedToCamelCase('url_hans_1', '_'), 'urlHans1'
+    qunit.strictEqual(
+        tools.stringDelimitedToCamelCase('url_hans_1', '_'), 'urlHans1')
     qunit.strictEqual tools.stringDelimitedToCamelCase(
         'hansUrl1', '-', ['url'], true
     ), 'hansUrl1'
@@ -828,8 +867,10 @@ qunit.test 'stringMark', ->
     qunit.strictEqual tools.stringMark('test', ''), 'test'
     qunit.strictEqual tools.stringMark('test', 'tests'), 'test'
     qunit.strictEqual tools.stringMark('', 'test'), ''
-    qunit.strictEqual tools.stringMark('test', 'e', '<a>{1}</a>'), 't<a>e</a>st'
-    qunit.strictEqual tools.stringMark('test', 'E', '<a>{1}</a>'), 't<a>e</a>st'
+    qunit.strictEqual(
+        tools.stringMark('test', 'e', '<a>{1}</a>'), 't<a>e</a>st')
+    qunit.strictEqual(
+        tools.stringMark('test', 'E', '<a>{1}</a>'), 't<a>e</a>st')
     qunit.strictEqual tools.stringMark(
         'test', 'E', '<a>{1}</a>', false
     ), 't<a>e</a>st'
@@ -841,7 +882,8 @@ qunit.test 'stringMark', ->
     ), '<a>t - t</a>es<a>T - T</a>'
     qunit.strictEqual tools.stringMark('test', 'E', '<a>{1}</a>', true), 'test'
 qunit.test 'stringMD5', ->
-    qunit.strictEqual tools.stringMD5('test'), '098f6bcd4621d373cade4e832627b4f6'
+    qunit.sitrictEqual(
+        tools.stringMD5('test'), '098f6bcd4621d373cade4e832627b4f6')
     qunit.strictEqual tools.stringMD5(''), 'd41d8cd98f00b204e9800998ecf8427e'
 qunit.test 'stringNormalizePhoneNumber', ->
     qunit.strictEqual tools.stringNormalizePhoneNumber('0'), '0'
@@ -878,7 +920,8 @@ qunit.test 'stringStartsWith', ->
 qunit.test 'stringDecodeHTMLEntities', ->
     qunit.equal tools.stringDecodeHTMLEntities(''), ''
     qunit.equal tools.stringDecodeHTMLEntities('<div></div>'), '<div></div>'
-    qunit.equal tools.stringDecodeHTMLEntities('<div>&amp;</div>'), '<div>&</div>'
+    qunit.equal(
+        tools.stringDecodeHTMLEntities('<div>&amp;</div>'), '<div>&</div>')
     qunit.equal tools.stringDecodeHTMLEntities(
         '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>'
     ), '<div>&äÄüÜöÖ</div>'
@@ -913,7 +956,9 @@ qunit.test 'numberRound', ->
 qunit.test 'sendToIFrame', ->
     iFrame = $('<iframe>').hide().attr 'name', 'test'
     $('body').append iFrame
-    qunit.ok tools.sendToIFrame iFrame, window.document.URL, {test: 5}, 'get', true
+    qunit.ok tools.sendToIFrame iFrame, window.document.URL, {
+        test: 5
+    }, 'get', true
 qunit.test 'sendToExternalURL', ->
     qunit.ok tools.sendToExternalURL window.document.URL, {test: 5}
 ## # endregion

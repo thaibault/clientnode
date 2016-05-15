@@ -12,8 +12,10 @@
     "scripts": {
         "build": "webOptimizer build",
         "clear": "webOptimizer clear",
+        "document": "webOptimizer document",
         "lint": "webOptimizer lint",
         "test": "webOptimizer test",
+        "testInBrowser": "webOptimizer testInBrowser",
         "preinstall": "webOptimizer preinstall",
         "postinstall": "webOptimizer build"
     },
@@ -23,5 +25,8 @@
         "sizzle": "*",
         "jquery": "2.2.2"
     },
-    "devDependencies": {"qunitjs": "*"}
+    "devDependencies": {
+        "qunitjs": "*",
+        "qunit-cli": "*"
+    }
 }
