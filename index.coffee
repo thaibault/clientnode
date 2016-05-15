@@ -83,6 +83,8 @@ class Tools
     ###
     maximalSupportedInternetExplorerVersion: do ->
         ###Returns zero if no internet explorer present.###
+        if (not (document or window))
+            return null
         div = document.createElement 'div'
         for version in [0...9]
             # NOTE: We split html comment sequences to avoid wrong
