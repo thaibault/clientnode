@@ -32,7 +32,9 @@ Version
 ###
 # endregion
 $ = require 'jquery'
-global = if window? then window else global
+context = if window? then window else global
+if not context.document?
+    context.document = $.context
 # region plugins/classes
 class Tools
     ###
@@ -84,7 +86,7 @@ class Tools
     ###
     maximalSupportedInternetExplorerVersion: do ->
         ###Returns zero if no internet explorer present.###
-        if not (document? && window?)
+        if not context?.document?
             return null
         div = document.createElement 'div'
         for version in [0...9]
@@ -101,11 +103,11 @@ class Tools
                 break
         if not version
             # Try special detection for internet explorer 10 and 11.
-            if window.navigator.appVersion.indexOf('MSIE 10') isnt -1
+            if context.navigator?.appVersion.indexOf('MSIE 10') isnt -1
                 return 10
-            else if window.navigator.userAgent.indexOf(
+            else if context.navigator?.userAgent.indexOf(
                 'Trident'
-            ) isnt -1 and window.navigator.userAgent.indexOf(
+            ) isnt -1 and context.navigator?.userAgent.indexOf(
                 'rv:11'
             ) isnt -1
                 return 11
@@ -162,10 +164,13 @@ class Tools
         ###
         # Avoid errors in browsers that lack a console.
         for method in this._consoleMethods
-            global.console = {} if not global.console?
+            context.console = {} if not context.console?
             # Only stub the $ empty method.
-            console[method] = $.noop() if not global.console[method]?
-        if not this.self::_javaScriptDependentContentHandled
+            console[method] = $.noop?() if not context.console[method]?
+        if(
+            not this.self::_javaScriptDependentContentHandled and
+            context?.document?
+        )
             this.self::_javaScriptDependentContentHandled = true
             $(
                 this._defaultOptions.domNodeSelectorPrefix + ' ' +
@@ -368,13 +373,13 @@ class Tools
                 this.log "'--------------------------------------------'"
             if message
                 if(
-                    not global.console?[level]? or
-                    global.console[level] is $.noop()
+                    not context.console?[level]? or
+                    context.console[level] is $.noop?()
                 )
-                    if global.alert?
-                        global.alert message
+                    if context.alert?
+                        context.alert message
                 else
-                    global.console[level] message
+                    context.console[level] message
         this
     info: (object, additionalArguments...) ->
         ###
@@ -687,8 +692,8 @@ class Tools
             domNodes.parent = $ this._options.domNodeSelectorPrefix
         if window?
             domNodes.window = $ window
-        if document?
-            domNodes.document = $ document
+        if context.document?
+            domNodes.document = $ context.document
         domNodes
     ## endregion
     ## region scope
@@ -713,7 +718,7 @@ class Tools
                 # automatic lookup to parent scope.
                 scope[name] = undefined
         scope
-    determineUniqueScopeName: (prefix='callback', scope=window) ->
+    determineUniqueScopeName: (prefix='callback', scope=context) ->
         ###
             Generates a unique function name needed for jsonp requests.
 
@@ -1432,7 +1437,7 @@ class Tools
             return path + pathSeparator
         path
     stringHasPathPrefix: (
-        prefix='/admin', path=location.pathname, separator='/'
+        prefix='/admin', path=location?.pathname or '', separator='/'
     ) ->
         ###
             Checks if given path has given path prefix.
@@ -1453,7 +1458,9 @@ class Tools
         path is prefix.substring(
             0, prefix.length - separator.length
         ) or this.stringStartsWith path, prefix
-    stringGetDomainName: (url=location.href, fallback=location.hostname) ->
+    stringGetDomainName: (
+        url=location?.href or '', fallback=location?.hostname or ''
+    ) ->
         ###
             Extracts domain name from given url. If no explicit domain name
             given current domain name will be assumed. If no parameter
@@ -1471,7 +1478,7 @@ class Tools
         return result[2] if result?[2]? and result?[1]?
         fallback
     stringGetPortNumber: (
-        url=location.href, fallback=null, parameter=[]
+        url=location?.href or '', fallback=null, parameter=[]
     ) ->
         ###
             Extracts port number from given url. If no explicit port number
@@ -1498,12 +1505,13 @@ class Tools
         return fallback if fallback isnt null
         if this.stringIsInternalURL.apply(
             this, [url].concat parameter
-        ) and location.port and parseInt location.port
+        ) and location?.port and parseInt location?.port
             return parseInt location.port
         if this.stringGetProtocolName(url) is 'https' then 443 else 80
     stringGetProtocolName: (
-        url=location.href, fallback=location.protocol.substring(
-            0, location.protocol.length - 1)
+        url=location?.href or '', fallback=location?.protocol.substring(
+            0, location.protocol.length - 1
+        ) or ''
     ) ->
         ###
             Extracts protocol name from given url. If no explicit url is
@@ -1523,7 +1531,7 @@ class Tools
         fallback
     stringGetURLVariable: (
         keyToGet, input, subDelimiter='$', hashedPathIndicator='!', search
-        hash=location.hash
+        hash=location?.hash or ''
     ) ->
         ###
             Read a page's GET URL variables and return them as an
@@ -1596,7 +1604,7 @@ class Tools
                 else
                     search = pathAndSearch.substring subSearchStartIndex
             else
-                search = location.search
+                search = location?.search or ''
         input = search if not input
         # endregion
         # region determine data from search and hash if specified
@@ -1627,7 +1635,7 @@ class Tools
         # endregion
         return variables[keyToGet] if keyToGet?
         variables
-    stringIsInternalURL: (firstURL, secondURL=location.href) ->
+    stringIsInternalURL: (firstURL, secondURL=location?.href or '') ->
         ###
             Checks if given url points to another domain than second given
             url. If no second given url provided current url will be
@@ -2117,10 +2125,10 @@ class Tools
 
             **returns {String}**    - Decoded html string.
         ###
-        if document?
-            textareaDomNode = document.createElement 'textarea'
+        if context?.document?
+            textareaDomNode = context.document.createElement 'textarea'
             textareaDomNode.innerHTML = htmlString
-            textareaDomNode.value
+            return textareaDomNode.value
         null
     ## endregion
     ## region number

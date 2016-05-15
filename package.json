@@ -26,6 +26,7 @@
         "jquery": "2.2.2"
     },
     "devDependencies": {
+        "jsdom": "*",
         "qunitjs": "*",
         "qunit-cli": "*"
     }
