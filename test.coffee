@@ -9,14 +9,18 @@
 # This library written by Torben Sickert stand under a creative commons naming
 # 3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
 # endregion
-qunit = require 'qunit'
+if 'undefined' in [typeof window, typeof document]
+    qunit = require 'qunit-cli'
+else
+    qunit = require 'qunit'
 $ = require 'jquery'
 require 'index'
 qunit.start()
 # region tests
 ## region mock-up
-$bodyDomNode = $ 'body'
-tools = $bodyDomNode.Tools()
+# TODO
+# $bodyDomNode = $ 'body'
+tools = $.Tools()
 ## endregion
 ## region public methods
 ## # region special

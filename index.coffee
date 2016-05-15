@@ -32,14 +32,15 @@ Version
 ###
 # endregion
 $ = require 'jquery'
+global = if window? then window else global
 # region plugins/classes
 class Tools
     ###
-        This plugin provides such interface logic like generic controller
-        logic for integrating plugins into $, mutual exclusion for
-        depending gui elements, logging additional string, array or
-        function handling. A set of helper functions to parse option
-        objects dom trees or handle events is also provided.
+        This plugin provides such interface logic like generic controller logic
+        for integrating plugins into $, mutual exclusion for depending gui
+        elements, logging additional string, array or function handling. A set
+        of helper functions to parse option objects dom trees or handle events
+        is also provided.
     ###
     # region properties
     ###
@@ -83,7 +84,7 @@ class Tools
     ###
     maximalSupportedInternetExplorerVersion: do ->
         ###Returns zero if no internet explorer present.###
-        if (not (document or window))
+        if not (document? && window?)
             return null
         div = document.createElement 'div'
         for version in [0...9]
@@ -161,9 +162,9 @@ class Tools
         ###
         # Avoid errors in browsers that lack a console.
         for method in this._consoleMethods
-            window.console = {} if not window.console?
+            global.console = {} if not global.console?
             # Only stub the $ empty method.
-            console[method] = $.noop() if not window.console[method]?
+            console[method] = $.noop() if not global.console[method]?
         if not this.self::_javaScriptDependentContentHandled
             this.self::_javaScriptDependentContentHandled = true
             $(
@@ -367,11 +368,13 @@ class Tools
                 this.log "'--------------------------------------------'"
             if message
                 if(
-                    not window.console?[level]? or
-                    window.console[level] is $.noop()
+                    not global.console?[level]? or
+                    global.console[level] is $.noop()
                 )
-                    window.alert message
-                window.console[level] message
+                    if global.alert?
+                        global.alert message
+                else
+                    global.console[level] message
         this
     info: (object, additionalArguments...) ->
         ###
@@ -529,16 +532,17 @@ class Tools
                                    "right" or "in".
         ###
         delta = $.extend {top: 0, left: 0, bottom: 0, right: 0}, delta
-        $window = $ window
-        rectangle = this.$domNode[0].getBoundingClientRect()
-        if (rectangle.top + delta.top) < 0
-            return 'above'
-        if (rectangle.left + delta.left) < 0
-            return 'left'
-        if $window.height() < (rectangle.bottom + delta.bottom)
-            return 'below'
-        if $window.width() < (rectangle.right + delta.right)
-            return 'right'
+        if window?
+            $window = $ window
+            rectangle = this.$domNode[0].getBoundingClientRect()
+            if (rectangle.top + delta.top) < 0
+                return 'above'
+            if (rectangle.left + delta.left) < 0
+                return 'left'
+            if $window.height() < (rectangle.bottom + delta.bottom)
+                return 'below'
+            if $window.width() < (rectangle.right + delta.right)
+                return 'right'
         'in'
     generateDirectiveSelector: (directiveName) ->
         ###
@@ -681,8 +685,10 @@ class Tools
                         key, value, domNodeSelectors)
         if this._options.domNodeSelectorPrefix
             domNodes.parent = $ this._options.domNodeSelectorPrefix
-        domNodes.window = $ window
-        domNodes.document = $ document
+        if window?
+            domNodes.window = $ window
+        if document?
+            domNodes.document = $ document
         domNodes
     ## endregion
     ## region scope
@@ -716,7 +722,7 @@ class Tools
             **returns {String}** - The function name.
         ###
         while true
-            uniqueName = prefix + window.parseInt window.Math.random() * window.Math.pow 10, 10
+            uniqueName = prefix + parseInt Math.random() * Math.pow 10, 10
             break if not scope[uniqueName]?
         uniqueName
     ## endregion
@@ -830,7 +836,7 @@ class Tools
                 null
             else
                 lock = true
-                timeoutID = window.setTimeout (=>
+                timeoutID = setTimeout (=>
                     lock = false
                     if waitingCallArguments
                         eventFunction.apply this, waitingCallArguments
@@ -999,7 +1005,7 @@ class Tools
         isArray = $.isArray object
         keys = []
         for key, value of object
-            key = window.parseInt(key) if isArray
+            key = parseInt(key) if isArray
             if object.hasOwnProperty key
                 keys.push key
         keys.sort()
@@ -1045,15 +1051,15 @@ class Tools
             ) or firstValue is secondValue or this.numberIsNotANumber(
                 firstValue
             ) and this.numberIsNotANumber(secondValue) or
-            firstValue instanceof window.RegExp and
-            secondValue instanceof window.RegExp and
+            firstValue instanceof RegExp and
+            secondValue instanceof RegExp and
             firstValue.toString() is secondValue.toString() or
-            firstValue instanceof window.Date and
-            secondValue instanceof window.Date and (
-                window.isNaN(firstValue.getTime()) and
-                window.isNaN(secondValue.getTime()) or
-                not window.isNaN(firstValue.getTime()) and
-                not window.isNaN(secondValue.getTime()) and
+            firstValue instanceof Date and
+            secondValue instanceof Date and (
+                isNaN(firstValue.getTime()) and
+                isNaN(secondValue.getTime()) or
+                not isNaN(firstValue.getTime()) and
+                not isNaN(secondValue.getTime()) and
                 firstValue.getTime() is secondValue.getTime()
             )
         )
@@ -1061,8 +1067,7 @@ class Tools
         if $.isPlainObject(firstValue) and $.isPlainObject(
             secondValue
         ) and not (
-            firstValue instanceof window.RegExp or
-            secondValue instanceof window.RegExp
+            firstValue instanceof RegExp or secondValue instanceof RegExp
         ) or $.isArray(firstValue) and $.isArray(
             secondValue
         ) and firstValue.length is secondValue.length
@@ -1106,7 +1111,7 @@ class Tools
                                            elements in given arguments
                                            object.
         ###
-        window.Array.prototype.slice.call argumentsObject
+        Array.prototype.slice.call argumentsObject
     arrayUnique: (data) ->
         ###
             Makes all values in given iterable unique by removing
@@ -1194,7 +1199,7 @@ class Tools
         ###
         result = []
         $.each data, (index, value) ->
-            if (new window.RegExp regularExpression).test value
+            if (new RegExp regularExpression).test value
                 result.push value
         result
     arrayExtractIfPropertyExists: (data, propertyName) ->
@@ -1237,7 +1242,7 @@ class Tools
             for item in data
                 matches = true
                 for key, pattern of propertyPattern
-                    if not window.RegExp(pattern).test item[key]
+                    if not RegExp(pattern).test item[key]
                         matches = false
                         break
                 result.push(item) if matches
@@ -1314,10 +1319,10 @@ class Tools
         ###
         if range.length is 1
             index = 0
-            higherBound = window.parseInt range[0]
+            higherBound = parseInt range[0]
         else if range.length is 2
-            index = window.parseInt range[0]
-            higherBound = window.parseInt range[1]
+            index = parseInt range[0]
+            higherBound = parseInt range[1]
         else
             return range
         result = [index]
@@ -1339,7 +1344,7 @@ class Tools
         result = 0
         if data?.length
             for item in data
-                result += window.parseFloat item[propertyName] or 0
+                result += parseFloat item[propertyName] or 0
         result
     arrayAppendAdd: (item, target, name, checkIfExists=true) ->
         ###
@@ -1383,8 +1388,7 @@ class Tools
             index = list.indexOf target
             if index is -1
                 if strict
-                    throw window.Error(
-                        "Given target doesn't exists in given list.")
+                    throw Error("Given target doesn't exists in given list.")
             else
                 list.splice index, 1
         list
@@ -1395,8 +1399,8 @@ class Tools
         ###
             This method is intended for encoding *key* or *value* parts of
             query component. We need a custom method because
-            "window.encodeURIComponent()" is too aggressive and encodes
-            stuff that doesn't have to be encoded per
+            "encodeURIComponent()" is too aggressive and encodes stuff that
+            doesn't have to be encoded per
             "http://tools.ietf.org/html/rfc3986:"
 
             **url {String}**           - URL to encode.
@@ -1407,7 +1411,7 @@ class Tools
 
             **return {String}**        - Encoded given url.
         ###
-        window.encodeURIComponent(url).replace(/%40/gi, '@').replace(
+        encodeURIComponent(url).replace(/%40/gi, '@').replace(
             /%3A/gi, ':'
         ).replace(/%24/g, '$').replace(/%2C/gi, ',').replace(
             /%20/g, if encodeSpaces then '%20' else '+')
@@ -1428,7 +1432,7 @@ class Tools
             return path + pathSeparator
         path
     stringHasPathPrefix: (
-        prefix='/admin', path=window.location.pathname, separator='/'
+        prefix='/admin', path=location.pathname, separator='/'
     ) ->
         ###
             Checks if given path has given path prefix.
@@ -1449,9 +1453,7 @@ class Tools
         path is prefix.substring(
             0, prefix.length - separator.length
         ) or this.stringStartsWith path, prefix
-    stringGetDomainName: (
-        url=window.location.href, fallback=window.location.hostname
-    ) ->
+    stringGetDomainName: (url=location.href, fallback=location.hostname) ->
         ###
             Extracts domain name from given url. If no explicit domain name
             given current domain name will be assumed. If no parameter
@@ -1469,7 +1471,7 @@ class Tools
         return result[2] if result?[2]? and result?[1]?
         fallback
     stringGetPortNumber: (
-        url=window.location.href, fallback=null, parameter=[]
+        url=location.href, fallback=null, parameter=[]
     ) ->
         ###
             Extracts port number from given url. If no explicit port number
@@ -1492,17 +1494,16 @@ class Tools
             **returns {Integer}** - Extracted port number.
         ###
         result = /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec url
-        return window.parseInt(result[1]) if result?[1]?
+        return parseInt(result[1]) if result?[1]?
         return fallback if fallback isnt null
         if this.stringIsInternalURL.apply(
             this, [url].concat parameter
-        ) and window.location.port and window.parseInt window.location.port
-            return window.parseInt window.location.port
+        ) and location.port and parseInt location.port
+            return parseInt location.port
         if this.stringGetProtocolName(url) is 'https' then 443 else 80
     stringGetProtocolName: (
-        url=window.location.href
-        fallback=window.location.protocol.substring(
-            0, window.location.protocol.length - 1)
+        url=location.href, fallback=location.protocol.substring(
+            0, location.protocol.length - 1)
     ) ->
         ###
             Extracts protocol name from given url. If no explicit url is
@@ -1522,7 +1523,7 @@ class Tools
         fallback
     stringGetURLVariable: (
         keyToGet, input, subDelimiter='$', hashedPathIndicator='!', search
-        hash=window.location.hash
+        hash=location.hash
     ) ->
         ###
             Read a page's GET URL variables and return them as an
@@ -1595,7 +1596,7 @@ class Tools
                 else
                     search = pathAndSearch.substring subSearchStartIndex
             else
-                search = window.location.search
+                search = location.search
         input = search if not input
         # endregion
         # region determine data from search and hash if specified
@@ -1619,14 +1620,14 @@ class Tools
         variables = []
         $.each data, (key, value) ->
             keyValuePair = value.split '='
-            key = window.decodeURIComponent keyValuePair[0]
-            value = window.decodeURIComponent keyValuePair[1]
+            key = decodeURIComponent keyValuePair[0]
+            value = decodeURIComponent keyValuePair[1]
             variables.push key
             variables[key] = value
         # endregion
         return variables[keyToGet] if keyToGet?
         variables
-    stringIsInternalURL: (firstURL, secondURL=window.location.href) ->
+    stringIsInternalURL: (firstURL, secondURL=location.href) ->
         ###
             Checks if given url points to another domain than second given
             url. If no second given url provided current url will be
@@ -1702,15 +1703,15 @@ class Tools
             for abbreviation in abbreviations
                 abbreviationPattern += '|' if abbreviationPattern
                 abbreviationPattern += abbreviation.toUpperCase()
-            string = string.replace new window.RegExp(
+            string = string.replace new RegExp(
                 "(#{abbreviationPattern})(#{abbreviationPattern})", 'g'
             ), "$1#{delimiter}$2"
-        string = string.replace new window.RegExp(
+        string = string.replace new RegExp(
             "([^#{escapedDelimiter}])([A-Z][a-z]+)", 'g'
         ), "$1#{delimiter}$2"
-        string.replace(new window.RegExp(
-            '([a-z0-9])([A-Z])', 'g'
-        ), "$1#{delimiter}$2").toLowerCase()
+        string.replace(
+            new RegExp('([a-z0-9])([A-Z])', 'g'), "$1#{delimiter}$2"
+        ).toLowerCase()
     stringCapitalize: (string) ->
         ###
             Converts a string to its capitalize representation.
@@ -1756,7 +1757,7 @@ class Tools
         if this.stringStartsWith string, delimiter
             string = string.substring delimiter.length
             stringStartsWithDelimiter = true
-        string = string.replace new window.RegExp(
+        string = string.replace new RegExp(
             "(#{escapedDelimiter})(#{abbreviationPattern})" +
             "(#{escapedDelimiter}|$)", 'g'
         ), (fullMatch, before, abbreviation, after) ->
@@ -1764,7 +1765,7 @@ class Tools
                 before + abbreviation.toUpperCase() + after
             ) if fullMatch
             fullMatch
-        string = string.replace new window.RegExp(
+        string = string.replace new RegExp(
             "#{escapedDelimiter}([a-zA-Z0-9])", 'g'
         ), (fullMatch, firstLetter) ->
             return firstLetter.toUpperCase() if fullMatch
@@ -1801,7 +1802,7 @@ class Tools
         additionalArguments.unshift string
         $.each(additionalArguments, (key, value) ->
             string = string.replace(
-                new window.RegExp("\\{#{key}\\}", 'gm'), value))
+                new RegExp("\\{#{key}\\}", 'gm'), value))
         string
     stringGetRegularExpressionValidated: (string) ->
         ###
@@ -2116,22 +2117,24 @@ class Tools
 
             **returns {String}**    - Decoded html string.
         ###
-        textareaDomNode = window.document.createElement 'textarea'
-        textareaDomNode.innerHTML = htmlString
-        textareaDomNode.value
+        if document?
+            textareaDomNode = document.createElement 'textarea'
+            textareaDomNode.innerHTML = htmlString
+            textareaDomNode.value
+        null
     ## endregion
     ## region number
     numberIsNotANumber: (object) ->
         ###
             Checks if given object is java scripts native
-            "window.Number.NaN" object.
+            "Number.NaN" object.
 
             **object {Mixed}**    - Object to Check.
 
             **returns {Boolean}** - Returns weather given value is not a
                                     number or not.
         ###
-        typeof object is 'number' and window.isNaN object
+        typeof object is 'number' and isNaN object
     numberRound: (number, digits=0) ->
         ###
             Rounds a given number accurate to given number of digits.
@@ -2273,25 +2276,26 @@ class Tools
     # endregion
 # endregion
 # region handle $ extending
-$.fn.Tools = -> (new Tools).controller Tools, arguments, this
+$.fn?.Tools = -> (new Tools).controller Tools, arguments, this
 $.Tools = -> (new Tools).controller Tools, arguments
 $.Tools.class = Tools
 ## region prop fix for comments and text nodes
-nativePropFunction = $.fn.prop
-$.fn.prop = (key, value) ->
-    ###
-        JQuery's native prop implementation ignores properties for text
-        nodes, comments and attribute nodes.
-    ###
-    if arguments.length < 3 and this[0]?.nodeName in [
-        '#text', '#comment'
-    ] and this[0][key]?
-        if arguments.length is 1
-            return this[0][key]
-        if arguments.length is 2
-            this[0][key] = value
-            return this
-    nativePropFunction.apply this, arguments
+if $.fn?
+    nativePropFunction = $.fn.prop
+    $.fn.prop = (key, value) ->
+        ###
+            JQuery's native prop implementation ignores properties for text
+            nodes, comments and attribute nodes.
+        ###
+        if arguments.length < 3 and this[0]?.nodeName in [
+            '#text', '#comment'
+        ] and this[0][key]?
+            if arguments.length is 1
+                return this[0][key]
+            if arguments.length is 2
+                this[0][key] = value
+                return this
+        nativePropFunction.apply this, arguments
 ## endregion
 # endregion
 module.exports = $.Tools
