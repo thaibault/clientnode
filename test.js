@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+//#!/usr/bin/env node
 // -*- coding: utf-8 -*-
 /* !
     region header
@@ -13,30 +13,31 @@
 */
 const qunit = (TARGET === 'node') ? require('qunit-cli') : require('qunitjs')
 
-require('webOptimizer/loadBrowserAPI')((window, location) => {
-    let $ = require 'jquery'
-    try
-        $ 'body'
-    catch
-        $ = $ window
+require('webOptimizer/browserAPI')((window, location) => {
+    let $ = require('jquery')
+    try {
+        $('body')
+    } catch (error) {
+        $ = $(window)
         $.context = window.document
         require.cache[require.resolve('jquery')].exports = $
+    }
     require('index')
     (TARGET === 'node') ? qunit.load() : qunit.start()
     // region tests
     // / region mock-up
-    const $bodyDomNode = $ 'body'
+    const $bodyDomNode = $('body')
     const tools = $('body').Tools()
     // / endregion
     // / region public methods
     // // region special
-    qunit.test('constructor', () => qunit.ok tools)
-    qunit.test('destructor', () => qunit.strictEqual tools.destructor(), tools)
+    qunit.test('constructor', () => qunit.ok(tools))
+    qunit.test('destructor', () => qunit.strictEqual(
+        tools.destructor(), tools))
     qunit.test('initialize', () => {
         const secondToolsInstance = $.Tools({logging: true})
         const thirdToolsInstance = $.Tools({
-            domNodeSelectorPrefix: 'body.{1} div.{1}'
-        })
+            domNodeSelectorPrefix: 'body.{1} div.{1}'})
 
         qunit.assert.notOk(tools._options.logging)
         qunit.ok(secondToolsInstance._options.logging)
@@ -81,7 +82,7 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
     // // endregion
     // // region language fixes
     qunit.test('mouseOutEventHandlerFix', () => qunit.ok(
-        tools.mouseOutEventHandlerFix () => {}))
+        tools.mouseOutEventHandlerFix(() => {})))
     // // endregion
     // // region logging
     qunit.test('log', () => qunit.strictEqual(tools.log('test'), tools))
@@ -118,16 +119,16 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
         ).$domNode.html(), $('<div>').html())
         qunit.strictEqual(
             $('<div class="a">').Tools('normalizeClassNames').$domNode.prop(
-                'outerHTML')
-            $('<div class="a">').prop('outerHTML'))
+                'outerHTML'
+            ), $('<div class="a">').prop('outerHTML'))
         qunit.strictEqual(
             $('<div class="b a">').Tools('normalizeClassNames').$domNode.prop(
-                'outerHTML')
-            $('<div class="a b">').prop 'outerHTML')
+                'outerHTML'
+            ), $('<div class="a b">').prop('outerHTML'))
         qunit.strictEqual(
             $('<div class="b a"><pre class="c b a"></pre></div>').Tools(
                 'normalizeClassNames'
-            ).$domNode.prop('outerHTML')
+            ).$domNode.prop('outerHTML'),
             $('<div class="a b"><pre class="a b c"></pre></div>').prop(
                 'outerHTML'))
     })
@@ -146,10 +147,10 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
         qunit.ok(tools.isEquivalentDom(
             '<div class="a"></div>', '<div class="a"></div>'))
         qunit.ok(tools.isEquivalentDom(
-            $ '<a target="_blank" class="a"></a>',
+            $('<a target="_blank" class="a"></a>'),
             '<a class="a" target="_blank"></a>'))
         qunit.notOk(tools.isEquivalentDom(
-            $ '<a class="a"></a>', '<a class="a" target="_blank"></a>'))
+            $('<a class="a"></a>'), '<a class="a" target="_blank"></a>'))
         qunit.ok(tools.isEquivalentDom(
             '<a target="_blank" class="a"></a>',
             '<a class="a" target="_blank"></a>'))
@@ -193,7 +194,7 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
             '[mce\\:href], [mce_href]')
     })
     qunit.test('removeDirective', () => {
-        $bodyDomNode = $bodyDomNode.Tools('removeDirective', 'a')
+        const $bodyDomNode = $bodyDomNode.Tools('removeDirective', 'a')
         qunit.equal($bodyDomNode.Tools().removeDirective('a'), $bodyDomNode)
     })
     qunit.test('getNormalizedDirectiveName', () => {
@@ -207,12 +208,12 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
     ), null))
     qunit.test('sliceDomNodeSelectorPrefix', () => {
         qunit.strictEqual(tools.sliceDomNodeSelectorPrefix('body div'), 'div')
-        qunit.strictEqual($.Tools(
+        qunit.strictEqual($.Tools({
             domNodeSelectorPrefix: 'body div'
-        ).sliceDomNodeSelectorPrefix('body div'), '')
-        qunit.strictEqual($.Tools(
+        }).sliceDomNodeSelectorPrefix('body div'), '')
+        qunit.strictEqual($.Tools({
             domNodeSelectorPrefix: ''
-        ).sliceDomNodeSelectorPrefix('body div'), 'body div')
+        }).sliceDomNodeSelectorPrefix('body div'), 'body div')
     })
     qunit.test('getDomNodeName', () => {
         qunit.strictEqual(tools.getDomNodeName('div'), 'div')
@@ -261,8 +262,8 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
         qunit.deepEqual(tools.isolateScope({}), {})
         qunit.deepEqual(tools.isolateScope({a: 2}), {a: 2})
         qunit.deepEqual(tools.isolateScope({
-            a: 2, b: a: [1, 2]
-        }), {a: 2, b: a: [1, 2]})
+            a: 2, b: {a: [1, 2]}
+        }), {a: 2, b: {a: [1, 2]}})
         let scope = function() {
             this.a = 2
         }
@@ -283,13 +284,13 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
         qunit.deepEqual(tools.isolateScope(new scope), {a: 2, b: undefined})
     })
     qunit.test('determineUniqueScopeName', () => {
-        qunit.ok(tools.stringStartsWith tools.determineUniqueScopeName(
-        ), 'callback')
+        qunit.ok(tools.stringStartsWith(tools.determineUniqueScopeName(
+        ), 'callback'))
         qunit.ok(tools.stringStartsWith(
             tools.determineUniqueScopeName('hans'), 'hans'))
-        qunit.ok(tools.stringStartsWith tools.determineUniqueScopeName(
+        qunit.ok(tools.stringStartsWith(tools.determineUniqueScopeName(
             'hans', {}
-        ), 'hans')
+        )), 'hans')
     })
     // // endregion
     // // region function handling
@@ -344,17 +345,17 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
     qunit.test('fireEvent', () => {
         let testValue = false
 
-        qunit.strictEqual($.Tools('onClick': () => {
+        qunit.strictEqual($.Tools({onClick: () => {
             testValue = true
-        }).fireEvent('click', true), true)
+        }}).fireEvent('click', true), true)
         qunit.ok(testValue)
-        qunit.strictEqual($.Tools('onClick': () => {
+        qunit.strictEqual($.Tools({onClick: () => {
             testValue = false
-        }).fireEvent('click', true), true)
+        }}).fireEvent('click', true), true)
         qunit.notOk(testValue)
         qunit.strictEqual(tools.fireEvent('click'), false)
         qunit.notOk(testValue)
-        tools.onClick = () -> {
+        tools.onClick = () => {
             testValue = true
         }
         qunit.strictEqual(tools.fireEvent('click'), false)
@@ -464,24 +465,25 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
         qunit.ok(tools.equals([{a: 1, b: 1}], [{a: 1}], null, 0))
         qunit.notOk(tools.equals([{a: 1}, {b: 1}], [{a: 1}], null, 1))
         qunit.ok(tools.equals([{a: 1}, {b: 1}], [{a: 1}, {b: 1}], null, 1))
-        qunit.ok(tools.equals([{a: b: 1}, {b: 1}], [{a: 1}, {b: 1}], null, 1))
+        qunit.ok(
+            tools.equals([{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 1))
         qunit.notOk(tools.equals(
-            [{a: b: 1}, {b: 1}], [{a: 1}, {b: 1}], null, 2))
+            [{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 2))
         qunit.ok(tools.equals(
-            [{a: b: 1}, {b: 1}], [{a: b: 1}, {b: 1}], null, 2))
+            [{a: {b: 1}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 2))
         qunit.ok(tools.equals(
-            [{a: b: c: 1}, {b: 1}], [{a: b: 1}, {b: 1}], null, 2))
+            [{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 2))
         qunit.notOk(tools.equals(
-            [{a: b: c: 1}, {b: 1}], [{a: b: 1}, {b: 1}], null, 3))
+            [{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3))
         qunit.ok(tools.equals(
-            [{a: b: c: 1}, b: 1], [{a: b: 1}, b: 1], null, 3, ['b']))
+            [{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3, ['b']))
         qunit.ok(tools.equals(() => {}, () => {}))
         qunit.notOk(tools.equals(() => {}, () => {}, null, -1, [], false))
         const test = () => {}
         qunit.ok(tools.equals(test, test, null, -1, [], false))
     })
     // // endregion
-    ## # region array
+    // // region array
     qunit.test('argumentsObjectToArray', () => {
         qunit.notOk($.isArray(arguments))
         qunit.ok($.isArray(tools.argumentsObjectToArray(arguments)))
@@ -548,7 +550,8 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
     })
     qunit.test('arrayExtractIfPropertyMatches', () => {
         qunit.deepEqual(
-            tools.arrayExtractIfPropertyMatches([{a: 'b'}], a: 'b'), [a: 'b'])
+            tools.arrayExtractIfPropertyMatches([{a: 'b'}],
+            {a: 'b'}), [{a: 'b'}])
         qunit.deepEqual(tools.arrayExtractIfPropertyMatches(
             [{a: 'b'}], {a: '.'}
         ), [{a: 'b'}])
@@ -608,7 +611,7 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
         const test = {}
         qunit.deepEqual(tools.arrayAppendAdd(test, {a: 3}, 'b'), {b: [{a: 3}]})
         qunit.deepEqual(
-            tools.arrayAppendAdd(test, {a: 3}, 'b'), b: [{a: 3}, {a: 3}])
+            tools.arrayAppendAdd(test, {a: 3}, 'b'), {b: [{a: 3}, {a: 3}]})
         qunit.deepEqual(
             tools.arrayAppendAdd({b: [2]}, 2, 'b', false), {b: [2, 2]})
         qunit.deepEqual(tools.arrayAppendAdd({b: [2]}, 2, 'b'), {b: [2]})
@@ -1001,7 +1004,7 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
         qunit.strictEqual(
             tools.stringMark('test', 'E', '<a>{1}</a>', true), 'test')
     })
-    qunit.test('stringMD5', () -> {
+    qunit.test('stringMD5', () => {
         qunit.strictEqual(
             tools.stringMD5('test'), '098f6bcd4621d373cade4e832627b4f6')
         qunit.strictEqual(
@@ -1108,16 +1111,16 @@ require('webOptimizer/loadBrowserAPI')((window, location) => {
         qunit.strictEqual(
             tools._grabDomNodeHelper('test', 'body div', {}), 'body div')
         qunit.strictEqual(tools._grabDomNodeHelper('test', '', {}), 'body')
-        qunit.strictEqual($.Tools(
+        qunit.strictEqual($.Tools({
             domNodeSelectorPrefix: ''
-        )._grabDomNodeHelper('test', '', {}), '')
-        qunit.strictEqual($.Tools(
+        })._grabDomNodeHelper('test', '', {}), '')
+        qunit.strictEqual($.Tools({
             domNodeSelectorPrefix: ''
-        )._grabDomNodeHelper('test', 'div', {}), 'div')
+        })._grabDomNodeHelper('test', 'div', {}), 'div')
     })
     // / endregion
     // endregion
-}
+})
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
