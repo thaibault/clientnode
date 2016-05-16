@@ -45,7 +45,7 @@ if TARGET is 'node'
                     port: ''
                     hostname: 'localhost'
                     host: 'localhost'
-                    protocol: 'http'
+                    protocol: 'http:'
                     origin: 'http://localhost'
                     href: 'http://localhost/path'
                     username: ''
@@ -685,26 +685,29 @@ onDomContentLoaded = (window, location) ->
             'http://www.test.de'
         ), 'http'
         qunit.strictEqual tools.stringGetProtocolName(
-            '//www.test.de'
+            '//www.test.de', location.protocol.substring(
+                0, location.protocol.length - 1)
         ), location.protocol.substring(0, location.protocol.length - 1)
         qunit.strictEqual tools.stringGetProtocolName('http://a.de'), 'http'
         qunit.strictEqual tools.stringGetProtocolName('ftp://localhost'), 'ftp'
         qunit.strictEqual tools.stringGetProtocolName(
-            'a'
+            'a', location.protocol.substring(0, location.protocol.length - 1)
         ), location.protocol.substring(0, location.protocol.length - 1)
         qunit.strictEqual tools.stringGetProtocolName(
-            'a/site/subSite?param=value#hash'
+            'a/site/subSite?param=value#hash', location.protocol.substring(
+                0, location.protocol.length - 1)
         ), location.protocol.substring(0, location.protocol.length - 1)
         qunit.strictEqual tools.stringGetProtocolName(
-            '/a/site/subSite?param=value#hash'
-        ), location.protocol.substring(0, location.protocol.length - 1)
+            '/a/site/subSite?param=value#hash', 'a'
+        ), 'a'
         qunit.strictEqual tools.stringGetProtocolName(
-            'alternate.local/a/site/subSite?param=value#hash'
-        ), location.protocol.substring(0, location.protocol.length - 1)
+            'alternate.local/a/site/subSite?param=value#hash', 'b'
+        ), 'b'
         qunit.strictEqual tools.stringGetProtocolName(
-            'alternate.local/'
-        ), location.protocol.substring(0, location.protocol.length - 1)
+            'alternate.local/', 'c'
+        ), 'c'
         qunit.strictEqual tools.stringGetProtocolName(
+            '', location.protocol.substring(0, location.protocol.length - 1)
         ), location.protocol.substring(0, location.protocol.length - 1)
     qunit.test 'stringGetURLVariable', ->
         qunit.ok $.isArray tools.stringGetURLVariable()
@@ -781,7 +784,7 @@ onDomContentLoaded = (window, location) ->
             '//www.test.de/site/subSite?param=value#hash')
         qunit.ok tools.stringIsInternalURL(
             "#{location.protocol}//www.test.de/site/subSite?param=value#hash"
-            '//www.test.de/site/subSite?param=value#hash')
+            "#{location.protocol}//www.test.de/site/subSite?param=value#hash")
         qunit.notOk tools.stringIsInternalURL(
             "http://www.test.de:#{location.port}/site/subSite?param=value#hash"
             'https://www.test.de/site/subSite?param=value#hash')
@@ -791,10 +794,10 @@ onDomContentLoaded = (window, location) ->
         qunit.ok tools.stringIsInternalURL(
             '//www.test.de:80/site/subSite?param=value#hash'
             '//www.test.de/site/subSite?param=value#hash')
-        qunit.ok tools.stringIsInternalURL location.href
-        qunit.ok tools.stringIsInternalURL '1'
-        qunit.ok tools.stringIsInternalURL '#1'
-        qunit.ok tools.stringIsInternalURL '/a'
+        qunit.ok tools.stringIsInternalURL location.href, location.href
+        qunit.ok tools.stringIsInternalURL '1', location.href
+        qunit.ok tools.stringIsInternalURL '#1', location.href
+        qunit.ok tools.stringIsInternalURL '/a', location.href
     qunit.test 'stringNormalizeURL', ->
         qunit.strictEqual(
             tools.stringNormalizeURL('www.test.com'), 'http://www.test.com')
