@@ -11,9 +11,11 @@
     3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+// region imports
+import browserAPI from 'webOptimizer/browserAPI'
 const qunit = (TARGET === 'node') ? require('qunit-cli') : require('qunitjs')
-
-require('webOptimizer/browserAPI')((window, location) => {
+// endregion
+browserAPI((window, location) => {
     let $ = require('jquery')
     try {
         $('body')
@@ -23,7 +25,10 @@ require('webOptimizer/browserAPI')((window, location) => {
         require.cache[require.resolve('jquery')].exports = $
     }
     require('index')
-    (TARGET === 'node') ? qunit.load() : qunit.start()
+    if (TARGET === 'node')
+        qunit.load()
+    else
+        qunit.start()
     // region tests
     // / region mock-up
     const $bodyDomNode = $('body')
@@ -165,8 +170,8 @@ require('webOptimizer/browserAPI')((window, location) => {
             '<a class="a b" target="_blank"><div a="2" b="3"></div></a>'))
     })
     qunit.test('getPositionRelativeToViewport', () => qunit.ok(
-        tools.getPositionRelativeToViewport() in [
-            'above', 'left', 'right', 'below', 'in']))
+        ['above', 'left', 'right', 'below', 'in'].includes(
+            tools.getPositionRelativeToViewport())))
     qunit.test('generateDirectiveSelector', () => {
         qunit.strictEqual(tools.generateDirectiveSelector(
             'a-b'
@@ -194,8 +199,9 @@ require('webOptimizer/browserAPI')((window, location) => {
             '[mce\\:href], [mce_href]')
     })
     qunit.test('removeDirective', () => {
-        const $bodyDomNode = $bodyDomNode.Tools('removeDirective', 'a')
-        qunit.equal($bodyDomNode.Tools().removeDirective('a'), $bodyDomNode)
+        const $localBodyDomNode = $bodyDomNode.Tools('removeDirective', 'a')
+        qunit.equal(
+            $localBodyDomNode.Tools().removeDirective('a'), $localBodyDomNode)
     })
     qunit.test('getNormalizedDirectiveName', () => {
         qunit.equal(tools.getNormalizedDirectiveName('data-a'), 'a')
@@ -290,14 +296,16 @@ require('webOptimizer/browserAPI')((window, location) => {
             tools.determineUniqueScopeName('hans'), 'hans'))
         qunit.ok(tools.stringStartsWith(tools.determineUniqueScopeName(
             'hans', {}
-        )), 'hans')
+        ), 'hans'))
     })
     // // endregion
     // // region function handling
     qunit.test('getMethod', () => {
         const testObject = {value: false}
 
-        tools.getMethod(() => testObject.value = true)()
+        tools.getMethod(() => {
+            testObject.value = true
+        })()
         qunit.ok(testObject.value)
 
         tools.getMethod(function() {
@@ -305,11 +313,9 @@ require('webOptimizer/browserAPI')((window, location) => {
         }, testObject)()
         qunit.notOk(testObject.value)
 
-        qunit.strictEqual(tools.getMethod(
-            (thisFunction, context, five, two, three) => {
-                context.value = five + two + three
-            }, testObject, 5
-        )(2, 3), 10)
+        qunit.strictEqual(tools.getMethod((
+            thisFunction, context, five, two, three
+        ) => five + two + three, testObject, 5)(2, 3), 10)
     })
     qunit.test('identity', () => {
         qunit.strictEqual(tools.identity(2), 2)
@@ -389,7 +395,7 @@ require('webOptimizer/browserAPI')((window, location) => {
     // // region object
     qunit.test('forEachSorted', () => {
         let result = []
-        tester = (item) => tools.forEachSorted(item, (value, key) =>
+        const tester = (item) => tools.forEachSorted(item, (value, key) =>
             result.push([key, value]))
         tester({})
         qunit.deepEqual(result, [])
@@ -401,6 +407,7 @@ require('webOptimizer/browserAPI')((window, location) => {
         tester({b: 1, a: 2})
         qunit.deepEqual(result, [['a', 2], ['b', 1]])
         result = []
+
         tester([2, 2])
         qunit.deepEqual(result, [[0, 2], [1, 2]])
         result = []
@@ -409,9 +416,10 @@ require('webOptimizer/browserAPI')((window, location) => {
         result = []
         tester({'a': 2, 'c': 2, 'z': 3})
         qunit.deepEqual(result, [['a', 2], ['c', 2], ['z', 3]])
-        tools.forEachSorted([1], ((value, key) => {
+        tools.forEachSorted([1], function(value, key) {
             result = this
-        }), 2)
+            return result
+        }, 2)
         qunit.deepEqual(result, 2)
     })
     qunit.test('sort', () => {
@@ -800,7 +808,7 @@ require('webOptimizer/browserAPI')((window, location) => {
             'https://www.test.de/site/subSite?param=value#hash',
             'https://www.test.de/site/subSite?param=value#hash'))
         qunit.notOk(tools.stringIsInternalURL(
-            "#{location.protocol}//www.test.de/site/subSite?param=value#hash",
+            `${location.protocol}//www.test.de/site/subSite?param=value#hash`,
             'ftp://www.test.de/site/subSite?param=value#hash'))
         qunit.notOk(tools.stringIsInternalURL(
             'https://www.test.de/site/subSite?param=value#hash',
@@ -809,16 +817,16 @@ require('webOptimizer/browserAPI')((window, location) => {
             'http://www.test.de/site/subSite?param=value#hash',
             'test.de/site/subSite?param=value#hash'))
         qunit.notOk(tools.stringIsInternalURL(
-            "#{location.protocol}//www.test.de:#{location.port}/site/" +
+            `${location.protocol}//www.test.de:${location.port}/site/` +
             'subSite?param=value#hash/site/subSite?param=value#hash'))
         qunit.ok(tools.stringIsInternalURL(
             '//www.test.de/site/subSite?param=value#hash',
             '//www.test.de/site/subSite?param=value#hash'))
         qunit.ok(tools.stringIsInternalURL(
-            "#{location.protocol}//www.test.de/site/subSite?param=value#hash",
-            "#{location.protocol}//www.test.de/site/subSite?param=value#hash"))
+            `${location.protocol}//www.test.de/site/subSite?param=value#hash`,
+            `${location.protocol}//www.test.de/site/subSite?param=value#hash`))
         qunit.notOk(tools.stringIsInternalURL(
-            "http://www.test.de:#{location.port}/site/subSite?param=value" +
+            `http://www.test.de:${location.port}/site/subSite?param=value` +
                 '#hash',
             'https://www.test.de/site/subSite?param=value#hash'))
         qunit.ok(tools.stringIsInternalURL(

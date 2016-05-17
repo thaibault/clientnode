@@ -29,5 +29,8 @@
         "jsdom": "*",
         "qunitjs": "*",
         "qunit-cli": "*"
-    }
+    },
+    "webOptimizer": {"module": {"aliases": {
+        "browserAPI": "browserAPI.compiled.js"
+    }}}
 }
