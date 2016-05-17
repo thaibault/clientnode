@@ -1,4 +1,3 @@
-#!/usr/bin/env coffee
 # -*- coding: utf-8 -*-
 'use strict'
 # region header
@@ -86,9 +85,9 @@ class Tools
     ###
     maximalSupportedInternetExplorerVersion: do ->
         ###Returns zero if no internet explorer present.###
-        if not context?.document?
+        if not context.document?
             return null
-        div = document.createElement 'div'
+        div = context.document.createElement 'div'
         for version in [0...9]
             # NOTE: We split html comment sequences to avoid wrong
             # interpretation if this code is embedded in markup.
@@ -169,7 +168,7 @@ class Tools
             console[method] = $.noop?() if not context.console[method]?
         if(
             not this.self::_javaScriptDependentContentHandled and
-            context?.document?
+            context.document?
         )
             this.self::_javaScriptDependentContentHandled = true
             $(
@@ -2125,7 +2124,7 @@ class Tools
 
             **returns {String}**    - Decoded html string.
         ###
-        if context?.document?
+        if context.document?
             textareaDomNode = context.document.createElement 'textarea'
             textareaDomNode.innerHTML = htmlString
             return textareaDomNode.value
