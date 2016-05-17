@@ -32,7 +32,7 @@ Version
 ###
 # endregion
 $ = require 'jquery'
-context = if window? then window else global
+context = if window? then window else if global? then global else module
 if not context.document?
     context.document = $.context
 # region plugins/classes
