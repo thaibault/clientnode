@@ -1,5 +1,7 @@
-//#!/usr/bin/env node
+// @flow
+// #!/usr/bin/env node
 // -*- coding: utf-8 -*-
+'use strict'
 /* !
     region header
     Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
@@ -13,17 +15,23 @@
 */
 // region imports
 import browserAPI from 'webOptimizer/browserAPI'
-const qunit = (TARGET === 'node') ? require('qunit-cli') : require('qunitjs')
+import type {Location, Window} from 'webOptimizer/type'
 // endregion
-browserAPI((window, location) => {
-    let $ = require('jquery')
-    try {
-        $('body')
-    } catch (error) {
-        $ = $(window)
-        $.context = window.document
-        require.cache[require.resolve('jquery')].exports = $
-    }
+// region declaration
+declare var TARGET:string
+/* eslint-disable no-unused-vars */
+declare var window:Window
+/* eslint-enable no-unused-vars */
+// endregion
+const qunit:Object = (TARGET === 'node') ? require('qunit-cli') : require(
+    'qunitjs')
+browserAPI((window:Window, location:Location) => {
+    // NOTE: We have to define window globally before jQuery is loaded to
+    // ensure that all jquery instances share the same window object.
+    if (typeof global !== 'undefined')
+        global.window = window
+    const $:Object = require('jquery')
+    $.context = window.document
     require('index')
     if (TARGET === 'node')
         qunit.load()
