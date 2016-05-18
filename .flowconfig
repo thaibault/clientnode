@@ -2,15 +2,10 @@
 .*/\.git
 .*/_.*\.js
 .*/.+\.compiled\.js
+(.*/|^)node_modules/webOptimizer/([^t]|(t[^y])|(ty[^p])|(typ[^e]))|([^b]|(b[^r])|(br[^o])|(bro[^w])|(brow[^s])|(brows[^e])|(browse[^r])|(browser[^A])|(browserA[^P])|(browserAP[^I])).*\.js
 
 [options]
-module.name_mapper='^\./configurator\.compiled$' -> './configurator'
-module.name_mapper='^\./helper\.compiled$' -> './helper'
-module.name_mapper='^\../helper\.compiled$' -> '../helper'
-module.name_mapper='^\./pugLoader\.compiled$' -> './pugLoader'
-module.name_mapper='^\../pugLoader\.compiled$' -> '../pugLoader'
-module.name_mapper='^\./taskRunner\.compiled$' -> './taskRunner'
-module.name_mapper='^\./webpackConfigurator\.compiled$' -> './webpackConfigurator'
+module.name_mapper='^\./index\.compiled$' -> './index'
 
 module.file_ext=.js
 module.file_ext=.compiled.js
