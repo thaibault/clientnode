@@ -39,8 +39,7 @@ if (context.hasOwnProperty('document') && $.hasOwnProperty('context'))
 class Tools {
     // region properties
     /**
-     * **keyCode {Object}**
-     * Saves a mapping from key codes to their corresponding name.
+     * @member Saves a mapping from key codes to their corresponding name.
      */
     static keyCode = {
         BACKSPACE: 8,
@@ -67,34 +66,31 @@ class Tools {
         UP: 38
     }
     /**
-     * Lists all known abbreviation for proper camel case to delimited and back
-     * conversion.
+     * @member Lists all known abbreviation for proper camel case to delimited
+     * and back conversion.
      */
-    static abbreviations = ['html', 'id', 'url', 'us', 'de', 'api', 'href']
+    static abbreviations = ['html', 'id', 'url', 'us', 'de', 'api', 'href'];
     /**
-     * **transitionEndEventNames {String}**
-     * Saves a string with all css3 browser specific transition end event
-     * names.
+     * @member Saves a string with all css3 browser specific transition end
+     * event names.
      */
     static transitionEndEventNames = 'transitionend webkitTransitionEnd ' +
         'oTransitionEnd MSTransitionEnd'
     /**
-     * **animationEndEventNames {String}**
-     * Saves a string with all css3 browser specific animation end event names.
+     * @member Saves a string with all css3 browser specific animation end
+     * event names.
      */
     static animationEndEventNames = 'animationend webkitAnimationEnd ' +
         'oAnimationEnd MSAnimationEnd'
     /**
-     * **maximalsupportedinternetexplorerversion {String}**
-     * Saves currently minimal supported internet explorer version. Saves zero
-     * if no internet explorer present.
+     * @member Saves currently minimal supported internet explorer version.
+     * Saves zero if no internet explorer present.
      */
     static maximalSupportedInternetExplorerVersion = (() => {
         if (context.hasOwnProperty('document'))
             return 0
         const div = context.document.createElement('div')
-        let version
-        for (version of [0...9]) {
+        for (const version = 0; version < 10; version++) {
             /*
                 NOTE: We split html comment sequences to avoid wrong
                 interpretation if this code is embedded in markup.
@@ -118,27 +114,44 @@ class Tools {
             ) && context.navigator.userAgent.includes('rv:11'))
                 return 11
         return version
-    })
+    })()
     /*
-     * **_consoleMethodNames {String[]}**
-     * This variable contains a collection of methods usually binded to the
-     * console object.
+     * @member This variable contains a collection of methods usually binded to
+     * the console object.
      */
     static _consoleMethodNames = [
-        'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error'
-        'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log'
-        'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd'
-        'timeStamp', 'trace', 'warn']
+        'assert',
+        'clear',
+        'count',
+        'debug',
+        'dir',
+        'dirxml',
+        'error',
+        'exception',
+        'group',
+        'groupCollapsed',
+        'groupEnd',
+        'info',
+        'log',
+        'markTimeline',
+        'profile',
+        'profileEnd',
+        'table',
+        'time',
+        'timeEnd',
+        'timeStamp',
+        'trace',
+        'warn'
+    ]
     /*
-     * **_javaScriptDependentContentHandled {Boolean}**
-     * Indicates weather javaScript dependent content where hide or shown.
+     * @member Indicates weather javaScript dependent content where hide or
+     * shown.
      */
     static _javaScriptDependentContentHandled = false
     /*
-     * **__name__ {String}**
-     * Holds the class name to provide inspection features.
+     * @member Holds the class name to provide inspection features.
      */
-    static __name__ = 'Tools'
+    static __name__ = 'Tools';
     // endregion
     // region public methods
     // / region special
@@ -169,10 +182,13 @@ class Tools {
             context.console = {}
         for (const methodName of Tools._consoleMethodNames)
             if (!context.console.hasOwnProperty(methodName))
-                context.console[methodName] = $.noop?()
-        if(!Tools._javaScriptDependentContentHandled && context.hasOwnProperty(
-            'document'
-        )) {
+                context.console[methodName] = ($.hasOwnProperty(
+                    'noop'
+                )) ? $.noop() : () => {}
+        if (
+            !Tools._javaScriptDependentContentHandled &&
+            context.hasOwnProperty('document')
+        ) {
             Tools._javaScriptDependentContentHandled = true
             $(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
@@ -228,7 +244,7 @@ class Tools {
      * @returns Returns whatever the initializer method returns.
      */
     controller(object, parameter, $domNode = null) {
-        parameter = this.argumentsObjectToArray(parameter)
+        parameter = Tools.argumentsObjectToArray(parameter)
         if (object.hasOwnProperty('__name__')) {
             object = new object($domNode)
             if (!object.hasOwnProperty('__tools__'))
@@ -344,12 +360,12 @@ class Tools {
             let message
             if (avoidAnnotation)
                 message = object
-            else if ($.type(object) is 'string') {
+            else if ($.type(object) === 'string') {
                 additionalArguments.unshift(object)
-                message = `${this.__name__} (${level}): ` +
-                    this.stringFormat.apply(this, additionalArguments)
+                message = `${Tools.__name__} (${level}): ` +
+                    Tools.stringFormat.apply(this, additionalArguments)
             } else if ($.isNumeric(object) || $.type(object) === 'boolean')
-                message = `${this.__name__} (${level}): ${object.toString()}`
+                message = `${Tools.__name__} (${level}): ${object.toString()}`
             else {
                 this.log(',--------------------------------------------,')
                 this.log(object, force, true)
@@ -425,16 +441,16 @@ class Tools {
      * formating.
      * @returns Returns the current instance.
      */
-    warn: (object, ...additionalArguments) {
-        return this.log.apply this, [object, false, false, 'warn'].concat(
-            additionalArguments)
+    warn(object, ...additionalArguments) {
+        return this.log.apply(this, [object, false, false, 'warn'].concat(
+            additionalArguments))
     }
     /**
      * Dumps a given object in a human readable format.
      * @param object - Any object to show.
      * @returns Returns the serialized version of given object.
      */
-    show(object) {
+    static show(object) {
         let output = ''
         if ($.type(object) === 'string')
             output = object
@@ -458,7 +474,7 @@ class Tools {
      */
     normalizeClassNames() {
         this.$domNode.find('*').addBack().each(() => {
-            const $this = $ this
+            const $this = $(this)
             if ($this.attr('class')) {
                 const sortedClassNames = $this.attr('class').split(' ').sort(
                 ) || []
@@ -486,7 +502,7 @@ class Tools {
                     ($.type(first) !== 'string' || first.charAt(0) === '<') &&
                     ($.type(second) !== 'string' || second.charAt(0) === '<')
                 ))
-                    return first is second
+                    return first === second
                 let $firstDomNode = $(first)
                 if ($firstDomNode.length) {
                     let $secondDomNode = $(second)
@@ -502,7 +518,7 @@ class Tools {
                     }
                     return false
                 }
-                return first is second
+                return first === second
             }
             return false
         }
@@ -537,7 +553,7 @@ class Tools {
      * @returns Returns generated selector.
      */
     generateDirectiveSelector(directiveName) {
-        const delimitedName = this.stringCamelCaseToDelimited(directiveName)
+        const delimitedName = Tools.stringCamelCaseToDelimited(directiveName)
         return `${delimitedName}, .${delimitedName}, [${delimitedName}], ` +
             `[data-${delimitedName}], [x-${delimitedName}]` + (
                 (!delimitedName.includes('-') ? '' : (
@@ -550,7 +566,7 @@ class Tools {
      * @returns Returns current dom node.
      */
     removeDirective(directiveName) {
-        const delimitedName = this.stringCamelCaseToDelimited(directiveName)
+        const delimitedName = Tools.stringCamelCaseToDelimited(directiveName)
         return this.$domNode.removeClass(delimitedName).removeAttr(
             delimitedName
         ).removeAttr(`data-${delimitedName}`).removeAttr(
@@ -563,7 +579,7 @@ class Tools {
      * @param directiveName - The directive name.
      * @returns Returns the corresponding name
      */
-    getNormalizedDirectiveName(directiveName) {
+    static getNormalizedDirectiveName(directiveName) {
         for (const delimiter of ['-', ':', '_']) {
             let prefixFound = false
             for (const prefix of [`data${delimiter}`, `x${delimiter}`])
@@ -576,7 +592,7 @@ class Tools {
                 break
         }
         for (const delimiter of ['-', ':', '_'])
-            directiveName = this.stringDelimitedToCamelCase(
+            directiveName = Tools.stringDelimitedToCamelCase(
                 directiveName, delimiter)
         return directiveName
     }
@@ -587,7 +603,7 @@ class Tools {
      * attribute value exists.
      */
     getDirectiveValue(directiveName) {
-        const delimitedName = this.stringCamelCaseToDelimited(directiveName)
+        const delimitedName = Tools.stringCamelCaseToDelimited(directiveName)
         for (const attributeName of [
             delimitedName, `data-${delimitedName}`, `x-${delimitedName}`,
             delimitedName.replace('-', '\\:')
@@ -627,7 +643,7 @@ class Tools {
      * >>> $.Tools.getDomNodeName('&lt;br/&gt;');
      * 'br'
      */
-    getDomNodeName(domNodeSelector) {
+    static getDomNodeName(domNodeSelector) {
         return domNodeSelector.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1]
     }
     /**
@@ -668,7 +684,7 @@ class Tools {
             domNodes.window = $(window)
         if (context.hasOwnProperty('document'))
             domNodes.document = $(context.document)
-        domNodes
+        return domNodes
     }
     // / endregion
     // / region scope
@@ -679,7 +695,7 @@ class Tools {
      * in given scope.
      * @returns The isolated scope.
      */
-    isolateScope(scope, prefixesToIgnore=['$', '_']) {
+    static isolateScope(scope, prefixesToIgnore=['$', '_']) {
         for (const name in scope)
             if (!prefixesToIgnore.includes(name.charAt(0)) && ![
                 'this', 'constructor'
@@ -696,7 +712,7 @@ class Tools {
      * @param scope - A scope where the name should be unique.
      * @returns The function name.
      */
-    determineUniqueScopeName(prefix = 'callback', scope = context) {
+    static determineUniqueScopeName(prefix = 'callback', scope = context) {
         while (true) {
             const uniqueName = prefix + parseInt(Math.random() * Math.pow(
                 10, 10))
@@ -717,7 +733,7 @@ class Tools {
      * @param scope - A given scope.
      * @returns Returns the given methods return value.
      */
-    getMethod(method, scope=this, ...additionalArguments) {
+    getMethod(method, scope = this, ...additionalArguments) {
         /*
             This following outcomment line would be responsible for a bug in
             yuicompressor. Because of declaration of arguments the parser
@@ -725,13 +741,13 @@ class Tools {
             doesn't care about that the magic arguments object is necessary to
             generate the arguments array in this context.
 
-            var arguments = this.argumentsObjectToArray(arguments);
+            var arguments = Tools.argumentsObjectToArray(arguments);
 
             use something like this instead:
 
-            var parameter = this.argumentsObjectToArray(arguments);
+            var parameter = Tools.argumentsObjectToArray(arguments);
         */
-        const parameter = this.argumentsObjectToArray(arguments)
+        const parameter = Tools.argumentsObjectToArray(arguments)
         if ($.type(method) === 'string' && $.type(scope) === 'object')
             return function() {
                 if (!scope[method])
@@ -751,7 +767,7 @@ class Tools {
      * @param value - A value to return.
      * @returns Returns the given value.
      */
-    identity(value) {
+    static identity(value) {
         return value
     }
     /**
@@ -759,7 +775,7 @@ class Tools {
      * @param filter - A function that filters an array.
      * @returns The inverted filter.
      */
-    invertArrayFilter(filter) {
+    static invertArrayFilter(filter) {
         return function(data) {
             if (data) {
                 const filteredData = filter.apply(this, arguments)
@@ -829,12 +845,12 @@ class Tools {
      * otherwise.
      */
     fireEvent(
-        eventName, callOnlyOptionsMethod=false, scope=this,
+        eventName, callOnlyOptionsMethod = false, scope = this,
         ...additionalArguments
     ) {
         if (!scope)
             scope = this
-        eventHandlerName = `on${this.stringCapitalize eventName}`
+        eventHandlerName = `on${Tools.stringCapitalize(eventName)}`
         if (!callOnlyOptionsMethod)
             if (scope.hasOwnProperty(eventHandlerName))
                 scope[eventHandlerName].apply(scope, additionalArguments)
@@ -950,8 +966,8 @@ class Tools {
      * @param context - The "this" binding for given iterator function.
      * @returns List of given sorted keys.
      */
-    forEachSorted(object, iterator, context) {
-        const keys = this.sort(object)
+    static forEachSorted(object, iterator, context) {
+        const keys = Tools.sort(object)
         for (key in keys)
             iterator.call(context, object[key], key)
         return keys
@@ -961,11 +977,11 @@ class Tools {
      * @param object - Object which keys should be sorted.
      * @returns Sorted list of given keys.
      */
-    sort(object) {
+    static sort(object) {
         const isArray = $.isArray(object)
         const keys = []
         for (key in object)
-            if object.hasOwnProperty(key) {
+            if (object.hasOwnProperty(key)) {
                 if (isArray)
                     key = parseInt(key)
                 if (object.hasOwnProperty(key))
@@ -990,16 +1006,16 @@ class Tools {
      * be assumed to be equal (default).
      * @returns "true" if both objects are equal and "false" otherwise.
      */
-    equals(
-        firstValue, secondValue, properties = null, deep = -1
+    static equals(
+        firstValue, secondValue, properties = null, deep = -1,
         exceptionPrefixes = ['$', '_'], ignoreFunctions = true
     ) {
         if(
             ignoreFunctions && $.isFunction(firstValue) && $.isFunction(
                 secondValue
-            ) or firstValue === secondValue || this.numberIsNotANumber(
+            ) || firstValue === secondValue || Tools.numberIsNotANumber(
                 firstValue
-            ) && this.numberIsNotANumber(secondValue) ||
+            ) && Tools.numberIsNotANumber(secondValue) ||
             firstValue instanceof RegExp &&
             secondValue instanceof RegExp &&
             firstValue.toString() === secondValue.toString() ||
@@ -1007,19 +1023,19 @@ class Tools {
             secondValue instanceof Date && (
                 isNaN(firstValue.getTime()) &&
                 isNaN(secondValue.getTime()) ||
-                not isNaN(firstValue.getTime()) &&
-                not isNaN(secondValue.getTime()) &&
+                !isNaN(firstValue.getTime()) &&
+                !isNaN(secondValue.getTime()) &&
                 firstValue.getTime() === secondValue.getTime()
             )
         )
             return true
         if ($.isPlainObject(firstValue) && $.isPlainObject(
             secondValue
-        ) && not (
+        ) && !(
             firstValue instanceof RegExp || secondValue instanceof RegExp
         ) || $.isArray(firstValue) && $.isArray(
             secondValue
-        ) && firstValue.length === secondValue.length)
+        ) && firstValue.length === secondValue.length) {
             let equal = true
             let first
             let second
@@ -1039,7 +1055,7 @@ class Tools {
                             if (key.toString().startsWith(exceptionPrefix))
                                 return
                     }
-                    if (deep !== 0 && !this.equals(
+                    if (deep !== 0 && !Tools.equals(
                         value, second[key], properties, deep - 1,
                         exceptionPrefixes
                     ))
@@ -1047,6 +1063,7 @@ class Tools {
                 })
             }
             return equal
+        }
         return false
     }
     // / endregion
@@ -1058,7 +1075,7 @@ class Tools {
      * @returns Returns the array containing all elements in given arguments
      * object.
      */
-    argumentsObjectToArray(argumentsObject) {
+    static argumentsObjectToArray(argumentsObject) {
         return Array.prototype.slice.call(argumentsObject)
     }
     /**
@@ -1067,7 +1084,7 @@ class Tools {
      * @param data - Array like object.
      * @returns Sliced version of given object.
      */
-    arrayUnique(data) {
+    static arrayUnique(data) {
         const result = []
         for (const value of data)
             if (!result.includes(value))
@@ -1081,7 +1098,9 @@ class Tools {
      * @param defaultValue - Value to return if property values doesn't match.
      * @returns Summarized array.
      */
-    arrayAggregatePropertyIfEqual(data, propertyName, defaultValue = '') {
+    static arrayAggregatePropertyIfEqual(
+        data, propertyName, defaultValue = ''
+    ) {
         let result = defaultValue
         if (data && data.length && data[0].hasOwnProperty(propertyName)) {
             result = data[0][propertyName]
@@ -1100,7 +1119,7 @@ class Tools {
      * @param propertyNames - Properties to consider.
      * @returns Given data without empty items.
      */
-    arrayDeleteEmptyItems(data, propertyNames = []) {
+    static arrayDeleteEmptyItems(data, propertyNames = []) {
         if (!data)
             return data
         const result = []
@@ -1128,7 +1147,7 @@ class Tools {
      * @param propertyNames - Property names to extract.
      * @returns Data with sliced items.
      */
-    arrayExtract(data, propertyNames) {
+    static arrayExtract(data, propertyNames) {
         for (const item of data)
             for (const attributeName in item)
                 if (!propertyNames.includes(attributeName))
@@ -1141,7 +1160,7 @@ class Tools {
      * @param regularExpression - Pattern to match for.
      * @returns Filtered data.
      */
-    arrayExtractIfMatches(data, regularExpression) {
+    static arrayExtractIfMatches(data, regularExpression) {
         const result = []
         $.each(data, (index, value) => {
             if ((new RegExp(regularExpression)).test(value))
@@ -1156,7 +1175,7 @@ class Tools {
      * @returns Given data without the items which doesn't have specified
      * property.
      */
-    arrayExtractIfPropertyExists(data, propertyName) {
+    static arrayExtractIfPropertyExists(data, propertyName) {
         if (data && propertyName) {
             const result = []
             for (const item of data) {
@@ -1182,7 +1201,7 @@ class Tools {
      * @param propertyPattern - Mapping of property names to pattern.
      * @returns Filtered data.
      */
-    arrayExtractIfPropertyMatches(data, propertyPattern) {
+    static arrayExtractIfPropertyMatches(data, propertyPattern) {
         if (data && propertyPattern) {
             const result = []
             for (const item of data) {
@@ -1212,7 +1231,7 @@ class Tools {
      * keys aren't empty).
      * @returns Data which does exit in given initial data.
      */
-    arrayIntersect(firstSet, secondSet, keys = [], strict = true) {
+    static arrayIntersect(firstSet, secondSet, keys = [], strict = true) {
         const containingData = []
         for (const initialItem of firstSet) {
             if ($.isPlainObject(initialItem)) {
@@ -1224,7 +1243,7 @@ class Tools {
                     ) || keys.length
                     if (!iterateGivenKeys)
                         keys = initialItem
-                    $.each(keys, (firstSetKey, secondSetKey) {
+                    $.each(keys, (firstSetKey, secondSetKey) => {
                         if ($.isArray(keys))
                             firstSetKey = secondSetKey
                         else if (!iterateGivenKeys)
@@ -1260,7 +1279,7 @@ class Tools {
      * @param step - Space between two consecutive values.
      * @param returns Produced array of integers.
      */
-    arrayMakeRange(range, step=1) {
+    static arrayMakeRange(range, step=1) {
         let index
         if (range.length === 1) {
             index = 0
@@ -1283,7 +1302,7 @@ class Tools {
      * @propertyNames - Property name to sum up its value.
      * @returns The aggregated value.
      */
-    arraySumUpProperty(data, propertyName) {
+    static arraySumUpProperty(data, propertyName) {
         let result = 0
         if ($.isArray(data) && data.length)
             for (const item of data)
@@ -1299,7 +1318,7 @@ class Tools {
      * list (will result in linear runtime instead of constant one).
      * @returns Item with the appended target.
      */
-    arrayAppendAdd(item, target, name, checkIfExists = true) {
+    static arrayAppendAdd(item, target, name, checkIfExists = true) {
         if (item.hasOwnProperty(name))
             if (!(checkIfExists && item[name].includes(target)))
                 item[name].push(target)
@@ -1315,7 +1334,7 @@ class Tools {
      * doesn't exists given list.
      * @returns Item with the appended target.
      */
-    arrayRemove(list, target, strict = false) {
+    static arrayRemove(list, target, strict = false) {
         if ($.isArray(list) || strict) {
             index = list.indexOf(target)
             if (index === -1) {
@@ -1339,7 +1358,7 @@ class Tools {
      * whitespaces as "+" or "%20".
      * @returns Encoded given url.
      */
-    stringEncodeURIComponent(url, encodeSpaces) {
+    static stringEncodeURIComponent(url, encodeSpaces) {
         return encodeURIComponent(url).replace(/%40/gi, '@').replace(
             /%3A/gi, ':'
         ).replace(/%24/g, '$').replace(/%2C/gi, ',').replace(
@@ -1351,7 +1370,7 @@ class Tools {
      * @param pathSeparator - The selector for appending to path.
      * @param returns - The appended path.
      */
-    stringAddSeparatorToPath(path, pathSeparator = '/') {
+    static stringAddSeparatorToPath(path, pathSeparator = '/') {
         const path = $.trim(path)
         if (path.substr(-1) !== pathSeparator && path.length)
             return path + pathSeparator
@@ -1365,7 +1384,7 @@ class Tools {
      * conform slash).
      * @returns "true" if given prefix occur and "false" otherwise.
      */
-    stringHasPathPrefix(prefix = '/admin', path = context.hasOwnProperty(
+    static stringHasPathPrefix(prefix = '/admin', path = context.hasOwnProperty(
         'location'
     ) && location.pathname || '', separator = '/') {
         if ([undefined, null].includes(prefix))
@@ -1385,7 +1404,7 @@ class Tools {
      * (default is current hostname).
      * @returns Extracted domain.
      */
-    stringGetDomainName(
+    static stringGetDomainName(
         url = context.hasOwnProperty('location') && location.href || '',
         fallback = context.hasOwnProperty(
             'location'
@@ -1409,7 +1428,7 @@ class Tools {
      * "stringIsInternalURL()" method.
      * @returns Extracted port number.
      */
-    stringGetPortNumber(
+    static stringGetPortNumber(
         url = context.hasOwnProperty('location') && location.href || '',
         fallback = null, parameter = []
     ) {
@@ -1418,14 +1437,14 @@ class Tools {
             return parseInt(result[1])
         if (fallback !== null)
             return fallback
-        if (this.stringIsInternalURL.apply(
+        if (Tools.stringIsInternalURL.apply(
             this, [url].concat(parameter)
             ) && context.hasOwnProperty(
                 'location'
             ) && location.port && parseInt(location.port)
         )
             return parseInt(location.port)
-        return (this.stringGetProtocolName(url) === 'https') ? 443 : 80
+        return (Tools.stringGetProtocolName(url) === 'https') ? 443 : 80
     }
     /**
      * Extracts protocol name from given url. If no explicit url is given,
@@ -1436,7 +1455,7 @@ class Tools {
      * url (default is current protocol).
      * returns Extracted protocol.
      */
-    stringGetProtocolName(
+    static stringGetProtocolName(
         url = context.hasOwnProperty('location') && location.href || '',
         fallback = context.hasOwnProperty('location') &&
             location.protocol.substring(0, location.protocol.length - 1) || ''
@@ -1469,7 +1488,7 @@ class Tools {
      * @returns Returns the current get array or requested value. If requested
      * key doesn't exist "undefined" is returned.
      */
-    stringGetURLVariable(
+    static stringGetURLVariable(
         keyToGet, input, subDelimiter = '$', hashedPathIndicator = '!', search,
         hash = context.hasOwnProperty('location') && location.hash || ''
     ) {
@@ -1502,7 +1521,7 @@ class Tools {
         // endregion
         // region determine data from search and hash if specified
         const both = input === '&'
-        if (both || input === '#')
+        if (both || input === '#') {
             const decodedHash = decodeURIComponent(hash)
             subDelimiterIndex = decodedHash.indexOf(subDelimiter)
             if (subDelimiterIndex === -1)
@@ -1512,7 +1531,7 @@ class Tools {
                 if (input.startsWith(subDelimiter))
                     input = input.substring(subDelimiter.length)
             }
-        else if (input.startsWith('?'))
+        } else if (input.startsWith('?'))
             input = input.substring('?'.length)
         let data = (input) ? input.split('&') : []
         search = search.substring('?'.length)
@@ -1541,34 +1560,35 @@ class Tools {
      * @returns Returns "true" if given first url has same domain as given
      * second (or current).
      */
-    stringIsInternalURL(firstURL, secondURL = context.hasOwnProperty(
+    static stringIsInternalURL(firstURL, secondURL = context.hasOwnProperty(
         'location'
     ) && location.href || '') {
-        const explicitDomainName = this.stringGetDomainName(firstURL, false)
-        const explicitProtocolName = this.stringGetProtocolName(
+        const explicitDomainName = Tools.stringGetDomainName(firstURL, false)
+        const explicitProtocolName = Tools.stringGetProtocolName(
             firstURL, false)
-        const explicitPortNumber = this.stringGetPortNumber(firstURL, false)
+        const explicitPortNumber = Tools.stringGetPortNumber(firstURL, false)
         return (
             !explicitDomainName ||
-            explicitDomainName === this.stringGetDomainName(secondURL)
+            explicitDomainName === Tools.stringGetDomainName(secondURL)
         ) && (
             !explicitProtocolName ||
-            explicitProtocolName === this.stringGetProtocolName(secondURL)
+            explicitProtocolName === Tools.stringGetProtocolName(secondURL)
         ) &&d (
             !explicitPortNumber ||
-            explicitPortNumber === this.stringGetPortNumber(secondURL))
+            explicitPortNumber === Tools.stringGetPortNumber(secondURL))
     }
     /**
      * Normalized given website url.
      * @param url - Uniform resource locator to normalize.
      * @returns Normalized result.
      */
-    stringNormalizeURL(url) {
+    static stringNormalizeURL(url) {
         if (url) {
             url = $.trim(url.replace(/^:?\/+/, '').replace(/\/+$/, ''))
             if (url.startsWith('http'))
                 return url
             return `http://${url}`
+        }
         return ''
     }
     /**
@@ -1576,7 +1596,7 @@ class Tools {
      * @param url - Uniform resource locator to represent.
      * @returns Represented result.
      */
-    stringRepresentURL(url) {
+    static stringRepresentURL(url) {
         if (url)
             return $.trim(url.replace(/^(https?)?:?\/+/, '').replace(
                 /\/+$/, ''))
@@ -1591,10 +1611,12 @@ class Tools {
      * cased.
      * @returns The formatted string.
      */
-    stringCamelCaseToDelimited(string, delimiter = '-', abbreviations = null) {
+    static stringCamelCaseToDelimited(
+        string, delimiter = '-', abbreviations = null
+    ) {
         if ([null, undefined].includes(abbreviations))
-            abbreviations = this.abbreviations
-        const escapedDelimiter = this.stringGetRegularExpressionValidated(
+            abbreviations = Tools.abbreviations
+        const escapedDelimiter = Tools.stringGetRegularExpressionValidated(
             delimiter)
         if (abbreviations.length) {
             let abbreviationPattern = ''
@@ -1619,7 +1641,7 @@ class Tools {
      * @param string - The string to format.
      * @returns The formatted string.
      */
-    stringCapitalize(string) {
+    static stringCapitalize(string) {
         return string.charAt(0).toUpperCase() + string.substring(1)
     }
     /**
@@ -1632,14 +1654,14 @@ class Tools {
      * formatted camel case abbreviations will be ignored.
      * @returns The formatted string.
      */
-    stringDelimitedToCamelCase(
-        string, delimiter = '-', abbreviations = null
+    static stringDelimitedToCamelCase(
+        string, delimiter = '-', abbreviations = null,
         preserveWrongFormattedAbbreviations = false
     ) {
-        const escapedDelimiter = this.stringGetRegularExpressionValidated(
+        const escapedDelimiter = Tools.stringGetRegularExpressionValidated(
             delimiter)
         if ([null, undefined].includes(abbreviations))
-            abbreviations = this.abbreviations
+            abbreviations = Tools.abbreviations
         let abbreviationPattern
         if (preserveWrongFormattedAbbreviations)
             abbreviationPattern = abbreviations.join('|')
@@ -1649,7 +1671,7 @@ class Tools {
                 if (abbreviationPattern)
                     abbreviationPattern += '|'
                 abbreviationPattern +=
-                    `${this.stringCapitalize(abbreviation)}|${abbreviation}`
+                    `${Tools.stringCapitalize(abbreviation)}|${abbreviation}`
             }
         }
         let stringStartsWithDelimiter = false
@@ -1684,9 +1706,9 @@ class Tools {
      * replacements for string formating.
      * @returns The formatted string.
      */
-    stringFormat(string, ...additionalArguments) {
+    static stringFormat(string, ...additionalArguments) {
         additionalArguments.unshift(string)
-        $.each(additionalArguments, (key, value) {
+        $.each(additionalArguments, (key, value) => {
             string = string.replace(new RegExp(`\\{${key}\\}`, 'gm'), value)
         })
         return string
@@ -1697,7 +1719,7 @@ class Tools {
      * @param string - The string to format.
      * @returns The formatted string.
      */
-    stringGetRegularExpressionValidated(string) {
+    static stringGetRegularExpressionValidated(string) {
         return string.replace(/([\\|.*$^+[\]()?\-{}])/g, '\\$1')
     }
     /**
@@ -1705,7 +1727,7 @@ class Tools {
      * @param string - The string to format.
      * @returns The formatted string.
      */
-    stringLowerCase(string) {
+    static stringLowerCase(string) {
         return string.charAt(0).toLowerCase() + string.substring(1)
     }
     /**
@@ -1717,15 +1739,15 @@ class Tools {
      * searching.
      * @returns Processed result.
      */
-    stringMark(
+    static stringMark(
         target, mark, marker = '<span class="tools-mark">{1}</span>',
         caseSensitiv = false
     ) {
         target = $.trim(target)
         mark = $.trim(mark)
         if (target && mark) {
-            len offset = 0
-            len searchTarget = target
+            let offset = 0
+            let searchTarget = target
             if (!caseSensitiv)
                 searchTarget = searchTarget.toLowerCase()
             if (!caseSensitiv)
@@ -1735,7 +1757,7 @@ class Tools {
                 if (index === -1)
                     break
                 else {
-                    target = target.substring(0, index) + this.stringFormat(
+                    target = target.substring(0, index) + Tools.stringFormat(
                         marker, target.substr(index, mark.length)
                     ) + target.substring(index + mark.length)
                     if (!caseSensitiv)
@@ -1753,7 +1775,7 @@ class Tools {
      * @param value - Value to calculate md5 hash for.
      * @returns Calculated md5 hash value.
      */
-    stringMD5(value) {
+    static stringMD5(value) {
         const rotateLeft = (lValue, iShiftBits) =>
             (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits))
 
@@ -1948,7 +1970,7 @@ class Tools {
      * @param phoneNumber - Number to normalize.
      * @returns Normalized number.
      */
-    stringNormalizePhoneNumber(phoneNumber) {
+    static stringNormalizePhoneNumber(phoneNumber) {
         if (honeNumber)
             return `${phoneNumber}`.replace(/[^0-9]*\+/, '00').replace(
                 /[^0-9]+/g, '')
@@ -1960,7 +1982,7 @@ class Tools {
      * @param phoneNumber - Number to format.
      * @returns Formatted number.
      */
-    stringRepresentPhoneNumber(phoneNumber) {
+    static stringRepresentPhoneNumber(phoneNumber) {
         if ($.type(phoneNumber === 'string') && phoneNumber) {
             // Represent country code and leading area code zero.
             phoneNumber = phoneNumber.replace(
@@ -1975,12 +1997,12 @@ class Tools {
                 /^(.*?)([0-9]+)(-?[0-9]*)$/, (
                     match, prefix, number, suffix
                 ) => prefix + $.trim(
-                    (number.length % 2 is 0) ? number.replace(
+                    (number.length % 2 === 0) ? number.replace(
                         /([0-9]{2})/g, '$1 '
                     ) : number.replace(
-                        /^([0-9]{3})([0-9]+)$/, (match, triple, rest) ->
-                            triple + ' ' + $.trim rest.replace(
-                                /([0-9]{2})/g, '$1 ')
+                        /^([0-9]{3})([0-9]+)$/, (match, triple, rest) =>
+                            `${triple} ` + $.trim(rest.replace(
+                                /([0-9]{2})/g, '$1 '))
                     ) + suffix)))
         }
         return ''
@@ -1990,7 +2012,7 @@ class Tools {
      * @param htmlString - HTML string to decode.
      * @returns Decoded html string.
      */
-    stringDecodeHTMLEntities(htmlString) {
+    static stringDecodeHTMLEntities(htmlString) {
         if (context.hasOwnProperty('document')) {
             const textareaDomNode = context.document.createElement('textarea')
             textareaDomNode.innerHTML = htmlString
@@ -2005,7 +2027,7 @@ class Tools {
      * @param object - Object to Check.
      * @returns Returns weather given value is not a number or not.
      */
-    numberIsNotANumber(object) {
+    static numberIsNotANumber(object) {
         return $.type(object) === 'number' && isNaN(object)
     }
     /**
@@ -2014,7 +2036,7 @@ class Tools {
      * @param digits - The number of digits after comma.
      * @returns Returns the rounded number.
      */
-    numberRound(number, digits = 0) {
+    static numberRound(number, digits = 0) {
         return Math.round(number * Math.pow(10, digits)) / Math.pow(10, digits)
     }
     // / endregion
@@ -2031,7 +2053,7 @@ class Tools {
      * of a simple target name.
      * @returns Returns the given target.
      */
-    sendToIFrame(
+    static sendToIFrame(
         target, url, data, requestType = 'post', removeAfterLoad = false
     ) {
         const $formDomNode = $('<form>').attr({
@@ -2064,12 +2086,12 @@ class Tools {
     sendToExternalURL(
         url, data, requestType = 'post', removeAfterLoad = true
     ) {
-        const iFrameDomNode = $('<iframe>').attr('name', this.__name__.charAt(
+        const iFrameDomNode = $('<iframe>').attr('name', Tools.__name__.charAt(
             0
-        ).toLowerCase() + this.__name__.substring(1) + (new Date).getTime(
+        ).toLowerCase() + Tools.__name__.substring(1) + (new Date).getTime(
         )).hide()
         this.$domNode.after($iFrameDomNode)
-        return this.sendToIFrame(
+        return Tools.sendToIFrame(
             iFrameDomNode, url, data, requestType, removeAfterLoad)
     }
     // / endregion
@@ -2093,11 +2115,11 @@ class Tools {
                 this[eventFunctionName]($domNode, eventType, handler))
             return $domNode
         }
-        parameter = this.argumentsObjectToArray(parameter).slice(1)
+        parameter = Tools.argumentsObjectToArray(parameter).slice(1)
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
-            parameter[0] += `.${this.__name__}`
+            parameter[0] += `.${Tools.__name__}`
         if (removeEvent)
             return $domNode[eventFunctionName].apply($domNode, parameter)
         return $domNode[eventFunctionName].apply($domNode, parameter)
@@ -2126,7 +2148,7 @@ class Tools {
 // endregion
 // region handle $ extending
 if ($.hasOwnProperty('fn'))
-    $.fn?.Tools = function() {
+    $.fn.Tools = function() {
         return (new Tools()).controller(Tools, arguments, this)
     }
 $.Tools = function() {
@@ -2156,7 +2178,7 @@ if ($.hasOwnProperty('fn')) {
 }
 // / endregion
 // endregion
-export $.Tools
+export default $.Tools
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
