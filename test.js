@@ -9,8 +9,9 @@
     License
     -------
 
-    This library written by Torben Sickert stand under a creative commons naming
-    3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
+    This library written by Torben Sickert stand under a creative commons
+    naming 3.0 unported license.
+    See http://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
 // region imports
@@ -301,13 +302,9 @@ browserAPI((window:Window, location:Location) => {
         qunit.deepEqual(tools.isolateScope(new scope), {a: 2, b: undefined})
     })
     qunit.test('determineUniqueScopeName', () => {
-        qunit.ok(tools.stringStartsWith(tools.determineUniqueScopeName(
-        ), 'callback'))
-        qunit.ok(tools.stringStartsWith(
-            tools.determineUniqueScopeName('hans'), 'hans'))
-        qunit.ok(tools.stringStartsWith(tools.determineUniqueScopeName(
-            'hans', {}
-        ), 'hans'))
+        qunit.ok(tools.determineUniqueScopeName().startsWith('callback'))
+        qunit.ok(tools.determineUniqueScopeName('hans').startsWith('hans'))
+        qunit.ok(tools.determineUniqueScopeName('hans', {}).startsWith('hans'))
     })
     // // endregion
     // // region function handling
@@ -959,16 +956,6 @@ browserAPI((window:Window, location:Location) => {
             'hans-Url', '-', [], false
         ), 'hansUrl')
     })
-    qunit.test('stringEndsWith', () => {
-        qunit.ok(tools.stringEndsWith('hans', 'ns'))
-        qunit.ok(tools.stringEndsWith('ns', 'ns'))
-        qunit.ok(tools.stringEndsWith('ns', 's'))
-        qunit.ok(tools.stringEndsWith('ns', ''))
-        qunit.ok(tools.stringEndsWith('', ''))
-        qunit.notOk(tools.stringEndsWith('ns', 'n'))
-        qunit.notOk(tools.stringEndsWith('', 'n'))
-        qunit.notOk(tools.stringEndsWith('ns', 'S'))
-    })
     qunit.test('stringFormat', () => {
         qunit.strictEqual(tools.stringFormat('{1}', 'test'), 'test')
         qunit.strictEqual(tools.stringFormat('', 'test'), '')
@@ -1056,16 +1043,6 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual(tools.stringRepresentPhoneNumber(true), '')
         qunit.strictEqual(tools.stringRepresentPhoneNumber(''), '')
         qunit.strictEqual(tools.stringRepresentPhoneNumber(' '), '')
-    })
-    qunit.test('stringStartsWith', () => {
-        qunit.ok(tools.stringStartsWith('hans', 'ha'))
-        qunit.ok(tools.stringStartsWith('ha', 'ha'))
-        qunit.ok(tools.stringStartsWith('ha', 'h'))
-        qunit.ok(tools.stringStartsWith('ha', ''))
-        qunit.ok(tools.stringStartsWith('', ''))
-        qunit.notOk(tools.stringStartsWith('ha', 'a'))
-        qunit.notOk(tools.stringStartsWith('', 'a'))
-        qunit.notOk(tools.stringStartsWith('ha', 'H'))
     })
     qunit.test('stringDecodeHTMLEntities', () => {
         qunit.equal(tools.stringDecodeHTMLEntities(''), '')

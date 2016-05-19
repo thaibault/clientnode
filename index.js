@@ -1,516 +1,495 @@
-# -*- coding: utf-8 -*-
+// @flow
+// #!/usr/bin/env node
+// -*- coding: utf-8 -*-
 'use strict'
-# region header
-###
-[Project page](http://torben.website/jQuery-tools)
+/* !
+    region header
+    [Project page](http://torben.website/jQuery-tools)
 
-This module provides common reusable logic for every non trivial jQuery plugin.
+    This module provides common reusable logic for every non trivial jQuery
+    plugin.
 
-Copyright Torben Sickert 16.12.2012
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
-License
--------
+    License
+    -------
 
-This library written by Torben Sickert stand under a creative commons naming
-3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
-
-Extending this module
----------------------
-
-For conventions see require on https://github.com/thaibault/require
-
-Author
-------
-
-info["~at~"]torben.website (Torben Sickert)
-
-Version
--------
-
-1.0 stable
-###
-# endregion
-$ = require 'jquery'
-context = if window? then window else if global? then global else module
-if not context.document?
+    This library written by Torben Sickert stand under a creative commons
+    naming 3.0 unported license.
+    See http://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/
+// region imports
+import {* as $} from 'jquery'
+// endregion
+const context = (typeof window === 'undefined') ? ((
+    typeof global === 'undefined'
+) ? ((typeof module === 'undefined') ? {} : module) : global) : window
+if (context.hasOwnProperty('document') && $.hasOwnProperty('context'))
     context.document = $.context
-# region plugins/classes
-class Tools
-    ###
-        This plugin provides such interface logic like generic controller logic
-        for integrating plugins into $, mutual exclusion for depending gui
-        elements, logging additional string, array or function handling. A set
-        of helper functions to parse option objects dom trees or handle events
-        is also provided.
-    ###
-    # region properties
-    ###
-        **self {Tools}**
-        Saves a reference to this class useful for introspection.
-    ###
-    self: this
-    ###
-        **keyCode {Object}**
-        Saves a mapping from key codes to their corresponding name.
-    ###
-    keyCode:
-        BACKSPACE: 8, COMMA: 188, DELETE: 46, DOWN: 40, END: 35, ENTER: 13
-        ESCAPE: 27, HOME: 36, LEFT: 37, NUMPAD_ADD: 107,
-        NUMPAD_DECIMAL: 110, NUMPAD_DIVIDE: 111, NUMPAD_ENTER: 108
-        NUMPAD_MULTIPLY: 106, NUMPAD_SUBTRACT: 109, PAGE_DOWN: 34
-        PAGE_UP: 33, PERIOD: 190, RIGHT: 39, SPACE: 32, TAB: 9, UP: 38
-    ###
-        Lists all known abbreviation for proper camel case to delimited
-        and back conversion.
-    ###
-    abbreviations: ['html', 'id', 'url', 'us', 'de', 'api', 'href']
-    ###
-        **transitionEndEventNames {String}**
-        Saves a string with all css3 browser specific transition end event
-        names.
-    ###
-    transitionEndEventNames:
-        'transitionend webkitTransitionEnd oTransitionEnd ' +
-        'MSTransitionEnd'
-    ###
-        **animationEndEventNames {String}**
-        Saves a string with all css3 browser specific animation end event
-        names.
-    ###
-    animationEndEventNames:
-        'animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd'
-    ###
-        **maximalsupportedinternetexplorerversion {String}**
-        Saves currently minimal supported internet explorer version.
-    ###
-    maximalSupportedInternetExplorerVersion: do ->
-        ###Returns zero if no internet explorer present.###
-        if not context.document?
-            return null
-        div = context.document.createElement 'div'
-        for version in [0...9]
-            # NOTE: We split html comment sequences to avoid wrong
-            # interpretation if this code is embedded in markup.
-            # NOTE: Internet Explorer 9 and lower sometimes doesn't
-            # understand conditional comments wich doesn't starts with a
-            # whitespace. If the conditional markup isn't in a commend.
-            # Otherwise there shouldn't be any whitespace!
+// region plugins/classes
+/**
+ * This plugin provides such interface logic like generic controller logic for
+ * integrating plugins into $, mutual exclusion for depending gui elements,
+ * logging additional string, array or function handling. A set of helper
+ * functions to parse option objects dom trees or handle events is also
+ * provided.
+ */
+class Tools {
+    // region properties
+    /**
+     * **keyCode {Object}**
+     * Saves a mapping from key codes to their corresponding name.
+     */
+    static keyCode = {
+        BACKSPACE: 8,
+        COMMA: 188,
+        DELETE: 46,
+        DOWN: 40,
+        END: 35,
+        ENTER: 13
+        ESCAPE: 27,
+        HOME: 36,
+        LEFT: 37,
+        NUMPAD_ADD: 107,
+        NUMPAD_DECIMAL: 110,
+        NUMPAD_DIVIDE: 111,
+        NUMPAD_ENTER: 108
+        NUMPAD_MULTIPLY: 106,
+        NUMPAD_SUBTRACT: 109,
+        PAGE_DOWN: 34
+        PAGE_UP: 33,
+        PERIOD: 190,
+        RIGHT: 39,
+        SPACE: 32,
+        TAB: 9,
+        UP: 38
+    }
+    /**
+     * Lists all known abbreviation for proper camel case to delimited and back
+     * conversion.
+     */
+    static abbreviations = ['html', 'id', 'url', 'us', 'de', 'api', 'href']
+    /**
+     * **transitionEndEventNames {String}**
+     * Saves a string with all css3 browser specific transition end event
+     * names.
+     */
+    static transitionEndEventNames = 'transitionend webkitTransitionEnd ' +
+        'oTransitionEnd MSTransitionEnd'
+    /**
+     * **animationEndEventNames {String}**
+     * Saves a string with all css3 browser specific animation end event names.
+     */
+    static animationEndEventNames = 'animationend webkitAnimationEnd ' +
+        'oAnimationEnd MSAnimationEnd'
+    /**
+     * **maximalsupportedinternetexplorerversion {String}**
+     * Saves currently minimal supported internet explorer version. Saves zero
+     * if no internet explorer present.
+     */
+    static maximalSupportedInternetExplorerVersion = (() => {
+        if (context.hasOwnProperty('document'))
+            return 0
+        const div = context.document.createElement('div')
+        let version
+        for (version of [0...9]) {
+            /*
+                NOTE: We split html comment sequences to avoid wrong
+                interpretation if this code is embedded in markup.
+                NOTE: Internet Explorer 9 and lower sometimes doesn't
+                understand conditional comments wich doesn't starts with a
+                whitespace. If the conditional markup isn't in a commend.
+                Otherwise there shouldn't be any whitespace!
+            */
             div.innerHTML = (
                 '<!' + "--[if gt IE #{version}]><i></i><![e" + 'ndif]-' +
                 '->')
-            if not div.getElementsByTagName('i').length
+            if (div.getElementsByTagName('i').length === 0)
                 break
-        if not version
-            # Try special detection for internet explorer 10 and 11.
-            if context.navigator?.appVersion.indexOf('MSIE 10') isnt -1
+        }
+        // Try special detection for internet explorer 10 and 11.
+        if (version === 0 && context.hasOwnProperty('navigator'))
+            if (context.navigator.appVersion.includes('MSIE 10'))
                 return 10
-            else if context.navigator?.userAgent.indexOf(
+            else if (context.navigator.userAgent.includes(
                 'Trident'
-            ) isnt -1 and context.navigator?.userAgent.indexOf(
-                'rv:11'
-            ) isnt -1
+            ) && context.navigator.userAgent.includes('rv:11'))
                 return 11
-        version
-    ###
-        **_consoleMethods {String[]}**
-        This variable contains a collection of methods usually binded to
-        the console object.
-    ###
-    _consoleMethods: [
+        return version
+    })
+    /*
+     * **_consoleMethodNames {String[]}**
+     * This variable contains a collection of methods usually binded to the
+     * console object.
+     */
+    static _consoleMethodNames = [
         'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error'
         'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log'
         'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd'
         'timeStamp', 'trace', 'warn']
-    ###
-        **_javaScriptDependentContentHandled {Boolean}**
-        Indicates weather javaScript dependent content where hide or shown.
-    ###
-    _javaScriptDependentContentHandled: false
-    ###
-        **__tools__ {Boolean}**
-        Indicates if an instance was derived from this class.
-    ###
-    __tools__: true
-    ###
-        **__name__ {String}**
-        Holds the class name to provide inspection features.
-    ###
-    __name__: 'Tools'
-    # endregion
-    # region public methods
-    ## region special
-    constructor: (
-        @$domNode=null, @_options={}, @_defaultOptions={
-            logging: false, domNodeSelectorPrefix: 'body', domNode:
-                hideJavaScriptEnabled:
-                    '.tools-hidden-on-javascript-enabled'
-                showJavaScriptEnabled:
-                    '.tools-visible-on-javascript-enabled'
-        }, @_locks={}
-    ) ->
-        ###
-            This method should be overwritten normally. It is triggered if
-            current object is created via the "new" keyword.
-
-            The dom node selector prefix enforces to not globally select
-            any dom nodes which aren't in the expected scope of this
-            plugin. "{1}" will be automatically replaced with this plugin
-            name suffix ("incrementer"). You don't have to use "{1}" but it
-            can help you to write code which is more reconcilable with the
-            dry concept.
-
-            **returns {$.Tools}** Returns the current instance.
-        ###
-        # Avoid errors in browsers that lack a console.
-        for method in this._consoleMethods
-            context.console = {} if not context.console?
-            # Only stub the $ empty method.
-            console[method] = $.noop?() if not context.console[method]?
-        if(
-            not this.self::_javaScriptDependentContentHandled and
-            context.document?
-        )
-            this.self::_javaScriptDependentContentHandled = true
+    /*
+     * **_javaScriptDependentContentHandled {Boolean}**
+     * Indicates weather javaScript dependent content where hide or shown.
+     */
+    static _javaScriptDependentContentHandled = false
+    /*
+     * **__name__ {String}**
+     * Holds the class name to provide inspection features.
+     */
+    static __name__ = 'Tools'
+    // endregion
+    // region public methods
+    // / region special
+    /**
+     * This method should be overwritten normally. It is triggered if current
+     * object is created via the "new" keyword. The dom node selector prefix
+     * enforces to not globally select any dom nodes which aren't in the
+     * expected scope of this plugin. "{1}" will be automatically replaced with
+     * this plugin name suffix ("incrementer"). You don't have to use "{1}" but
+     * it can help you to write code which is more reconcilable with the dry
+     * concept.
+     * @returns Returns a new instance.
+     */
+    constructor(
+        $domNode = null, _options = {}, _defaultOptions = {
+            logging: false, domNodeSelectorPrefix: 'body', domNode: {
+                hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
+                showJavaScriptEnabled: '.tools-visible-on-javascript-enabled'
+            }
+        }, _locks = {}
+    ) {
+        this.$domNode = domNode
+        this._options = _options
+        this._defaultOptions = _defaultOptions
+        this._locks = _locks
+        // Avoid errors in browsers that lack a console.
+        if (!context.hasOwnProperty('console'))
+            context.console = {}
+        for (const methodName of Tools._consoleMethodNames)
+            if (!context.console.hasOwnProperty(methodName))
+                context.console[methodName] = $.noop?()
+        if(!Tools._javaScriptDependentContentHandled && context.hasOwnProperty(
+            'document'
+        )) {
+            Tools._javaScriptDependentContentHandled = true
             $(
-                this._defaultOptions.domNodeSelectorPrefix + ' ' +
+                `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNode.hideJavaScriptEnabled
-            ).filter(->
-                not $(this).data 'javaScriptDependentContentHide'
-            ).data('javaScriptDependentContentHide', true).hide()
+            ).filter(function() {
+                return !$(this).data('javaScriptDependentContentHide')
+            }).data('javaScriptDependentContentHide', true).hide()
             $(
-                this._defaultOptions.domNodeSelectorPrefix + ' ' +
+                `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNode.showJavaScriptEnabled
-            ).filter(->
-                not $(this).data 'javaScriptDependentContentShow'
-            ).data('javaScriptDependentContentShow', true).show()
-        # NOTE: A constructor doesn't return last statement by default.
+            ).filter(function() {
+                return !$(this).data('javaScriptDependentContentShow')
+            }).data('javaScriptDependentContentShow', true).show()
+        }
+    }
+    /**
+     * This method could be overwritten normally. It acts like a destructor.
+     * @returns Returns the current instance.
+     */
+    destructor() {
+        this.off('*')
         return this
-    destructor: ->
-        ###
-            This method could be overwritten normally. It acts like a
-            destructor.
-
-            **returns {$.Tools}** - Returns the current instance.
-        ###
-        this.off '*'
-        this
-    initialize: (options={}) ->
-        ###
-            This method should be overwritten normally. It is triggered if
-            current object was created via the "new" keyword and is called
-            now.
-
-            **options {Object}**  - options An options object.
-
-            **returns {$.Tools}** - Returns the current instance.
-        ###
-        # NOTE: We have to create a new options object instance to
-        # avoid changing a static options object.
+    }
+    /**
+     * This method should be overwritten normally. It is triggered if current
+     * object was created via the "new" keyword and is called now.
+     * @param options - An options object.
+     * @returns Returns the current instance.
+     */
+    initialize(options = {}) {
+        /*
+            NOTE: We have to create a new options object instance to avoid
+            changing a static options object.
+        */
         this._options = $.extend(
             true, {}, this._defaultOptions, this._options, options)
-        # The selector prefix should be parsed after extending options
-        # because the selector would be overwritten otherwise.
+        /*
+            The selector prefix should be parsed after extending options
+            because the selector would be overwritten otherwise.
+        */
         this._options.domNodeSelectorPrefix = this.stringFormat(
-            this._options.domNodeSelectorPrefix
-            this.stringCamelCaseToDelimited this.__name__)
-        this
-    ## endregion
-    ## region object orientation
-    controller: (object, parameter, $domNode=null) ->
-        ###
-            Defines a generic controller for $ plugins.
-
-            **object {Object|String}** - The object or class to control. If
-                                         "object" is a class an instance
-                                         will be generated.
-
-            **parameter {Arguments}**  - The initially given arguments
-                                         object.
-
-            **returns {Mixed}**        - Returns whatever the initializer
-                                         method returns.
-        ###
-        parameter = this.argumentsObjectToArray parameter
-        if not object.__name__?
-            object = new object $domNode
-            if not object.__tools__?
-                object = $.extend true, new Tools, object
-        if $domNode? and not $domNode.data object.__name__
-            # Attach extended object to the associated dom node.
-            $domNode.data object.__name__, object
-        if object[parameter[0]]?
-            return object[parameter[0]].apply object, parameter.slice 1
-        else if not parameter.length or $.type(parameter[0]) is 'object'
-            ###
-                If an options object or no method name is given the
-                initializer will be called.
-            ###
-            return object.initialize.apply object, parameter
+            this._options.domNodeSelectorPrefix,
+            this.stringCamelCaseToDelimited(this.__name__))
+        return this
+    }
+    // / endregion
+    // / region object orientation
+    /**
+     * Defines a generic controller for jQuery plugins.
+     * @param object - The object or class to control. If "object" is a class
+     * an instance will be generated.
+     * @param parameter - The initially given arguments object.
+     * @returns Returns whatever the initializer method returns.
+     */
+    controller(object, parameter, $domNode = null) {
+        parameter = this.argumentsObjectToArray(parameter)
+        if (object.hasOwnProperty('__name__')) {
+            object = new object($domNode)
+            if (!object.hasOwnProperty('__tools__'))
+                object = $.extend(true, new Tools(), object)
+        }
+        if ($domNode !== null && !$domNode.data(object.__name__))
+            // Attach extended object to the associated dom node.
+            $domNode.data(object.__name__, object)
+        if (object.hasOwnProperty(parameter[0]))
+            return object[parameter[0]].apply(object, parameter.slice(1))
+        else if (parameter.length === 0 || $.type(parameter[0]) === 'object')
+            /*
+                If an options object or no method name is given the initializer
+                will be called.
+            */
+            return object.initialize.apply(object, parameter)
         $.error(
             "Method \"#{parameter[0]}\" does not exist on $-extension " +
             "#{object.__name__}\".")
-    ## endregion
-    ## region mutual exclusion
-    acquireLock: (description, callbackFunction, autoRelease=false) ->
-        ###
-            Calling this method introduces a starting point for a critical
-            area with potential race conditions. The area will be binded to
-            given description string. So don't use same names for different
-            areas.
-
-            **description {String}**        - A short string describing the
-                                              critical areas properties.
-
-            **callbackFunction {Function}** - A procedure which should only
-                                              be executed if the
-                                              interpreter isn't in the
-                                              given critical area. The lock
-                                              description string will be
-                                              given to the callback
-                                              function.
-
-            **autoRelease {Boolean}**       - Release the lock after
-                                              execution of given callback.
-
-            **returns {$.Tools}**           - Returns the current instance.
-        ###
-        wrappedCallbackFunction = (description) =>
-            callbackFunction description
-            this.releaseLock(description) if autoRelease
-        if this._locks[description]?
-            this._locks[description].push wrappedCallbackFunction
-        else
+    }
+    // / endregion
+    // / region mutual exclusion
+    /**
+     * Calling this method introduces a starting point for a critical area with
+     * potential race conditions. The area will be binded to given description
+     * string. So don't use same names for different areas.
+     * @param description - A short string describing the critical areas
+     * properties.
+     * @param callbackFunction - A procedure which should only be executed if
+     * the interpreter isn't in the given critical area. The lock description
+     * string will be given to the callback function.
+     * @param autoRelease - Release the lock after execution of given callback.
+     * @returns Returns the current instance.
+     */
+    acquireLock(description, callbackFunction, autoRelease = false) {
+        const wrappedCallbackFunction = (description) => {
+            callbackFunction(description)
+            if (autoRelease)
+                this.releaseLock(description)
+        }
+        if (this._locks.hasOwnProperty(description))
+            this._locks[description].push(wrappedCallbackFunction)
+        else {
             this._locks[description] = []
-            wrappedCallbackFunction description
-        this
-    releaseLock: (description) ->
-        ###
-            Calling this method  causes the given critical area to be
-            finished and all functions given to "this.acquireLock()" will
-            be executed in right order.
-
-            **description {String}** - A short string describing the
-                                       critical areas properties.
-
-            **returns {$.Tools}**    - Returns the current instance.
-        ###
-        if this._locks[description]?
-            if this._locks[description].length
-                this._locks[description].shift() description
+            wrappedCallbackFunction(description)
+        }
+        return this
+    }
+    /**
+     * Calling this method  causes the given critical area to be finished and
+     * all functions given to "this.acquireLock()" will be executed in right
+     * order.
+     * @param description - A short string describing the critical areas
+     * properties.
+     * @returns Returns the current instance.
+     */
+    releaseLock(description) {
+        if(this._locks.hasOwnProperty(description))
+            if(this._locks[description].length)
+                this._locks[description].shift()(description)
             else
                 delete this._locks[description]
-        this
-    ## endregion
-    ## region language fixes
-    mouseOutEventHandlerFix: (eventHandler) ->
-        ###
-            This method fixes an ugly javaScript bug. If you add a mouseout
-            event listener to a dom node the given handler will be called
-            each time any dom node inside the observed dom node triggers a
-            mouseout event. This methods guarantees that the given event
-            handler is only called if the observed dom node was leaved.
-
-            **eventHandler {Function}** - The mouse out event handler.
-
-            **returns {Function}**      - Returns the given function
-                                          wrapped by the workaround logic.
-        ###
-        self = this
-        (event) ->
-            relatedTarget = event.toElement
-            if event.relatedTarget
+        return this
+    }
+    // / endregion
+    // / region language fixes
+    /**
+     * This method fixes an ugly javaScript bug. If you add a mouseout event
+     * listener to a dom node the given handler will be called each time any
+     * dom node inside the observed dom node triggers a mouseout event. This
+     * methods guarantees that the given event handler is only called if the
+     * observed dom node was leaved.
+     * @param eventHandler - The mouse out event handler.
+     * @returns Returns the given function wrapped by the workaround logic.
+     */
+    static mouseOutEventHandlerFix(eventHandler) {
+        const self = this
+        return function(event) {
+            let relatedTarget = event.toElement
+            if (event.hasOwnProperty('relatedTarget'))
                 relatedTarget = event.relatedTarget
-            while relatedTarget and relatedTarget.tagName isnt 'BODY'
-                if relatedTarget is this
+            while (relatedTarget && relatedTarget.tagName !== 'BODY') {
+                if (relatedTarget === this)
                     return
                 relatedTarget = relatedTarget.parentNode
-            eventHandler.apply self, arguments
-    ## endregion
-    ## region logging
-    log: (
-        object, force=false, avoidAnnotation=false, level='info',
-        additionalArguments...
-    ) ->
-        ###
-            Shows the given object's representation in the browsers
-            console if possible or in a standalone alert-window as
-            fallback.
-
-            **object {Mixed}**            - Any object to print.
-
-            **force {Boolean}**           - If set to "true" given input
-                                            will be shown independently
-                                            from current logging
-                                            configuration or interpreter's
-                                            console implementation.
-
-            **avoidAnnotation {Boolean}** - If set to "true" given input
-                                            has no module or log level
-                                            specific annotations.
-
-            **level {String}**            - Description of log messages
-                                            importance.
-
-            Additional arguments are used for string formating.
-
-            **returns {$.Tools}**         - Returns the current instance.
-        ###
-        if this._options.logging or force or level in ['error', 'critical']
-            if avoidAnnotation
+            }
+            return eventHandler.apply(self, arguments)
+        }
+    }
+    // / endregion
+    // / region logging
+    /**
+     * Shows the given object's representation in the browsers console if
+     * possible or in a standalone alert-window as fallback.
+     * @param object - Any object to print.
+     * @param force - If set to "true" given input will be shown independently
+     * from current logging configuration or interpreter's console
+     * implementation.
+     * @param avoidAnnotation - If set to "true" given input has no module or
+     * log level specific annotations.
+     * @param level - Description of log messages importance.
+     * @param additionalArguments This additional arguments are used for string
+     * formating.
+     * @returns Returns the current instance.
+     */
+    log(
+        object, force = false, avoidAnnotation = false, level = 'info',
+        ...additionalArguments
+    ) {
+        if (this._options.logging || force || ['error', 'critical'].includes(
+            'level'
+        )) {
+            let message
+            if (avoidAnnotation)
                 message = object
-            else if $.type(object) is 'string'
-                additionalArguments.unshift object
-                message = (
-                    "#{this.__name__} (#{level}): " +
-                    this.stringFormat.apply this, additionalArguments)
-            else if $.isNumeric(object) or $.type(object) is 'boolean'
-                message = (
-                    "#{this.__name__} (#{level}): #{object.toString()}")
-            else
-                this.log ",--------------------------------------------,"
-                this.log object, force, true
-                this.log "'--------------------------------------------'"
-            if message
-                if(
-                    not context.console?[level]? or
-                    context.console[level] is $.noop?()
-                )
-                    if context.alert?
-                        context.alert message
-                else
-                    context.console[level] message
-        this
-    info: (object, additionalArguments...) ->
-        ###
-            Wrapper method for the native console method usually provided
-            by interpreter.
-
-            **object {Mixed}**    - Any object to print.
-
-            Additional arguments are used for string formating.
-
-            **returns {$.Tools}** - Returns the current instance.
-        ###
-        this.log.apply(
-            this, [object, false, false, 'info'].concat(
-                additionalArguments))
-    debug: (object, additionalArguments...) ->
-        ###
-            Wrapper method for the native console method usually provided
-            by interpreter.
-
-            **param {Mixed}**     - Any object to print.
-
-            Additional arguments are used for string formating.
-
-            **returns {$.Tools}** - Returns the current instance.
-        ###
-        this.log.apply(
-            this, [object, false, false, 'debug'].concat(
-                additionalArguments))
-    error: (object, additionalArguments...) ->
-        ###
-            Wrapper method for the native console method usually provided
-            by interpreter.
-
-            **object {Mixed}**    - Any object to print.
-
-            Additional arguments are used for string formating.
-
-            **returns {$.Tools}** - Returns the current instance.
-        ###
-        this.log.apply(
-            this, [object, true, false, 'error'].concat(
-                additionalArguments))
-    critical: (object, additionalArguments...) ->
-        ###
-            Wrapper method for the native console method usually provided
-            by interpreter.
-
-            **object {Mixed}**    - Any object to print.
-
-            Additional arguments are used for string formating.
-
-            **returns {$.Tools}** - Returns the current instance.
-        ###
-        this.log.apply(
-            this, [object, true, false, 'warn'].concat(
-                additionalArguments))
-    warn: (object, additionalArguments...) ->
-        ###
-            Wrapper method for the native console method usually provided
-            by interpreter.
-
-            **object {Mixed}**    - Any object to print.
-
-            Additional arguments are used for string formating.
-
-            **returns {$.Tools}** - Returns the current instance.
-        ###
-        this.log.apply this, [object, false, false, 'warn'].concat(
+            else if ($.type(object) is 'string') {
+                additionalArguments.unshift(object)
+                message = `${this.__name__} (${level}): ` +
+                    this.stringFormat.apply(this, additionalArguments)
+            } else if ($.isNumeric(object) || $.type(object) === 'boolean')
+                message = `${this.__name__} (${level}): ${object.toString()}`
+            else {
+                this.log(',--------------------------------------------,')
+                this.log(object, force, true)
+                this.log("'--------------------------------------------'")
+            }
+            if (message)
+                if (!(context.hasOwnProperty(
+                    'console'
+                ) && context.console.hasOwnProperty(level)) || (
+                    $.hasOwnProperty('noop') &&
+                    context.console[level] === $.noop()
+                )) {
+                    if (context.hasOwnProperty('alert'))
+                        context.alert(message)
+                } else
+                    context.console[level](message)
+        }
+        return this
+    }
+    /**
+     * Wrapper method for the native console method usually provided by
+     * interpreter.
+     * @param object - Any object to print.
+     * @param additionalArguments - Additional arguments are used for string
+     * formating.
+     * @returns Returns the current instance.
+     */
+    info(object, ...additionalArguments) {
+        return this.log.apply(this, [object, false, false, 'info'].concat(
+            additionalArguments))
+    }
+    /**
+     * Wrapper method for the native console method usually provided by
+     * interpreter.
+     * @param object - Any object to print.
+     * @param additionalArguments - Additional arguments are used for string
+     * formating.
+     * @returns Returns the current instance.
+     */
+    debug(object, ...additionalArguments) {
+        return this.log.apply(this, [object, false, false, 'debug'].concat(
+            additionalArguments))
+    }
+    /**
+     * Wrapper method for the native console method usually provided by
+     * interpreter.
+     * @param object - Any object to print.
+     * @param additionalArguments - Additional arguments are used for string
+     * formating.
+     * @returns Returns the current instance.
+     */
+    error(object, ...additionalArguments) {
+        return this.log.apply(this, [object, true, false, 'error'].concat(
+            additionalArguments))
+    }
+    /**
+     * Wrapper method for the native console method usually provided by
+     * interpreter.
+     * @param object - Any object to print.
+     * @param additionalArguments - Additional arguments are used for string
+     * formating.
+     * @returns Returns the current instance.
+     */
+    critical(object, ...additionalArguments) {
+        return this.log.apply(this, [object, true, false, 'warn'].concat(
+            additionalArguments))
+    }
+    /**
+     * Wrapper method for the native console method usually provided by
+     * interpreter.
+     * @param object - Any object to print.
+     * @param additionalArguments - Additional arguments are used for string
+     * formating.
+     * @returns Returns the current instance.
+     */
+    warn: (object, ...additionalArguments) {
+        return this.log.apply this, [object, false, false, 'warn'].concat(
             additionalArguments)
-    show: (object) ->
-        ###
-            Dumps a given object in a human readable format.
-
-            **object {Object}**  - Any object to show.
-
-            **returns {String}** - Returns the serialized object.
-        ###
-        output = ''
-        if $.type(object) is 'string'
+    }
+    /**
+     * Dumps a given object in a human readable format.
+     * @param object - Any object to show.
+     * @returns Returns the serialized version of given object.
+     */
+    show(object) {
+        let output = ''
+        if ($.type(object) === 'string')
             output = object
         else
-            $.each object, (key, value) ->
-                if value is undefined
+            $.each(object, (key, value) => {
+                if (value === undefined)
                     value = 'undefined'
-                else if value is null
+                else if (value === null)
                     value = 'null'
                 output += "#{key.toString()}: #{value.toString()}\n"
-        output = output.toString() if not output
-        "#{$.trim(output)}\n(Type: \"#{$.type(object)}\")"
-    ## endregion
-    ## region dom node
-    normalizeClassNames: ->
-        ###
-            Normalizes class name order of current dom node.
-
-            **returns {$.Tools}** - Returns current instance.
-        ###
-        this.$domNode.find('*').addBack().each ->
-            $this = $ this
-            if $this.attr 'class'
-                sortedClassNames = $this.attr('class').split(' ').sort() or []
-                $this.attr 'class', ''
-                for className in sortedClassNames
-                    $this.addClass className
-            else if $this.attr('class')?
-                $this.removeAttr 'class'
-        this
-    isEquivalentDom: (first, second) ->
-        ###
-            Checks weather given html or text strings are equal.
-
-            **first {String|DomNode}**  - First html or text to compare.
-
-            **second {String|DomNode}** - Second html or text to compare.
-
-            **returns {Boolean}**       - Returns true if both dom
-                                          representations are equivalent.
-        ###
-        return true if first is second
-        if first?
-            if second?
-                # NOTE: We have to distinguish between selector and markup.
-                if not (
-                    (not first.charAt? or first.charAt(0) is '<') and
-                    (not second.charAt? or second.charAt(0) is '<')
-                )
+            })
+        if (!output)
+            output = output.toString()
+        return `${$.trim(output)}\n(Type: "${$.type(object)}")`
+    }
+    // / endregion
+    // / region dom node
+    /**
+     * Normalizes class name order of current dom node.
+     * @returns Returns current instance.
+     */
+    normalizeClassNames() {
+        this.$domNode.find('*').addBack().each(() => {
+            const $this = $ this
+            if ($this.attr('class')) {
+                const sortedClassNames = $this.attr('class').split(' ').sort(
+                ) || []
+                $this.attr('class', '')
+                for (const className of sortedClassNames)
+                    $this.addClass(className)
+            } else if ($this.is('[class]'))
+                $this.removeAttr('class')
+        })
+        return this
+    }
+    /**
+     * Checks weather given html or text strings are equal.
+     * @param first - First html or text to compare.
+     * @param second - Second html or text to compare.
+     * @returns Returns true if both dom representations are equivalent.
+     */
+    static isEquivalentDom(first, second) {
+        if (first === second)
+            return true
+        if (first) {
+            if (second) {
+                // NOTE: We have to distinguish between selector and markup.
+                if (!(
+                    (typeof first !== 'string' || first.charAt(0) === '<') &&
+                    (typeof second !== 'string' || second.charAt(0) === '<')
+                ))
                     return first is second
-                $firstDomNode = $ first
-                if $firstDomNode.length
-                    $secondDomNode = $ second
-                    if $secondDomNode.length
+                let $firstDomNode = $(first)
+                if ($firstDomNode.length) {
+                    let $secondDomNode = $(second)
+                    if ($secondDomNode.length) {
                         $firstDomNode = $firstDomNode.Tools(
                             'normalizeClassNames'
                         ).$domNode
@@ -519,118 +498,117 @@ class Tools
                         ).$domNode
                         return $firstDomNode[0].isEqualNode(
                             $secondDomNode[0])
+                    }
                     return false
+                }
                 return first is second
+            }
             return false
-        not second?
-    getPositionRelativeToViewport: (delta={}) ->
-        ###
-            Determines where current dom node is relative to current view
-            port position.
-
-            **delta {Object}**   - Allows deltas for "top", "left",
-                                   "bottom" and "right" for determining
-                                   positions.
-
-            **returns {String}** - Returns one of "above", "left", "below",
-                                   "right" or "in".
-        ###
-        delta = $.extend {top: 0, left: 0, bottom: 0, right: 0}, delta
-        if window?
-            $window = $ window
-            rectangle = this.$domNode[0].getBoundingClientRect()
-            if (rectangle.top + delta.top) < 0
+        }
+        return Boolean(second)
+    }
+    /**
+     * Determines where current dom node is relative to current view port
+     * position.
+     * @param delta - Allows deltas for "top", "left", "bottom" and "right" for
+     * determining positions.
+     * @returns Returns one of "above", "left", "below", "right" or "in".
+     */
+    getPositionRelativeToViewport(delta = {}) {
+        const delta = $.extend({top: 0, left: 0, bottom: 0, right: 0}, delta)
+        if (context.hasOwnProperty('window')) {
+            const $window = $(window)
+            const rectangle = this.$domNode[0].getBoundingClientRect()
+            if ((rectangle.top + delta.top) < 0)
                 return 'above'
-            if (rectangle.left + delta.left) < 0
+            if ((rectangle.left + delta.left) < 0)
                 return 'left'
-            if $window.height() < (rectangle.bottom + delta.bottom)
+            if ($window.height() < (rectangle.bottom + delta.bottom))
                 return 'below'
-            if $window.width() < (rectangle.right + delta.right)
+            if ($window.width() < (rectangle.right + delta.right))
                 return 'right'
-        'in'
-    generateDirectiveSelector: (directiveName) ->
-        ###
-            Generates a directive name corresponding selector string.
-
-            **directiveName {String}** - The directive name
-
-            **return {String}**        - Returns generated selector
-        ###
-        delimitedName = this.stringCamelCaseToDelimited directiveName
-        "#{delimitedName}, .#{delimitedName}, [#{delimitedName}], " +
-        "[data-#{delimitedName}], [x-#{delimitedName}]" + (
-            if delimitedName.indexOf('-') is -1 then '' else \
-            (", [#{delimitedName.replace /-/g, '\\:'}], " +
-            "[#{delimitedName.replace /-/g, '_'}]"))
-    removeDirective: (directiveName) ->
-        ###
-            Removes a directive name corresponding class or attribute.
-
-            **directiveName {String}** - The directive name
-
-            **return {DomNode}**       - Returns current dom node
-        ###
-        delimitedName = this.stringCamelCaseToDelimited directiveName
-        this.$domNode.removeClass(delimitedName).removeAttr(
+        }
+        return 'in'
+    }
+    /**
+     * Generates a directive name corresponding selector string.
+     * @param directiveName The directive name.
+     * @returns Returns generated selector.
+     */
+    generateDirectiveSelector(directiveName) {
+        const delimitedName = this.stringCamelCaseToDelimited(directiveName)
+        return `${delimitedName}, .${delimitedName}, [${delimitedName}], ` +
+            `[data-${delimitedName}], [x-${delimitedName}]` + (
+                (!delimitedName.includes('-') ? '' : (
+                    `, [${delimitedName.replace(/-/g, '\\:')}], ` +
+                    `[${delimitedName.replace(/-/g, '_')}]`)))
+    }
+    /**
+     * Removes a directive name corresponding class or attribute.
+     * @param directiveName The directive name.
+     * @returns Returns current dom node.
+     */
+    removeDirective(directiveName) {
+        const delimitedName = this.stringCamelCaseToDelimited(directiveName)
+        return this.$domNode.removeClass(delimitedName).removeAttr(
             delimitedName
-        ).removeAttr("data-#{delimitedName}").removeAttr(
-            "x-#{delimitedName}"
-        ).removeAttr(delimitedName.replace '-', ':').removeAttr(
-            delimitedName.replace '-', '_')
-    getNormalizedDirectiveName: (directiveName) ->
-        ###
-            Determines a normalized camel case directive name
-            representation.
-
-            **directiveName {String}** - The directive name
-
-            **return {String}**        - Returns the corresponding name
-        ###
-        for delimiter in ['-', ':', '_']
-            prefixFound = false
-            for prefix in ['data' + delimiter, 'x' + delimiter]
-                if this.stringStartsWith directiveName, prefix
-                    directiveName = directiveName.substring prefix.length
+        ).removeAttr(`data-${delimitedName}`).removeAttr(
+            `x-${delimitedName}`
+        ).removeAttr(delimitedName.replace('-', ':')).removeAttr(
+            delimitedName.replace('-', '_'))
+    }
+    /**
+     * Determines a normalized camel case directive name representation.
+     * @param directiveName - The directive name.
+     * @returns Returns the corresponding name
+     */
+    getNormalizedDirectiveName(directiveName) {
+        for (const delimiter of ['-', ':', '_']) {
+            let prefixFound = false
+            for (const prefix of [`data${delimiter}`, `x${delimiter}`])
+                if (directiveName.startsWith(prefix)) {
+                    directiveName = directiveName.substring(prefix.length)
                     prefixFound = true
                     break
-            break if prefixFound
-        for delimiter in ['-', ':', '_']
+                }
+            if (prefixFound)
+                break
+        }
+        for (const delimiter of ['-', ':', '_'])
             directiveName = this.stringDelimitedToCamelCase(
                 directiveName, delimiter)
-        directiveName
-    getDirectiveValue: (directiveName) ->
-        ###
-            Determines a directive attribute value.
-
-            **directiveName {String}** - The directive name
-
-            **return {String|Null}**   - Returns the corresponding
-                                         attribute value or "null" if no
-                                         attribute value exists.
-        ###
-        delimitedName = this.stringCamelCaseToDelimited directiveName
-        for attributeName in [
-            delimitedName, "data-#{delimitedName}", "x-#{delimitedName}"
-            delimitedName.replace '-', '\\:'
-        ]
-            value = this.$domNode.attr attributeName
-            return value if value?
-    sliceDomNodeSelectorPrefix: (domNodeSelector) ->
-        ###
-            Removes a selector prefix from a given selector. This methods
-            searches in the options object for a given
-            "domNodeSelectorPrefix".
-
-            **domNodeSelector {String}** - The dom node selector to slice.
-
-            **return {String}**          - Returns the sliced selector.
-        ###
-        if this._options?.domNodeSelectorPrefix? and this.stringStartsWith(
-            domNodeSelector, this._options.domNodeSelectorPrefix
-        )
+        return directiveName
+    }
+    /**
+     * Determines a directive attribute value.
+     * @param directiveName The directive name
+     * @returns Returns the corresponding attribute value or "null" if no
+     * attribute value exists.
+     */
+    getDirectiveValue(directiveName) {
+        const delimitedName = this.stringCamelCaseToDelimited(directiveName)
+        for (const attributeName of [
+            delimitedName, `data-${delimitedName}`, `x-${delimitedName}`,
+            delimitedName.replace('-', '\\:')
+        ]) {
+            const value = this.$domNode.attr(attributeName)
+            if (value !== undefined)
+                return value
+        }
+    }
+    /**
+     * Removes a selector prefix from a given selector. This methods searches
+     * in the options object for a given "domNodeSelectorPrefix".
+     * @param domNodeSelector The dom node selector to slice.
+     * @returns Returns the sliced selector.
+     */
+    // TODO STAND
+    sliceDomNodeSelectorPrefix(domNodeSelector) {
+        if (this._options?.domNodeSelectorPrefix? and domNodeSelector.startsWith(this._options.domNodeSelectorPrefix))
             return $.trim(domNodeSelector.substring(
                 this._options.domNodeSelectorPrefix.length))
         domNodeSelector
+    }
     getDomNodeName: (domNodeSelector) ->
         ###
             Determines the dom node name of a given dom node string.
@@ -1091,9 +1069,7 @@ class Tools
                         )
                             return
                         for exceptionPrefix in exceptionPrefixes
-                            if this.stringStartsWith(
-                                key.toString(), exceptionPrefix
-                            )
+                            if key.toString().startsWith(exceptionPrefix)
                                 return
                     if deep isnt 0 and not this.equals(
                         value, second[key], properties, deep - 1
@@ -1452,11 +1428,11 @@ class Tools
                                      "false" otherwise.
         ###
         return false if not prefix?
-        if not this.stringEndsWith prefix, separator
+        if not prefix.endsWith(separator)
             prefix += separator
         path is prefix.substring(
             0, prefix.length - separator.length
-        ) or this.stringStartsWith path, prefix
+        ) or path.startsWith(prefix)
     stringGetDomainName: (
         url=location?.href or '', fallback=location?.hostname or ''
     ) ->
@@ -1585,9 +1561,7 @@ class Tools
         if not search?
             hash = '#' if not hash
             hash = hash.substring '#'.length
-            if hashedPathIndicator and this.stringStartsWith(
-                hash, hashedPathIndicator
-            )
+            if hashedPathIndicator and hash.startsWith(hashedPathIndicator)
                 subHashStartIndex = hash.indexOf '#'
                 if subHashStartIndex is -1
                     pathAndSearch = hash.substring(
@@ -1615,9 +1589,9 @@ class Tools
                 input = ''
             else
                 input = decodedHash.substring subDelimiterPosition
-                if this.stringStartsWith input, subDelimiter
+                if input.startsWith(subDelimiter)
                     input = input.substring subDelimiter.length
-        else if this.stringStartsWith input, '?'
+        else if input.startsWith('?')
             input = input.substring '?'.length
         data = if input then input.split '&' else []
         search = search.substring '?'.length
@@ -1670,7 +1644,7 @@ class Tools
         ###
         if url
             url = $.trim url.replace(/^:?\/+/, '').replace /\/+$/, ''
-            if this.stringStartsWith url, 'http'
+            if url.startsWith('http')
                 return url
             return "http://#{url}"
         return ''
@@ -1761,7 +1735,7 @@ class Tools
                 abbreviationPattern +=
                     "#{this.stringCapitalize abbreviation}|#{abbreviation}"
         stringStartsWithDelimiter = false
-        if this.stringStartsWith string, delimiter
+        if string.startsWith(delimiter)
             string = string.substring delimiter.length
             stringStartsWithDelimiter = true
         string = string.replace new RegExp(
@@ -1779,21 +1753,6 @@ class Tools
             fullMatch
         string = (delimiter + string) if stringStartsWithDelimiter
         string
-    stringEndsWith: (string, searchString) ->
-        ###
-            Checks weather given string ends with given search string.
-
-            **string {String}**        - String to search in.
-
-            **searchString {String}**  - String to search for.
-
-            **returns {String}**       - Returns "true" if given string
-                                         ends with given search string
-                                         and "false" otherwise.
-        ###
-        string.length >= searchString.length and string.lastIndexOf(
-            searchString
-        ) is string.length - searchString.length
     stringFormat: (string, additionalArguments...) ->
         ###
             Performs a string formation. Replaces every placeholder "{i}"
@@ -2103,19 +2062,6 @@ class Tools
                                 /([0-9]{2})/g, '$1 ')
                     ) + suffix))
         ''
-    stringStartsWith: (string, searchString) ->
-        ###
-            Checks weather given string starts with given search string.
-
-            **string {String}**        - String to search in.
-
-            **searchString {String}**  - String to search for.
-
-            **returns {String}**       - Returns "true" if given string
-                                         starts with given search string
-                                         and "false" otherwise.
-        ###
-        string.indexOf(searchString) is 0
     stringDecodeHTMLEntities: (htmlString) ->
         ###
             Decodes all html symbols in text nodes in given html string.
@@ -2274,39 +2220,47 @@ class Tools
         domNodeSelectorPrefix = ''
         if this._options.domNodeSelectorPrefix
             domNodeSelectorPrefix = this._options.domNodeSelectorPrefix + ' '
-        if not (this.stringStartsWith(
-            selector, domNodeSelectorPrefix
-        ) or this.stringStartsWith $.trim(selector), '<')
+        if not (selector.startsWith(domNodeSelectorPrefix) or $.trim(selector).startsWith('<'))
             domNodeSelectors[key] = domNodeSelectorPrefix + selector
             return $.trim domNodeSelectors[key]
         $.trim selector
     # endregion
-# endregion
-# region handle $ extending
-$.fn?.Tools = -> (new Tools).controller Tools, arguments, this
-$.Tools = -> (new Tools).controller Tools, arguments
+}
+// endregion
+// region handle $ extending
+if ($.hasOwnProperty('fn'))
+    $.fn?.Tools = function() {
+        return (new Tools()).controller(Tools, arguments, this)
+    }
+$.Tools = function() {
+    return (new Tools()).controller(Tools, arguments)
+}
 $.Tools.class = Tools
-## region prop fix for comments and text nodes
-if $.fn?
-    nativePropFunction = $.fn.prop
-    $.fn.prop = (key, value) ->
-        ###
-            JQuery's native prop implementation ignores properties for text
-            nodes, comments and attribute nodes.
-        ###
-        if arguments.length < 3 and this[0]?.nodeName in [
+// / region prop fix for comments and text nodes
+if ($.hasOwnProperty('fn')) {
+    const nativePropFunction = $.fn.prop
+    /**
+     * JQuery's native prop implementation ignores properties for text nodes,
+     * comments and attribute nodes.
+     */
+    $.fn.prop = function(key, value) {
+        if (arguments.length < 3 && this.length && [
             '#text', '#comment'
-        ] and this[0][key]?
-            if arguments.length is 1
+        ].includes(this[0].nodeName) && this[0].hasOwnProperty(key)) {
+            if (arguments.length === 1)
                 return this[0][key]
-            if arguments.length is 2
+            if (arguments.length === 2) {
                 this[0][key] = value
                 return this
-        nativePropFunction.apply this, arguments
-## endregion
-# endregion
-module.exports = $.Tools
-# region vim modline
-# vim: set tabstop=4 shiftwidth=4 expandtab:
-# vim: foldmethod=marker foldmarker=region,endregion:
-# endregion
+            }
+        }
+        nativePropFunction.apply(this, arguments)
+    }
+}
+// / endregion
+// endregion
+export $.Tools
+// region vim modline
+// vim: set tabstop=4 shiftwidth=4 expandtab:
+// vim: foldmethod=marker foldmarker=region,endregion:
+// endregion
