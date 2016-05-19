@@ -22,9 +22,10 @@
 // region imports
 import {* as $} from 'jquery'
 // endregion
-const context = (typeof window === 'undefined') ? ((
-    typeof global === 'undefined'
-) ? ((typeof module === 'undefined') ? {} : module) : global) : window
+const context = ($.type(window) === 'undefined') ? (($.type(
+    global
+) === 'undefined') ? (($.type(module) === 'undefined') ? {} : module) : global
+) : window
 if (context.hasOwnProperty('document') && $.hasOwnProperty('context'))
     context.document = $.context
 // region plugins/classes
@@ -482,8 +483,8 @@ class Tools {
             if (second) {
                 // NOTE: We have to distinguish between selector and markup.
                 if (!(
-                    (typeof first !== 'string' || first.charAt(0) === '<') &&
-                    (typeof second !== 'string' || second.charAt(0) === '<')
+                    ($.type(first) !== 'string' || first.charAt(0) === '<') &&
+                    ($.type(second) !== 'string' || second.charAt(0) === '<')
                 ))
                     return first is second
                 let $firstDomNode = $(first)
@@ -602,300 +603,284 @@ class Tools {
      * @param domNodeSelector The dom node selector to slice.
      * @returns Returns the sliced selector.
      */
-    // TODO STAND
     sliceDomNodeSelectorPrefix(domNodeSelector) {
-        if (this._options?.domNodeSelectorPrefix? and domNodeSelector.startsWith(this._options.domNodeSelectorPrefix))
+        if (this._options.hasOwnProperty(
+            'domNodeSelectorPrefix'
+        ) && domNodeSelector.startsWith(this._options.domNodeSelectorPrefix))
             return $.trim(domNodeSelector.substring(
                 this._options.domNodeSelectorPrefix.length))
-        domNodeSelector
+        return domNodeSelector
     }
-    getDomNodeName: (domNodeSelector) ->
-        ###
-            Determines the dom node name of a given dom node string.
-
-            **domNodeSelector {String}** - A given to dom node selector to
-                                           determine its name.
-
-            **returns {String}**         - Returns the dom node name.
-
-            **examples**
-
-            >>> $.Tools.getDomNodeName('&lt;div&gt;');
-            'div'
-
-            >>> $.Tools.getDomNodeName('&lt;div&gt;&lt;/div&gt;');
-            'div'
-
-            >>> $.Tools.getDomNodeName('&lt;br/&gt;');
-            'br'
-        ###
-        domNodeSelector.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1]
-    grabDomNode: (domNodeSelectors, wrapperDomNode) ->
-        ###
-            Converts an object of dom selectors to an array of $ wrapped
-            dom nodes. Note if selector description as one of "class" or
-            "id" as suffix element will be ignored.
-
-            **domNodeSelectors {Object}** - An object with dom node
-                                            selectors.
-
-            **wrapperDomNode {DomNode}**  - A dom node to be the parent or
-                                            wrapper of all retrieved dom
-                                            nodes.
-
-            **returns {Object}**          - Returns all $ wrapped dom nodes
-                                            corresponding to given
-                                            selectors.
-        ###
-        domNodes = {}
-        if domNodeSelectors?
-            if wrapperDomNode?
-                wrapperDomNode = $ wrapperDomNode
-                $.each domNodeSelectors, (key, value) ->
-                    domNodes[key] = wrapperDomNode.find value
-            else
-                $.each domNodeSelectors, (key, value) =>
-                    match = value.match ', *'
-                    if match
-                        $.each value.split(match[0]), (key, valuePart) =>
-                            if key
+    /**
+     * Determines the dom node name of a given dom node string.
+     * @param domNodeSelector - A given to dom node selector to determine its
+     * name.
+     * @returns Returns the dom node name.
+     *
+     * **examples**
+     * >>> $.Tools.getDomNodeName('&lt;div&gt;');
+     * 'div'
+     *
+     * >>> $.Tools.getDomNodeName('&lt;div&gt;&lt;/div&gt;');
+     * 'div'
+     *
+     * >>> $.Tools.getDomNodeName('&lt;br/&gt;');
+     * 'br'
+     */
+    getDomNodeName(domNodeSelector) {
+        return domNodeSelector.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1]
+    }
+    /**
+     * Converts an object of dom selectors to an array of $ wrapped dom nodes.
+     * Note if selector description as one of "class" or "id" as suffix element
+     * will be ignored.
+     * @param domNodeSelectors - An object with dom node selectors.
+     * @param wrapperDomNode - A dom node to be the parent or wrapper of all
+     * retrieved dom nodes.
+     * @returns Returns all $ wrapped dom nodes corresponding to given
+     * selectors.
+     */
+    grabDomNode(domNodeSelectors, wrapperDomNode) {
+        const domNodes = {}
+        if (domNodeSelectors)
+            if (wrapperDomNode) {
+                const $wrapperDomNode = $(wrapperDomNode)
+                $.each(domNodeSelectors, (key, value) => {
+                    domNodes[key] = wrapperDomNode.find(value)
+                })
+            } else
+                $.each(domNodeSelectors, (key, value) => {
+                    const match = value.match(', *')
+                    if (match)
+                        $.each(value.split(match[0]), (key, valuePart) => {
+                            if (key)
                                 value += ', ' + this._grabDomNodeHelper(
                                     key, valuePart, domNodeSelectors)
                             else
                                 value = valuePart
-                    domNodes[key] = $ this._grabDomNodeHelper(
-                        key, value, domNodeSelectors)
-        if this._options.domNodeSelectorPrefix
-            domNodes.parent = $ this._options.domNodeSelectorPrefix
-        if window?
-            domNodes.window = $ window
-        if context.document?
-            domNodes.document = $ context.document
+                        })
+                    domNodes[key] = $(this._grabDomNodeHelper(
+                        key, value, domNodeSelectors))
+                })
+        if (this._options.domNodeSelectorPrefix)
+            domNodes.parent = $(this._options.domNodeSelectorPrefix)
+        if (context.hasOwnProperty('window'))
+            domNodes.window = $(window)
+        if (context.hasOwnProperty('document'))
+            domNodes.document = $(context.document)
         domNodes
-    ## endregion
-    ## region scope
-    isolateScope: (scope, prefixesToIgnore=['$', '_']) ->
-        ###
-            Overwrites all inherited variables from parent scope with
-            "undefined".
-
-            **scope {Object}**            - A scope where inherited names
-                                            will be removed.
-
-            **prefixesToIgnore String[]** - Name prefixes to ignore during
-                                            deleting names in given scope.
-
-            **returns {Object}**          - The isolated scope.
-        ###
-        for name, object of scope
-            if prefixesToIgnore.indexOf(name.charAt 0) is -1 and [
+    }
+    // / endregion
+    // / region scope
+    /**
+     * Overwrites all inherited variables from parent scope with "undefined".
+     * @param scope - A scope where inherited names will be removed.
+     * @param prefixesToIgnore - Name prefixes to ignore during deleting names
+     * in given scope.
+     * @returns The isolated scope.
+     */
+    isolateScope(scope, prefixesToIgnore=['$', '_']) {
+        for (const name in scope)
+            if (!prefixesToIgnore.includes(name.charAt(0)) && ![
                 'this', 'constructor'
-            ].indexOf(name) is -1 and not scope.hasOwnProperty name
-                # NOTE: Delete ("delete $scope[name]") doesn't destroy the
-                # automatic lookup to parent scope.
+            ].includes(name) && !scope.hasOwnProperty(name))
+                /*
+                    NOTE: Delete ("delete $scope[name]") doesn't destroy the
+                    automatic lookup to parent scope.
+                */
                 scope[name] = undefined
-        scope
-    determineUniqueScopeName: (prefix='callback', scope=context) ->
-        ###
-            Generates a unique function name needed for jsonp requests.
-
-            **scope {Object}**   - A scope where the name should be unique.
-
-            **returns {String}** - The function name.
-        ###
-        while true
-            uniqueName = prefix + parseInt Math.random() * Math.pow 10, 10
-            break if not scope[uniqueName]?
-        uniqueName
-    ## endregion
-    ## region function
-    getMethod: (method, scope=this, additionalArguments...) ->
-        ###
-            Methods given by this method has the plugin scope referenced
-            with "this". Otherwise "this" usually points to the object the
-            given method was attached to. If "method" doesn't match string
-            arguments are passed through "$.proxy()" with "context" setted
-            as "scope" or "this" if nothing is provided.
-
-            **method {String|Function|Object}** - A method name of given
-                                                  scope.
-
-            **scope {Object|String}**           - A given scope.
-
-            **returns {Mixed}**                 - Returns the given methods
-                                                  return value.
-        ###
-        ###
-            This following outcomment line would be responsible for a
-            bug in yuicompressor.
-            Because of declaration of arguments the parser things that
-            arguments is a local variable and could be renamed.
-            It doesn't care about that the magic arguments object is
-            necessary to generate the arguments array in this context.
+        return scope
+    }
+    /**
+     * Generates a unique function name needed for jsonp requests.
+     * @param scope - A scope where the name should be unique.
+     * @returns The function name.
+     */
+    determineUniqueScopeName(prefix = 'callback', scope = context) {
+        while (true) {
+            const uniqueName = prefix + parseInt(Math.random() * Math.pow(
+                10, 10))
+            if (!scope.hasOwnProperty(uniqueName))
+                break
+        }
+        return uniqueName
+    }
+    // / endregion
+    // / region function
+    /**
+     * Methods given by this method has the plugin scope referenced with
+     * "this". Otherwise "this" usually points to the object the given method
+     * was attached to. If "method" doesn't match string arguments are passed
+     * through "$.proxy()" with "context" setted as "scope" or "this" if
+     * nothing is provided.
+     * @param method - A method name of given scope.
+     * @param scope - A given scope.
+     * @returns Returns the given methods return value.
+     */
+    getMethod(method, scope=this, ...additionalArguments) {
+        /*
+            This following outcomment line would be responsible for a bug in
+            yuicompressor. Because of declaration of arguments the parser
+            things that arguments is a local variable and could be renamed. It
+            doesn't care about that the magic arguments object is necessary to
+            generate the arguments array in this context.
 
             var arguments = this.argumentsObjectToArray(arguments);
 
             use something like this instead:
 
             var parameter = this.argumentsObjectToArray(arguments);
-        ###
-        parameter = this.argumentsObjectToArray arguments
-        if $.type(method) is 'string' and $.type(scope) is 'object'
-            return ->
-                if not scope[method]
-                    $.error(
-                        "Method \"#{method}\" doesn't exists in " +
-                        "\"#{scope}\".")
+        */
+        const parameter = this.argumentsObjectToArray(arguments)
+        if ($.type(method) === 'string' && $.type(scope) === 'object')
+            return function() {
+                if (!scope[method])
+                    $.error(`Method "${method}" doesn't exists in "${scope}".`)
                 thisFunction = arguments.callee
-                parameter = $.Tools().argumentsObjectToArray(
-                    arguments)
-                parameter.push thisFunction
+                parameter = $.Tools().argumentsObjectToArray(arguments)
+                parameter.push(thisFunction)
                 scope[method].apply(scope, parameter.concat(
                     additionalArguments))
-        parameter.unshift scope
-        parameter.unshift method
-        $.proxy.apply $, parameter
-    identity: (value) ->
-        ###
-            Implements the identity function.
-
-            **value {Object}**   - A value to return.
-
-            **returns {Object}** - Returns the given value.
-        ###
-        value
-    invertArrayFilter: (filter) ->
-        ###
-            Inverted filter helper to inverse each given filter.
-
-            **filter {Function}**  - A function that filters an array.
-
-            **returns {Function}** - The inverted filter.
-        ###
-        (data) ->
-            if data
-                filteredData = filter.apply this, arguments
-                result = []
-                if filteredData.length
-                    for date in data
-                        if date not in filteredData
-                            result.push date
+            }
+        parameter.unshift(scope)
+        parameter.unshift(method)
+        return $.proxy.apply($, parameter)
+    }
+    /**
+     * Implements the identity function.
+     * @param value - A value to return.
+     * @returns Returns the given value.
+     */
+    identity(value) {
+        return value
+    }
+    /**
+     * Inverted filter helper to inverse each given filter.
+     * @param filter - A function that filters an array.
+     * @returns The inverted filter.
+     */
+    invertArrayFilter(filter) {
+        return function(data) {
+            if (data) {
+                const filteredData = filter.apply(this, arguments)
+                const result = []
+                if (filteredData.length)
+                    for (date in data)
+                        if (!filteredData.includes(date))
+                            result.push(date)
                 else
                     result = data
                 return result
-            data
-    ## endregion
-    ## region event
-    debounce: (
-        eventFunction, thresholdInMilliseconds=600, additionalArguments...
-    ) ->
-        ###
-            Prevents event functions from triggering to often by defining a
-            minimal span between each function call. Additional arguments
-            given to this function will be forwarded to given event
-            function call. The function wrapper returns null if current
-            function will be omitted due to debounceing.
-
-            **eventFunction** {Function}         - The function to call
-                                                   debounced
-
-            **thresholdInMilliseconds** {Number} - The minimum time span
-                                                   between each function
-                                                   call
-
-            **returns {Function}**               - Returns the wrapped
-                                                   method
-        ###
-        lock = false
-        waitingCallArguments = null
-        self = this
-        timeoutID = null
-        ->
-            parameter = self.argumentsObjectToArray arguments
-            if lock
+            }
+            return data
+        }
+    }
+    // / endregion
+    // / region event
+    /**
+     * Prevents event functions from triggering to often by defining a minimal
+     * span between each function call. Additional arguments given to this
+     * function will be forwarded to given event function call. The function
+     * wrapper returns null if current function will be omitted due to
+     * debounceing.
+     * @param eventFunction - The function to call debounced.
+     * @param thresholdInMilliseconds - The minimum time span between each
+     * function call.
+     * @returns Returns the wrapped method.
+     */
+    debounce(
+        eventFunction, thresholdInMilliseconds = 600, ...additionalArguments
+    ) {
+        let lock = false
+        let waitingCallArguments = null
+        const self = this
+        let timeoutID = null
+        return function() {
+            const parameter = self.argumentsObjectToArray(arguments)
+            if (lock)
                 waitingCallArguments = parameter.concat(
-                    additionalArguments or [])
-                null
-            else
+                    additionalArguments || [])
+            else {
                 lock = true
-                timeoutID = setTimeout (=>
+                timeoutID = setTimeout(() => {
                     lock = false
-                    if waitingCallArguments
-                        eventFunction.apply this, waitingCallArguments
+                    if (waitingCallArguments) {
+                        eventFunction.apply(this, waitingCallArguments)
                         waitingCallArguments = null
-                ), thresholdInMilliseconds
-                eventFunction.apply this, parameter.concat(
-                    additionalArguments or [])
-            timeoutID
-    fireEvent: (
-        eventName, callOnlyOptionsMethod=false, scope=this
-        additionalArguments...
-    ) ->
-        ###
-            Searches for internal event handler methods and runs them by
-            default. In addition this method searches for a given event
-            method by the options object. Additional arguments are
-            forwarded to respective event functions.
-
-            **eventName {String}                - An event name.
-
-            **callOnlyOptionsMethod {Boolean}** - Prevents from trying to
-                                                  call an internal event
-                                                  handler.
-
-            **scope {Object}**                  - The scope from where the
-                                                  given event handler
-                                                  should be called.
-
-            **returns {Boolean}**               - Returns "true" if an
-                                                  event handler was called
-                                                  and "false" otherwise.
-        ###
-        scope = this if not scope
-        eventHandlerName = "on#{this.stringCapitalize eventName}"
-        if not callOnlyOptionsMethod
-            if scope[eventHandlerName]
-                scope[eventHandlerName].apply scope, additionalArguments
-            else if scope["_#{eventHandlerName}"]
-                scope["_#{eventHandlerName}"].apply(
+                    }
+                }, thresholdInMilliseconds)
+                eventFunction.apply(this, parameter.concat(
+                    additionalArguments || []))
+            }
+            return timeoutID
+        }
+    }
+    /*
+     * Searches for internal event handler methods and runs them by default. In
+     * addition this method searches for a given event method by the options
+     * object. Additional arguments are forwarded to respective event
+     * functions.
+     * @param eventName - An event name.
+     * @param callOnlyOptionsMethod - Prevents from trying to call an internal
+     * event handler.
+     * @param scope - The scope from where the given event handler should be
+     * called.
+     * @returns - Returns "true" if an event handler was called and "false"
+     * otherwise.
+     */
+    fireEvent(
+        eventName, callOnlyOptionsMethod=false, scope=this,
+        ...additionalArguments
+    ) {
+        if (!scope)
+            scope = this
+        eventHandlerName = `on${this.stringCapitalize eventName}`
+        if (!callOnlyOptionsMethod)
+            if (scope.hasOwnProperty(eventHandlerName))
+                scope[eventHandlerName].apply(scope, additionalArguments)
+            else if (scope.hasOwnProperty(`_${eventHandlerName}`))
+                scope[`_${eventHandlerName}`].apply(
                     scope, additionalArguments)
-        if scope._options and scope._options[eventHandlerName]
-            scope._options[eventHandlerName].apply(
-                scope, additionalArguments)
+        if (
+            scope._options && scope._options.hasOwnProperty(eventHandlerName)
+        ) {
+            scope._options[eventHandlerName].apply(scope, additionalArguments)
             return true
-        false
-    on: ->
-        ###
-            A wrapper method for "$.on()". It sets current plugin name as
-            event scope if no scope is given. Given arguments are modified
-            and passed through "$.on()".
-
-            **returns {$}** - Returns $'s grabbed dom node.
-        ###
-        this._bindHelper arguments, false
-    off: ->
-        ###
-            A wrapper method fo "$.off()". It sets current plugin name as
-            event scope if no scope is given. Given arguments are modified
-            and passed through "$.off()".
-
-            **returns {$}** - Returns $'s grabbed dom node.
-        ###
-        this._bindHelper arguments, true, 'off'
-    ## endregion
-    ## region object
-    # TODO
-    ###
-        Converts given plain object and all nested found objects to
-        corresponding map.
-        @param object - Object to convert to.
-        @param deep - Indicates whether to perform a recursive conversion.
-        @returns Given object as map.
-    ## #
+        }
+        return false
+    }
+    /**
+     * A wrapper method for "$.on()". It sets current plugin name as event
+     * scope if no scope is given. Given arguments are modified and passed
+     * through "$.on()".
+     * @returns Returns $'s grabbed dom node.
+     */
+    on() {
+        return this._bindHelper(arguments, false)
+    }
+    /**
+     * A wrapper method fo "$.off()". It sets current plugin name as event
+     * scope if no scope is given. Given arguments are modified and passed
+     * through "$.off()".
+     * @returns Returns $'s grabbed dom node.
+     */
+    off() {
+        return this._bindHelper(arguments, true, 'off')
+    }
+    // / endregion
+    // / region object
+    /**
+     * Converts given plain object and all nested found objects to
+     * corresponding map.
+     * @param object - Object to convert to.
+     * @param deep - Indicates whether to perform a recursive conversion.
+     * @returns Given object as map.
+     */
+    // TODO test
     static convertPlainObjectToMap<Value>(
         object:Value, deep:boolean = true
     ):Value|Mapping {
-        if (typeof object === 'object' && Helper.isObject(object)) {
+        if ($.type(object) === 'object' && Helper.isObject(object)) {
             const newObject:Mapping = new Map()
             for (const key:string in object)
                 if (object.hasOwnProperty(key)) {
@@ -920,13 +905,14 @@ class Tools {
             }
         return object
     }
-    ## #
-        Converts given map and all nested found maps objects to corresponding
-        object.
-        @param object - Map to convert to.
-        @param deep - Indicates whether to perform a recursive conversion.
-        @returns Given map as object.
-    ## #
+    /**
+     * Converts given map and all nested found maps objects to corresponding
+     * object.
+     * @param object - Map to convert to.
+     * @param deep - Indicates whether to perform a recursive conversion.
+     * @returns Given map as object.
+     */
+    // TODO test
     static convertMapToPlainObject<Value>(
         object:Value, deep:boolean = true
     ):Value|Mapping {
@@ -940,7 +926,7 @@ class Tools {
             return newObject
         }
         if (deep)
-            if (typeof object === 'object' && Helper.isObject(object)) {
+            if ($.type(object) === 'object' && Helper.isObject(object)) {
                 for (const key:string in object)
                     if (object.hasOwnProperty(key))
                         object[key] = Helper.convertMapToPlainObject(
@@ -954,1277 +940,1188 @@ class Tools {
             }
         return object
     }
-    ###
-    forEachSorted: (object, iterator, context) ->
-        ###
-            Iterates given objects own properties in sorted fashion. For
-            each key value pair given iterator function will be called with
-            value and key as arguments.
-
-            **object {Object}**     - Object to iterate.
-
-            **iterator {Function}** - Function to execute for each key
-                                      value pair. Value will be the first
-                                      and key will be the second argument.
-
-            **context {Object}**    - The "this" binding for given iterator
-                                      function.
-
-            **returns {Object[]}**  - List of given sorted keys.
-        ###
-        keys = this.sort object
-        for key in keys
-            iterator.call context, object[key], key
-        keys
-    sort: (object) ->
-        ###
-            Sort given objects keys.
-
-            **object {Object}**    - Object which keys should be sorted.
-
-            **returns {Object[]}** - Sorted list of given keys.
-        ###
-        isArray = $.isArray object
-        keys = []
-        for key, value of object
-            key = parseInt(key) if isArray
-            if object.hasOwnProperty key
-                keys.push key
-        keys.sort()
-    equals: (
-        firstValue, secondValue, properties=null, deep=-1
-        exceptionPrefixes=['$', '_'], ignoreFunctions=true
-    ) ->
-        ###
-            Returns true if given items are equal for given property list.
-            If property list isn't set all properties will be checked. All
-            keys which starts with one of the exception prefixes will be
-            omitted.
-
-            **firstValue {Mixed}**           - First object to compare.
-
-            **secondValue {Mixed}**          - Second object to compare.
-
-            **properties {String[]}**        - Property names to check.
-                                               Check all if "null" is
-                                               selected (default).
-
-            **deep {Integer}**               - Recursion depth negative
-                                               values means infinitely deep
-                                               (default).
-
-            **exceptionPrefixes {String[]}** - Property prefixes which
-                                               indicates properties to
-                                               ignore.
-
-            **ignoreFunctions {Boolean}* *   - Indicates weather functions
-                                               have to be identical to
-                                               interpret is as equal.
-                                               If set to "true" two
-                                               functions will be assumed to
-                                               be equal (default).
-
-            **returns {Boolean}**            - "true" if both objects are
-                                               equal and "false" otherwise.
-        ###
+    /**
+     * Iterates given objects own properties in sorted fashion. For
+     * each key value pair given iterator function will be called with
+     * value and key as arguments.
+     * @param object - Object to iterate.
+     * @param iterator - Function to execute for each key value pair. Value
+     * will be the first and key will be the second argument.
+     * @param context - The "this" binding for given iterator function.
+     * @returns List of given sorted keys.
+     */
+    forEachSorted(object, iterator, context) {
+        const keys = this.sort(object)
+        for (key in keys)
+            iterator.call(context, object[key], key)
+        return keys
+    }
+    /**
+     * Sort given objects keys.
+     * @param object - Object which keys should be sorted.
+     * @returns Sorted list of given keys.
+     */
+    sort(object) {
+        const isArray = $.isArray(object)
+        const keys = []
+        for (key in object)
+            if object.hasOwnProperty(key) {
+                if (isArray)
+                    key = parseInt(key)
+                if (object.hasOwnProperty(key))
+                    keys.push(key)
+            }
+        return keys.sort()
+    }
+    /**
+     * Returns true if given items are equal for given property list. If
+     * property list isn't set all properties will be checked. All keys which
+     * starts with one of the exception prefixes will be omitted.
+     * @param firstValue - First object to compare.
+     * @param econdValue - Second object to compare.
+     * @param properties - Property names to check. Check all if "null" is
+     * selected (default).
+     * @param deep - Recursion depth negative values means infinitely deep
+     * (default).
+     * @param exceptionPrefixes - Property prefixes which indicates properties
+     * to ignore.
+     * @param ignoreFunctions - Indicates weather functions have to be
+     * identical to interpret is as equal. If set to "true" two functions will
+     * be assumed to be equal (default).
+     * @returns "true" if both objects are equal and "false" otherwise.
+     */
+    equals(
+        firstValue, secondValue, properties = null, deep = -1
+        exceptionPrefixes = ['$', '_'], ignoreFunctions = true
+    ) {
         if(
-            ignoreFunctions and $.isFunction(firstValue) and $.isFunction(
+            ignoreFunctions && $.isFunction(firstValue) && $.isFunction(
                 secondValue
-            ) or firstValue is secondValue or this.numberIsNotANumber(
+            ) or firstValue === secondValue || this.numberIsNotANumber(
                 firstValue
-            ) and this.numberIsNotANumber(secondValue) or
-            firstValue instanceof RegExp and
-            secondValue instanceof RegExp and
-            firstValue.toString() is secondValue.toString() or
-            firstValue instanceof Date and
-            secondValue instanceof Date and (
-                isNaN(firstValue.getTime()) and
-                isNaN(secondValue.getTime()) or
-                not isNaN(firstValue.getTime()) and
-                not isNaN(secondValue.getTime()) and
-                firstValue.getTime() is secondValue.getTime()
+            ) && this.numberIsNotANumber(secondValue) ||
+            firstValue instanceof RegExp &&
+            secondValue instanceof RegExp &&
+            firstValue.toString() === secondValue.toString() ||
+            firstValue instanceof Date &&
+            secondValue instanceof Date && (
+                isNaN(firstValue.getTime()) &&
+                isNaN(secondValue.getTime()) ||
+                not isNaN(firstValue.getTime()) &&
+                not isNaN(secondValue.getTime()) &&
+                firstValue.getTime() === secondValue.getTime()
             )
         )
             return true
-        if $.isPlainObject(firstValue) and $.isPlainObject(
+        if ($.isPlainObject(firstValue) && $.isPlainObject(
             secondValue
-        ) and not (
-            firstValue instanceof RegExp or secondValue instanceof RegExp
-        ) or $.isArray(firstValue) and $.isArray(
+        ) && not (
+            firstValue instanceof RegExp || secondValue instanceof RegExp
+        ) || $.isArray(firstValue) && $.isArray(
             secondValue
-        ) and firstValue.length is secondValue.length
-            equal = true
-            for [first, second] in [[firstValue, secondValue], [
+        ) && firstValue.length === secondValue.length)
+            let equal = true
+            let first
+            let second
+            for ([first, second] of [[firstValue, secondValue], [
                 secondValue, firstValue
-            ]]
-                firstIsArray = $.isArray first
-                return false if firstIsArray and (not $.isArray(
+            ]]) {
+                const firstIsArray = $.isArray(first)
+                if (firstIsArray && (!$.isArray(
                     second
-                )) or first.length isnt second.length
-                $.each first, (key, value) =>
-                    if not firstIsArray
-                        if(
-                            not equal or properties? and
-                            key not in properties
-                        )
+                )) || first.length !== second.length)
+                    return false
+                $.each(first, (key, value) => {
+                    if (!firstIsArray) {
+                        if (!equal || properties && !properties.includes(key))
                             return
-                        for exceptionPrefix in exceptionPrefixes
-                            if key.toString().startsWith(exceptionPrefix)
+                        for (const exceptionPrefix of exceptionPrefixes)
+                            if (key.toString().startsWith(exceptionPrefix))
                                 return
-                    if deep isnt 0 and not this.equals(
-                        value, second[key], properties, deep - 1
+                    }
+                    if (deep !== 0 && !this.equals(
+                        value, second[key], properties, deep - 1,
                         exceptionPrefixes
-                    )
+                    ))
                         equal = false
+                })
+            }
             return equal
-        false
-    ## endregion
-    ## region array
-    argumentsObjectToArray: (argumentsObject) ->
-        ###
-            Converts the interpreter given magic arguments object to a
-            standard array object.
-
-            **argumentsObject {Object}** - An argument object.
-
-            **returns {Object[]}**       - Returns the array containing all
-                                           elements in given arguments
-                                           object.
-        ###
-        Array.prototype.slice.call argumentsObject
-    arrayUnique: (data) ->
-        ###
-            Makes all values in given iterable unique by removing
-            duplicates (The first occurrences will be left).
-
-            **data {Object}**    - Array like object.
-
-            **returns {Object}** - Sliced version of given object.
-        ###
-        result = []
-        for index, value of data
-            result.push(value) if value not in result
-        result
-    arrayAggregatePropertyIfEqual: (data, propertyName, defaultValue='') ->
-        ###
-            Summarizes given property of given item list.
-
-            **data {Object[]}**       - Array of objects with given
-                                        property name.
-
-            **propertyName {String}** - Property name to summarize.
-
-            **defaultValue {Mixed}**  - Value to return if property values
-                                        doesn't match.
-        ###
-        result = defaultValue
-        if data?.length and data[0][propertyName]?
+        return false
+    }
+    // / endregion
+    // / region array
+    /**
+     * Converts the interpreter given magic arguments object to a standard
+     * array object.
+     * @param argumentsObject - An argument object.
+     * @returns Returns the array containing all elements in given arguments
+     * object.
+     */
+    argumentsObjectToArray(argumentsObject) {
+        return Array.prototype.slice.call(argumentsObject)
+    }
+    /**
+     * Makes all values in given iterable unique by removing duplicates (The
+     * first occurrences will be left).
+     * @param data - Array like object.
+     * @returns Sliced version of given object.
+     */
+    arrayUnique(data) {
+        const result = []
+        for (const value of data)
+            if (!result.includes(value))
+                result.push(value)
+        return result
+    }
+    /**
+     * Summarizes given property of given item list.
+     * @param data - Array of objects with given property name.
+     * @param propertyName - Property name to summarize.
+     * @param defaultValue - Value to return if property values doesn't match.
+     * @returns Summarized array.
+     */
+    arrayAggregatePropertyIfEqual(data, propertyName, defaultValue = '') {
+        let result = defaultValue
+        if (data && data.length && data[0].hasOwnProperty(propertyName)) {
             result = data[0][propertyName]
-            for item in data
-                if item[propertyName] isnt result
+            for (const item of data)
+                if (item[propertyName] !== result)
                     return defaultValue
-        result
-    arrayDeleteEmptyItems: (data, propertyNames=[]) ->
-        ###
-            Deletes every item witch has only empty attributes for given
-            property names. If given property names are empty each
-            attribute will be considered. The empty string, "null" and
-            "undefined" will be interpreted as empty.
-
-            **data {Object[]}**          - Data to filter.
-
-            **propertyNames {String[]}** - Properties to consider.
-
-            **returns {Object[]}**       - Given data without empty items.
-        ###
-        return data if not data?
-        result = []
-        for item in data
-            empty = true
-            for propertyName, value of item
-                if value not in ['', null, undefined] and (
-                    not propertyNames.length or
-                    propertyName in propertyNames
-                )
-                    empty = false
-                    break
-            result.push(item) if not empty
-        result
-    arrayExtract: (data, propertyNames) ->
-        ###
-            Extracts all properties from all items wich occur in given
-            property names.
-
-            **data {Object[]}**          - Data where each item should be
-                                           sliced.
-
-            **propertyNames {String[]}** - Property names to extract.
-
-            **returns {Object[]}**       - Data with sliced items.
-        ###
-        for item in data
-            for attributeName of item
-                if attributeName not in propertyNames
+        }
+        return result
+    }
+    /**
+     * Deletes every item witch has only empty attributes for given property
+     * names. If given property names are empty each attribute will be
+     * considered. The empty string, "null" and "undefined" will be interpreted
+     * as empty.
+     * @param data - Data to filter.
+     * @param propertyNames - Properties to consider.
+     * @returns Given data without empty items.
+     */
+    arrayDeleteEmptyItems(data, propertyNames = []) {
+        if (!data)
+            return data
+        const result = []
+        for (const item of data) {
+            let empty = true
+            for (const propertyName in item)
+                if (item.hasOwnProperty(propertyName))
+                    if (!['', null, undefined].includes(item[
+                        propertyName
+                    ]) && (!propertyNames.length || propertyNames.includes(
+                        propertyName
+                    ))) {
+                        empty = false
+                        break
+                    }
+            if (!empty)
+                result.push(item)
+        }
+        return result
+    }
+    /**
+     * Extracts all properties from all items wich occur in given property
+     * names.
+     * @param data - Data where each item should be sliced.
+     * @param propertyNames - Property names to extract.
+     * @returns Data with sliced items.
+     */
+    arrayExtract(data, propertyNames) {
+        for (const item of data)
+            for (const attributeName in item)
+                if (!propertyNames.includes(attributeName))
                     delete item[attributeName]
-        data
-    arrayExtractIfMatches: (data, regularExpression) ->
-        ###
-            Extracts all values which matches given regular expression.
-
-            **data {String[]}**            - Data to filter.
-
-            **regularExpression {String}** - Pattern to match for.
-
-            **returns {String[]}**         - Filtered data.
-        ###
-        result = []
-        $.each data, (index, value) ->
-            if (new RegExp regularExpression).test value
-                result.push value
-        result
-    arrayExtractIfPropertyExists: (data, propertyName) ->
-        ###
-            Filters given data if given property is set or not.
-
-            **data {Object[]}**       - Data to filter.
-
-            **propertyName {String}** - Property name to check for
-                                        existence.
-
-            **returns {Object[]}**    - Given data without the items which
-                                        doesn't have specified property.
-        ###
-        if data and propertyName
-            result = []
-            for item in data
-                exists = false
-                for key, value of item
-                    if key is propertyName and value?
+        return data
+    }
+    /**
+     * Extracts all values which matches given regular expression.
+     * @param data - Data to filter.
+     * @param regularExpression - Pattern to match for.
+     * @returns Filtered data.
+     */
+    arrayExtractIfMatches(data, regularExpression) {
+        const result = []
+        $.each(data, (index, value) => {
+            if ((new RegExp(regularExpression)).test(value))
+                result.push(value)
+        })
+        return result
+    }
+    /**
+     * Filters given data if given property is set or not.
+     * @param data - Data to filter.
+     * @param propertyName - Property name to check for existence.
+     * @returns Given data without the items which doesn't have specified
+     * property.
+     */
+    arrayExtractIfPropertyExists(data, propertyName) {
+        if (data && propertyName) {
+            const result = []
+            for (const item of data) {
+                let exists = false
+                for (const key in item)
+                    if (key === propertyName && item.hasOwnProperty(key) && ![
+                        undefined, null
+                    ].includes(item[key])) {
                         exists = true
                         break
-                result.push(item) if exists
+                    }
+                if (exists)
+                    result.push(item)
+            }
             return result
-        data
-    arrayExtractIfPropertyMatches: (data, propertyPattern) ->
-        ###
-            Extract given data where specified property value matches given
-            patterns.
-
-            **data {Object[]}**          - Data to filter.
-
-            **propertyPattern {Object}** - Mapping of property names to
-                                           pattern.
-
-            **returns {Object[]}**       - Filtered data.
-        ###
-        if data and propertyPattern
-            result = []
-            for item in data
-                matches = true
-                for key, pattern of propertyPattern
-                    if not RegExp(pattern).test item[key]
+        }
+        return data
+    }
+    /**
+     * Extract given data where specified property value matches given
+     * patterns.
+     * @param data - Data to filter.
+     * @param propertyPattern - Mapping of property names to pattern.
+     * @returns Filtered data.
+     */
+    arrayExtractIfPropertyMatches(data, propertyPattern) {
+        if (data && propertyPattern) {
+            const result = []
+            for (const item of data) {
+                let matches = true
+                for (const key in propertyPattern)
+                    if (!(new RegExp(pattern)).test(item[key])) {
                         matches = false
                         break
-                result.push(item) if matches
+                    }
+                if (matches)
+                    result.push(item)
+            }
             return result
-        data
-    arrayIntersect: (firstSet, secondSet, keys=[], strict=true) ->
-        ###
-            Determines all objects which exists in "firstSet" and in
-            "secondSet". Object key which will be compared are given by
-            "keys". If an empty array is given each key will be compared.
-            If an object is given corresponding initial data key will be
-            mapped to referenced new data key.
-
-            **firstSet {Mixed[]}**     - Referenced data to check for.
-
-            **secondSet {Mixed[]}**    - Data to check for existence.
-
-            **keys {Object|String[]}** - Keys to define equality.
-
-            **strict {Boolean}**       - The strict parameter indicates
-                                         weather "null" and "undefined"
-                                         should be interpreted as equal
-                                         (takes only effect if given keys
-                                         aren't empty).
-
-            **returns {Mixed[]} **     - Data which does exit in given
-                                         initial data.
-        ###
-        containingData = []
-        for initialItem in firstSet
-            if $.isPlainObject initialItem
-                exists = false
-                for newItem in secondSet
+        }
+        return data
+    }
+    /**
+     * Determines all objects which exists in "firstSet" and in "secondSet".
+     * Object key which will be compared are given by "keys". If an empty array
+     * is given each key will be compared. If an object is given corresponding
+     * initial data key will be mapped to referenced new data key.
+     * @param firstSet - Referenced data to check for.
+     * @param secondSet - Data to check for existence.
+     * @param keys - Keys to define equality.
+     * @param strict - The strict parameter indicates weather "null" and
+     * "undefined" should be interpreted as equal (takes only effect if given
+     * keys aren't empty).
+     * @returns Data which does exit in given initial data.
+     */
+    arrayIntersect(firstSet, secondSet, keys = [], strict = true) {
+        const containingData = []
+        for (const initialItem of firstSet) {
+            if ($.isPlainObject(initialItem)) {
+                let exists = false
+                for (const newItem of secondSet) {
                     exists = true
-                    iterateGivenKeys = $.isPlainObject(keys) or keys.length
-                    if not iterateGivenKeys
+                    const iterateGivenKeys = $.isPlainObject(
+                        keys
+                    ) || keys.length
+                    if (!iterateGivenKeys)
                         keys = initialItem
-                    $.each (keys), (firstSetKey, secondSetKey) ->
-                        if $.isArray keys
+                    $.each(keys, (firstSetKey, secondSetKey) {
+                        if ($.isArray(keys))
                             firstSetKey = secondSetKey
-                        else if not iterateGivenKeys
+                        else if (!iterateGivenKeys)
                             secondSetKey = firstSetKey
                         if(
-                            newItem[secondSetKey] isnt
-                            initialItem[firstSetKey] and (
-                                strict or (
-                                    [null, undefined].indexOf(
-                                        newItem[secondSetKey]
-                                    ) is -1 or
-                                    [null, undefined].indexOf(
-                                        initialItem[firstSetKey]
-                                    ) is -1))
-                        )
+                            newItem[secondSetKey] !==
+                            initialItem[firstSetKey] && (strict || !(
+                                [null, undefined].includes(
+                                    newItem[secondSetKey]
+                                ) && [null, undefined].includes(
+                                    initialItem[firstSetKey]
+                                )))
+                        ) {
                             exists = false
                             return false
-                    break if exists
-            else
-                exists = secondSet.indexOf(initialItem) isnt -1
-            containingData.push(initialItem) if exists
-        containingData
-    arrayMakeRange: (range, step=1) ->
-        ###
-            Creates a list of items within given range.
-
-            **range {Integer[]}**   - Array of lower and upper bounds. If
-                                      only one value is given lower bound
-                                      will be assumed to be zero. Both
-                                      integers have to be positive and will
-                                      be contained in the resulting array.
-
-            **step {Integer}**      - Space between two consecutive values.
-
-            **returns {Integer[]}** - Produced array of integers.
-        ###
-        if range.length is 1
+                        }
+                    })
+                    if (exists)
+                        break
+                }
+            } else
+                exists = secondSet.includes(initialItem)
+            if (exists)
+                containingData.push(initialItem)
+        }
+        return containingData
+    }
+    /**
+     * Creates a list of items within given range.
+     * @param range - Array of lower and upper bounds. If only one value is
+     * given lower bound will be assumed to be zero. Both integers have to be
+     * positive and will be contained in the resulting array.
+     * @param step - Space between two consecutive values.
+     * @param returns Produced array of integers.
+     */
+    arrayMakeRange(range, step=1) {
+        let index
+        if (range.length === 1) {
             index = 0
-            higherBound = parseInt range[0]
-        else if range.length is 2
-            index = parseInt range[0]
-            higherBound = parseInt range[1]
-        else
+            higherBound = parseInt(range[0])
+        } else if (range.length === 2) {
+            index = parseInt(range[0])
+            higherBound = parseInt(range[1])
+        } else
             return range
-        result = [index]
-        while index <= higherBound - step
+        const result = [index]
+        while (index <= higherBound - step) {
             index += step
-            result.push index
+            result.push(index)
+        }
         return result
-    arraySumUpProperty: (data, propertyName) ->
-        ###
-            Sums up given property of given item list.
-
-            **data {Object[]}**        - The objects to with the given
-                                         property to sum up.
-
-            **propertyNames {String}** - Property name to sum up its value.
-
-            **returns {Number}**       - The aggregated value.
-        ###
-        result = 0
-        if data?.length
-            for item in data
-                result += parseFloat item[propertyName] or 0
-        result
-    arrayAppendAdd: (item, target, name, checkIfExists=true) ->
-        ###
-            Adds an item to another item as array connection (many to one).
-
-            **item {Object}**           - Item where the item should be
-                                          appended to.
-
-            **target {Object}**         - Target to add to given item.
-
-            **name {String}**           - Name of the target connection.
-
-            **checkIfExists {Boolean}** - Indicates if duplicates are
-                                          allowed in resulting list (will
-                                          result in linear runtime instead
-                                          of constant one).
-
-            **returns {Object}** - Item with the appended target.
-        ###
-        if item.hasOwnProperty name
-            if not (checkIfExists and target in item[name])
-                item[name].push target
+    }
+    /**
+     * Sums up given property of given item list.
+     * @param data - The objects to with the given property to sum up.
+     * @propertyNames - Property name to sum up its value.
+     * @returns The aggregated value.
+     */
+    arraySumUpProperty(data, propertyName) {
+        let result = 0
+        if ($.isArray(data) && data.length)
+            for (const item of data)
+                result += parseFloat(item[propertyName] || 0)
+        return result
+    }
+    /**
+     * Adds an item to another item as array connection (many to one).
+     * @param item - Item where the item should be appended to.
+     * @param target - Target to add to given item.
+     * @param name - Name of the target connection.
+     * @param checkIfExists - Indicates if duplicates are allowed in resulting
+     * list (will result in linear runtime instead of constant one).
+     * @returns Item with the appended target.
+     */
+    arrayAppendAdd(item, target, name, checkIfExists = true) {
+        if (item.hasOwnProperty(name))
+            if (!(checkIfExists && item[name].includes(target)))
+                item[name].push(target)
         else
             item[name] = [target]
-        item
-    arrayRemove: (list, target, strict=false) ->
-        ###
-            Removes given target on given list.
-
-            **list {Object[]}**    - Array to splice.
-
-            **target {Object}**    - Target to remove from given list.
-
-            **strict {Boolean}**   - Indicates weather to fire an exception
-                                     if given target doesn't exists given
-                                     list.
-
-            **returns {Object[]}** - Item with the appended target.
-        ###
-        if list? or strict
-            index = list.indexOf target
-            if index is -1
-                if strict
+        return item
+    }
+    /**
+     * Removes given target on given list.
+     * @param list - Array to splice.
+     * @param target - Target to remove from given list.
+     * @param strict - Indicates weather to fire an exception if given target
+     * doesn't exists given list.
+     * @returns Item with the appended target.
+     */
+    arrayRemove(list, target, strict = false) {
+        if ($.isArray(list) || strict) {
+            index = list.indexOf(target)
+            if (index === -1) {
+                if (strict)
                     throw Error("Given target doesn't exists in given list.")
-            else
-                list.splice index, 1
-        list
-    ## endregion
-    ## region string
-    ## # region url handling
-    stringEncodeURIComponent: (url, encodeSpaces) ->
-        ###
-            This method is intended for encoding *key* or *value* parts of
-            query component. We need a custom method because
-            "encodeURIComponent()" is too aggressive and encodes stuff that
-            doesn't have to be encoded per
-            "http://tools.ietf.org/html/rfc3986:"
-
-            **url {String}**           - URL to encode.
-
-            **encodeSpaces {Boolean}** - Indicates weather given url should
-                                         encode whitespaces as "+" or
-                                         "%20".
-
-            **return {String}**        - Encoded given url.
-        ###
-        encodeURIComponent(url).replace(/%40/gi, '@').replace(
+            } else
+                list.splice(index, 1)
+        }
+        return list
+    }
+    // / endregion
+    // / region string
+    // // region url handling
+    /**
+     * This method is intended for encoding *key* or *value* parts of query
+     * component. We need a custom method because "encodeURIComponent()" is too
+     * aggressive and encodes stuff that doesn't have to be encoded per
+     * "http://tools.ietf.org/html/rfc3986:"
+     * @param url - URL to encode.
+     * @param encodeSpaces - Indicates weather given url should encode
+     * whitespaces as "+" or "%20".
+     * @returns Encoded given url.
+     */
+    stringEncodeURIComponent(url, encodeSpaces) {
+        return encodeURIComponent(url).replace(/%40/gi, '@').replace(
             /%3A/gi, ':'
         ).replace(/%24/g, '$').replace(/%2C/gi, ',').replace(
-            /%20/g, if encodeSpaces then '%20' else '+')
-    stringAddSeparatorToPath: (path, pathSeparator='/') ->
-        ###
-            Appends a path selector to the given path if there isn't one
-            yet.
-
-            **path {String}**          - The path for appending a selector.
-
-            **pathSeparator {String}** - The selector for appending to
-                                         path.
-
-            **returns {String}**       - The appended path.
-        ###
-        path = $.trim path
-        if path.substr(-1) isnt pathSeparator and path.length
+            /%20/g, (encodeSpaces) ? '%20' : '+')
+    }
+    /**
+     * Appends a path selector to the given path if there isn't one yet.
+     * @param path - The path for appending a selector.
+     * @param pathSeparator - The selector for appending to path.
+     * @param returns - The appended path.
+     */
+    stringAddSeparatorToPath(path, pathSeparator = '/') {
+        const path = $.trim(path)
+        if (path.substr(-1) !== pathSeparator && path.length)
             return path + pathSeparator
-        path
-    stringHasPathPrefix: (
-        prefix='/admin', path=location?.pathname or '', separator='/'
-    ) ->
-        ###
-            Checks if given path has given path prefix.
-
-            **prefix {String}**    - Path prefix to search for.
-
-            **path {String}**      - Path to search in.
-
-            **separator {String}** - Delimiter to use in path (default is
-                                     the posix conform slash).
-
-            **returns {Boolean}**  - "true" if given prefix occur and
-                                     "false" otherwise.
-        ###
-        return false if not prefix?
-        if not prefix.endsWith(separator)
+        return path
+    }
+    /**
+     * Checks if given path has given path prefix.
+     * @param prefix - Path prefix to search for.
+     * @param path - Path to search in.
+     * @param separator - Delimiter to use in path (default is the posix
+     * conform slash).
+     * @returns "true" if given prefix occur and "false" otherwise.
+     */
+    stringHasPathPrefix(prefix = '/admin', path = context.hasOwnProperty(
+        'location'
+    ) && location.pathname || '', separator = '/') {
+        if ([undefined, null].includes(prefix))
+            return false
+        if (!prefix.endsWith(separator))
             prefix += separator
-        path is prefix.substring(
+        return path === prefix.substring(
             0, prefix.length - separator.length
-        ) or path.startsWith(prefix)
-    stringGetDomainName: (
-        url=location?.href or '', fallback=location?.hostname or ''
-    ) ->
-        ###
-            Extracts domain name from given url. If no explicit domain name
-            given current domain name will be assumed. If no parameter
-            given current domain name will be determined.
-
-            **url** {String}      - The url to extract domain from.
-
-            **fallback** {String} - The fallback host name if no one exits
-                                    in given url (default is current
-                                    hostname)
-
-            **returns {String}** - Extracted domain.
-        ###
-        result = /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec url
-        return result[2] if result?[2]? and result?[1]?
-        fallback
-    stringGetPortNumber: (
-        url=location?.href or '', fallback=null, parameter=[]
-    ) ->
-        ###
-            Extracts port number from given url. If no explicit port number
-            given and no fallback is defined current port number will be
-            assumed for local links. For external links 80 will be assumed
-            for http protocol or 443 for https.
-
-            **url** {String}        - The url to extract port from.
-
-            **fallback {String}**   - Fallback port number if no explicit
-                                      one was found. Default is derived
-                                      from current protocol name.
-
-            **parameter {Object[]}** - Additional parameter for checking if
-                                       given url is an internal url. Given
-                                       url and this parameter will be
-                                       forwarded to the
-                                       "stringIsInternalURL()" method.
-
-            **returns {Integer}** - Extracted port number.
-        ###
-        result = /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec url
-        return parseInt(result[1]) if result?[1]?
-        return fallback if fallback isnt null
-        if this.stringIsInternalURL.apply(
-            this, [url].concat parameter
-        ) and location?.port and parseInt location?.port
-            return parseInt location.port
-        if this.stringGetProtocolName(url) is 'https' then 443 else 80
-    stringGetProtocolName: (
-        url=location?.href or '', fallback=location?.protocol.substring(
-            0, location.protocol.length - 1
-        ) or ''
-    ) ->
-        ###
-            Extracts protocol name from given url. If no explicit url is
-            given, current protocol will be assumed. If no parameter
-            given current protocol number will be determined.
-
-            **url** {String}      - The url to extract protocol from.
-
-            **fallback** {String} - Fallback port to use if no protocol
-                                    exists in given url (default is current
-                                    protocol).
-
-            **returns {String}**  - Extracted protocol.
-        ###
-        result = /^([a-z]+):\/\//i.exec url
-        return result[1] if result?[1]
-        fallback
-    stringGetURLVariable: (
-        keyToGet, input, subDelimiter='$', hashedPathIndicator='!', search
-        hash=location?.hash or ''
-    ) ->
-        ###
-            Read a page's GET URL variables and return them as an
-            associative array and preserves ordering.
-
-            **keyToGet {String}**            - If key given the
-                                               corresponding value is
-                                               returned and full object
-                                               otherwise.
-
-            **input {String}**               - An alternative input to the
-                                               url search parameter. If "#"
-                                               is given the complete
-                                               current hash tag will be
-                                               interpreted as url and
-                                               search parameter will be
-                                               extracted from there. If "&"
-                                               is given classical search
-                                               parameter and hash parameter
-                                               will be taken in account. If
-                                               a search string is given
-                                               this will be analyzed. The
-                                               default is to take given
-                                               search part into account.
-
-            **subDelimiter {String}**        - Defines which sequence
-                                               indicates the start of
-                                               parameter in a hash part of
-                                               the url.
-
-            **hashedPathIndicator {String}** - If defined and given hash
-                                               starts with this indicator
-                                               given hash will be
-                                               interpreted as path
-                                               containing search and hash
-                                               parts.
-
-            **search {String}**              - Search part to take into
-                                               account defaults to current
-                                               url search part.
-
-            **hash {String}**                - Hash part to take into
-                                               account defaults to current
-                                               url hash part.
-
-            **returns {Mixed}**              - Returns the current get
-                                               array or requested value. If
-                                               requested key doesn't exist
-                                               "undefined" is returned.
-        ###
-        # region set search and hash
-        if not search?
-            hash = '#' if not hash
-            hash = hash.substring '#'.length
-            if hashedPathIndicator and hash.startsWith(hashedPathIndicator)
-                subHashStartIndex = hash.indexOf '#'
-                if subHashStartIndex is -1
-                    pathAndSearch = hash.substring(
-                        hashedPathIndicator.length)
+        ) || path.startsWith(prefix)
+    }
+    /**
+     * Extracts domain name from given url. If no explicit domain name given
+     * current domain name will be assumed. If no parameter given current
+     * domain name will be determined.
+     * @param url - The url to extract domain from.
+     * @param fallback - The fallback host name if no one exits in given url
+     * (default is current hostname).
+     * @returns Extracted domain.
+     */
+    stringGetDomainName(
+        url = context.hasOwnProperty('location') && location.href || '',
+        fallback = context.hasOwnProperty(
+            'location'
+        ) && location.hostname || ''
+    ) {
+        result = /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
+        if (result && result.length > 2)
+            return result[2]
+        return fallback
+    }
+    /**
+     * Extracts port number from given url. If no explicit port number given
+     * and no fallback is defined current port number will be assumed for local
+     * links. For external links 80 will be assumed for http protocol or 443
+     * for https.
+     * @param url - The url to extract port from.
+     * @param fallback - Fallback port number if no explicit one was found.
+     * Default is derived from current protocol name.
+     * @param parameter - Additional parameter for checking if given url is an
+     * internal url. Given url and this parameter will be forwarded to the
+     * "stringIsInternalURL()" method.
+     * @returns Extracted port number.
+     */
+    stringGetPortNumber(
+        url = context.hasOwnProperty('location') && location.href || '',
+        fallback = null, parameter = []
+    ) {
+        const result = /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec(url)
+        if (result && result.length > 1)
+            return parseInt(result[1])
+        if (fallback !== null)
+            return fallback
+        if (this.stringIsInternalURL.apply(
+            this, [url].concat(parameter)
+            ) && context.hasOwnProperty(
+                'location'
+            ) && location.port && parseInt(location.port)
+        )
+            return parseInt(location.port)
+        return (this.stringGetProtocolName(url) === 'https') ? 443 : 80
+    }
+    /**
+     * Extracts protocol name from given url. If no explicit url is given,
+     * current protocol will be assumed. If no parameter given current protocol
+     * number will be determined.
+     * @param url - The url to extract protocol from.
+     * @param fallback - Fallback port to use if no protocol exists in given
+     * url (default is current protocol).
+     * returns Extracted protocol.
+     */
+    stringGetProtocolName(
+        url = context.hasOwnProperty('location') && location.href || '',
+        fallback = context.hasOwnProperty('location') &&
+            location.protocol.substring(0, location.protocol.length - 1) || ''
+    ) {
+        const result = /^([a-z]+):\/\//i.exec(url)
+        if (result.length > 1)
+            return result[1]
+        return fallback
+    }
+    /**
+     * Read a page's GET URL variables and return them as an associative array
+     * and preserves ordering.
+     * @param keyToGet - If key given the corresponding value is returned and
+     * full object otherwise.
+     * @param input - An alternative input to the url search parameter. If "#"
+     * is given the complete current hash tag will be interpreted as url and
+     * search parameter will be extracted from there. If "&" is given classical
+     * search parameter and hash parameter will be taken in account. If a
+     * search string is given this will be analyzed. The default is to take
+     * given search part into account.
+     * @param subDelimiter - Defines which sequence indicates the start of
+     * parameter in a hash part of the url.
+     * @param hashedPathIndicator - If defined and given hash starts with this
+     * indicator given hash will be interpreted as path containing search and
+     * hash parts.
+     * @param search - Search part to take into account defaults to current url
+     * search part.
+     * @param hash - Hash part to take into account defaults to current url
+     * hash part.
+     * @returns Returns the current get array or requested value. If requested
+     * key doesn't exist "undefined" is returned.
+     */
+    stringGetURLVariable(
+        keyToGet, input, subDelimiter = '$', hashedPathIndicator = '!', search,
+        hash = context.hasOwnProperty('location') && location.hash || ''
+    ) {
+        // region set search and hash
+        if (!search) {
+            if (!hash)
+                hash = '#'
+            hash = hash.substring('#'.length)
+            if (hashedPathIndicator && hash.startsWith(hashedPathIndicator)) {
+                const subHashStartIndex = hash.indexOf('#')
+                let pathAndSearch
+                if (subHashStartIndex === -1) {
+                    pathAndSearch = hash.substring(hashedPathIndicator.length)
                     hash = ''
-                else
+                } else {
                     pathAndSearch = hash.substring(
                         hashedPathIndicator.length, subHashStartIndex)
-                    hash = hash.substring subHashStartIndex
-                subSearchStartIndex = pathAndSearch.indexOf '?'
-                if subSearchStartIndex is -1
+                    hash = hash.substring(subHashStartIndex)
+                }
+                subSearchStartIndex = pathAndSearch.indexOf('?')
+                if (subSearchStartIndex === -1)
                     search = ''
                 else
-                    search = pathAndSearch.substring subSearchStartIndex
-            else
-                search = location?.search or ''
-        input = search if not input
-        # endregion
-        # region determine data from search and hash if specified
-        both = input is '&'
-        if both or input is '#'
-            decodedHash = decodeURIComponent hash
-            subDelimiterPosition = decodedHash.indexOf subDelimiter
-            if subDelimiterPosition is -1
+                    search = pathAndSearch.substring(subSearchStartIndex)
+            } else if (context.hasOwnProperty('location'))
+                search = location.search || ''
+        }
+        if (!input)
+            input = search
+        // endregion
+        // region determine data from search and hash if specified
+        const both = input === '&'
+        if (both || input === '#')
+            const decodedHash = decodeURIComponent(hash)
+            subDelimiterIndex = decodedHash.indexOf(subDelimiter)
+            if (subDelimiterIndex === -1)
                 input = ''
-            else
-                input = decodedHash.substring subDelimiterPosition
-                if input.startsWith(subDelimiter)
-                    input = input.substring subDelimiter.length
-        else if input.startsWith('?')
-            input = input.substring '?'.length
-        data = if input then input.split '&' else []
-        search = search.substring '?'.length
-        data = data.concat(search.split '&') if both and search
-        # endregion
-        # region construct data structure
-        variables = []
-        $.each data, (key, value) ->
-            keyValuePair = value.split '='
-            key = decodeURIComponent keyValuePair[0]
-            value = decodeURIComponent keyValuePair[1]
-            variables.push key
+            else {
+                input = decodedHash.substring(subDelimiterIndex)
+                if (input.startsWith(subDelimiter))
+                    input = input.substring(subDelimiter.length)
+            }
+        else if (input.startsWith('?'))
+            input = input.substring('?'.length)
+        let data = (input) ? input.split('&') : []
+        search = search.substring('?'.length)
+        if (both && search)
+            data = data.concat(search.split('&'))
+        // endregion
+        // region construct data structure
+        const variables = []
+        $.each(data, (key, value) => {
+            const keyValuePair = value.split('=')
+            key = decodeURIComponent(keyValuePair[0])
+            value = decodeURIComponent(keyValuePair[1])
+            variables.push(key)
             variables[key] = value
-        # endregion
-        return variables[keyToGet] if keyToGet?
-        variables
-    stringIsInternalURL: (firstURL, secondURL=location?.href or '') ->
-        ###
-            Checks if given url points to another domain than second given
-            url. If no second given url provided current url will be
-            assumed.
-
-            **firstURL {String}**  - URL to check against second url.
-
-            **secondURL {String}** - URL to check against first url.
-
-            **returns {Boolean}**  - Returns "true" if given first url has
-                                     same domain as given second (or
-                                     current) or.
-        ###
-        explicitDomainName = this.stringGetDomainName firstURL, false
-        explicitProtocolName = this.stringGetProtocolName firstURL, false
-        explicitPortNumber = this.stringGetPortNumber firstURL, false
-        (
-            not explicitDomainName or
-            explicitDomainName is this.stringGetDomainName secondURL
-        ) and (
-            not explicitProtocolName or
-            explicitProtocolName is this.stringGetProtocolName secondURL
-        ) and (
-            not explicitPortNumber or
-            explicitPortNumber is this.stringGetPortNumber secondURL)
-    stringNormalizeURL: (url) ->
-        ###
-            Normalized given website url.
-
-            **url {String}**     - Uniform resource locator to normalize.
-
-            **returns {String}** - Normalized result.
-        ###
-        if url
-            url = $.trim url.replace(/^:?\/+/, '').replace /\/+$/, ''
-            if url.startsWith('http')
+        })
+        // endregion
+        if (keyToGet)
+            return variables[keyToGet]
+        return variables
+    }
+    /**
+     * Checks if given url points to another domain than second given url. If
+     * no second given url provided current url will be assumed.
+     * @param firstURL - URL to check against second url.
+     * @param secondURL - URL to check against first url.
+     * @returns Returns "true" if given first url has same domain as given
+     * second (or current).
+     */
+    stringIsInternalURL(firstURL, secondURL = context.hasOwnProperty(
+        'location'
+    ) && location.href || '') {
+        const explicitDomainName = this.stringGetDomainName(firstURL, false)
+        const explicitProtocolName = this.stringGetProtocolName(
+            firstURL, false)
+        const explicitPortNumber = this.stringGetPortNumber(firstURL, false)
+        return (
+            !explicitDomainName ||
+            explicitDomainName === this.stringGetDomainName(secondURL)
+        ) && (
+            !explicitProtocolName ||
+            explicitProtocolName === this.stringGetProtocolName(secondURL)
+        ) &&d (
+            !explicitPortNumber ||
+            explicitPortNumber === this.stringGetPortNumber(secondURL))
+    }
+    /**
+     * Normalized given website url.
+     * @param url - Uniform resource locator to normalize.
+     * @returns Normalized result.
+     */
+    stringNormalizeURL(url) {
+        if (url) {
+            url = $.trim(url.replace(/^:?\/+/, '').replace(/\/+$/, ''))
+            if (url.startsWith('http'))
                 return url
-            return "http://#{url}"
+            return `http://${url}`
         return ''
-    stringRepresentURL: (url) ->
-        ###
-            Represents given website url.
-
-            **url {String}**     - Uniform resource locator to represent.
-
-            **returns {String}** - Represented result.
-        ###
-        if url and url.replace?
-            return $.trim url.replace(/^(https?)?:?\/+/, '').replace(
-                /\/+$/, '')
-        ''
-    ## # endregion
-    stringCamelCaseToDelimited: (
-        string, delimiter='-', abbreviations=null
-    ) ->
-        ###
-            Converts a camel cased string to its delimited string version.
-
-            **string {String}**          - The string to format.
-
-            **delimiter {String}**       - Delimiter string
-
-            **abbreviations {String[]}** - Collection of shortcut words to
-                                           represent upper cased.
-
-            **returns {String}**         - The formatted string.
-        ###
-        abbreviations = this.abbreviations if not abbreviations?
-        escapedDelimiter = this.stringGetRegularExpressionValidated(
+    }
+    /**
+     * Represents given website url.
+     * @param url - Uniform resource locator to represent.
+     * @returns Represented result.
+     */
+    stringRepresentURL(url) {
+        if (url)
+            return $.trim(url.replace(/^(https?)?:?\/+/, '').replace(
+                /\/+$/, ''))
+        return ''
+    }
+    // // endregion
+    /**
+     * Converts a camel cased string to its delimited string version.
+     * @param string - The string to format.
+     * @param delimiter - Delimiter string
+     * @param abbreviations - Collection of shortcut words to represent upper
+     * cased.
+     * @returns The formatted string.
+     */
+    stringCamelCaseToDelimited(string, delimiter = '-', abbreviations = null) {
+        if ([null, undefined].includes(abbreviations))
+            abbreviations = this.abbreviations
+        const escapedDelimiter = this.stringGetRegularExpressionValidated(
             delimiter)
-        if abbreviations.length
-            abbreviationPattern = ''
-            for abbreviation in abbreviations
-                abbreviationPattern += '|' if abbreviationPattern
+        if (abbreviations.length) {
+            let abbreviationPattern = ''
+            for (const abbreviation of abbreviations) {
+                if (abbreviationPattern)
+                    abbreviationPattern += '|'
                 abbreviationPattern += abbreviation.toUpperCase()
-            string = string.replace new RegExp(
-                "(#{abbreviationPattern})(#{abbreviationPattern})", 'g'
-            ), "$1#{delimiter}$2"
-        string = string.replace new RegExp(
-            "([^#{escapedDelimiter}])([A-Z][a-z]+)", 'g'
-        ), "$1#{delimiter}$2"
-        string.replace(
-            new RegExp('([a-z0-9])([A-Z])', 'g'), "$1#{delimiter}$2"
+            }
+            string = string.replace(new RegExp(
+                `(${abbreviationPattern})(${abbreviationPattern})`, 'g'
+            ), `$1${delimiter}$2`)
+        }
+        string = string.replace(new RegExp(
+            `([^${escapedDelimiter}])([A-Z][a-z]+)`, 'g'
+        ), `$1${delimiter}$2`)
+        return string.replace(
+            new RegExp('([a-z0-9])([A-Z])', 'g'), `$1${delimiter}$2`
         ).toLowerCase()
-    stringCapitalize: (string) ->
-        ###
-            Converts a string to its capitalize representation.
-
-            **string {String}**  - The string to format.
-
-            **returns {String}** - The formatted string.
-        ###
-        string.charAt(0).toUpperCase() + string.substring 1
-    stringDelimitedToCamelCase: (
-        string, delimiter='-', abbreviations=null
-        preserveWrongFormattedAbbreviations=false
-    ) ->
-        ###
-            Converts a delimited string to its camel case representation.
-
-            **string {String}**          - The string to format.
-
-            **delimiter {String}**       - Delimiter string
-
-            **abbreviations {String[]}** - Collection of shortcut words to
-                                           represent upper cased.
-
-            **preserveWrongFormattedAbbreviations {Boolean}**
-                                         - If set to "True" wrong formatted
-                                           camel case abbreviations will
-                                           be ignored.
-
-            **returns {String}**         - The formatted string.
-        ###
-        escapedDelimiter = this.stringGetRegularExpressionValidated(
+    }
+    /**
+     * Converts a string to its capitalize representation.
+     * @param string - The string to format.
+     * @returns The formatted string.
+     */
+    stringCapitalize(string) {
+        return string.charAt(0).toUpperCase() + string.substring(1)
+    }
+    /**
+     * Converts a delimited string to its camel case representation.
+     * @param string - The string to format.
+     * @param delimiter - Delimiter string
+     * @param abbreviations - Collection of shortcut words to represent upper
+     * cased.
+     * @param preserveWrongFormattedAbbreviations - If set to "True" wrong
+     * formatted camel case abbreviations will be ignored.
+     * @returns The formatted string.
+     */
+    stringDelimitedToCamelCase(
+        string, delimiter = '-', abbreviations = null
+        preserveWrongFormattedAbbreviations = false
+    ) {
+        const escapedDelimiter = this.stringGetRegularExpressionValidated(
             delimiter)
-        abbreviations = this.abbreviations if not abbreviations?
-        if preserveWrongFormattedAbbreviations
-            abbreviationPattern = abbreviations.join '|'
-        else
+        if ([null, undefined].includes(abbreviations))
+            abbreviations = this.abbreviations
+        let abbreviationPattern
+        if (preserveWrongFormattedAbbreviations)
+            abbreviationPattern = abbreviations.join('|')
+        else {
             abbreviationPattern = ''
-            for abbreviation in abbreviations
-                abbreviationPattern += '|' if abbreviationPattern
+            for (const abbreviation of abbreviations) {
+                if (abbreviationPattern)
+                    abbreviationPattern += '|'
                 abbreviationPattern +=
-                    "#{this.stringCapitalize abbreviation}|#{abbreviation}"
-        stringStartsWithDelimiter = false
-        if string.startsWith(delimiter)
-            string = string.substring delimiter.length
+                    `${this.stringCapitalize(abbreviation)}|${abbreviation}`
+            }
+        }
+        let stringStartsWithDelimiter = false
+        if (string.startsWith(delimiter)) {
+            string = string.substring(delimiter.length)
             stringStartsWithDelimiter = true
-        string = string.replace new RegExp(
-            "(#{escapedDelimiter})(#{abbreviationPattern})" +
-            "(#{escapedDelimiter}|$)", 'g'
-        ), (fullMatch, before, abbreviation, after) ->
-            return (
-                before + abbreviation.toUpperCase() + after
-            ) if fullMatch
-            fullMatch
-        string = string.replace new RegExp(
-            "#{escapedDelimiter}([a-zA-Z0-9])", 'g'
-        ), (fullMatch, firstLetter) ->
-            return firstLetter.toUpperCase() if fullMatch
-            fullMatch
-        string = (delimiter + string) if stringStartsWithDelimiter
-        string
-    stringFormat: (string, additionalArguments...) ->
-        ###
-            Performs a string formation. Replaces every placeholder "{i}"
-            with the i'th argument.
-
-            **string {String}**  - The string to format.
-
-            Additional arguments are interpreted as replacements for string
-            formating.
-
-            **returns {String}** - The formatted string.
-        ###
-        additionalArguments.unshift string
-        $.each(additionalArguments, (key, value) ->
-            string = string.replace(
-                new RegExp("\\{#{key}\\}", 'gm'), value))
-        string
-    stringGetRegularExpressionValidated: (string) ->
-        ###
-            Validates the current string for using in a regular expression
-            pattern. Special regular expression chars will be escaped.
-
-            **string {String}**            - The string to format.
-
-            **returns {String}**           - The formatted string.
-        ###
-        string.replace /([\\|.*$^+[\]()?\-{}])/g, '\\$1'
-    stringLowerCase: (string) ->
-        ###
-            Converts a string to its lower case representation.
-
-            **string {String}**  - The string to format.
-
-            **returns {String}** - The formatted string.
-        ###
-        string.charAt(0).toLowerCase() + string.substring 1
-    stringMark: (
-        target, mark, marker='<span class="tools-mark">{1}</span>'
-        caseSensitiv=false
-    ) ->
-        ###
-            Wraps given mark strings in given target with given marker.
-
-            **target {String}**         - String to search for marker.
-
-            **mark {String}**           - String to search in target for.
-
-            **marker {String}**         - HTML template string to mark.
-
-            **caseSensitive {Boolean}** - Indicates weather case takes a
-                                          role during searching.
-
-            **returns {String}**        - Processed result.
-        ###
-        target = $.trim target
-        mark = $.trim mark
-        if target and mark
-            offset = 0
-            searchTarget = target
-            searchTarget = searchTarget.toLowerCase() if not caseSensitiv
-            mark = mark.toLowerCase() if not caseSensitiv
-            while true
-                index = searchTarget.indexOf mark, offset
-                if index is -1
+        }
+        string = string.replace(new RegExp(
+            `(${escapedDelimiter})(${abbreviationPattern})` +
+            `(${escapedDelimiter}|$)`, 'g'
+        ), (fullMatch, before, abbreviation, after) => {
+            if (fullMatch)
+                return before + abbreviation.toUpperCase() + after
+            return fullMatch
+        })
+        string = string.replace(new RegExp(
+            `${escapedDelimiter}([a-zA-Z0-9])`, 'g'
+        ), (fullMatch, firstLetter) => {
+            if (fullMatch)
+                return firstLetter.toUpperCase()
+            return fullMatch
+        })
+        if (stringStartsWithDelimiter)
+            string = delimiter + string
+        return string
+    }
+    /**
+     * Performs a string formation. Replaces every placeholder "{i}" with the
+     * i'th argument.
+     * @param string - The string to format.
+     * @param additionalArguments - Additional arguments are interpreted as
+     * replacements for string formating.
+     * @returns The formatted string.
+     */
+    stringFormat(string, ...additionalArguments) {
+        additionalArguments.unshift(string)
+        $.each(additionalArguments, (key, value) {
+            string = string.replace(new RegExp(`\\{${key}\\}`, 'gm'), value)
+        })
+        return string
+    }
+    /**
+     * Validates the current string for using in a regular expression pattern.
+     * Special regular expression chars will be escaped.
+     * @param string - The string to format.
+     * @returns The formatted string.
+     */
+    stringGetRegularExpressionValidated(string) {
+        return string.replace(/([\\|.*$^+[\]()?\-{}])/g, '\\$1')
+    }
+    /**
+     * Converts a string to its lower case representation.
+     * @param string - The string to format.
+     * @returns The formatted string.
+     */
+    stringLowerCase(string) {
+        return string.charAt(0).toLowerCase() + string.substring(1)
+    }
+    /**
+     * Wraps given mark strings in given target with given marker.
+     * @param target - String to search for marker.
+     * @param mark - String to search in target for.
+     * @param marker - HTML template string to mark.
+     * @param caseSensitive - Indicates weather case takes a role during
+     * searching.
+     * @returns Processed result.
+     */
+    stringMark(
+        target, mark, marker = '<span class="tools-mark">{1}</span>',
+        caseSensitiv = false
+    ) {
+        target = $.trim(target)
+        mark = $.trim(mark)
+        if (target && mark) {
+            len offset = 0
+            len searchTarget = target
+            if (!caseSensitiv)
+                searchTarget = searchTarget.toLowerCase()
+            if (!caseSensitiv)
+                mark = mark.toLowerCase()
+            while (true) {
+                const index = searchTarget.indexOf(mark, offset)
+                if (index === -1)
                     break
-                else
-                    target = target.substring(
-                        0, index
-                    ) + this.stringFormat(
-                        marker, target.substr index, mark.length
-                    ) + target.substring index + mark.length
-                    searchTarget = target.toLowerCase() if not caseSensitiv
+                else {
+                    target = target.substring(0, index) + this.stringFormat(
+                        marker, target.substr(index, mark.length)
+                    ) + target.substring(index + mark.length)
+                    if (!caseSensitiv)
+                        searchTarget = target.toLowerCase()
                     offset = index + (
                         marker.length - '{1}'.length
                     ) + mark.length
-        target
-    stringMD5: (value) ->
-        ###
-            Implements the md5 hash algorithm.
-
-            **value {String}**   - Value to calculate md5 hash for.
-
-            **returns {String}** - Calculated md5 hash value.
-        ###
-        rotateLeft = (lValue, iShiftBits) ->
+                }
+            }
+        }
+        return target
+    }
+    /**
+     * Implements the md5 hash algorithm.
+     * @param value - Value to calculate md5 hash for.
+     * @returns Calculated md5 hash value.
+     */
+    stringMD5(value) {
+        const rotateLeft = (lValue, iShiftBits) =>
             (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits))
 
-        addUnsigned = (lX, lY) ->
-            lX8 = (lX & 0x80000000)
-            lY8 = (lY & 0x80000000)
-            lX4 = (lX & 0x40000000)
-            lY4 = (lY & 0x40000000)
-            lResult = (lX & 0x3FFFFFFF) + (lY & 0x3FFFFFFF)
-            if lX4 & lY4
+        const addUnsigned = (lX, lY) => {
+            const lX8 = (lX & 0x80000000)
+            const lY8 = (lY & 0x80000000)
+            const lX4 = (lX & 0x40000000)
+            const lY4 = (lY & 0x40000000)
+            const lResult = (lX & 0x3FFFFFFF) + (lY & 0x3FFFFFFF)
+            if (lX4 & lY4)
                 return lResult ^ 0x80000000 ^ lX8 ^ lY8
-            if lX4 | lY4
-                if lResult & 0x40000000
+            if (lX4 | lY4) {
+                if (lResult & 0x40000000)
                     return lResult ^ 0xC0000000 ^ lX8 ^ lY8
-                else
-                    return lResult ^ 0x40000000 ^ lX8 ^ lY8
-            else
-                return lResult ^ lX8 ^ lY8
+                return lResult ^ 0x40000000 ^ lX8 ^ lY8
+            }
+            return lResult ^ lX8 ^ lY8
+        }
 
-        _F = (x, y, z) -> (x & y) | ((~x) & z)
-        _G = (x, y, z) -> (x & z) | (y & (~z))
-        _H = (x, y, z) -> x ^ y ^ z
-        _I = (x, y, z) -> y ^ (x | (~z))
+        const _F = (x, y, z) => (x & y) | ((~x) & z)
+        const _G = (x, y, z) => (x & z) | (y & (~z))
+        const _H = (x, y, z) => x ^ y ^ z
+        const _I = (x, y, z) => y ^ (x | (~z))
 
-        _FF = (a, b, c, d, x, s, ac) ->
-            a = addUnsigned a, addUnsigned addUnsigned(_F(b, c, d), x), ac
-            addUnsigned rotateLeft(a, s), b
+        const _FF = (a, b, c, d, x, s, ac) => {
+            a = addUnsigned(a, addUnsigned(addUnsigned(_F(b, c, d), x), ac))
+            return addUnsigned(rotateLeft(a, s), b)
+        }
 
-        _GG = (a, b, c, d, x, s, ac) ->
-            a = addUnsigned a, addUnsigned addUnsigned(_G(b, c, d), x), ac
-            addUnsigned rotateLeft(a, s), b
+        const _GG = (a, b, c, d, x, s, ac) => {
+            a = addUnsigned(a, addUnsigned(addUnsigned(_G(b, c, d), x), ac))
+            return addUnsigned(rotateLeft(a, s), b)
+        }
 
-        _HH = (a, b, c, d, x, s, ac) ->
-            a = addUnsigned a, addUnsigned addUnsigned(_H(b, c, d), x), ac
-            addUnsigned rotateLeft(a, s), b
+        const _HH = (a, b, c, d, x, s, ac) => {
+            a = addUnsigned(a, addUnsigned(addUnsigned(_H(b, c, d), x), ac))
+            return addUnsigned(rotateLeft(a, s), b)
+        }
 
-        _II = (a, b, c, d, x, s, ac) ->
-            a = addUnsigned a, addUnsigned addUnsigned(_I(b, c, d), x), ac
-            addUnsigned rotateLeft(a, s), b
+        const _II = (a, b, c, d, x, s, ac) => {
+            a = addUnsigned(a, addUnsigned(addUnsigned(_I(b, c, d), x), ac))
+            return addUnsigned(rotateLeft(a, s), b)
+        }
 
-        convertToWordArray = (value) ->
-            lMessageLength = value.length
-            lNumberOfWords_temp1 = lMessageLength + 8
-            lNumberOfWords_temp2 = (lNumberOfWords_temp1 - (
-                lNumberOfWords_temp1 % 64)) / 64
-            lNumberOfWords = (lNumberOfWords_temp2 + 1) * 16
-            lWordArray = new Array(lNumberOfWords - 1)
-            lBytePosition = 0
-            lByteCount = 0
-            while lByteCount < lMessageLength
+        convertToWordArray = (value) => {
+            const lMessageLength = value.length
+            const lNumberOfWords_temp1 = lMessageLength + 8
+            const lNumberOfWords_temp2 = (lNumberOfWords_temp1 - (
+                lNumberOfWords_temp1 % 64
+            )) / 64
+            const lNumberOfWords = (lNumberOfWords_temp2 + 1) * 16
+            let lWordArray = [lNumberOfWords - 1]
+            let lBytePosition = 0
+            let lByteCount = 0
+            let lWordCount
+            while (lByteCount < lMessageLength) {
                 lWordCount = (lByteCount - (lByteCount % 4)) / 4
                 lBytePosition = (lByteCount % 4) * 8
                 lWordArray[lWordCount] = (lWordArray[lWordCount] | (
                     value.charCodeAt(lByteCount) << lBytePosition))
                 lByteCount += 1
+            }
             lWordCount = (lByteCount - (lByteCount % 4)) / 4
             lBytePosition = (lByteCount % 4) * 8
             lWordArray[lWordCount] = lWordArray[lWordCount] | (
                 0x80 << lBytePosition)
             lWordArray[lNumberOfWords - 2] = lMessageLength << 3
             lWordArray[lNumberOfWords - 1] = lMessageLength >>> 29
-            lWordArray
+            return lWordArray
+        }
 
-        wordToHex = (lValue) ->
-            wordToHexValue = ''
-            wordToHexValueTemp = ''
-            lCount = 0
-            while lCount <= 3
-                lByte = (lValue >>> (lCount * 8)) & 255
-                wordToHexValueTemp = "0" + lByte.toString(16)
-                wordToHexValue =
-                    wordToHexValue + wordToHexValueTemp.substr(
-                        wordToHexValueTemp.length - 2, 2)
+        const wordToHex = (lValue) => {
+            let wordToHexValue = ''
+            let wordToHexValueTemp = ''
+            let lCount = 0
+            while (lCount <= 3) {
+                const lByte = (lValue >>> (lCount * 8)) & 255
+                wordToHexValueTemp = `0${lByte.toString(16)}`
+                wordToHexValue = wordToHexValue + wordToHexValueTemp.substr(
+                    wordToHexValueTemp.length - 2, 2)
                 lCount += 1
-            wordToHexValue
+            }
+            return wordToHexValue
+        }
 
-        x = []
-        S11 = 7
-        S12 = 12
-        S13 = 17
-        S14 = 22
-        S21 = 5
-        S22 = 9
-        S23 = 14
-        S24 = 20
-        S31 = 4
-        S32 = 11
-        S33 = 16
-        S34 = 23
-        S41 = 6
-        S42 = 10
-        S43 = 15
-        S44 = 21
+        let x = []
+        const S11 = 7
+        const S12 = 12
+        const S13 = 17
+        const S14 = 22
+        const S21 = 5
+        const S22 = 9
+        const S23 = 14
+        const S24 = 20
+        const S31 = 4
+        const S32 = 11
+        const S33 = 16
+        const S34 = 23
+        const S41 = 6
+        const S42 = 10
+        const S43 = 15
+        const S44 = 21
 
-        x = convertToWordArray value
-        a = 0x67452301
-        b = 0xEFCDAB89
-        c = 0x98BADCFE
-        d = 0x10325476
+        x = convertToWordArray(value)
+        let a = 0x67452301
+        let b = 0xEFCDAB89
+        let c = 0x98BADCFE
+        let d = 0x10325476
 
-        xl = x.length
-
-        k = 0
-        while k < xl
-            AA = a
-            BB = b
-            CC = c
-            DD = d
-            a = _FF a, b, c, d, x[k + 0], S11, 0xD76AA478
-            d = _FF d, a, b, c, x[k + 1], S12, 0xE8C7B756
-            c = _FF c, d, a, b, x[k + 2], S13, 0x242070DB
-            b = _FF b, c, d, a, x[k + 3], S14, 0xC1BDCEEE
-            a = _FF a, b, c, d, x[k + 4], S11, 0xF57C0FAF
-            d = _FF d, a, b, c, x[k + 5], S12, 0x4787C62A
-            c = _FF c, d, a, b, x[k + 6], S13, 0xA8304613
-            b = _FF b, c, d, a, x[k + 7], S14, 0xFD469501
-            a = _FF a, b, c, d, x[k + 8], S11, 0x698098D8
-            d = _FF d, a, b, c, x[k + 9], S12, 0x8B44F7AF
-            c = _FF c, d, a, b, x[k + 10], S13, 0xFFFF5BB1
-            b = _FF b, c, d, a, x[k + 11], S14, 0x895CD7BE
-            a = _FF a, b, c, d, x[k + 12], S11, 0x6B901122
-            d = _FF d, a, b, c, x[k + 13], S12, 0xFD987193
-            c = _FF c, d, a, b, x[k + 14], S13, 0xA679438E
-            b = _FF b, c, d, a, x[k + 15], S14, 0x49B40821
-            a = _GG a, b, c, d, x[k + 1], S21, 0xF61E2562
-            d = _GG d, a, b, c, x[k + 6], S22, 0xC040B340
-            c = _GG c, d, a, b, x[k + 11], S23, 0x265E5A51
-            b = _GG b, c, d, a, x[k + 0], S24, 0xE9B6C7AA
-            a = _GG a, b, c, d, x[k + 5], S21, 0xD62F105D
-            d = _GG d, a, b, c, x[k + 10], S22, 0x2441453
-            c = _GG c, d, a, b, x[k + 15], S23, 0xD8A1E681
-            b = _GG b, c, d, a, x[k + 4], S24, 0xE7D3FBC8
-            a = _GG a, b, c, d, x[k + 9], S21, 0x21E1CDE6
-            d = _GG d, a, b, c, x[k + 14], S22, 0xC33707D6
-            c = _GG c, d, a, b, x[k + 3], S23, 0xF4D50D87
-            b = _GG b, c, d, a, x[k + 8], S24, 0x455A14ED
-            a = _GG a, b, c, d, x[k + 13], S21, 0xA9E3E905
-            d = _GG d, a, b, c, x[k + 2], S22, 0xFCEFA3F8
-            c = _GG c, d, a, b, x[k + 7], S23, 0x676F02D9
-            b = _GG b, c, d, a, x[k + 12], S24, 0x8D2A4C8A
-            a = _HH a, b, c, d, x[k + 5], S31, 0xFFFA3942
-            d = _HH d, a, b, c, x[k + 8], S32, 0x8771F681
-            c = _HH c, d, a, b, x[k + 11], S33, 0x6D9D6122
-            b = _HH b, c, d, a, x[k + 14], S34, 0xFDE5380C
-            a = _HH a, b, c, d, x[k + 1], S31, 0xA4BEEA44
-            d = _HH d, a, b, c, x[k + 4], S32, 0x4BDECFA9
-            c = _HH c, d, a, b, x[k + 7], S33, 0xF6BB4B60
-            b = _HH b, c, d, a, x[k + 10], S34, 0xBEBFBC70
-            a = _HH a, b, c, d, x[k + 13], S31, 0x289B7EC6
-            d = _HH d, a, b, c, x[k + 0], S32, 0xEAA127FA
-            c = _HH c, d, a, b, x[k + 3], S33, 0xD4EF3085
-            b = _HH b, c, d, a, x[k + 6], S34, 0x4881D05
-            a = _HH a, b, c, d, x[k + 9], S31, 0xD9D4D039
-            d = _HH d, a, b, c, x[k + 12], S32, 0xE6DB99E5
-            c = _HH c, d, a, b, x[k + 15], S33, 0x1FA27CF8
-            b = _HH b, c, d, a, x[k + 2], S34, 0xC4AC5665
-            a = _II a, b, c, d, x[k + 0], S41, 0xF4292244
-            d = _II d, a, b, c, x[k + 7], S42, 0x432AFF97
-            c = _II c, d, a, b, x[k + 14], S43, 0xAB9423A7
-            b = _II b, c, d, a, x[k + 5], S44, 0xFC93A039
-            a = _II a, b, c, d, x[k + 12], S41, 0x655B59C3
-            d = _II d, a, b, c, x[k + 3], S42, 0x8F0CCC92
-            c = _II c, d, a, b, x[k + 10], S43, 0xFFEFF47D
-            b = _II b, c, d, a, x[k + 1], S44, 0x85845DD1
-            a = _II a, b, c, d, x[k + 8], S41, 0x6FA87E4F
-            d = _II d, a, b, c, x[k + 15], S42, 0xFE2CE6E0
-            c = _II c, d, a, b, x[k + 6], S43, 0xA3014314
-            b = _II b, c, d, a, x[k + 13], S44, 0x4E0811A1
-            a = _II a, b, c, d, x[k + 4], S41, 0xF7537E82
-            d = _II d, a, b, c, x[k + 11], S42, 0xBD3AF235
-            c = _II c, d, a, b, x[k + 2], S43, 0x2AD7D2BB
-            b = _II b, c, d, a, x[k + 9], S44, 0xEB86D391
-            a = addUnsigned a, AA
-            b = addUnsigned b, BB
-            c = addUnsigned c, CC
-            d = addUnsigned d, DD
+        let k = 0
+        while (k < x.length) {
+            const AA = a
+            const BB = b
+            const CC = c
+            const DD = d
+            a = _FF(a, b, c, d, x[k + 0], S11, 0xD76AA478)
+            d = _FF(d, a, b, c, x[k + 1], S12, 0xE8C7B756)
+            c = _FF(c, d, a, b, x[k + 2], S13, 0x242070DB)
+            b = _FF(b, c, d, a, x[k + 3], S14, 0xC1BDCEEE)
+            a = _FF(a, b, c, d, x[k + 4], S11, 0xF57C0FAF)
+            d = _FF(d, a, b, c, x[k + 5], S12, 0x4787C62A)
+            c = _FF(c, d, a, b, x[k + 6], S13, 0xA8304613)
+            b = _FF(b, c, d, a, x[k + 7], S14, 0xFD469501)
+            a = _FF(a, b, c, d, x[k + 8], S11, 0x698098D8)
+            d = _FF(d, a, b, c, x[k + 9], S12, 0x8B44F7AF)
+            c = _FF(c, d, a, b, x[k + 10], S13, 0xFFFF5BB1)
+            b = _FF(b, c, d, a, x[k + 11], S14, 0x895CD7BE)
+            a = _FF(a, b, c, d, x[k + 12], S11, 0x6B901122)
+            d = _FF(d, a, b, c, x[k + 13], S12, 0xFD987193)
+            c = _FF(c, d, a, b, x[k + 14], S13, 0xA679438E)
+            b = _FF(b, c, d, a, x[k + 15], S14, 0x49B40821)
+            a = _GG(a, b, c, d, x[k + 1], S21, 0xF61E2562)
+            d = _GG(d, a, b, c, x[k + 6], S22, 0xC040B340)
+            c = _GG(c, d, a, b, x[k + 11], S23, 0x265E5A51)
+            b = _GG(b, c, d, a, x[k + 0], S24, 0xE9B6C7AA)
+            a = _GG(a, b, c, d, x[k + 5], S21, 0xD62F105D)
+            d = _GG(d, a, b, c, x[k + 10], S22, 0x2441453)
+            c = _GG(c, d, a, b, x[k + 15], S23, 0xD8A1E681)
+            b = _GG(b, c, d, a, x[k + 4], S24, 0xE7D3FBC8)
+            a = _GG(a, b, c, d, x[k + 9], S21, 0x21E1CDE6)
+            d = _GG(d, a, b, c, x[k + 14], S22, 0xC33707D6)
+            c = _GG(c, d, a, b, x[k + 3], S23, 0xF4D50D87)
+            b = _GG(b, c, d, a, x[k + 8], S24, 0x455A14ED)
+            a = _GG(a, b, c, d, x[k + 13], S21, 0xA9E3E905)
+            d = _GG(d, a, b, c, x[k + 2], S22, 0xFCEFA3F8)
+            c = _GG(c, d, a, b, x[k + 7], S23, 0x676F02D9)
+            b = _GG(b, c, d, a, x[k + 12], S24, 0x8D2A4C8A)
+            a = _HH(a, b, c, d, x[k + 5], S31, 0xFFFA3942)
+            d = _HH(d, a, b, c, x[k + 8], S32, 0x8771F681)
+            c = _HH(c, d, a, b, x[k + 11], S33, 0x6D9D6122)
+            b = _HH(b, c, d, a, x[k + 14], S34, 0xFDE5380C)
+            a = _HH(a, b, c, d, x[k + 1], S31, 0xA4BEEA44)
+            d = _HH(d, a, b, c, x[k + 4], S32, 0x4BDECFA9)
+            c = _HH(c, d, a, b, x[k + 7], S33, 0xF6BB4B60)
+            b = _HH(b, c, d, a, x[k + 10], S34, 0xBEBFBC70)
+            a = _HH(a, b, c, d, x[k + 13], S31, 0x289B7EC6)
+            d = _HH(d, a, b, c, x[k + 0], S32, 0xEAA127FA)
+            c = _HH(c, d, a, b, x[k + 3], S33, 0xD4EF3085)
+            b = _HH(b, c, d, a, x[k + 6], S34, 0x4881D05)
+            a = _HH(a, b, c, d, x[k + 9], S31, 0xD9D4D039)
+            d = _HH(d, a, b, c, x[k + 12], S32, 0xE6DB99E5)
+            c = _HH(c, d, a, b, x[k + 15], S33, 0x1FA27CF8)
+            b = _HH(b, c, d, a, x[k + 2], S34, 0xC4AC5665)
+            a = _II(a, b, c, d, x[k + 0], S41, 0xF4292244)
+            d = _II(d, a, b, c, x[k + 7], S42, 0x432AFF97)
+            c = _II(c, d, a, b, x[k + 14], S43, 0xAB9423A7)
+            b = _II(b, c, d, a, x[k + 5], S44, 0xFC93A039)
+            a = _II(a, b, c, d, x[k + 12], S41, 0x655B59C3)
+            d = _II(d, a, b, c, x[k + 3], S42, 0x8F0CCC92)
+            c = _II(c, d, a, b, x[k + 10], S43, 0xFFEFF47D)
+            b = _II(b, c, d, a, x[k + 1], S44, 0x85845DD1)
+            a = _II(a, b, c, d, x[k + 8], S41, 0x6FA87E4F)
+            d = _II(d, a, b, c, x[k + 15], S42, 0xFE2CE6E0)
+            c = _II(c, d, a, b, x[k + 6], S43, 0xA3014314)
+            b = _II(b, c, d, a, x[k + 13], S44, 0x4E0811A1)
+            a = _II(a, b, c, d, x[k + 4], S41, 0xF7537E82)
+            d = _II(d, a, b, c, x[k + 11], S42, 0xBD3AF235)
+            c = _II(c, d, a, b, x[k + 2], S43, 0x2AD7D2BB)
+            b = _II(b, c, d, a, x[k + 9], S44, 0xEB86D391)
+            a = addUnsigned(a, AA)
+            b = addUnsigned(b, BB)
+            c = addUnsigned(c, CC)
+            d = addUnsigned(d, DD)
             k += 16
-        (
-            wordToHex(a) + wordToHex(b) + wordToHex(c) + wordToHex d
-        ).toLowerCase()
-    stringNormalizePhoneNumber: (phoneNumber) ->
-        ###
-            Normalizes given phone number for automatic dialing mechanisms.
-
-            **phoneNumber {String}** - Number to normalize.
-
-            **returns {String}**     - Normalized number.
-        ###
-        if phoneNumber?
-            return "#{phoneNumber}".replace(/[^0-9]*\+/, '00').replace(
+        }
+        return (wordToHex(a) + wordToHex(b) + wordToHex(c) + wordToHex(
+            d
+        )).toLowerCase()
+    }
+    /**
+     * Normalizes given phone number for automatic dialing mechanisms.
+     * @param phoneNumber - Number to normalize.
+     * @returns Normalized number.
+     */
+    stringNormalizePhoneNumber(phoneNumber) {
+        if (honeNumber)
+            return `${phoneNumber}`.replace(/[^0-9]*\+/, '00').replace(
                 /[^0-9]+/g, '')
-        ''
-    stringRepresentPhoneNumber: (phoneNumber) ->
-        ###
-            Represents given phone number. NOTE: Currently only support
-            German phone numbers.
-
-            **phoneNumber {String}** - Number to format.
-
-            **returns {String}**     - Formatted number.
-        ###
-        if phoneNumber and phoneNumber.replace?
-            # Represent country code and leading area code zero.
+        return ''
+    }
+    /**
+     * Represents given phone number. NOTE: Currently only support german phone
+     * numbers.
+     * @param phoneNumber - Number to format.
+     * @returns Formatted number.
+     */
+    stringRepresentPhoneNumber(phoneNumber) {
+        if ($.type(phoneNumber === 'string') && phoneNumber) {
+            // Represent country code and leading area code zero.
             phoneNumber = phoneNumber.replace(
                 /^(00|\+)([0-9]+)-([0-9-]+)$/, '+$2 (0) $3')
-            # Add German country code if not exists.
+            // Add German country code if not exists.
             phoneNumber = phoneNumber.replace(
                 /^0([1-9][0-9-]+)$/, '+49 (0) $1')
-            # Separate area code from base number.
-            phoneNumber = phoneNumber.replace(
-                /^([^-]+)-([0-9-]+)$/, '$1 / $2')
-            # Partition base number in one triple and tuples or tuples
-            # only.
-            return $.trim phoneNumber.replace(
+            // Separate area code from base number.
+            phoneNumber = phoneNumber.replace(/^([^-]+)-([0-9-]+)$/, '$1 / $2')
+            // Partition base number in one triple and tuples or tuples only.
+            return $.trim(phoneNumber.replace(
                 /^(.*?)([0-9]+)(-?[0-9]*)$/, (
                     match, prefix, number, suffix
-                ) -> prefix + $.trim(
-                    if number.length % 2 is 0 then number.replace(
+                ) => prefix + $.trim(
+                    (number.length % 2 is 0) ? number.replace(
                         /([0-9]{2})/g, '$1 '
-                    ) else number.replace(
+                    ) : number.replace(
                         /^([0-9]{3})([0-9]+)$/, (match, triple, rest) ->
                             triple + ' ' + $.trim rest.replace(
                                 /([0-9]{2})/g, '$1 ')
-                    ) + suffix))
-        ''
-    stringDecodeHTMLEntities: (htmlString) ->
-        ###
-            Decodes all html symbols in text nodes in given html string.
-
-            **htmlString {String}** - HTML string to decode.
-
-            **returns {String}**    - Decoded html string.
-        ###
-        if context.document?
-            textareaDomNode = context.document.createElement 'textarea'
+                    ) + suffix)))
+        }
+        return ''
+    }
+    /**
+     * Decodes all html symbols in text nodes in given html string.
+     * @param htmlString - HTML string to decode.
+     * @returns Decoded html string.
+     */
+    stringDecodeHTMLEntities(htmlString) {
+        if (context.hasOwnProperty('document')) {
+            const textareaDomNode = context.document.createElement('textarea')
             textareaDomNode.innerHTML = htmlString
             return textareaDomNode.value
-        null
-    ## endregion
-    ## region number
-    numberIsNotANumber: (object) ->
-        ###
-            Checks if given object is java scripts native
-            "Number.NaN" object.
-
-            **object {Mixed}**    - Object to Check.
-
-            **returns {Boolean}** - Returns weather given value is not a
-                                    number or not.
-        ###
-        typeof object is 'number' and isNaN object
-    numberRound: (number, digits=0) ->
-        ###
-            Rounds a given number accurate to given number of digits.
-
-            **number {Float}**   - The number to round.
-
-            **digits {Integer}** - The number of digits after comma.
-
-            **returns {Float}**  - Returns the rounded number.
-        ###
-        Math.round(number * Math.pow 10, digits) / Math.pow 10, digits
-    ## endregion
-    ## region data transfer
-    sendToIFrame: (
-        target, url, data, requestType='post', removeAfterLoad=false
-    ) ->
-        ###
-            Send given data to a given iframe.
-
-            **target {String|DomNode}**   - Name of the target iframe or
-                                            the target iframe itself.
-
-            **url {String}**              - URL to send to data to.
-
-            **data {Object}**             - Data holding object to send
-                                            data to.
-
-            **requestType {String}**      - The forms action attribute
-                                            value. If nothing is provided
-                                            "post" will be used as default.
-
-            **removeAfterLoad {Boolean}** - Indicates if created iframe
-                                            should be removed right after
-                                            load event. Only works if an
-                                            iframe object is given instead
-                                            of a simple target name.
-
-            **returns {String|DomNode}**  - Returns the given target.
-        ###
-        form = $('<form>').attr
-            action: url
-            method: requestType
-            target: if $.type(
-                target
-            ) is 'string' then target else target.attr 'name'
-        for name, value of data
-            form.append $('<input>').attr
-                type: 'hidden'
-                name: name
-                value: value
-        form.submit().remove()
-        target.on? 'load', -> target.remove() if removeAfterLoad
-    sendToExternalURL: (
-        url, data, requestType='post', removeAfterLoad=true
-    ) ->
-        ###
-            Send given data to a temporary created iframe.
-
-            **url {String}**              - URL to send to data to.
-
-            **data {Object}**             - Data holding object to send
-                                            data to.
-
-            **requestType {String}**      - The forms action attribute
-                                            value. If nothing is provided
-                                            "post" will be used as default.
-
-            **removeAfterLoad {Boolean}** - Indicates if created iframe
-                                            should be removed right after
-                                            load event.
-
-            **returns {DomNode}**         - Returns the dynamically created
-                                            iframe.
-        ###
-        iFrame = $('<iframe>').attr(
-            name: this.__name__.charAt(0).toLowerCase() + this.__name__.substring(1) + (new Date).getTime()
-        ).hide()
-        this.$domNode.after iFrame
-        this.sendToIFrame iFrame, url, data, requestType, removeAfterLoad
-    ## endregion
-    # endregion
-    # region protected
-    _bindHelper: (
-        parameter, removeEvent=false, eventFunctionName='on'
-    ) ->
-        ###
-            Helper method for attach event handler methods and their event
-            handler remove pendants.
-
-            **parameter** {Object}**       - Arguments object given to
-                                             methods like "bind()" or
-                                             "unbind()".
-
-            **removeEvent {Boolean}**      - Indicates if "unbind()" or
-                                             "bind()" was given.
-
-            **eventFunctionName {String}** - Name of function to wrap.
-
-            **returns {$}**                - Returns $'s wrapped dom node.
-        ###
-        $domNode = $ parameter[0]
-        if $.type(parameter[1]) is 'object' and not removeEvent
+        }
+        return null
+    }
+    // / endregion
+    // / region number
+    /**
+     * Checks if given object is java scripts native "Number.NaN" object.
+     * @param object - Object to Check.
+     * @returns Returns weather given value is not a number or not.
+     */
+    numberIsNotANumber(object) {
+        return $.type(object) === 'number' && isNaN(object)
+    }
+    /**
+     * Rounds a given number accurate to given number of digits.
+     * @param number - The number to round.
+     * @param digits - The number of digits after comma.
+     * @returns Returns the rounded number.
+     */
+    numberRound(number, digits = 0) {
+        return Math.round(number * Math.pow(10, digits)) / Math.pow(10, digits)
+    }
+    // / endregion
+    // / region data transfer
+    /**
+     * Send given data to a given iframe.
+     * @param target - Name of the target iframe or the target iframe itself.
+     * @param url - URL to send to data to.
+     * @param data - Data holding object to send data to.
+     * @param requestType - The forms action attribute value. If nothing is
+     * provided "post" will be used as default.
+     * @param removeAfterLoad - Indicates if created iframe should be removed
+     * right after load event. Only works if an iframe object is given instead
+     * of a simple target name.
+     * @returns Returns the given target.
+     */
+    sendToIFrame(
+        target, url, data, requestType = 'post', removeAfterLoad = false
+    ) {
+        const $formDomNode = $('<form>').attr({
+            action: url,
+            method: requestType,
+            target: $.type(target) === 'string' ? target : target.attr('name')
+        })
+        for (name in data)
+            if (data.hasOwnProperty(name))
+                $formDomNode.append($('<input>').attr({
+                    type: 'hidden',
+                    name: name,
+                    value: value
+                }))
+        $formDomNode.submit().remove()
+        if (removeAfterLoad && 'on' in target)
+            target.on('load', () => target.remove())
+        return target
+    }
+    /**
+     * Send given data to a temporary created iframe.
+     * @param url - URL to send to data to.
+     * @param data - Data holding object to send data to.
+     * @param requestType - The forms action attribute value. If nothing is
+     * provided "post" will be used as default.
+     * @param removeAfterLoad - Indicates if created iframe should be removed
+     * right after load event.
+     * @returns Returns the dynamically created iframe.
+     */
+    sendToExternalURL(
+        url, data, requestType = 'post', removeAfterLoad = true
+    ) {
+        const iFrameDomNode = $('<iframe>').attr('name', this.__name__.charAt(
+            0
+        ).toLowerCase() + this.__name__.substring(1) + (new Date).getTime(
+        )).hide()
+        this.$domNode.after($iFrameDomNode)
+        return this.sendToIFrame(
+            iFrameDomNode, url, data, requestType, removeAfterLoad)
+    }
+    // / endregion
+    // endregion
+    // region protected
+    /**
+     * Helper method for attach event handler methods and their event handler
+     * remove pendants.
+     * @param parameter - Arguments object given to methods like "bind()" or
+     * "unbind()".
+     * @param removeEvent - Indicates if "unbind()" or "bind()" was given.
+     * @param eventFunctionName - Name of function to wrap.
+     * @returns Returns $'s wrapped dom node.
+     */
+    _bindHelper(
+        parameter, removeEvent = false, eventFunctionName = 'on'
+    ) {
+        const $domNode = $(parameter[0])
+        if ($.type(parameter[1]) === 'object' && !removeEvent) {
             $.each(parameter[1], (eventType, handler) =>
-                this[eventFunctionName] $domNode, eventType, handler)
+                this[eventFunctionName]($domNode, eventType, handler))
             return $domNode
-        parameter = this.argumentsObjectToArray(parameter).slice 1
-        if parameter.length is 0
-            parameter.push ''
-        if parameter[0].indexOf('.') is -1
-            parameter[0] += ".#{this.__name__}"
-        if removeEvent
-            return $domNode[eventFunctionName].apply $domNode, parameter
-        $domNode[eventFunctionName].apply $domNode, parameter
-    _grabDomNodeHelper: (key, selector, domNodeSelectors) ->
-        ###
-            Converts a dom selector to a prefixed dom selector string.
-
-            **key {Integer}**             - Current element in options
-                                            array to
-                                            grab.
-
-            **selector {String}**         - A dom node selector.
-
-            **domNodeSelectors {Object}** - An object with dom node
-                                            selectors.
-
-            **returns {Object}**          - Returns given selector
-                                            prefixed.
-        ###
-        domNodeSelectorPrefix = ''
-        if this._options.domNodeSelectorPrefix
-            domNodeSelectorPrefix = this._options.domNodeSelectorPrefix + ' '
-        if not (selector.startsWith(domNodeSelectorPrefix) or $.trim(selector).startsWith('<'))
+        }
+        parameter = this.argumentsObjectToArray(parameter).slice(1)
+        if (parameter.length === 0)
+            parameter.push('')
+        if (!parameter[0].includes('.'))
+            parameter[0] += `.${this.__name__}`
+        if (removeEvent)
+            return $domNode[eventFunctionName].apply($domNode, parameter)
+        return $domNode[eventFunctionName].apply($domNode, parameter)
+    }
+    /**
+     * Converts a dom selector to a prefixed dom selector string.
+     * @param key - Current element in options array to grab.
+     * @param selector - A dom node selector.
+     * @param domNodeSelectors - An object with dom node selectors.
+     * @returns Returns given selector prefixed.
+     */
+    _grabDomNodeHelper(key, selector, domNodeSelectors) {
+        const domNodeSelectorPrefix = ''
+        if (this._options.domNodeSelectorPrefix)
+            domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
+        if (!(selector.startsWith(domNodeSelectorPrefix) || $.trim(
+            selector
+        ).startsWith('<'))) {
             domNodeSelectors[key] = domNodeSelectorPrefix + selector
-            return $.trim domNodeSelectors[key]
-        $.trim selector
-    # endregion
+            return $.trim(domNodeSelectors[key])
+        }
+        return $.trim(selector)
+    }
+    // endregion
 }
 // endregion
 // region handle $ extending
