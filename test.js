@@ -23,6 +23,9 @@ declare var TARGET:string
 declare var window:Window
 /* eslint-enable no-unused-vars */
 // endregion
+// region types
+type JQueryFunction = (object:any) => Object
+// endregion
 const qunit:Object = (TARGET === 'node') ? require('qunit-cli') : require(
     'qunitjs')
 browserAPI((window:Window, location:Location) => {
@@ -30,7 +33,7 @@ browserAPI((window:Window, location:Location) => {
     // ensure that all jquery instances share the same window object.
     if (typeof global !== 'undefined')
         global.window = window
-    const $:Object = require('jquery')
+    const $:JQueryFunction = require('jquery')
     $.context = window.document
     require('index')
     if (TARGET === 'node')
@@ -419,7 +422,7 @@ browserAPI((window:Window, location:Location) => {
         tester([2, 2])
         qunit.deepEqual(result, [[0, 2], [1, 2]])
         result = []
-        tester({5: 2, 6: 2, 2: 3})
+        tester({'5': 2, '6': 2, '2': 3})
         qunit.deepEqual(result, [['2', 3], ['5', 2], ['6', 2]])
         result = []
         tester({'a': 2, 'c': 2, 'z': 3})
@@ -437,9 +440,12 @@ browserAPI((window:Window, location:Location) => {
         qunit.deepEqual(tools.sort([1, 2, 3]), [0, 1, 2])
         qunit.deepEqual(tools.sort([3, 2, 1]), [0, 1, 2])
         qunit.deepEqual(tools.sort([2, 3, 1]), [0, 1, 2])
-        qunit.deepEqual(tools.sort({1: 2, 2: 5, 3: 'a'}), ['1', '2', '3'])
-        qunit.deepEqual(tools.sort({2: 2, 1: 5, '-5': 'a'}), ['-5', '1', '2'])
-        qunit.deepEqual(tools.sort({3: 2, 2: 5, 1: 'a'}), ['1', '2', '3'])
+        qunit.deepEqual(tools.sort({'1': 2, '2': 5, '3': 'a'}), [
+            '1', '2', '3'])
+        qunit.deepEqual(tools.sort({'2': 2, '1': 5, '-5': 'a'}), [
+            '-5', '1', '2'])
+        qunit.deepEqual(tools.sort({'3': 2, '2': 5, '1': 'a'}), [
+            '1', '2', '3'])
         qunit.deepEqual(tools.sort(
             {'a': 2, 'b': 5, 'c': 'a'}), ['a', 'b', 'c'])
         qunit.deepEqual(tools.sort(
