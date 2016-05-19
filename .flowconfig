@@ -2,7 +2,8 @@
 .*/\.git
 .*/_.*\.js
 .*/.+\.compiled\.js
-(.*/|^)node_modules/webOptimizer/([^t]|(t[^y])|(ty[^p])|(typ[^e]))|([^b]|(b[^r])|(br[^o])|(bro[^w])|(brow[^s])|(brows[^e])|(browse[^r])|(browser[^A])|(browserA[^P])|(browserAP[^I])).*\.js
+(.*/|^)node_modules/webOptimizer/(([^t].*)|(t[^y].*)|(ty[^p].*)|(typ[^e].*)|(type.+)|(..?.?))\.js
+(.*/|^)node_modules/webOptimizer/(([^b].*)|(b[^r].*)|(br[^o].*)|(bro[^w].*)|(brow[^s].*)|(brows[^e].*)|(browse[^r].*)|(browser[^A].*)|(browserA[^P].*)|(browserAP[^I].*)|(browserAPI.+)|(..?.?.?.?.?.?.?.?))\.js
 
 [options]
 module.name_mapper='^\./index\.compiled$' -> './index'
