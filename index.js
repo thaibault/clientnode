@@ -20,7 +20,7 @@
     endregion
 */
 // region imports
-import {* as $} from 'jquery'
+import * as $ from 'jquery'
 // endregion
 const context = ($.type(window) === 'undefined') ? (($.type(
     global
@@ -48,17 +48,17 @@ class Tools {
         DELETE: 46,
         DOWN: 40,
         END: 35,
-        ENTER: 13
+        ENTER: 13,
         ESCAPE: 27,
         HOME: 36,
         LEFT: 37,
         NUMPAD_ADD: 107,
         NUMPAD_DECIMAL: 110,
         NUMPAD_DIVIDE: 111,
-        NUMPAD_ENTER: 108
+        NUMPAD_ENTER: 108,
         NUMPAD_MULTIPLY: 106,
         NUMPAD_SUBTRACT: 109,
-        PAGE_DOWN: 34
+        PAGE_DOWN: 34,
         PAGE_UP: 33,
         PERIOD: 190,
         RIGHT: 39,
