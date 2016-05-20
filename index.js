@@ -21,8 +21,13 @@
 */
 // region imports
 import * as $ from 'jquery'
+import type {PlainObject} from 'webOptimizer/type'
 // endregion
-const context = ($.type(window) === 'undefined') ? (($.type(
+// region types
+type $DomNode = Object
+type DomNode = Object
+// endregion
+const context:any = ($.type(window) === 'undefined') ? (($.type(
     global
 ) === 'undefined') ? (($.type(module) === 'undefined') ? {} : module) : global
 ) : window
@@ -37,7 +42,7 @@ if (context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  * provided.
  */
 class Tools {
-    // region properties
+    // region static properties
     /**
      * @member Saves a mapping from key codes to their corresponding name.
      */
@@ -90,7 +95,8 @@ class Tools {
         if (context.hasOwnProperty('document'))
             return 0
         const div = context.document.createElement('div')
-        for (const version = 0; version < 10; version++) {
+        let version:number
+        for (version = 0; version < 10; version++) {
             /*
                 NOTE: We split html comment sequences to avoid wrong
                 interpretation if this code is embedded in markup.
@@ -151,7 +157,13 @@ class Tools {
     /*
      * @member Holds the class name to provide inspection features.
      */
-    static __name__ = 'Tools';
+    static __name__ = 'Tools'
+    // endregion
+    // region dynamic properties
+    $domNode:?$DomNode
+    _options:PlainObject
+    _defaultOptions:PlainObject
+    _locks:{[key:string]:(description:string) => ?null};
     // endregion
     // region public methods
     // / region special
@@ -166,17 +178,18 @@ class Tools {
      * @returns Returns a new instance.
      */
     constructor(
-        $domNode = null, _options = {}, _defaultOptions = {
+        $domNode:?$DomNode = null, options:PlainObject = {},
+        defaultOptions:PlainObject = {
             logging: false, domNodeSelectorPrefix: 'body', domNode: {
                 hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
                 showJavaScriptEnabled: '.tools-visible-on-javascript-enabled'
             }
-        }, _locks = {}
+        }, locks:{[key:string]:(description:string) => ?null} = {}
     ) {
-        this.$domNode = domNode
-        this._options = _options
-        this._defaultOptions = _defaultOptions
-        this._locks = _locks
+        this.$domNode = $domNode
+        this._options = options
+        this._defaultOptions = defaultOptions
+        this._locks = locks
         // Avoid errors in browsers that lack a console.
         if (!context.hasOwnProperty('console'))
             context.console = {}
@@ -229,9 +242,9 @@ class Tools {
             The selector prefix should be parsed after extending options
             because the selector would be overwritten otherwise.
         */
-        this._options.domNodeSelectorPrefix = this.stringFormat(
+        this._options.domNodeSelectorPrefix = Tools.stringFormat(
             this._options.domNodeSelectorPrefix,
-            this.stringCamelCaseToDelimited(this.__name__))
+            Tools.stringCamelCaseToDelimited(Tools.__name__))
         return this
     }
     // / endregion
@@ -896,12 +909,12 @@ class Tools {
     static convertPlainObjectToMap<Value>(
         object:Value, deep:boolean = true
     ):Value|Mapping {
-        if ($.type(object) === 'object' && Helper.isObject(object)) {
+        if ($.type(object) === 'object' && $.isPlainObject(object)) {
             const newObject:Mapping = new Map()
             for (const key:string in object)
                 if (object.hasOwnProperty(key)) {
                     if (deep)
-                        object[key] = Helper.convertPlainObjectToMap(
+                        object[key] = Tools.convertPlainObjectToMap(
                             object[key], deep)
                     newObject.set(key, object[key])
                 }
@@ -911,12 +924,12 @@ class Tools {
             if (Array.isArray(object)) {
                 let index:number = 0
                 for (const value:Object of object) {
-                    object[index] = Helper.convertPlainObjectToMap(value, deep)
+                    object[index] = Tools.convertPlainObjectToMap(value, deep)
                     index += 1
                 }
             } else if (object instanceof Map) {
                 for (const [key:mixed, value:mixed] of object)
-                    object.set(key, Helper.convertPlainObjectToMap(
+                    object.set(key, Tools.convertPlainObjectToMap(
                         value, deep))
             }
         return object
@@ -936,21 +949,21 @@ class Tools {
             const newObject:Mapping = {}
             for (let [key:any, value:mixed] of object) {
                 if (deep)
-                    value = Helper.convertMapToPlainObject(value, deep)
+                    value = Tools.convertMapToPlainObject(value, deep)
                 newObject[`${key}`] = value
             }
             return newObject
         }
         if (deep)
-            if ($.type(object) === 'object' && Helper.isObject(object)) {
+            if ($.type(object) === 'object' && $.isPlainObject(object)) {
                 for (const key:string in object)
                     if (object.hasOwnProperty(key))
-                        object[key] = Helper.convertMapToPlainObject(
+                        object[key] = Tools.convertMapToPlainObject(
                             object[key], deep)
             } else if (Array.isArray(object)) {
                 let index:number = 0
                 for (const value:mixed of object) {
-                    object[index] = Helper.convertMapToPlainObject(value, deep)
+                    object[index] = Tools.convertMapToPlainObject(value, deep)
                     index += 1
                 }
             }
@@ -968,8 +981,9 @@ class Tools {
      */
     static forEachSorted(object, iterator, context) {
         const keys = Tools.sort(object)
-        for (key in keys)
-            iterator.call(context, object[key], key)
+        for (const key in keys)
+            if (keys.hasOwnProperty(key))
+                iterator.call(context, object[key], key)
         return keys
     }
     /**
@@ -978,15 +992,14 @@ class Tools {
      * @returns Sorted list of given keys.
      */
     static sort(object) {
-        const isArray = $.isArray(object)
         const keys = []
-        for (key in object)
-            if (object.hasOwnProperty(key)) {
-                if (isArray)
-                    key = parseInt(key)
+        if ($.isArray(object))
+            for (const index of object)
+                keys.push(index)
+        else
+            for (const key in object)
                 if (object.hasOwnProperty(key))
                     keys.push(key)
-            }
         return keys.sort()
     }
     /**
