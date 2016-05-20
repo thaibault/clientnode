@@ -20,7 +20,7 @@
     endregion
 */
 // region imports
-import * as $ from 'jquery'
+import $ from 'jquery'
 import type {PlainObject} from 'webOptimizer/type'
 // endregion
 // region types
@@ -31,7 +31,7 @@ const context:any = ($.type(window) === 'undefined') ? (($.type(
     global
 ) === 'undefined') ? (($.type(module) === 'undefined') ? {} : module) : global
 ) : window
-if (context.hasOwnProperty('document') && $.hasOwnProperty('context'))
+if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
     context.document = $.context
 // region plugins/classes
 /**
@@ -106,7 +106,7 @@ class Tools {
                 Otherwise there shouldn't be any whitespace!
             */
             div.innerHTML = (
-                '<!' + "--[if gt IE #{version}]><i></i><![e" + 'ndif]-' +
+                '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' +
                 '->')
             if (div.getElementsByTagName('i').length === 0)
                 break
@@ -154,10 +154,6 @@ class Tools {
      * shown.
      */
     static _javaScriptDependentContentHandled = false
-    /*
-     * @member Holds the class name to provide inspection features.
-     */
-    static __name__ = 'Tools'
     // endregion
     // region dynamic properties
     $domNode:?$DomNode
@@ -244,7 +240,7 @@ class Tools {
         */
         this._options.domNodeSelectorPrefix = Tools.stringFormat(
             this._options.domNodeSelectorPrefix,
-            Tools.stringCamelCaseToDelimited(Tools.__name__))
+            Tools.stringCamelCaseToDelimited(this.constructor.name))
         return this
     }
     // / endregion
@@ -257,16 +253,16 @@ class Tools {
      * @returns Returns whatever the initializer method returns.
      */
     controller(object, parameter, $domNode = null) {
-        parameter = Tools.argumentsObjectToArray(parameter)
-        if (object.hasOwnProperty('__name__')) {
+        if (typeof object === 'function') {
             object = new object($domNode)
-            if (!object.hasOwnProperty('__tools__'))
+            if (!object instanceof Tools)
                 object = $.extend(true, new Tools(), object)
         }
-        if ($domNode !== null && !$domNode.data(object.__name__))
+        parameter = Tools.argumentsObjectToArray(parameter)
+        if ($domNode !== null && !$domNode.data(object.constructor.name))
             // Attach extended object to the associated dom node.
-            $domNode.data(object.__name__, object)
-        if (object.hasOwnProperty(parameter[0]))
+            $domNode.data(object.constructor.name, object)
+        if (parameter[0] in object)
             return object[parameter[0]].apply(object, parameter.slice(1))
         else if (parameter.length === 0 || $.type(parameter[0]) === 'object')
             /*
@@ -275,8 +271,8 @@ class Tools {
             */
             return object.initialize.apply(object, parameter)
         $.error(
-            "Method \"#{parameter[0]}\" does not exist on $-extension " +
-            "#{object.__name__}\".")
+            `Method "${parameter[0]}" does not exist on $-extension ` +
+            `"${object.constructor.name}".`)
     }
     // / endregion
     // / region mutual exclusion
@@ -375,10 +371,11 @@ class Tools {
                 message = object
             else if ($.type(object) === 'string') {
                 additionalArguments.unshift(object)
-                message = `${Tools.__name__} (${level}): ` +
+                message = `${this.constructor.name} (${level}): ` +
                     Tools.stringFormat.apply(this, additionalArguments)
             } else if ($.isNumeric(object) || $.type(object) === 'boolean')
-                message = `${Tools.__name__} (${level}): ${object.toString()}`
+                message = `${this.constructor.name} (${level}): ` +
+                    object.toString()
             else {
                 this.log(',--------------------------------------------,')
                 this.log(object, force, true)
@@ -473,7 +470,7 @@ class Tools {
                     value = 'undefined'
                 else if (value === null)
                     value = 'null'
-                output += "#{key.toString()}: #{value.toString()}\n"
+                output += `${key.toString()}: ${value.toString()}\n`
             })
         if (!output)
             output = output.toString()
@@ -486,16 +483,17 @@ class Tools {
      * @returns Returns current instance.
      */
     normalizeClassNames() {
-        this.$domNode.find('*').addBack().each(() => {
-            const $this = $(this)
-            if ($this.attr('class')) {
-                const sortedClassNames = $this.attr('class').split(' ').sort(
-                ) || []
-                $this.attr('class', '')
+        this.$domNode.find('*').addBack().each(function() {
+            const $thisDomNode = $(this)
+            if ($thisDomNode.attr('class')) {
+                const sortedClassNames = $thisDomNode.attr('class').split(
+                    ' '
+                ).sort() || []
+                $thisDomNode.attr('class', '')
                 for (const className of sortedClassNames)
-                    $this.addClass(className)
-            } else if ($this.is('[class]'))
-                $this.removeAttr('class')
+                    $thisDomNode.addClass(className)
+            } else if ($thisDomNode.is('[class]'))
+                $thisDomNode.removeAttr('class')
         })
         return this
     }
@@ -526,8 +524,7 @@ class Tools {
                         $secondDomNode = $secondDomNode.Tools(
                             'normalizeClassNames'
                         ).$domNode
-                        return $firstDomNode[0].isEqualNode(
-                            $secondDomNode[0])
+                        return $firstDomNode[0].isEqualNode($secondDomNode[0])
                     }
                     return false
                 }
@@ -545,7 +542,7 @@ class Tools {
      * @returns Returns one of "above", "left", "below", "right" or "in".
      */
     getPositionRelativeToViewport(delta = {}) {
-        const delta = $.extend({top: 0, left: 0, bottom: 0, right: 0}, delta)
+        delta = $.extend({top: 0, left: 0, bottom: 0, right: 0}, delta)
         if (context.hasOwnProperty('window')) {
             const $window = $(window)
             const rectangle = this.$domNode[0].getBoundingClientRect()
@@ -565,7 +562,7 @@ class Tools {
      * @param directiveName The directive name.
      * @returns Returns generated selector.
      */
-    generateDirectiveSelector(directiveName) {
+    static generateDirectiveSelector(directiveName) {
         const delimitedName = Tools.stringCamelCaseToDelimited(directiveName)
         return `${delimitedName}, .${delimitedName}, [${delimitedName}], ` +
             `[data-${delimitedName}], [x-${delimitedName}]` + (
@@ -675,7 +672,7 @@ class Tools {
             if (wrapperDomNode) {
                 const $wrapperDomNode = $(wrapperDomNode)
                 $.each(domNodeSelectors, (key, value) => {
-                    domNodes[key] = wrapperDomNode.find(value)
+                    domNodes[key] = $wrapperDomNode.find(value)
                 })
             } else
                 $.each(domNodeSelectors, (key, value) => {
@@ -708,7 +705,7 @@ class Tools {
      * in given scope.
      * @returns The isolated scope.
      */
-    static isolateScope(scope, prefixesToIgnore=['$', '_']) {
+    static isolateScope(scope, prefixesToIgnore = ['$', '_']) {
         for (const name in scope)
             if (!prefixesToIgnore.includes(name.charAt(0)) && ![
                 'this', 'constructor'
@@ -726,9 +723,9 @@ class Tools {
      * @returns The function name.
      */
     static determineUniqueScopeName(prefix = 'callback', scope = context) {
+        let uniqueName
         while (true) {
-            const uniqueName = prefix + parseInt(Math.random() * Math.pow(
-                10, 10))
+            uniqueName = prefix + parseInt(Math.random() * Math.pow(10, 10))
             if (!scope.hasOwnProperty(uniqueName))
                 break
         }
@@ -760,7 +757,7 @@ class Tools {
 
             var parameter = Tools.argumentsObjectToArray(arguments);
         */
-        const parameter = Tools.argumentsObjectToArray(arguments)
+        let parameter = Tools.argumentsObjectToArray(arguments)
         if ($.type(method) === 'string' && $.type(scope) === 'object')
             return function() {
                 if (!scope[method])
@@ -792,12 +789,12 @@ class Tools {
         return function(data) {
             if (data) {
                 const filteredData = filter.apply(this, arguments)
-                const result = []
-                if (filteredData.length)
-                    for (date in data)
+                let result = []
+                if (filteredData.length) {
+                    for (const date in data)
                         if (!filteredData.includes(date))
                             result.push(date)
-                else
+                } else
                     result = data
                 return result
             }
@@ -817,15 +814,14 @@ class Tools {
      * function call.
      * @returns Returns the wrapped method.
      */
-    debounce(
+    static debounce(
         eventFunction, thresholdInMilliseconds = 600, ...additionalArguments
     ) {
         let lock = false
         let waitingCallArguments = null
-        const self = this
         let timeoutID = null
         return function() {
-            const parameter = self.argumentsObjectToArray(arguments)
+            const parameter = Tools.argumentsObjectToArray(arguments)
             if (lock)
                 waitingCallArguments = parameter.concat(
                     additionalArguments || [])
@@ -863,7 +859,7 @@ class Tools {
     ) {
         if (!scope)
             scope = this
-        eventHandlerName = `on${Tools.stringCapitalize(eventName)}`
+        const eventHandlerName = `on${Tools.stringCapitalize(eventName)}`
         if (!callOnlyOptionsMethod)
             if (scope.hasOwnProperty(eventHandlerName))
                 scope[eventHandlerName].apply(scope, additionalArguments)
@@ -1384,7 +1380,7 @@ class Tools {
      * @param returns - The appended path.
      */
     static stringAddSeparatorToPath(path, pathSeparator = '/') {
-        const path = $.trim(path)
+        path = $.trim(path)
         if (path.substr(-1) !== pathSeparator && path.length)
             return path + pathSeparator
         return path
@@ -2099,9 +2095,9 @@ class Tools {
     sendToExternalURL(
         url, data, requestType = 'post', removeAfterLoad = true
     ) {
-        const iFrameDomNode = $('<iframe>').attr('name', Tools.__name__.charAt(
-            0
-        ).toLowerCase() + Tools.__name__.substring(1) + (new Date).getTime(
+        const iFrameDomNode = $('<iframe>').attr(
+            'name', this.constructor.name.charAt(0).toLowerCase() +
+            this.constructor.name.substring(1) + (new Date).getTime(
         )).hide()
         this.$domNode.after($iFrameDomNode)
         return Tools.sendToIFrame(
@@ -2132,7 +2128,7 @@ class Tools {
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
-            parameter[0] += `.${Tools.__name__}`
+            parameter[0] += `.${this.constructor.name}`
         if (removeEvent)
             return $domNode[eventFunctionName].apply($domNode, parameter)
         return $domNode[eventFunctionName].apply($domNode, parameter)
@@ -2145,7 +2141,7 @@ class Tools {
      * @returns Returns given selector prefixed.
      */
     _grabDomNodeHelper(key, selector, domNodeSelectors) {
-        const domNodeSelectorPrefix = ''
+        let domNodeSelectorPrefix = ''
         if (this._options.domNodeSelectorPrefix)
             domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
         if (!(selector.startsWith(domNodeSelectorPrefix) || $.trim(
