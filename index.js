@@ -791,7 +791,7 @@ class Tools {
                 const filteredData = filter.apply(this, arguments)
                 let result = []
                 if (filteredData.length) {
-                    for (const date in data)
+                    for (const date of data)
                         if (!filteredData.includes(date))
                             result.push(date)
                 } else
@@ -977,9 +977,8 @@ class Tools {
      */
     static forEachSorted(object, iterator, context) {
         const keys = Tools.sort(object)
-        for (const key in keys)
-            if (keys.hasOwnProperty(key))
-                iterator.call(context, object[key], key)
+        for (const key of keys)
+            iterator.call(context, object[key], key)
         return keys
     }
     /**
@@ -990,7 +989,7 @@ class Tools {
     static sort(object) {
         const keys = []
         if ($.isArray(object))
-            for (const index of object)
+            for (let index = 0; index < object.length; index++)
                 keys.push(index)
         else
             for (const key in object)
@@ -1216,7 +1215,7 @@ class Tools {
             for (const item of data) {
                 let matches = true
                 for (const key in propertyPattern)
-                    if (!(new RegExp(pattern)).test(item[key])) {
+                    if (!(new RegExp(propertyPattern[key])).test(item[key])) {
                         matches = false
                         break
                     }
@@ -1243,8 +1242,9 @@ class Tools {
     static arrayIntersect(firstSet, secondSet, keys = [], strict = true) {
         const containingData = []
         for (const initialItem of firstSet) {
+            let exists
             if ($.isPlainObject(initialItem)) {
-                let exists = false
+                exists = false
                 for (const newItem of secondSet) {
                     exists = true
                     const iterateGivenKeys = $.isPlainObject(
@@ -1289,7 +1289,8 @@ class Tools {
      * @param returns Produced array of integers.
      */
     static arrayMakeRange(range, step=1) {
-        let index
+        let index:number
+        let higherBound:number
         if (range.length === 1) {
             index = 0
             higherBound = parseInt(range[0])
@@ -1328,10 +1329,10 @@ class Tools {
      * @returns Item with the appended target.
      */
     static arrayAppendAdd(item, target, name, checkIfExists = true) {
-        if (item.hasOwnProperty(name))
+        if (item.hasOwnProperty(name)) {
             if (!(checkIfExists && item[name].includes(target)))
                 item[name].push(target)
-        else
+        } else
             item[name] = [target]
         return item
     }
@@ -1345,7 +1346,7 @@ class Tools {
      */
     static arrayRemove(list, target, strict = false) {
         if ($.isArray(list) || strict) {
-            index = list.indexOf(target)
+            const index:number = list.indexOf(target)
             if (index === -1) {
                 if (strict)
                     throw Error("Given target doesn't exists in given list.")
@@ -1419,8 +1420,9 @@ class Tools {
             'location'
         ) && location.hostname || ''
     ) {
-        result = /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
-        if (result && result.length > 2)
+        const result = /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(
+            url)
+        if (result && result.length > 2 && result[1] && result[2])
             return result[2]
         return fallback
     }
@@ -1470,7 +1472,7 @@ class Tools {
             location.protocol.substring(0, location.protocol.length - 1) || ''
     ) {
         const result = /^([a-z]+):\/\//i.exec(url)
-        if (result.length > 1)
+        if (result && result.length > 1 && result[1])
             return result[1]
         return fallback
     }
@@ -1517,7 +1519,7 @@ class Tools {
                         hashedPathIndicator.length, subHashStartIndex)
                     hash = hash.substring(subHashStartIndex)
                 }
-                subSearchStartIndex = pathAndSearch.indexOf('?')
+                const subSearchStartIndex:number = pathAndSearch.indexOf('?')
                 if (subSearchStartIndex === -1)
                     search = ''
                 else
@@ -1532,7 +1534,7 @@ class Tools {
         const both = input === '&'
         if (both || input === '#') {
             const decodedHash = decodeURIComponent(hash)
-            subDelimiterIndex = decodedHash.indexOf(subDelimiter)
+            const subDelimiterIndex:number = decodedHash.indexOf(subDelimiter)
             if (subDelimiterIndex === -1)
                 input = ''
             else {
@@ -1582,7 +1584,7 @@ class Tools {
         ) && (
             !explicitProtocolName ||
             explicitProtocolName === Tools.stringGetProtocolName(secondURL)
-        ) &&d (
+        ) && (
             !explicitPortNumber ||
             explicitPortNumber === Tools.stringGetPortNumber(secondURL))
     }
@@ -1606,7 +1608,7 @@ class Tools {
      * @returns Represented result.
      */
     static stringRepresentURL(url) {
-        if (url)
+        if (url && $.type(url) === 'string')
             return $.trim(url.replace(/^(https?)?:?\/+/, '').replace(
                 /\/+$/, ''))
         return ''
@@ -1829,7 +1831,7 @@ class Tools {
             return addUnsigned(rotateLeft(a, s), b)
         }
 
-        convertToWordArray = (value) => {
+        const convertToWordArray = (value) => {
             const lMessageLength = value.length
             const lNumberOfWords_temp1 = lMessageLength + 8
             const lNumberOfWords_temp2 = (lNumberOfWords_temp1 - (
@@ -1980,10 +1982,10 @@ class Tools {
      * @returns Normalized number.
      */
     static stringNormalizePhoneNumber(phoneNumber) {
-        if (honeNumber)
-            return `${phoneNumber}`.replace(/[^0-9]*\+/, '00').replace(
-                /[^0-9]+/g, '')
-        return ''
+        if ([undefined, null].includes(phoneNumber))
+            return ''
+        return `${phoneNumber}`.replace(/[^0-9]*\+/, '00').replace(
+            /[^0-9]+/g, '')
     }
     /**
      * Represents given phone number. NOTE: Currently only support german phone
@@ -1992,9 +1994,11 @@ class Tools {
      * @returns Formatted number.
      */
     static stringRepresentPhoneNumber(phoneNumber) {
-        if ($.type(phoneNumber === 'string') && phoneNumber) {
+        if (['number', 'string'].includes($.type(
+            phoneNumber
+        )) && phoneNumber) {
             // Represent country code and leading area code zero.
-            phoneNumber = phoneNumber.replace(
+            phoneNumber = `${phoneNumber}`.replace(
                 /^(00|\+)([0-9]+)-([0-9-]+)$/, '+$2 (0) $3')
             // Add German country code if not exists.
             phoneNumber = phoneNumber.replace(
@@ -2074,8 +2078,8 @@ class Tools {
             if (data.hasOwnProperty(name))
                 $formDomNode.append($('<input>').attr({
                     type: 'hidden',
-                    name: name,
-                    value: value
+                    name,
+                    value: data[name]
                 }))
         $formDomNode.submit().remove()
         if (removeAfterLoad && 'on' in target)
@@ -2095,13 +2099,13 @@ class Tools {
     sendToExternalURL(
         url, data, requestType = 'post', removeAfterLoad = true
     ) {
-        const iFrameDomNode = $('<iframe>').attr(
+        const $iFrameDomNode = $('<iframe>').attr(
             'name', this.constructor.name.charAt(0).toLowerCase() +
             this.constructor.name.substring(1) + (new Date).getTime(
         )).hide()
         this.$domNode.after($iFrameDomNode)
         return Tools.sendToIFrame(
-            iFrameDomNode, url, data, requestType, removeAfterLoad)
+            $iFrameDomNode, url, data, requestType, removeAfterLoad)
     }
     // / endregion
     // endregion

@@ -32,8 +32,12 @@ const qunit:Object = (TARGET === 'node') ? require('qunit-cli') : require(
 browserAPI((window:Window, location:Location) => {
     // NOTE: We have to define window globally before jQuery is loaded to
     // ensure that all jquery instances share the same window object.
-    if (typeof global !== 'undefined')
+    if (typeof global !== 'undefined') {
         global.window = window
+        for (const key in window)
+            if (window.hasOwnProperty(key) && !global.hasOwnProperty(key))
+                global[key] = window[key]
+    }
     const $:JQueryFunction = require('jquery')
     $.context = window.document
     require('./index')
@@ -459,7 +463,7 @@ browserAPI((window:Window, location:Location) => {
             {'a': 2, 'b': 5, 'c': 'a'}), ['a', 'b', 'c'])
         qunit.deepEqual($.Tools.class.sort(
             {'c': 2, 'b': 5, 'a': 'a'}), ['a', 'b', 'c'])
-        qunit.deepEqual($.Tools.sort(
+        qunit.deepEqual($.Tools.class.sort(
             {'b': 2, 'c': 5, 'z': 'a'}), ['b', 'c', 'z'])
     })
     qunit.test('equals', () => {
@@ -565,7 +569,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.deepEqual($.Tools.class.arrayExtract(
             [{a: 'b', c: 'd'}, {a: 3}], ['c']
         ), [{c: 'd'}, {}])
-        qunit.deepEqual($.Tools.arrayExtract(
+        qunit.deepEqual($.Tools.class.arrayExtract(
             [{a: 'b', c: 'd'}, {c: 3}], ['c']
         ), [{c: 'd'}, {c: 3}])
     })
@@ -926,7 +930,8 @@ browserAPI((window:Window, location:Location) => {
     })
     qunit.test('stringRepresentURL', () => {
         qunit.strictEqual(
-            $.Tools.class.stringRepresentURL('http://www.test.com'), 'www.test.com')
+            $.Tools.class.stringRepresentURL('http://www.test.com'),
+            'www.test.com')
         qunit.strictEqual($.Tools.class.stringRepresentURL(
             'ftp://www.test.com'
         ), 'ftp://www.test.com')
