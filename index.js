@@ -1192,8 +1192,8 @@ class Tools {
      * @returns Sliced version of given object.
      */
     static arrayUnique(data:Array<any>):Array<any> {
-        const result = []
-        for (const value of data)
+        const result:Array<any> = []
+        for (const value:any of data)
             if (!result.includes(value))
                 result.push(value)
         return result
@@ -1377,7 +1377,7 @@ class Tools {
                         iterateGivenKeys = false
                         keys = initialItem
                     }
-                    $.each(keys, ((newItem:any) => (
+                    $.each(keys, ((newItem:any):Function => (
                         firstSetKey:string|number, secondSetKey:string|number
                     ):?false => {
                         if (keysAreAnArray)
@@ -1497,7 +1497,7 @@ class Tools {
      * This method is intended for encoding *key* or *value* parts of query
      * component. We need a custom method because "encodeURIComponent()" is too
      * aggressive and encodes stuff that doesn't have to be encoded per
-     * "http://tools.ietf.org/html/rfc3986:"
+     * "http://tools.ietf.org/html/rfc3986:".
      * @param url - URL to encode.
      * @param encodeSpaces - Indicates weather given url should encode
      * whitespaces as "+" or "%20".
@@ -1513,7 +1513,7 @@ class Tools {
      * Appends a path selector to the given path if there isn't one yet.
      * @param path - The path for appending a selector.
      * @param pathSeparator - The selector for appending to path.
-     * @param returns - The appended path.
+     * @returns The appended path.
      */
     static stringAddSeparatorToPath(
         path:string, pathSeparator:string = '/'
@@ -1529,7 +1529,7 @@ class Tools {
      * @param path - Path to search in.
      * @param separator - Delimiter to use in path (default is the posix
      * conform slash).
-     * @returns "true" if given prefix occur and "false" otherwise.
+     * @returns Value "true" if given prefix occur and "false" otherwise.
      */
     static stringHasPathPrefix(
         prefix:?string = '/admin', path:string = context.hasOwnProperty(
@@ -1593,7 +1593,7 @@ class Tools {
             this, [url].concat(parameter)
             ) && context.hasOwnProperty(
                 'location'
-            ) && location.port && parseInt(location.port)
+            ) && location.port && parseInt(location.port, 10)
         )
             return parseInt(location.port, 10)
         return (Tools.stringGetProtocolName(url) === 'https') ? 443 : 80
@@ -1641,17 +1641,20 @@ class Tools {
      * key doesn't exist "undefined" is returned.
      */
     static stringGetURLVariable(
-        keyToGet, input, subDelimiter = '$', hashedPathIndicator = '!', search,
-        hash = context.hasOwnProperty('location') && location.hash || ''
-    ) {
+        keyToGet:string, input:?string, subDelimiter:string = '$',
+        hashedPathIndicator:string = '!', search:?string,
+        hash:?string = context.hasOwnProperty(
+            'location'
+        ) && location.hash || ''
+    ):Array<string> {
         // region set search and hash
         if (!search) {
             if (!hash)
                 hash = '#'
             hash = hash.substring('#'.length)
             if (hashedPathIndicator && hash.startsWith(hashedPathIndicator)) {
-                const subHashStartIndex = hash.indexOf('#')
-                let pathAndSearch
+                const subHashStartIndex:number = hash.indexOf('#')
+                let pathAndSearch:string
                 if (subHashStartIndex === -1) {
                     pathAndSearch = hash.substring(hashedPathIndicator.length)
                     hash = ''
@@ -1672,9 +1675,9 @@ class Tools {
             input = search
         // endregion
         // region determine data from search and hash if specified
-        const both = input === '&'
+        const both:boolean = input === '&'
         if (both || input === '#') {
-            const decodedHash = decodeURIComponent(hash)
+            const decodedHash:string = decodeURIComponent(hash)
             const subDelimiterIndex:number = decodedHash.indexOf(subDelimiter)
             if (subDelimiterIndex === -1)
                 input = ''
@@ -1685,15 +1688,15 @@ class Tools {
             }
         } else if (input.startsWith('?'))
             input = input.substring('?'.length)
-        let data = (input) ? input.split('&') : []
+        let data:Array<string> = (input) ? input.split('&') : []
         search = search.substring('?'.length)
         if (both && search)
             data = data.concat(search.split('&'))
         // endregion
         // region construct data structure
-        const variables = []
-        $.each(data, (key, value) => {
-            const keyValuePair = value.split('=')
+        const variables:Array<string> = []
+        $.each(data, (key:string, value:string):void => {
+            const keyValuePair:Array<string> = value.split('=')
             // IgnoreTypeCheck
             key = decodeURIComponent(keyValuePair[0])
             value = decodeURIComponent(keyValuePair[1])
@@ -1738,7 +1741,7 @@ class Tools {
      * @param url - Uniform resource locator to normalize.
      * @returns Normalized result.
      */
-    static stringNormalizeURL(url) {
+    static stringNormalizeURL(url:?string):string {
         if (url) {
             url = $.trim(url.replace(/^:?\/+/, '').replace(/\/+$/, ''))
             if (url.startsWith('http'))
@@ -1752,8 +1755,8 @@ class Tools {
      * @param url - Uniform resource locator to represent.
      * @returns Represented result.
      */
-    static stringRepresentURL(url) {
-        if (url && $.type(url) === 'string')
+    static stringRepresentURL(url:?string):string {
+        if (url)
             return $.trim(url.replace(/^(https?)?:?\/+/, '').replace(
                 /\/+$/, ''))
         return ''
@@ -1770,14 +1773,14 @@ class Tools {
     static stringCamelCaseToDelimited(
         string:string, delimiter:string = '-',
         abbreviations:?Array<string> = null
-    ) {
+    ):string {
         if (!abbreviations)
             abbreviations = Tools.abbreviations
-        const escapedDelimiter = Tools.stringGetRegularExpressionValidated(
-            delimiter)
+        const escapedDelimiter:string =
+            Tools.stringGetRegularExpressionValidated(delimiter)
         if (abbreviations.length) {
-            let abbreviationPattern = ''
-            for (const abbreviation of abbreviations) {
+            let abbreviationPattern:string = ''
+            for (const abbreviation:string of abbreviations) {
                 if (abbreviationPattern)
                     abbreviationPattern += '|'
                 abbreviationPattern += abbreviation.toUpperCase()
@@ -1798,7 +1801,7 @@ class Tools {
      * @param string - The string to format.
      * @returns The formatted string.
      */
-    static stringCapitalize(string) {
+    static stringCapitalize(string:string):string {
         return string.charAt(0).toUpperCase() + string.substring(1)
     }
     /**
@@ -1815,24 +1818,24 @@ class Tools {
         string:string, delimiter:string = '-',
         abbreviations:?Array<string> = null,
         preserveWrongFormattedAbbreviations:boolean = false
-    ) {
-        const escapedDelimiter = Tools.stringGetRegularExpressionValidated(
-            delimiter)
+    ):string {
+        const escapedDelimiter:string =
+            Tools.stringGetRegularExpressionValidated(delimiter)
         if (!abbreviations)
             abbreviations = Tools.abbreviations
-        let abbreviationPattern
+        let abbreviationPattern:string
         if (preserveWrongFormattedAbbreviations)
             abbreviationPattern = abbreviations.join('|')
         else {
             abbreviationPattern = ''
-            for (const abbreviation of abbreviations) {
+            for (const abbreviation:string of abbreviations) {
                 if (abbreviationPattern)
                     abbreviationPattern += '|'
                 abbreviationPattern +=
                     `${Tools.stringCapitalize(abbreviation)}|${abbreviation}`
             }
         }
-        let stringStartsWithDelimiter = false
+        let stringStartsWithDelimiter:boolean = false
         if (string.startsWith(delimiter)) {
             string = string.substring(delimiter.length)
             stringStartsWithDelimiter = true
@@ -1840,14 +1843,16 @@ class Tools {
         string = string.replace(new RegExp(
             `(${escapedDelimiter})(${abbreviationPattern})` +
             `(${escapedDelimiter}|$)`, 'g'
-        ), (fullMatch, before, abbreviation, after) => {
+        ), (
+            fullMatch:?string, before:string, abbreviation:string, after:string
+        ):?string => {
             if (fullMatch)
                 return before + abbreviation.toUpperCase() + after
             return fullMatch
         })
         string = string.replace(new RegExp(
             `${escapedDelimiter}([a-zA-Z0-9])`, 'g'
-        ), (fullMatch, firstLetter) => {
+        ), (fullMatch:?string, firstLetter:string):?string => {
             if (fullMatch)
                 return firstLetter.toUpperCase()
             return fullMatch
@@ -1864,10 +1869,15 @@ class Tools {
      * replacements for string formating.
      * @returns The formatted string.
      */
-    static stringFormat(string:string, ...additionalArguments:Array<any>) {
+    static stringFormat(
+        string:string, ...additionalArguments:Array<any>
+    ):string {
         additionalArguments.unshift(string)
-        $.each(additionalArguments, (key, value) => {
-            string = string.replace(new RegExp(`\\{${key}\\}`, 'gm'), value)
+        $.each(additionalArguments, (
+            index:number, value:string|number
+        ):void => {
+            string = string.replace(
+                new RegExp(`\\{${index}\\}`, 'gm'), `${value}`)
         })
         return string
     }
@@ -1877,7 +1887,7 @@ class Tools {
      * @param string - The string to format.
      * @returns The formatted string.
      */
-    static stringGetRegularExpressionValidated(string) {
+    static stringGetRegularExpressionValidated(string:string):string {
         return string.replace(/([\\|.*$^+[\]()?\-{}])/g, '\\$1')
     }
     /**
@@ -1885,7 +1895,7 @@ class Tools {
      * @param string - The string to format.
      * @returns The formatted string.
      */
-    static stringLowerCase(string) {
+    static stringLowerCase(string:string):string {
         return string.charAt(0).toLowerCase() + string.substring(1)
     }
     /**
@@ -1898,20 +1908,21 @@ class Tools {
      * @returns Processed result.
      */
     static stringMark(
-        target, mark, marker = '<span class="tools-mark">{1}</span>',
-        caseSensitiv = false
-    ) {
+        target:?string, mark:?string,
+        marker:string = '<span class="tools-mark">{1}</span>',
+        caseSensitiv:boolean = false
+    ):?string {
         target = $.trim(target)
         mark = $.trim(mark)
         if (target && mark) {
-            let offset = 0
-            let searchTarget = target
+            let offset:number = 0
+            let searchTarget:string = target
             if (!caseSensitiv)
                 searchTarget = searchTarget.toLowerCase()
             if (!caseSensitiv)
                 mark = mark.toLowerCase()
             while (true) {
-                const index = searchTarget.indexOf(mark, offset)
+                const index:number = searchTarget.indexOf(mark, offset)
                 if (index === -1)
                     break
                 else {
@@ -1933,7 +1944,7 @@ class Tools {
      * @param value - Value to calculate md5 hash for.
      * @returns Calculated md5 hash value.
      */
-    static stringMD5(value) {
+    static stringMD5(value:string):string {
         const rotateLeft = (lValue, iShiftBits) =>
             (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits))
 
@@ -2128,11 +2139,11 @@ class Tools {
      * @param phoneNumber - Number to normalize.
      * @returns Normalized number.
      */
-    static stringNormalizePhoneNumber(phoneNumber) {
-        if ([undefined, null].includes(phoneNumber))
-            return ''
-        return `${phoneNumber}`.replace(/[^0-9]*\+/, '00').replace(
-            /[^0-9]+/g, '')
+    static stringNormalizePhoneNumber(phoneNumber:?string|?number):string {
+        if (phoneNumber)
+            return `${phoneNumber}`.replace(/[^0-9]*\+/, '00').replace(
+                /[^0-9]+/g, '')
+        return ''
     }
     /**
      * Represents given phone number. NOTE: Currently only support german phone
@@ -2140,7 +2151,7 @@ class Tools {
      * @param phoneNumber - Number to format.
      * @returns Formatted number.
      */
-    static stringRepresentPhoneNumber(phoneNumber) {
+    static stringRepresentPhoneNumber(phoneNumber:?string|?number):string {
         if (['number', 'string'].includes($.type(
             phoneNumber
         )) && phoneNumber) {
@@ -2172,7 +2183,7 @@ class Tools {
      * @param htmlString - HTML string to decode.
      * @returns Decoded html string.
      */
-    static stringDecodeHTMLEntities(htmlString) {
+    static stringDecodeHTMLEntities(htmlString:string):?string {
         if (context.hasOwnProperty('document')) {
             const textareaDomNode = context.document.createElement('textarea')
             textareaDomNode.innerHTML = htmlString
@@ -2187,7 +2198,7 @@ class Tools {
      * @param object - Object to Check.
      * @returns Returns weather given value is not a number or not.
      */
-    static numberIsNotANumber(object) {
+    static numberIsNotANumber(object:any):boolean {
         return $.type(object) === 'number' && isNaN(object)
     }
     /**
@@ -2196,7 +2207,7 @@ class Tools {
      * @param digits - The number of digits after comma.
      * @returns Returns the rounded number.
      */
-    static numberRound(number, digits = 0) {
+    static numberRound(number:number, digits:number = 0):number {
         return Math.round(number * Math.pow(10, digits)) / Math.pow(10, digits)
     }
     // / endregion
@@ -2214,14 +2225,15 @@ class Tools {
      * @returns Returns the given target.
      */
     static sendToIFrame(
-        target, url, data, requestType = 'post', removeAfterLoad = false
-    ) {
-        const $formDomNode = $('<form>').attr({
+        target:$DomNode|string, url:string, data:{[key:string]:any},
+        requestType:string = 'post', removeAfterLoad:boolean = false
+    ):$domNode|string {
+        const $formDomNode:$DomNode = $('<form>').attr({
             action: url,
             method: requestType,
             target: $.type(target) === 'string' ? target : target.attr('name')
         })
-        for (const name in data)
+        for (const name:string in data)
             if (data.hasOwnProperty(name))
                 $formDomNode.append($('<input>').attr({
                     type: 'hidden',
@@ -2230,7 +2242,7 @@ class Tools {
                 }))
         $formDomNode.submit().remove()
         if (removeAfterLoad && 'on' in target)
-            target.on('load', () => target.remove())
+            target.on('load', ():$DomNode => target.remove())
         return target
     }
     /**
@@ -2244,10 +2256,10 @@ class Tools {
      * @returns Returns the dynamically created iframe.
      */
     sendToExternalURL(
-        url:string, data, requestType:string = 'post',
+        url:string, data:{[key:string]:any}, requestType:string = 'post',
         removeAfterLoad:boolean = true
-    ) {
-        const $iFrameDomNode = $('<iframe>').attr(
+    ):$DomNode {
+        const $iFrameDomNode:$DomNode = $('<iframe>').attr(
             'name', this.constructor.name.charAt(0).toLowerCase() +
             this.constructor.name.substring(1) + (new Date()).getTime()
         ).hide()
@@ -2296,8 +2308,10 @@ class Tools {
      * @param domNodeSelectors - An object with dom node selectors.
      * @returns Returns given selector prefixed.
      */
-    _grabDomNodeHelper(key, selector, domNodeSelectors) {
-        let domNodeSelectorPrefix = ''
+    _grabDomNodeHelper(
+        key:string, selector:string, domNodeSelectors:{[key:string]:string}
+    ):string {
+        let domNodeSelectorPrefix:string = ''
         if (this._options.domNodeSelectorPrefix)
             domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
         if (!(selector.startsWith(domNodeSelectorPrefix) || $.trim(
