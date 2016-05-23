@@ -24,13 +24,38 @@ import $ from 'jquery'
 import type {PlainObject} from 'webOptimizer/type'
 // endregion
 // region types
-type $DomNode = Object
-type DomNode = Object
+export type DomNode = any
+export type Options = {
+    domNodeSelectorPrefix:string;
+    [key:string]:any;
+}
+export type LockCallbackFunction = (description:string) => void
+declare module 'jquery' {
+    declare function $(obj:any):any
+}
+declare class $DomNode extends Array {
+    [key:number]:DomNode;
+    addClass(className:string):$DomNode;
+    addBack():$DomNode;
+    after(domNode:any):$DomNode;
+    attr(attributeName:string|{[key:string]:string}, value:any):any;
+    data(key:string, value:any):any;
+    each():$DomNode;
+    find(filter:any):$DomNode;
+    is(selector:string):boolean;
+    removeAttr(attributeName:string):$DomNode;
+    removeClass(className:string|Array<string>):$DomNode;
+    Tools(functionName:string, ...additionalArguments:Array<any>):any;
+}
 // endregion
-const context:any = ($.type(window) === 'undefined') ? (($.type(
-    global
-) === 'undefined') ? (($.type(module) === 'undefined') ? {} : module) : global
-) : window
+const context:Object = (():Object => {
+    if ($.type(window) === 'undefined') {
+        if ($.type(global) === 'undefined')
+            return ($.type(module) === 'undefined') ? {} : module
+        return global
+    }
+    return window
+})()
 if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
     context.document = $.context
 // region plugins/classes
@@ -46,7 +71,7 @@ class Tools {
     /**
      * @member Saves a mapping from key codes to their corresponding name.
      */
-    static keyCode = {
+    static keyCode:{[key:string]:number} = {
         BACKSPACE: 8,
         COMMA: 188,
         DELETE: 46,
@@ -91,7 +116,7 @@ class Tools {
      * @member Saves currently minimal supported internet explorer version.
      * Saves zero if no internet explorer present.
      */
-    static maximalSupportedInternetExplorerVersion = (() => {
+    static maximalSupportedInternetExplorerVersion = (():number => {
         if (context.hasOwnProperty('document'))
             return 0
         const div = context.document.createElement('div')
@@ -105,9 +130,11 @@ class Tools {
                 whitespace. If the conditional markup isn't in a commend.
                 Otherwise there shouldn't be any whitespace!
             */
+            /* eslint-disable no-useless-concat */
             div.innerHTML = (
                 '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' +
                 '->')
+            /* eslint-enable no-useless-concat */
             if (div.getElementsByTagName('i').length === 0)
                 break
         }
@@ -156,10 +183,10 @@ class Tools {
     static _javaScriptDependentContentHandled = false
     // endregion
     // region dynamic properties
-    $domNode:?$DomNode
-    _options:PlainObject
+    $domNode:$DomNode
+    _options:Options
     _defaultOptions:PlainObject
-    _locks:{[key:string]:(description:string) => ?null};
+    _locks:{[key:string]:Array<LockCallbackFunction>};
     // endregion
     // region public methods
     // / region special
@@ -171,18 +198,27 @@ class Tools {
      * this plugin name suffix ("incrementer"). You don't have to use "{1}" but
      * it can help you to write code which is more reconcilable with the dry
      * concept.
-     * @returns Returns a new instance.
+     * @param $domNode - $-extended dom node to use as reference in various
+     * methods.
+     * @param options - Options to change runtime behavior.
+     * @param defaultOptions - Default options to ensure to be present in any
+     * options instance.
+     * @param locks - Mapping of a lock description to callbacks for calling
+     * when given lock should be released.
+     * @returns Returns nothing but if invoked with "new" an instance of this
+     * class will be given back.
      */
     constructor(
-        $domNode:?$DomNode = null, options:PlainObject = {},
+        $domNode:?$DomNode = null, options:Object = {},
         defaultOptions:PlainObject = {
             logging: false, domNodeSelectorPrefix: 'body', domNode: {
                 hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
                 showJavaScriptEnabled: '.tools-visible-on-javascript-enabled'
             }
-        }, locks:{[key:string]:(description:string) => ?null} = {}
-    ) {
-        this.$domNode = $domNode
+        }, locks:{[key:string]:Array<LockCallbackFunction>} = {}
+    ):void {
+        if ($domNode)
+            this.$domNode = $domNode
         this._options = options
         this._defaultOptions = defaultOptions
         this._locks = locks
@@ -193,7 +229,7 @@ class Tools {
             if (!context.console.hasOwnProperty(methodName))
                 context.console[methodName] = ($.hasOwnProperty(
                     'noop'
-                )) ? $.noop() : () => {}
+                )) ? $.noop() : ():void => {}
         if (
             !Tools._javaScriptDependentContentHandled &&
             context.hasOwnProperty('document')
@@ -202,13 +238,13 @@ class Tools {
             $(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNode.hideJavaScriptEnabled
-            ).filter(function() {
+            ).filter(function():boolean {
                 return !$(this).data('javaScriptDependentContentHide')
             }).data('javaScriptDependentContentHide', true).hide()
             $(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNode.showJavaScriptEnabled
-            ).filter(function() {
+            ).filter(function():boolean {
                 return !$(this).data('javaScriptDependentContentShow')
             }).data('javaScriptDependentContentShow', true).show()
         }
@@ -217,7 +253,7 @@ class Tools {
      * This method could be overwritten normally. It acts like a destructor.
      * @returns Returns the current instance.
      */
-    destructor() {
+    destructor():Tools {
         this.off('*')
         return this
     }
@@ -227,7 +263,7 @@ class Tools {
      * @param options - An options object.
      * @returns Returns the current instance.
      */
-    initialize(options = {}) {
+    initialize(options:PlainObject = {}):Tools {
         /*
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
@@ -250,16 +286,19 @@ class Tools {
      * @param object - The object or class to control. If "object" is a class
      * an instance will be generated.
      * @param parameter - The initially given arguments object.
+     * @param $domNode - Optionally a $-extended dom node to use as reference.
      * @returns Returns whatever the initializer method returns.
      */
-    controller(object, parameter, $domNode = null) {
+    controller(
+        object:Object, parameter:Array<any>, $domNode:?$DomNode = null
+    ):void {
         if (typeof object === 'function') {
             object = new object($domNode)
             if (!object instanceof Tools)
                 object = $.extend(true, new Tools(), object)
         }
         parameter = Tools.argumentsObjectToArray(parameter)
-        if ($domNode !== null && !$domNode.data(object.constructor.name))
+        if ($domNode && !$domNode.data(object.constructor.name))
             // Attach extended object to the associated dom node.
             $domNode.data(object.constructor.name, object)
         if (parameter[0] in object)
@@ -271,7 +310,7 @@ class Tools {
             */
             return object.initialize.apply(object, parameter)
         $.error(
-            `Method "${parameter[0]}" does not exist on $-extension ` +
+            `Method "${parameter[0]}" does not exist on $-extended dom node ` +
             `"${object.constructor.name}".`)
     }
     // / endregion
@@ -288,8 +327,13 @@ class Tools {
      * @param autoRelease - Release the lock after execution of given callback.
      * @returns Returns the current instance.
      */
-    acquireLock(description, callbackFunction, autoRelease = false) {
-        const wrappedCallbackFunction = (description) => {
+    acquireLock(
+        description:string, callbackFunction:LockCallbackFunction,
+        autoRelease:boolean = false
+    ):Tools {
+        const wrappedCallbackFunction:LockCallbackFunction = (
+            description:string
+        ):void => {
             callbackFunction(description)
             if (autoRelease)
                 this.releaseLock(description)
@@ -310,9 +354,9 @@ class Tools {
      * properties.
      * @returns Returns the current instance.
      */
-    releaseLock(description) {
-        if(this._locks.hasOwnProperty(description))
-            if(this._locks[description].length)
+    releaseLock(description:string):Tools {
+        if (this._locks.hasOwnProperty(description))
+            if (this._locks[description].length)
                 this._locks[description].shift()(description)
             else
                 delete this._locks[description]
@@ -329,10 +373,10 @@ class Tools {
      * @param eventHandler - The mouse out event handler.
      * @returns Returns the given function wrapped by the workaround logic.
      */
-    static mouseOutEventHandlerFix(eventHandler) {
-        const self = this
-        return function(event) {
-            let relatedTarget = event.toElement
+    static mouseOutEventHandlerFix(eventHandler:Function):Function {
+        const self:Object = this
+        return function(event:Object) {
+            let relatedTarget:DomNode = event.toElement
             if (event.hasOwnProperty('relatedTarget'))
                 relatedTarget = event.relatedTarget
             while (relatedTarget && relatedTarget.tagName !== 'BODY') {
@@ -360,16 +404,16 @@ class Tools {
      * @returns Returns the current instance.
      */
     log(
-        object, force = false, avoidAnnotation = false, level = 'info',
-        ...additionalArguments
-    ) {
+        object:any, force:boolean = false, avoidAnnotation:boolean = false,
+        level:string = 'info', ...additionalArguments:Array<any>
+    ):Tools {
         if (this._options.logging || force || ['error', 'critical'].includes(
             'level'
         )) {
-            let message
+            let message:any
             if (avoidAnnotation)
                 message = object
-            else if ($.type(object) === 'string') {
+            else if (typeof object === 'string') {
                 additionalArguments.unshift(object)
                 message = `${this.constructor.name} (${level}): ` +
                     Tools.stringFormat.apply(this, additionalArguments)
@@ -403,7 +447,8 @@ class Tools {
      * formating.
      * @returns Returns the current instance.
      */
-    info(object, ...additionalArguments) {
+    info(object:any, ...additionalArguments:Array<any>):Tools {
+        // IgnoreTypeCheck
         return this.log.apply(this, [object, false, false, 'info'].concat(
             additionalArguments))
     }
@@ -415,7 +460,8 @@ class Tools {
      * formating.
      * @returns Returns the current instance.
      */
-    debug(object, ...additionalArguments) {
+    debug(object:any, ...additionalArguments:Array<any>):Tools {
+        // IgnoreTypeCheck
         return this.log.apply(this, [object, false, false, 'debug'].concat(
             additionalArguments))
     }
@@ -427,7 +473,8 @@ class Tools {
      * formating.
      * @returns Returns the current instance.
      */
-    error(object, ...additionalArguments) {
+    error(object:any, ...additionalArguments:Array<any>):Tools {
+        // IgnoreTypeCheck
         return this.log.apply(this, [object, true, false, 'error'].concat(
             additionalArguments))
     }
@@ -439,7 +486,8 @@ class Tools {
      * formating.
      * @returns Returns the current instance.
      */
-    critical(object, ...additionalArguments) {
+    critical(object:any, ...additionalArguments:Array<any>):Tools {
+        // IgnoreTypeCheck
         return this.log.apply(this, [object, true, false, 'warn'].concat(
             additionalArguments))
     }
@@ -451,7 +499,8 @@ class Tools {
      * formating.
      * @returns Returns the current instance.
      */
-    warn(object, ...additionalArguments) {
+    warn(object:any, ...additionalArguments:Array<any>):Tools {
+        // IgnoreTypeCheck
         return this.log.apply(this, [object, false, false, 'warn'].concat(
             additionalArguments))
     }
@@ -460,7 +509,7 @@ class Tools {
      * @param object - Any object to show.
      * @returns Returns the serialized version of given object.
      */
-    static show(object) {
+    static show(object):string {
         let output = ''
         if ($.type(object) === 'string')
             output = object
@@ -482,15 +531,15 @@ class Tools {
      * Normalizes class name order of current dom node.
      * @returns Returns current instance.
      */
-    normalizeClassNames() {
+    normalizeClassNames():Tools {
         this.$domNode.find('*').addBack().each(function() {
-            const $thisDomNode = $(this)
+            const $thisDomNode:$DomNode = $(this)
             if ($thisDomNode.attr('class')) {
-                const sortedClassNames = $thisDomNode.attr('class').split(
-                    ' '
-                ).sort() || []
+                const sortedClassNames:Array<string> = $thisDomNode.attr(
+                    'class'
+                ).split(' ').sort() || []
                 $thisDomNode.attr('class', '')
-                for (const className of sortedClassNames)
+                for (const className:string of sortedClassNames)
                     $thisDomNode.addClass(className)
             } else if ($thisDomNode.is('[class]'))
                 $thisDomNode.removeAttr('class')
@@ -503,7 +552,7 @@ class Tools {
      * @param second - Second html or text to compare.
      * @returns Returns true if both dom representations are equivalent.
      */
-    static isEquivalentDom(first, second) {
+    static isEquivalentDom(first:any, second:any):boolean {
         if (first === second)
             return true
         if (first) {
@@ -514,7 +563,7 @@ class Tools {
                     ($.type(second) !== 'string' || second.charAt(0) === '<')
                 ))
                     return first === second
-                let $firstDomNode = $(first)
+                let $firstDomNode:$DomNode = $(first)
                 if ($firstDomNode.length) {
                     let $secondDomNode = $(second)
                     if ($secondDomNode.length) {
@@ -543,7 +592,9 @@ class Tools {
      */
     getPositionRelativeToViewport(delta = {}) {
         delta = $.extend({top: 0, left: 0, bottom: 0, right: 0}, delta)
-        if (context.hasOwnProperty('window')) {
+        if (context.hasOwnProperty(
+            'window'
+        ) && this.$domNode && this.$domNode.length && this.$domNode[0]) {
             const $window = $(window)
             const rectangle = this.$domNode[0].getBoundingClientRect()
             if ((rectangle.top + delta.top) < 0)
@@ -622,7 +673,7 @@ class Tools {
             if (value !== undefined)
                 return value
         }
-    }
+}
     /**
      * Removes a selector prefix from a given selector. This methods searches
      * in the options object for a given "domNodeSelectorPrefix".
@@ -743,7 +794,7 @@ class Tools {
      * @param scope - A given scope.
      * @returns Returns the given methods return value.
      */
-    getMethod(method, scope = this, ...additionalArguments) {
+    getMethod(method, scope:any = this, ...additionalArguments) {
         /*
             This following outcomment line would be responsible for a bug in
             yuicompressor. Because of declaration of arguments the parser
@@ -762,7 +813,7 @@ class Tools {
             return function() {
                 if (!scope[method])
                     $.error(`Method "${method}" doesn't exists in "${scope}".`)
-                thisFunction = arguments.callee
+                const thisFunction = arguments.callee
                 parameter = $.Tools().argumentsObjectToArray(arguments)
                 parameter.push(thisFunction)
                 scope[method].apply(scope, parameter.concat(
@@ -854,11 +905,9 @@ class Tools {
      * otherwise.
      */
     fireEvent(
-        eventName, callOnlyOptionsMethod = false, scope = this,
+        eventName, callOnlyOptionsMethod = false, scope:any = this,
         ...additionalArguments
     ) {
-        if (!scope)
-            scope = this
         const eventHandlerName = `on${Tools.stringCapitalize(eventName)}`
         if (!callOnlyOptionsMethod)
             if (scope.hasOwnProperty(eventHandlerName))
@@ -904,9 +953,9 @@ class Tools {
     // TODO test
     static convertPlainObjectToMap<Value>(
         object:Value, deep:boolean = true
-    ):Value|Mapping {
-        if ($.type(object) === 'object' && $.isPlainObject(object)) {
-            const newObject:Mapping = new Map()
+    ):Value|Map {
+        if (typeof object === 'object' && $.isPlainObject(object)) {
+            const newObject:Map = new Map()
             for (const key:string in object)
                 if (object.hasOwnProperty(key)) {
                     if (deep)
@@ -940,9 +989,9 @@ class Tools {
     // TODO test
     static convertMapToPlainObject<Value>(
         object:Value, deep:boolean = true
-    ):Value|Mapping {
+    ):Value|PlainObject {
         if (object instanceof Map) {
-            const newObject:Mapping = {}
+            const newObject:PlainObject = {}
             for (let [key:any, value:mixed] of object) {
                 if (deep)
                     value = Tools.convertMapToPlainObject(value, deep)
@@ -951,7 +1000,7 @@ class Tools {
             return newObject
         }
         if (deep)
-            if ($.type(object) === 'object' && $.isPlainObject(object)) {
+            if (typeof object === 'object' && $.isPlainObject(object)) {
                 for (const key:string in object)
                     if (object.hasOwnProperty(key))
                         object[key] = Tools.convertMapToPlainObject(
@@ -1015,8 +1064,9 @@ class Tools {
      * @returns "true" if both objects are equal and "false" otherwise.
      */
     static equals(
-        firstValue, secondValue, properties = null, deep = -1,
-        exceptionPrefixes = ['$', '_'], ignoreFunctions = true
+        firstValue:any, secondValue:any, properties:?Array<any> = null,
+        deep:number = -1, exceptionPrefixes:Array<string> = ['$', '_'],
+        ignoreFunctions:boolean = true
     ) {
         if(
             ignoreFunctions && $.isFunction(firstValue) && $.isFunction(
@@ -1044,22 +1094,24 @@ class Tools {
         ) || $.isArray(firstValue) && $.isArray(
             secondValue
         ) && firstValue.length === secondValue.length) {
-            let equal = true
-            let first
-            let second
+            let equal:boolean = true
+            let first:any
+            let second:any
+            // IgnoreTypeCheck
             for ([first, second] of [[firstValue, secondValue], [
                 secondValue, firstValue
             ]]) {
-                const firstIsArray = $.isArray(first)
+                const firstIsArray:boolean = $.isArray(first)
                 if (firstIsArray && (!$.isArray(
                     second
+                // IgnoreTypeCheck
                 )) || first.length !== second.length)
                     return false
                 $.each(first, (key, value) => {
                     if (!firstIsArray) {
                         if (!equal || properties && !properties.includes(key))
                             return
-                        for (const exceptionPrefix of exceptionPrefixes)
+                        for (const exceptionPrefix:string of exceptionPrefixes)
                             if (key.toString().startsWith(exceptionPrefix))
                                 return
                     }
@@ -1394,16 +1446,19 @@ class Tools {
      * conform slash).
      * @returns "true" if given prefix occur and "false" otherwise.
      */
-    static stringHasPathPrefix(prefix = '/admin', path = context.hasOwnProperty(
-        'location'
-    ) && location.pathname || '', separator = '/') {
-        if ([undefined, null].includes(prefix))
-            return false
-        if (!prefix.endsWith(separator))
-            prefix += separator
-        return path === prefix.substring(
-            0, prefix.length - separator.length
-        ) || path.startsWith(prefix)
+    static stringHasPathPrefix(
+        prefix:?string = '/admin', path:string = context.hasOwnProperty(
+            'location'
+        ) && location.pathname || '', separator:string = '/'
+    ) {
+        if (typeof prefix === 'string') {
+            if (!prefix.endsWith(separator))
+                prefix += separator
+            return path === prefix.substring(
+                0, prefix.length - separator.length
+            ) || path.startsWith(prefix)
+        }
+        return false
     }
     /**
      * Extracts domain name from given url. If no explicit domain name given
@@ -1553,6 +1608,7 @@ class Tools {
         const variables = []
         $.each(data, (key, value) => {
             const keyValuePair = value.split('=')
+            // IgnoreTypeCheck
             key = decodeURIComponent(keyValuePair[0])
             value = decodeURIComponent(keyValuePair[1])
             variables.push(key)
@@ -1623,9 +1679,10 @@ class Tools {
      * @returns The formatted string.
      */
     static stringCamelCaseToDelimited(
-        string, delimiter = '-', abbreviations = null
+        string:string, delimiter:string = '-',
+        abbreviations:?Array<string> = null
     ) {
-        if ([null, undefined].includes(abbreviations))
+        if (!abbreviations)
             abbreviations = Tools.abbreviations
         const escapedDelimiter = Tools.stringGetRegularExpressionValidated(
             delimiter)
@@ -1666,12 +1723,13 @@ class Tools {
      * @returns The formatted string.
      */
     static stringDelimitedToCamelCase(
-        string, delimiter = '-', abbreviations = null,
-        preserveWrongFormattedAbbreviations = false
+        string:string, delimiter:string = '-',
+        abbreviations:?Array<string> = null,
+        preserveWrongFormattedAbbreviations:boolean = false
     ) {
         const escapedDelimiter = Tools.stringGetRegularExpressionValidated(
             delimiter)
-        if ([null, undefined].includes(abbreviations))
+        if (!abbreviations)
             abbreviations = Tools.abbreviations
         let abbreviationPattern
         if (preserveWrongFormattedAbbreviations)
@@ -1717,7 +1775,7 @@ class Tools {
      * replacements for string formating.
      * @returns The formatted string.
      */
-    static stringFormat(string, ...additionalArguments) {
+    static stringFormat(string:string, ...additionalArguments:Array<any>) {
         additionalArguments.unshift(string)
         $.each(additionalArguments, (key, value) => {
             string = string.replace(new RegExp(`\\{${key}\\}`, 'gm'), value)
@@ -2074,7 +2132,7 @@ class Tools {
             method: requestType,
             target: $.type(target) === 'string' ? target : target.attr('name')
         })
-        for (name in data)
+        for (const name in data)
             if (data.hasOwnProperty(name))
                 $formDomNode.append($('<input>').attr({
                     type: 'hidden',
@@ -2097,12 +2155,13 @@ class Tools {
      * @returns Returns the dynamically created iframe.
      */
     sendToExternalURL(
-        url, data, requestType = 'post', removeAfterLoad = true
+        url:string, data, requestType:string = 'post',
+        removeAfterLoad:boolean = true
     ) {
         const $iFrameDomNode = $('<iframe>').attr(
             'name', this.constructor.name.charAt(0).toLowerCase() +
-            this.constructor.name.substring(1) + (new Date).getTime(
-        )).hide()
+            this.constructor.name.substring(1) + (new Date()).getTime()
+        ).hide()
         this.$domNode.after($iFrameDomNode)
         return Tools.sendToIFrame(
             $iFrameDomNode, url, data, requestType, removeAfterLoad)
@@ -2120,11 +2179,12 @@ class Tools {
      * @returns Returns $'s wrapped dom node.
      */
     _bindHelper(
-        parameter, removeEvent = false, eventFunctionName = 'on'
+        parameter, removeEvent:boolean = false, eventFunctionName:string = 'on'
     ) {
         const $domNode = $(parameter[0])
         if ($.type(parameter[1]) === 'object' && !removeEvent) {
             $.each(parameter[1], (eventType, handler) =>
+                // IgnoreTypeCheck
                 this[eventFunctionName]($domNode, eventType, handler))
             return $domNode
         }

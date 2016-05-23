@@ -52,8 +52,8 @@ browserAPI((window:Window, location:Location) => {
     // / endregion
     // / region public methods
     // // region special
-    qunit.test('constructor', () => qunit.ok(tools))
-    qunit.test('destructor', () => qunit.strictEqual(
+    qunit.test('constructor', ():?null => qunit.ok(tools))
+    qunit.test('destructor', ():?null => qunit.strictEqual(
         tools.destructor(), tools))
     qunit.test('initialize', () => {
         const secondToolsInstance = $.Tools({logging: true})
