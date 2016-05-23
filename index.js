@@ -24,6 +24,13 @@ import $ from 'jquery'
 import type {PlainObject} from 'webOptimizer/type'
 // endregion
 // region types
+export type Position = {
+    top?:number;
+    left?:number;
+    right?:number;
+    bottom?:number;
+}
+export type RelativePosition = 'in'|'above'|'left'|'below'|'right'
 export type DomNode = any
 export type Options = {
     domNodeSelectorPrefix:string;
@@ -34,7 +41,7 @@ declare module 'jquery' {
     declare function $(obj:any):any
 }
 declare class $DomNode extends Array {
-    [key:number]:DomNode;
+    [key:number|string]:DomNode;
     addClass(className:string):$DomNode;
     addBack():$DomNode;
     after(domNode:any):$DomNode;
@@ -42,9 +49,11 @@ declare class $DomNode extends Array {
     data(key:string, value:any):any;
     each():$DomNode;
     find(filter:any):$DomNode;
+    height():number;
     is(selector:string):boolean;
     removeAttr(attributeName:string):$DomNode;
     removeClass(className:string|Array<string>):$DomNode;
+    width():number;
     Tools(functionName:string, ...additionalArguments:Array<any>):any;
 }
 // endregion
@@ -375,7 +384,7 @@ class Tools {
      */
     static mouseOutEventHandlerFix(eventHandler:Function):Function {
         const self:Object = this
-        return function(event:Object) {
+        return function(event:Object):any {
             let relatedTarget:DomNode = event.toElement
             if (event.hasOwnProperty('relatedTarget'))
                 relatedTarget = event.relatedTarget
@@ -399,7 +408,7 @@ class Tools {
      * @param avoidAnnotation - If set to "true" given input has no module or
      * log level specific annotations.
      * @param level - Description of log messages importance.
-     * @param additionalArguments This additional arguments are used for string
+     * @param additionalArguments - Additional arguments are used for string
      * formating.
      * @returns Returns the current instance.
      */
@@ -509,12 +518,12 @@ class Tools {
      * @param object - Any object to show.
      * @returns Returns the serialized version of given object.
      */
-    static show(object):string {
-        let output = ''
+    static show(object:any):string {
+        let output:string = ''
         if ($.type(object) === 'string')
             output = object
         else
-            $.each(object, (key, value) => {
+            $.each(object, (key:any, value:any):void => {
                 if (value === undefined)
                     value = 'undefined'
                 else if (value === null)
@@ -532,7 +541,7 @@ class Tools {
      * @returns Returns current instance.
      */
     normalizeClassNames():Tools {
-        this.$domNode.find('*').addBack().each(function() {
+        this.$domNode.find('*').addBack().each(function():void {
             const $thisDomNode:$DomNode = $(this)
             if ($thisDomNode.attr('class')) {
                 const sortedClassNames:Array<string> = $thisDomNode.attr(
@@ -590,13 +599,13 @@ class Tools {
      * determining positions.
      * @returns Returns one of "above", "left", "below", "right" or "in".
      */
-    getPositionRelativeToViewport(delta = {}) {
+    getPositionRelativeToViewport(delta:Position = {}):RelativePosition {
         delta = $.extend({top: 0, left: 0, bottom: 0, right: 0}, delta)
         if (context.hasOwnProperty(
             'window'
         ) && this.$domNode && this.$domNode.length && this.$domNode[0]) {
-            const $window = $(window)
-            const rectangle = this.$domNode[0].getBoundingClientRect()
+            const $window:$DomNode = $(window)
+            const rectangle:Position = this.$domNode[0].getBoundingClientRect()
             if ((rectangle.top + delta.top) < 0)
                 return 'above'
             if ((rectangle.left + delta.left) < 0)
@@ -610,24 +619,26 @@ class Tools {
     }
     /**
      * Generates a directive name corresponding selector string.
-     * @param directiveName The directive name.
+     * @param directiveName - The directive name.
      * @returns Returns generated selector.
      */
-    static generateDirectiveSelector(directiveName) {
-        const delimitedName = Tools.stringCamelCaseToDelimited(directiveName)
+    static generateDirectiveSelector(directiveName:string):string {
+        const delimitedName:string = Tools.stringCamelCaseToDelimited(
+            directiveName)
         return `${delimitedName}, .${delimitedName}, [${delimitedName}], ` +
             `[data-${delimitedName}], [x-${delimitedName}]` + (
-                (!delimitedName.includes('-') ? '' : (
+                (delimitedName.includes('-') ? (
                     `, [${delimitedName.replace(/-/g, '\\:')}], ` +
-                    `[${delimitedName.replace(/-/g, '_')}]`)))
+                    `[${delimitedName.replace(/-/g, '_')}]`) : ''))
     }
     /**
      * Removes a directive name corresponding class or attribute.
-     * @param directiveName The directive name.
+     * @param directiveName - The directive name.
      * @returns Returns current dom node.
      */
-    removeDirective(directiveName) {
-        const delimitedName = Tools.stringCamelCaseToDelimited(directiveName)
+    removeDirective(directiveName:string):$DomNode {
+        const delimitedName:string = Tools.stringCamelCaseToDelimited(
+            directiveName)
         return this.$domNode.removeClass(delimitedName).removeAttr(
             delimitedName
         ).removeAttr(`data-${delimitedName}`).removeAttr(
@@ -638,12 +649,12 @@ class Tools {
     /**
      * Determines a normalized camel case directive name representation.
      * @param directiveName - The directive name.
-     * @returns Returns the corresponding name
+     * @returns Returns the corresponding name.
      */
-    static getNormalizedDirectiveName(directiveName) {
-        for (const delimiter of ['-', ':', '_']) {
-            let prefixFound = false
-            for (const prefix of [`data${delimiter}`, `x${delimiter}`])
+    static getNormalizedDirectiveName(directiveName:string):string {
+        for (const delimiter:string of ['-', ':', '_']) {
+            let prefixFound:boolean = false
+            for (const prefix:string of [`data${delimiter}`, `x${delimiter}`])
                 if (directiveName.startsWith(prefix)) {
                     directiveName = directiveName.substring(prefix.length)
                     prefixFound = true
@@ -652,35 +663,37 @@ class Tools {
             if (prefixFound)
                 break
         }
-        for (const delimiter of ['-', ':', '_'])
+        for (const delimiter:string of ['-', ':', '_'])
             directiveName = Tools.stringDelimitedToCamelCase(
                 directiveName, delimiter)
         return directiveName
     }
     /**
      * Determines a directive attribute value.
-     * @param directiveName The directive name
+     * @param directiveName - The directive name.
      * @returns Returns the corresponding attribute value or "null" if no
      * attribute value exists.
      */
-    getDirectiveValue(directiveName) {
-        const delimitedName = Tools.stringCamelCaseToDelimited(directiveName)
-        for (const attributeName of [
+    getDirectiveValue(directiveName:string):?string {
+        const delimitedName:string = Tools.stringCamelCaseToDelimited(
+            directiveName)
+        for (const attributeName:string of [
             delimitedName, `data-${delimitedName}`, `x-${delimitedName}`,
             delimitedName.replace('-', '\\:')
         ]) {
-            const value = this.$domNode.attr(attributeName)
+            const value:string = this.$domNode.attr(attributeName)
             if (value !== undefined)
                 return value
         }
-}
+        return null
+    }
     /**
      * Removes a selector prefix from a given selector. This methods searches
      * in the options object for a given "domNodeSelectorPrefix".
-     * @param domNodeSelector The dom node selector to slice.
+     * @param domNodeSelector - The dom node selector to slice.
      * @returns Returns the sliced selector.
      */
-    sliceDomNodeSelectorPrefix(domNodeSelector) {
+    sliceDomNodeSelectorPrefix(domNodeSelector:string):string {
         if (this._options.hasOwnProperty(
             'domNodeSelectorPrefix'
         ) && domNodeSelector.startsWith(this._options.domNodeSelectorPrefix))
@@ -692,9 +705,8 @@ class Tools {
      * Determines the dom node name of a given dom node string.
      * @param domNodeSelector - A given to dom node selector to determine its
      * name.
-     * @returns Returns the dom node name.
+     * @returns Returns The dom node name.
      *
-     * **examples**
      * >>> $.Tools.getDomNodeName('&lt;div&gt;');
      * 'div'
      *
@@ -704,8 +716,12 @@ class Tools {
      * >>> $.Tools.getDomNodeName('&lt;br/&gt;');
      * 'br'
      */
-    static getDomNodeName(domNodeSelector) {
-        return domNodeSelector.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1]
+    static getDomNodeName(domNodeSelector:string):?string {
+        const match:?Array<string> = domNodeSelector.match(
+            new RegExp('^<?([a-zA-Z]+).*>?.*'))
+        if (match)
+            return match[1]
+        return null
     }
     /**
      * Converts an object of dom selectors to an array of $ wrapped dom nodes.
@@ -714,22 +730,26 @@ class Tools {
      * @param domNodeSelectors - An object with dom node selectors.
      * @param wrapperDomNode - A dom node to be the parent or wrapper of all
      * retrieved dom nodes.
-     * @returns Returns all $ wrapped dom nodes corresponding to given
+     * @returns Returns All $ wrapped dom nodes corresponding to given
      * selectors.
      */
-    grabDomNode(domNodeSelectors, wrapperDomNode) {
-        const domNodes = {}
+    grabDomNode(
+        domNodeSelectors:PlainObject, wrapperDomNode:DomNode|$DomNode
+    ):{[key:string]:$DomNode} {
+        const domNodes:{[key:string]:$DomNode} = {}
         if (domNodeSelectors)
             if (wrapperDomNode) {
-                const $wrapperDomNode = $(wrapperDomNode)
-                $.each(domNodeSelectors, (key, value) => {
+                const $wrapperDomNode:$DomNode = $(wrapperDomNode)
+                $.each(domNodeSelectors, (key:string, value:string):void => {
                     domNodes[key] = $wrapperDomNode.find(value)
                 })
             } else
-                $.each(domNodeSelectors, (key, value) => {
-                    const match = value.match(', *')
+                $.each(domNodeSelectors, (key:string, value:string):void => {
+                    const match:?Array<string> = value.match(', *')
                     if (match)
-                        $.each(value.split(match[0]), (key, valuePart) => {
+                        $.each(value.split(match[0]), (
+                            key:string, valuePart:string
+                        ):void => {
                             if (key)
                                 value += ', ' + this._grabDomNodeHelper(
                                     key, valuePart, domNodeSelectors)
@@ -756,11 +776,13 @@ class Tools {
      * in given scope.
      * @returns The isolated scope.
      */
-    static isolateScope(scope, prefixesToIgnore = ['$', '_']) {
-        for (const name in scope)
-            if (!prefixesToIgnore.includes(name.charAt(0)) && ![
+    static isolateScope(scope:Object, prefixesToIgnore:Array<string> = [
+        '$', '_'
+    ]):Object {
+        for (const name:string in scope)
+            if (!(prefixesToIgnore.includes(name.charAt(0)) || [
                 'this', 'constructor'
-            ].includes(name) && !scope.hasOwnProperty(name))
+            ].includes(name) || scope.hasOwnProperty(name)))
                 /*
                     NOTE: Delete ("delete $scope[name]") doesn't destroy the
                     automatic lookup to parent scope.
@@ -769,14 +791,20 @@ class Tools {
         return scope
     }
     /**
-     * Generates a unique function name needed for jsonp requests.
+     * Generates a unique name in given scope (usefull for jsonp requests).
+     * @param prefix - A prefix which will be preprended to uniqe name.
+     * @param suffix - A suffix which will be preprended to uniqe name.
      * @param scope - A scope where the name should be unique.
      * @returns The function name.
      */
-    static determineUniqueScopeName(prefix = 'callback', scope = context) {
-        let uniqueName
+    static determineUniqueScopeName(
+        prefix:string = 'callback', suffix:string = '', scope:Object = context
+    ):string {
+        let uniqueName:string = prefix + suffix
         while (true) {
-            uniqueName = prefix + parseInt(Math.random() * Math.pow(10, 10))
+            uniqueName = prefix + parseInt(
+                Math.random() * Math.pow(10, 10), 10
+            ) + suffix
             if (!scope.hasOwnProperty(uniqueName))
                 break
         }
@@ -792,9 +820,13 @@ class Tools {
      * nothing is provided.
      * @param method - A method name of given scope.
      * @param scope - A given scope.
+     * @param additionalArguments - A list of additional arguments to forward
+     * to given function, when it should be called.
      * @returns Returns the given methods return value.
      */
-    getMethod(method, scope:any = this, ...additionalArguments) {
+    getMethod(
+        method:Function, scope:any = this, ...additionalArguments:Array<any>
+    ):Function {
         /*
             This following outcomment line would be responsible for a bug in
             yuicompressor. Because of declaration of arguments the parser
@@ -808,14 +840,12 @@ class Tools {
 
             var parameter = Tools.argumentsObjectToArray(arguments);
         */
-        let parameter = Tools.argumentsObjectToArray(arguments)
+        let parameter:Array<any> = Tools.argumentsObjectToArray(arguments)
         if ($.type(method) === 'string' && $.type(scope) === 'object')
-            return function() {
+            return function():void {
                 if (!scope[method])
                     $.error(`Method "${method}" doesn't exists in "${scope}".`)
-                const thisFunction = arguments.callee
                 parameter = $.Tools().argumentsObjectToArray(arguments)
-                parameter.push(thisFunction)
                 scope[method].apply(scope, parameter.concat(
                     additionalArguments))
             }
@@ -828,7 +858,7 @@ class Tools {
      * @param value - A value to return.
      * @returns Returns the given value.
      */
-    static identity(value) {
+    static identity(value:any):any {
         return value
     }
     /**
@@ -836,13 +866,13 @@ class Tools {
      * @param filter - A function that filters an array.
      * @returns The inverted filter.
      */
-    static invertArrayFilter(filter) {
-        return function(data) {
+    static invertArrayFilter(filter:Function):Function {
+        return function(data:any):any {
             if (data) {
-                const filteredData = filter.apply(this, arguments)
-                let result = []
+                const filteredData:any = filter.apply(this, arguments)
+                let result:Array<any> = []
                 if (filteredData.length) {
-                    for (const date of data)
+                    for (const date:any of data)
                         if (!filteredData.includes(date))
                             result.push(date)
                 } else
@@ -863,22 +893,26 @@ class Tools {
      * @param eventFunction - The function to call debounced.
      * @param thresholdInMilliseconds - The minimum time span between each
      * function call.
+     * @param additionalArguments - Additional arguments to forward to given
+     * function.
      * @returns Returns the wrapped method.
      */
     static debounce(
-        eventFunction, thresholdInMilliseconds = 600, ...additionalArguments
-    ) {
-        let lock = false
-        let waitingCallArguments = null
-        let timeoutID = null
-        return function() {
-            const parameter = Tools.argumentsObjectToArray(arguments)
+        eventFunction:Function, thresholdInMilliseconds:number = 600,
+        ...additionalArguments:Array<any>
+    ):Function {
+        let lock:boolean = false
+        let waitingCallArguments:?Array<any> = null
+        let timeoutID:?number = null
+        return function():?number {
+            const parameter:Array<any> = Tools.argumentsObjectToArray(
+                arguments)
             if (lock)
                 waitingCallArguments = parameter.concat(
                     additionalArguments || [])
             else {
                 lock = true
-                timeoutID = setTimeout(() => {
+                timeoutID = setTimeout(():void => {
                     lock = false
                     if (waitingCallArguments) {
                         eventFunction.apply(this, waitingCallArguments)
@@ -891,7 +925,7 @@ class Tools {
             return timeoutID
         }
     }
-    /*
+    /**
      * Searches for internal event handler methods and runs them by default. In
      * addition this method searches for a given event method by the options
      * object. Additional arguments are forwarded to respective event
@@ -901,14 +935,16 @@ class Tools {
      * event handler.
      * @param scope - The scope from where the given event handler should be
      * called.
+     * @param additionalArguments - Additional arguments to forward to
+     * corresponding event handlers.
      * @returns - Returns "true" if an event handler was called and "false"
      * otherwise.
      */
     fireEvent(
-        eventName, callOnlyOptionsMethod = false, scope:any = this,
-        ...additionalArguments
-    ) {
-        const eventHandlerName = `on${Tools.stringCapitalize(eventName)}`
+        eventName:string, callOnlyOptionsMethod:boolean = false,
+        scope:any = this, ...additionalArguments:Array<any>
+    ):boolean {
+        const eventHandlerName:string = `on${Tools.stringCapitalize(eventName)}`
         if (!callOnlyOptionsMethod)
             if (scope.hasOwnProperty(eventHandlerName))
                 scope[eventHandlerName].apply(scope, additionalArguments)
@@ -929,7 +965,7 @@ class Tools {
      * through "$.on()".
      * @returns Returns $'s grabbed dom node.
      */
-    on() {
+    on():$DomNode {
         return this._bindHelper(arguments, false)
     }
     /**
@@ -938,11 +974,12 @@ class Tools {
      * through "$.off()".
      * @returns Returns $'s grabbed dom node.
      */
-    off() {
+    off():$DomNode {
         return this._bindHelper(arguments, true, 'off')
     }
     // / endregion
     // / region object
+    // TODO test
     /**
      * Converts given plain object and all nested found objects to
      * corresponding map.
@@ -950,7 +987,6 @@ class Tools {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given object as map.
      */
-    // TODO test
     static convertPlainObjectToMap<Value>(
         object:Value, deep:boolean = true
     ):Value|Map {
@@ -979,6 +1015,7 @@ class Tools {
             }
         return object
     }
+    // TODO test
     /**
      * Converts given map and all nested found maps objects to corresponding
      * object.
@@ -986,7 +1023,6 @@ class Tools {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given map as object.
      */
-    // TODO test
     static convertMapToPlainObject<Value>(
         object:Value, deep:boolean = true
     ):Value|PlainObject {
@@ -1024,10 +1060,16 @@ class Tools {
      * @param context - The "this" binding for given iterator function.
      * @returns List of given sorted keys.
      */
-    static forEachSorted(object, iterator, context) {
-        const keys = Tools.sort(object)
-        for (const key of keys)
-            iterator.call(context, object[key], key)
+    static forEachSorted(
+        object:mixed, iterator:(key:any, value:any) => any,
+        context:Object
+    ):Array<any> {
+        const keys:Array<any> = Tools.sort(object)
+        for (const key:any of keys)
+            if (object instanceof Map)
+                iterator.call(context, object.get(key), key)
+            else if (Array.isArray(object) || object instanceof Object)
+                iterator.call(context, object[key], key)
         return keys
     }
     /**
@@ -1035,13 +1077,16 @@ class Tools {
      * @param object - Object which keys should be sorted.
      * @returns Sorted list of given keys.
      */
-    static sort(object) {
-        const keys = []
-        if ($.isArray(object))
-            for (let index = 0; index < object.length; index++)
+    static sort(object:mixed):Array<any> {
+        const keys:Array<any> = []
+        if (Array.isArray(object))
+            for (let index:number = 0; index < object.length; index++)
                 keys.push(index)
-        else
-            for (const key in object)
+        else if (object instanceof Map)
+            for (const keyValuePair:Array<any> of object)
+                keys.push(keyValuePair[0])
+        else if (object instanceof Object)
+            for (const key:string in object)
                 if (object.hasOwnProperty(key))
                     keys.push(key)
         return keys.sort()
@@ -1051,7 +1096,7 @@ class Tools {
      * property list isn't set all properties will be checked. All keys which
      * starts with one of the exception prefixes will be omitted.
      * @param firstValue - First object to compare.
-     * @param econdValue - Second object to compare.
+     * @param secondValue - Second object to compare.
      * @param properties - Property names to check. Check all if "null" is
      * selected (default).
      * @param deep - Recursion depth negative values means infinitely deep
@@ -1061,14 +1106,14 @@ class Tools {
      * @param ignoreFunctions - Indicates weather functions have to be
      * identical to interpret is as equal. If set to "true" two functions will
      * be assumed to be equal (default).
-     * @returns "true" if both objects are equal and "false" otherwise.
+     * @returns Value "true" if both objects are equal and "false" otherwise.
      */
     static equals(
         firstValue:any, secondValue:any, properties:?Array<any> = null,
         deep:number = -1, exceptionPrefixes:Array<string> = ['$', '_'],
         ignoreFunctions:boolean = true
-    ) {
-        if(
+    ):boolean {
+        if (
             ignoreFunctions && $.isFunction(firstValue) && $.isFunction(
                 secondValue
             ) || firstValue === secondValue || Tools.numberIsNotANumber(
@@ -1107,7 +1152,9 @@ class Tools {
                 // IgnoreTypeCheck
                 )) || first.length !== second.length)
                     return false
-                $.each(first, (key, value) => {
+                $.each(first, ((second:any):Function => (
+                    key:string|number, value:any
+                ):void => {
                     if (!firstIsArray) {
                         if (!equal || properties && !properties.includes(key))
                             return
@@ -1120,7 +1167,7 @@ class Tools {
                         exceptionPrefixes
                     ))
                         equal = false
-                })
+                })(second))
             }
             return equal
         }
@@ -1135,7 +1182,7 @@ class Tools {
      * @returns Returns the array containing all elements in given arguments
      * object.
      */
-    static argumentsObjectToArray(argumentsObject) {
+    static argumentsObjectToArray(argumentsObject:Array<any>):Array<any> {
         return Array.prototype.slice.call(argumentsObject)
     }
     /**
@@ -1144,7 +1191,7 @@ class Tools {
      * @param data - Array like object.
      * @returns Sliced version of given object.
      */
-    static arrayUnique(data) {
+    static arrayUnique(data:Array<any>):Array<any> {
         const result = []
         for (const value of data)
             if (!result.includes(value))
@@ -1159,9 +1206,9 @@ class Tools {
      * @returns Summarized array.
      */
     static arrayAggregatePropertyIfEqual(
-        data, propertyName, defaultValue = ''
-    ) {
-        let result = defaultValue
+        data:Array<Object>, propertyName:string, defaultValue:any = ''
+    ):any {
+        let result:any = defaultValue
         if (data && data.length && data[0].hasOwnProperty(propertyName)) {
             result = data[0][propertyName]
             for (const item of data)
@@ -1179,13 +1226,15 @@ class Tools {
      * @param propertyNames - Properties to consider.
      * @returns Given data without empty items.
      */
-    static arrayDeleteEmptyItems(data, propertyNames = []) {
+    static arrayDeleteEmptyItems(
+        data:?Array<Object>, propertyNames:Array<string> = []
+    ):?Array<Object> {
         if (!data)
             return data
-        const result = []
-        for (const item of data) {
-            let empty = true
-            for (const propertyName in item)
+        const result:Array<any> = []
+        for (const item:any of data) {
+            let empty:boolean = true
+            for (const propertyName:string in item)
                 if (item.hasOwnProperty(propertyName))
                     if (!['', null, undefined].includes(item[
                         propertyName
@@ -1207,11 +1256,17 @@ class Tools {
      * @param propertyNames - Property names to extract.
      * @returns Data with sliced items.
      */
-    static arrayExtract(data, propertyNames) {
-        for (const item of data)
-            for (const attributeName in item)
-                if (!propertyNames.includes(attributeName))
-                    delete item[attributeName]
+    static arrayExtract(
+        data:Array<Object>, propertyNames:Array<string>
+    ):Array<Object> {
+        const result:Array<Object> = []
+        for (const item:Object of data) {
+            const newItem:Object = {}
+            for (const propertyName:string of propertyNames)
+                if (item.hasOwnProperty(propertyName))
+                    newItem[propertyName] = item[propertyName]
+            result.push(newItem)
+        }
         return data
     }
     /**
@@ -1220,10 +1275,14 @@ class Tools {
      * @param regularExpression - Pattern to match for.
      * @returns Filtered data.
      */
-    static arrayExtractIfMatches(data, regularExpression) {
-        const result = []
-        $.each(data, (index, value) => {
-            if ((new RegExp(regularExpression)).test(value))
+    static arrayExtractIfMatches(
+        data:Array<string>, regularExpression:string|RegExp
+    ):Array<string> {
+        const result:Array<string> = []
+        $.each(data, (index:number, value:string):void => {
+            if (((typeof regularExpression === 'string') ? new RegExp(
+                regularExpression
+            ) : regularExpression).test(value))
                 result.push(value)
         })
         return result
@@ -1235,12 +1294,14 @@ class Tools {
      * @returns Given data without the items which doesn't have specified
      * property.
      */
-    static arrayExtractIfPropertyExists(data, propertyName) {
+    static arrayExtractIfPropertyExists(
+        data:?Array<Object>, propertyName:string
+    ):?Array<Object> {
         if (data && propertyName) {
-            const result = []
-            for (const item of data) {
-                let exists = false
-                for (const key in item)
+            const result:Array<Object> = []
+            for (const item:Object of data) {
+                let exists:boolean = false
+                for (const key:string in item)
                     if (key === propertyName && item.hasOwnProperty(key) && ![
                         undefined, null
                     ].includes(item[key])) {
@@ -1261,13 +1322,19 @@ class Tools {
      * @param propertyPattern - Mapping of property names to pattern.
      * @returns Filtered data.
      */
-    static arrayExtractIfPropertyMatches(data, propertyPattern) {
+    static arrayExtractIfPropertyMatches(
+        data:?Array<Object>, propertyPattern:{[key:string]:string|RegExp}
+    ):?Array<Object> {
         if (data && propertyPattern) {
-            const result = []
-            for (const item of data) {
-                let matches = true
-                for (const key in propertyPattern)
-                    if (!(new RegExp(propertyPattern[key])).test(item[key])) {
+            const result:Array<Object> = []
+            for (const item:Object of data) {
+                let matches:boolean = true
+                for (const propertyName:string in propertyPattern)
+                    if (!((
+                        propertyPattern[propertyName] instanceof RegExp
+                    ) ? propertyPattern[propertyName] : new RegExp(
+                        propertyPattern[propertyName]
+                    )).test(item[propertyName])) {
                         matches = false
                         break
                     }
@@ -1291,25 +1358,33 @@ class Tools {
      * keys aren't empty).
      * @returns Data which does exit in given initial data.
      */
-    static arrayIntersect(firstSet, secondSet, keys = [], strict = true) {
-        const containingData = []
-        for (const initialItem of firstSet) {
-            let exists
+    static arrayIntersect(
+        firstSet:Array<any>, secondSet:Array<any>,
+        keys:{[key:string]:string}|Array<string> = [], strict:boolean = true
+    ):Array<any> {
+        const containingData:Array<any> = []
+        for (const initialItem:any of firstSet) {
+            let exists:boolean
             if ($.isPlainObject(initialItem)) {
                 exists = false
-                for (const newItem of secondSet) {
+                for (const newItem:any of secondSet) {
                     exists = true
-                    const iterateGivenKeys = $.isPlainObject(
-                        keys
-                    ) || keys.length
-                    if (!iterateGivenKeys)
+                    let iterateGivenKeys:boolean
+                    const keysAreAnArray = Array.isArray(keys)
+                    if ($.isPlainObject(keys) || keysAreAnArray)
+                        iterateGivenKeys = true
+                    else {
+                        iterateGivenKeys = false
                         keys = initialItem
-                    $.each(keys, (firstSetKey, secondSetKey) => {
-                        if ($.isArray(keys))
+                    }
+                    $.each(keys, ((newItem:any) => (
+                        firstSetKey:string|number, secondSetKey:string|number
+                    ):?false => {
+                        if (keysAreAnArray)
                             firstSetKey = secondSetKey
                         else if (!iterateGivenKeys)
                             secondSetKey = firstSetKey
-                        if(
+                        if (
                             newItem[secondSetKey] !==
                             initialItem[firstSetKey] && (strict || !(
                                 [null, undefined].includes(
@@ -1321,7 +1396,7 @@ class Tools {
                             exists = false
                             return false
                         }
-                    })
+                    })(newItem))
                     if (exists)
                         break
                 }
@@ -1338,17 +1413,17 @@ class Tools {
      * given lower bound will be assumed to be zero. Both integers have to be
      * positive and will be contained in the resulting array.
      * @param step - Space between two consecutive values.
-     * @param returns Produced array of integers.
+     * @returns Produced array of integers.
      */
-    static arrayMakeRange(range, step=1) {
+    static arrayMakeRange(range:Array<number>, step:number = 1):Array<number> {
         let index:number
         let higherBound:number
         if (range.length === 1) {
             index = 0
-            higherBound = parseInt(range[0])
+            higherBound = parseInt(range[0], 10)
         } else if (range.length === 2) {
-            index = parseInt(range[0])
-            higherBound = parseInt(range[1])
+            index = parseInt(range[0], 10)
+            higherBound = parseInt(range[1], 10)
         } else
             return range
         const result = [index]
@@ -1360,15 +1435,18 @@ class Tools {
     }
     /**
      * Sums up given property of given item list.
-     * @param data - The objects to with the given property to sum up.
-     * @propertyNames - Property name to sum up its value.
+     * @param data - The objects with specified property to sum up.
+     * @param propertyName - Property name to sum up its value.
      * @returns The aggregated value.
      */
-    static arraySumUpProperty(data, propertyName) {
-        let result = 0
-        if ($.isArray(data) && data.length)
-            for (const item of data)
-                result += parseFloat(item[propertyName] || 0)
+    static arraySumUpProperty(
+        data:?Array<Object>, propertyName:string
+    ):number {
+        let result:number = 0
+        if (Array.isArray(data) && data.length)
+            for (const item:Object of data)
+                if (item.hasOwnProperty(propertyName))
+                    result += parseFloat(item[propertyName] || 0)
         return result
     }
     /**
@@ -1380,7 +1458,9 @@ class Tools {
      * list (will result in linear runtime instead of constant one).
      * @returns Item with the appended target.
      */
-    static arrayAppendAdd(item, target, name, checkIfExists = true) {
+    static arrayAppendAdd(
+        item:Object, target:any, name:string, checkIfExists:boolean = true
+    ):Object {
         if (item.hasOwnProperty(name)) {
             if (!(checkIfExists && item[name].includes(target)))
                 item[name].push(target)
@@ -1396,15 +1476,18 @@ class Tools {
      * doesn't exists given list.
      * @returns Item with the appended target.
      */
-    static arrayRemove(list, target, strict = false) {
-        if ($.isArray(list) || strict) {
+    static arrayRemove(
+        list:?Array<any>, target:any, strict:boolean = false
+    ):?Array<any> {
+        if (Array.isArray(list)) {
             const index:number = list.indexOf(target)
             if (index === -1) {
                 if (strict)
                     throw Error("Given target doesn't exists in given list.")
             } else
                 list.splice(index, 1)
-        }
+        } else if (strict)
+            throw Error("Given target isn't an array.")
         return list
     }
     // / endregion
@@ -1420,7 +1503,7 @@ class Tools {
      * whitespaces as "+" or "%20".
      * @returns Encoded given url.
      */
-    static stringEncodeURIComponent(url, encodeSpaces) {
+    static stringEncodeURIComponent(url:string, encodeSpaces:boolean):string {
         return encodeURIComponent(url).replace(/%40/gi, '@').replace(
             /%3A/gi, ':'
         ).replace(/%24/g, '$').replace(/%2C/gi, ',').replace(
@@ -1432,7 +1515,9 @@ class Tools {
      * @param pathSeparator - The selector for appending to path.
      * @param returns - The appended path.
      */
-    static stringAddSeparatorToPath(path, pathSeparator = '/') {
+    static stringAddSeparatorToPath(
+        path:string, pathSeparator:string = '/'
+    ):string {
         path = $.trim(path)
         if (path.substr(-1) !== pathSeparator && path.length)
             return path + pathSeparator
@@ -1450,7 +1535,7 @@ class Tools {
         prefix:?string = '/admin', path:string = context.hasOwnProperty(
             'location'
         ) && location.pathname || '', separator:string = '/'
-    ) {
+    ):boolean {
         if (typeof prefix === 'string') {
             if (!prefix.endsWith(separator))
                 prefix += separator
@@ -1470,13 +1555,13 @@ class Tools {
      * @returns Extracted domain.
      */
     static stringGetDomainName(
-        url = context.hasOwnProperty('location') && location.href || '',
-        fallback = context.hasOwnProperty(
+        url:string = context.hasOwnProperty('location') && location.href || '',
+        fallback:any = context.hasOwnProperty(
             'location'
         ) && location.hostname || ''
-    ) {
-        const result = /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(
-            url)
+    ):any {
+        const result:Array<?string> =
+            /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
         if (result && result.length > 2 && result[1] && result[2])
             return result[2]
         return fallback
@@ -1495,12 +1580,13 @@ class Tools {
      * @returns Extracted port number.
      */
     static stringGetPortNumber(
-        url = context.hasOwnProperty('location') && location.href || '',
-        fallback = null, parameter = []
-    ) {
-        const result = /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec(url)
+        url:string = context.hasOwnProperty('location') && location.href || '',
+        fallback:any = null, parameter:Array<string> = []
+    ):number {
+        const result:Array<?string> =
+            /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec(url)
         if (result && result.length > 1)
-            return parseInt(result[1])
+            return parseInt(result[1], 10)
         if (fallback !== null)
             return fallback
         if (Tools.stringIsInternalURL.apply(
@@ -1509,7 +1595,7 @@ class Tools {
                 'location'
             ) && location.port && parseInt(location.port)
         )
-            return parseInt(location.port)
+            return parseInt(location.port, 10)
         return (Tools.stringGetProtocolName(url) === 'https') ? 443 : 80
     }
     /**
@@ -1522,11 +1608,11 @@ class Tools {
      * returns Extracted protocol.
      */
     static stringGetProtocolName(
-        url = context.hasOwnProperty('location') && location.href || '',
-        fallback = context.hasOwnProperty('location') &&
+        url:string = context.hasOwnProperty('location') && location.href || '',
+        fallback:any = context.hasOwnProperty('location') &&
             location.protocol.substring(0, location.protocol.length - 1) || ''
-    ) {
-        const result = /^([a-z]+):\/\//i.exec(url)
+    ):any {
+        const result:Array<?string> = /^([a-z]+):\/\//i.exec(url)
         if (result && result.length > 1 && result[1])
             return result[1]
         return fallback
@@ -1627,11 +1713,14 @@ class Tools {
      * @returns Returns "true" if given first url has same domain as given
      * second (or current).
      */
-    static stringIsInternalURL(firstURL, secondURL = context.hasOwnProperty(
-        'location'
-    ) && location.href || '') {
-        const explicitDomainName = Tools.stringGetDomainName(firstURL, false)
-        const explicitProtocolName = Tools.stringGetProtocolName(
+    static stringIsInternalURL(
+        firstURL:string, secondURL:string = context.hasOwnProperty(
+            'location'
+        ) && location.href || ''
+    ):boolean {
+        const explicitDomainName:string = Tools.stringGetDomainName(
+            firstURL, false)
+        const explicitProtocolName:string = Tools.stringGetProtocolName(
             firstURL, false)
         const explicitPortNumber = Tools.stringGetPortNumber(firstURL, false)
         return (
@@ -2179,11 +2268,14 @@ class Tools {
      * @returns Returns $'s wrapped dom node.
      */
     _bindHelper(
-        parameter, removeEvent:boolean = false, eventFunctionName:string = 'on'
-    ) {
-        const $domNode = $(parameter[0])
+        parameter:Array<any>, removeEvent:boolean = false,
+        eventFunctionName:string = 'on'
+    ):$DomNode {
+        const $domNode:$DomNode = $(parameter[0])
         if ($.type(parameter[1]) === 'object' && !removeEvent) {
-            $.each(parameter[1], (eventType, handler) =>
+            $.each(parameter[1], (
+                eventType:string, handler:Function
+            ):$DomNode =>
                 // IgnoreTypeCheck
                 this[eventFunctionName]($domNode, eventType, handler))
             return $domNode
