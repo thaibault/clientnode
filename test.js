@@ -29,7 +29,7 @@ type JQueryFunction = (object:any) => Object
 // endregion
 const qunit:Object = (TARGET === 'node') ? require('qunit-cli') : require(
     'qunitjs')
-browserAPI((window:Window, location:Location) => {
+browserAPI((window:Window, location:Location):void => {
     // NOTE: We have to define window globally before jQuery is loaded to
     // ensure that all jquery instances share the same window object.
     if (typeof global !== 'undefined') {
@@ -55,7 +55,7 @@ browserAPI((window:Window, location:Location) => {
     qunit.test('constructor', ():?null => qunit.ok(tools))
     qunit.test('destructor', ():?null => qunit.strictEqual(
         tools.destructor(), tools))
-    qunit.test('initialize', () => {
+    qunit.test('initialize', ():void => {
         const secondToolsInstance = $.Tools({logging: true})
         const thirdToolsInstance = $.Tools({
             domNodeSelectorPrefix: 'body.{1} div.{1}'})
@@ -68,7 +68,7 @@ browserAPI((window:Window, location:Location) => {
     })
     // // endregion
     // // region object orientation
-    qunit.test('controller', () => {
+    qunit.test('controller', ():void => {
         qunit.strictEqual(tools.controller(tools, []), tools)
         qunit.strictEqual(tools.controller(
             $.Tools.class, [], $('body')
@@ -76,14 +76,14 @@ browserAPI((window:Window, location:Location) => {
     })
     // // endregion
     // // region mutual exclusion
-    qunit.test('acquireLock|releaseLock', () => {
+    qunit.test('acquireLock|releaseLock', ():void => {
         let testValue = false
-        tools.acquireLock('test', () => {
+        tools.acquireLock('test', ():void => {
             testValue = true
         })
 
         qunit.ok(testValue)
-        qunit.strictEqual(tools.acquireLock('test', () => {
+        qunit.strictEqual(tools.acquireLock('test', ():void => {
             testValue = false
         }, true), tools)
         qunit.ok(testValue)
@@ -91,45 +91,49 @@ browserAPI((window:Window, location:Location) => {
         qunit.ok(testValue)
         qunit.strictEqual(tools.releaseLock('test'), tools)
         qunit.notOk(testValue)
-        qunit.strictEqual(tools.acquireLock('test', () => {
+        qunit.strictEqual(tools.acquireLock('test', ():void => {
             testValue = true
         }, true), tools)
         qunit.ok(testValue)
-        qunit.strictEqual(tools.acquireLock('test', () => {
+        qunit.strictEqual(tools.acquireLock('test', ():void => {
             testValue = false
         }), tools)
         qunit.notOk(testValue)
     })
     // // endregion
     // // region language fixes
-    qunit.test('mouseOutEventHandlerFix', () => qunit.ok(
-        $.Tools.class.mouseOutEventHandlerFix(() => {})))
+    qunit.test('mouseOutEventHandlerFix', ():void => qunit.ok(
+        $.Tools.class.mouseOutEventHandlerFix(():void => {})))
     // // endregion
     // // region logging
-    qunit.test('log', () => qunit.strictEqual(tools.log('test'), tools))
-    qunit.test('info', () => qunit.strictEqual(tools.info('test {0}'), tools))
-    qunit.test('debug', () => qunit.strictEqual(tools.debug('test'), tools))
+    qunit.test('log', ():void => qunit.strictEqual(tools.log('test'), tools))
+    qunit.test('info', ():void =>
+        qunit.strictEqual(tools.info('test {0}'), tools))
+    qunit.test('debug', ():void =>
+        qunit.strictEqual(tools.debug('test'), tools))
     /*
     NOTE: This test breaks java script modules in strict mode.
-    qunit.test('error', () => qunit.strictEqual(tools.error(
+    qunit.test('error', ():void => qunit.strictEqual(tools.error(
         'ignore this error, it is only a {1}', 'test'
     ), tools))
     */
-    qunit.test('warn', () => qunit.strictEqual(tools.warn('test'), tools))
-    qunit.test('show', () => {
+    qunit.test('warn', ():void => qunit.strictEqual(tools.warn('test'), tools))
+    qunit.test('show', ():void => {
         qunit.strictEqual($.Tools.class.show('hans'), 'hans\n(Type: "string")')
         qunit.strictEqual($.Tools.class.show({
             A: 'a', B: 'b'
         }), 'A: a\nB: b\n(Type: "object")')
+        /* eslint-disable no-control-regex */
         qunit.ok((new RegExp(
             '^(.|\n|\r|\u2028|\u2029)+\\(Type: "function"\\)$'
         )).test($.Tools.class.show($.Tools)))
+        /* eslint-enable no-control-regex */
         qunit.ok((new RegExp('^.+: .+\\n(.|\\n)+$')).test($.Tools.class.show(
             tools)))
     })
     // // endregion
     // // region dom node handling
-    qunit.test('normalizeClassNames', () => {
+    qunit.test('normalizeClassNames', ():void => {
         qunit.strictEqual($('<div>').Tools(
             'normalizeClassNames'
         ).$domNode.prop('outerHTML'), $('<div>').prop('outerHTML'))
@@ -154,7 +158,7 @@ browserAPI((window:Window, location:Location) => {
             $('<div class="a b"><pre class="a b c"></pre></div>').prop(
                 'outerHTML'))
     })
-    qunit.test('isEquivalentDom', () => {
+    qunit.test('isEquivalentDom', ():void => {
         qunit.ok($.Tools.class.isEquivalentDom('test', 'test'))
         qunit.notOk($.Tools.class.isEquivalentDom('test', ''))
         qunit.notOk($.Tools.class.isEquivalentDom('test', 'hans'))
@@ -187,10 +191,10 @@ browserAPI((window:Window, location:Location) => {
             '<a target="_blank" class="b a"><div b="3" a="2"></div></a>',
             '<a class="a b" target="_blank"><div a="2" b="3"></div></a>'))
     })
-    qunit.test('getPositionRelativeToViewport', () => qunit.ok(
+    qunit.test('getPositionRelativeToViewport', ():void => qunit.ok(
         ['above', 'left', 'right', 'below', 'in'].includes(
             tools.getPositionRelativeToViewport())))
-    qunit.test('generateDirectiveSelector', () => {
+    qunit.test('generateDirectiveSelector', ():void => {
         qunit.strictEqual($.Tools.class.generateDirectiveSelector(
             'a-b'
         ), 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]')
@@ -216,21 +220,22 @@ browserAPI((window:Window, location:Location) => {
         ), 'mce-href, .mce-href, [mce-href], [data-mce-href], [x-mce-href], ' +
             '[mce\\:href], [mce_href]')
     })
-    qunit.test('removeDirective', () => {
+    qunit.test('removeDirective', ():void => {
         const $localBodyDomNode = $bodyDomNode.Tools('removeDirective', 'a')
         qunit.equal(
             $localBodyDomNode.Tools().removeDirective('a'), $localBodyDomNode)
     })
-    qunit.test('getNormalizedDirectiveName', () => {
+    qunit.test('getNormalizedDirectiveName', ():void => {
         qunit.equal($.Tools.class.getNormalizedDirectiveName('data-a'), 'a')
         qunit.equal($.Tools.class.getNormalizedDirectiveName('x-a'), 'a')
-        qunit.equal($.Tools.class.getNormalizedDirectiveName('data-a-bb'), 'aBb')
+        qunit.equal(
+            $.Tools.class.getNormalizedDirectiveName('data-a-bb'), 'aBb')
         qunit.equal($.Tools.class.getNormalizedDirectiveName('x:a:b'), 'aB')
     })
-    qunit.test('getDirectiveValue', () => qunit.equal($('body').Tools(
+    qunit.test('getDirectiveValue', ():void => qunit.equal($('body').Tools(
         'getDirectiveValue', 'a'
     ), null))
-    qunit.test('sliceDomNodeSelectorPrefix', () => {
+    qunit.test('sliceDomNodeSelectorPrefix', ():void => {
         qunit.strictEqual(tools.sliceDomNodeSelectorPrefix('body div'), 'div')
         qunit.strictEqual($.Tools({
             domNodeSelectorPrefix: 'body div'
@@ -239,7 +244,7 @@ browserAPI((window:Window, location:Location) => {
             domNodeSelectorPrefix: ''
         }).sliceDomNodeSelectorPrefix('body div'), 'body div')
     })
-    qunit.test('getDomNodeName', () => {
+    qunit.test('getDomNodeName', ():void => {
         qunit.strictEqual($.Tools.class.getDomNodeName('div'), 'div')
         qunit.strictEqual($.Tools.class.getDomNodeName('<div>'), 'div')
         qunit.strictEqual($.Tools.class.getDomNodeName('<div />'), 'div')
@@ -250,7 +255,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual($.Tools.class.getDomNodeName('<a />'), 'a')
         qunit.strictEqual($.Tools.class.getDomNodeName('<a></a>'), 'a')
     })
-    qunit.test('grabDomNode', () => {
+    qunit.test('grabDomNode', ():void => {
         let $domNodes = tools.grabDomNode({
             qunit: 'body div#qunit', qunitFixture: 'body div#qunit-fixture'})
         delete $domNodes.window
@@ -282,17 +287,17 @@ browserAPI((window:Window, location:Location) => {
     })
     // // endregion
     // // region scope
-    qunit.test('isolateScope', () => {
+    qunit.test('isolateScope', ():void => {
         qunit.deepEqual($.Tools.class.isolateScope({}), {})
         qunit.deepEqual($.Tools.class.isolateScope({a: 2}), {a: 2})
         qunit.deepEqual($.Tools.class.isolateScope({
             a: 2, b: {a: [1, 2]}
         }), {a: 2, b: {a: [1, 2]}})
-        let scope = function() {
+        let scope = function():void {
             this.a = 2
         }
         scope.prototype = {b: 2, _a: 5}
-        scope = new scope
+        scope = new scope()
         qunit.deepEqual($.Tools.class.isolateScope(scope), {
             _a: 5, a: 2, b: undefined
         })
@@ -302,7 +307,7 @@ browserAPI((window:Window, location:Location) => {
             _a: undefined, a: 2, b: 3})
         scope._a = 6
         qunit.deepEqual($.Tools.class.isolateScope(scope), {_a: 6, a: 2, b: 3})
-        scope = function() {
+        scope = function():void {
             this.a = 2
         }
         scope.prototype = {b: 3}
@@ -313,7 +318,7 @@ browserAPI((window:Window, location:Location) => {
             a: 2, b: undefined
         })
     })
-    qunit.test('determineUniqueScopeName', () => {
+    qunit.test('determineUniqueScopeName', ():void => {
         qunit.ok($.Tools.class.determineUniqueScopeName().startsWith(
             'callback'))
         qunit.ok($.Tools.class.determineUniqueScopeName('hans').startsWith(
@@ -323,24 +328,24 @@ browserAPI((window:Window, location:Location) => {
     })
     // // endregion
     // // region function handling
-    qunit.test('getMethod', () => {
+    qunit.test('getMethod', ():void => {
         const testObject = {value: false}
 
-        tools.getMethod(() => {
+        tools.getMethod(():void => {
             testObject.value = true
         })()
         qunit.ok(testObject.value)
 
-        tools.getMethod(function() {
+        tools.getMethod(function():void {
             this.value = false
         }, testObject)()
         qunit.notOk(testObject.value)
 
         qunit.strictEqual(tools.getMethod((
-            thisFunction, context, five, two, three
-        ) => five + two + three, testObject, 5)(2, 3), 10)
+            thisFunction:Function, context:Object, five:5, two:2, three:3
+        ):number => five + two + three, testObject, 5)(2, 3), 10)
     })
-    qunit.test('identity', () => {
+    qunit.test('identity', ():void => {
         qunit.strictEqual($.Tools.class.identity(2), 2)
         qunit.strictEqual($.Tools.class.identity(''), '')
         qunit.strictEqual($.Tools.class.identity(), undefined)
@@ -350,7 +355,7 @@ browserAPI((window:Window, location:Location) => {
         const testObject = {}
         qunit.strictEqual($.Tools.class.identity(testObject), testObject)
     })
-    qunit.test('invertArrayFilter', () => {
+    qunit.test('invertArrayFilter', ():void => {
         qunit.deepEqual($.Tools.class.invertArrayFilter(
             $.Tools.class.arrayDeleteEmptyItems
         )([{a: null}]), [{a: null}])
@@ -360,53 +365,53 @@ browserAPI((window:Window, location:Location) => {
     })
     // // endregion
     // // region event
-    qunit.test('debounce', () => {
+    qunit.test('debounce', ():void => {
         let testValue = false
-        $.Tools.class.debounce(() => {
+        $.Tools.class.debounce(():void => {
             testValue = true
         })()
         qunit.ok(testValue)
-        $.Tools.class.debounce(() => {
+        $.Tools.class.debounce(():void => {
             testValue = false
         }, 1000)()
         qunit.notOk(testValue)
     })
-    qunit.test('fireEvent', () => {
+    qunit.test('fireEvent', ():void => {
         let testValue = false
 
-        qunit.strictEqual($.Tools({onClick: () => {
+        qunit.strictEqual($.Tools({onClick: ():void => {
             testValue = true
         }}).fireEvent('click', true), true)
         qunit.ok(testValue)
-        qunit.strictEqual($.Tools({onClick: () => {
+        qunit.strictEqual($.Tools({onClick: ():void => {
             testValue = false
         }}).fireEvent('click', true), true)
         qunit.notOk(testValue)
         qunit.strictEqual(tools.fireEvent('click'), false)
         qunit.notOk(testValue)
-        tools.onClick = () => {
+        tools.onClick = ():void => {
             testValue = true
         }
         qunit.strictEqual(tools.fireEvent('click'), false)
         qunit.ok(testValue)
-        tools.onClick = () => {
+        tools.onClick = ():void => {
             testValue = false
         }
         qunit.strictEqual(tools.fireEvent('click', true), false)
         qunit.ok(testValue)
     })
-    qunit.test('on', () => {
+    qunit.test('on', ():void => {
         let testValue = false
-        qunit.strictEqual(tools.on('body', 'click', () => {
+        qunit.strictEqual(tools.on('body', 'click', ():void => {
             testValue = true
         })[0], $('body')[0])
 
         $('body').trigger('click')
         qunit.ok(testValue)
     })
-    qunit.test('off', () => {
+    qunit.test('off', ():void => {
         let testValue = false
-        qunit.strictEqual(tools.on('body', 'click', () => {
+        qunit.strictEqual(tools.on('body', 'click', ():void => {
             testValue = true
         })[0], $('body')[0])
         qunit.strictEqual(tools.off('body', 'click')[0], $('body')[0])
@@ -416,11 +421,20 @@ browserAPI((window:Window, location:Location) => {
     })
     // // endregion
     // // region object
-    qunit.test('forEachSorted', () => {
+    qunit.test('convertPlainObjectToMap', ():void => {
+        // TODO
+        qunit.ok(true)
+    })
+    qunit.test('convertMapToPlainObject', ():void => {
+        // TODO
+        qunit.ok(true)
+    })
+    qunit.test('forEachSorted', ():void => {
         let result = []
-        const tester = (item) => $.Tools.class.forEachSorted(item, (
-            value, key
-        ) => result.push([key, value]))
+        const tester = (item:Array<any>|Object):Array<any> =>
+            $.Tools.class.forEachSorted(
+                item, (value:any, key:string|number):number =>
+                    result.push([key, value]))
         tester({})
         qunit.deepEqual(result, [])
         qunit.deepEqual(tester({}), [])
@@ -438,15 +452,15 @@ browserAPI((window:Window, location:Location) => {
         tester({'5': 2, '6': 2, '2': 3})
         qunit.deepEqual(result, [['2', 3], ['5', 2], ['6', 2]])
         result = []
-        tester({'a': 2, 'c': 2, 'z': 3})
+        tester({a: 2, c: 2, z: 3})
         qunit.deepEqual(result, [['a', 2], ['c', 2], ['z', 3]])
-        $.Tools.class.forEachSorted([1], function(value, key) {
+        $.Tools.class.forEachSorted([1], function():number {
             result = this
             return result
         }, 2)
         qunit.deepEqual(result, 2)
     })
-    qunit.test('sort', () => {
+    qunit.test('sort', ():void => {
         qunit.deepEqual($.Tools.class.sort([]), [])
         qunit.deepEqual($.Tools.class.sort({}), [])
         qunit.deepEqual($.Tools.class.sort([1]), [0])
@@ -460,13 +474,13 @@ browserAPI((window:Window, location:Location) => {
         qunit.deepEqual($.Tools.class.sort({'3': 2, '2': 5, '1': 'a'}), [
             '1', '2', '3'])
         qunit.deepEqual($.Tools.class.sort(
-            {'a': 2, 'b': 5, 'c': 'a'}), ['a', 'b', 'c'])
+            {a: 2, b: 5, c: 'a'}), ['a', 'b', 'c'])
         qunit.deepEqual($.Tools.class.sort(
-            {'c': 2, 'b': 5, 'a': 'a'}), ['a', 'b', 'c'])
+            {c: 2, b: 5, a: 'a'}), ['a', 'b', 'c'])
         qunit.deepEqual($.Tools.class.sort(
-            {'b': 2, 'c': 5, 'z': 'a'}), ['b', 'c', 'z'])
+            {b: 2, c: 5, z: 'a'}), ['b', 'c', 'z'])
     })
-    qunit.test('equals', () => {
+    qunit.test('equals', ():void => {
         qunit.ok($.Tools.class.equals(1, 1))
         qunit.ok($.Tools.class.equals((new Date()), (new Date())))
         qunit.ok($.Tools.class.equals((new Date(1995, 11, 17)), (new Date(
@@ -516,26 +530,26 @@ browserAPI((window:Window, location:Location) => {
             [{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3))
         qunit.ok($.Tools.class.equals(
             [{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3, ['b']))
-        qunit.ok($.Tools.class.equals(() => {}, () => {}))
+        qunit.ok($.Tools.class.equals(():void => {}, ():void => {}))
         qunit.notOk($.Tools.class.equals(
-            () => {}, () => {}, null, -1, [], false))
-        const test = () => {}
+            ():void => {}, ():void => {}, null, -1, [], false))
+        const test = ():void => {}
         qunit.ok($.Tools.class.equals(test, test, null, -1, [], false))
     })
     // // endregion
     // // region array
-    qunit.test('argumentsObjectToArray', () => {
+    qunit.test('argumentsObjectToArray', ():void => {
         qunit.notOk($.isArray(arguments))
         qunit.ok($.isArray($.Tools.class.argumentsObjectToArray(arguments)))
     })
-    qunit.test('arrayUnique', () => {
+    qunit.test('arrayUnique', ():void => {
         qunit.deepEqual($.Tools.class.arrayUnique([1, 2, 3, 1]), [1, 2, 3])
         qunit.deepEqual(
             $.Tools.class.arrayUnique([1, 2, 3, 1, 2, 3]), [1, 2, 3])
         qunit.deepEqual($.Tools.class.arrayUnique([]), [])
         qunit.deepEqual($.Tools.class.arrayUnique([1, 2, 3]), [1, 2, 3])
     })
-    qunit.test('arrayAggregatePropertyIfEqual', () => {
+    qunit.test('arrayAggregatePropertyIfEqual', ():void => {
         qunit.strictEqual(
             $.Tools.class.arrayAggregatePropertyIfEqual([{a: 'b'}], 'a'), 'b')
         qunit.strictEqual($.Tools.class.arrayAggregatePropertyIfEqual(
@@ -548,7 +562,7 @@ browserAPI((window:Window, location:Location) => {
             [{a: 'b'}, {a: 'c'}], 'a', false
         ), false)
     })
-    qunit.test('arrayDeleteEmptyItems', () => {
+    qunit.test('arrayDeleteEmptyItems', ():void => {
         qunit.deepEqual($.Tools.class.arrayDeleteEmptyItems([{a: null}]), [])
         qunit.deepEqual($.Tools.class.arrayDeleteEmptyItems(
             [{a: null, b: 2}]
@@ -559,7 +573,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.deepEqual($.Tools.class.arrayDeleteEmptyItems([], ['a']), [])
         qunit.deepEqual($.Tools.class.arrayDeleteEmptyItems([]), [])
     })
-    qunit.test('arrayExtract', () => {
+    qunit.test('arrayExtract', ():void => {
         qunit.deepEqual(
             $.Tools.class.arrayExtract([{a: 'b', c: 'd'}], ['a']), [{a: 'b'}])
         qunit.deepEqual(
@@ -573,7 +587,7 @@ browserAPI((window:Window, location:Location) => {
             [{a: 'b', c: 'd'}, {c: 3}], ['c']
         ), [{c: 'd'}, {c: 3}])
     })
-    qunit.test('arrayExtractIfMatches', () => {
+    qunit.test('arrayExtractIfMatches', ():void => {
         qunit.deepEqual($.Tools.class.arrayExtractIfMatches(['b'], /b/), ['b'])
         qunit.deepEqual($.Tools.class.arrayExtractIfMatches(['b'], 'b'), ['b'])
         qunit.deepEqual($.Tools.class.arrayExtractIfMatches(['b'], 'a'), [])
@@ -588,7 +602,7 @@ browserAPI((window:Window, location:Location) => {
             $.Tools.class.arrayExtractIfMatches(['a', 'b'], '[ab]'),
             ['a', 'b'])
     })
-    qunit.test('arrayExtractIfPropertyExists', () => {
+    qunit.test('arrayExtractIfPropertyExists', ():void => {
         qunit.deepEqual(
             $.Tools.class.arrayExtractIfPropertyExists([{a: 2}], 'a'),
             [{a: 2}])
@@ -600,7 +614,7 @@ browserAPI((window:Window, location:Location) => {
             $.Tools.class.arrayExtractIfPropertyExists([{a: 2}, {b: 3}], 'a'
         ), [{a: 2}])
     })
-    qunit.test('arrayExtractIfPropertyMatches', () => {
+    qunit.test('arrayExtractIfPropertyMatches', ():void => {
         qunit.deepEqual(
             $.Tools.class.arrayExtractIfPropertyMatches([{a: 'b'}],
             {a: 'b'}), [{a: 'b'}])
@@ -620,7 +634,7 @@ browserAPI((window:Window, location:Location) => {
         }], {mimeType: new RegExp('^text/x-webm$')}),
         [{mimeType: 'text/x-webm'}])
     })
-    qunit.test('arrayIntersect', () => {
+    qunit.test('arrayIntersect', ():void => {
         qunit.deepEqual($.Tools.class.arrayIntersect(['A'], ['A']), ['A'])
         qunit.deepEqual($.Tools.class.arrayIntersect(['A', 'B'], ['A']), ['A'])
         qunit.deepEqual($.Tools.class.arrayIntersect([], []), [])
@@ -657,13 +671,13 @@ browserAPI((window:Window, location:Location) => {
         qunit.deepEqual($.Tools.class.arrayIntersect(
             [{b: 1}], [{a: 1}], {b: 'a'}, true), [{b: 1}])
     })
-    qunit.test('arrayMakeRange', () => {
+    qunit.test('arrayMakeRange', ():void => {
         qunit.deepEqual($.Tools.class.arrayMakeRange([0]), [0])
         qunit.deepEqual($.Tools.class.arrayMakeRange([5]), [0, 1, 2, 3, 4, 5])
         qunit.deepEqual($.Tools.class.arrayMakeRange([]), [])
         qunit.deepEqual($.Tools.class.arrayMakeRange([2, 5]), [2, 3, 4, 5])
     })
-    qunit.test('arraySumUpProperty', () => {
+    qunit.test('arraySumUpProperty', ():void => {
         qunit.strictEqual(
             $.Tools.class.arraySumUpProperty([{a: 2}, {a: 3}], 'a'), 5)
         qunit.strictEqual(
@@ -671,7 +685,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual(
             $.Tools.class.arraySumUpProperty([{a: 2}, {b: 3}], 'c'), 0)
     })
-    qunit.test('arrayAppendAdd', () => {
+    qunit.test('arrayAppendAdd', ():void => {
         qunit.deepEqual($.Tools.class.arrayAppendAdd({}, {}, 'b'), {b: [{}]})
         const test = {}
         qunit.deepEqual(
@@ -684,10 +698,11 @@ browserAPI((window:Window, location:Location) => {
         qunit.deepEqual(
             $.Tools.class.arrayAppendAdd({b: [2]}, 2, 'b'), {b: [2]})
     })
-    qunit.test('arrayRemove', () => {
+    qunit.test('arrayRemove', ():void => {
         qunit.deepEqual($.Tools.class.arrayRemove([], 2), [])
-        qunit.throws(() => $.Tools.class.arrayRemove([], 2, true), Error(
-            "Given target doesn't exists in given list."))
+        qunit.throws(():?Array<any> => $.Tools.class.arrayRemove(
+            [], 2, true
+        ), Error("Given target doesn't exists in given list."))
         qunit.deepEqual($.Tools.class.arrayRemove([2], 2), [])
         qunit.deepEqual($.Tools.class.arrayRemove([2], 2, true), [])
         qunit.deepEqual($.Tools.class.arrayRemove([1, 2], 2), [1])
@@ -696,7 +711,7 @@ browserAPI((window:Window, location:Location) => {
     // // endregion
     // // region string
     // /// region url handling
-    qunit.test('stringEncodeURIComponent', () => {
+    qunit.test('stringEncodeURIComponent', ():void => {
         qunit.strictEqual($.Tools.class.stringEncodeURIComponent(''), '')
         qunit.strictEqual($.Tools.class.stringEncodeURIComponent(' '), '+')
         qunit.strictEqual(
@@ -705,7 +720,7 @@ browserAPI((window:Window, location:Location) => {
             $.Tools.class.stringEncodeURIComponent('@:$, '), '@:$,+')
         qunit.strictEqual($.Tools.class.stringEncodeURIComponent('+'), '%2B')
     })
-    qunit.test('stringAddSeparatorToPath', () => {
+    qunit.test('stringAddSeparatorToPath', ():void => {
         qunit.strictEqual($.Tools.class.stringAddSeparatorToPath(''), '')
         qunit.strictEqual($.Tools.class.stringAddSeparatorToPath('/'), '/')
         qunit.strictEqual($.Tools.class.stringAddSeparatorToPath('/a'), '/a/')
@@ -718,7 +733,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual(
             $.Tools.class.stringAddSeparatorToPath('/a/bb/', '|'), '/a/bb/|')
     })
-    qunit.test('stringHasPathPrefix', () => {
+    qunit.test('stringHasPathPrefix', ():void => {
         qunit.ok($.Tools.class.stringHasPathPrefix('/admin', '/admin'))
         qunit.ok($.Tools.class.stringHasPathPrefix('test', 'test'))
         qunit.ok($.Tools.class.stringHasPathPrefix('', ''))
@@ -733,7 +748,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.ok(
             $.Tools.class.stringHasPathPrefix('/admin', '/admin#test', '#'))
     })
-    qunit.test('stringGetDomainName', () => {
+    qunit.test('stringGetDomainName', ():void => {
         qunit.strictEqual($.Tools.class.stringGetDomainName(
             'https://www.test.de/site/subSite?param=value#hash'
         ), 'www.test.de')
@@ -764,7 +779,7 @@ browserAPI((window:Window, location:Location) => {
             '//alternate.local/'
         ), 'alternate.local')
     })
-    qunit.test('stringGetPortNumber', () => {
+    qunit.test('stringGetPortNumber', ():void => {
         qunit.strictEqual($.Tools.class.stringGetPortNumber(
             'https://www.test.de/site/subSite?param=value#hash'
         ), 443)
@@ -785,7 +800,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual(
             $.Tools.class.stringGetPortNumber('https://localhost:89'), 89)
     })
-    qunit.test('stringGetProtocolName', () => {
+    qunit.test('stringGetProtocolName', ():void => {
         qunit.strictEqual($.Tools.class.stringGetProtocolName(
             'https://www.test.de/site/subSite?param=value#hash'
         ), 'https')
@@ -817,7 +832,7 @@ browserAPI((window:Window, location:Location) => {
             '', location.protocol.substring(0, location.protocol.length - 1)
         ), location.protocol.substring(0, location.protocol.length - 1))
     })
-    qunit.test('stringGetURLVariable', () => {
+    qunit.test('stringGetURLVariable', ():void => {
         qunit.ok($.isArray($.Tools.class.stringGetURLVariable()))
         qunit.ok($.isArray($.Tools.class.stringGetURLVariable(null, '&')))
         qunit.ok($.isArray($.Tools.class.stringGetURLVariable(null, '#')))
@@ -870,16 +885,16 @@ browserAPI((window:Window, location:Location) => {
             'test', '#', '$', '!', '', '#!test?test=3#$test=4'
         ), '4')
         qunit.strictEqual($.Tools.class.stringGetURLVariable(
-            'test', '&', '$', '!', null, '#!a?test=3'
+            'test', '&', '?', '!', null, '#!a?test=3'
         ), '3')
         qunit.strictEqual($.Tools.class.stringGetURLVariable(
             'test', '&', '$', '!', null, '#!test#$test=4'
         ), '4')
         qunit.strictEqual($.Tools.class.stringGetURLVariable(
             'test', '&', '$', '!', null, '#!test?test=3#$test=4'
-        ), '3')
+        ), '4')
     })
-    qunit.test('stringIsInternalURL', () => {
+    qunit.test('stringIsInternalURL', ():void => {
         qunit.ok($.Tools.class.stringIsInternalURL(
             'https://www.test.de/site/subSite?param=value#hash',
             'https://www.test.de/site/subSite?param=value#hash'))
@@ -917,7 +932,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.ok($.Tools.class.stringIsInternalURL('#1', location.href))
         qunit.ok($.Tools.class.stringIsInternalURL('/a', location.href))
     })
-    qunit.test('stringNormalizeURL', () => {
+    qunit.test('stringNormalizeURL', ():void => {
         qunit.strictEqual(
             $.Tools.class.stringNormalizeURL('www.test.com'),
             'http://www.test.com')
@@ -928,7 +943,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual(
             $.Tools.class.stringNormalizeURL('https://test'), 'https://test')
     })
-    qunit.test('stringRepresentURL', () => {
+    qunit.test('stringRepresentURL', ():void => {
         qunit.strictEqual(
             $.Tools.class.stringRepresentURL('http://www.test.com'),
             'www.test.com')
@@ -946,7 +961,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual($.Tools.class.stringRepresentURL(' '), '')
     })
     // /// endregion
-    qunit.test('stringCamelCaseToDelimited', () => {
+    qunit.test('stringCamelCaseToDelimited', ():void => {
         qunit.strictEqual(
             $.Tools.class.stringCamelCaseToDelimited('hansPeter'),
             'hans-peter')
@@ -977,7 +992,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual($.Tools.class.stringCamelCaseToDelimited(
             'hansPeter', '-', []), 'hans-peter')
     })
-    qunit.test('stringCapitalize', () => {
+    qunit.test('stringCapitalize', ():void => {
         qunit.strictEqual(
             $.Tools.class.stringCapitalize('hansPeter'), 'HansPeter')
         qunit.strictEqual($.Tools.class.stringCapitalize(''), '')
@@ -987,7 +1002,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual($.Tools.class.stringCapitalize('Aa'), 'Aa')
         qunit.strictEqual($.Tools.class.stringCapitalize('aa'), 'Aa')
     })
-    qunit.test('stringDelimitedToCamelCase', () => {
+    qunit.test('stringDelimitedToCamelCase', ():void => {
         qunit.strictEqual(
             $.Tools.class.stringDelimitedToCamelCase('hans-peter'),
             'hansPeter')
@@ -1039,7 +1054,7 @@ browserAPI((window:Window, location:Location) => {
             'hans-Url', '-', [], false
         ), 'hansUrl')
     })
-    qunit.test('stringFormat', () => {
+    qunit.test('stringFormat', ():void => {
         qunit.strictEqual($.Tools.class.stringFormat('{1}', 'test'), 'test')
         qunit.strictEqual($.Tools.class.stringFormat('', 'test'), '')
         qunit.strictEqual($.Tools.class.stringFormat('{1}'), '{1}')
@@ -1047,19 +1062,19 @@ browserAPI((window:Window, location:Location) => {
             $.Tools.class.stringFormat('{1} test {2} - {2}', 1, 2),
             '1 test 2 - 2')
     })
-    qunit.test('stringGetRegularExpressionValidated', () => {
+    qunit.test('stringGetRegularExpressionValidated', ():void => {
         qunit.strictEqual($.Tools.class.stringGetRegularExpressionValidated(
             "that's no regex: .*$"
         ), "that's no regex: \\.\\*\\$")
         qunit.strictEqual(
             $.Tools.class.stringGetRegularExpressionValidated(''), '')
         qunit.strictEqual($.Tools.class.stringGetRegularExpressionValidated(
-            '-\[]()^$*+.}-'
-        ), '\\-\\[\\]\\(\\)\\^\\$\\*\\+\\.\\}\\-')
+            '-[]()^$*+.}-\\'
+        ), '\\-\\[\\]\\(\\)\\^\\$\\*\\+\\.\\}\\-\\\\')
         qunit.strictEqual(
             $.Tools.class.stringGetRegularExpressionValidated('-'), '\\-')
     })
-    qunit.test('stringLowerCase', () => {
+    qunit.test('stringLowerCase', ():void => {
         qunit.strictEqual(
             $.Tools.class.stringLowerCase('HansPeter'), 'hansPeter')
         qunit.strictEqual($.Tools.class.stringLowerCase(''), '')
@@ -1069,7 +1084,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual($.Tools.class.stringLowerCase('Aa'), 'aa')
         qunit.strictEqual($.Tools.class.stringLowerCase('aa'), 'aa')
     })
-    qunit.test('stringMark', () => {
+    qunit.test('stringMark', ():void => {
         qunit.strictEqual($.Tools.class.stringMark(''), '')
         qunit.strictEqual($.Tools.class.stringMark(
             'test', 'e'
@@ -1099,21 +1114,29 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual(
             $.Tools.class.stringMark('test', 'E', '<a>{1}</a>', true), 'test')
     })
-    qunit.test('stringMD5', () => {
-        qunit.strictEqual(
-            $.Tools.class.stringMD5('test'),
-            '098f6bcd4621d373cade4e832627b4f6')
+    qunit.test('stringMD5', ():void => {
         qunit.strictEqual(
             $.Tools.class.stringMD5(''), 'd41d8cd98f00b204e9800998ecf8427e')
+        qunit.strictEqual(
+            $.Tools.class.stringMD5('test'), '098f6bcd4621d373cade4e832627b4f6'
+        )
+        qunit.strictEqual(
+            $.Tools.class.stringMD5('ä'), '8419b71c87a225a2c70b50486fbee545')
+        qunit.strictEqual(
+            $.Tools.class.stringMD5('test', true),
+            '098f6bcd4621d373cade4e832627b4f6')
+        qunit.strictEqual(
+            $.Tools.class.stringMD5('ä', true),
+            'c15bcc5577f9fade4b4a3256190a59b0')
     })
-    qunit.test('stringNormalizePhoneNumber', () => {
+    qunit.test('stringNormalizePhoneNumber', ():void => {
         qunit.strictEqual($.Tools.class.stringNormalizePhoneNumber('0'), '0')
         qunit.strictEqual($.Tools.class.stringNormalizePhoneNumber(0), '0')
         qunit.strictEqual($.Tools.class.stringNormalizePhoneNumber(
             '+49 172 (0) / 0212 - 3'
         ), '0049172002123')
     })
-    qunit.test('stringRepresentPhoneNumber', () => {
+    qunit.test('stringRepresentPhoneNumber', ():void => {
         qunit.strictEqual($.Tools.class.stringRepresentPhoneNumber('0'), '0')
         qunit.strictEqual($.Tools.class.stringRepresentPhoneNumber(
             '0172-12321-1'
@@ -1132,7 +1155,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual($.Tools.class.stringRepresentPhoneNumber(''), '')
         qunit.strictEqual($.Tools.class.stringRepresentPhoneNumber(' '), '')
     })
-    qunit.test('stringDecodeHTMLEntities', () => {
+    qunit.test('stringDecodeHTMLEntities', ():void => {
         qunit.equal($.Tools.class.stringDecodeHTMLEntities(''), '')
         qunit.equal($.Tools.class.stringDecodeHTMLEntities(
             '<div></div>'
@@ -1146,7 +1169,7 @@ browserAPI((window:Window, location:Location) => {
     })
     // / endregion
     // // region number
-    qunit.test('numberIsNotANumber', () => {
+    qunit.test('numberIsNotANumber', ():void => {
         qunit.strictEqual($.Tools.class.numberIsNotANumber(NaN), true)
         qunit.strictEqual($.Tools.class.numberIsNotANumber({}), false)
         qunit.strictEqual($.Tools.class.numberIsNotANumber(undefined), false)
@@ -1157,7 +1180,7 @@ browserAPI((window:Window, location:Location) => {
         qunit.strictEqual($.Tools.class.numberIsNotANumber(true), false)
         qunit.strictEqual($.Tools.class.numberIsNotANumber(0), false)
     })
-    qunit.test('numberRound', () => {
+    qunit.test('numberRound', ():void => {
         qunit.strictEqual($.Tools.class.numberRound(1.5, 0), 2)
         qunit.strictEqual($.Tools.class.numberRound(1.4, 0), 1)
         qunit.strictEqual($.Tools.class.numberRound(1.4, -1), 0)
@@ -1175,25 +1198,25 @@ browserAPI((window:Window, location:Location) => {
     })
     // // endregion
     // // region data transfer
-    qunit.test('sendToIFrame', () => {
+    qunit.test('sendToIFrame', ():void => {
         const iFrame = $('<iframe>').hide().attr('name', 'test')
         $('body').append(iFrame)
         qunit.ok($.Tools.class.sendToIFrame(iFrame, window.document.URL, {
             test: 5
         }, 'get', true))
     })
-    qunit.test('sendToExternalURL', () => {
+    qunit.test('sendToExternalURL', ():void => {
         qunit.ok(tools.sendToExternalURL(window.document.URL, {test: 5}))
     })
     // // endregion
     // / endregion
     // / region protected
-    qunit.test('_bindHelper', () => {
+    qunit.test('_bindHelper', ():void => {
         qunit.ok(tools._bindHelper(['body']))
         qunit.ok(tools._bindHelper(['body'], true))
         qunit.ok(tools._bindHelper(['body'], false, 'bind'))
     })
-    qunit.test('_grabDomNodeHelper', () => {
+    qunit.test('_grabDomNodeHelper', ():void => {
         qunit.strictEqual(
             tools._grabDomNodeHelper('test', 'div', {}), 'body div')
         qunit.strictEqual(

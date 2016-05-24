@@ -37,22 +37,22 @@ export type Options = {
     [key:string]:any;
 }
 export type LockCallbackFunction = (description:string) => void
-declare module 'jquery' {
-    declare function $(obj:any):any
-}
 declare class $DomNode extends Array {
     [key:number|string]:DomNode;
     addClass(className:string):$DomNode;
     addBack():$DomNode;
     after(domNode:any):$DomNode;
+    append(domNode:any):$DomNode;
     attr(attributeName:string|{[key:string]:string}, value:any):any;
     data(key:string, value:any):any;
     each():$DomNode;
     find(filter:any):$DomNode;
     height():number;
     is(selector:string):boolean;
+    remove():$DomNode;
     removeAttr(attributeName:string):$DomNode;
     removeClass(className:string|Array<string>):$DomNode;
+    submit():$DomNode;
     width():number;
     Tools(functionName:string, ...additionalArguments:Array<any>):any;
 }
@@ -77,6 +77,17 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  */
 class Tools {
     // region static properties
+    /**
+     * @member Lists all known abbreviation for proper camel case to delimited
+     * and back conversion.
+     */
+    static abbreviations = ['html', 'id', 'url', 'us', 'de', 'api', 'href']
+    /**
+     * @member Saves a string with all css3 browser specific animation end
+     * event names.
+     */
+    static animationEndEventNames = 'animationend webkitAnimationEnd ' +
+        'oAnimationEnd MSAnimationEnd'
     /**
      * @member Saves a mapping from key codes to their corresponding name.
      */
@@ -105,23 +116,6 @@ class Tools {
         UP: 38
     }
     /**
-     * @member Lists all known abbreviation for proper camel case to delimited
-     * and back conversion.
-     */
-    static abbreviations = ['html', 'id', 'url', 'us', 'de', 'api', 'href'];
-    /**
-     * @member Saves a string with all css3 browser specific transition end
-     * event names.
-     */
-    static transitionEndEventNames = 'transitionend webkitTransitionEnd ' +
-        'oTransitionEnd MSTransitionEnd'
-    /**
-     * @member Saves a string with all css3 browser specific animation end
-     * event names.
-     */
-    static animationEndEventNames = 'animationend webkitAnimationEnd ' +
-        'oAnimationEnd MSAnimationEnd'
-    /**
      * @member Saves currently minimal supported internet explorer version.
      * Saves zero if no internet explorer present.
      */
@@ -141,8 +135,7 @@ class Tools {
             */
             /* eslint-disable no-useless-concat */
             div.innerHTML = (
-                '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' +
-                '->')
+                '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' + '->')
             /* eslint-enable no-useless-concat */
             if (div.getElementsByTagName('i').length === 0)
                 break
@@ -157,6 +150,12 @@ class Tools {
                 return 11
         return version
     })()
+    /**
+     * @member Saves a string with all css3 browser specific transition end
+     * event names.
+     */
+    static transitionEndEventNames = 'transitionend webkitTransitionEnd ' +
+        'oTransitionEnd MSTransitionEnd'
     /*
      * @member This variable contains a collection of methods usually binded to
      * the console object.
@@ -190,6 +189,11 @@ class Tools {
      * shown.
      */
     static _javaScriptDependentContentHandled = false
+    /**
+     * @member Defines this class name to allow retrieving them after name
+     * mangling.
+     */
+    static _name = 'Tools'
     // endregion
     // region dynamic properties
     $domNode:$DomNode
@@ -234,16 +238,16 @@ class Tools {
         // Avoid errors in browsers that lack a console.
         if (!context.hasOwnProperty('console'))
             context.console = {}
-        for (const methodName of Tools._consoleMethodNames)
+        for (const methodName of this.constructor._consoleMethodNames)
             if (!context.console.hasOwnProperty(methodName))
                 context.console[methodName] = ($.hasOwnProperty(
                     'noop'
                 )) ? $.noop() : ():void => {}
         if (
-            !Tools._javaScriptDependentContentHandled &&
+            !this.constructor._javaScriptDependentContentHandled &&
             context.hasOwnProperty('document')
         ) {
-            Tools._javaScriptDependentContentHandled = true
+            this.constructor._javaScriptDependentContentHandled = true
             $(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNode.hideJavaScriptEnabled
@@ -283,13 +287,14 @@ class Tools {
             The selector prefix should be parsed after extending options
             because the selector would be overwritten otherwise.
         */
-        this._options.domNodeSelectorPrefix = Tools.stringFormat(
+        this._options.domNodeSelectorPrefix = this.constructor.stringFormat(
             this._options.domNodeSelectorPrefix,
-            Tools.stringCamelCaseToDelimited(this.constructor.name))
+            this.constructor.stringCamelCaseToDelimited(this.constructor._name))
         return this
     }
     // / endregion
     // / region object orientation
+    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Defines a generic controller for jQuery plugins.
      * @param object - The object or class to control. If "object" is a class
@@ -300,14 +305,15 @@ class Tools {
      */
     controller(
         object:Object, parameter:Array<any>, $domNode:?$DomNode = null
-    ):void {
+    ):any {
+    /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
             object = new object($domNode)
             if (!object instanceof Tools)
                 object = $.extend(true, new Tools(), object)
         }
-        parameter = Tools.argumentsObjectToArray(parameter)
-        if ($domNode && !$domNode.data(object.constructor.name))
+        parameter = this.constructor.argumentsObjectToArray(parameter)
+        if ($domNode && !$domNode.data(object.constructor._name))
             // Attach extended object to the associated dom node.
             $domNode.data(object.constructor.name, object)
         if (parameter[0] in object)
@@ -425,7 +431,7 @@ class Tools {
             else if (typeof object === 'string') {
                 additionalArguments.unshift(object)
                 message = `${this.constructor.name} (${level}): ` +
-                    Tools.stringFormat.apply(this, additionalArguments)
+                    this.constructor.stringFormat.apply(this, additionalArguments)
             } else if ($.isNumeric(object) || $.type(object) === 'boolean')
                 message = `${this.constructor.name} (${level}): ` +
                     object.toString()
@@ -637,7 +643,7 @@ class Tools {
      * @returns Returns current dom node.
      */
     removeDirective(directiveName:string):$DomNode {
-        const delimitedName:string = Tools.stringCamelCaseToDelimited(
+        const delimitedName:string = this.constructor.stringCamelCaseToDelimited(
             directiveName)
         return this.$domNode.removeClass(delimitedName).removeAttr(
             delimitedName
@@ -675,7 +681,7 @@ class Tools {
      * attribute value exists.
      */
     getDirectiveValue(directiveName:string):?string {
-        const delimitedName:string = Tools.stringCamelCaseToDelimited(
+        const delimitedName:string = this.constructor.stringCamelCaseToDelimited(
             directiveName)
         for (const attributeName:string of [
             delimitedName, `data-${delimitedName}`, `x-${delimitedName}`,
@@ -706,15 +712,15 @@ class Tools {
      * @param domNodeSelector - A given to dom node selector to determine its
      * name.
      * @returns Returns The dom node name.
-     *
-     * >>> $.Tools.getDomNodeName('&lt;div&gt;');
-     * 'div'
-     *
-     * >>> $.Tools.getDomNodeName('&lt;div&gt;&lt;/div&gt;');
-     * 'div'
-     *
-     * >>> $.Tools.getDomNodeName('&lt;br/&gt;');
-     * 'br'
+     * @example
+     * // returns 'div'
+     * $.Tools.getDomNodeName('&lt;div&gt;')
+     * @example
+     * // returns 'div'
+     * $.Tools.getDomNodeName('&lt;div&gt;&lt;/div&gt;')
+     * @example
+     * // returns 'br'
+     * $.Tools.getDomNodeName('&lt;br/&gt;')
      */
     static getDomNodeName(domNodeSelector:string):?string {
         const match:?Array<string> = domNodeSelector.match(
@@ -723,6 +729,7 @@ class Tools {
             return match[1]
         return null
     }
+    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Converts an object of dom selectors to an array of $ wrapped dom nodes.
      * Note if selector description as one of "class" or "id" as suffix element
@@ -736,6 +743,7 @@ class Tools {
     grabDomNode(
         domNodeSelectors:PlainObject, wrapperDomNode:DomNode|$DomNode
     ):{[key:string]:$DomNode} {
+    /* eslint-enable jsdoc/require-description-complete-sentence */
         const domNodes:{[key:string]:$DomNode} = {}
         if (domNodeSelectors)
             if (wrapperDomNode) {
@@ -754,7 +762,9 @@ class Tools {
                                 value += ', ' + this._grabDomNodeHelper(
                                     key, valuePart, domNodeSelectors)
                             else
+                                /* eslint-disable max-statements-per-line */
                                 value = valuePart
+                                /* eslint-enable max-statements-per-line */
                         })
                     domNodes[key] = $(this._grabDomNodeHelper(
                         key, value, domNodeSelectors))
@@ -834,13 +844,13 @@ class Tools {
             doesn't care about that the magic arguments object is necessary to
             generate the arguments array in this context.
 
-            var arguments = Tools.argumentsObjectToArray(arguments);
+            var arguments = Tools.argumentsObjectToArray(arguments)
 
             use something like this instead:
 
-            var parameter = Tools.argumentsObjectToArray(arguments);
+            var parameter = Tools.argumentsObjectToArray(arguments)
         */
-        let parameter:Array<any> = Tools.argumentsObjectToArray(arguments)
+        let parameter:Array<any> = this.constructor.argumentsObjectToArray(arguments)
         if ($.type(method) === 'string' && $.type(scope) === 'object')
             return function():void {
                 if (!scope[method])
@@ -871,11 +881,13 @@ class Tools {
             if (data) {
                 const filteredData:any = filter.apply(this, arguments)
                 let result:Array<any> = []
+                /* eslint-disable curly */
                 if (filteredData.length) {
                     for (const date:any of data)
                         if (!filteredData.includes(date))
                             result.push(date)
                 } else
+                /* eslint-enable curly */
                     result = data
                 return result
             }
@@ -944,7 +956,7 @@ class Tools {
         eventName:string, callOnlyOptionsMethod:boolean = false,
         scope:any = this, ...additionalArguments:Array<any>
     ):boolean {
-        const eventHandlerName:string = `on${Tools.stringCapitalize(eventName)}`
+        const eventHandlerName:string = `on${this.constructor.stringCapitalize(eventName)}`
         if (!callOnlyOptionsMethod)
             if (scope.hasOwnProperty(eventHandlerName))
                 scope[eventHandlerName].apply(scope, additionalArguments)
@@ -959,6 +971,7 @@ class Tools {
         }
         return false
     }
+    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * A wrapper method for "$.on()". It sets current plugin name as event
      * scope if no scope is given. Given arguments are modified and passed
@@ -966,8 +979,10 @@ class Tools {
      * @returns Returns $'s grabbed dom node.
      */
     on():$DomNode {
+    /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindHelper(arguments, false)
     }
+    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * A wrapper method fo "$.off()". It sets current plugin name as event
      * scope if no scope is given. Given arguments are modified and passed
@@ -975,11 +990,11 @@ class Tools {
      * @returns Returns $'s grabbed dom node.
      */
     off():$DomNode {
+    /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindHelper(arguments, true, 'off')
     }
     // / endregion
     // / region object
-    // TODO test
     /**
      * Converts given plain object and all nested found objects to
      * corresponding map.
@@ -1015,7 +1030,6 @@ class Tools {
             }
         return object
     }
-    // TODO test
     /**
      * Converts given map and all nested found maps objects to corresponding
      * object.
@@ -1139,22 +1153,16 @@ class Tools {
         ) || $.isArray(firstValue) && $.isArray(
             secondValue
         ) && firstValue.length === secondValue.length) {
-            let equal:boolean = true
-            let first:any
-            let second:any
-            // IgnoreTypeCheck
-            for ([first, second] of [[firstValue, secondValue], [
+            for (const [first, second] of [[firstValue, secondValue], [
                 secondValue, firstValue
             ]]) {
                 const firstIsArray:boolean = $.isArray(first)
                 if (firstIsArray && (!$.isArray(
                     second
-                // IgnoreTypeCheck
                 )) || first.length !== second.length)
                     return false
-                $.each(first, ((second:any):Function => (
-                    key:string|number, value:any
-                ):void => {
+                let equal:boolean = true
+                $.each(first, (key:string|number, value:any):void => {
                     if (!firstIsArray) {
                         if (!equal || properties && !properties.includes(key))
                             return
@@ -1167,9 +1175,11 @@ class Tools {
                         exceptionPrefixes
                     ))
                         equal = false
-                })(second))
+                })
+                if (!equal)
+                    return false
             }
-            return equal
+            return true
         }
         return false
     }
@@ -1267,7 +1277,7 @@ class Tools {
                     newItem[propertyName] = item[propertyName]
             result.push(newItem)
         }
-        return data
+        return result
     }
     /**
      * Extracts all values which matches given regular expression.
@@ -1363,24 +1373,22 @@ class Tools {
         keys:{[key:string]:string}|Array<string> = [], strict:boolean = true
     ):Array<any> {
         const containingData:Array<any> = []
-        for (const initialItem:any of firstSet) {
-            let exists:boolean
-            if ($.isPlainObject(initialItem)) {
-                exists = false
+        for (const initialItem:any of firstSet)
+            if ($.isPlainObject(initialItem))
                 for (const newItem:any of secondSet) {
-                    exists = true
+                    let exists:boolean = true
                     let iterateGivenKeys:boolean
-                    const keysAreAnArray = Array.isArray(keys)
-                    if ($.isPlainObject(keys) || keysAreAnArray)
+                    const keysAreAnArray:boolean = Array.isArray(keys)
+                    if ($.isPlainObject(keys) || keysAreAnArray && keys.length)
                         iterateGivenKeys = true
                     else {
                         iterateGivenKeys = false
                         keys = initialItem
                     }
-                    $.each(keys, ((newItem:any):Function => (
+                    $.each(keys, (
                         firstSetKey:string|number, secondSetKey:string|number
                     ):?false => {
-                        if (keysAreAnArray)
+                        if (keysAreAnArray && iterateGivenKeys)
                             firstSetKey = secondSetKey
                         else if (!iterateGivenKeys)
                             secondSetKey = firstSetKey
@@ -1396,15 +1404,14 @@ class Tools {
                             exists = false
                             return false
                         }
-                    })(newItem))
-                    if (exists)
+                    })
+                    if (exists) {
+                        containingData.push(initialItem)
                         break
+                    }
                 }
-            } else
-                exists = secondSet.includes(initialItem)
-            if (exists)
+            else if (secondSet.includes(initialItem))
                 containingData.push(initialItem)
-        }
         return containingData
     }
     /**
@@ -1485,7 +1492,9 @@ class Tools {
                 if (strict)
                     throw Error("Given target doesn't exists in given list.")
             } else
+                /* eslint-disable max-statements-per-line */
                 list.splice(index, 1)
+                /* eslint-enable max-statements-per-line */
         } else if (strict)
             throw Error("Given target isn't an array.")
         return list
@@ -1622,57 +1631,53 @@ class Tools {
      * and preserves ordering.
      * @param keyToGet - If key given the corresponding value is returned and
      * full object otherwise.
-     * @param input - An alternative input to the url search parameter. If "#"
-     * is given the complete current hash tag will be interpreted as url and
-     * search parameter will be extracted from there. If "&" is given classical
-     * search parameter and hash parameter will be taken in account. If a
-     * search string is given this will be analyzed. The default is to take
-     * given search part into account.
+     * @param givenInput - An alternative input to the url search parameter. If
+     * "#" is given the complete current hash tag will be interpreted as url
+     * and search parameter will be extracted from there. If "&" is given
+     * classical search parameter and hash parameter will be taken in account.
+     * If a search string is given this will be analyzed. The default is to
+     * take given search part into account.
      * @param subDelimiter - Defines which sequence indicates the start of
      * parameter in a hash part of the url.
      * @param hashedPathIndicator - If defined and given hash starts with this
      * indicator given hash will be interpreted as path containing search and
      * hash parts.
-     * @param search - Search part to take into account defaults to current url
-     * search part.
-     * @param hash - Hash part to take into account defaults to current url
-     * hash part.
+     * @param givenSearch - Search part to take into account defaults to
+     * current url search part.
+     * @param givenHash - Hash part to take into account defaults to current
+     * url hash part.
      * @returns Returns the current get array or requested value. If requested
      * key doesn't exist "undefined" is returned.
      */
     static stringGetURLVariable(
-        keyToGet:string, input:?string, subDelimiter:string = '$',
-        hashedPathIndicator:string = '!', search:?string,
-        hash:?string = context.hasOwnProperty(
+        keyToGet:string, givenInput:?string, subDelimiter:string = '$',
+        hashedPathIndicator:string = '!', givenSearch:?string,
+        givenHash:?string = context.hasOwnProperty(
             'location'
         ) && location.hash || ''
-    ):Array<string> {
+    ):Array<string>|string {
         // region set search and hash
-        if (!search) {
-            if (!hash)
-                hash = '#'
-            hash = hash.substring('#'.length)
-            if (hashedPathIndicator && hash.startsWith(hashedPathIndicator)) {
-                const subHashStartIndex:number = hash.indexOf('#')
-                let pathAndSearch:string
-                if (subHashStartIndex === -1) {
-                    pathAndSearch = hash.substring(hashedPathIndicator.length)
-                    hash = ''
-                } else {
-                    pathAndSearch = hash.substring(
-                        hashedPathIndicator.length, subHashStartIndex)
-                    hash = hash.substring(subHashStartIndex)
-                }
-                const subSearchStartIndex:number = pathAndSearch.indexOf('?')
-                if (subSearchStartIndex === -1)
-                    search = ''
-                else
-                    search = pathAndSearch.substring(subSearchStartIndex)
-            } else if (context.hasOwnProperty('location'))
-                search = location.search || ''
-        }
-        if (!input)
-            input = search
+        let hash:string = (givenHash) ? givenHash : '#'
+        let search:string = ''
+        if (givenSearch)
+            search = givenSearch
+        else if (hashedPathIndicator && hash.startsWith(hashedPathIndicator)) {
+            const subHashStartIndex:number = hash.indexOf('#')
+            let pathAndSearch:string
+            if (subHashStartIndex === -1) {
+                pathAndSearch = hash.substring(hashedPathIndicator.length)
+                hash = ''
+            } else {
+                pathAndSearch = hash.substring(
+                    hashedPathIndicator.length, subHashStartIndex)
+                hash = hash.substring(subHashStartIndex)
+            }
+            const subSearchStartIndex:number = pathAndSearch.indexOf('?')
+            if (subSearchStartIndex !== -1)
+                search = pathAndSearch.substring(subSearchStartIndex)
+        } else if (context.hasOwnProperty('location'))
+            search = location.search || ''
+        let input:string = (givenInput) ? givenInput : search
         // endregion
         // region determine data from search and hash if specified
         const both:boolean = input === '&'
@@ -1705,6 +1710,7 @@ class Tools {
         })
         // endregion
         if (keyToGet)
+            // IgnoreTypeCheck
             return variables[keyToGet]
         return variables
     }
@@ -1756,12 +1762,13 @@ class Tools {
      * @returns Represented result.
      */
     static stringRepresentURL(url:?string):string {
-        if (url)
+        if (typeof url === 'string')
             return $.trim(url.replace(/^(https?)?:?\/+/, '').replace(
                 /\/+$/, ''))
         return ''
     }
     // // endregion
+    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Converts a camel cased string to its delimited string version.
      * @param string - The string to format.
@@ -1774,6 +1781,7 @@ class Tools {
         string:string, delimiter:string = '-',
         abbreviations:?Array<string> = null
     ):string {
+    /* eslint-enable jsdoc/require-description-complete-sentence */
         if (!abbreviations)
             abbreviations = Tools.abbreviations
         const escapedDelimiter:string =
@@ -1796,18 +1804,20 @@ class Tools {
             new RegExp('([a-z0-9])([A-Z])', 'g'), `$1${delimiter}$2`
         ).toLowerCase()
     }
+    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Converts a string to its capitalize representation.
      * @param string - The string to format.
      * @returns The formatted string.
      */
     static stringCapitalize(string:string):string {
+    /* eslint-enable jsdoc/require-description-complete-sentence */
         return string.charAt(0).toUpperCase() + string.substring(1)
     }
     /**
      * Converts a delimited string to its camel case representation.
      * @param string - The string to format.
-     * @param delimiter - Delimiter string
+     * @param delimiter - Delimiter string to use.
      * @param abbreviations - Collection of shortcut words to represent upper
      * cased.
      * @param preserveWrongFormattedAbbreviations - If set to "True" wrong
@@ -1844,19 +1854,12 @@ class Tools {
             `(${escapedDelimiter})(${abbreviationPattern})` +
             `(${escapedDelimiter}|$)`, 'g'
         ), (
-            fullMatch:?string, before:string, abbreviation:string, after:string
-        ):?string => {
-            if (fullMatch)
-                return before + abbreviation.toUpperCase() + after
-            return fullMatch
-        })
+            fullMatch:string, before:string, abbreviation:string, after:string
+        ):string => before + abbreviation.toUpperCase() + after)
         string = string.replace(new RegExp(
             `${escapedDelimiter}([a-zA-Z0-9])`, 'g'
-        ), (fullMatch:?string, firstLetter:string):?string => {
-            if (fullMatch)
-                return firstLetter.toUpperCase()
-            return fullMatch
-        })
+        ), (fullMatch:string, firstLetter:string):string =>
+            firstLetter.toUpperCase())
         if (stringStartsWithDelimiter)
             string = delimiter + string
         return string
@@ -1910,16 +1913,16 @@ class Tools {
     static stringMark(
         target:?string, mark:?string,
         marker:string = '<span class="tools-mark">{1}</span>',
-        caseSensitiv:boolean = false
+        caseSensitive:boolean = false
     ):?string {
         target = $.trim(target)
         mark = $.trim(mark)
         if (target && mark) {
             let offset:number = 0
             let searchTarget:string = target
-            if (!caseSensitiv)
+            if (!caseSensitive)
                 searchTarget = searchTarget.toLowerCase()
-            if (!caseSensitiv)
+            if (!caseSensitive)
                 mark = mark.toLowerCase()
             while (true) {
                 const index:number = searchTarget.indexOf(mark, offset)
@@ -1929,7 +1932,7 @@ class Tools {
                     target = target.substring(0, index) + Tools.stringFormat(
                         marker, target.substr(index, mark.length)
                     ) + target.substring(index + mark.length)
-                    if (!caseSensitiv)
+                    if (!caseSensitive)
                         searchTarget = target.toLowerCase()
                     offset = index + (
                         marker.length - '{1}'.length
@@ -1942,197 +1945,207 @@ class Tools {
     /**
      * Implements the md5 hash algorithm.
      * @param value - Value to calculate md5 hash for.
+     * @param onlyAscii - Set to true if given input has ascii characters only
+     * to get more performance.
      * @returns Calculated md5 hash value.
      */
-    static stringMD5(value:string):string {
-        const rotateLeft = (lValue, iShiftBits) =>
-            (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits))
+    static stringMD5(value:string, onlyAscii:boolean = false):string {
+        const hexChars:Array<string> = '0123456789abcdef'.split('')
+        // region sub helper
+        /**
+         * Performs all 16 needed steps.
+         * @param state - Current state.
+         * @param blocks - Blocks to cycle through.
+         * @returns Returns given state.
+         */
+        const cycle = (state, blocks) => {
+            let a = state[0]
+            let b = state[1]
+            let c = state[2]
+            let d = state[3]
+            // region round 1
+            a = ff(a, b, c, d, blocks[0], 7, -680876936)
+            d = ff(d, a, b, c, blocks[1], 12, -389564586)
+            c = ff(c, d, a, b, blocks[2], 17,  606105819)
+            b = ff(b, c, d, a, blocks[3], 22, -1044525330)
 
-        const addUnsigned = (lX, lY) => {
-            const lX8 = (lX & 0x80000000)
-            const lY8 = (lY & 0x80000000)
-            const lX4 = (lX & 0x40000000)
-            const lY4 = (lY & 0x40000000)
-            const lResult = (lX & 0x3FFFFFFF) + (lY & 0x3FFFFFFF)
-            if (lX4 & lY4)
-                return lResult ^ 0x80000000 ^ lX8 ^ lY8
-            if (lX4 | lY4) {
-                if (lResult & 0x40000000)
-                    return lResult ^ 0xC0000000 ^ lX8 ^ lY8
-                return lResult ^ 0x40000000 ^ lX8 ^ lY8
+            a = ff(a, b, c, d, blocks[4], 7, -176418897)
+            d = ff(d, a, b, c, blocks[5], 12,  1200080426)
+            c = ff(c, d, a, b, blocks[6], 17, -1473231341)
+            b = ff(b, c, d, a, blocks[7], 22, -45705983)
+
+            a = ff(a, b, c, d, blocks[8], 7,  1770035416)
+            d = ff(d, a, b, c, blocks[9], 12, -1958414417)
+            c = ff(c, d, a, b, blocks[10], 17, -42063)
+            b = ff(b, c, d, a, blocks[11], 22, -1990404162)
+
+            a = ff(a, b, c, d, blocks[12], 7,  1804603682)
+            d = ff(d, a, b, c, blocks[13], 12, -40341101)
+            c = ff(c, d, a, b, blocks[14], 17, -1502002290)
+            b = ff(b, c, d, a, blocks[15], 22,  1236535329)
+            // endregion
+            // region round 2
+            a = gg(a, b, c, d, blocks[1], 5, -165796510)
+            d = gg(d, a, b, c, blocks[6], 9, -1069501632)
+            c = gg(c, d, a, b, blocks[11], 14,  643717713)
+            b = gg(b, c, d, a, blocks[0], 20, -373897302)
+
+            a = gg(a, b, c, d, blocks[5], 5, -701558691)
+            d = gg(d, a, b, c, blocks[10], 9,  38016083)
+            c = gg(c, d, a, b, blocks[15], 14, -660478335)
+            b = gg(b, c, d, a, blocks[4], 20, -405537848)
+
+            a = gg(a, b, c, d, blocks[9], 5,  568446438)
+            d = gg(d, a, b, c, blocks[14], 9, -1019803690)
+            c = gg(c, d, a, b, blocks[3], 14, -187363961)
+            b = gg(b, c, d, a, blocks[8], 20,  1163531501)
+
+            a = gg(a, b, c, d, blocks[13], 5, -1444681467)
+            d = gg(d, a, b, c, blocks[2], 9, -51403784)
+            c = gg(c, d, a, b, blocks[7], 14,  1735328473)
+            b = gg(b, c, d, a, blocks[12], 20, -1926607734)
+            // endregion
+            // region round 3
+            a = hh(a, b, c, d, blocks[5], 4, -378558)
+            d = hh(d, a, b, c, blocks[8], 11, -2022574463)
+            c = hh(c, d, a, b, blocks[11], 16,  1839030562)
+            b = hh(b, c, d, a, blocks[14], 23, -35309556)
+
+            a = hh(a, b, c, d, blocks[1], 4, -1530992060)
+            d = hh(d, a, b, c, blocks[4], 11,  1272893353)
+            c = hh(c, d, a, b, blocks[7], 16, -155497632)
+            b = hh(b, c, d, a, blocks[10], 23, -1094730640)
+
+            a = hh(a, b, c, d, blocks[13], 4,  681279174)
+            d = hh(d, a, b, c, blocks[0], 11, -358537222)
+            c = hh(c, d, a, b, blocks[3], 16, -722521979)
+            b = hh(b, c, d, a, blocks[6], 23,  76029189)
+
+            a = hh(a, b, c, d, blocks[9], 4, -640364487)
+            d = hh(d, a, b, c, blocks[12], 11, -421815835)
+            c = hh(c, d, a, b, blocks[15], 16,  530742520)
+            b = hh(b, c, d, a, blocks[2], 23, -995338651)
+            // endregion
+            // region round 4
+            a = ii(a, b, c, d, blocks[0], 6, -198630844)
+            d = ii(d, a, b, c, blocks[7], 10,  1126891415)
+            c = ii(c, d, a, b, blocks[14], 15, -1416354905)
+            b = ii(b, c, d, a, blocks[5], 21, -57434055)
+
+            a = ii(a, b, c, d, blocks[12], 6,  1700485571)
+            d = ii(d, a, b, c, blocks[3], 10, -1894986606)
+            c = ii(c, d, a, b, blocks[10], 15, -1051523)
+            b = ii(b, c, d, a, blocks[1], 21, -2054922799)
+
+            a = ii(a, b, c, d, blocks[8], 6,  1873313359)
+            d = ii(d, a, b, c, blocks[15], 10, -30611744)
+            c = ii(c, d, a, b, blocks[6], 15, -1560198380)
+            b = ii(b, c, d, a, blocks[13], 21,  1309151649)
+
+            a = ii(a, b, c, d, blocks[4], 6, -145523070)
+            d = ii(d, a, b, c, blocks[11], 10, -1120210379)
+            c = ii(c, d, a, b, blocks[2], 15,  718787259)
+            b = ii(b, c, d, a, blocks[9], 21, -343485551)
+            // endregion
+            state[0] = unsignedModule2PowerOf32Addition(a, state[0])
+            state[1] = unsignedModule2PowerOf32Addition(b, state[1])
+            state[2] = unsignedModule2PowerOf32Addition(c, state[2])
+            state[3] = unsignedModule2PowerOf32Addition(d, state[3])
+            return state
+        }
+        const cmn = (q, a, b, x, s, t) => {
+            a = unsignedModule2PowerOf32Addition(
+                unsignedModule2PowerOf32Addition(a, q),
+                unsignedModule2PowerOf32Addition(x, t))
+            return unsignedModule2PowerOf32Addition(
+                (a << s) | (a >>> (32 - s)), b)
+        }
+        const rhex = (n) => {
+            let s = ''
+            let j = 0
+            for (; j < 4; j++)
+                s += hexChars[(n >> (j * 8 + 4)) & 0x0F] + hexChars[(n >> (
+                    j * 8
+                )) & 0x0F]
+            return s
+        }
+        const convertToHex = (x) => {
+            for (var i=0; i<x.length; i++)
+                x[i] = rhex(x[i])
+            return x.join('')
+        }
+        // / region primary functions needed for the algorithm
+        const ff = (a, b, c, d, x, s, t) =>
+            cmn((b & c) | ((~b) & d), a, b, x, s, t)
+        const gg = (a, b, c, d, x, s, t) =>
+            cmn((b & d) | (c & (~d)), a, b, x, s, t)
+        const hh = (a, b, c, d, x, s, t) =>
+            cmn(b ^ c ^ d, a, b, x, s, t)
+        const ii = (a, b, c, d, x, s, t) =>
+            cmn(c ^ (b | (~d)), a, b, x, s, t)
+        // / endregion
+        /*
+            There needs to be support for unicode here, unless we pretend that
+            we can redefine the md5 algorithm for multi-byte characters
+            (perhaps by adding every four 16-bit characters and shortening the
+            sum to 32 bits). Otherwise I suggest performing md5 as if every
+            character was two bytes--e.g., 0040 0025 = @%--but then how will an
+            ordinary md5 sum be matched? There is no way to standardize text
+            to something like utf-8 before transformation; speed cost is
+            utterly prohibitive. The JavaScript standard itself needs to look
+            at this: it should start providing access to strings as preformed
+            utf-8 8-bit unsigned value arrays.
+         */
+        const handleBlock = (s) => {
+            const blocks = []
+            for (let i = 0; i < 64; i += 4)
+                blocks[i >> 2] = s.charCodeAt(i) + (s.charCodeAt(
+                    i + 1
+                ) << 8) + (s.charCodeAt(i + 2) << 16) + (s.charCodeAt(
+                    i + 3
+                ) << 24)
+            return blocks
+        }
+        // endregion
+        const main = (value:string) => {
+            const length:number = value.length
+            const state:Array<any> = [
+                1732584193, -271733879, -1732584194, 271733878]
+            let i:number
+            for (i = 64; i <= value.length; i += 64)
+                cycle(state, handleBlock(value.substring(i - 64, i)))
+            value = value.substring(i - 64)
+            const tail:Array<number> = [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            for (i = 0; i < value.length; i++)
+                tail[i >> 2] |= value.charCodeAt(i) << ((i % 4) << 3)
+            tail[i >> 2] |= 0x80 << ((i % 4) << 3)
+            if (i > 55) {
+                cycle(state, tail)
+                for (let index:number = 0; index < 16; index++)
+                    tail[index] = 0
             }
-            return lResult ^ lX8 ^ lY8
+            tail[14] = length * 8
+            cycle(state, tail)
+            return state
         }
-
-        const _F = (x, y, z) => (x & y) | ((~x) & z)
-        const _G = (x, y, z) => (x & z) | (y & (~z))
-        const _H = (x, y, z) => x ^ y ^ z
-        const _I = (x, y, z) => y ^ (x | (~z))
-
-        const _FF = (a, b, c, d, x, s, ac) => {
-            a = addUnsigned(a, addUnsigned(addUnsigned(_F(b, c, d), x), ac))
-            return addUnsigned(rotateLeft(a, s), b)
-        }
-
-        const _GG = (a, b, c, d, x, s, ac) => {
-            a = addUnsigned(a, addUnsigned(addUnsigned(_G(b, c, d), x), ac))
-            return addUnsigned(rotateLeft(a, s), b)
-        }
-
-        const _HH = (a, b, c, d, x, s, ac) => {
-            a = addUnsigned(a, addUnsigned(addUnsigned(_H(b, c, d), x), ac))
-            return addUnsigned(rotateLeft(a, s), b)
-        }
-
-        const _II = (a, b, c, d, x, s, ac) => {
-            a = addUnsigned(a, addUnsigned(addUnsigned(_I(b, c, d), x), ac))
-            return addUnsigned(rotateLeft(a, s), b)
-        }
-
-        const convertToWordArray = (value) => {
-            const lMessageLength = value.length
-            const lNumberOfWords_temp1 = lMessageLength + 8
-            const lNumberOfWords_temp2 = (lNumberOfWords_temp1 - (
-                lNumberOfWords_temp1 % 64
-            )) / 64
-            const lNumberOfWords = (lNumberOfWords_temp2 + 1) * 16
-            let lWordArray = [lNumberOfWords - 1]
-            let lBytePosition = 0
-            let lByteCount = 0
-            let lWordCount
-            while (lByteCount < lMessageLength) {
-                lWordCount = (lByteCount - (lByteCount % 4)) / 4
-                lBytePosition = (lByteCount % 4) * 8
-                lWordArray[lWordCount] = (lWordArray[lWordCount] | (
-                    value.charCodeAt(lByteCount) << lBytePosition))
-                lByteCount += 1
+        // region final call
+        /*
+            this function is much faster, so if possible we use it. Some IEs
+            are the only ones I know of that need the idiotic second function,
+            generated by an if clause.
+        */
+        let unsignedModule2PowerOf32Addition = (a, b) => (a + b) & 0xFFFFFFFF
+        if (convertToHex(main('hello')) !== '5d41402abc4b2a76b9719d911017c592')
+            unsignedModule2PowerOf32Addition = (x, y) => {
+                const lsw = (x & 0xFFFF) + (y & 0xFFFF)
+                const msw = (x >> 16) + (y >> 16) + (lsw >> 16)
+                return (msw << 16) | (lsw & 0xFFFF)
             }
-            lWordCount = (lByteCount - (lByteCount % 4)) / 4
-            lBytePosition = (lByteCount % 4) * 8
-            lWordArray[lWordCount] = lWordArray[lWordCount] | (
-                0x80 << lBytePosition)
-            lWordArray[lNumberOfWords - 2] = lMessageLength << 3
-            lWordArray[lNumberOfWords - 1] = lMessageLength >>> 29
-            return lWordArray
-        }
-
-        const wordToHex = (lValue) => {
-            let wordToHexValue = ''
-            let wordToHexValueTemp = ''
-            let lCount = 0
-            while (lCount <= 3) {
-                const lByte = (lValue >>> (lCount * 8)) & 255
-                wordToHexValueTemp = `0${lByte.toString(16)}`
-                wordToHexValue = wordToHexValue + wordToHexValueTemp.substr(
-                    wordToHexValueTemp.length - 2, 2)
-                lCount += 1
-            }
-            return wordToHexValue
-        }
-
-        let x = []
-        const S11 = 7
-        const S12 = 12
-        const S13 = 17
-        const S14 = 22
-        const S21 = 5
-        const S22 = 9
-        const S23 = 14
-        const S24 = 20
-        const S31 = 4
-        const S32 = 11
-        const S33 = 16
-        const S34 = 23
-        const S41 = 6
-        const S42 = 10
-        const S43 = 15
-        const S44 = 21
-
-        x = convertToWordArray(value)
-        let a = 0x67452301
-        let b = 0xEFCDAB89
-        let c = 0x98BADCFE
-        let d = 0x10325476
-
-        let k = 0
-        while (k < x.length) {
-            const AA = a
-            const BB = b
-            const CC = c
-            const DD = d
-            a = _FF(a, b, c, d, x[k + 0], S11, 0xD76AA478)
-            d = _FF(d, a, b, c, x[k + 1], S12, 0xE8C7B756)
-            c = _FF(c, d, a, b, x[k + 2], S13, 0x242070DB)
-            b = _FF(b, c, d, a, x[k + 3], S14, 0xC1BDCEEE)
-            a = _FF(a, b, c, d, x[k + 4], S11, 0xF57C0FAF)
-            d = _FF(d, a, b, c, x[k + 5], S12, 0x4787C62A)
-            c = _FF(c, d, a, b, x[k + 6], S13, 0xA8304613)
-            b = _FF(b, c, d, a, x[k + 7], S14, 0xFD469501)
-            a = _FF(a, b, c, d, x[k + 8], S11, 0x698098D8)
-            d = _FF(d, a, b, c, x[k + 9], S12, 0x8B44F7AF)
-            c = _FF(c, d, a, b, x[k + 10], S13, 0xFFFF5BB1)
-            b = _FF(b, c, d, a, x[k + 11], S14, 0x895CD7BE)
-            a = _FF(a, b, c, d, x[k + 12], S11, 0x6B901122)
-            d = _FF(d, a, b, c, x[k + 13], S12, 0xFD987193)
-            c = _FF(c, d, a, b, x[k + 14], S13, 0xA679438E)
-            b = _FF(b, c, d, a, x[k + 15], S14, 0x49B40821)
-            a = _GG(a, b, c, d, x[k + 1], S21, 0xF61E2562)
-            d = _GG(d, a, b, c, x[k + 6], S22, 0xC040B340)
-            c = _GG(c, d, a, b, x[k + 11], S23, 0x265E5A51)
-            b = _GG(b, c, d, a, x[k + 0], S24, 0xE9B6C7AA)
-            a = _GG(a, b, c, d, x[k + 5], S21, 0xD62F105D)
-            d = _GG(d, a, b, c, x[k + 10], S22, 0x2441453)
-            c = _GG(c, d, a, b, x[k + 15], S23, 0xD8A1E681)
-            b = _GG(b, c, d, a, x[k + 4], S24, 0xE7D3FBC8)
-            a = _GG(a, b, c, d, x[k + 9], S21, 0x21E1CDE6)
-            d = _GG(d, a, b, c, x[k + 14], S22, 0xC33707D6)
-            c = _GG(c, d, a, b, x[k + 3], S23, 0xF4D50D87)
-            b = _GG(b, c, d, a, x[k + 8], S24, 0x455A14ED)
-            a = _GG(a, b, c, d, x[k + 13], S21, 0xA9E3E905)
-            d = _GG(d, a, b, c, x[k + 2], S22, 0xFCEFA3F8)
-            c = _GG(c, d, a, b, x[k + 7], S23, 0x676F02D9)
-            b = _GG(b, c, d, a, x[k + 12], S24, 0x8D2A4C8A)
-            a = _HH(a, b, c, d, x[k + 5], S31, 0xFFFA3942)
-            d = _HH(d, a, b, c, x[k + 8], S32, 0x8771F681)
-            c = _HH(c, d, a, b, x[k + 11], S33, 0x6D9D6122)
-            b = _HH(b, c, d, a, x[k + 14], S34, 0xFDE5380C)
-            a = _HH(a, b, c, d, x[k + 1], S31, 0xA4BEEA44)
-            d = _HH(d, a, b, c, x[k + 4], S32, 0x4BDECFA9)
-            c = _HH(c, d, a, b, x[k + 7], S33, 0xF6BB4B60)
-            b = _HH(b, c, d, a, x[k + 10], S34, 0xBEBFBC70)
-            a = _HH(a, b, c, d, x[k + 13], S31, 0x289B7EC6)
-            d = _HH(d, a, b, c, x[k + 0], S32, 0xEAA127FA)
-            c = _HH(c, d, a, b, x[k + 3], S33, 0xD4EF3085)
-            b = _HH(b, c, d, a, x[k + 6], S34, 0x4881D05)
-            a = _HH(a, b, c, d, x[k + 9], S31, 0xD9D4D039)
-            d = _HH(d, a, b, c, x[k + 12], S32, 0xE6DB99E5)
-            c = _HH(c, d, a, b, x[k + 15], S33, 0x1FA27CF8)
-            b = _HH(b, c, d, a, x[k + 2], S34, 0xC4AC5665)
-            a = _II(a, b, c, d, x[k + 0], S41, 0xF4292244)
-            d = _II(d, a, b, c, x[k + 7], S42, 0x432AFF97)
-            c = _II(c, d, a, b, x[k + 14], S43, 0xAB9423A7)
-            b = _II(b, c, d, a, x[k + 5], S44, 0xFC93A039)
-            a = _II(a, b, c, d, x[k + 12], S41, 0x655B59C3)
-            d = _II(d, a, b, c, x[k + 3], S42, 0x8F0CCC92)
-            c = _II(c, d, a, b, x[k + 10], S43, 0xFFEFF47D)
-            b = _II(b, c, d, a, x[k + 1], S44, 0x85845DD1)
-            a = _II(a, b, c, d, x[k + 8], S41, 0x6FA87E4F)
-            d = _II(d, a, b, c, x[k + 15], S42, 0xFE2CE6E0)
-            c = _II(c, d, a, b, x[k + 6], S43, 0xA3014314)
-            b = _II(b, c, d, a, x[k + 13], S44, 0x4E0811A1)
-            a = _II(a, b, c, d, x[k + 4], S41, 0xF7537E82)
-            d = _II(d, a, b, c, x[k + 11], S42, 0xBD3AF235)
-            c = _II(c, d, a, b, x[k + 2], S43, 0x2AD7D2BB)
-            b = _II(b, c, d, a, x[k + 9], S44, 0xEB86D391)
-            a = addUnsigned(a, AA)
-            b = addUnsigned(b, BB)
-            c = addUnsigned(c, CC)
-            d = addUnsigned(d, DD)
-            k += 16
-        }
-        return (wordToHex(a) + wordToHex(b) + wordToHex(c) + wordToHex(
-            d
-        )).toLowerCase()
+        // IgnoreTypeCheck
+        return convertToHex(main((onlyAscii) ? value : unescape(
+            encodeURIComponent(value))))
+        // endregion
     }
     /**
      * Normalizes given phone number for automatic dialing mechanisms.
@@ -2140,7 +2153,7 @@ class Tools {
      * @returns Normalized number.
      */
     static stringNormalizePhoneNumber(phoneNumber:?string|?number):string {
-        if (phoneNumber)
+        if (['number', 'string'].includes(typeof phoneNumber))
             return `${phoneNumber}`.replace(/[^0-9]*\+/, '00').replace(
                 /[^0-9]+/g, '')
         return ''
@@ -2164,17 +2177,16 @@ class Tools {
             // Separate area code from base number.
             phoneNumber = phoneNumber.replace(/^([^-]+)-([0-9-]+)$/, '$1 / $2')
             // Partition base number in one triple and tuples or tuples only.
-            return $.trim(phoneNumber.replace(
-                /^(.*?)([0-9]+)(-?[0-9]*)$/, (
-                    match, prefix, number, suffix
-                ) => prefix + $.trim(
-                    (number.length % 2 === 0) ? number.replace(
-                        /([0-9]{2})/g, '$1 '
-                    ) : number.replace(
-                        /^([0-9]{3})([0-9]+)$/, (match, triple, rest) =>
-                            `${triple} ` + $.trim(rest.replace(
-                                /([0-9]{2})/g, '$1 '))
-                    ) + suffix)))
+            return $.trim(phoneNumber.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/, (
+                match:string, prefix:string, number:string, suffix:string
+            ):string => prefix + $.trim(
+                (number.length % 2 === 0) ? number.replace(
+                    /([0-9]{2})/g, '$1 '
+                ) : number.replace(/^([0-9]{3})([0-9]+)$/, (
+                    match:string, triple:string, rest:string
+                ):string => `${triple} ` + $.trim(rest.replace(
+                    /([0-9]{2})/g, '$1 '
+                ))) + suffix)))
         }
         return ''
     }
@@ -2227,11 +2239,13 @@ class Tools {
     static sendToIFrame(
         target:$DomNode|string, url:string, data:{[key:string]:any},
         requestType:string = 'post', removeAfterLoad:boolean = false
-    ):$domNode|string {
+    ):string {
+        const targetName:string = typeof target === 'string' ? target :
+            target.attr('name')
         const $formDomNode:$DomNode = $('<form>').attr({
             action: url,
             method: requestType,
-            target: $.type(target) === 'string' ? target : target.attr('name')
+            target: targetName
         })
         for (const name:string in data)
             if (data.hasOwnProperty(name))
@@ -2241,9 +2255,10 @@ class Tools {
                     value: data[name]
                 }))
         $formDomNode.submit().remove()
-        if (removeAfterLoad && 'on' in target)
+        if (removeAfterLoad && typeof target === 'object' && 'on' in target)
+            // IgnoreTypeCheck
             target.on('load', ():$DomNode => target.remove())
-        return target
+        return targetName
     }
     /**
      * Send given data to a temporary created iframe.
@@ -2258,18 +2273,19 @@ class Tools {
     sendToExternalURL(
         url:string, data:{[key:string]:any}, requestType:string = 'post',
         removeAfterLoad:boolean = true
-    ):$DomNode {
+    ):string {
         const $iFrameDomNode:$DomNode = $('<iframe>').attr(
             'name', this.constructor.name.charAt(0).toLowerCase() +
             this.constructor.name.substring(1) + (new Date()).getTime()
         ).hide()
         this.$domNode.after($iFrameDomNode)
-        return Tools.sendToIFrame(
+        return this.constructor.sendToIFrame(
             $iFrameDomNode, url, data, requestType, removeAfterLoad)
     }
     // / endregion
     // endregion
     // region protected
+    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Helper method for attach event handler methods and their event handler
      * remove pendants.
@@ -2283,6 +2299,7 @@ class Tools {
         parameter:Array<any>, removeEvent:boolean = false,
         eventFunctionName:string = 'on'
     ):$DomNode {
+    /* eslint-enable jsdoc/require-description-complete-sentence */
         const $domNode:$DomNode = $(parameter[0])
         if ($.type(parameter[1]) === 'object' && !removeEvent) {
             $.each(parameter[1], (
@@ -2292,7 +2309,7 @@ class Tools {
                 this[eventFunctionName]($domNode, eventType, handler))
             return $domNode
         }
-        parameter = Tools.argumentsObjectToArray(parameter).slice(1)
+        parameter = this.constructor.argumentsObjectToArray(parameter).slice(1)
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
@@ -2327,10 +2344,10 @@ class Tools {
 // endregion
 // region handle $ extending
 if ($.hasOwnProperty('fn'))
-    $.fn.Tools = function() {
+    $.fn.Tools = function():any {
         return (new Tools()).controller(Tools, arguments, this)
     }
-$.Tools = function() {
+$.Tools = function():any {
     return (new Tools()).controller(Tools, arguments)
 }
 $.Tools.class = Tools
@@ -2340,8 +2357,12 @@ if ($.hasOwnProperty('fn')) {
     /**
      * JQuery's native prop implementation ignores properties for text nodes,
      * comments and attribute nodes.
+     * @param key - Name of property to retrieve from current dom node.
+     * @param value - Value to set for given property by name.
+     * @returns Returns value if used as getter or current dom node if used as
+     * setter.
      */
-    $.fn.prop = function(key, value) {
+    $.fn.prop = function(key:string, value:any):any {
         if (arguments.length < 3 && this.length && [
             '#text', '#comment'
         ].includes(this[0].nodeName) && this[0].hasOwnProperty(key)) {
@@ -2352,7 +2373,7 @@ if ($.hasOwnProperty('fn')) {
                 return this
             }
         }
-        nativePropFunction.apply(this, arguments)
+        return nativePropFunction.apply(this, arguments)
     }
 }
 // / endregion
