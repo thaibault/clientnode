@@ -422,12 +422,50 @@ browserAPI((window:Window, location:Location):void => {
     // // endregion
     // // region object
     qunit.test('convertPlainObjectToMap', ():void => {
-        // TODO
-        qunit.ok(true)
+        qunit.deepEqual($.Tools.class.convertPlainObjectToMap(null), null)
+        qunit.deepEqual($.Tools.class.convertPlainObjectToMap(true), true)
+        qunit.deepEqual($.Tools.class.convertPlainObjectToMap(0), 0)
+        qunit.deepEqual($.Tools.class.convertPlainObjectToMap(2), 2)
+        qunit.deepEqual($.Tools.class.convertPlainObjectToMap('a'), 'a')
+        qunit.deepEqual($.Tools.class.convertPlainObjectToMap({}), new Map())
+        qunit.deepEqual(
+            $.Tools.class.convertPlainObjectToMap([{}]), [new Map()])
+        qunit.deepEqual(
+            $.Tools.class.convertPlainObjectToMap([{}], false), [{}])
+        qunit.deepEqual(
+            $.Tools.class.convertPlainObjectToMap([{a: {}, b: 2}]),
+            [new Map([['a', new Map()], ['b', 2]])])
+        qunit.deepEqual(
+            $.Tools.class.convertPlainObjectToMap([{b: 2, a: {}}]),
+            [new Map([['a', new Map()], ['b', 2]])])
+        qunit.deepEqual(
+            $.Tools.class.convertPlainObjectToMap([{b: 2, a: new Map()}]),
+            [new Map([['a', new Map()], ['b', 2]])])
+        qunit.deepEqual(
+            $.Tools.class.convertPlainObjectToMap([{b: 2, a: [{}]}]),
+            [new Map([['a', [new Map()]], ['b', 2]])])
     })
     qunit.test('convertMapToPlainObject', ():void => {
-        // TODO
-        qunit.ok(true)
+        qunit.deepEqual($.Tools.class.convertMapToPlainObject(null), null)
+        qunit.deepEqual($.Tools.class.convertMapToPlainObject(true), true)
+        qunit.deepEqual($.Tools.class.convertMapToPlainObject(0), 0)
+        qunit.deepEqual($.Tools.class.convertMapToPlainObject(2), 2)
+        qunit.deepEqual($.Tools.class.convertMapToPlainObject('a'), 'a')
+        qunit.deepEqual($.Tools.class.convertMapToPlainObject(new Map()), {})
+        qunit.deepEqual(
+            $.Tools.class.convertMapToPlainObject([new Map()]), [{}])
+        qunit.deepEqual(
+            $.Tools.class.convertMapToPlainObject([new Map()], false),
+            [new Map()])
+        qunit.deepEqual($.Tools.class.convertMapToPlainObject(
+            [new Map([['a', 2], [2, 2]])]
+        ), [{a: 2, '2': 2}])
+        qunit.deepEqual($.Tools.class.convertMapToPlainObject(
+            [new Map([['a', new Map()], [2, 2]])]
+        ), [{a: {}, '2': 2}])
+        qunit.deepEqual($.Tools.class.convertMapToPlainObject(
+            [new Map([['a', new Map([['a', 2]])], [2, 2]])]
+        ), [{a: {a: 2}, '2': 2}])
     })
     qunit.test('forEachSorted', ():void => {
         let result = []

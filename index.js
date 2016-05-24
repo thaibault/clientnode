@@ -431,7 +431,8 @@ class Tools {
             else if (typeof object === 'string') {
                 additionalArguments.unshift(object)
                 message = `${this.constructor.name} (${level}): ` +
-                    this.constructor.stringFormat.apply(this, additionalArguments)
+                    this.constructor.stringFormat.apply(
+                        this, additionalArguments)
             } else if ($.isNumeric(object) || $.type(object) === 'boolean')
                 message = `${this.constructor.name} (${level}): ` +
                     object.toString()
@@ -643,8 +644,8 @@ class Tools {
      * @returns Returns current dom node.
      */
     removeDirective(directiveName:string):$DomNode {
-        const delimitedName:string = this.constructor.stringCamelCaseToDelimited(
-            directiveName)
+        const delimitedName:string =
+            this.constructor.stringCamelCaseToDelimited(directiveName)
         return this.$domNode.removeClass(delimitedName).removeAttr(
             delimitedName
         ).removeAttr(`data-${delimitedName}`).removeAttr(
@@ -681,8 +682,8 @@ class Tools {
      * attribute value exists.
      */
     getDirectiveValue(directiveName:string):?string {
-        const delimitedName:string = this.constructor.stringCamelCaseToDelimited(
-            directiveName)
+        const delimitedName:string =
+            this.constructor.stringCamelCaseToDelimited(directiveName)
         for (const attributeName:string of [
             delimitedName, `data-${delimitedName}`, `x-${delimitedName}`,
             delimitedName.replace('-', '\\:')
@@ -850,7 +851,8 @@ class Tools {
 
             var parameter = Tools.argumentsObjectToArray(arguments)
         */
-        let parameter:Array<any> = this.constructor.argumentsObjectToArray(arguments)
+        let parameter:Array<any> = this.constructor.argumentsObjectToArray(
+            arguments)
         if ($.type(method) === 'string' && $.type(scope) === 'object')
             return function():void {
                 if (!scope[method])
@@ -956,7 +958,8 @@ class Tools {
         eventName:string, callOnlyOptionsMethod:boolean = false,
         scope:any = this, ...additionalArguments:Array<any>
     ):boolean {
-        const eventHandlerName:string = `on${this.constructor.stringCapitalize(eventName)}`
+        const eventHandlerName:string =
+            `on${this.constructor.stringCapitalize(eventName)}`
         if (!callOnlyOptionsMethod)
             if (scope.hasOwnProperty(eventHandlerName))
                 scope[eventHandlerName].apply(scope, additionalArguments)
