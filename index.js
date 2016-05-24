@@ -78,18 +78,19 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
 class Tools {
     // region static properties
     /**
-     * @member Lists all known abbreviation for proper camel case to delimited
-     * and back conversion.
+     * @member abbreviations - Lists all known abbreviation for proper camel
+     * case to delimited and back conversion.
      */
     static abbreviations = ['html', 'id', 'url', 'us', 'de', 'api', 'href']
     /**
-     * @member Saves a string with all css3 browser specific animation end
-     * event names.
+     * @member animationEndEventNames - Saves a string with all css3 browser
+     * specific animation end event names.
      */
     static animationEndEventNames = 'animationend webkitAnimationEnd ' +
         'oAnimationEnd MSAnimationEnd'
     /**
-     * @member Saves a mapping from key codes to their corresponding name.
+     * @member keyCode - Saves a mapping from key codes to their corresponding
+     * name.
      */
     static keyCode:{[key:string]:number} = {
         BACKSPACE: 8,
@@ -116,8 +117,9 @@ class Tools {
         UP: 38
     }
     /**
-     * @member Saves currently minimal supported internet explorer version.
-     * Saves zero if no internet explorer present.
+     * @member maximalSupportedInternetExplorerVersion - Saves currently
+     * minimal supported internet explorer version. Saves zero if no internet
+     * explorer present.
      */
     static maximalSupportedInternetExplorerVersion = (():number => {
         if (context.hasOwnProperty('document'))
@@ -151,16 +153,16 @@ class Tools {
         return version
     })()
     /**
-     * @member Saves a string with all css3 browser specific transition end
-     * event names.
+     * @member transitionEndEventNames - Saves a string with all css3 browser
+     * specific transition end event names.
      */
     static transitionEndEventNames = 'transitionend webkitTransitionEnd ' +
         'oTransitionEnd MSTransitionEnd'
     /*
-     * @member This variable contains a collection of methods usually binded to
-     * the console object.
+     * @member consoleMethodNames - This variable contains a collection of
+     * methods usually binded to the console object.
      */
-    static _consoleMethodNames = [
+    static consoleMethodNames = [
         'assert',
         'clear',
         'count',
@@ -185,13 +187,13 @@ class Tools {
         'warn'
     ]
     /*
-     * @member Indicates weather javaScript dependent content where hide or
-     * shown.
+     * @member _javaScriptDependentContentHandled - Indicates weather
+     * javaScript dependent content where hide or shown.
      */
     static _javaScriptDependentContentHandled = false
     /**
-     * @member Defines this class name to allow retrieving them after name
-     * mangling.
+     * @member _name - Defines this class name to allow retrieving them after
+     * name mangling.
      */
     static _name = 'Tools'
     // endregion
@@ -238,7 +240,7 @@ class Tools {
         // Avoid errors in browsers that lack a console.
         if (!context.hasOwnProperty('console'))
             context.console = {}
-        for (const methodName of this.constructor._consoleMethodNames)
+        for (const methodName of this.constructor.consoleMethodNames)
             if (!context.console.hasOwnProperty(methodName))
                 context.console[methodName] = ($.hasOwnProperty(
                     'noop'
@@ -1825,14 +1827,17 @@ class Tools {
      * cased.
      * @param preserveWrongFormattedAbbreviations - If set to "True" wrong
      * formatted camel case abbreviations will be ignored.
+     * @param removeMultipleDelimiter - Indicates weather a series of delimiter
+     * should be consolidated.
      * @returns The formatted string.
      */
     static stringDelimitedToCamelCase(
         string:string, delimiter:string = '-',
         abbreviations:?Array<string> = null,
-        preserveWrongFormattedAbbreviations:boolean = false
+        preserveWrongFormattedAbbreviations:boolean = false,
+        removeMultipleDelimiter:boolean = false
     ):string {
-        const escapedDelimiter:string =
+        let escapedDelimiter:string =
             Tools.stringGetRegularExpressionValidated(delimiter)
         if (!abbreviations)
             abbreviations = Tools.abbreviations
@@ -1859,6 +1864,8 @@ class Tools {
         ), (
             fullMatch:string, before:string, abbreviation:string, after:string
         ):string => before + abbreviation.toUpperCase() + after)
+        if (removeMultipleDelimiter)
+            escapedDelimiter = `(?:${escapedDelimiter})+`
         string = string.replace(new RegExp(
             `${escapedDelimiter}([a-zA-Z0-9])`, 'g'
         ), (fullMatch:string, firstLetter:string):string =>

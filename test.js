@@ -1091,6 +1091,9 @@ browserAPI((window:Window, location:Location):void => {
         qunit.strictEqual($.Tools.class.stringDelimitedToCamelCase(
             'hans-Url', '-', [], false
         ), 'hansUrl')
+        qunit.strictEqual($.Tools.class.stringDelimitedToCamelCase(
+            'hans--Url', '-', [], false, true
+        ), 'hansUrl')
     })
     qunit.test('stringFormat', ():void => {
         qunit.strictEqual($.Tools.class.stringFormat('{1}', 'test'), 'test')
