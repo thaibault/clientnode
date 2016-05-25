@@ -92,8 +92,18 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  * @property $domNode - $-extended dom node if one was given to the constructor
  * method.
  * @property _options - Options given to the constructor.
- * _defaultOptions - Fallback options if not overwritten by the constructor
- * method.
+ * @property _defaultOptions - Fallback options if not overwritten by the
+ * constructor method.
+ * @property _defaultOptions.logging {boolean} - Indicates weather logging
+ * should be active.
+ * @property _defaultOptions.domNodeSelectorPrefix {string} - Selector prefix
+ * for all needed dom nodes.
+ * @property _defaultOptions.domNode {Object} - Mapping of names to needed dom
+ * nodes referenced by there selector.
+ * @property _defaultOptions.domNode.hideJavaScriptEnabled {string} - Selector
+ * to dom nodes which should be hidden if javaScript is available.
+ * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
+ * to dom nodes which should be visible if javaScript is available.
  * @property _locks - Mapping of lock descriptions to there corresponding
  * callbacks.
  */
