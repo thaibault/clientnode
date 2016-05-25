@@ -1,13 +1,11 @@
 // @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
+/** @module jQuery-tools */
 'use strict'
 /* !
     region header
     [Project page](http://torben.website/jQuery-tools)
-
-    This module provides common reusable logic for every non trivial jQuery
-    plugin.
 
     Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
@@ -74,24 +72,36 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  * logging additional string, array or function handling. A set of helper
  * functions to parse option objects dom trees or handle events is also
  * provided.
+ * @property static:abbreviations - Lists all known abbreviation for proper
+ * camel case to delimited and back conversion.
+ * @property static:animationEndEventNames - Saves a string with all css3
+ * browser specific animation end event names.
+ * @property static:keyCode - Saves a mapping from key codes to their
+ * corresponding name.
+ * @property static:maximalSupportedInternetExplorerVersion - Saves currently
+ * minimal supported internet explorer version. Saves zero if no internet
+ * explorer present.
+ * @property static:transitionEndEventNames - Saves a string with all css3
+ * browser specific transition end event names.
+ * @property static:consoleMethodNames - This variable contains a collection of
+ * methods usually binded to the console object.
+ * @property static:_javaScriptDependentContentHandled - Indicates weather
+ * javaScript dependent content where hide or shown.
+ * @property static:_name - Defines this class name to allow retrieving them
+ * after name mangling.
+ * @property $domNode - $-extended dom node if one was given to the constructor
+ * method.
+ * @property _options - Options given to the constructor.
+ * _defaultOptions - Fallback options if not overwritten by the constructor
+ * method.
+ * @property _locks - Mapping of lock descriptions to there corresponding
+ * callbacks.
  */
 class Tools {
     // region static properties
-    /**
-     * @member abbreviations - Lists all known abbreviation for proper camel
-     * case to delimited and back conversion.
-     */
     static abbreviations = ['html', 'id', 'url', 'us', 'de', 'api', 'href']
-    /**
-     * @member animationEndEventNames - Saves a string with all css3 browser
-     * specific animation end event names.
-     */
     static animationEndEventNames = 'animationend webkitAnimationEnd ' +
         'oAnimationEnd MSAnimationEnd'
-    /**
-     * @member keyCode - Saves a mapping from key codes to their corresponding
-     * name.
-     */
     static keyCode:{[key:string]:number} = {
         BACKSPACE: 8,
         COMMA: 188,
@@ -116,11 +126,6 @@ class Tools {
         TAB: 9,
         UP: 38
     }
-    /**
-     * @member maximalSupportedInternetExplorerVersion - Saves currently
-     * minimal supported internet explorer version. Saves zero if no internet
-     * explorer present.
-     */
     static maximalSupportedInternetExplorerVersion = (():number => {
         if (context.hasOwnProperty('document'))
             return 0
@@ -152,16 +157,8 @@ class Tools {
                 return 11
         return version
     })()
-    /**
-     * @member transitionEndEventNames - Saves a string with all css3 browser
-     * specific transition end event names.
-     */
     static transitionEndEventNames = 'transitionend webkitTransitionEnd ' +
         'oTransitionEnd MSTransitionEnd'
-    /*
-     * @member consoleMethodNames - This variable contains a collection of
-     * methods usually binded to the console object.
-     */
     static consoleMethodNames = [
         'assert',
         'clear',
@@ -186,15 +183,7 @@ class Tools {
         'trace',
         'warn'
     ]
-    /*
-     * @member _javaScriptDependentContentHandled - Indicates weather
-     * javaScript dependent content where hide or shown.
-     */
     static _javaScriptDependentContentHandled = false
-    /**
-     * @member _name - Defines this class name to allow retrieving them after
-     * name mangling.
-     */
     static _name = 'Tools'
     // endregion
     // region dynamic properties
@@ -210,8 +199,8 @@ class Tools {
      * object is created via the "new" keyword. The dom node selector prefix
      * enforces to not globally select any dom nodes which aren't in the
      * expected scope of this plugin. "{1}" will be automatically replaced with
-     * this plugin name suffix ("incrementer"). You don't have to use "{1}" but
-     * it can help you to write code which is more reconcilable with the dry
+     * this plugin name suffix ("tools"). You don't have to use "{1}" but it
+     * can help you to write code which is more reconcilable with the dry
      * concept.
      * @param $domNode - $-extended dom node to use as reference in various
      * methods.
@@ -2240,6 +2229,7 @@ class Tools {
              * This function is much faster, so if possible we use it. Some IEs
              * are the only ones I know of that need the idiotic second
              * function, generated by an if clause in the end.
+             * @private
              * @param first - First operand to add.
              * @param second - Second operant to add.
              * @returns The sum of both given operands.
@@ -2487,6 +2477,7 @@ if ($.hasOwnProperty('fn')) {
 }
 // / endregion
 // endregion
+/** The jQuery-tools plugin class. */
 export default $.Tools
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
