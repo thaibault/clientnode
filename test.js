@@ -16,7 +16,7 @@
 */
 // region imports
 import browserAPI from 'webOptimizer/browserAPI'
-import type {Location, Window} from 'webOptimizer/type'
+import type {Window} from 'webOptimizer/type'
 // endregion
 // region declaration
 declare var TARGET:string
@@ -29,7 +29,7 @@ type JQueryFunction = (object:any) => Object
 // endregion
 const qunit:Object = (TARGET === 'node') ? require('qunit-cli') : require(
     'qunitjs')
-browserAPI((window:Window, location:Location):void => {
+browserAPI((window:Window):void => {
     // NOTE: We have to define window globally before jQuery is loaded to
     // ensure that all jquery instances share the same window object.
     if (typeof global !== 'undefined') {
@@ -801,15 +801,15 @@ browserAPI((window:Window, location:Location):void => {
         qunit.strictEqual(
             $.Tools.class.stringGetDomainName('localhost', 'a'), 'a')
         qunit.strictEqual($.Tools.class.stringGetDomainName(
-            'a', location.hostname
-        ), location.hostname)
+            'a', window.location.hostname
+        ), window.location.hostname)
         qunit.strictEqual($.Tools.class.stringGetDomainName('//a'), 'a')
         qunit.strictEqual($.Tools.class.stringGetDomainName(
-            'a/site/subSite?param=value#hash', location.hostname
-        ), location.hostname)
+            'a/site/subSite?param=value#hash', window.location.hostname
+        ), window.location.hostname)
         qunit.strictEqual($.Tools.class.stringGetDomainName(
-            '/a/site/subSite?param=value#hash', location.hostname
-        ), location.hostname)
+            '/a/site/subSite?param=value#hash', window.location.hostname
+        ), window.location.hostname)
         qunit.strictEqual($.Tools.class.stringGetDomainName(
             '//alternate.local/a/site/subSite?param=value#hash'
         ), 'alternate.local')
@@ -845,19 +845,24 @@ browserAPI((window:Window, location:Location):void => {
         qunit.strictEqual(
             $.Tools.class.stringGetProtocolName('http://www.test.de'), 'http')
         qunit.strictEqual($.Tools.class.stringGetProtocolName(
-            '//www.test.de', location.protocol.substring(
-                0, location.protocol.length - 1)
-        ), location.protocol.substring(0, location.protocol.length - 1))
+            '//www.test.de', window.location.protocol.substring(
+                0, window.location.protocol.length - 1)
+        ), window.location.protocol.substring(
+            0, window.location.protocol.length - 1))
         qunit.strictEqual($.Tools.class.stringGetProtocolName('http://a.de'), 'http')
         qunit.strictEqual(
             $.Tools.class.stringGetProtocolName('ftp://localhost'), 'ftp')
         qunit.strictEqual($.Tools.class.stringGetProtocolName(
-            'a', location.protocol.substring(0, location.protocol.length - 1)
-        ), location.protocol.substring(0, location.protocol.length - 1))
+            'a', window.location.protocol.substring(
+                0, window.location.protocol.length - 1)
+        ), window.location.protocol.substring(
+            0, window.location.protocol.length - 1))
         qunit.strictEqual($.Tools.class.stringGetProtocolName(
-            'a/site/subSite?param=value#hash', location.protocol.substring(
-                0, location.protocol.length - 1)
-        ), location.protocol.substring(0, location.protocol.length - 1))
+            'a/site/subSite?param=value#hash',
+            window.location.protocol.substring(
+                0, window.location.protocol.length - 1)
+        ), window.location.protocol.substring(
+            0, window.location.protocol.length - 1))
         qunit.strictEqual($.Tools.class.stringGetProtocolName(
             '/a/site/subSite?param=value#hash', 'a'
         ), 'a')
@@ -867,8 +872,10 @@ browserAPI((window:Window, location:Location):void => {
         qunit.strictEqual(
             $.Tools.class.stringGetProtocolName('alternate.local/', 'c'), 'c')
         qunit.strictEqual($.Tools.class.stringGetProtocolName(
-            '', location.protocol.substring(0, location.protocol.length - 1)
-        ), location.protocol.substring(0, location.protocol.length - 1))
+            '', window.location.protocol.substring(
+                0, window.location.protocol.length - 1)
+        ), window.location.protocol.substring(
+            0, window.location.protocol.length - 1))
     })
     qunit.test('stringGetURLVariable', ():void => {
         qunit.ok($.isArray($.Tools.class.stringGetURLVariable()))
@@ -937,7 +944,8 @@ browserAPI((window:Window, location:Location):void => {
             'https://www.test.de/site/subSite?param=value#hash',
             'https://www.test.de/site/subSite?param=value#hash'))
         qunit.notOk($.Tools.class.stringIsInternalURL(
-            `${location.protocol}//www.test.de/site/subSite?param=value#hash`,
+            `${window.location.protocol}//www.test.de/site/subSite?param=` +
+                `value#hash`,
             'ftp://www.test.de/site/subSite?param=value#hash'))
         qunit.notOk($.Tools.class.stringIsInternalURL(
             'https://www.test.de/site/subSite?param=value#hash',
@@ -946,17 +954,19 @@ browserAPI((window:Window, location:Location):void => {
             'http://www.test.de/site/subSite?param=value#hash',
             'test.de/site/subSite?param=value#hash'))
         qunit.notOk($.Tools.class.stringIsInternalURL(
-            `${location.protocol}//www.test.de:${location.port}/site/` +
+            `${window.location.protocol}//www.test.de:${location.port}/site/` +
             'subSite?param=value#hash/site/subSite?param=value#hash'))
         qunit.ok($.Tools.class.stringIsInternalURL(
             '//www.test.de/site/subSite?param=value#hash',
             '//www.test.de/site/subSite?param=value#hash'))
         qunit.ok($.Tools.class.stringIsInternalURL(
-            `${location.protocol}//www.test.de/site/subSite?param=value#hash`,
-            `${location.protocol}//www.test.de/site/subSite?param=value#hash`))
+            `${window.location.protocol}//www.test.de/site/subSite?` +
+                'param=value#hash',
+            `${window.location.protocol}//www.test.de/site/subSite?` +
+                `param=value#hash`))
         qunit.notOk($.Tools.class.stringIsInternalURL(
-            `http://www.test.de:${location.port}/site/subSite?param=value` +
-                '#hash',
+            `http://www.test.de:${window.location.port}/site/subSite?` +
+                'param=value#hash',
             'https://www.test.de/site/subSite?param=value#hash'))
         qunit.ok($.Tools.class.stringIsInternalURL(
             'https://www.test.de:443/site/subSite?param=value#hash',
@@ -964,11 +974,11 @@ browserAPI((window:Window, location:Location):void => {
         qunit.ok($.Tools.class.stringIsInternalURL(
             '//www.test.de:80/site/subSite?param=value#hash',
             '//www.test.de/site/subSite?param=value#hash'))
-        qunit.ok(
-            $.Tools.class.stringIsInternalURL(location.href, location.href))
-        qunit.ok($.Tools.class.stringIsInternalURL('1', location.href))
-        qunit.ok($.Tools.class.stringIsInternalURL('#1', location.href))
-        qunit.ok($.Tools.class.stringIsInternalURL('/a', location.href))
+        qunit.ok($.Tools.class.stringIsInternalURL(
+            window.location.href, window.location.href))
+        qunit.ok($.Tools.class.stringIsInternalURL('1', window.location.href))
+        qunit.ok($.Tools.class.stringIsInternalURL('#1', window.location.href))
+        qunit.ok($.Tools.class.stringIsInternalURL('/a', window.location.href))
     })
     qunit.test('stringNormalizeURL', ():void => {
         qunit.strictEqual(
