@@ -35,7 +35,7 @@ export type Options = {
     [key:string]:any;
 }
 export type LockCallbackFunction = (description:string) => void
-declare class $DomNode extends Array {
+export type $DomNode = {
     [key:number|string]:DomNode;
     addClass(className:string):$DomNode;
     addBack():$DomNode;
@@ -93,7 +93,7 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  * method.
  * @property _options - Options given to the constructor.
  * @property _defaultOptions - Fallback options if not overwritten by the
- * constructor method.
+ * options given to the constructor method.
  * @property _defaultOptions.logging {boolean} - Indicates weather logging
  * should be active.
  * @property _defaultOptions.domNodeSelectorPrefix {string} - Selector prefix
