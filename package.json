@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "upgrade to object orientated rock solid plugins",
     "keywords": ["jquery", "tools"],
-    "files": ["index.coffee"],
+    "files": ["index.js"],
     "repository": {
         "type": "git", "url": "https://github.com/thaibault/jQuery-tools"
     },
