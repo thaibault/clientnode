@@ -168,8 +168,8 @@ class Tools {
                 return 11
         return version
     })()
-    static transitionEndEventNames:string = 'transitionend webkitTransitionEnd ' +
-        'oTransitionEnd MSTransitionEnd'
+    static transitionEndEventNames:string = 'transitionend ' +
+        'webkitTransitionEnd oTransitionEnd MSTransitionEnd'
     static consoleMethodNames:Array<string> = [
         'assert',
         'clear',
