@@ -109,8 +109,9 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  */
 class Tools {
     // region static properties
-    static abbreviations = ['html', 'id', 'url', 'us', 'de', 'api', 'href']
-    static animationEndEventNames = 'animationend webkitAnimationEnd ' +
+    static abbreviations:Array<string> = [
+        'html', 'id', 'url', 'us', 'de', 'api', 'href']
+    static animationEndEventNames:string = 'animationend webkitAnimationEnd ' +
         'oAnimationEnd MSAnimationEnd'
     static keyCode:{[key:string]:number} = {
         BACKSPACE: 8,
@@ -136,7 +137,7 @@ class Tools {
         TAB: 9,
         UP: 38
     }
-    static maximalSupportedInternetExplorerVersion = (():number => {
+    static maximalSupportedInternetExplorerVersion:number = (():number => {
         if (context.hasOwnProperty('document'))
             return 0
         const div = context.document.createElement('div')
@@ -167,9 +168,9 @@ class Tools {
                 return 11
         return version
     })()
-    static transitionEndEventNames = 'transitionend webkitTransitionEnd ' +
+    static transitionEndEventNames:string = 'transitionend webkitTransitionEnd ' +
         'oTransitionEnd MSTransitionEnd'
-    static consoleMethodNames = [
+    static consoleMethodNames:Array<string> = [
         'assert',
         'clear',
         'count',
@@ -193,8 +194,8 @@ class Tools {
         'trace',
         'warn'
     ]
-    static _javaScriptDependentContentHandled = false
-    static _name = 'Tools'
+    static _javaScriptDependentContentHandled:boolean = false
+    static _name:string = 'Tools'
     // endregion
     // region dynamic properties
     $domNode:$DomNode
