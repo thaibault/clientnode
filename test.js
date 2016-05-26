@@ -18,9 +18,6 @@
 import browserAPI from 'webOptimizer/browserAPI'
 import type {Window} from 'webOptimizer/type'
 import type {$DomNode} from './index'
-/* eslint-disable no-duplicate-imports */
-import type Tools from './index'
-/* eslint-enable no-duplicate-imports */
 // endregion
 // region declaration
 declare var TARGET:string
@@ -52,7 +49,7 @@ browserAPI((window:Window):void => {
     // region tests
     // / region mock-up
     const $bodyDomNode:$DomNode = $('body')
-    const tools:Tools = $('body').Tools()
+    const tools:$.Tools = $('body').Tools()
     // / endregion
     // / region public methods
     // // region special

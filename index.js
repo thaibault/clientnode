@@ -2489,7 +2489,7 @@ if ($.hasOwnProperty('fn')) {
 // / endregion
 // endregion
 /** The jQuery-tools plugin class. */
-export default $.Tools
+export default Tools
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
