@@ -98,8 +98,8 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  * should be active.
  * @property _defaultOptions.domNodeSelectorPrefix {string} - Selector prefix
  * for all needed dom nodes.
- * @property _defaultOptions.domNode {Object} - Mapping of names to needed dom
- * nodes referenced by there selector.
+ * @property _defaultOptions.domNode {Object.<string, string>} - Mapping of
+ * names to needed dom nodes referenced by there selector.
  * @property _defaultOptions.domNode.hideJavaScriptEnabled {string} - Selector
  * to dom nodes which should be hidden if javaScript is available.
  * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
