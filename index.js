@@ -2474,7 +2474,7 @@ if ($.hasOwnProperty('fn')) {
     $.fn.prop = function(key:string, value:any):any {
         if (arguments.length < 3 && this.length && [
             '#text', '#comment'
-        ].includes(this[0].nodeName) && this[0].hasOwnProperty(key)) {
+        ].includes(this[0].nodeName) && key in this[0]) {
             if (arguments.length === 1)
                 return this[0][key]
             if (arguments.length === 2) {
