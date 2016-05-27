@@ -21,9 +21,6 @@ import type {$DomNode} from './index'
 // endregion
 // region declaration
 declare var TARGET:string
-/* eslint-disable no-unused-vars */
-declare var window:Window
-/* eslint-enable no-unused-vars */
 // endregion
 // region types
 type JQueryFunction = (object:any) => Object
