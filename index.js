@@ -19,7 +19,7 @@
 */
 // region imports
 import $ from 'jquery'
-import type {PlainObject} from 'webOptimizer/type'
+import type {DomNode, PlainObject} from 'webOptimizer/type'
 // endregion
 // region types
 export type Position = {
@@ -29,7 +29,6 @@ export type Position = {
     bottom?:number;
 }
 export type RelativePosition = 'in'|'above'|'left'|'below'|'right'
-export type DomNode = any
 export type Options = {
     domNodeSelectorPrefix:string;
     [key:string]:any;
