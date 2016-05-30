@@ -240,7 +240,7 @@ class Tools {
         if (!context.hasOwnProperty('console'))
             context.console = {}
         for (const methodName of this.constructor.consoleMethodNames)
-            if (!context.console.hasOwnProperty(methodName))
+            if (!methodName in context.console)
                 context.console[methodName] = $.hasOwnProperty(
                     'noop'
                 ) ? $.noop() : ():void => {}
