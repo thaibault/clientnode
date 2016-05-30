@@ -239,7 +239,7 @@ class Tools {
         // Avoid errors in browsers that lack a console.
         if (!context.hasOwnProperty('console'))
             context.console = {}
-        for (const methodName of this.constructor.consoleMethodNames)
+        for (const methodName:string of this.constructor.consoleMethodNames)
             if (!methodName in context.console)
                 context.console[methodName] = $.hasOwnProperty(
                     'noop'
