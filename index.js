@@ -962,9 +962,9 @@ class Tools {
         const eventHandlerName:string =
             `on${this.constructor.stringCapitalize(eventName)}`
         if (!callOnlyOptionsMethod)
-            if (scope.hasOwnProperty(eventHandlerName))
+            if (eventHandlerName in scope)
                 scope[eventHandlerName].apply(scope, additionalArguments)
-            else if (scope.hasOwnProperty(`_${eventHandlerName}`))
+            else if (`_${eventHandlerName}` in scope)
                 scope[`_${eventHandlerName}`].apply(
                     scope, additionalArguments)
         if (
