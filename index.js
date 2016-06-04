@@ -62,7 +62,7 @@ const context:Object = (():Object => {
     }
     return window
 })()
-if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
+if (!('document' in context) && 'context' in $)
     context.document = $.context
 // region plugins/classes
 /**
@@ -137,7 +137,7 @@ class Tools {
         UP: 38
     }
     static maximalSupportedInternetExplorerVersion:number = (():number => {
-        if (context.hasOwnProperty('document'))
+        if ('document' in context)
             return 0
         const div = context.document.createElement('div')
         let version:number
@@ -158,7 +158,7 @@ class Tools {
                 break
         }
         // Try special detection for internet explorer 10 and 11.
-        if (version === 0 && context.hasOwnProperty('navigator'))
+        if (version === 0 && 'navigator' in context)
             if (context.navigator.appVersion.includes('MSIE 10'))
                 return 10
             else if (context.navigator.userAgent.includes(
@@ -237,16 +237,15 @@ class Tools {
         this._defaultOptions = defaultOptions
         this._locks = locks
         // Avoid errors in browsers that lack a console.
-        if (!context.hasOwnProperty('console'))
+        if (!('console' in context))
             context.console = {}
         for (const methodName:string of this.constructor.consoleMethodNames)
             if (!(methodName in context.console))
-                context.console[methodName] = $.hasOwnProperty(
-                    'noop'
-                ) ? $.noop() : ():void => {}
+                context.console[methodName] = 'noop' in $ ? $.noop() : (
+                ):void => {}
         if (
             !this.constructor._javaScriptDependentContentHandled &&
-            context.hasOwnProperty('document')
+            'document' in context
         ) {
             this.constructor._javaScriptDependentContentHandled = true
             $(
@@ -316,7 +315,7 @@ class Tools {
         parameter = this.constructor.argumentsObjectToArray(parameter)
         if ($domNode && !$domNode.data(object.constructor._name))
             // Attach extended object to the associated dom node.
-            $domNode.data(object.constructor.name, object)
+            $domNode.data(object.constructor._name, object)
         if (parameter[0] in object)
             return object[parameter[0]].apply(object, parameter.slice(1))
         else if (parameter.length === 0 || $.type(parameter[0]) === 'object')
@@ -327,7 +326,7 @@ class Tools {
             return object.initialize.apply(object, parameter)
         $.error(
             `Method "${parameter[0]}" does not exist on $-extended dom node ` +
-            `"${object.constructor.name}".`)
+            `"${object.constructor._name}".`)
     }
     // / endregion
     // / region mutual exclusion
@@ -393,7 +392,7 @@ class Tools {
         const self:Object = this
         return function(event:Object):any {
             let relatedTarget:DomNode = event.toElement
-            if (event.hasOwnProperty('relatedTarget'))
+            if ('relatedTarget' in event)
                 relatedTarget = event.relatedTarget
             while (relatedTarget && relatedTarget.tagName !== 'BODY') {
                 if (relatedTarget === this)
@@ -424,18 +423,18 @@ class Tools {
         level:string = 'info', ...additionalArguments:Array<any>
     ):Tools {
         if (this._options.logging || force || ['error', 'critical'].includes(
-            'level'
+            level
         )) {
             let message:any
             if (avoidAnnotation)
                 message = object
             else if (typeof object === 'string') {
                 additionalArguments.unshift(object)
-                message = `${this.constructor.name} (${level}): ` +
+                message = `${this.constructor._name} (${level}): ` +
                     this.constructor.stringFormat.apply(
                         this, additionalArguments)
             } else if ($.isNumeric(object) || $.type(object) === 'boolean')
-                message = `${this.constructor.name} (${level}): ` +
+                message = `${this.constructor._name} (${level}): ` +
                     object.toString()
             else {
                 this.log(',--------------------------------------------,')
@@ -443,13 +442,10 @@ class Tools {
                 this.log("'--------------------------------------------'")
             }
             if (message)
-                if (!(context.hasOwnProperty(
-                    'console'
-                ) && context.console.hasOwnProperty(level)) || (
-                    $.hasOwnProperty('noop') &&
-                    context.console[level] === $.noop()
+                if (!('console' in context && level in context.console) || (
+                    'noop' in $ && context.console[level] === $.noop()
                 )) {
-                    if (context.hasOwnProperty('alert'))
+                    if ('alert' in context)
                         context.alert(message)
                 } else
                     context.console[level](message)
@@ -609,9 +605,10 @@ class Tools {
      */
     getPositionRelativeToViewport(delta:Position = {}):RelativePosition {
         delta = $.extend({top: 0, left: 0, bottom: 0, right: 0}, delta)
-        if (context.hasOwnProperty(
-            'window'
-        ) && this.$domNode && this.$domNode.length && this.$domNode[0]) {
+        if (
+            'window' in context && this.$domNode && this.$domNode.length &&
+            this.$domNode[0]
+        ) {
             const $window:$DomNode = $(window)
             const rectangle:Position = this.$domNode[0].getBoundingClientRect()
             if ((rectangle.top + delta.top) < 0)
@@ -702,9 +699,10 @@ class Tools {
      * @returns Returns the sliced selector.
      */
     sliceDomNodeSelectorPrefix(domNodeSelector:string):string {
-        if (this._options.hasOwnProperty(
-            'domNodeSelectorPrefix'
-        ) && domNodeSelector.startsWith(this._options.domNodeSelectorPrefix))
+        if (
+            'domNodeSelectorPrefix' in this._options &&
+            domNodeSelector.startsWith(this._options.domNodeSelectorPrefix)
+        )
             return $.trim(domNodeSelector.substring(
                 this._options.domNodeSelectorPrefix.length))
         return domNodeSelector
@@ -773,9 +771,9 @@ class Tools {
                 })
         if (this._options.domNodeSelectorPrefix)
             domNodes.parent = $(this._options.domNodeSelectorPrefix)
-        if (context.hasOwnProperty('window'))
+        if ('window' in context)
             domNodes.window = $(window)
-        if (context.hasOwnProperty('document'))
+        if ('document' in context)
             domNodes.document = $(context.document)
         return domNodes
     }
@@ -817,7 +815,7 @@ class Tools {
             uniqueName = prefix + parseInt(
                 Math.random() * Math.pow(10, 10), 10
             ) + suffix
-            if (!scope.hasOwnProperty(uniqueName))
+            if (!(uniqueName in scope))
                 break
         }
         return uniqueName
@@ -837,7 +835,7 @@ class Tools {
      * @returns Returns the given methods return value.
      */
     getMethod(
-        method:Function, scope:any = this, ...additionalArguments:Array<any>
+        method:Function, scope:any = null, ...additionalArguments:Array<any>
     ):Function {
         /*
             This following outcomment line would be responsible for a bug in
@@ -854,6 +852,8 @@ class Tools {
         */
         let parameter:Array<any> = this.constructor.argumentsObjectToArray(
             arguments)
+        if (!scope)
+            parameter[1] = scope = this
         if ($.type(method) === 'string' && $.type(scope) === 'object')
             return function():void {
                 if (!scope[method])
@@ -862,8 +862,6 @@ class Tools {
                 scope[method].apply(scope, parameter.concat(
                     additionalArguments))
             }
-        parameter.unshift(scope)
-        parameter.unshift(method)
         return $.proxy.apply($, parameter)
     }
     /**
@@ -967,9 +965,7 @@ class Tools {
             else if (`_${eventHandlerName}` in scope)
                 scope[`_${eventHandlerName}`].apply(
                     scope, additionalArguments)
-        if (
-            scope._options && scope._options.hasOwnProperty(eventHandlerName)
-        ) {
+        if (scope._options && eventHandlerName in scope._options) {
             scope._options[eventHandlerName].apply(scope, additionalArguments)
             return true
         }
@@ -1545,9 +1541,9 @@ class Tools {
      * @returns Value "true" if given prefix occur and "false" otherwise.
      */
     static stringHasPathPrefix(
-        prefix:?string = '/admin', path:string = context.hasOwnProperty(
-            'location'
-        ) && location.pathname || '', separator:string = '/'
+        prefix:?string = '/admin',
+        path:string = 'location' in context && location.pathname || '',
+        separator:string = '/'
     ):boolean {
         if (typeof prefix === 'string') {
             if (!prefix.endsWith(separator))
@@ -1568,10 +1564,8 @@ class Tools {
      * @returns Extracted domain.
      */
     static stringGetDomainName(
-        url:string = context.hasOwnProperty('location') && location.href || '',
-        fallback:any = context.hasOwnProperty(
-            'location'
-        ) && location.hostname || ''
+        url:string = 'location' in context && location.href || '',
+        fallback:any = 'location' in context && location.hostname || ''
     ):any {
         const result:Array<?string> =
             /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
@@ -1593,7 +1587,7 @@ class Tools {
      * @returns Extracted port number.
      */
     static stringGetPortNumber(
-        url:string = context.hasOwnProperty('location') && location.href || '',
+        url:string = 'location' in context && location.href || '',
         fallback:any = null, parameter:Array<string> = []
     ):number {
         const result:Array<?string> =
@@ -1604,9 +1598,8 @@ class Tools {
             return fallback
         if (Tools.stringIsInternalURL.apply(
             this, [url].concat(parameter)
-            ) && context.hasOwnProperty(
-                'location'
-            ) && location.port && parseInt(location.port, 10)
+            ) && 'location' in context && location.port &&
+            parseInt(location.port, 10)
         )
             return parseInt(location.port, 10)
         return (Tools.stringGetProtocolName(url) === 'https') ? 443 : 80
@@ -1621,8 +1614,8 @@ class Tools {
      * returns Extracted protocol.
      */
     static stringGetProtocolName(
-        url:string = context.hasOwnProperty('location') && location.href || '',
-        fallback:any = context.hasOwnProperty('location') &&
+        url:string = 'location' in context && location.href || '',
+        fallback:any = 'location' in context &&
             location.protocol.substring(0, location.protocol.length - 1) || ''
     ):any {
         const result:Array<?string> = /^([a-z]+):\/\//i.exec(url)
@@ -1656,9 +1649,7 @@ class Tools {
     static stringGetURLVariable(
         keyToGet:string, givenInput:?string, subDelimiter:string = '$',
         hashedPathIndicator:string = '!', givenSearch:?string,
-        givenHash:?string = context.hasOwnProperty(
-            'location'
-        ) && location.hash || ''
+        givenHash:?string = 'location' in context && location.hash || ''
     ):Array<string>|string {
         // region set search and hash
         let hash:string = (givenHash) ? givenHash : '#'
@@ -1679,7 +1670,7 @@ class Tools {
             const subSearchStartIndex:number = pathAndSearch.indexOf('?')
             if (subSearchStartIndex !== -1)
                 search = pathAndSearch.substring(subSearchStartIndex)
-        } else if (context.hasOwnProperty('location'))
+        } else if ('location' in context)
             search = location.search || ''
         let input:string = (givenInput) ? givenInput : search
         // endregion
@@ -1727,9 +1718,8 @@ class Tools {
      * second (or current).
      */
     static stringIsInternalURL(
-        firstURL:string, secondURL:string = context.hasOwnProperty(
-            'location'
-        ) && location.href || ''
+        firstURL:string, secondURL:string = 'location' in context &&
+        location.href || ''
     ):boolean {
         const explicitDomainName:string = Tools.stringGetDomainName(
             firstURL, false)
@@ -2305,7 +2295,7 @@ class Tools {
      * @returns Decoded html string.
      */
     static stringDecodeHTMLEntities(htmlString:string):?string {
-        if (context.hasOwnProperty('document')) {
+        if ('document' in context) {
             const textareaDomNode = context.document.createElement('textarea')
             textareaDomNode.innerHTML = htmlString
             return textareaDomNode.value
@@ -2384,8 +2374,8 @@ class Tools {
         removeAfterLoad:boolean = true
     ):string {
         const $iFrameDomNode:$DomNode = $('<iframe>').attr(
-            'name', this.constructor.name.charAt(0).toLowerCase() +
-            this.constructor.name.substring(1) + (new Date()).getTime()
+            'name', this.constructor._name.charAt(0).toLowerCase() +
+            this.constructor._name.substring(1) + (new Date()).getTime()
         ).hide()
         this.$domNode.after($iFrameDomNode)
         return this.constructor.sendToIFrame(
@@ -2422,7 +2412,7 @@ class Tools {
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
-            parameter[0] += `.${this.constructor.name}`
+            parameter[0] += `.${this.constructor._name}`
         if (removeEvent)
             return $domNode[eventFunctionName].apply($domNode, parameter)
         return $domNode[eventFunctionName].apply($domNode, parameter)
@@ -2452,7 +2442,7 @@ class Tools {
 }
 // endregion
 // region handle $ extending
-if ($.hasOwnProperty('fn'))
+if ('fn' in $)
     $.fn.Tools = function():any {
         return (new Tools()).controller(Tools, arguments, this)
     }
@@ -2461,7 +2451,7 @@ $.Tools = function():any {
 }
 $.Tools.class = Tools
 // / region prop fix for comments and text nodes
-if ($.hasOwnProperty('fn')) {
+if ('fn' in $) {
     const nativePropFunction = $.fn.prop
     /**
      * JQuery's native prop implementation ignores properties for text nodes,
