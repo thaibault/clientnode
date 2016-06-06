@@ -579,14 +579,18 @@ class Tools {
                 let $firstDomNode:$DomNode = $(first)
                 if ($firstDomNode.length) {
                     let $secondDomNode = $(second)
-                    if ($secondDomNode.length) {
+                    if ($firstDomNode.length === $secondDomNode.length) {
                         $firstDomNode = $firstDomNode.Tools(
                             'normalizeClassNames'
                         ).$domNode
                         $secondDomNode = $secondDomNode.Tools(
                             'normalizeClassNames'
                         ).$domNode
-                        return $firstDomNode[0].isEqualNode($secondDomNode[0])
+                        let index:number = 0
+                        for (const domNode:DomNode of $firstDomNode)
+                            if (!domNode.isEqualNode($secondDomNode[index]))
+                                return false
+                        return true
                     }
                     return false
                 }

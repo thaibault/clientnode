@@ -190,6 +190,12 @@ browserAPI((window:Window):void => {
         qunit.ok($.Tools.class.isEquivalentDom(
             '<a target="_blank" class="b a"><div b="3" a="2"></div></a>',
             '<a class="a b" target="_blank"><div a="2" b="3"></div></a>'))
+        qunit.ok($.Tools.class.isEquivalentDom(
+            '<div>a</div><div>b</div>', '<div>a</div><div>b</div>'))
+        qunit.notOk($.Tools.class.isEquivalentDom(
+            '<div>a</div><div>bc</div>', '<div>a</div><div>b</div>'))
+        qunit.notOk($.Tools.class.isEquivalentDom('text', 'text a'))
+        qunit.notOk($.Tools.class.isEquivalentDom('text', 'text a'))
     })
     qunit.test('getPositionRelativeToViewport', ():void => qunit.ok(
         ['above', 'left', 'right', 'below', 'in'].includes(
@@ -342,7 +348,7 @@ browserAPI((window:Window):void => {
         qunit.notOk(testObject.value)
 
         qunit.strictEqual(tools.getMethod((
-            thisFunction:Function, context:Object, five:5, two:2, three:3
+            five:5, two:2, three:3
         ):number => five + two + three, testObject, 5)(2, 3), 10)
     })
     qunit.test('identity', ():void => {
