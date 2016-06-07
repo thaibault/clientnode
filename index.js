@@ -583,11 +583,16 @@ class Tools {
             ))
                 $firstDomNode = $(`<div>${first}</div>`)
             else {
-                let $selectedDomNode:$DomNode = $(first)
-                if ($selectedDomNode.length)
-                    $firstDomNode = $('<div>').append($selectedDomNode.clone())
-                else
+                try {
+                    let $selectedDomNode:$DomNode = $(first)
+                    if ($selectedDomNode.length)
+                        $firstDomNode = $('<div>').append(
+                            $selectedDomNode.clone())
+                    else
+                        return false
+                } catch (error) {
                     return false
+                }
             }
             if (typeof second === 'string' && (
                 second.startsWith('<') && second.endsWith('>') &&
@@ -595,12 +600,16 @@ class Tools {
             ))
                 $secondDomNode = $(`<div>${second}</div>`)
             else {
-                let $selectedDomNode:$DomNode = $(second)
-                if ($selectedDomNode.length)
-                    $secondDomNode = $('<div>').append($selectedDomNode.clone(
-                    ))
-                else
+                try {
+                    let $selectedDomNode:$DomNode = $(second)
+                    if ($selectedDomNode.length)
+                        $secondDomNode = $('<div>').append($selectedDomNode.clone(
+                        ))
+                    else
+                        return false
+                } catch (error) {
                     return false
+                }
             }
             if (
                 $firstDomNode.length &&

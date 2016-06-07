@@ -32,7 +32,7 @@ browserAPI((window:Window):void => {
         NOTE: We have to define window globally before jQuery is loaded to
         ensure that all jquery instances share the same window object.
     */
-    if (typeof global !== 'undefined') {
+    if (typeof global !== 'undefined' && global !== window) {
         global.window = window
         for (const key in window)
             if (window.hasOwnProperty(key) && !global.hasOwnProperty(key))
@@ -200,6 +200,7 @@ browserAPI((window:Window):void => {
             '<div>a</div><div>bc</div>', '<div>a</div><div>b</div>'))
         qunit.notOk($.Tools.class.isEquivalentDom('text', 'text a'))
         qunit.notOk($.Tools.class.isEquivalentDom('text', 'text a'))
+        qunit.notOk($.Tools.class.isEquivalentDom('text', 'text a & +'))
     })
     qunit.test('getPositionRelativeToViewport', ():void => qunit.ok(
         ['above', 'left', 'right', 'below', 'in'].includes(
