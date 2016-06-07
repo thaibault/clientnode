@@ -561,44 +561,65 @@ class Tools {
     }
     /**
      * Checks weather given html or text strings are equal.
-     * @param first - First html or text to compare.
-     * @param second - Second html or text to compare.
+     * @param first - First html, selector to dom node or text to compare.
+     * @param second - Second html, selector to dom node  or text to compare.
      * @returns Returns true if both dom representations are equivalent.
      */
     static isEquivalentDom(first:any, second:any):boolean {
         if (first === second)
             return true
-        if (first) {
-            if (second) {
-                // NOTE: We have to distinguish between selector and markup.
-                if (!(
-                    ($.type(first) !== 'string' || first.charAt(0) === '<') &&
-                    ($.type(second) !== 'string' || second.charAt(0) === '<')
-                ))
-                    return first === second
-                let $firstDomNode:$DomNode = $(first)
-                if ($firstDomNode.length) {
-                    let $secondDomNode = $(second)
-                    if ($firstDomNode.length === $secondDomNode.length) {
-                        $firstDomNode = $firstDomNode.Tools(
-                            'normalizeClassNames'
-                        ).$domNode
-                        $secondDomNode = $secondDomNode.Tools(
-                            'normalizeClassNames'
-                        ).$domNode
-                        let index:number = 0
-                        for (const domNode:DomNode of $firstDomNode)
-                            if (!domNode.isEqualNode($secondDomNode[index]))
-                                return false
-                        return true
-                    }
+        if (first && second) {
+            const detemermineHTMLPattern:RegExp =
+                /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
+            let $firstDomNode:$DomNode
+            let $secondDomNode:$DomNode
+            /*
+                NOTE: Assume that strings that start "<" and end with ">" are
+                markup and skip the more expensive regular expression check.
+            */
+            if (typeof first === 'string' && (
+                first.startsWith('<') && first.endsWith('>') &&
+                first.length >= 3 || detemermineHTMLPattern.test(first)
+            ))
+                $firstDomNode = $(`<div>${first}</div>`)
+            else {
+                let $selectedDomNode:$DomNode = $(first)
+                if ($selectedDomNode.length)
+                    $firstDomNode = $('<div>').append($selectedDomNode.clone())
+                else
                     return false
-                }
-                return first === second
             }
-            return false
+            if (typeof second === 'string' && (
+                second.startsWith('<') && second.endsWith('>') &&
+                second.length >= 3 || detemermineHTMLPattern.test(second)
+            ))
+                $secondDomNode = $(`<div>${second}</div>`)
+            else {
+                let $selectedDomNode:$DomNode = $(second)
+                if ($selectedDomNode.length)
+                    $secondDomNode = $('<div>').append($selectedDomNode.clone(
+                    ))
+                else
+                    return false
+            }
+            if (
+                $firstDomNode.length &&
+                $firstDomNode.length === $secondDomNode.length
+            ) {
+                $firstDomNode = $firstDomNode.Tools(
+                    'normalizeClassNames'
+                ).$domNode
+                $secondDomNode = $secondDomNode.Tools(
+                    'normalizeClassNames'
+                ).$domNode
+                let index:number = 0
+                for (const domNode:DomNode of $firstDomNode)
+                    if (!domNode.isEqualNode($secondDomNode[index]))
+                        return false
+                return true
+            }
         }
-        return Boolean(second)
+        return false
     }
     /**
      * Determines where current dom node is relative to current view port

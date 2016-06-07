@@ -192,6 +192,10 @@ browserAPI((window:Window):void => {
             '<a class="a b" target="_blank"><div a="2" b="3"></div></a>'))
         qunit.ok($.Tools.class.isEquivalentDom(
             '<div>a</div><div>b</div>', '<div>a</div><div>b</div>'))
+        qunit.ok($.Tools.class.isEquivalentDom(
+            '<div>a</div>b', '<div>a</div>b'))
+        qunit.notOk($.Tools.class.isEquivalentDom(
+            '<div>a</div>b', '<div>a</div>c'))
         qunit.notOk($.Tools.class.isEquivalentDom(
             '<div>a</div><div>bc</div>', '<div>a</div><div>b</div>'))
         qunit.notOk($.Tools.class.isEquivalentDom('text', 'text a'))
