@@ -253,33 +253,13 @@ class Tools {
                 this._defaultOptions.domNode.hideJavaScriptEnabled
             ).filter(function():boolean {
                 return !$(this).data('javaScriptDependentContentHide')
-            }).data('javaScriptDependentContentHide', true).each(function(
-            ):void {
-                const $this:$DomNode = $(this)
-                let oldStyle:string = $this.attr('style') || ''
-                if (oldStyle) {
-                    oldStyle = oldStyle.replace(/display:\s+[^;]+;?/, '')
-                    if (!oldStyle.endsWith(';'))
-                        oldStyle += ';'
-                }
-                $this.attr('style', `${oldStyle}display:none !important`)
-            })
+            }).data('javaScriptDependentContentHide', true).hide()
             $(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNode.showJavaScriptEnabled
             ).filter(function():boolean {
                 return !$(this).data('javaScriptDependentContentShow')
-            }).data('javaScriptDependentContentShow', true).each(function(
-            ):void {
-                const $this:$DomNode = $(this)
-                let oldStyle:string = $this.attr('style') || ''
-                if (oldStyle) {
-                    oldStyle = oldStyle.replace(/display:\s+[^;]+;?/, '')
-                    if (!oldStyle.endsWith(';'))
-                        oldStyle += ';'
-                }
-                $this.attr('style', `${oldStyle}display:initial !important`)
-            })
+            }).data('javaScriptDependentContentShow', true).show()
         }
     }
     /**
@@ -623,7 +603,7 @@ class Tools {
                     let $selectedDomNode:$DomNode = $(second)
                     if ($selectedDomNode.length)
                         $secondDomNode = $('<div>').append(
-                            $selectedDomNode.clone())
+                            selectedDomNode.clone())
                     else
                         return false
                 } catch (error) {
