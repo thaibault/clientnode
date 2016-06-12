@@ -584,7 +584,7 @@ class Tools {
                 first.length >= 3 || detemermineHTMLPattern.test(first)
             ))
                 $firstDomNode = $(`<div>${first}</div>`)
-            else {
+            else
                 try {
                     let $selectedDomNode:$DomNode = $(first)
                     if ($selectedDomNode.length)
@@ -595,24 +595,22 @@ class Tools {
                 } catch (error) {
                     return false
                 }
-            }
             if (typeof second === 'string' && (
                 second.startsWith('<') && second.endsWith('>') &&
                 second.length >= 3 || detemermineHTMLPattern.test(second)
             ))
                 $secondDomNode = $(`<div>${second}</div>`)
-            else {
+            else
                 try {
                     let $selectedDomNode:$DomNode = $(second)
                     if ($selectedDomNode.length)
-                        $secondDomNode = $('<div>').append($selectedDomNode.clone(
-                        ))
+                        $secondDomNode = $('<div>').append(
+                            $selectedDomNode.clone())
                     else
                         return false
                 } catch (error) {
                     return false
                 }
-            }
             if (
                 $firstDomNode.length &&
                 $firstDomNode.length === $secondDomNode.length
