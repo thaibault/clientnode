@@ -256,7 +256,7 @@ class Tools {
             }).data('javaScriptDependentContentHide', true).each(function(
             ):void {
                 const $this:$DomNode = $(this)
-                let oldStyle:string = $this.attr('style')
+                let oldStyle:string = $this.attr('style') || ''
                 if (oldStyle) {
                     oldStyle = oldStyle.replace(/display:\s+[^;]+;?/, '')
                     if (!oldStyle.endsWith(';'))
@@ -272,7 +272,7 @@ class Tools {
             }).data('javaScriptDependentContentShow', true).each(function(
             ):void {
                 const $this:$DomNode = $(this)
-                let oldStyle:string = $this.attr('style')
+                let oldStyle:string = $this.attr('style') || ''
                 if (oldStyle) {
                     oldStyle = oldStyle.replace(/display:\s+[^;]+;?/, '')
                     if (!oldStyle.endsWith(';'))
