@@ -260,7 +260,7 @@ class Tools {
                 this._defaultOptions.domNode.showJavaScriptEnabled
             ).filter(function():boolean {
                 return !$(this).data('javaScriptDependentContentShow')
-            }).data('javaScriptDependentContentShow', true).show(
+            }).data('javaScriptDependentContentShow', true).css(
                 'display', 'initial !important')
         }
     }
