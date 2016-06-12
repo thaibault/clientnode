@@ -253,13 +253,15 @@ class Tools {
                 this._defaultOptions.domNode.hideJavaScriptEnabled
             ).filter(function():boolean {
                 return !$(this).data('javaScriptDependentContentHide')
-            }).data('javaScriptDependentContentHide', true).hide()
+            }).data('javaScriptDependentContentHide', true).css(
+                'display', 'none !important')
             $(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNode.showJavaScriptEnabled
             ).filter(function():boolean {
                 return !$(this).data('javaScriptDependentContentShow')
-            }).data('javaScriptDependentContentShow', true).show()
+            }).data('javaScriptDependentContentShow', true).show(
+                'display', 'initial !important')
         }
     }
     /**
