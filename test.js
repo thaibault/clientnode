@@ -334,8 +334,20 @@ browserAPI((window:Window):void => {
             'callback'))
         qunit.ok($.Tools.class.determineUniqueScopeName('hans').startsWith(
             'hans'))
-        qunit.ok($.Tools.class.determineUniqueScopeName('hans', {}).startsWith(
-            'hans'))
+        qunit.ok($.Tools.class.determineUniqueScopeName(
+            'hans', '', {}
+        ).startsWith('hans'))
+        qunit.strictEqual($.Tools.class.determineUniqueScopeName(
+            'hans', '', {}, 'peter'
+        ), 'peter')
+        qunit.ok($.Tools.class.determineUniqueScopeName(
+            'hans', '', {peter: 2}, 'peter'
+        ).startsWith('hans'))
+        const name:string = $.Tools.class.determineUniqueScopeName(
+            'hans', 'klaus', {peter: 2}, 'peter')
+        qunit.ok(name.startsWith('hans'))
+        qunit.ok(name.endsWith('klaus'))
+        qunit.ok(name.length > 'hans'.length + 'klaus'.length)
     })
     // // endregion
     // // region function handling

@@ -837,11 +837,15 @@ class Tools {
      * @param prefix - A prefix which will be preprended to uniqe name.
      * @param suffix - A suffix which will be preprended to uniqe name.
      * @param scope - A scope where the name should be unique.
+     * @param initialUniqueName - An initial scope name to use if not exists.
      * @returns The function name.
      */
     static determineUniqueScopeName(
-        prefix:string = 'callback', suffix:string = '', scope:Object = context
+        prefix:string = 'callback', suffix:string = '', scope:Object = context,
+        initialUniqueName:string = ''
     ):string {
+        if (initialUniqueName.length && !(initialUniqueName in scope))
+            return initialUniqueName
         let uniqueName:string = prefix + suffix
         while (true) {
             uniqueName = prefix + parseInt(
