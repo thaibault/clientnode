@@ -201,6 +201,9 @@ browserAPI((window:Window):void => {
         qunit.notOk($.Tools.class.isEquivalentDom('text', 'text a'))
         qunit.notOk($.Tools.class.isEquivalentDom('text', 'text a'))
         qunit.notOk($.Tools.class.isEquivalentDom('text', 'text a & +'))
+        qunit.ok($.Tools.class.isEquivalentDom('<br>', '<br />'))
+        qunit.ok($.Tools.class.isEquivalentDom(
+            '<div><br><br /></div>', '<div><br /><br /></div>'))
     })
     qunit.test('getPositionRelativeToViewport', ():void => qunit.ok(
         ['above', 'left', 'right', 'below', 'in'].includes(
