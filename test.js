@@ -204,6 +204,7 @@ browserAPI((window:Window):void => {
         qunit.ok($.Tools.class.isEquivalentDom('<br>', '<br />'))
         qunit.ok($.Tools.class.isEquivalentDom(
             '<div><br><br /></div>', '<div><br /><br /></div>'))
+        qunit.ok($.Tools.class.isEquivalentDom('a<br>', 'a<br />', true))
     })
     qunit.test('getPositionRelativeToViewport', ():void => qunit.ok(
         ['above', 'left', 'right', 'below', 'in'].includes(

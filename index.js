@@ -563,65 +563,58 @@ class Tools {
      * Checks weather given html or text strings are equal.
      * @param first - First html, selector to dom node or text to compare.
      * @param second - Second html, selector to dom node  or text to compare.
+     * @param forceHTMLString - Indicates weather given contents are
+     * interpreted as html string (otherwise an automatic detection will be
+     * triggered).
      * @returns Returns true if both dom representations are equivalent.
      */
-    static isEquivalentDom(first:any, second:any):boolean {
+    static isEquivalentDom(
+        first:any, second:any, forceHTMLString:boolean = false
+    ):boolean {
         if (first === second)
             return true
         if (first && second) {
             const detemermineHTMLPattern:RegExp =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
-            let $firstDomNode:$DomNode
-            let $secondDomNode:$DomNode
+            const inputs:{first:any;second:any} = {first, second}
+            const $domNodes:{first:$DomNode;second:$DomNode} = {
+                first: $('<dummy>'), second: $('<dummy>')
+            }
             /*
                 NOTE: Assume that strings that start "<" and end with ">" are
                 markup and skip the more expensive regular expression check.
             */
-            if (typeof first === 'string' && (
-                first.startsWith('<') && first.endsWith('>') &&
-                first.length >= 3 || detemermineHTMLPattern.test(first)
-            ))
-                $firstDomNode = $(`<div>${first}</div>`)
-            else
-                try {
-                    let $selectedDomNode:$DomNode = $(first)
-                    if ($selectedDomNode.length)
-                        $firstDomNode = $('<div>').append(
-                            $selectedDomNode.clone())
-                    else
+            for (const type:string of ['first', 'second'])
+                if (typeof inputs[type] === 'string' && (forceHTMLString || (
+                    inputs[type].startsWith('<') &&
+                    inputs[type].endsWith('>') && inputs[type].length >= 3 ||
+                    detemermineHTMLPattern.test(inputs[type])
+                )))
+                    $domNodes[type] = $(`<div>${inputs[type]}</div>`)
+                else
+                    try {
+                        let $selectedDomNode:$DomNode = $(inputs[type])
+                        if ($selectedDomNode.length)
+                            $domNodes[type] = $('<div>').append(
+                                $selectedDomNode.clone())
+                        else
+                            return false
+                    } catch (error) {
                         return false
-                } catch (error) {
-                    return false
-                }
-            if (typeof second === 'string' && (
-                second.startsWith('<') && second.endsWith('>') &&
-                second.length >= 3 || detemermineHTMLPattern.test(second)
-            ))
-                $secondDomNode = $(`<div>${second}</div>`)
-            else
-                try {
-                    let $selectedDomNode:$DomNode = $(second)
-                    if ($selectedDomNode.length)
-                        $secondDomNode = $('<div>').append(
-                            selectedDomNode.clone())
-                    else
-                        return false
-                } catch (error) {
-                    return false
-                }
+                    }
             if (
-                $firstDomNode.length &&
-                $firstDomNode.length === $secondDomNode.length
+                $domNodes.first.length &&
+                $domNodes.first.length === $domNodes.second.length
             ) {
-                $firstDomNode = $firstDomNode.Tools(
+                $domNodes.first = $domNodes.first.Tools(
                     'normalizeClassNames'
                 ).$domNode
-                $secondDomNode = $secondDomNode.Tools(
+                $domNodes.second = $domNodes.second.Tools(
                     'normalizeClassNames'
                 ).$domNode
                 let index:number = 0
-                for (const domNode:DomNode of $firstDomNode)
-                    if (!domNode.isEqualNode($secondDomNode[index]))
+                for (const domNode:DomNode of $domNodes.first)
+                    if (!domNode.isEqualNode($domNodes.second[index]))
                         return false
                 return true
             }
