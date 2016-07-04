@@ -106,7 +106,8 @@ browserAPI((window:Window):void => {
         $.Tools.class.mouseOutEventHandlerFix(():void => {})))
     // // endregion
     // // region logging
-    QUnit.test('log', (assert:Object):void => assert.strictEqual(tools.log('test'), tools))
+    QUnit.test('log', (assert:Object):void => assert.strictEqual(
+        tools.log('test'), tools))
     QUnit.test('info', (assert:Object):void =>
         assert.strictEqual(tools.info('test {0}'), tools))
     QUnit.test('debug', (assert:Object):void =>
@@ -117,9 +118,11 @@ browserAPI((window:Window):void => {
         'ignore this error, it is only a {1}', 'test'
     ), tools))
     */
-    QUnit.test('warn', (assert:Object):void => assert.strictEqual(tools.warn('test'), tools))
+    QUnit.test('warn', (assert:Object):void => assert.strictEqual(
+        tools.warn('test'), tools))
     QUnit.test('show', (assert:Object):void => {
-        assert.strictEqual($.Tools.class.show('hans'), 'hans\n(Type: "string")')
+        assert.strictEqual(
+            $.Tools.class.show('hans'), 'hans\n(Type: "string")')
         assert.strictEqual($.Tools.class.show({
             A: 'a', B: 'b'
         }), 'A: a\nB: b\n(Type: "object")')
@@ -206,8 +209,8 @@ browserAPI((window:Window):void => {
             '<div><br><br /></div>', '<div><br /><br /></div>'))
         assert.ok($.Tools.class.isEquivalentDom('a<br>', 'a<br />', true))
     })
-    QUnit.test('getPositionRelativeToViewport', (assert:Object):void => assert.ok(
-        ['above', 'left', 'right', 'below', 'in'].includes(
+    QUnit.test('getPositionRelativeToViewport', (assert:Object):void =>
+        assert.ok(['above', 'left', 'right', 'below', 'in'].includes(
             tools.getPositionRelativeToViewport())))
     QUnit.test('generateDirectiveSelector', (assert:Object):void => {
         assert.strictEqual($.Tools.class.generateDirectiveSelector(
@@ -247,9 +250,8 @@ browserAPI((window:Window):void => {
             $.Tools.class.getNormalizedDirectiveName('data-a-bb'), 'aBb')
         assert.equal($.Tools.class.getNormalizedDirectiveName('x:a:b'), 'aB')
     })
-    QUnit.test('getDirectiveValue', (assert:Object):void => assert.equal($('body').Tools(
-        'getDirectiveValue', 'a'
-    ), null))
+    QUnit.test('getDirectiveValue', (assert:Object):void => assert.equal(
+        $('body').Tools('getDirectiveValue', 'a'), null))
     QUnit.test('sliceDomNodeSelectorPrefix', (assert:Object):void => {
         assert.strictEqual(tools.sliceDomNodeSelectorPrefix('body div'), 'div')
         assert.strictEqual($.Tools({
