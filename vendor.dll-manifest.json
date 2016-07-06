@@ -1,0 +1,7 @@
+{
+  "name": "vendorDLLPackage",
+  "content": {
+    "./node_modules/jquery/dist/jquery.js": 1,
+    "./node_modules/qunitjs/qunit/qunit.js": 2
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "developmentHelperDLLPackage",
+  "content": {
+    "./node_modules/sockjs-client/lib/entry.js": 3,
+    "./node_modules/strip-ansi/index.js": 4,
+    "./node_modules/url/url.js": 5,
+    "./node_modules/webpack-dev-server/client/index.js?http:/0.0.0.0:8080": 6
+  }
+}
