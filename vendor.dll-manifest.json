@@ -1,7 +1,9 @@
 {
   "name": "vendorDLLPackage",
   "content": {
-    "./node_modules/jquery/dist/jquery.js": 1,
-    "./node_modules/qunitjs/qunit/qunit.js": 2
+    "./node_modules/node-libs-browser/node_modules/process/browser.js": 2,
+    "./node_modules/webpack/buildin/module.js": 20,
+    "./node_modules/jquery/dist/jquery.js": 36,
+    "./node_modules/qunitjs/qunit/qunit.js": 42
   }
 }
