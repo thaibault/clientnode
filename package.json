@@ -35,6 +35,6 @@
         "source-map-support": ">=0.4.0"
     },
     "webOptimizer": {"assetPattern": {"javaScript": {
-        "excludeFilePathRegularExpression": "^.+$"
+        "excludeFilePathRegularExpression": "^(?:.*/)?(?:developmentHelper|vendor|index)(?:\\.compiled)?\\.js$"
     }}}
 }
