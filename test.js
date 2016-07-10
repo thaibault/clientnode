@@ -27,7 +27,7 @@ type JQueryFunction = (object:any) => Object
 // endregion
 const QUnit:Object = (TARGET === 'node') ? require('qunit-cli') : require(
     'qunitjs')
-browserAPI((window:Window):void => {
+browserAPI((window:Window, alreadyLoaded:boolean):void => {
     /*
         NOTE: We have to define window globally before jQuery is loaded to
         ensure that all jquery instances share the same window object.
@@ -43,7 +43,7 @@ browserAPI((window:Window):void => {
     require('./index')
     if (TARGET === 'node')
         QUnit.load()
-    else
+    else (!alreadyLoaded)
         QUnit.start()
     // region tests
     // / region mock-up
@@ -1302,6 +1302,16 @@ browserAPI((window:Window):void => {
     // / endregion
     // endregion
 })
+/*
+    NOTE: Strict version would be:
+        "typeof module === 'object' && 'hot' in module && module.hot"
+*/
+if (module.hot) {
+    module.hot.accept()
+    module.hot.dispose(() => {
+        // TODO reset qunit.
+    })
+}
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
