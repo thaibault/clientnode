@@ -21,7 +21,6 @@ import type {$DomNode} from './index'
 // endregion
 // region declaration
 declare var TARGET:string
-declare var module:{hot:Object}
 // endregion
 // region types
 type JQueryFunction = (object:any) => Object
@@ -1192,12 +1191,12 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
             $.Tools.class.stringMD5('test'), '098f6bcd4621d373cade4e832627b4f6'
         )
         assert.strictEqual(
-            $.Tools.class.stringMD5('ä'), '8419b71c87a225a2c70b50486fbee545')
+            $.Tools.class.stringMD5('Ã¤'), '8419b71c87a225a2c70b50486fbee545')
         assert.strictEqual(
             $.Tools.class.stringMD5('test', true),
             '098f6bcd4621d373cade4e832627b4f6')
         assert.strictEqual(
-            $.Tools.class.stringMD5('ä', true),
+            $.Tools.class.stringMD5('Ã¤', true),
             'c15bcc5577f9fade4b4a3256190a59b0')
     })
     QUnit.test('stringNormalizePhoneNumber', (assert:Object):void => {
@@ -1236,7 +1235,7 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
             '<div>&</div>')
         assert.equal($.Tools.class.stringDecodeHTMLEntities(
             '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>'
-        ), '<div>&äÄüÜöÖ</div>')
+        ), '<div>&Ã¤ÃÃ¼ÃÃ¶Ã</div>')
     })
     // / endregion
     // // region number
@@ -1305,6 +1304,7 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
     // region hot module replacement handler
     if (typeof module === 'object' && 'hot' in module && module.hot) {
         module.hot.accept()
+        // IgnoreTypeCheck
         module.hot.dispose(():void => {
             /*
                 NOTE: We have to delay status indicator reset because qunits
@@ -1312,7 +1312,7 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
             */
             setTimeout(():void => {
                 if (!$('.fail').length) {
-                    window.document.title = '✔ test'
+                    window.document.title = 'â test'
                     $('#qunit-banner').removeClass('qunit-fail').addClass(
                         'qunit-pass')
                 }
