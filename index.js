@@ -864,7 +864,8 @@ class Tools {
      * @returns Returns the given methods return value.
      */
     getMethod(
-        method:Function, scope:any = null, ...additionalArguments:Array<any>
+        method:Function|string, scope:any = null,
+        ...additionalArguments:Array<any>
     ):Function {
         /*
             This following outcomment line would be responsible for a bug in
@@ -883,9 +884,9 @@ class Tools {
             arguments)
         if (!scope)
             parameter[1] = scope = this
-        if ($.type(method) === 'string' && $.type(scope) === 'object')
+        if (typeof method === 'string' && typeof scope === 'object')
             return function():void {
-                if (!scope[method])
+                if (!scope[method] && typeof method === 'string')
                     $.error(`Method "${method}" doesn't exists in "${scope}".`)
                 parameter = $.Tools().argumentsObjectToArray(arguments)
                 scope[method].apply(scope, parameter.concat(
@@ -1033,9 +1034,9 @@ class Tools {
      */
     static convertPlainObjectToMap<Value>(
         object:Value, deep:boolean = true
-    ):Value|Map {
+    ):Value|Map<any, any> {
         if (typeof object === 'object' && $.isPlainObject(object)) {
-            const newObject:Map = new Map()
+            const newObject:Map<any, any> = new Map()
             for (const key:string in object)
                 if (object.hasOwnProperty(key)) {
                     if (deep)
@@ -2281,7 +2282,7 @@ class Tools {
      * @returns Normalized number.
      */
     static stringNormalizePhoneNumber(phoneNumber:?string|?number):string {
-        if (['number', 'string'].includes(typeof phoneNumber))
+        if (typeof phoneNumber === 'string' || typeof phoneNumber === 'number')
             return `${phoneNumber}`.replace(/[^0-9]*\+/, '00').replace(
                 /[^0-9]+/g, '')
         return ''
