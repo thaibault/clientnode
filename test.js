@@ -43,7 +43,7 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
     require('./index')
     if (TARGET === 'node')
         QUnit.load()
-    else (!alreadyLoaded)
+    else if (!alreadyLoaded)
         QUnit.start()
     // region tests
     // / region mock-up
@@ -1301,17 +1301,26 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
     })
     // / endregion
     // endregion
+    // region hot module replacement handler
+    if (typeof module === 'object' && 'hot' in module && module.hot) {
+        module.hot.accept()
+        module.hot.dispose(() => {
+            /*
+                NOTE: We have to delay status indicator reset because qunits
+                status updates are delayed as well.
+            */
+            setTimeout(() => {
+                if (!$('.fail').length) {
+                    window.document.title = '✔ test'
+                    $('#qunit-banner').removeClass('qunit-fail').addClass(
+                        'qunit-pass')
+                }
+            }, 0)
+            $('#qunit-tests').html('')
+        })
+    }
+    // endregion
 })
-/*
-    NOTE: Strict version would be:
-        "typeof module === 'object' && 'hot' in module && module.hot"
-*/
-if (module.hot) {
-    module.hot.accept()
-    module.hot.dispose(() => {
-        // TODO reset qunit.
-    })
-}
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
