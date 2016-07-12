@@ -1191,12 +1191,12 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
             $.Tools.class.stringMD5('test'), '098f6bcd4621d373cade4e832627b4f6'
         )
         assert.strictEqual(
-            $.Tools.class.stringMD5('Ã¤'), '8419b71c87a225a2c70b50486fbee545')
+            $.Tools.class.stringMD5('ä'), '8419b71c87a225a2c70b50486fbee545')
         assert.strictEqual(
             $.Tools.class.stringMD5('test', true),
             '098f6bcd4621d373cade4e832627b4f6')
         assert.strictEqual(
-            $.Tools.class.stringMD5('Ã¤', true),
+            $.Tools.class.stringMD5('ä', true),
             'c15bcc5577f9fade4b4a3256190a59b0')
     })
     QUnit.test('stringNormalizePhoneNumber', (assert:Object):void => {
@@ -1235,7 +1235,7 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
             '<div>&</div>')
         assert.equal($.Tools.class.stringDecodeHTMLEntities(
             '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>'
-        ), '<div>&Ã¤ÃÃ¼ÃÃ¶Ã</div>')
+        ), '<div>&äÄüÜöÖ</div>')
     })
     // / endregion
     // // region number
