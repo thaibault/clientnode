@@ -62,7 +62,6 @@ export type $Deferred<Type> = {
     isResolved:() => $Deferred<Type>;
     notify:() => $Deferred<Type>;
     notifyWith:() => $Deferred<Type>;
-    pipe:() => $Deferred<Type>;
     progress:() => $Deferred<Type>;
     promise:() => $Deferred<Type>;
     reject:() => $Deferred<Type>;
