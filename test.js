@@ -1318,6 +1318,7 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
                 }
             }, 0)
             $('#qunit-tests').html('')
+            console.clear()
         })
     }
     // endregion
