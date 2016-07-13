@@ -53,6 +53,24 @@ export type $DomNode = {
     width():number;
     Tools(functionName:string, ...additionalArguments:Array<any>):any;
 }
+export type $Deferred<Type> = {
+    always:() => $Deferred<Type>;
+    resolve:() => $Deferred<Type>;
+    done:() => $Deferred<Type>;
+    fail:() => $Deferred<Type>;
+    isRejected:() => $Deferred<Type>;
+    isResolved:() => $Deferred<Type>;
+    notify:() => $Deferred<Type>;
+    notifyWith:() => $Deferred<Type>;
+    pipe:() => $Deferred<Type>;
+    progress:() => $Deferred<Type>;
+    promise:() => $Deferred<Type>;
+    reject:() => $Deferred<Type>;
+    rejectWith:() => $Deferred<Type>;
+    resolveWith:() => $Deferred<Type>;
+    state:() => $Deferred<Type>;
+    then:() => $Deferred<Type>;
+}
 // endregion
 const context:Object = (():Object => {
     if ($.type(window) === 'undefined') {
