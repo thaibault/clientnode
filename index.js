@@ -1230,82 +1230,87 @@ class Tools {
         }
         return false
     }
-    /* TODO provide a limitable generic copy method (code is copied from angular...)
-    function copy(source, destination, stackSource, stackDest, rec) {
-      if (isWindow(source) || isScope(source)) {
-        throw ngMinErr('cpws',
-          "Can't copy! Making copies of Window or Scope instances is not supported.");
-      }
-
-      if (!rec)
-         rec = 0;
-      if (rec > 6000)
-        throw Error('A')
-
-      if (!destination) {
-        destination = source;
-        if (source) {
-          if (isArray(source)) {
-            destination = copy(source, [], stackSource, stackDest, rec+1);
-          } else if (isDate(source)) {
-            destination = new Date(source.getTime());
-          } else if (isRegExp(source)) {
-            destination = new RegExp(source.source, source.toString().match(/[^\/]*$/)[0]);
-            destination.lastIndex = source.lastIndex;
-          } else if (isObject(source)) {
-            destination = copy(source, {}, stackSource, stackDest, rec+1);
-          }
-        }
-      } else {
-        if (source === destination) throw ngMinErr('cpi',
-          "Can't copy! Source and destination are identical.");
-
-        stackSource = stackSource || [];
-        stackDest = stackDest || [];
-
-        if (isObject(source)) {
-          var index = indexOf(stackSource, source);
-          if (index !== -1) return stackDest[index];
-
-          stackSource.push(source);
-          stackDest.push(destination);
-        }
-
-        var result;
-        if (isArray(source)) {
-          destination.length = 0;
-          for ( var i = 0; i < source.length; i++) {
-            result = copy(source[i], null, stackSource, stackDest, rec+1);
-            if (isObject(source[i])) {
-              stackSource.push(source[i]);
-              stackDest.push(result);
+    /**
+     * Copies given object (of any type) into optionally given destination.
+     * @param source - Object to copy.
+     * @param recursionLimit - Specifies how deep we should traverse into given
+     * object recursively.
+     * @param destination - Target to copy source to.
+     * @param stackSource - Internally used to avoid traversing loops.
+     * @param stackDestination - Internally used to avoid traversing loops and
+     * referencing them correctly.
+     * @param recursionLevel - Internally used to track current recursion
+     * level in given source data structure.
+     * @returns Value "true" if both objects are equal and "false" otherwise.
+     */
+    static copyLimitedRecursively(
+        source:any, recursionLimit:number = -1, destination:any = null,
+        stackSource:Array<any> = [], stackDestination:Array<any> = [],
+        recursionLevel:number = 0
+    ):any {
+        if (destination) {
+            if (source === destination)
+                throw Error(
+                    "Can't copy because source and destination are identical.")
+            if (recursionLimit !== -1 && recursionLimit < recursionLevel)
+                return null
+            if (![undefined, null].includes(
+                source
+            ) && typeof source === 'object') {
+                const index:number = stackSource.indexOf(source)
+                if (index !== -1)
+                    return stackDestination[index]
+                stackSource.push(source)
+                stackDestination.push(destination)
             }
-            destination.push(result);
-          }
-        } else {
-          var h = destination.$$hashKey;
-          if (isArray(destination)) {
-            destination.length = 0;
-          } else {
-            forEach(destination, function(value, key) {
-              delete destination[key];
-            });
-          }
-          for ( var key in source) {
-            result = copy(source[key], null, stackSource, stackDest, rec+1);
-            if (isObject(source[key])) {
-              stackSource.push(source[key]);
-              stackDest.push(result);
+            const copyValue:Function = (value:any):any => {
+                const result:any = Tools.copyLimitedRecursively(
+                    value, recursionLimit, null, stackSource, stackDestination,
+                    recursionLevel + 1)
+                if (![undefined, null].includes(
+                    value
+                ) && typeof value === 'object') {
+                    stackSource.push(value)
+                    stackDestination.push(result)
+                }
+                return result
             }
-            destination[key] = result;
-          }
-          setHashKey(destination,h);
+            if ($.isArray(source))
+                for (const item:any of source)
+                    destination.push(copyValue(item))
+            if (source instanceof Map)
+                for (const [key:mixed, value:mixed] of source)
+                    destination.set(key, copyValue(value))
+            else
+                for (const key:string in source)
+                    if (source.hasOwnProperty(key))
+                        destination[key] = copyValue(source[key])
+        } else if (source) {
+            if ($.isArray(source))
+                return Tools.copyLimitedRecursively(
+                    source, recursionLimit, [], stackSource, stackDestination,
+                    recursionLevel)
+            if (source instanceof Map)
+                return Tools.copyLimitedRecursively(
+                    source, recursionLimit, new Map(), stackSource,
+                    stackDestination, recursionLevel)
+            if ($.type(source) === 'date')
+                return new Date(source.getTime())
+            if ($.type(source) === 'regexp') {
+                destination = new RegExp(
+                    source.source, source.toString().match(/[^\/]*$/)[0])
+                destination.lastIndex = source.lastIndex
+                return destination
+            }
+            if (![undefined, null].includes(
+                source
+            ) && typeof source === 'object')
+                return Tools.copyLimitedRecursively(
+                    source, recursionLimit, {}, stackSource, stackDestination,
+                    recursionLevel)
         }
-
-      }
-      return destination;
+        return destination || source
     }
-    */
     // / endregion
     // / region array
     /**

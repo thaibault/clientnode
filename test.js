@@ -611,6 +611,54 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
         const test = ():void => {}
         assert.ok($.Tools.class.equals(test, test, null, -1, [], false))
     })
+    QUnit.test('copyLimitedRecursively', (assert:Object):void => {
+        for (const test:Array<any> of [
+            [[21], 21],
+            [[0, -1], 0],
+            [[0, 1], 0],
+            [[0, 10], 0],
+            [[new Date(0)], new Date(0)],
+            [[/a/], /a/],
+            [[{}], {}],
+            [[{}, -1], {}],
+            [[[]], []],
+            [[new Map(), -1], new Map()],
+            [[{a: 2}, 0], {a: 2}],
+            [[{a: {a: 2}}, 0], {a: null}],
+            [[{a: {a: 2}}, 1], {a: {a: 2}}],
+            [[{a: {a: 2}}, 2], {a: {a: 2}}],
+            [[{a: [{a: 2}]}, 1], {a: [null]}],
+            [[{a: [{a: 2}]}, 2], {a: [{a: 2}]}],
+            [[{a: {a: 2}}, 10], {a: {a: 2}}],
+            [[new Map([['a', 2]]), 0], new Map([['a', 2]])],
+            [
+                [new Map([['a', new Map([['a', 2]])]]), 0],
+                new Map([['a', null]])
+            ],
+            [
+                [new Map([['a', new Map([['a', 2]])]]), 1],
+                new Map([['a', new Map([['a', 2]])]])
+            ],
+            [
+                [new Map([['a', new Map([['a', 2]])]]), 2],
+                new Map([['a', new Map([['a', 2]])]])
+            ],
+            [
+                [new Map([['a', [new Map([['a', 2]])]]]), 1],
+                new Map([['a', [null]]])
+            ],
+            [
+                [new Map([['a', [new Map([['a', 2]])]]]), 2],
+                new Map([['a', [new Map([['a', 2]])]]])
+            ],
+            [
+                [new Map([['a', new Map([['a', 2]])]]), 10],
+                new Map([['a', new Map([['a', 2]])]])
+            ]
+        ])
+            assert.deepEqual($.Tools.class.copyLimitedRecursively.apply(
+                this, test[0]), test[1])
+    })
     // // endregion
     // // region array
     QUnit.test('argumentsObjectToArray', (assert:Object):void => {
