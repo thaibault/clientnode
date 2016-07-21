@@ -1199,7 +1199,7 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
                 $.Tools.class.numberIsNotANumber(test[0]), test[1])
     })
     QUnit.test('numberRound', (assert:Object):void => {
-        for (const test:Array<number> of [
+        for (const test:Array<any> of [
             [[1.5, 0], 2],
             [[1.4, 0], 1],
             [[1.4, -1], 0],

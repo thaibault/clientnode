@@ -1230,6 +1230,82 @@ class Tools {
         }
         return false
     }
+    /* TODO provide a limitable generic copy method (code is copied from angular...)
+    function copy(source, destination, stackSource, stackDest, rec) {
+      if (isWindow(source) || isScope(source)) {
+        throw ngMinErr('cpws',
+          "Can't copy! Making copies of Window or Scope instances is not supported.");
+      }
+
+      if (!rec)
+         rec = 0;
+      if (rec > 6000)
+        throw Error('A')
+
+      if (!destination) {
+        destination = source;
+        if (source) {
+          if (isArray(source)) {
+            destination = copy(source, [], stackSource, stackDest, rec+1);
+          } else if (isDate(source)) {
+            destination = new Date(source.getTime());
+          } else if (isRegExp(source)) {
+            destination = new RegExp(source.source, source.toString().match(/[^\/]*$/)[0]);
+            destination.lastIndex = source.lastIndex;
+          } else if (isObject(source)) {
+            destination = copy(source, {}, stackSource, stackDest, rec+1);
+          }
+        }
+      } else {
+        if (source === destination) throw ngMinErr('cpi',
+          "Can't copy! Source and destination are identical.");
+
+        stackSource = stackSource || [];
+        stackDest = stackDest || [];
+
+        if (isObject(source)) {
+          var index = indexOf(stackSource, source);
+          if (index !== -1) return stackDest[index];
+
+          stackSource.push(source);
+          stackDest.push(destination);
+        }
+
+        var result;
+        if (isArray(source)) {
+          destination.length = 0;
+          for ( var i = 0; i < source.length; i++) {
+            result = copy(source[i], null, stackSource, stackDest, rec+1);
+            if (isObject(source[i])) {
+              stackSource.push(source[i]);
+              stackDest.push(result);
+            }
+            destination.push(result);
+          }
+        } else {
+          var h = destination.$$hashKey;
+          if (isArray(destination)) {
+            destination.length = 0;
+          } else {
+            forEach(destination, function(value, key) {
+              delete destination[key];
+            });
+          }
+          for ( var key in source) {
+            result = copy(source[key], null, stackSource, stackDest, rec+1);
+            if (isObject(source[key])) {
+              stackSource.push(source[key]);
+              stackDest.push(result);
+            }
+            destination[key] = result;
+          }
+          setHashKey(destination,h);
+        }
+
+      }
+      return destination;
+    }
+    */
     // / endregion
     // / region array
     /**
