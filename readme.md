@@ -103,6 +103,8 @@ initializing the plugin without providing a dom node is also provided.
     seine Instanz zurück.
 -->
 
+    #!JavaScript
+
     // !/usr/bin/env node
     // -*- coding: utf-8 -*-
     /** @module jQuery-incrementer */
