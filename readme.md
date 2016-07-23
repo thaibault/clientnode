@@ -82,10 +82,10 @@ Quick start
 Easy access of a method in "$.Tools":
 <!--deDE:Einfacher Aufruf einer Methode aus "$.Tools":-->
 
-```javaScript
-var tools = $.Tools({'logging': true});
-tools.log('test');
-```
+    #!JavaScript
+
+    var tools = $.Tools({'logging': true});
+    tools.log('test');
 
 <!--|deDE:Plugin-Vorlage-->
 Plugin pattern
