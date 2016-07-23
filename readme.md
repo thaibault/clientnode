@@ -128,7 +128,7 @@ initializing the plugin without providing a dom node is also provided.
      * @property _options - Options extended by the options given to the
      * initializer method.
      */
-    class Exmple extends $.Tools.class {
+    class Example extends $.Tools.class {
         static _name = 'Example';
         /* eslint-disable jsdoc/require-description-complete-sentence */
         /**
@@ -143,11 +143,11 @@ initializing the plugin without providing a dom node is also provided.
             return this.$domNode
         }
     }
-    $.fn.Incrementer = function() {
-        return $.Tools().controller(Incrementer, arguments, this)
+    $.fn.Example = function() {
+        return $.Tools().controller(Example, arguments, this)
     }
-    /** The jQuery-incrementer plugin class. */
-    export default Incrementer
+    /** The jQuery-example plugin class. */
+    export default Example
 
 Initialisation with given dom node and without:
 <!--deDE:Aufruf mit und ohne übergebenen DOM-Knoten:-->
