@@ -1,9 +1,7 @@
 {
     "name": "jQuery-tools",
     "tagline": "upgrade to object orientated rock solid plugins<!--deDE:Schreibe Objekt orientierte solide Plugins-->",
-    "body": "",
     "google": "UA-40192634-7",
     "language": "en",
-    "note": "Don't delete this file! It's used internally to help with page regeneration.",
     "languages": ["deDE", "enUS"]
 }
