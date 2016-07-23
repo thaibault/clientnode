@@ -154,10 +154,10 @@ initializing the plugin without providing a dom node is also provided.
 Initialisation with given dom node and without:
 <!--deDE:Aufruf mit und ohne übergebenen DOM-Knoten:-->
 
-```javaScript
-$domNode = $('#domNode').Example({firstOption: 'value'});
-exampleInstance = $.Example({firstOption: 'value'});
-```
+    #!JavaScript
+
+    const $domNode = $('#domNode').Example({firstOption: 'value'});
+    const exampleInstance = $.Example({firstOption: 'value'});
 
 Function call from previous generated instance via dom node or instance
 reference:
@@ -166,12 +166,12 @@ reference:
     bzw. über den zurückgegebene DOM-Knoten:
 -->
 
-```javaScript
-returnValue = $('#domNode').Example('method', 'anArgument');
-returnValue = $('#domNode').Example().method('anArgument');
-exampleInstance = $.Example({firstOption: 'value'});
-returnValue = exampleInstance.method('anArgument')
-```
+    #!JavaScript
+
+    const returnValue = $('#domNode').Example('method', 'anArgument');
+    const returnValue = $('#domNode').Example().method('anArgument');
+    const exampleInstance = $.Example({firstOption: 'value'});
+    const returnValue = exampleInstance.method('anArgument')
 
 <!-- region modline
 vim: set tabstop=4 shiftwidth=4 expandtab:
