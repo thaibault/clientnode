@@ -136,6 +136,15 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
     })
     // // endregion
     // // region dom node handling
+    QUnit.test('getText', (assert:Object):void => {
+        for (const test:Array<string> of [
+            ['<div>', ''],
+            ['<div>hans</div>', 'hans'],
+            ['<div><div>hans</div</div>', ''],
+            ['<div>hans<div>peter</div></div>', 'hans']
+        ])
+            assert.strictEqual($(test[0]).Tools('getText'), test[1])
+    })
     QUnit.test('normalizeClassNames', (assert:Object):void => {
         assert.strictEqual($('<div>').Tools(
             'normalizeClassNames'

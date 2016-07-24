@@ -558,8 +558,15 @@ class Tools {
     // / endregion
     // / region dom node
     /**
+     * Get text content of current element without it children's text contents.
+     * @returns The text string.
+     */
+    getText():string {
+        return this.$domNode.clone().children().remove().end().text()
+    }
+    /**
      * Normalizes class name order of current dom node.
-     * @returns Returns current instance.
+     * @returns Current instance.
      */
     normalizeClassNames():Tools {
         this.$domNode.find('*').addBack().each(function():void {
