@@ -577,6 +577,32 @@ class Tools {
         return this
     }
     /**
+     * Normalizes style attributes order of current dom node.
+     * @returns Returns current instance.
+     */
+    normalizeStyles():Tools {
+        const self:Tools = this
+        this.$domNode.find('*').addBack().each(function():void {
+            const $thisDomNode:$DomNode = $(this)
+            let serializedStyles:?string = $thisDomNode.attr('style')
+            if (serializedStyles) {
+                const sortedStyles:Array<string> =
+                    self.constructor.stringCompressStyleValue(
+                        serializedStyles
+                    ).split(';').sort() || []
+                $thisDomNode.attr('style', '')
+                for (const style:string of sortedStyles)
+                    $thisDomNode.css.apply($thisDomNode, $.trim(style).split(
+                        ':'))
+                $thisDomNode.attr(
+                    'style', self.constructor.stringCompressStyleValue(
+                        $thisDomNode.attr('style')))
+            } else if ($thisDomNode.is('[style]'))
+                $thisDomNode.removeAttr('style')
+        })
+        return this
+    }
+    /**
      * Checks weather given html or text strings are equal.
      * @param first - First html, selector to dom node or text to compare.
      * @param second - Second html, selector to dom node  or text to compare.
@@ -625,10 +651,10 @@ class Tools {
             ) {
                 $domNodes.first = $domNodes.first.Tools(
                     'normalizeClassNames'
-                ).$domNode
+                ).$domNode.Tools('normalizeStyles').$domNode
                 $domNodes.second = $domNodes.second.Tools(
                     'normalizeClassNames'
-                ).$domNode
+                ).$domNode.Tools('normalizeStyles').$domNode
                 let index:number = 0
                 for (const domNode:DomNode of $domNodes.first)
                     if (!domNode.isEqualNode($domNodes.second[index]))
@@ -1890,6 +1916,16 @@ class Tools {
         return ''
     }
     // // endregion
+    /**
+     * Compresses given style attribute value.
+     * @param styleValue - Style value to compress.
+     * @returns The compressed value.
+     */
+    static stringCompressStyleValue(styleValue:string):string {
+        return $.trim(styleValue).replace(/ *([:;]) */g, '$1').replace(
+            / +/g, ' '
+        ).replace(/^;+/, '').replace(/;+$/, '')
+    }
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Converts a camel cased string to its delimited string version.

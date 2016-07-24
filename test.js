@@ -146,20 +146,53 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
         assert.strictEqual($('<div class="">').Tools(
             'normalizeClassNames'
         ).$domNode.html(), $('<div>').html())
-        assert.strictEqual(
-            $('<div class="a">').Tools('normalizeClassNames').$domNode.prop(
-                'outerHTML'
-            ), $('<div class="a">').prop('outerHTML'))
-        assert.strictEqual(
-            $('<div class="b a">').Tools('normalizeClassNames').$domNode.prop(
-                'outerHTML'
-            ), $('<div class="a b">').prop('outerHTML'))
-        assert.strictEqual(
-            $('<div class="b a"><pre class="c b a"></pre></div>').Tools(
-                'normalizeClassNames'
-            ).$domNode.prop('outerHTML'),
-            $('<div class="a b"><pre class="a b c"></pre></div>').prop(
-                'outerHTML'))
+        assert.strictEqual($('<div class="a">').Tools(
+            'normalizeClassNames'
+        ).$domNode.prop('outerHTML'), $('<div class="a">').prop('outerHTML'))
+        assert.strictEqual($('<div class="b a">').Tools(
+            'normalizeClassNames'
+        ).$domNode.prop('outerHTML'), $('<div class="a b">').prop('outerHTML'))
+        assert.strictEqual($(
+            '<div class="b a"><pre class="c b a"></pre></div>'
+        ).Tools('normalizeClassNames').$domNode.prop('outerHTML'),
+        $('<div class="a b"><pre class="a b c"></pre></div>').prop(
+            'outerHTML'))
+    })
+    QUnit.test('normalizeStyles', (assert:Object):void => {
+        assert.strictEqual($('<div>').Tools('normalizeStyles').$domNode.prop(
+            'outerHTML'
+        ), $('<div>').prop('outerHTML'))
+        assert.strictEqual($('<div style>').Tools(
+            'normalizeStyles'
+        ).$domNode.html(), $('<div>').html())
+        assert.strictEqual($('<div style="">').Tools(
+            'normalizeStyles'
+        ).$domNode.html(), $('<div>').html())
+        assert.strictEqual($('<div style="border: 1px solid  red ;">').Tools(
+            'normalizeStyles'
+        ).$domNode.prop('outerHTML'), $(
+            '<div style="border:1px solid red">'
+        ).prop('outerHTML'))
+        assert.strictEqual($('<div style="width: 50px;height: 100px;">').Tools(
+            'normalizeStyles'
+        ).$domNode.prop('outerHTML'), $(
+            '<div style="height:100px;width:50px">'
+        ).prop('outerHTML'))
+        assert.strictEqual($(
+            '<div style=";width: 50px ; height:100px">'
+        ).Tools('normalizeStyles').$domNode.prop('outerHTML'), $(
+            '<div style="height:100px;width:50px">'
+        ).prop('outerHTML'))
+        assert.strictEqual($(
+            '<div style="width:10px;height:50px">' +
+            '    <pre style=";;width:2px;height:1px; color: red; "></pre>' +
+            '</div>'
+        ).Tools('normalizeStyles').$domNode.prop('outerHTML'),
+        $(
+            '<div style="height:50px;width:10px">' +
+            '    <pre style="color:red;height:1px;width:2px"></pre>' +
+            '</div>'
+        ).prop('outerHTML'))
     })
     QUnit.test('isEquivalentDom', (assert:Object):void => {
         for (const test:Array<any> of [
@@ -168,6 +201,8 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
             ['<div>', '<div>'],
             ['<div class>', '<div>'],
             ['<div class="">', '<div>'],
+            ['<div style>', '<div>'],
+            ['<div style="">', '<div>'],
             ['<div></div>', '<div>'],
             ['<div class="a"></div>', '<div class="a"></div>'],
             [
@@ -190,6 +225,10 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
             ['<div>a</div>b', '<div>a</div>b'],
             ['<br>', '<br />'],
             ['<div><br><br /></div>', '<div><br /><br /></div>'],
+            [
+                ' <div style="">german<!--deDE--><!--enUS: english --> </div>',
+                ' <div style="">german<!--deDE--><!--enUS: english --> </div>'
+            ],
             ['a<br>', 'a<br />', true]
         ])
             assert.ok($.Tools.class.isEquivalentDom.apply(this, test))
@@ -205,6 +244,7 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
                 '<a class="a" target="_blank"></a>'
             ],
             ['<div>a</div>b', '<div>a</div>c'],
+            [' <div>a</div>', '<div>a</div>'],
             ['<div>a</div><div>bc</div>', '<div>a</div><div>b</div>'],
             ['text', 'text a'],
             ['text', 'text a'],
@@ -1070,6 +1110,21 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
                 $.Tools.class.stringRepresentURL(test[0]), test[1])
     })
     // /// endregion
+    QUnit.test('stringCompressStyleValue', (assert:Object):void => {
+        for (const test:Array<any> of [
+            ['', ''],
+            [' border: 1px  solid red;', 'border:1px solid red'],
+            ['border : 1px solid red ', 'border:1px solid red'],
+            ['border : 1px  solid red ;', 'border:1px solid red'],
+            ['border : 1px  solid red   ; ', 'border:1px solid red'],
+            ['height: 1px ; width:2px ; ', 'height:1px;width:2px'],
+            [';;height: 1px ; width:2px ; ;', 'height:1px;width:2px'],
+            [' ;;height: 1px ; width:2px ; ;', 'height:1px;width:2px'],
+            [';height: 1px ; width:2px ; ', 'height:1px;width:2px']
+        ])
+            assert.strictEqual(
+                $.Tools.class.stringCompressStyleValue(test[0]), test[1])
+    })
     QUnit.test('stringCamelCaseToDelimited', (assert:Object):void => {
         for (const test:Array<any> of [
             [['hansPeter'], 'hans-peter'],
