@@ -553,7 +553,7 @@ class Tools {
             })
         if (!output)
             output = output.toString()
-        return `${$.trim(output)}\n(Type: "${$.type(object)}")`
+        return `${output.trim()}\n(Type: "${$.type(object)}")`
     }
     // / endregion
     // / region dom node
@@ -599,7 +599,7 @@ class Tools {
                     ).split(';').sort() || []
                 $thisDomNode.attr('style', '')
                 for (const style:string of sortedStyles)
-                    $thisDomNode.css.apply($thisDomNode, $.trim(style).split(
+                    $thisDomNode.css.apply($thisDomNode, style.trim().split(
                         ':'))
                 $thisDomNode.attr(
                     'style', self.constructor.stringCompressStyleValue(
@@ -778,8 +778,9 @@ class Tools {
             'domNodeSelectorPrefix' in this._options &&
             domNodeSelector.startsWith(this._options.domNodeSelectorPrefix)
         )
-            return $.trim(domNodeSelector.substring(
-                this._options.domNodeSelectorPrefix.length))
+            return domNodeSelector.substring(
+                this._options.domNodeSelectorPrefix.length
+            ).trim()
         return domNodeSelector
     }
     /**
@@ -1688,7 +1689,7 @@ class Tools {
     static stringAddSeparatorToPath(
         path:string, pathSeparator:string = '/'
     ):string {
-        path = $.trim(path)
+        path = path.trim()
         if (path.substr(-1) !== pathSeparator && path.length)
             return path + pathSeparator
         return path
@@ -1904,7 +1905,7 @@ class Tools {
      */
     static stringNormalizeURL(url:?string):string {
         if (url) {
-            url = $.trim(url.replace(/^:?\/+/, '').replace(/\/+$/, ''))
+            url = url.replace(/^:?\/+/, '').replace(/\/+$/, '').trim()
             if (url.startsWith('http'))
                 return url
             return `http://${url}`
@@ -1918,8 +1919,9 @@ class Tools {
      */
     static stringRepresentURL(url:?string):string {
         if (typeof url === 'string')
-            return $.trim(url.replace(/^(https?)?:?\/+/, '').replace(
-                /\/+$/, ''))
+            return url.replace(/^(https?)?:?\/+/, '').replace(
+                /\/+$/, ''
+            ).trim()
         return ''
     }
     // // endregion
@@ -1929,9 +1931,9 @@ class Tools {
      * @returns The compressed value.
      */
     static stringCompressStyleValue(styleValue:string):string {
-        return $.trim(styleValue).replace(/ *([:;]) */g, '$1').replace(
+        return styleValue.replace(/ *([:;]) */g, '$1').replace(
             / +/g, ' '
-        ).replace(/^;+/, '').replace(/;+$/, '')
+        ).replace(/^;+/, '').replace(/;+$/, '').trim()
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
@@ -2085,9 +2087,9 @@ class Tools {
         marker:string = '<span class="tools-mark">{1}</span>',
         caseSensitive:boolean = false
     ):?string {
-        target = $.trim(target)
-        mark = $.trim(mark)
         if (target && mark) {
+            target = target.trim()
+            mark = mark.trim()
             let offset:number = 0
             let searchTarget:string = target
             if (!caseSensitive)
@@ -2447,16 +2449,16 @@ class Tools {
             // Separate area code from base number.
             phoneNumber = phoneNumber.replace(/^([^-]+)-([0-9-]+)$/, '$1 / $2')
             // Partition base number in one triple and tuples or tuples only.
-            return $.trim(phoneNumber.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/, (
+            return phoneNumber.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/, (
                 match:string, prefix:string, number:string, suffix:string
-            ):string => prefix + $.trim(
+            ):string => prefix + (
                 (number.length % 2 === 0) ? number.replace(
                     /([0-9]{2})/g, '$1 '
                 ) : number.replace(/^([0-9]{3})([0-9]+)$/, (
                     match:string, triple:string, rest:string
-                ):string => `${triple} ` + $.trim(rest.replace(
+                ):string => `${triple} ` + rest.replace(
                     /([0-9]{2})/g, '$1 '
-                ))) + suffix)))
+                ).trim()) + suffix).trim()).trim()
         }
         return ''
     }
@@ -2601,13 +2603,12 @@ class Tools {
         let domNodeSelectorPrefix:string = ''
         if (this._options.domNodeSelectorPrefix)
             domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
-        if (!(selector.startsWith(domNodeSelectorPrefix) || $.trim(
-            selector
+        if (!(selector.startsWith(domNodeSelectorPrefix) || selector.trim(
         ).startsWith('<'))) {
             domNodeSelectors[key] = domNodeSelectorPrefix + selector
-            return $.trim(domNodeSelectors[key])
+            return domNodeSelectors[key].trim()
         }
-        return $.trim(selector)
+        return selector.trim()
     }
     // endregion
 }
