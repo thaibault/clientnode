@@ -31,7 +31,7 @@ components is integrated as well.
 
 <!--|deDE:Inhalt-->
 Content
-------
+-------
 
 <!--Place for automatic generated table of contents.-->
 [TOC]
@@ -42,8 +42,8 @@ Features
 
 <ul>
     <li>
-        Mutual exclusion for depending gui elements
-        <!--deDE:Wechselseitiger Ausschluss für abhängige GUI-Elemente-->
+        Mutual exclusion support through locking management
+        <!--deDE:Wechselseitiger Ausschluss durch Lock-Management-->
     </li>
     <li>
         Cross browser logging with different log levels
