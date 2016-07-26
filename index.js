@@ -553,13 +553,20 @@ class Tools {
             })
         if (!output)
             output = output.toString()
-        return `${$.trim(output)}\n(Type: "${$.type(object)}")`
+        return `${output.trim()}\n(Type: "${$.type(object)}")`
     }
     // / endregion
     // / region dom node
     /**
+     * Get text content of current element without it children's text contents.
+     * @returns The text string.
+     */
+    getText():string {
+        return this.$domNode.clone().children().remove().end().text()
+    }
+    /**
      * Normalizes class name order of current dom node.
-     * @returns Returns current instance.
+     * @returns Current instance.
      */
     normalizeClassNames():Tools {
         this.$domNode.find('*').addBack().each(function():void {
@@ -573,6 +580,32 @@ class Tools {
                     $thisDomNode.addClass(className)
             } else if ($thisDomNode.is('[class]'))
                 $thisDomNode.removeAttr('class')
+        })
+        return this
+    }
+    /**
+     * Normalizes style attributes order of current dom node.
+     * @returns Returns current instance.
+     */
+    normalizeStyles():Tools {
+        const self:Tools = this
+        this.$domNode.find('*').addBack().each(function():void {
+            const $thisDomNode:$DomNode = $(this)
+            let serializedStyles:?string = $thisDomNode.attr('style')
+            if (serializedStyles) {
+                const sortedStyles:Array<string> =
+                    self.constructor.stringCompressStyleValue(
+                        serializedStyles
+                    ).split(';').sort() || []
+                $thisDomNode.attr('style', '')
+                for (const style:string of sortedStyles)
+                    $thisDomNode.css.apply($thisDomNode, style.trim().split(
+                        ':'))
+                $thisDomNode.attr(
+                    'style', self.constructor.stringCompressStyleValue(
+                        $thisDomNode.attr('style')))
+            } else if ($thisDomNode.is('[style]'))
+                $thisDomNode.removeAttr('style')
         })
         return this
     }
@@ -625,10 +658,10 @@ class Tools {
             ) {
                 $domNodes.first = $domNodes.first.Tools(
                     'normalizeClassNames'
-                ).$domNode
+                ).$domNode.Tools('normalizeStyles').$domNode
                 $domNodes.second = $domNodes.second.Tools(
                     'normalizeClassNames'
-                ).$domNode
+                ).$domNode.Tools('normalizeStyles').$domNode
                 let index:number = 0
                 for (const domNode:DomNode of $domNodes.first)
                     if (!domNode.isEqualNode($domNodes.second[index]))
@@ -745,8 +778,9 @@ class Tools {
             'domNodeSelectorPrefix' in this._options &&
             domNodeSelector.startsWith(this._options.domNodeSelectorPrefix)
         )
-            return $.trim(domNodeSelector.substring(
-                this._options.domNodeSelectorPrefix.length))
+            return domNodeSelector.substring(
+                this._options.domNodeSelectorPrefix.length
+            ).trim()
         return domNodeSelector
     }
     /**
@@ -1655,7 +1689,7 @@ class Tools {
     static stringAddSeparatorToPath(
         path:string, pathSeparator:string = '/'
     ):string {
-        path = $.trim(path)
+        path = path.trim()
         if (path.substr(-1) !== pathSeparator && path.length)
             return path + pathSeparator
         return path
@@ -1805,7 +1839,10 @@ class Tools {
         // region determine data from search and hash if specified
         const both:boolean = input === '&'
         if (both || input === '#') {
-            const decodedHash:string = decodeURIComponent(hash)
+            let decodedHash:string = ''
+            try {
+                decodedHash = decodeURIComponent(hash)
+            } catch (error) {}
             const subDelimiterIndex:number = decodedHash.indexOf(subDelimiter)
             if (subDelimiterIndex === -1)
                 input = ''
@@ -1825,10 +1862,19 @@ class Tools {
         const variables:Array<string> = []
         $.each(data, (key:string, value:string):void => {
             const keyValuePair:Array<string> = value.split('=')
-            // IgnoreTypeCheck
-            key = decodeURIComponent(keyValuePair[0])
-            value = decodeURIComponent(keyValuePair[1])
+            try {
+                // IgnoreTypeCheck
+                key = decodeURIComponent(keyValuePair[0])
+            } catch (error) {
+                key = ''
+            }
+            try {
+                value = decodeURIComponent(keyValuePair[1])
+            } catch (error) {
+                value = ''
+            }
             variables.push(key)
+            // IgnoreTypeCheck
             variables[key] = value
         })
         // endregion
@@ -1871,7 +1917,7 @@ class Tools {
      */
     static stringNormalizeURL(url:?string):string {
         if (url) {
-            url = $.trim(url.replace(/^:?\/+/, '').replace(/\/+$/, ''))
+            url = url.replace(/^:?\/+/, '').replace(/\/+$/, '').trim()
             if (url.startsWith('http'))
                 return url
             return `http://${url}`
@@ -1885,11 +1931,22 @@ class Tools {
      */
     static stringRepresentURL(url:?string):string {
         if (typeof url === 'string')
-            return $.trim(url.replace(/^(https?)?:?\/+/, '').replace(
-                /\/+$/, ''))
+            return url.replace(/^(https?)?:?\/+/, '').replace(
+                /\/+$/, ''
+            ).trim()
         return ''
     }
     // // endregion
+    /**
+     * Compresses given style attribute value.
+     * @param styleValue - Style value to compress.
+     * @returns The compressed value.
+     */
+    static stringCompressStyleValue(styleValue:string):string {
+        return styleValue.replace(/ *([:;]) */g, '$1').replace(
+            / +/g, ' '
+        ).replace(/^;+/, '').replace(/;+$/, '').trim()
+    }
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Converts a camel cased string to its delimited string version.
@@ -2042,9 +2099,9 @@ class Tools {
         marker:string = '<span class="tools-mark">{1}</span>',
         caseSensitive:boolean = false
     ):?string {
-        target = $.trim(target)
-        mark = $.trim(mark)
         if (target && mark) {
+            target = target.trim()
+            mark = mark.trim()
             let offset:number = 0
             let searchTarget:string = target
             if (!caseSensitive)
@@ -2404,16 +2461,16 @@ class Tools {
             // Separate area code from base number.
             phoneNumber = phoneNumber.replace(/^([^-]+)-([0-9-]+)$/, '$1 / $2')
             // Partition base number in one triple and tuples or tuples only.
-            return $.trim(phoneNumber.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/, (
+            return phoneNumber.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/, (
                 match:string, prefix:string, number:string, suffix:string
-            ):string => prefix + $.trim(
+            ):string => prefix + (
                 (number.length % 2 === 0) ? number.replace(
                     /([0-9]{2})/g, '$1 '
                 ) : number.replace(/^([0-9]{3})([0-9]+)$/, (
                     match:string, triple:string, rest:string
-                ):string => `${triple} ` + $.trim(rest.replace(
+                ):string => `${triple} ` + rest.replace(
                     /([0-9]{2})/g, '$1 '
-                ))) + suffix)))
+                ).trim()) + suffix).trim()).trim()
         }
         return ''
     }
@@ -2558,13 +2615,12 @@ class Tools {
         let domNodeSelectorPrefix:string = ''
         if (this._options.domNodeSelectorPrefix)
             domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
-        if (!(selector.startsWith(domNodeSelectorPrefix) || $.trim(
-            selector
+        if (!(selector.startsWith(domNodeSelectorPrefix) || selector.trim(
         ).startsWith('<'))) {
             domNodeSelectors[key] = domNodeSelectorPrefix + selector
-            return $.trim(domNodeSelectors[key])
+            return domNodeSelectors[key].trim()
         }
-        return $.trim(selector)
+        return selector.trim()
     }
     // endregion
 }
