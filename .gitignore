@@ -67,6 +67,8 @@ node_modules/
 .npm-debug.log
 *.compiled.*
 *.compiled
+!data/**/*.compiled
+!data/**/*.compiled.*
 apiDocumentation/
 .dynamicConfiguration-*.json
 
