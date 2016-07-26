@@ -69,6 +69,8 @@ node_modules/
 *.compiled
 !data/**/*.compiled
 !data/**/*.compiled.*
+!api/**/*.compiled
+!api/**/*.compiled.*
 apiDocumentation/
 .dynamicConfiguration-*.json
 
