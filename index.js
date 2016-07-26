@@ -1874,6 +1874,7 @@ class Tools {
                 value = ''
             }
             variables.push(key)
+            // IgnoreTypeCheck
             variables[key] = value
         })
         // endregion
