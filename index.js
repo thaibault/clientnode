@@ -10548,7 +10548,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (hasSW()) {
 	      var registration = navigator.serviceWorker
 	        .register(
-	          "/serviceWorker.js"
+	          "serviceWorker.js"
 	          
 	        );
 
@@ -10663,7 +10663,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  
 	    if (window.applicationCache) {
-	      var directory = "//";
+	      var directory = "/";
 	      var name = "manifest";
 
 	      var doLoad = function() {
