@@ -1839,7 +1839,10 @@ class Tools {
         // region determine data from search and hash if specified
         const both:boolean = input === '&'
         if (both || input === '#') {
-            const decodedHash:string = decodeURIComponent(hash)
+            let decodedHash:string = ''
+            try {
+                decodedHash = decodeURIComponent(hash)
+            } catch (error) {}
             const subDelimiterIndex:number = decodedHash.indexOf(subDelimiter)
             if (subDelimiterIndex === -1)
                 input = ''
@@ -1859,9 +1862,17 @@ class Tools {
         const variables:Array<string> = []
         $.each(data, (key:string, value:string):void => {
             const keyValuePair:Array<string> = value.split('=')
-            // IgnoreTypeCheck
-            key = decodeURIComponent(keyValuePair[0])
-            value = decodeURIComponent(keyValuePair[1])
+            try {
+                // IgnoreTypeCheck
+                key = decodeURIComponent(keyValuePair[0])
+            } catch (error) {
+                key = ''
+            }
+            try {
+                value = decodeURIComponent(keyValuePair[1])
+            } catch (error) {
+                value = ''
+            }
             variables.push(key)
             variables[key] = value
         })
