@@ -171,7 +171,7 @@ reference:
     const returnValue = $('#domNode').Example('method', 'anArgument');
     const returnValue = $('#domNode').Example().method('anArgument');
     const exampleInstance = $.Example({firstOption: 'value'});
-    const returnValue = exampleInstance.method('anArgument')
+    const returnValue = exampleInstance.method('anArgument');
 
 <!-- region modline
 vim: set tabstop=4 shiftwidth=4 expandtab:
