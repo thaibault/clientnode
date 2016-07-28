@@ -329,7 +329,7 @@ class Tools {
             if (!object instanceof Tools)
                 object = $.extend(true, new Tools(), object)
         }
-        parameter = this.constructor.argumentsObjectToArray(parameter)
+        parameter = $.makeArray(parameter)
         if ($domNode && !$domNode.data(object.constructor._name))
             // Attach extended object to the associated dom node.
             $domNode.data(object.constructor._name, object)
@@ -925,21 +925,16 @@ class Tools {
             doesn't care about that the magic arguments object is necessary to
             generate the arguments array in this context.
 
-            var arguments = Tools.argumentsObjectToArray(arguments)
-
-            use something like this instead:
-
-            var parameter = Tools.argumentsObjectToArray(arguments)
+            var arguments = $.makeArray(arguments)
         */
-        let parameter:Array<any> = this.constructor.argumentsObjectToArray(
-            arguments)
+        let parameter:Array<any> = $.makeArray(arguments)
         if (!scope)
             parameter[1] = scope = this
         if (typeof method === 'string' && typeof scope === 'object')
             return function():void {
                 if (!scope[method] && typeof method === 'string')
                     $.error(`Method "${method}" doesn't exists in "${scope}".`)
-                parameter = $.Tools().argumentsObjectToArray(arguments)
+                parameter = $.makeArray(arguments)
                 scope[method].apply(scope, parameter.concat(
                     additionalArguments))
             }
@@ -999,8 +994,7 @@ class Tools {
         let waitingCallArguments:?Array<any> = null
         let timeoutID:?number = null
         return function():?number {
-            const parameter:Array<any> = Tools.argumentsObjectToArray(
-                arguments)
+            const parameter:Array<any> = $.makeArray(arguments)
             if (lock)
                 waitingCallArguments = parameter.concat(
                     additionalArguments || [])
@@ -1347,16 +1341,6 @@ class Tools {
     }
     // / endregion
     // / region array
-    /**
-     * Converts the interpreter given magic arguments object to a standard
-     * array object.
-     * @param argumentsObject - An argument object.
-     * @returns Returns the array containing all elements in given arguments
-     * object.
-     */
-    static argumentsObjectToArray(argumentsObject:Array<any>):Array<any> {
-        return Array.prototype.slice.call(argumentsObject)
-    }
     /**
      * Makes all values in given iterable unique by removing duplicates (The
      * first occurrences will be left).
@@ -2593,7 +2577,7 @@ class Tools {
                 this[eventFunctionName]($domNode, eventType, handler))
             return $domNode
         }
-        parameter = this.constructor.argumentsObjectToArray(parameter).slice(1)
+        parameter = $.makeArray(parameter).slice(1)
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))

@@ -710,10 +710,6 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
     })
     // // endregion
     // // region array
-    QUnit.test('argumentsObjectToArray', (assert:Object):void => {
-        assert.notOk($.isArray(arguments))
-        assert.ok($.isArray($.Tools.class.argumentsObjectToArray(arguments)))
-    })
     QUnit.test('arrayUnique', (assert:Object):void => {
         for (const test:Array<any> of [
             [[1, 2, 3, 1], [1, 2, 3]],
