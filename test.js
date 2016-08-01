@@ -16,7 +16,7 @@
 */
 // region imports
 import browserAPI from 'webOptimizer/browserAPI'
-import type {Window} from 'webOptimizer/type'
+import type {Browser} from 'webOptimizer/type'
 import type {$DomNode} from './index'
 // endregion
 // region declaration
@@ -27,19 +27,21 @@ type JQueryFunction = (object:any) => Object
 // endregion
 const QUnit:Object = (TARGET === 'node') ? require('qunit-cli') : require(
     'qunitjs')
-browserAPI((window:Window, alreadyLoaded:boolean):void => {
+browserAPI((browser:Browser, alreadyLoaded:boolean):void => {
     /*
         NOTE: We have to define window globally before jQuery is loaded to
         ensure that all jquery instances share the same window object.
     */
-    if (typeof global !== 'undefined' && global !== window) {
-        global.window = window
-        for (const key in window)
-            if (window.hasOwnProperty(key) && !global.hasOwnProperty(key))
-                global[key] = window[key]
+    if (typeof global !== 'undefined' && global !== browser.window) {
+        global.window = browser.window
+        for (const key in browser.window)
+            if (browser.window.hasOwnProperty(key) && !global.hasOwnProperty(
+                key
+            ))
+                global[key] = browser.window[key]
     }
     const $:JQueryFunction = require('jquery')
-    $.context = window.document
+    $.context = browser.window.document
     require('./index')
     if (TARGET === 'node')
         QUnit.load()
@@ -1331,12 +1333,12 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
     QUnit.test('sendToIFrame', (assert:Object):void => {
         const iFrame = $('<iframe>').hide().attr('name', 'test')
         $('body').append(iFrame)
-        assert.ok($.Tools.class.sendToIFrame(iFrame, window.document.URL, {
-            test: 5
-        }, 'get', true))
+        assert.ok($.Tools.class.sendToIFrame(
+            iFrame, browser.window.document.URL, {test: 5}, 'get', true))
     })
     QUnit.test('sendToExternalURL', (assert:Object):void => {
-        assert.ok(tools.sendToExternalURL(window.document.URL, {test: 5}))
+        assert.ok(tools.sendToExternalURL(browser.window.document.URL, {
+            test: 5}))
     })
     // // endregion
     // / endregion
@@ -1375,7 +1377,7 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
             */
             setTimeout(():void => {
                 if (!$('.fail').length) {
-                    window.document.title = 'â test'
+                    browser.window.document.title = 'â test'
                     $('#qunit-banner').removeClass('qunit-fail').addClass(
                         'qunit-pass')
                 }
