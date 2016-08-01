@@ -1330,6 +1330,7 @@ browserAPI((browser:Browser, alreadyLoaded:boolean):void => {
     })
     // // endregion
     // // region data transfer
+    console.log(TARGET)
     if (TARGET === 'web') {
         QUnit.test('sendToIFrame', (assert:Object):void => {
             const iFrame = $('<iframe>').hide().attr('name', 'test')
