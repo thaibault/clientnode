@@ -48,15 +48,15 @@ browserAPI((
     const $:JQueryFunction = require('jquery')
     $.context = browser.window.document
     require('./index')
+    // region mock-up
+    const $bodyDomNode:$DomNode = $('body')
+    const tools:$.Tools = $('body').Tools()
+    // endregion
     if (TARGET === 'node')
         QUnit.load()
     else if (!alreadyLoaded)
         QUnit.start()
     // region tests
-    // / region mock-up
-    const $bodyDomNode:$DomNode = $('body')
-    const tools:$.Tools = $('body').Tools()
-    // / endregion
     // / region public methods
     // // region special
     QUnit.test('constructor', (assert:Object):void => assert.ok(tools))
