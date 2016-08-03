@@ -16,7 +16,7 @@
 */
 // region imports
 import browserAPI from 'webOptimizer/browserAPI'
-import type {Browser} from 'webOptimizer/type'
+import type {BrowserAPI} from 'webOptimizer/type'
 import type {$DomNode} from './index'
 // endregion
 // region declaration
@@ -27,26 +27,9 @@ type JQueryFunction = (object:any) => Object
 // endregion
 const QUnit:Object = (TARGET === 'node') ? require('qunit-cli') : require(
     'qunitjs')
-browserAPI((
-    browser:Browser, alreadyLoaded:boolean
-):void => browser.window.document.addEventListener('DOMContentLoaded', (
-):void => {
-    // region initialize global context
-    /*
-        NOTE: We have to define window globally before anything is loaded to
-        ensure that all future instances share the same window object.
-    */
-    if (typeof global !== 'undefined' && global !== browser.window) {
-        global.window = browser.window
-        for (const key in browser.window)
-            if (browser.window.hasOwnProperty(key) && !global.hasOwnProperty(
-                key
-            ))
-                global[key] = browser.window[key]
-    }
-    // endregion
+browserAPI((browserAPI:BrowserAPI, alreadyLoaded:boolean):void => {
     const $:JQueryFunction = require('jquery')
-    $.context = browser.window.document
+    $.context = browserAPI.window.document
     require('./index')
     // region mock-up
     const $bodyDomNode:$DomNode = $('body')
@@ -1340,10 +1323,10 @@ browserAPI((
             const iFrame = $('<iframe>').hide().attr('name', 'test')
             $('body').append(iFrame)
             assert.ok($.Tools.class.sendToIFrame(
-                iFrame, browser.window.document.URL, {test: 5}, 'get', true))
+                iFrame, browserAPI.window.document.URL, {test: 5}, 'get', true))
         })
         QUnit.test('sendToExternalURL', (assert:Object):void => {
-            assert.ok(tools.sendToExternalURL(browser.window.document.URL, {
+            assert.ok(tools.sendToExternalURL(browserAPI.window.document.URL, {
                 test: 5}))
         })
     }
@@ -1384,7 +1367,7 @@ browserAPI((
             */
             setTimeout(():void => {
                 if (!$('.fail').length) {
-                    browser.window.document.title = 'â test'
+                    browserAPI.window.document.title = '✔ test'
                     $('#qunit-banner').removeClass('qunit-fail').addClass(
                         'qunit-pass')
                 }
@@ -1394,7 +1377,7 @@ browserAPI((
         })
     }
     // endregion
-}))
+})
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
