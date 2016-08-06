@@ -188,7 +188,7 @@ var jQueryTools =
 	     * @param parameter - The initially given arguments object.
 	     * @param $domNode - Optionally a $-extended dom node to use as reference.
 	     * @returns Returns whatever the initializer method returns.
-	     */controller(object,parameter,$domNode=null){ /* eslint-enable jsdoc/require-description-complete-sentence */if(typeof object==='function'){object=new object($domNode);if(!object instanceof Tools)object=_jquery2.default.extend(true,new Tools(),object);}parameter=this.constructor.argumentsObjectToArray(parameter);if($domNode&amp;&amp;!$domNode.data(object.constructor._name)) // Attach extended object to the associated dom node.
+	     */controller(object,parameter,$domNode=null){ /* eslint-enable jsdoc/require-description-complete-sentence */if(typeof object==='function'){object=new object($domNode);if(!object instanceof Tools)object=_jquery2.default.extend(true,new Tools(),object);}parameter=_jquery2.default.makeArray(parameter);if($domNode&amp;&amp;!$domNode.data(object.constructor._name)) // Attach extended object to the associated dom node.
 	$domNode.data(object.constructor._name,object);if(parameter[0] in object)return object[parameter[0]].apply(object,parameter.slice(1));else if(parameter.length===0||_jquery2.default.type(parameter[0])==='object') /*
 	                If an options object or no method name is given the initializer
 	                will be called.
@@ -392,12 +392,8 @@ var jQueryTools =
 	            doesn't care about that the magic arguments object is necessary to
 	            generate the arguments array in this context.
 
-	            var arguments = Tools.argumentsObjectToArray(arguments)
-
-	            use something like this instead:
-
-	            var parameter = Tools.argumentsObjectToArray(arguments)
-	        */let parameter=this.constructor.argumentsObjectToArray(arguments);if(!scope)parameter[1]=scope=this;if(typeof method==='string'&amp;&amp;typeof scope==='object')return function(){if(!scope[method]&amp;&amp;typeof method==='string')_jquery2.default.error(`Method "${ method }" doesn't exists in "${ scope }".`);parameter=_jquery2.default.Tools().argumentsObjectToArray(arguments);scope[method].apply(scope,parameter.concat(additionalArguments));};return _jquery2.default.proxy.apply(_jquery2.default,parameter);} /**
+	            var arguments = $.makeArray(arguments)
+	        */let parameter=_jquery2.default.makeArray(arguments);if(!scope)parameter[1]=scope=this;if(typeof method==='string'&amp;&amp;typeof scope==='object')return function(){if(!scope[method]&amp;&amp;typeof method==='string')_jquery2.default.error(`Method "${ method }" doesn't exists in "${ scope }".`);parameter=_jquery2.default.makeArray(arguments);scope[method].apply(scope,parameter.concat(additionalArguments));};return _jquery2.default.proxy.apply(_jquery2.default,parameter);} /**
 	     * Implements the identity function.
 	     * @param value - A value to return.
 	     * @returns Returns the given value.
@@ -419,7 +415,7 @@ var jQueryTools =
 	     * @param additionalArguments - Additional arguments to forward to given
 	     * function.
 	     * @returns Returns the wrapped method.
-	     */static debounce(eventFunction,thresholdInMilliseconds=600,...additionalArguments){let lock=false;let waitingCallArguments=null;let timeoutID=null;return function(){const parameter=Tools.argumentsObjectToArray(arguments);if(lock)waitingCallArguments=parameter.concat(additionalArguments||[]);else {lock=true;timeoutID=setTimeout(() => {lock=false;if(waitingCallArguments){eventFunction.apply(this,waitingCallArguments);waitingCallArguments=null;}},thresholdInMilliseconds);eventFunction.apply(this,parameter.concat(additionalArguments||[]));}return timeoutID;};} /**
+	     */static debounce(eventFunction,thresholdInMilliseconds=600,...additionalArguments){let lock=false;let waitingCallArguments=null;let timeoutID=null;return function(){const parameter=_jquery2.default.makeArray(arguments);if(lock)waitingCallArguments=parameter.concat(additionalArguments||[]);else {lock=true;timeoutID=setTimeout(() => {lock=false;if(waitingCallArguments){eventFunction.apply(this,waitingCallArguments);waitingCallArguments=null;}},thresholdInMilliseconds);eventFunction.apply(this,parameter.concat(additionalArguments||[]));}return timeoutID;};} /**
 	     * Searches for internal event handler methods and runs them by default. In
 	     * addition this method searches for a given event method by the options
 	     * object. Additional arguments are forwarded to respective event
@@ -501,12 +497,6 @@ var jQueryTools =
 	     */static copyLimitedRecursively(source,recursionLimit=-1,destination=null,stackSource=[],stackDestination=[],recursionLevel=0){if(destination){if(source===destination)throw Error("Can't copy because source and destination are identical.");if(recursionLimit!==-1&amp;&amp;recursionLimit&lt;recursionLevel)return null;if(![undefined,null].includes(source)&amp;&amp;typeof source==='object'){const index=stackSource.indexOf(source);if(index!==-1)return stackDestination[index];stackSource.push(source);stackDestination.push(destination);}const copyValue=value => {const result=Tools.copyLimitedRecursively(value,recursionLimit,null,stackSource,stackDestination,recursionLevel+1);if(![undefined,null].includes(value)&amp;&amp;typeof value==='object'){stackSource.push(value);stackDestination.push(result);}return result;};if(_jquery2.default.isArray(source))for(const item of source)destination.push(copyValue(item));if(source instanceof Map)for(const [key,value] of source)destination.set(key,copyValue(value));else for(const key in source)if(source.hasOwnProperty(key))destination[key]=copyValue(source[key]);}else if(source){if(_jquery2.default.isArray(source))return Tools.copyLimitedRecursively(source,recursionLimit,[],stackSource,stackDestination,recursionLevel);if(source instanceof Map)return Tools.copyLimitedRecursively(source,recursionLimit,new Map(),stackSource,stackDestination,recursionLevel);if(_jquery2.default.type(source)==='date')return new Date(source.getTime());if(_jquery2.default.type(source)==='regexp'){destination=new RegExp(source.source,source.toString().match(/[^\/]*$/)[0]);destination.lastIndex=source.lastIndex;return destination;}if(![undefined,null].includes(source)&amp;&amp;typeof source==='object')return Tools.copyLimitedRecursively(source,recursionLimit,{},stackSource,stackDestination,recursionLevel);}return destination||source;} // / endregion
 	// / region array
 	/**
-	     * Converts the interpreter given magic arguments object to a standard
-	     * array object.
-	     * @param argumentsObject - An argument object.
-	     * @returns Returns the array containing all elements in given arguments
-	     * object.
-	     */static argumentsObjectToArray(argumentsObject){return Array.prototype.slice.call(argumentsObject);} /**
 	     * Makes all values in given iterable unique by removing duplicates (The
 	     * first occurrences will be left).
 	     * @param data - Array like object.
@@ -909,7 +899,7 @@ var jQueryTools =
 	     * @param eventFunctionName - Name of function to wrap.
 	     * @returns Returns $'s wrapped dom node.
 	     */_bindHelper(parameter,removeEvent=false,eventFunctionName='on'){ /* eslint-enable jsdoc/require-description-complete-sentence */const $domNode=(0,_jquery2.default)(parameter[0]);if(_jquery2.default.type(parameter[1])==='object'&amp;&amp;!removeEvent){_jquery2.default.each(parameter[1],(eventType,handler) =>  // IgnoreTypeCheck
-	this[eventFunctionName]($domNode,eventType,handler));return $domNode;}parameter=this.constructor.argumentsObjectToArray(parameter).slice(1);if(parameter.length===0)parameter.push('');if(!parameter[0].includes('.'))parameter[0]+=`.${ this.constructor._name }`;if(removeEvent)return $domNode[eventFunctionName].apply($domNode,parameter);return $domNode[eventFunctionName].apply($domNode,parameter);} /**
+	this[eventFunctionName]($domNode,eventType,handler));return $domNode;}parameter=_jquery2.default.makeArray(parameter).slice(1);if(parameter.length===0)parameter.push('');if(!parameter[0].includes('.'))parameter[0]+=`.${ this.constructor._name }`;if(removeEvent)return $domNode[eventFunctionName].apply($domNode,parameter);return $domNode[eventFunctionName].apply($domNode,parameter);} /**
 	     * Converts a dom selector to a prefixed dom selector string.
 	     * @param key - Current element in options array to grab.
 	     * @param selector - A dom node selector.
@@ -981,7 +971,7 @@ var jQueryTools =
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Jul 27 2016 02:33:20 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Aug 06 2016 07:33:10 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
