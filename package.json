@@ -9,6 +9,7 @@
     },
     "homepage": "http://torben.website/jQuery-tools",
     "main": "index.compiled.js",
+    "webOptimizer": {"injection": {"externalAliases": {"jquery": "jQuery"}}},
     "scripts": {
         "build": "webOptimizer build",
         "buildDLL": "webOptimizer buildDLL",
