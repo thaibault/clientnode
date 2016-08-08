@@ -25,9 +25,9 @@ declare var TARGET_TECHNOLOGY:string
 // region types
 type JQueryFunction = (object:any) => Object
 // endregion
-const QUnit:Object = (TARGET_TECHNOLOGY === 'node') ? require(
-    'qunit-cli'
-) : require('qunitjs')
+const QUnit:Object = (
+    typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node'
+) ? require('qunit-cli') : require('qunitjs')
 browserAPI((browserAPI:BrowserAPI):void => {
     const $:JQueryFunction = require('jquery')
     $.context = browserAPI.window.document
@@ -1330,7 +1330,10 @@ browserAPI((browserAPI:BrowserAPI):void => {
     })
     // // endregion
     // // region data transfer
-    if (TARGET_TECHNOLOGY === 'web') {
+    if (
+        typeof TARGET_TECHNOLOGY !== 'undefined' &&
+        TARGET_TECHNOLOGY === 'web'
+    ) {
         QUnit.test('sendToIFrame', (assert:Object):void => {
             const iFrame = $('<iframe>').hide().attr('name', 'test')
             $('body').append(iFrame)
@@ -1368,7 +1371,10 @@ browserAPI((browserAPI:BrowserAPI):void => {
     })
     // / endregion
     // endregion
-    if (TARGET_TECHNOLOGY === 'node')
+    if (
+        typeof TARGET_TECHNOLOGY === 'undefined' ||
+        TARGET_TECHNOLOGY === 'node'
+    )
         QUnit.load()
     // region hot module replacement handler
     /*
