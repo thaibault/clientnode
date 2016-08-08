@@ -20,6 +20,11 @@
 <li><a href="#use-case">Use case</a></li>
 <li><a href="#content">Content</a></li>
 <li><a href="#features">Features</a></li>
+<li><a href="#installation">Installation</a><ul>
+<li><a href="#classical-dom-injection">Classical dom injection</a></li>
+<li><a href="#package-managed-and-module-bundled">Package managed and module bundled</a></li>
+</ul>
+</li>
 <li><a href="#quick-start">Quick start</a></li>
 <li><a href="#plugin-pattern">Plugin pattern</a></li>
 </ul>
@@ -60,6 +65,56 @@ Generic none-redundant plugin pattern for JavaScript and CoffeeScript
 <!--deDE:Generischer Plugin-Muster für JavaScript und CoffeeScript-->
 </li>
 </ul>
+<!--|deDE:Installation-->
+<h2 id="installation">Installation</h2>
+<!--|deDE:Klassische Dom-Integration-->
+<h3 id="classical-dom-injection">Classical dom injection</h3>
+<p>You can simply download the compiled version as zip file here and inject it after needed dependencies:</p>
+<table class="codehilitetable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">"https://code.jquery.com/jquery-3.1.0.js"</span> <span class="na">integrity</span><span class="o">=</span><span class="s">"sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk="</span> <span class="na">crossorigin</span><span class="o">=</span><span class="s">"anonymous"</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="c">&lt;!--Inject downloaded file:--&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">"/index.compiled.js"</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="c">&lt;!--Or as integrate via cdn:</span>
+<span class="c">&lt;script src="http://torben.website/jQuery-tools/data/distributionBundle/index.compiled.js"&gt;&lt;/script&gt;</span>
+<span class="c">--&gt;</span>
+</pre></div>
+</td></tr></tbody></table>
+<!--|deDE:Paket-Management und Modul-Komposition-->
+<h3 id="package-managed-and-module-bundled">Package managed and module bundled</h3>
+<p>If you are using npm as package manager and a module bundler you can simply add this tool to your "package.json" as dependency:</p>
+<table class="codehilitetable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="err">...</span>
+<span class="s2">"dependencies"</span><span class="err">:</span> <span class="p">{</span>
+    <span class="err">...</span>
+    <span class="nt">"jQuery-tools"</span><span class="p">:</span> <span class="s2">"git+ssh://git@github.com/thaibault/jQuery-tools.git"</span>
+    <span class="err">...</span>
+<span class="p">}</span><span class="err">,</span>
+<span class="err">...</span>
+</pre></div>
+</td></tr></tbody></table>
+<p>After updating your packages you can simply depend on this script and let a module bundler to the hard stuff.</p>
+<table class="codehilitetable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="p">...</span>
+<span class="nx">$</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'jquery'</span><span class="p">)</span>
+<span class="nx">require</span><span class="p">(</span><span class="s1">'jQuery-tools'</span><span class="p">)</span>
+<span class="p">...</span>
+<span class="nx">$</span><span class="p">.</span><span class="nx">Tools</span><span class="p">().</span><span class="nx">isEquivalentDom</span><span class="p">(</span><span class="s1">'&lt;div&gt;'</span><span class="p">,</span> <span class="s1">'&lt;script&gt;'</span><span class="p">)</span> <span class="c1">// false</span>
+<span class="p">...</span>
+</pre></div>
+</td></tr></tbody></table>
 <!--|deDE:Einstieg-->
 <h2 id="quick-start">Quick start</h2>
 <p>Easy access of a method in "$.Tools":
