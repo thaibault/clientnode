@@ -75,6 +75,54 @@ Features
     </li>
 </ul>
 
+<!--|deDE:Installation-->
+Installation
+------------
+
+<!--|deDE:Klassische Dom-Integration-->
+### Classical dom injection
+
+
+You can simply download the compiled version as zip file here and inject it
+after needed dependencies:
+
+    #!HTML
+
+    <script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
+    <!--Inject downloaded file:-->
+    <script src="/index.compiled.js"></script>
+    <!--Or as integrate via cdn:
+    <script src="http://torben.website/jQuery-tools/data/distributionBundle/index.compiled.js"></script>
+    -->
+
+<!--|deDE:Paket-Management und Modul-Komposition-->
+### Package managed and module bundled
+
+If you are using npm as package manager and a module bundler you can simply add
+this tool to your "package.json" as dependency:
+
+    #!JSON
+
+    ...
+    "dependencies": {
+        ...
+        "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git"
+        ...
+    },
+    ...
+
+After updating your packages you can simply depend on this script and let
+a module bundler to the hard stuff.
+
+    #!JavaScript
+
+    ...
+    $ = require('jquery')
+    require('jQuery-tools')
+    ...
+    $.Tools().isEquivalentDom('<div>', '<script>') // false
+    ...
+
 <!--|deDE:Einstieg-->
 Quick start
 -----------
