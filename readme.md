@@ -85,13 +85,17 @@ Installation
 
 You can simply download the compiled version as zip file here and inject it
 after needed dependencies:
+<!--deDE:
+    Du kannst einfach das Plugin als Zip-Archiv herunterladen und als per
+    Script-Tag in deine Webseite integrieren:
+-->
 
     #!HTML
 
     <script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
     <!--Inject downloaded file:-->
     <script src="/index.compiled.js"></script>
-    <!--Or as integrate via cdn:
+    <!--Or integrate via cdn:
     <script src="http://torben.website/jQuery-tools/data/distributionBundle/index.compiled.js"></script>
     -->
 
@@ -100,19 +104,27 @@ after needed dependencies:
 
 If you are using npm as package manager and a module bundler you can simply add
 this tool to your "package.json" as dependency:
+<!--deDE:
+    Nutzt du npm als Paket-Manager und hast einen Module-Bundler, dann solltest
+    du einfach deine "package.json" erweitern:
+-->
 
     #!JSON
 
     ...
     "dependencies": {
         ...
-        "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git"
+        "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git",
         ...
     },
     ...
 
 After updating your packages you can simply depend on this script and let
 a module bundler to the hard stuff.
+<!--deDE:
+    Nach einem Update deiner Pakete kannst du dieses Plugin einfach in deine
+    JavaScript-Module importieren:
+-->
 
     #!JavaScript
 
@@ -122,18 +134,6 @@ a module bundler to the hard stuff.
     ...
     $.Tools().isEquivalentDom('<div>', '<script>') // false
     ...
-
-<!--|deDE:Einstieg-->
-Quick start
------------
-
-Easy access of a method in "$.Tools":
-<!--deDE:Einfacher Aufruf einer Methode aus "$.Tools":-->
-
-    #!JavaScript
-
-    var tools = $.Tools({'logging': true});
-    tools.log('test');
 
 <!--|deDE:Plugin-Vorlage-->
 Plugin pattern
@@ -156,7 +156,7 @@ initializing the plugin without providing a dom node is also provided.
     // !/usr/bin/env node
     // -*- coding: utf-8 -*-
     /** @module jQuery-incrementer */
-    'use strict';
+    'use strict'
     import $ from 'jquery'
     import 'jQuery-tools'
     const context:Object = (():Object => {
@@ -216,10 +216,10 @@ reference:
 
     #!JavaScript
 
-    const returnValue = $('#domNode').Example('method', 'anArgument');
-    const returnValue = $('#domNode').Example().method('anArgument');
-    const exampleInstance = $.Example({firstOption: 'value'});
-    const returnValue = exampleInstance.method('anArgument');
+    const returnValue = $('#domNode').Example('method', 'anArgument')
+    const returnValue = $('#domNode').Example().method('anArgument')
+    const exampleInstance = $.Example({firstOption: 'value'})
+    const returnValue = exampleInstance.method('anArgument')
 
 <!-- region modline
 vim: set tabstop=4 shiftwidth=4 expandtab:
