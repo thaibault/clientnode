@@ -2645,8 +2645,8 @@ if ('fn' in $) {
 }
 // / endregion
 // endregion
-/** The jQuery-tools plugin class. */
-export default Tools
+/** jQuery extended with jQuery-tools plugin. */
+export default $
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:

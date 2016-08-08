@@ -129,8 +129,7 @@ a module bundler to the hard stuff.
     #!JavaScript
 
     ...
-    $ = require('jquery')
-    require('jQuery-tools')
+    $ = require('jQuery-tools')
     ...
     $.Tools().isEquivalentDom('<div>', '<script>') // false
     ...
