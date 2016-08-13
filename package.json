@@ -19,6 +19,7 @@
         "lint": "webOptimizer typeCheck && webOptimizer lint",
         "postinstall": "webOptimizer build",
         "preinstall": "webOptimizer preinstall",
+        "serve": "webOptimizer serve",
         "test": "webOptimizer test",
         "testInBrowser": "webOptimizer testInBrowser",
         "watch": "webOptimizer build --watch",
