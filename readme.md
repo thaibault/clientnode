@@ -82,7 +82,6 @@ Installation
 <!--|deDE:Klassische Dom-Integration-->
 ### Classical dom injection
 
-
 You can simply download the compiled version as zip file here and inject it
 after needed dependencies:
 <!--deDE:
