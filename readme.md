@@ -165,14 +165,14 @@ initializing the plugin without providing a dom node is also provided.
     import $ from 'jquery'
     import 'jQuery-tools'
     const context:Object = (():Object => {
-        if ($.type(window) === 'undefined') {
-            if ($.type(global) === 'undefined')
-                return ($.type(module) === 'undefined') ? {} : module
+        if (typeof window === 'undefined') {
+            if (typeof global === 'undefined')
+                return (typeof module === 'undefined') ? {} : module
             return global
         }
         return window
     })()
-    if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
+    if (!('document' in context) && 'context' in $)
         context.document = $.context
     /**
      * This plugin holds all needed methods to extend input fields to select
@@ -201,7 +201,7 @@ initializing the plugin without providing a dom node is also provided.
     $.fn.Example = function() {
         return $.Tools().controller(Example, arguments, this)
     }
-    /** The jQuery-example plugin class. */
+    /** jQuery extended with jQuery-example plugin. */
     export default Example
 
 Initialisation with given dom node and without:
