@@ -85,7 +85,7 @@ Installation
 You can simply download the compiled version as zip file here and inject it
 after needed dependencies:
 <!--deDE:
-    Du kannst einfach das Plugin als Zip-Archiv herunterladen und als per
+    Du kannst einfach das Plugin als Zip-Archiv herunterladen und per
     Script-Tag in deine Webseite integrieren:
 -->
 
