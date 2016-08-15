@@ -127,18 +127,19 @@ browserAPI((browserAPI:BrowserAPI):void => {
     QUnit.test('warn', (assert:Object):void => assert.strictEqual(
         tools.warn('test'), tools))
     QUnit.test('show', (assert:Object):void => {
-        assert.strictEqual(
-            $.Tools.class.show('hans'), 'hans\n(Type: "string")')
-        assert.strictEqual($.Tools.class.show({
-            A: 'a', B: 'b'
-        }), 'A: a\nB: b\n(Type: "object")')
-        /* eslint-disable no-control-regex */
+        for (const test:Array<any> of [
+            [1, '1 (Type: "number")'],
+            [null, 'null (Type: "null")'],
+            [/a/, '/a/ (Type: "regexp")'],
+            ['hans', 'hans (Type: "string")'],
+            [{A: 'a', B: 'b'}, 'A: a (Type: "string")\nB: b (Type: "string")']
+        ])
+            assert.strictEqual($.Tools.class.show(test[0]), test[1])
         assert.ok((new RegExp(
+            /* eslint-disable no-control-regex */
             '^(.|\n|\r|\u2028|\u2029)+\\(Type: "function"\\)$'
         )).test($.Tools.class.show($.Tools)))
         /* eslint-enable no-control-regex */
-        assert.ok((new RegExp('^.+: .+\\n(.|\\n)+$')).test($.Tools.class.show(
-            tools)))
     })
     // // endregion
     // // region dom node handling

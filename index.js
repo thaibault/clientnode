@@ -537,23 +537,26 @@ class Tools {
     /**
      * Dumps a given object in a human readable format.
      * @param object - Any object to show.
+     * @param level - Number of levels to dig into given object recursively.
+     * @param currentLevel - Maximal number of recursive function calls to
+     * represent given object.
      * @returns Returns the serialized version of given object.
      */
-    static show(object:any):string {
+    static show(object:any, level:number = 3, currentLevel:number = 0):string {
         let output:string = ''
-        if ($.type(object) === 'string')
-            output = object
-        else
+        if ($.type(object) === 'object') {
             $.each(object, (key:any, value:any):void => {
-                if (value === undefined)
-                    value = 'undefined'
-                else if (value === null)
-                    value = 'null'
-                output += `${key.toString()}: ${value.toString()}\n`
+                output += `${key.toString()}: `
+                if (currentLevel <= level)
+                    output += Tools.show(value, level, currentLevel + 1)
+                else
+                    output += `${value}`
+                output += '\n'
             })
-        if (!output)
-            output = output.toString()
-        return `${output.trim()}\n(Type: "${$.type(object)}")`
+            return output.trim()
+        }
+        output = `${object}`.trim()
+        return `${output} (Type: "${$.type(object)}")`
     }
     // / endregion
     // / region dom node
