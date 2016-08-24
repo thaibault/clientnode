@@ -1097,7 +1097,7 @@ class Tools {
         if (deep)
             if (Array.isArray(object)) {
                 let index:number = 0
-                for (const value:Object of object) {
+                for (const value:any of object) {
                     object[index] = Tools.convertPlainObjectToMap(value, deep)
                     index += 1
                 }
