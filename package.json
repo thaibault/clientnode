@@ -1,11 +1,11 @@
 {
-    "name": "jQuery-tools",
+    "name": "tools",
     "version": "1.0.0",
     "description": "upgrade to object orientated rock solid plugins",
     "keywords": ["jquery", "tools"],
     "files": ["index.js"],
     "repository": {
-        "type": "git", "url": "https://github.com/thaibault/jQuery-tools"
+        "type": "git", "url": "https://github.com/thaibault/tools"
     },
     "homepage": "http://torben.website/jQuery-tools",
     "main": "index.compiled.js",
@@ -32,14 +32,13 @@
     },
     "license": "CC-BY-3.0",
     "dependencies": {
-        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
-        "sizzle": ">=2.3.0",
-        "jquery": ">=3.1.0"
+        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git"
     },
     "devDependencies": {
         "jsdom": ">=9.4.1",
         "qunitjs": ">=2.0.0",
         "qunit-cli": ">=0.2.0*",
         "source-map-support": ">=0.4.2"
-    }
+    },
+    "peerDependencies": {"jquery": ">=3.1.0"}
 }

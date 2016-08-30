@@ -1,7 +1,7 @@
 // @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
-/** @module jQuery-tools */
+/** @module tools */
 'use strict'
 /* !
     region header
@@ -18,7 +18,6 @@
     endregion
 */
 // region imports
-import $ from 'jquery'
 import type {DomNode, PlainObject} from 'webOptimizer/type'
 // endregion
 // region types
@@ -79,6 +78,19 @@ const context:Object = (():Object => {
     }
     return window
 })()
+let $:any
+if ('$' in context)
+    $ = context.$
+else
+    try {
+        // IgnoreTypeCheck
+        $ = require('jquery')
+    } catch (error) {
+        const selector:any = (
+            'document' in context && 'querySelectorAll' in context.document
+        ) ? context.document.querySelectorAll : (selector:any):null => null
+        $ = function():any { return selector.apply(this, arguments) }
+    }
 if (!('document' in context) && 'context' in $)
     context.document = $.context
 // region plugins/classes
@@ -2648,7 +2660,7 @@ if ('fn' in $) {
 }
 // / endregion
 // endregion
-/** jQuery extended with jQuery-tools plugin. */
+/** $ extended with tools plugin. */
 export default $
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:

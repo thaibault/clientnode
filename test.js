@@ -23,9 +23,6 @@ import type {$DomNode} from './index'
 declare var DEBUG:boolean
 declare var TARGET_TECHNOLOGY:string
 // endregion
-// region types
-type JQueryFunction = (object:any) => Object
-// endregion
 let QUnit:Object
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node')
     QUnit = require('qunit-cli')
@@ -33,8 +30,11 @@ else
     QUnit = DEBUG ? require('qunitjs') : (
         require('script!qunitjs') && window.QUnit)
 browserAPI((browserAPI:BrowserAPI):void => {
-    const $:JQueryFunction = require('jquery')
+    const $:any = function():any {
+        return $.context.querySelectorAll
+    }
     $.context = browserAPI.window.document
+    (global || window).$ = $
     require('./index')
     // region configuration
     QUnit.config = $.extend(QUnit.config || {}, {
