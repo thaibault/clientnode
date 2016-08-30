@@ -5,7 +5,7 @@
 'use strict'
 /* !
     region header
-    [Project page](http://torben.website/jQuery-tools)
+    [Project page](http://torben.website/tools)
 
     Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
@@ -70,7 +70,7 @@ export type $Deferred<Type> = {
     then:() => $Deferred<Type>;
 }
 // endregion
-const context:Object = (():Object => {
+const globalContext:Object = (():Object => {
     if (typeof window === 'undefined') {
         if (typeof global === 'undefined')
             return (typeof module === 'undefined') ? {} : module
@@ -79,20 +79,24 @@ const context:Object = (():Object => {
     return window
 })()
 let $:any
-if ('$' in context)
-    $ = context.$
+if ('$' in globalContext)
+    $ = globalContext.$
 else
     try {
         // IgnoreTypeCheck
         $ = require('jquery')
     } catch (error) {
         const selector:any = (
-            'document' in context && 'querySelectorAll' in context.document
-        ) ? context.document.querySelectorAll : (selector:any):null => null
-        $ = function():any { return selector.apply(this, arguments) }
+            'document' in globalContext &&
+            'querySelectorAll' in globalContext.document
+        ) ? globalContext.document.querySelectorAll : ():null => null
+        $ = function():any {
+            return selector.apply(globalContext.document, arguments)
+        }
     }
-if (!('document' in context) && 'context' in $)
-    context.document = $.context
+if (!('document' in globalContext) && 'context' in $)
+    globalContext.document = $.context
+$.global = globalContext
 // region plugins/classes
 /**
  * This plugin provides such interface logic like generic controller logic for
@@ -166,9 +170,9 @@ class Tools {
         UP: 38
     }
     static maximalSupportedInternetExplorerVersion:number = (():number => {
-        if ('document' in context)
+        if ('document' in $.global)
             return 0
-        const div = context.document.createElement('div')
+        const div = $.global.document.createElement('div')
         let version:number
         for (version = 0; version < 10; version++) {
             /*
@@ -187,12 +191,12 @@ class Tools {
                 break
         }
         // Try special detection for internet explorer 10 and 11.
-        if (version === 0 && 'navigator' in context)
-            if (context.navigator.appVersion.includes('MSIE 10'))
+        if (version === 0 && 'navigator' in $.global)
+            if ($.global.navigator.appVersion.includes('MSIE 10'))
                 return 10
-            else if (context.navigator.userAgent.includes(
+            else if ($.global.navigator.userAgent.includes(
                 'Trident'
-            ) && context.navigator.userAgent.includes('rv:11'))
+            ) && $.global.navigator.userAgent.includes('rv:11'))
                 return 11
         return version
     })()
@@ -266,15 +270,15 @@ class Tools {
         this._defaultOptions = defaultOptions
         this._locks = locks
         // Avoid errors in browsers that lack a console.
-        if (!('console' in context))
-            context.console = {}
+        if (!('console' in $.global))
+            $.global.console = {}
         for (const methodName:string of this.constructor.consoleMethodNames)
-            if (!(methodName in context.console))
-                context.console[methodName] = 'noop' in $ ? $.noop() : (
+            if (!(methodName in $.global.console))
+                $.global.console[methodName] = 'noop' in $ ? $.noop() : (
                 ):void => {}
         if (
             !this.constructor._javaScriptDependentContentHandled &&
-            'document' in context
+            'document' in $.global
         ) {
             this.constructor._javaScriptDependentContentHandled = true
             $(
@@ -325,7 +329,7 @@ class Tools {
     // / region object orientation
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
-     * Defines a generic controller for jQuery plugins.
+     * Defines a generic controller for dom node aware plugins.
      * @param object - The object or class to control. If "object" is a class
      * an instance will be generated.
      * @param parameter - The initially given arguments object.
@@ -471,13 +475,13 @@ class Tools {
                 this.log("'--------------------------------------------'")
             }
             if (message)
-                if (!('console' in context && level in context.console) || (
-                    'noop' in $ && context.console[level] === $.noop()
+                if (!('console' in $.global && level in $.global.console) || (
+                    'noop' in $ && $.global.console[level] === $.noop()
                 )) {
-                    if ('alert' in context)
-                        context.alert(message)
+                    if ('alert' in $.global)
+                        $.global.alert(message)
                 } else
-                    context.console[level](message)
+                    $.global.console[level](message)
         }
         return this
     }
@@ -696,7 +700,7 @@ class Tools {
     getPositionRelativeToViewport(delta:Position = {}):RelativePosition {
         delta = $.extend({top: 0, left: 0, bottom: 0, right: 0}, delta)
         if (
-            'window' in context && this.$domNode && this.$domNode.length &&
+            'window' in $.global && this.$domNode && this.$domNode.length &&
             this.$domNode[0]
         ) {
             const $window:$DomNode = $(window)
@@ -862,10 +866,10 @@ class Tools {
                 })
         if (this._options.domNodeSelectorPrefix)
             domNodes.parent = $(this._options.domNodeSelectorPrefix)
-        if ('window' in context)
+        if ('window' in $.global)
             domNodes.window = $(window)
-        if ('document' in context)
-            domNodes.document = $(context.document)
+        if ('document' in $.global)
+            domNodes.document = $($.global.document)
         return domNodes
     }
     // / endregion
@@ -900,8 +904,8 @@ class Tools {
      * @returns The function name.
      */
     static determineUniqueScopeName(
-        prefix:string = 'callback', suffix:string = '', scope:Object = context,
-        initialUniqueName:string = ''
+        prefix:string = 'callback', suffix:string = '',
+        scope:Object = $.global, initialUniqueName:string = ''
     ):string {
         if (initialUniqueName.length && !(initialUniqueName in scope))
             return initialUniqueName
@@ -1165,8 +1169,7 @@ class Tools {
      * @returns List of given sorted keys.
      */
     static forEachSorted(
-        object:mixed, iterator:(key:any, value:any) => any,
-        context:Object
+        object:mixed, iterator:(key:any, value:any) => any, context:Object
     ):Array<any> {
         const keys:Array<any> = Tools.sort(object)
         for (const key:any of keys)
@@ -1703,7 +1706,7 @@ class Tools {
      */
     static stringHasPathPrefix(
         prefix:?string = '/admin',
-        path:string = 'location' in context && location.pathname || '',
+        path:string = 'location' in $.global && location.pathname || '',
         separator:string = '/'
     ):boolean {
         if (typeof prefix === 'string') {
@@ -1725,8 +1728,8 @@ class Tools {
      * @returns Extracted domain.
      */
     static stringGetDomainName(
-        url:string = 'location' in context && location.href || '',
-        fallback:any = 'location' in context && location.hostname || ''
+        url:string = 'location' in $.global && location.href || '',
+        fallback:any = 'location' in $.global && location.hostname || ''
     ):any {
         const result:Array<?string> =
             /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
@@ -1748,7 +1751,7 @@ class Tools {
      * @returns Extracted port number.
      */
     static stringGetPortNumber(
-        url:string = 'location' in context && location.href || '',
+        url:string = 'location' in $.global && location.href || '',
         fallback:any = null, parameter:Array<string> = []
     ):number {
         const result:Array<?string> =
@@ -1759,7 +1762,7 @@ class Tools {
             return fallback
         if (Tools.stringIsInternalURL.apply(
             this, [url].concat(parameter)
-            ) && 'location' in context && location.port &&
+            ) && 'location' in $.global && location.port &&
             parseInt(location.port, 10)
         )
             return parseInt(location.port, 10)
@@ -1775,8 +1778,8 @@ class Tools {
      * returns Extracted protocol.
      */
     static stringGetProtocolName(
-        url:string = 'location' in context && location.href || '',
-        fallback:any = 'location' in context &&
+        url:string = 'location' in $.global && location.href || '',
+        fallback:any = 'location' in $.global &&
             location.protocol.substring(0, location.protocol.length - 1) || ''
     ):any {
         const result:Array<?string> = /^([a-z]+):\/\//i.exec(url)
@@ -1810,7 +1813,7 @@ class Tools {
     static stringGetURLVariable(
         keyToGet:string, givenInput:?string, subDelimiter:string = '$',
         hashedPathIndicator:string = '!', givenSearch:?string,
-        givenHash:?string = 'location' in context && location.hash || ''
+        givenHash:?string = 'location' in $.global && location.hash || ''
     ):Array<string>|string {
         // region set search and hash
         let hash:string = (givenHash) ? givenHash : '#'
@@ -1831,7 +1834,7 @@ class Tools {
             const subSearchStartIndex:number = pathAndSearch.indexOf('?')
             if (subSearchStartIndex !== -1)
                 search = pathAndSearch.substring(subSearchStartIndex)
-        } else if ('location' in context)
+        } else if ('location' in $.global)
             search = location.search || ''
         let input:string = (givenInput) ? givenInput : search
         // endregion
@@ -1891,7 +1894,7 @@ class Tools {
      * second (or current).
      */
     static stringIsInternalURL(
-        firstURL:string, secondURL:string = 'location' in context &&
+        firstURL:string, secondURL:string = 'location' in $.global &&
         location.href || ''
     ):boolean {
         const explicitDomainName:string = Tools.stringGetDomainName(
@@ -2479,8 +2482,8 @@ class Tools {
      * @returns Decoded html string.
      */
     static stringDecodeHTMLEntities(htmlString:string):?string {
-        if ('document' in context) {
-            const textareaDomNode = context.document.createElement('textarea')
+        if ('document' in $.global) {
+            const textareaDomNode = $.global.document.createElement('textarea')
             textareaDomNode.innerHTML = htmlString
             return textareaDomNode.value
         }

@@ -31,9 +31,9 @@ else
         require('script!qunitjs') && window.QUnit)
 browserAPI((browserAPI:BrowserAPI):void => {
     const $:any = function():any {
-        return $.context.querySelectorAll
+        return $.context.querySelectorAll.apply($.context, arguments)
     }
-    $.context = browserAPI.window.document
+    $.context = browserAPI.window.document;
     (global || window).$ = $
     require('./index')
     // region configuration
