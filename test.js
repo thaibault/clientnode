@@ -30,14 +30,23 @@ else
     QUnit = DEBUG ? require('qunitjs') : (
         require('script!qunitjs') && window.QUnit)
 browserAPI((browserAPI:BrowserAPI):void => {
-    const $:any = function():any {
-        return $.context.querySelectorAll.apply($.context, arguments)
+    const $:any = function(parameter:any):any {
+        if (typeof parameter === 'string') {
+            const $domNodes:Array<any> = $.context.querySelectorAll.apply(
+                browserAPI.window.document, arguments)
+            for (const key:string in $.fn)
+                if ($.fn.hasOwnProperty(key))
+                    $domNodes[key] = $.fn[key].bind($domNodes)
+            return $domNodes
+        }
+        return parameter
     }
+    $.fn = {}
     $.context = browserAPI.window.document;
-    (global || window).$ = $
+    (window || global).$ = $
     require('./index')
     // region configuration
-    QUnit.config = $.Tools.extendObject(QUnit.config || {}, {
+    QUnit.config = $.Tools.class.extendObject(QUnit.config || {}, {
         /*
         notrycatch: true,
         noglobals: true,

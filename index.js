@@ -71,9 +71,18 @@ else {
         'document' in globalContext &&
         'querySelectorAll' in globalContext.document
     ) ? globalContext.document.querySelectorAll : ():null => null
-    $ = function():any {
-        return selector.apply(globalContext.document, arguments)
+    $ = function(parameter:any):any {
+        if (typeof parameter === 'string') {
+            const $domNodes:Array<any> = selector.apply(
+                globalContext.document, arguments)
+            for (const key:string in $.fn)
+                if ($.fn.hasOwnProperty(key))
+                    $domNodes[key] = $.fn[key].bind($domNodes)
+            return $domNodes
+        }
+        return parameter
     }
+    $.fn = {}
 }
 if (!('document' in globalContext) && 'context' in $)
     globalContext.document = $.context
