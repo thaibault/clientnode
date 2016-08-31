@@ -81,19 +81,15 @@ const globalContext:Object = (():Object => {
 let $:any
 if ('$' in globalContext)
     $ = globalContext.$
-else
-    try {
-        // IgnoreTypeCheck
-        $ = require('jquery')
-    } catch (error) {
-        const selector:any = (
-            'document' in globalContext &&
-            'querySelectorAll' in globalContext.document
-        ) ? globalContext.document.querySelectorAll : ():null => null
-        $ = function():any {
-            return selector.apply(globalContext.document, arguments)
-        }
+else {
+    const selector:any = (
+        'document' in globalContext &&
+        'querySelectorAll' in globalContext.document
+    ) ? globalContext.document.querySelectorAll : ():null => null
+    $ = function():any {
+        return selector.apply(globalContext.document, arguments)
     }
+}
 if (!('document' in globalContext) && 'context' in $)
     globalContext.document = $.context
 $.global = globalContext
