@@ -21,6 +21,8 @@
 import type {DomNode, PlainObject} from 'webOptimizer/type'
 // endregion
 // region types
+export type GetterFunction = (keyOrValue:any) => any
+export type SetterFunction = (key:any, value:any) => any
 export type Position = {
     top?:number;
     left?:number;
@@ -51,23 +53,6 @@ export type $DomNode = {
     submit():$DomNode;
     width():number;
     Tools(functionName:string, ...additionalArguments:Array<any>):any;
-}
-export type $Deferred<Type> = {
-    always:() => $Deferred<Type>;
-    resolve:() => $Deferred<Type>;
-    done:() => $Deferred<Type>;
-    fail:() => $Deferred<Type>;
-    isRejected:() => $Deferred<Type>;
-    isResolved:() => $Deferred<Type>;
-    notify:() => $Deferred<Type>;
-    notifyWith:() => $Deferred<Type>;
-    progress:() => $Deferred<Type>;
-    promise:() => $Deferred<Type>;
-    reject:() => $Deferred<Type>;
-    rejectWith:() => $Deferred<Type>;
-    resolveWith:() => $Deferred<Type>;
-    state:() => $Deferred<Type>;
-    then:() => $Deferred<Type>;
 }
 // endregion
 const globalContext:Object = (():Object => {
@@ -196,6 +181,9 @@ class Tools {
                 return 11
         return version
     })()
+    static noop = ('noop' in $) ? $.noop() : ():void => {}
+    static specialRegexSequences:Array<string> = [
+        '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}']
     static transitionEndEventNames:string = 'transitionend ' +
         'webkitTransitionEnd oTransitionEnd MSTransitionEnd'
     static consoleMethodNames:Array<string> = [
@@ -270,8 +258,7 @@ class Tools {
             $.global.console = {}
         for (const methodName:string of this.constructor.consoleMethodNames)
             if (!(methodName in $.global.console))
-                $.global.console[methodName] = 'noop' in $ ? $.noop() : (
-                ):void => {}
+                $.global.console[methodName] = this.constructor.noop
         if (
             !this.constructor._javaScriptDependentContentHandled &&
             'document' in $.global
@@ -310,7 +297,7 @@ class Tools {
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
         */
-        this._options = $.extend(
+        this._options = this.constructor.extendObject(
             true, {}, this._defaultOptions, this._options, options)
         /*
             The selector prefix should be parsed after extending options
@@ -339,7 +326,8 @@ class Tools {
         if (typeof object === 'function') {
             object = new object($domNode)
             if (!object instanceof Tools)
-                object = $.extend(true, new Tools(), object)
+                object = this.constructor.extendObject(
+                    true, new Tools(), object)
         }
         parameter = $.makeArray(parameter)
         if ($domNode && !$domNode.data(object.constructor._name))
@@ -407,6 +395,46 @@ class Tools {
         return this
     }
     // / endregion
+    // / region boolean
+    /**
+     * Checks weather one of the given pattern matches given string.
+     * @param target - Target to check in pattern for.
+     * @param pattern - List of pattern to check for.
+     * @returns Value "true" if given object is matches by at leas one of the
+     * given pattern and "false" otherwise.
+     */
+    static isAnyMatching(target:string, pattern:Array<string|RegExp>):boolean {
+        for (const currentPattern:RegExp|string of pattern)
+            if (typeof currentPattern === 'string') {
+                if (currentPattern === target)
+                    return true
+            } else if (currentPattern.test(target))
+                return true
+        return false
+    }
+    /**
+     * Checks weather given object is a plain native object.
+     * @param object - Object to check.
+     * @returns Value "true" if given object is a plain javaScript object and
+     * "false" otherwise.
+     */
+    static isPlainObject(object:mixed):boolean {
+        return (
+            typeof object === 'object' && object !== null &&
+            Object.getPrototypeOf(object) === Object.prototype)
+    }
+    /**
+     * Checks weather given object is a function.
+     * @param object - Object to check.
+     * @returns Value "true" if given object is a function and "false"
+     * otherwise.
+     */
+    static isFunction(object:mixed):boolean {
+        return Boolean(object) && {}.toString.call(
+            object
+        ) === '[object Function]'
+    }
+    // / endregion
     // / region language fixes
     /**
      * This method fixes an ugly javaScript bug. If you add a mouseout event
@@ -472,7 +500,7 @@ class Tools {
             }
             if (message)
                 if (!('console' in $.global && level in $.global.console) || (
-                    'noop' in $ && $.global.console[level] === $.noop()
+                    $.global.console[level] === this.constructor.noop
                 )) {
                     if ('alert' in $.global)
                         $.global.alert(message)
@@ -694,7 +722,8 @@ class Tools {
      * @returns Returns one of "above", "left", "below", "right" or "in".
      */
     getPositionRelativeToViewport(delta:Position = {}):RelativePosition {
-        delta = $.extend({top: 0, left: 0, bottom: 0, right: 0}, delta)
+        delta = this.constructor.extendObject(
+            {top: 0, left: 0, bottom: 0, right: 0}, delta)
         if (
             'window' in $.global && this.$domNode && this.$domNode.length &&
             this.$domNode[0]
@@ -1086,6 +1115,313 @@ class Tools {
     // / endregion
     // / region object
     /**
+     * Replaces given pattern in each value in given object recursively with
+     * given string replacement.
+     * @param object - Object to convert substrings in.
+     * @param pattern - Regular expression to replace.
+     * @param replacement - String to use as replacement for found patterns.
+     * @returns Converted object with replaced patterns.
+     */
+    static convertSubstringInPlainObject(
+        object:PlainObject, pattern:RegExp, replacement:string
+    ):PlainObject {
+        for (const key:string in object)
+            if (object.hasOwnProperty(key))
+                if (Tools.isPlainObject(object[key]))
+                    object[key] = Tools.convertSubstringInPlainObject(
+                        object[key], pattern, replacement)
+                else if (typeof object[key] === 'string')
+                    object[key] = object[key].replace(pattern, replacement)
+        return object
+    }
+    /**
+     * Extends given target object with given sources object. As target and
+     * sources many expandable types are allowed but target and sources have to
+     * to come from the same type.
+     * @param targetOrDeepIndicator - Maybe the target or deep indicator.
+     * @param _targetAndOrSources - Target and at least one source object.
+     * @returns Returns given target extended with all given sources.
+     */
+    static extendObject(
+        targetOrDeepIndicator:boolean|any, ..._targetAndOrSources:Array<any>
+    ):any {
+        let index:number = 1
+        let deep:boolean = false
+        let target:mixed
+        if (typeof targetOrDeepIndicator === 'boolean') {
+            // Handle a deep copy situation and skip deep indicator and target.
+            deep = targetOrDeepIndicator
+            target = arguments[index]
+            index = 2
+        } else
+            target = targetOrDeepIndicator
+        const mergeValue = (key:string, value:any, targetValue:any):any => {
+            if (value === targetValue)
+                return targetValue
+            // Recurse if we're merging plain objects or maps.
+            if (deep && value && (
+                Tools.isPlainObject(value) || value instanceof Map
+            )) {
+                let clone:any
+                if (value instanceof Map)
+                    clone = targetValue && (
+                        targetValue instanceof Map
+                    ) ? targetValue : new Map()
+                else
+                    clone = targetValue && Tools.isPlainObject(
+                        targetValue
+                    ) ? targetValue : {}
+                return Tools.extendObject(deep, clone, value)
+            }
+            return value
+        }
+        while (index < arguments.length) {
+            const source:any = arguments[index]
+            let targetType:string = typeof target
+            let sourceType:string = typeof source
+            if (target instanceof Map)
+                targetType += ' Map'
+            if (source instanceof Map)
+                sourceType += ' Map'
+            if (targetType === sourceType && target !== source)
+                if (target instanceof Map && source instanceof Map)
+                    for (const [key:string, value:any] of source)
+                        target.set(key, mergeValue(key, value, target.get(
+                            key)))
+                else if (Tools.isPlainObject(target) && Tools.isPlainObject(
+                    source
+                )) {
+                    for (const key:string in source)
+                        if (source.hasOwnProperty(key))
+                            target[key] = mergeValue(
+                                key, source[key], target[key])
+                } else
+                    target = source
+            else
+                target = source
+            index += 1
+        }
+        return target
+    }
+    /**
+     * Removes a proxies from given data structure recursivley.
+     * @param object - Object to proxy.
+     * @param seenObjects - Tracks all already processed obejcts to avoid
+     * endless loops (usually only needed for internal prupose).
+     * @returns Returns given object unwrapped from a dynamic proxy.
+     */
+    static unwrapProxy(object:any, seenObjects:Array<any> = []):any {
+        if (object !== null && typeof object === 'object') {
+            while (object.__target__)
+                object = object.__target__
+            const index:number = seenObjects.indexOf(object)
+            if (index !== -1)
+                return seenObjects[index]
+            seenObjects.push(object)
+            if (Array.isArray(object)) {
+                let index:number = 0
+                for (const value:mixed of object) {
+                    object[index] = Tools.unwrapProxy(value, seenObjects)
+                    index += 1
+                }
+            } else if (object instanceof Map)
+                for (const [key:mixed, value:mixed] of object)
+                    object.set(key, Tools.unwrapProxy(value, seenObjects))
+            else
+                for (const key:string in object)
+                    if (object.hasOwnProperty(key))
+                        object[key] = Tools.unwrapProxy(
+                            object[key], seenObjects)
+        }
+        return object
+    }
+    /**
+     * Adds dynamic getter and setter to any given data structure such as maps.
+     * @param object - Object to proxy.
+     * @param getterWrapper - Function to wrap each property get.
+     * @param setterWrapper - Function to wrap each property set.
+     * @param getterMethodName - Method name to get a stored value by key.
+     * @param setterMethodName - Method name to set a stored value by key.
+     * @param containesMethodName - Method name to indicate if a key is stored
+     * in given data structure.
+     * @param deep - Indicates to perform a deep wrapping of specified types.
+     * performed via "value instanceof type".).
+     * @param typesToExtend - Types which should be extended (Checks are
+     * performed via "value instanceof type".).
+     * @returns Returns given object wrapped with a dynamic getter proxy.
+     */
+    static addDynamicGetterAndSetter<Value>(
+        object:Value, getterWrapper:GetterFunction = (value:any):any => value,
+        setterWrapper:SetterFunction = (key:any, value:any):any => value,
+        getterMethodName:string = '[]', setterMethodName:string = '[]',
+        containesMethodName:string = 'hasOwnProperty', deep:boolean = true,
+        typesToExtend:Array<mixed> = [Object]
+    ):Value {
+        if (deep)
+            if (object instanceof Map)
+                for (const [key:mixed, value:mixed] of object)
+                    object.set(key, Tools.addDynamicGetterAndSetter(
+                        value, getterWrapper, setterWrapper, getterMethodName,
+                        setterMethodName, containesMethodName, deep,
+                        typesToExtend))
+            else if (typeof object === 'object' && object !== null) {
+                for (const key:string in object)
+                    if (object.hasOwnProperty(key))
+                        object[key] = Tools.addDynamicGetterAndSetter(
+                            object[key], getterWrapper, setterWrapper,
+                            getterMethodName, setterMethodName,
+                            containesMethodName, deep, typesToExtend)
+            } else if (Array.isArray(object)) {
+                let index:number = 0
+                for (const value:mixed of object) {
+                    object[index] = Tools.addDynamicGetterAndSetter(
+                        value, getterWrapper, setterWrapper, getterMethodName,
+                        setterMethodName, containesMethodName, deep,
+                        typesToExtend)
+                    index += 1
+                }
+            }
+        for (const type:mixed of typesToExtend)
+            if (object instanceof type) {
+                if (object.__target__)
+                    return object
+                const handler:{
+                    has?:(target:Object, name:string) => boolean;
+                    get?:(target:Object, name:string) => any;
+                    set?:(target:Object, name:string) => any
+                } = {}
+                if (containesMethodName)
+                    handler.has = (target:Object, name:string):boolean => {
+                        if (containesMethodName === '[]')
+                            return name in target
+                        return target[containesMethodName](name)
+                    }
+                if (containesMethodName && getterMethodName)
+                    handler.get = (target:Object, name:string):any => {
+                        if (name === '__target__')
+                            return target
+                        if (typeof target[name] === 'function')
+                            return target[name].bind(target)
+                        if (target[containesMethodName](name)) {
+                            if (getterMethodName === '[]')
+                                return getterWrapper(target[name])
+                            return getterWrapper(target[getterMethodName](
+                                name))
+                        }
+                        return target[name]
+                    }
+                if (setterMethodName)
+                    handler.set = (
+                        target:Object, name:string, value:any
+                    ):void => {
+                        if (setterMethodName === '[]')
+                            target[name] = setterWrapper(name, value)
+                        else
+                            target[setterMethodName](name, setterWrapper(
+                                name, value))
+                    }
+                // IgnoreTypeCheck
+                return new Proxy(object, handler)
+            }
+        return object
+    }
+    /**
+     * Searches for nested mappings with given indicator key and resolves
+     * marked values. Additionally all objects are wrapped with a proxy to
+     * dynamically resolve nested properties.
+     * @param object - Given mapping to resolve.
+     * @param parameterDescription - Array of scope names.
+     * @param parameter - Array of values for given scope names. If there is
+     * one missing given object will be added.
+     * @param deep - Indicates weather to perform a recursive resolving.
+     * @param evaluationIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @param executionIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @returns Evaluated given mapping.
+     */
+    static resolveDynamicDataStructure(
+        object:any, parameterDescription:Array<string> = [],
+        parameter:Array<any> = [], deep:boolean = true,
+        evaluationIndicatorKey:string = '__evaluate__',
+        executionIndicatorKey:string = '__execute__'
+    ):any {
+        if (object === null || typeof object !== 'object')
+            return object
+        let configuration:any = object
+        if (deep && configuration && !configuration.__target__)
+            configuration = Tools.addDynamicGetterAndSetter(
+                object, ((value:any):any => Tools.resolveDynamicDataStructure(
+                    value, parameterDescription, parameter, false,
+                    evaluationIndicatorKey, executionIndicatorKey
+                )), (key:any, value:any):any => value, '[]', '')
+        if (parameterDescription.length > parameter.length)
+            parameter.push(configuration)
+        if (Array.isArray(object) && deep) {
+            let index:number = 0
+            for (const value:mixed of object) {
+                object[index] = Tools.resolveDynamicDataStructure(
+                    value, parameterDescription, parameter, deep,
+                    evaluationIndicatorKey, executionIndicatorKey)
+                index += 1
+            }
+        } else
+            for (const key:string in object)
+                if (object.hasOwnProperty(key))
+                    if ([
+                        evaluationIndicatorKey, executionIndicatorKey
+                    ].includes(key))
+                        try {
+                            return Tools.resolveDynamicDataStructure((new (
+                                // IgnoreTypeCheck
+                                Function.prototype.bind.apply(Function, [
+                                    null
+                                ].concat(parameterDescription).concat(((
+                                    key === evaluationIndicatorKey
+                                ) ? 'return ' : '') + object[key])))).apply(
+                                    null, parameter
+                            ), parameterDescription, parameter, false,
+                            evaluationIndicatorKey, executionIndicatorKey)
+                        } catch (error) {
+                            throw Error(
+                                'Error during ' + (
+                                    key === evaluationIndicatorKey ?
+                                        'executing' : 'evaluating'
+                                ) + ` "${object[key]}": ${error}`)
+                        }
+                    else if (deep)
+                        object[key] = Tools.resolveDynamicDataStructure(
+                            object[key], parameterDescription, parameter, deep,
+                            evaluationIndicatorKey, executionIndicatorKey)
+        return object
+    }
+    /**
+     * Converts given object into its serialized json representation by
+     * replacing circular references with a given provided value.
+     * @param object - Object to serialize.
+     * @param determineCicularReferenceValue - Callback to create a fallback
+     * value depending on given redundant value.
+     * @param numberOfSpaces - Number of spaces to use for string formatting.
+     */
+    static convertCircularObjectToJSON(
+        object:Object, determineCicularReferenceValue:((
+            key:string, value:any, seendObjects:Array<any>
+        ) => any) = ():string => '__circularReference__',
+        numberOfSpaces:number = 0
+    ):string {
+        const seenObjects:Array<any> = []
+        return JSON.stringify(object, (key:string, value:any):any => {
+            if (typeof value === 'object' && value !== null) {
+                if (seenObjects.includes(value))
+                    return determineCicularReferenceValue(
+                        key, value, seenObjects)
+                seenObjects.push(value)
+                return value
+            }
+            return value
+        }, numberOfSpaces)
+    }
+    /**
      * Converts given plain object and all nested found objects to
      * corresponding map.
      * @param object - Object to convert to.
@@ -1095,7 +1431,7 @@ class Tools {
     static convertPlainObjectToMap<Value>(
         object:Value, deep:boolean = true
     ):Value|Map<any, any> {
-        if (typeof object === 'object' && $.isPlainObject(object)) {
+        if (typeof object === 'object' && Tools.isPlainObject(object)) {
             const newObject:Map<any, any> = new Map()
             for (const key:string in object)
                 if (object.hasOwnProperty(key)) {
@@ -1140,7 +1476,7 @@ class Tools {
             return newObject
         }
         if (deep)
-            if (typeof object === 'object' && $.isPlainObject(object)) {
+            if (typeof object === 'object' && Tools.isPlainObject(object)) {
                 for (const key:string in object)
                     if (object.hasOwnProperty(key))
                         object[key] = Tools.convertMapToPlainObject(
@@ -1235,7 +1571,7 @@ class Tools {
             )
         )
             return true
-        if ($.isPlainObject(firstValue) && $.isPlainObject(
+        if (Tools.isPlainObject(firstValue) && Tools.isPlainObject(
             secondValue
         ) && !(
             firstValue instanceof RegExp || secondValue instanceof RegExp
@@ -1534,12 +1870,14 @@ class Tools {
     ):Array<any> {
         const containingData:Array<any> = []
         for (const initialItem:any of firstSet)
-            if ($.isPlainObject(initialItem))
+            if (Tools.isPlainObject(initialItem))
                 for (const newItem:any of secondSet) {
                     let exists:boolean = true
                     let iterateGivenKeys:boolean
                     const keysAreAnArray:boolean = Array.isArray(keys)
-                    if ($.isPlainObject(keys) || keysAreAnArray && keys.length)
+                    if (Tools.isPlainObject(
+                        keys
+                    ) || keysAreAnArray && keys.length)
                         iterateGivenKeys = true
                     else {
                         iterateGivenKeys = false

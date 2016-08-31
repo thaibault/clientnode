@@ -37,7 +37,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
     (global || window).$ = $
     require('./index')
     // region configuration
-    QUnit.config = $.extend(QUnit.config || {}, {
+    QUnit.config = $.Tools.extendObject(QUnit.config || {}, {
         /*
         notrycatch: true,
         noglobals: true,
@@ -105,6 +105,49 @@ browserAPI((browserAPI:BrowserAPI):void => {
             testValue = false
         }), tools)
         assert.notOk(testValue)
+    })
+    // // endregion
+    // // region boolean
+    QUnit.test('isAnyMatching', (assert:Object):void => {
+        for (const test:Array<any> of [
+            ['', ['']],
+            ['test', [/test/]],
+            ['test', [/a/, /b/, /es/]],
+            ['test', ['', 'test']]
+        ])
+            assert.ok($.Tools.isAnyMatching.apply($.Tools, test))
+        for (const test:Array<any> of [
+            ['', []],
+            ['test', [/tes$/]],
+            ['test', [/^est/]],
+            ['test', [/^est$/]],
+            ['test', ['a']]
+        ])
+            assert.notOk($.Tools.isAnyMatching.apply($.Tools, test))
+    })
+    QUnit.test('isPlainObject', (assert:Object):void => {
+        for (const okValue:any of [
+            {},
+            {a: 1},
+            /* eslint-disable no-new-object */
+            new Object()
+            /* eslint-enable no-new-object */
+        ])
+            assert.ok($.Tools.isPlainObject(okValue))
+        for (const notOkValue:any of [
+            new String(), Object, null, 0, 1, true, undefined
+        ])
+            assert.notOk($.Tools.isPlainObject(notOkValue))
+    })
+    QUnit.test('isFunction', (assert:Object):void => {
+        for (const okValue:any of [
+            Object, new Function('return 1'), function():void {}, ():void => {}
+        ])
+            assert.ok($.Tools.isFunction(okValue))
+        for (const notOkValue:any of [
+            null, false, 0, 1, undefined, {}, new Boolean()
+        ])
+            assert.notOk($.Tools.isFunction(notOkValue))
     })
     // // endregion
     // // region language fixes
@@ -527,6 +570,216 @@ browserAPI((browserAPI:BrowserAPI):void => {
     })
     // // endregion
     // // region object
+    QUnit.test('convertSubstringInPlainObject', (assert:Object):void => {
+        for (const test:Array<any> of [
+            [{}, /a/, '', {}],
+            [{a: 'a'}, /a/, 'b', {a: 'b'}],
+            [{a: 'aa'}, /a/, 'b', {a: 'ba'}],
+            [{a: 'aa'}, /a/g, 'b', {a: 'bb'}],
+            [{a: {a: 'aa'}}, /a/g, 'b', {a: {a: 'bb'}}]
+        ])
+            assert.deepEqual($.Tools.convertSubstringInPlainObject(
+                test[0], test[1], test[2]
+            ), test[3])
+    })
+    QUnit.test('extendObject', (assert:Object):void => {
+        for (const test:any of [
+            [[[]], []],
+            [[{}], {}],
+            [[{a: 1}], {a: 1}],
+            [[{a: 1}, {a: 2}], {a: 2}],
+            [[{}, {a: 1}, {a: 2}], {a: 2}],
+            [[{}, {a: 1}, {a: 2}], {a: 2}],
+            [[{a: 1, b: {a: 1}}, {a: 2, b: {b: 1}}], {a: 2, b: {b: 1}}],
+            [[[1, 2], [1]], [1]],
+            [[new Map()], new Map()],
+            [[new Map([['a', 1]])], new Map([['a', 1]])],
+            [[new Map([['a', 1]]), new Map([['a', 2]])], new Map([['a', 2]])],
+            [
+                [new Map(), new Map([['a', 1]]), new Map([['a', 2]])],
+                new Map([['a', 2]])
+            ],
+            [
+                [new Map(), new Map([['a', 1]]), new Map([['a', 2]])],
+                new Map([['a', 2]])
+            ],
+            [
+                [
+                    new Map([['a', 1], ['b', new Map([['a', 1]])]]),
+                    new Map([['a', 2], ['b', new Map([['b', 1]])]])
+                ],
+                new Map([['a', 2], ['b', new Map([['b', 1]])]])
+            ],
+            [[true, {}], {}],
+            [
+                [true, {a: 1, b: {a: 1}}, {a: 2, b: {b: 1}}],
+                {a: 2, b: {a: 1, b: 1}}
+            ],
+            [
+                [true, {a: 1, b: {a: []}}, {a: 2, b: {b: 1}}],
+                {a: 2, b: {a: [], b: 1}}
+            ],
+            [[true, {a: {a: [1, 2]}}, {a: {a: [3, 4]}}], {a: {a: [3, 4]}}],
+            [
+                [true, {a: {a: [1, 2]}}, {a: {a: null}}],
+                {a: {a: null}}
+            ],
+            [[true, {a: {a: [1, 2]}}, {a: true}], {a: true}],
+            [[true, {a: {a: [1, 2]}}, false], false],
+            [[true, {a: {a: [1, 2]}}, undefined], undefined],
+            [[true, {a: 1}, {a: 2}, {a: 3}], {a: 3}],
+            [[true, [1], [1, 2]], [1, 2]],
+            [[true, [1, 2], [1]], [1]],
+            [[true, new Map()], new Map()],
+            [
+                [
+                    true, new Map([['a', 1], ['b', new Map([['a', 1]])]]),
+                    new Map([['a', 2], ['b', new Map([['b', 1]])]])
+                ],
+                new Map([['a', 2], ['b', new Map([['a', 1], ['b', 1]])]])
+            ],
+            [
+                [
+                    true, new Map([['a', 1], ['b', new Map([['a', []]])]]),
+                    new Map([['a', 2], ['b', new Map([['b', 1]])]])
+                ],
+                new Map([['a', 2], ['b', new Map([['a', []], ['b', 1]])]])
+            ],
+            [
+                [
+                    true, new Map([['a', new Map([['a', [1, 2]]])]]),
+                    new Map([['a', new Map([['a', [3, 4]]])]])
+                ],
+                new Map([['a', new Map([['a', [3, 4]]])]])
+            ]
+        ])
+            assert.deepEqual(
+                $.Tools.extendObject.apply($.Tools, test[0]), test[1])
+        assert.strictEqual($.Tools.extendObject([1, 2], undefined), undefined)
+        assert.strictEqual($.Tools.extendObject([1, 2], null), null)
+        const target:Object = {a: [1, 2]}
+        $.Tools.extendObject(true, target, {a: [3, 4]})
+        assert.deepEqual(target, {a: [3, 4]})
+    })
+    QUnit.test('unwrapProxy', (assert:Object):void => {
+        for (const test:Array<any> of [
+            [{}, {}],
+            [{a: 'a'}, {a: 'a'}],
+            [{a: 'aa'}, {a: 'aa'}],
+            [{a: {__target__: 2}}, {a: 2}],
+            [{a: {__target__: {__target__: 2}}}, {a: 2}]
+        ])
+            assert.deepEqual($.Tools.unwrapProxy(test[0]), test[1])
+    })
+    QUnit.test('addDynamicGetterAndSetter', (assert:Object):void => {
+        assert.strictEqual($.Tools.addDynamicGetterAndSetter(null), null)
+        assert.strictEqual($.Tools.addDynamicGetterAndSetter(true), true)
+        assert.notDeepEqual($.Tools.addDynamicGetterAndSetter({}), {})
+        assert.ok($.Tools.addDynamicGetterAndSetter({
+        }).__target__ instanceof Object)
+        const mockup = {}
+        assert.strictEqual(
+            $.Tools.addDynamicGetterAndSetter(mockup).__target__, mockup)
+        assert.deepEqual($.Tools.addDynamicGetterAndSetter({}).__target__, {})
+        assert.deepEqual($.Tools.addDynamicGetterAndSetter({a: 1}, (
+            value:any
+        ):any => value + 2).a, 3)
+        assert.deepEqual($.Tools.addDynamicGetterAndSetter({a: {a: 1}}, (
+            value:any
+        ):any => (value instanceof Object) ? value : value + 2).a.a, 3)
+        assert.deepEqual($.Tools.addDynamicGetterAndSetter({a: {a: [{
+            a: 1
+        }]}}, (value:any):any => (value instanceof Object) ? value : value + 2
+        ).a.a[0].a, 3)
+        assert.deepEqual($.Tools.addDynamicGetterAndSetter(
+            {a: {a: 1}}, (value:any):any =>
+                (value instanceof Object) ? value : value + 2,
+            (key:any, value:any):any => value, '[]', '[]', 'hasOwnProperty',
+            false
+        ).a.a, 1)
+        assert.deepEqual($.Tools.addDynamicGetterAndSetter(
+            {a: 1}, (value:any):any =>
+                (value instanceof Object) ? value : value + 2,
+            (key:any, value:any):any => value, '[]', '[]', 'hasOwnProperty',
+            false, []
+        ).a, 1)
+        assert.deepEqual($.Tools.addDynamicGetterAndSetter(
+            {a: new Map([['a', 1]])}, (value:any):any =>
+                (value instanceof Object) ? value : value + 2,
+            (key:any, value:any):any => value, 'get', 'set', 'has', true, [Map]
+        ).a.a, 3)
+    })
+    QUnit.test('resolveDynamicDataStructure', (assert:Object):void => {
+        for (const test:Array<any> of [
+            [[null], null],
+            [[false], false],
+            [['1'], '1'],
+            [[3], 3],
+            [[{}], {}],
+            [[{__evaluate__: '1'}], 1],
+            [[{__evaluate__: "'1'"}], '1'],
+            [[{a: {__evaluate__: "'a'"}}], {a: 'a'}],
+            [[{a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}]], {a: 1}],
+            [
+                [{a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}], false],
+                {a: {__evaluate__: 'self.a'}}
+            ],
+            [
+                [
+                    {a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}], true,
+                    '__run__'
+                ],
+                {a: {__evaluate__: 'self.a'}}
+            ],
+            [
+                [
+                    {a: {__run__: 'self.a'}}, ['self'], [{a: 1}], true,
+                    '__run__'
+                ],
+                {a: 1}
+            ],
+            [
+                [
+                    {a: [{__run__: 'self.a'}]}, ['self'], [{a: 1}], true,
+                    '__run__'
+                ],
+                {a: [1]}
+            ],
+            [[{a: {__evaluate__: 'self.b'}, b: 2}, ['self']], {a: 2, b: 2}],
+            [
+                [{
+                    a: {__evaluate__: 'self.b'},
+                    b: {__evaluate__: 'self.c'},
+                    c: 2
+                }, ['self']],
+                {a: 2, b: 2, c: 2}
+            ],
+            [
+                [{
+                    a: {__execute__: 'return self.b'},
+                    b: {__execute__: 'return self.c'},
+                    c: 2
+                }, ['self']],
+                {a: 2, b: 2, c: 2}
+            ]
+        ])
+            assert.deepEqual($.Tools.resolveDynamicDataStructure.apply(
+                $.Tools, test[0]
+            ), test[1])
+    })
+    QUnit.test('convertCircularObjectToJSON', (assert:Object):void => {
+        let testObject1:Object = {}
+        const testObject2:Object = {a: testObject1}
+        testObject1.a = testObject2
+        for (const test:Array<any> of [
+            [{}, '{}'],
+            [{a: null}, '{"a":null}'],
+            [{a: {a: 2}}, '{"a":{"a":2}}'],
+            [testObject1, '{"a":{"a":"__circularReference__"}}']
+        ])
+            assert.deepEqual(
+                $.Tools.convertCircularObjectToJSON(test[0]), test[1])
+    })
     QUnit.test('convertPlainObjectToMap', (assert:Object):void => {
         for (const test:Array<any> of [
             [[null], null],
