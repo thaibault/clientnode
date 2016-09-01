@@ -138,7 +138,7 @@ $.global = globalContext
  * @property _locks - Mapping of lock descriptions to there corresponding
  * callbacks.
  */
-class Tools {
+export class Tools {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
@@ -2177,6 +2177,43 @@ class Tools {
     // / endregion
     // / region string
     // // region url handling
+    /**
+     * Translates given string into the regular expression validated
+     * representation.
+     * @param value - String to convert.
+     * @param excludeSymbols - Symbols not to escape.
+     * @returns Converted string.
+     */
+    static stringConvertToValidRegularExpression(
+        value:string, excludeSymbols:Array<string> = []
+    ):string {
+        // NOTE: This is only for performance improvements.
+        if (value.length === 1 && !Tools.specialRegexSequences.includes(value))
+            return value
+        // The escape sequence must also be escaped; but at first.
+        if (!excludeSymbols.includes('\\'))
+            value.replace(/\\/g, '\\\\')
+        for (const replace:string of Tools.specialRegexSequences)
+            if (!excludeSymbols.includes(replace))
+                value = value.replace(
+                    new RegExp(`\\${replace}`, 'g'), `\\${replace}`)
+        return value
+    }
+    /**
+     * Translates given name into a valid javaScript one.
+     * @param name - Name to convert.
+     * @param allowedSymbols - String of symbols which should be allowed within
+     * a variable name (not the first character).
+     * @returns Converted name is returned.
+     */
+    static stringConvertToValidVariableName(
+        name:string, allowedSymbols:string = '0-9a-zA-Z_$'
+    ):string {
+        return name.toString().replace(/^[^a-zA-Z_$]+/, '').replace(
+            new RegExp(`[^${allowedSymbols}]+([a-zA-Z0-9])`, 'g'), (
+                fullMatch:string, firstLetter:string
+            ):string => firstLetter.toUpperCase())
+    }
     /**
      * This method is intended for encoding *key* or *value* parts of query
      * component. We need a custom method because "encodeURIComponent()" is too

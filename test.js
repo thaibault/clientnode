@@ -1361,6 +1361,45 @@ browserAPI((browserAPI:BrowserAPI):void => {
         })
         // // endregion
         // // region string
+        QUnit.test('stringConvertToValidRegularExpression', (
+            assert:Object
+        ):void => {
+            for (const test:Array<any> of [
+                [[''], ''],
+                [["that's no regex: .*$"], "that's no regex: \\.\\*\\$"],
+                [
+                    ['-\\[]()^$*+.}-', '}'],
+                    '\\-\\\\[\\]\\(\\)\\^\\$\\*\\+\\.}\\-'
+                ],
+                [[
+                    '-\\[]()^$*+.{}-',
+                    ['[', ']', '(', ')', '^', '$', '*', '+', '.', '{']
+                ], '\\-\\[]()^$*+.{\\}\\-'],
+                [['-', '\\'], '\\-']
+            ])
+                assert.strictEqual(
+                    $.Tools.class.stringConvertToValidRegularExpression.apply(
+                        this, test[0]
+                    ), test[1])
+        })
+        QUnit.test('stringConvertToValidVariableName', (
+            assert:Object
+        ):void => {
+            for (const test:Array<string> of [
+                ['', ''],
+                ['a', 'a'],
+                ['_a', '_a'],
+                ['_a_a', '_a_a'],
+                ['_a-a', '_aA'],
+                ['-a-a', 'aA'],
+                ['-a--a', 'aA'],
+                ['--a--a', 'aA']
+            ])
+                assert.strictEqual(
+                    $.Tools.class.stringConvertToValidVariableName(
+                        test[0]
+                    ), test[1])
+        })
         // /// region url handling
         QUnit.test(`stringEncodeURIComponent (${roundType})`, (
             assert:Object
