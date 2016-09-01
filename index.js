@@ -2076,10 +2076,8 @@ class Tools {
                             index += 1
                         }
                     } else
-                        // IgnoreTypeCheck
                         for (const key:string in keys)
                             if (keys.hasOwnProperty(key))
-                                // IgnoreTypeCheck
                                 if (handle(key, keys[key]) === false)
                                     break
                     if (exists) {
