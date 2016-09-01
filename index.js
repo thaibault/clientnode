@@ -1463,10 +1463,11 @@ class Tools {
         let configuration:any = object
         if (deep && configuration && !configuration.__target__)
             configuration = Tools.addDynamicGetterAndSetter(
-                object, ((value:any):any => Tools.resolveDynamicDataStructure(
-                    value, parameterDescription, parameter, false,
-                    evaluationIndicatorKey, executionIndicatorKey
-                )), (key:any, value:any):any => value, '[]', '')
+                Tools.copyLimitedRecursively(object), ((value:any):any =>
+                    Tools.resolveDynamicDataStructure(
+                        value, parameterDescription, parameter, false,
+                        evaluationIndicatorKey, executionIndicatorKey
+                    )), (key:any, value:any):any => value, '[]', '')
         if (parameterDescription.length > parameter.length)
             parameter.push(configuration)
         if (Array.isArray(object) && deep) {
@@ -2055,23 +2056,23 @@ class Tools {
                             firstSetKey = secondSetKey
                         else if (!iterateGivenKeys)
                             secondSetKey = firstSetKey
-                        if (
-                            newItem[secondSetKey] !==
-                            initialItem[firstSetKey] && (strict || !(
-                                [null, undefined].includes(
-                                    newItem[secondSetKey]
-                                ) && [null, undefined].includes(
-                                    initialItem[firstSetKey]
-                                )))
-                        ) {
+                        if (newItem[secondSetKey] !== initialItem[
+                            firstSetKey
+                        ] && (strict || !(
+                            [null, undefined].includes(
+                                newItem[secondSetKey]
+                            ) && [null, undefined].includes(
+                                initialItem[firstSetKey])
+                        ))) {
                             exists = false
                             return false
                         }
                     }
-                    if (keysAreAnArray) {
+                    if (Array.isArray(keys)) {
                         let index:number = 0
                         for (const key:string of keys) {
-                            handle(index, key)
+                            if (handle(index, key) === false)
+                                break
                             index += 1
                         }
                     } else
@@ -2079,7 +2080,8 @@ class Tools {
                         for (const key:string in keys)
                             if (keys.hasOwnProperty(key))
                                 // IgnoreTypeCheck
-                                handle(key, keys[key])
+                                if (handle(key, keys[key]) === false)
+                                    break
                     if (exists) {
                         containingData.push(initialItem)
                         break

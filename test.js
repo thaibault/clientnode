@@ -892,7 +892,6 @@ browserAPI((browserAPI:BrowserAPI):void => {
             assert:Object
         ):void => {
             for (const test:Array<any> of [
-                /*
                 [[null], null],
                 [[false], false],
                 [['1'], '1'],
@@ -906,7 +905,6 @@ browserAPI((browserAPI:BrowserAPI):void => {
                     [{a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}], false],
                     {a: {__evaluate__: 'self.a'}}
                 ],
-                */
                 [
                     [
                         {a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}],
@@ -951,7 +949,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
             ])
                 assert.deepEqual(
                     $.Tools.class.resolveDynamicDataStructure.apply(
-                        $.Tools, test[0]
+                        this, test[0]
                     ), test[1])
         })
         QUnit.test(`convertCircularObjectToJSON (${roundType})`, (
