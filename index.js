@@ -77,6 +77,7 @@ else {
                 globalContext.document, arguments)
             for (const key:string in $.fn)
                 if ($.fn.hasOwnProperty(key))
+                    // IgnoreTypeCheck
                     $domNodes[key] = $.fn[key].bind($domNodes)
             return $domNodes
         }
@@ -270,7 +271,8 @@ class Tools {
                 $.global.console[methodName] = this.constructor.noop
         if (
             !this.constructor._javaScriptDependentContentHandled &&
-            'document' in $.global
+            'document' in $.global && 'filter' in $ && 'hide' in $ &&
+            'show' in $
         ) {
             this.constructor._javaScriptDependentContentHandled = true
             $(
@@ -344,13 +346,13 @@ class Tools {
             $domNode.data(object.constructor._name, object)
         if (parameter[0] in object)
             return object[parameter[0]].apply(object, parameter.slice(1))
-        else if (parameter.length === 0 || $.type(parameter[0]) === 'object')
+        else if (parameter.length === 0 || typeof parameter[0] === 'object')
             /*
                 If an options object or no method name is given the initializer
                 will be called.
             */
             return object.initialize.apply(object, parameter)
-        $.error(
+        throw Error(
             `Method "${parameter[0]}" does not exist on $-extended dom node ` +
             `"${object.constructor._name}".`)
     }
@@ -499,7 +501,7 @@ class Tools {
                 message = `${this.constructor._name} (${level}): ` +
                     this.constructor.stringFormat.apply(
                         this, additionalArguments)
-            } else if ($.isNumeric(object) || $.type(object) === 'boolean')
+            } else if ($.isNumeric(object) || typeof object === 'boolean')
                 message = `${this.constructor._name} (${level}): ` +
                     object.toString()
             else {
@@ -593,7 +595,7 @@ class Tools {
      */
     static show(object:any, level:number = 3, currentLevel:number = 0):string {
         let output:string = ''
-        if ($.type(object) === 'object') {
+        if (typeof object === 'object') {
             $.each(object, (key:any, value:any):void => {
                 output += `${key.toString()}: `
                 if (currentLevel <= level)
@@ -605,7 +607,7 @@ class Tools {
             return output.trim()
         }
         output = `${object}`.trim()
-        return `${output} (Type: "${$.type(object)}")`
+        return `${output} (Type: "${typeof object}")`
     }
     // / endregion
     // / region dom node
@@ -986,7 +988,8 @@ class Tools {
         if (typeof method === 'string' && typeof scope === 'object')
             return function():void {
                 if (!scope[method] && typeof method === 'string')
-                    $.error(`Method "${method}" doesn't exists in "${scope}".`)
+                    throw Error(
+                        `Method "${method}" doesn't exists in "${scope}".`)
                 parameter = $.makeArray(arguments)
                 scope[method].apply(scope, parameter.concat(
                     additionalArguments))

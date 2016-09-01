@@ -36,6 +36,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
                 browserAPI.window.document, arguments)
             for (const key:string in $.fn)
                 if ($.fn.hasOwnProperty(key))
+                    // IgnoreTypeCheck
                     $domNodes[key] = $.fn[key].bind($domNodes)
             return $domNodes
         }
