@@ -23,7 +23,7 @@
         "clear": "webOptimizer clear",
         "document": "webOptimizer document",
         "lint": "webOptimizer typeCheck && webOptimizer lint",
-        "postinstall": "webOptimizer build",
+        "postinstall": "webOptimizer build || true",
         "preinstall": "webOptimizer preinstall",
         "serve": "webOptimizer serve",
         "start": "npm run serve",
