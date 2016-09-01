@@ -119,20 +119,19 @@ browserAPI((browserAPI:BrowserAPI):void => {
     // // endregion
     // // region boolean
     QUnit.test('isNumeric', (assert:Object):void => {
-        for (const test:Array<any> of [
+        for (const test:any of [
             0,
             1,
             '-10',
             '0',
-            0xFF.
+            0xFF,
             '0xFF',
             '8e5',
             '3.1415',
-            +10,
-            0144
+            +10
         ])
             assert.ok($.Tools.class.isNumeric(test))
-        for (const test:Array<any> of [
+        for (const test:any of [
             null,
             undefined,
             false,
@@ -150,7 +149,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
     })
     QUnit.test('isWindow', (assert:Object):void => {
         assert.ok($.Tools.class.isWindow(browserAPI.window))
-        for (const test:Array<any> of [
+        for (const test:any of [
             null,
             {},
             browserAPI
@@ -163,7 +162,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
             browserAPI.window.document.querySelectorAll('*')
         ])
             assert.ok($.Tools.class.isArrayLike(test))
-        for (const test:Array<any> of [
+        for (const test:any of [
             {},
             null,
             undefined,
@@ -651,7 +650,10 @@ browserAPI((browserAPI:BrowserAPI):void => {
             [function():void {}, 'function'],
             [():void => {}, 'function'],
             [[], 'array'],
+            /* eslint-disable no-array-constructor */
+            // IgnoreTypeCheck
             [new Array(), 'array'],
+            /* eslint-enable no-array-constructor */
             [new Date(), 'date'],
             [new Error(), 'error'],
             [/test/, 'regexp']
@@ -1649,7 +1651,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
                 $.Tools.class.stringRepresentPhoneNumber(test[0]), test[1])
     })
     QUnit.test('stringDecodeHTMLEntities', (assert:Object):void => {
-        for (const test:Array<any> of [
+        for (const test:Array<string> of [
             ['', ''],
             ['<div></div>', '<div></div>'],
             ['<div>&amp;</div>', '<div>&</div>'],
@@ -1660,6 +1662,25 @@ browserAPI((browserAPI:BrowserAPI):void => {
         ])
             assert.equal(
                 $.Tools.class.stringDecodeHTMLEntities(test[0]), test[1])
+    })
+    QUnit.test('normalizeDomNodeSelector', (assert:Object):void => {
+        for (const test:Array<string> of [
+            ['div', 'body div'],
+            ['div, p', 'body div, body p'],
+            ['body div', 'body div'],
+            ['body div, body p', 'body div, body p'],
+            ['', 'body']
+        ])
+            assert.strictEqual(
+                tools.normalizeDomNodeSelector(test[0]), test[1])
+        for (const test:string of [
+            '',
+            'div',
+            'div, p'
+        ])
+            assert.strictEqual($.Tools({
+                domNodeSelectorPrefix: ''
+            }).normalizeDomNodeSelector(test), test)
     })
     // / endregion
     // // region number
@@ -1724,19 +1745,6 @@ browserAPI((browserAPI:BrowserAPI):void => {
             [['body'], false, 'bind']
         ])
             assert.ok(tools._bindHelper.apply(tools, test))
-    })
-    QUnit.test('_grabDomNodeHelper', (assert:Object):void => {
-        assert.strictEqual(
-            tools._grabDomNodeHelper('test', 'div', {}), 'body div')
-        assert.strictEqual(
-            tools._grabDomNodeHelper('test', 'body div', {}), 'body div')
-        assert.strictEqual(tools._grabDomNodeHelper('test', '', {}), 'body')
-        assert.strictEqual($.Tools({
-            domNodeSelectorPrefix: ''
-        })._grabDomNodeHelper('test', '', {}), '')
-        assert.strictEqual($.Tools({
-            domNodeSelectorPrefix: ''
-        })._grabDomNodeHelper('test', 'div', {}), 'div')
     })
     // / endregion
     // endregion

@@ -81,6 +81,11 @@ else {
                     $domNodes[key] = $.fn[key].bind($domNodes)
             return $domNodes
         }
+        /* eslint-disable no-use-before-define */
+        if (Tools.isFunction(parameter) && 'document' in globalContext)
+        /* eslint-enable no-use-before-define */
+            globalContext.document.addEventListener(
+                'DOMContentLoaded', parameter)
         return parameter
     }
     $.fn = {}
@@ -656,7 +661,7 @@ class Tools {
             return output.trim()
         }
         output = `${object}`.trim()
-        return `${output} (Type: "${typeof object}")`
+        return `${output} (Type: "${Tools.determineType(object)}")`
     }
     // / endregion
     // / region dom node
@@ -928,27 +933,24 @@ class Tools {
         if (domNodeSelectors)
             if (wrapperDomNode) {
                 const $wrapperDomNode:$DomNode = $(wrapperDomNode)
-                $.each(domNodeSelectors, (key:string, value:string):void => {
-                    domNodes[key] = $wrapperDomNode.find(value)
-                })
+                for (const name:string in domNodeSelectors)
+                    if (domNodeSelectors.hasOwnProperty(name))
+                        domNodes[name] = $wrapperDomNode.find(
+                            domNodeSelectors[name])
             } else
-                $.each(domNodeSelectors, (key:string, value:string):void => {
-                    const match:?Array<string> = value.match(', *')
-                    if (match)
-                        $.each(value.split(match[0]), (
-                            key:string, valuePart:string
-                        ):void => {
-                            if (key)
-                                value += ', ' + this._grabDomNodeHelper(
-                                    key, valuePart, domNodeSelectors)
-                            else
-                                /* eslint-disable max-statements-per-line */
-                                value = valuePart
-                                /* eslint-enable max-statements-per-line */
-                        })
-                    domNodes[key] = $(this._grabDomNodeHelper(
-                        key, value, domNodeSelectors))
-                })
+                for (const name:string in domNodeSelectors)
+                    if (domNodeSelectors.hasOwnProperty(name)) {
+                        const match:?Array<string> =
+                            domNodeSelectors[name].match(', *')
+                        if (match)
+                            for (const selectorPart:string of domNodeSelectors[
+                                name
+                            ].split(match[0]))
+                                domNodeSelectors[name] += ', ' +
+                                    this.normalizeDomNodeSelector(selectorPart)
+                        domNodes[name] = $(this.normalizeDomNodeSelector(
+                            domNodeSelectors[name]))
+                    }
         if (this._options.domNodeSelectorPrefix)
             domNodes.parent = $(this._options.domNodeSelectorPrefix)
         if ('window' in $.global)
@@ -1181,7 +1183,7 @@ class Tools {
      * @returns Name of determined class.
      */
     static determineType(object:any):string {
-        if ([undefined, null].included(object))
+        if ([undefined, null].includes(object))
             return `${object}`
         if (['object', 'function'].includes(
             typeof object
@@ -1776,7 +1778,7 @@ class Tools {
      * @returns Target array with merged given source one.
      */
     static arrayMerge(target:Array<any>, source:Array<any>):Array<any> {
-        const length:number = +source.length
+        const length:number = Number(source.length)
         let sourceIndex:number = 0
         let targetIndex:number = target.length
         for (;sourceIndex < length; sourceIndex++)
@@ -1789,12 +1791,12 @@ class Tools {
      * @param object - Target to convert.
      * @returns Generated array.
      */
-    static arrayMake(object:any) {
+    static arrayMake(object:any):Array<any> {
         const result:Array<any> = []
         if (![null, undefined].includes(result))
             if (Tools.isArrayLike(Object(object)))
                 Tools.arrayMerge(
-                    result, typeof object === 'string' ? [ object ] : object)
+                    result, typeof object === 'string' ? [object] : object)
             else
                 result.push(object)
         return result
@@ -2931,6 +2933,20 @@ class Tools {
         }
         return null
     }
+    /**
+     * Converts a dom selector to a prefixed dom selector string.
+     * @param selector - A dom node selector.
+     * @returns Returns given selector prefixed.
+     */
+    normalizeDomNodeSelector(selector:string):string {
+        let domNodeSelectorPrefix:string = ''
+        if (this._options.domNodeSelectorPrefix)
+            domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
+        if (!(selector.startsWith(domNodeSelectorPrefix) || selector.trim(
+        ).startsWith('<')))
+            selector = domNodeSelectorPrefix + selector
+        return selector.trim()
+    }
     // / endregion
     // / region number
     /**
@@ -3045,26 +3061,6 @@ class Tools {
         if (removeEvent)
             return $domNode[eventFunctionName].apply($domNode, parameter)
         return $domNode[eventFunctionName].apply($domNode, parameter)
-    }
-    /**
-     * Converts a dom selector to a prefixed dom selector string.
-     * @param key - Current element in options array to grab.
-     * @param selector - A dom node selector.
-     * @param domNodeSelectors - An object with dom node selectors.
-     * @returns Returns given selector prefixed.
-     */
-    _grabDomNodeHelper(
-        key:string, selector:string, domNodeSelectors:{[key:string]:string}
-    ):string {
-        let domNodeSelectorPrefix:string = ''
-        if (this._options.domNodeSelectorPrefix)
-            domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
-        if (!(selector.startsWith(domNodeSelectorPrefix) || selector.trim(
-        ).startsWith('<'))) {
-            domNodeSelectors[key] = domNodeSelectorPrefix + selector
-            return domNodeSelectors[key].trim()
-        }
-        return selector.trim()
     }
     // endregion
 }
