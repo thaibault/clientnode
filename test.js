@@ -902,11 +902,11 @@ browserAPI((browserAPI:BrowserAPI):void => {
                 [[{__evaluate__: "'1'"}], '1'],
                 [[{a: {__evaluate__: "'a'"}}], {a: 'a'}],
                 [[{a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}]], {a: 1}],
-                */
                 [
                     [{a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}], false],
                     {a: {__evaluate__: 'self.a'}}
                 ],
+                */
                 [
                     [
                         {a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}],
