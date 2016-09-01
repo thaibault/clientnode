@@ -118,6 +118,61 @@ browserAPI((browserAPI:BrowserAPI):void => {
     })
     // // endregion
     // // region boolean
+    QUnit.test('isNumeric', (assert:Object):void => {
+        for (const test:Array<any> of [
+            0,
+            1,
+            '-10',
+            '0',
+            0xFF.
+            '0xFF',
+            '8e5',
+            '3.1415',
+            +10,
+            0144
+        ])
+            assert.ok($.Tools.class.isNumeric(test))
+        for (const test:Array<any> of [
+            null,
+            undefined,
+            false,
+            true,
+            '',
+            'a',
+            {},
+            /a/,
+            '-0x42',
+            '7.2acdgs',
+            NaN,
+            Infinity
+        ])
+            assert.notOk($.Tools.class.isNumeric(test))
+    })
+    QUnit.test('isWindow', (assert:Object):void => {
+        assert.ok($.Tools.class.isWindow(browserAPI.window))
+        for (const test:Array<any> of [
+            null,
+            {},
+            browserAPI
+        ])
+            assert.notOk($.Tools.class.isWindow(test))
+    })
+    QUnit.test('isArrayLike', (assert:Object):void => {
+        for (const test:Array<any> of [
+            [],
+            browserAPI.window.document.querySelectorAll('*')
+        ])
+            assert.ok($.Tools.class.isArrayLike(test))
+        for (const test:Array<any> of [
+            {},
+            null,
+            undefined,
+            false,
+            true,
+            /a/
+        ])
+            assert.notOk($.Tools.class.isArrayLike(test))
+    })
     QUnit.test('isAnyMatching', (assert:Object):void => {
         for (const test:Array<any> of [
             ['', ['']],
@@ -125,7 +180,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
             ['test', [/a/, /b/, /es/]],
             ['test', ['', 'test']]
         ])
-            assert.ok($.Tools.isAnyMatching.apply($.Tools, test))
+            assert.ok($.Tools.class.isAnyMatching.apply($.Tools, test))
         for (const test:Array<any> of [
             ['', []],
             ['test', [/tes$/]],
@@ -133,7 +188,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
             ['test', [/^est$/]],
             ['test', ['a']]
         ])
-            assert.notOk($.Tools.isAnyMatching.apply($.Tools, test))
+            assert.notOk($.Tools.class.isAnyMatching.apply($.Tools, test))
     })
     QUnit.test('isPlainObject', (assert:Object):void => {
         for (const okValue:any of [
@@ -143,21 +198,21 @@ browserAPI((browserAPI:BrowserAPI):void => {
             new Object()
             /* eslint-enable no-new-object */
         ])
-            assert.ok($.Tools.isPlainObject(okValue))
+            assert.ok($.Tools.class.isPlainObject(okValue))
         for (const notOkValue:any of [
             new String(), Object, null, 0, 1, true, undefined
         ])
-            assert.notOk($.Tools.isPlainObject(notOkValue))
+            assert.notOk($.Tools.class.isPlainObject(notOkValue))
     })
     QUnit.test('isFunction', (assert:Object):void => {
         for (const okValue:any of [
             Object, new Function('return 1'), function():void {}, ():void => {}
         ])
-            assert.ok($.Tools.isFunction(okValue))
+            assert.ok($.Tools.class.isFunction(okValue))
         for (const notOkValue:any of [
             null, false, 0, 1, undefined, {}, new Boolean()
         ])
-            assert.notOk($.Tools.isFunction(notOkValue))
+            assert.notOk($.Tools.class.isFunction(notOkValue))
     })
     // // endregion
     // // region language fixes
@@ -580,6 +635,29 @@ browserAPI((browserAPI:BrowserAPI):void => {
     })
     // // endregion
     // // region object
+    QUnit.test('determineType', (assert:Object):void => {
+        for (const test:Array<any> of [
+            [undefined, 'undefined'],
+            [{}.notDefined, 'undefined'],
+            [null, 'null'],
+            [true, 'boolean'],
+            [new Boolean(), 'boolean'],
+            [3, 'number'],
+            [new Number(3), 'number'],
+            ['', 'string'],
+            [new String(''), 'string'],
+            ['test', 'string'],
+            [new String('test'), 'string'],
+            [function():void {}, 'function'],
+            [():void => {}, 'function'],
+            [[], 'array'],
+            [new Array(), 'array'],
+            [new Date(), 'date'],
+            [new Error(), 'error'],
+            [/test/, 'regexp']
+        ])
+            assert.strictEqual($.Tools.class.determineType(test[0]), test[1])
+    })
     QUnit.test('convertSubstringInPlainObject', (assert:Object):void => {
         for (const test:Array<any> of [
             [{}, /a/, '', {}],
@@ -664,11 +742,12 @@ browserAPI((browserAPI:BrowserAPI):void => {
             ]
         ])
             assert.deepEqual(
-                $.Tools.extendObject.apply($.Tools, test[0]), test[1])
-        assert.strictEqual($.Tools.extendObject([1, 2], undefined), undefined)
-        assert.strictEqual($.Tools.extendObject([1, 2], null), null)
+                $.Tools.class.extendObject.apply($.Tools, test[0]), test[1])
+        assert.strictEqual(
+            $.Tools.class.extendObject([1, 2], undefined), undefined)
+        assert.strictEqual($.Tools.class.extendObject([1, 2], null), null)
         const target:Object = {a: [1, 2]}
-        $.Tools.extendObject(true, target, {a: [3, 4]})
+        $.Tools.class.extendObject(true, target, {a: [3, 4]})
         assert.deepEqual(target, {a: [3, 4]})
     })
     QUnit.test('unwrapProxy', (assert:Object):void => {
@@ -679,41 +758,42 @@ browserAPI((browserAPI:BrowserAPI):void => {
             [{a: {__target__: 2}}, {a: 2}],
             [{a: {__target__: {__target__: 2}}}, {a: 2}]
         ])
-            assert.deepEqual($.Tools.unwrapProxy(test[0]), test[1])
+            assert.deepEqual($.Tools.class.unwrapProxy(test[0]), test[1])
     })
     QUnit.test('addDynamicGetterAndSetter', (assert:Object):void => {
-        assert.strictEqual($.Tools.addDynamicGetterAndSetter(null), null)
-        assert.strictEqual($.Tools.addDynamicGetterAndSetter(true), true)
-        assert.notDeepEqual($.Tools.addDynamicGetterAndSetter({}), {})
-        assert.ok($.Tools.addDynamicGetterAndSetter({
+        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(null), null)
+        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(true), true)
+        assert.notDeepEqual($.Tools.class.addDynamicGetterAndSetter({}), {})
+        assert.ok($.Tools.class.addDynamicGetterAndSetter({
         }).__target__ instanceof Object)
         const mockup = {}
         assert.strictEqual(
-            $.Tools.addDynamicGetterAndSetter(mockup).__target__, mockup)
-        assert.deepEqual($.Tools.addDynamicGetterAndSetter({}).__target__, {})
-        assert.deepEqual($.Tools.addDynamicGetterAndSetter({a: 1}, (
+            $.Tools.class.addDynamicGetterAndSetter(mockup).__target__, mockup)
+        assert.deepEqual(
+            $.Tools.class.addDynamicGetterAndSetter({}).__target__, {})
+        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter({a: 1}, (
             value:any
         ):any => value + 2).a, 3)
-        assert.deepEqual($.Tools.addDynamicGetterAndSetter({a: {a: 1}}, (
+        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter({a: {a: 1}}, (
             value:any
         ):any => (value instanceof Object) ? value : value + 2).a.a, 3)
-        assert.deepEqual($.Tools.addDynamicGetterAndSetter({a: {a: [{
+        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter({a: {a: [{
             a: 1
         }]}}, (value:any):any => (value instanceof Object) ? value : value + 2
         ).a.a[0].a, 3)
-        assert.deepEqual($.Tools.addDynamicGetterAndSetter(
+        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
             {a: {a: 1}}, (value:any):any =>
                 (value instanceof Object) ? value : value + 2,
             (key:any, value:any):any => value, '[]', '[]', 'hasOwnProperty',
             false
         ).a.a, 1)
-        assert.deepEqual($.Tools.addDynamicGetterAndSetter(
+        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
             {a: 1}, (value:any):any =>
                 (value instanceof Object) ? value : value + 2,
             (key:any, value:any):any => value, '[]', '[]', 'hasOwnProperty',
             false, []
         ).a, 1)
-        assert.deepEqual($.Tools.addDynamicGetterAndSetter(
+        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
             {a: new Map([['a', 1]])}, (value:any):any =>
                 (value instanceof Object) ? value : value + 2,
             (key:any, value:any):any => value, 'get', 'set', 'has', true, [Map]
@@ -773,7 +853,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
                 {a: 2, b: 2, c: 2}
             ]
         ])
-            assert.deepEqual($.Tools.resolveDynamicDataStructure.apply(
+            assert.deepEqual($.Tools.class.resolveDynamicDataStructure.apply(
                 $.Tools, test[0]
             ), test[1])
     })
@@ -980,6 +1060,26 @@ browserAPI((browserAPI:BrowserAPI):void => {
     })
     // // endregion
     // // region array
+    QUnit.test('arrayMerge', (assert:Object):void => {
+        for (const test:Array<any> of [
+            [[], [], []],
+            [[1], [], [1]],
+            [[], [1], [1]],
+            [[1], [1], [1, 1]],
+            [[1, 2, 3, 1], [1, 2, 3], [1, 2, 3, 1]]
+        ])
+            assert.deepEqual(
+                $.Tools.class.arrayMerge(test[0], test[1]), test[2])
+    })
+    QUnit.test('arrayMake', (assert:Object):void => {
+        for (const test:Array<any> of [
+            [[1, 2, 3, 1], [1, 2, 3]],
+            [[1, 2, 3, 1, 2, 3], [1, 2, 3]],
+            [[], []],
+            [[1, 2, 3], [1, 2, 3]]
+        ])
+            assert.deepEqual($.Tools.class.arrayMake(test[0]), test[1])
+    })
     QUnit.test('arrayUnique', (assert:Object):void => {
         for (const test:Array<any> of [
             [[1, 2, 3, 1], [1, 2, 3]],
@@ -1136,6 +1236,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
             [], 2, true
         ), Error("Given target doesn't exists in given list."))
     })
+
     // // endregion
     // // region string
     // /// region url handling

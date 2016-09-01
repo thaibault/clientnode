@@ -341,7 +341,7 @@ class Tools {
                 object = this.constructor.extendObject(
                     true, new Tools(), object)
         }
-        parameter = $.makeArray(parameter)
+        parameter = this.constructor.arrayMake(parameter)
         if ($domNode && !$domNode.data(object.constructor._name))
             // Attach extended object to the associated dom node.
             $domNode.data(object.constructor._name, object)
@@ -408,36 +408,49 @@ class Tools {
     }
     // / endregion
     // / region boolean
-    // TODO TEST
+    /**
+     * Determines whether its argument represents a JavaScript number.
+     * @param object - Object to analyze.
+     * @returns A boolean value indicating whether given object is numeric
+     * like.
+     */
+    static isNumeric(object:any):boolean {
+        const type:string = Tools.determineType(object)
+        /*
+            NOTE: "parseFloat" "NaNs" numeric-cast false positives ("") but
+            misinterprets leading-number strings, particularly hex literals
+            ("0x...") subtraction forces infinities to NaN.
+        */
+        return ['number', 'string'].includes(type) && !isNaN(
+            object - parseFloat(object))
+    }
     /**
      * Determine whether the argument is a window.
      * @param object - Object to check for.
      * @returns Boolean value indicating the result.
      */
     static isWindow(object:any):boolean {
-        return [undefined, null].includes(object) && object === object.window
+        return (
+            ![undefined, null].includes(object) &&
+            typeof object === 'object' && 'window' in object &&
+            object === object.window)
     }
-    // TODO TEST
     /**
      * Checks if given object is similar to an array and can be handled like an
      * array.
      * @param object - Object to check behavior for.
      * @returns A boolean value indicating whether given object is array like.
      */
-    static isArrayLike(object:any) {
-        // Support: real iOS 8.2 only (not reproducible in simulator)
-        // `in` check used to prevent JIT error (gh-2145)
-        // hasOwn isn't used here due to false negatives
-        // regarding Nodelist length in IE
+    static isArrayLike(object:any):boolean {
         const length:number|boolean = Boolean(
             object
         ) && 'length' in object && object.length
         const type:string = Tools.determineType(object)
-        if (type === 'function' || jQuery.isWindow( obj ) ) {
-            return false;
-        }
-        return type === "array" || length === 0 ||
-            typeof length === "number" && length > 0 && ( length - 1 ) in obj;
+        if (type === 'function' || Tools.isWindow(object))
+            return false
+        return (
+            type === 'array' || length === 0 ||
+            typeof length === 'number' && length > 0 && (length - 1) in object)
     }
     /**
      * Checks whether one of the given pattern matches given string.
@@ -533,7 +546,9 @@ class Tools {
                 message = `${this.constructor._name} (${level}): ` +
                     this.constructor.stringFormat.apply(
                         this, additionalArguments)
-            } else if ($.isNumeric(object) || typeof object === 'boolean')
+            } else if (this.constructor.isNumeric(
+                object
+            ) || typeof object === 'boolean')
                 message = `${this.constructor._name} (${level}): ` +
                     object.toString()
             else {
@@ -628,14 +643,16 @@ class Tools {
     static show(object:any, level:number = 3, currentLevel:number = 0):string {
         let output:string = ''
         if (typeof object === 'object') {
-            $.each(object, (key:any, value:any):void => {
-                output += `${key.toString()}: `
-                if (currentLevel <= level)
-                    output += Tools.show(value, level, currentLevel + 1)
-                else
-                    output += `${value}`
-                output += '\n'
-            })
+            for (const key:string in object)
+                if (object.hasOwnProperty(key)) {
+                    output += `${key.toString()}: `
+                    if (currentLevel <= level)
+                        output += Tools.show(
+                            object[key], level, currentLevel + 1)
+                    else
+                        output += `${object[key]}`
+                    output += '\n'
+                }
             return output.trim()
         }
         output = `${object}`.trim()
@@ -1012,9 +1029,9 @@ class Tools {
             doesn't care about that the magic arguments object is necessary to
             generate the arguments array in this context.
 
-            var arguments = $.makeArray(arguments)
+            var arguments = this.constructor.arrayMake(arguments)
         */
-        let parameter:Array<any> = $.makeArray(arguments)
+        let parameter:Array<any> = this.constructor.arrayMake(arguments)
         if (!scope)
             parameter[1] = scope = this
         if (typeof method === 'string' && typeof scope === 'object')
@@ -1022,7 +1039,7 @@ class Tools {
                 if (!scope[method] && typeof method === 'string')
                     throw Error(
                         `Method "${method}" doesn't exists in "${scope}".`)
-                parameter = $.makeArray(arguments)
+                parameter = this.constructor.arrayMake(arguments)
                 scope[method].apply(scope, parameter.concat(
                     additionalArguments))
             }
@@ -1082,7 +1099,7 @@ class Tools {
         let waitingCallArguments:?Array<any> = null
         let timeoutID:?number = null
         return function():?number {
-            const parameter:Array<any> = $.makeArray(arguments)
+            const parameter:Array<any> = Tools.arrayMake(arguments)
             if (lock)
                 waitingCallArguments = parameter.concat(
                     additionalArguments || [])
@@ -1158,7 +1175,6 @@ class Tools {
     }
     // / endregion
     // / region object
-    // TODO test
     /**
      * Determine the internal JavaScript [[Class]] of an object.
      * @param object - Object to analyze.
@@ -1167,11 +1183,10 @@ class Tools {
     static determineType(object:any):string {
         if ([undefined, null].included(object))
             return `${object}`
-        // Support: Android <=2.3 only (functionish RegExp)
         if (['object', 'function'].includes(
             typeof object
-        ) && 'toString' in object &&
-        object.toString() in Tools.classToTypeMapping)
+        ) && 'toString' in object && object.toString(
+        ) in Tools.classToTypeMapping)
             return Tools.classToTypeMapping[object.toString()]
         return typeof object
     }
@@ -1614,7 +1629,9 @@ class Tools {
         ignoreFunctions:boolean = true
     ):boolean {
         if (
-            ignoreFunctions && $.isFunction(firstValue) && $.isFunction(
+            ignoreFunctions && Tools.isFunction(
+                firstValue
+            ) && Tools.isFunction(
                 secondValue
             ) || firstValue === secondValue || Tools.numberIsNotANumber(
                 firstValue
@@ -1752,20 +1769,34 @@ class Tools {
     }
     // / endregion
     // / region array
-    // TODO TEST
+    /**
+     * Merge the contents of two arrays together into the first array.
+     * @param target - Target array.
+     * @param source - Source array.
+     * @returns Target array with merged given source one.
+     */
+    static arrayMerge(target:Array<any>, source:Array<any>):Array<any> {
+        const length:number = +source.length
+        let sourceIndex:number = 0
+        let targetIndex:number = target.length
+        for (;sourceIndex < length; sourceIndex++)
+            target[targetIndex++] = source[sourceIndex]
+        target.length = targetIndex
+        return target
+    }
     /**
      * Converts given object into an array.
      * @param object - Target to convert.
      * @returns Generated array.
      */
-    static makeArray(object:any) {
+    static arrayMake(object:any) {
         const result:Array<any> = []
-        if ([null, undefined].includes(result))
+        if (![null, undefined].includes(result))
             if (Tools.isArrayLike(Object(object)))
-                Tools.merge(
+                Tools.arrayMerge(
                     result, typeof object === 'string' ? [ object ] : object)
             else
-                push.call(result, object)
+                result.push(object)
         return result
     }
     /**
@@ -3006,7 +3037,7 @@ class Tools {
                 this[eventFunctionName]($domNode, eventType, handler))
             return $domNode
         }
-        parameter = $.makeArray(parameter).slice(1)
+        parameter = this.constructor.arrayMake(parameter).slice(1)
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
