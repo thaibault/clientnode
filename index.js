@@ -1012,7 +1012,7 @@ class Tools {
      * Methods given by this method has the plugin scope referenced with
      * "this". Otherwise "this" usually points to the object the given method
      * was attached to. If "method" doesn't match string arguments are passed
-     * through "$.proxy()" with "context" setted as "scope" or "this" if
+     * through a wrapper function with "context" setted as "scope" or "this" if
      * nothing is provided.
      * @param method - A method name of given scope.
      * @param scope - A given scope.
@@ -1045,7 +1045,8 @@ class Tools {
                 scope[method].apply(scope, parameter.concat(
                     additionalArguments))
             }
-        return $.proxy.apply($, parameter)
+        // IgnoreTypeCheck
+        return ():any => method.apply(parameter[0], parameter.slice(1))
     }
     /**
      * Implements the identity function.
@@ -1162,7 +1163,7 @@ class Tools {
      */
     on():$DomNode {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        return this._bindHelper(arguments, false)
+        return this._bindEventHelper(arguments, false)
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
@@ -1173,7 +1174,7 @@ class Tools {
      */
     off():$DomNode {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        return this._bindHelper(arguments, true, 'off')
+        return this._bindEventHelper(arguments, true, 'off')
     }
     // / endregion
     // / region object
@@ -1655,32 +1656,54 @@ class Tools {
             secondValue
         ) && !(
             firstValue instanceof RegExp || secondValue instanceof RegExp
-        ) || $.isArray(firstValue) && $.isArray(
+        ) || Array.isArray(firstValue) && Array.isArray(
             secondValue
         ) && firstValue.length === secondValue.length) {
             for (const [first, second] of [[firstValue, secondValue], [
                 secondValue, firstValue
             ]]) {
-                const firstIsArray:boolean = $.isArray(first)
-                if (firstIsArray && (!$.isArray(
+                const firstIsArray:boolean = Array.isArray(first)
+                if (firstIsArray && (!Array.isArray(
                     second
                 )) || first.length !== second.length)
                     return false
                 let equal:boolean = true
-                $.each(first, (key:string|number, value:any):void => {
-                    if (!firstIsArray) {
-                        if (!equal || properties && !properties.includes(key))
-                            return
-                        for (const exceptionPrefix:string of exceptionPrefixes)
-                            if (key.toString().startsWith(exceptionPrefix))
-                                return
+                if (firstIsArray) {
+                    let index:number = 0
+                    for (const value:any of first) {
+                        if (deep !== 0 && !Tools.equals(
+                            value, second[index], properties, deep - 1,
+                            exceptionPrefixes
+                        ))
+                            equal = false
+                        index += 1
                     }
-                    if (deep !== 0 && !Tools.equals(
-                        value, second[key], properties, deep - 1,
-                        exceptionPrefixes
-                    ))
-                        equal = false
-                })
+                } else
+                    for (const key:string in first)
+                        if (first.hasOwnProperty(key)) {
+                            if (!equal || properties && !properties.includes(
+                                key
+                            ))
+                                break
+                            let doBreak:boolean = false
+                            for (
+                                const exceptionPrefix:string of
+                                exceptionPrefixes
+                            )
+                                if (key.toString().startsWith(
+                                    exceptionPrefix
+                                )) {
+                                    doBreak = true
+                                    break
+                                }
+                            if (doBreak)
+                                break
+                            if (deep !== 0 && !Tools.equals(
+                                first[key], second[key], properties, deep - 1,
+                                exceptionPrefixes
+                            ))
+                                equal = false
+                        }
                 if (!equal)
                     return false
             }
@@ -1733,7 +1756,7 @@ class Tools {
                 }
                 return result
             }
-            if ($.isArray(source))
+            if (Array.isArray(source))
                 for (const item:any of source)
                     destination.push(copyValue(item))
             if (source instanceof Map)
@@ -1744,7 +1767,7 @@ class Tools {
                     if (source.hasOwnProperty(key))
                         destination[key] = copyValue(source[key])
         } else if (source) {
-            if ($.isArray(source))
+            if (Array.isArray(source))
                 return Tools.copyLimitedRecursively(
                     source, recursionLimit, [], stackSource, stackDestination,
                     recursionLevel)
@@ -1752,9 +1775,9 @@ class Tools {
                 return Tools.copyLimitedRecursively(
                     source, recursionLimit, new Map(), stackSource,
                     stackDestination, recursionLevel)
-            if ($.type(source) === 'date')
+            if (Tools.determineType(source) === 'date')
                 return new Date(source.getTime())
-            if ($.type(source) === 'regexp') {
+            if (Tools.determineType(source) === 'regexp') {
                 destination = new RegExp(
                     source.source, source.toString().match(/[^\/]*$/)[0])
                 destination.lastIndex = source.lastIndex
@@ -1895,12 +1918,11 @@ class Tools {
         data:Array<string>, regularExpression:string|RegExp
     ):Array<string> {
         const result:Array<string> = []
-        $.each(data, (index:number, value:string):void => {
+        for (const value:string of data)
             if (((typeof regularExpression === 'string') ? new RegExp(
                 regularExpression
             ) : regularExpression).test(value))
                 result.push(value)
-        })
         return result
     }
     /**
@@ -1976,7 +1998,7 @@ class Tools {
      */
     static arrayIntersect(
         firstSet:Array<any>, secondSet:Array<any>,
-        keys:{[key:string]:string}|Array<string> = [], strict:boolean = true
+        keys:Object|Array<string> = [], strict:boolean = true
     ):Array<any> {
         const containingData:Array<any> = []
         for (const initialItem:any of firstSet)
@@ -1993,7 +2015,7 @@ class Tools {
                         iterateGivenKeys = false
                         keys = initialItem
                     }
-                    $.each(keys, (
+                    const handle:Function = (
                         firstSetKey:string|number, secondSetKey:string|number
                     ):?false => {
                         if (keysAreAnArray && iterateGivenKeys)
@@ -2012,7 +2034,19 @@ class Tools {
                             exists = false
                             return false
                         }
-                    })
+                    }
+                    if (keysAreAnArray) {
+                        let index:number = 0
+                        for (const key:string of keys) {
+                            handle(index, key)
+                            index += 1
+                        }
+                    } else
+                        // IgnoreTypeCheck
+                        for (const key:string in keys)
+                            if (keys.hasOwnProperty(key))
+                                // IgnoreTypeCheck
+                                handle(key, keys[key])
                     if (exists) {
                         containingData.push(initialItem)
                         break
@@ -2306,10 +2340,10 @@ class Tools {
         // endregion
         // region construct data structure
         const variables:Array<string> = []
-        $.each(data, (key:string, value:string):void => {
+        for (let value:string of data) {
             const keyValuePair:Array<string> = value.split('=')
+            let key:string
             try {
-                // IgnoreTypeCheck
                 key = decodeURIComponent(keyValuePair[0])
             } catch (error) {
                 key = ''
@@ -2322,7 +2356,7 @@ class Tools {
             variables.push(key)
             // IgnoreTypeCheck
             variables[key] = value
-        })
+        }
         // endregion
         if (keyToGet)
             // IgnoreTypeCheck
@@ -2506,12 +2540,12 @@ class Tools {
         string:string, ...additionalArguments:Array<any>
     ):string {
         additionalArguments.unshift(string)
-        $.each(additionalArguments, (
-            index:number, value:string|number
-        ):void => {
+        let index:number = 0
+        for (const value:string|number of additionalArguments) {
             string = string.replace(
                 new RegExp(`\\{${index}\\}`, 'gm'), `${value}`)
-        })
+            index += 1
+        }
         return string
     }
     /**
@@ -2895,7 +2929,7 @@ class Tools {
      * @returns Formatted number.
      */
     static stringRepresentPhoneNumber(phoneNumber:?string|?number):string {
-        if (['number', 'string'].includes($.type(
+        if (['number', 'string'].includes(Tools.determineType(
             phoneNumber
         )) && phoneNumber) {
             // Represent country code and leading area code zero.
@@ -2955,7 +2989,7 @@ class Tools {
      * @returns Returns whether given value is not a number or not.
      */
     static numberIsNotANumber(object:any):boolean {
-        return $.type(object) === 'number' && isNaN(object)
+        return Tools.determineType(object) === 'number' && isNaN(object)
     }
     /**
      * Rounds a given number accurate to given number of digits.
@@ -3039,18 +3073,20 @@ class Tools {
      * @param eventFunctionName - Name of function to wrap.
      * @returns Returns $'s wrapped dom node.
      */
-    _bindHelper(
+    _bindEventHelper(
         parameter:Array<any>, removeEvent:boolean = false,
         eventFunctionName:string = 'on'
     ):$DomNode {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         const $domNode:$DomNode = $(parameter[0])
-        if ($.type(parameter[1]) === 'object' && !removeEvent) {
-            $.each(parameter[1], (
-                eventType:string, handler:Function
-            ):$DomNode =>
-                // IgnoreTypeCheck
-                this[eventFunctionName]($domNode, eventType, handler))
+        if (this.constructor.determineType(
+            parameter[1]
+        ) === 'object' && !removeEvent) {
+            for (const eventType:string in parameter[1])
+                if (parameter[1].hasOwnProperty(eventType))
+                    // IgnoreTypeCheck
+                    this[eventFunctionName](
+                        $domNode, eventType, parameter[1][eventType])
             return $domNode
         }
         parameter = this.constructor.arrayMake(parameter).slice(1)

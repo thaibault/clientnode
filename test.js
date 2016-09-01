@@ -1738,13 +1738,13 @@ browserAPI((browserAPI:BrowserAPI):void => {
     // // endregion
     // / endregion
     // / region protected
-    QUnit.test('_bindHelper', (assert:Object):void => {
+    QUnit.test('_bindEventHelper', (assert:Object):void => {
         for (const test:Array<any> of [
             [['body']],
             [['body'], true],
             [['body'], false, 'bind']
         ])
-            assert.ok(tools._bindHelper.apply(tools, test))
+            assert.ok(tools._bindEventHelper.apply(tools, test))
     })
     // / endregion
     // endregion
