@@ -108,7 +108,7 @@ $.global = globalContext
  * browser specific transition end event names.
  * @property static:consoleMethodNames - This variable contains a collection of
  * methods usually binded to the console object.
- * @property static:_javaScriptDependentContentHandled - Indicates weather
+ * @property static:_javaScriptDependentContentHandled - Indicates whether
  * javaScript dependent content where hide or shown.
  * @property static:_name - Defines this class name to allow retrieving them
  * after name mangling.
@@ -117,7 +117,7 @@ $.global = globalContext
  * @property _options - Options given to the constructor.
  * @property _defaultOptions - Fallback options if not overwritten by the
  * options given to the constructor method.
- * @property _defaultOptions.logging {boolean} - Indicates weather logging
+ * @property _defaultOptions.logging {boolean} - Indicates whether logging
  * should be active.
  * @property _defaultOptions.domNodeSelectorPrefix {string} - Selector prefix
  * for all needed dom nodes.
@@ -136,6 +136,7 @@ class Tools {
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
     static animationEndEventNames:string = 'animationend webkitAnimationEnd ' +
         'oAnimationEnd MSAnimationEnd'
+    static classToTypeMapping:{[key:string]:string} = {}
     static keyCode:{[key:string]:number} = {
         BACKSPACE: 8,
         COMMA: 188,
@@ -407,8 +408,39 @@ class Tools {
     }
     // / endregion
     // / region boolean
+    // TODO TEST
     /**
-     * Checks weather one of the given pattern matches given string.
+     * Determine whether the argument is a window.
+     * @param object - Object to check for.
+     * @returns Boolean value indicating the result.
+     */
+    static isWindow(object:any):boolean {
+        return [undefined, null].includes(object) && object === object.window
+    }
+    // TODO TEST
+    /**
+     * Checks if given object is similar to an array and can be handled like an
+     * array.
+     * @param object - Object to check behavior for.
+     * @returns A boolean value indicating whether given object is array like.
+     */
+    static isArrayLike(object:any) {
+        // Support: real iOS 8.2 only (not reproducible in simulator)
+        // `in` check used to prevent JIT error (gh-2145)
+        // hasOwn isn't used here due to false negatives
+        // regarding Nodelist length in IE
+        const length:number|boolean = Boolean(
+            object
+        ) && 'length' in object && object.length
+        const type:string = Tools.determineType(object)
+        if (type === 'function' || jQuery.isWindow( obj ) ) {
+            return false;
+        }
+        return type === "array" || length === 0 ||
+            typeof length === "number" && length > 0 && ( length - 1 ) in obj;
+    }
+    /**
+     * Checks whether one of the given pattern matches given string.
      * @param target - Target to check in pattern for.
      * @param pattern - List of pattern to check for.
      * @returns Value "true" if given object is matches by at leas one of the
@@ -424,7 +456,7 @@ class Tools {
         return false
     }
     /**
-     * Checks weather given object is a plain native object.
+     * Checks whether given object is a plain native object.
      * @param object - Object to check.
      * @returns Value "true" if given object is a plain javaScript object and
      * "false" otherwise.
@@ -435,7 +467,7 @@ class Tools {
             Object.getPrototypeOf(object) === Object.prototype)
     }
     /**
-     * Checks weather given object is a function.
+     * Checks whether given object is a function.
      * @param object - Object to check.
      * @returns Value "true" if given object is a function and "false"
      * otherwise.
@@ -664,10 +696,10 @@ class Tools {
         return this
     }
     /**
-     * Checks weather given html or text strings are equal.
+     * Checks whether given html or text strings are equal.
      * @param first - First html, selector to dom node or text to compare.
      * @param second - Second html, selector to dom node  or text to compare.
-     * @param forceHTMLString - Indicates weather given contents are
+     * @param forceHTMLString - Indicates whether given contents are
      * interpreted as html string (otherwise an automatic detection will be
      * triggered).
      * @returns Returns true if both dom representations are equivalent.
@@ -1126,6 +1158,23 @@ class Tools {
     }
     // / endregion
     // / region object
+    // TODO test
+    /**
+     * Determine the internal JavaScript [[Class]] of an object.
+     * @param object - Object to analyze.
+     * @returns Name of determined class.
+     */
+    static determineType(object:any):string {
+        if ([undefined, null].included(object))
+            return `${object}`
+        // Support: Android <=2.3 only (functionish RegExp)
+        if (['object', 'function'].includes(
+            typeof object
+        ) && 'toString' in object &&
+        object.toString() in Tools.classToTypeMapping)
+            return Tools.classToTypeMapping[object.toString()]
+        return typeof object
+    }
     /**
      * Replaces given pattern in each value in given object recursively with
      * given string replacement.
@@ -1345,7 +1394,7 @@ class Tools {
      * @param parameterDescription - Array of scope names.
      * @param parameter - Array of values for given scope names. If there is
      * one missing given object will be added.
-     * @param deep - Indicates weather to perform a recursive resolving.
+     * @param deep - Indicates whether to perform a recursive resolving.
      * @param evaluationIndicatorKey - Indicator property name to mark a value
      * to evaluate.
      * @param executionIndicatorKey - Indicator property name to mark a value
@@ -1554,7 +1603,7 @@ class Tools {
      * (default).
      * @param exceptionPrefixes - Property prefixes which indicates properties
      * to ignore.
-     * @param ignoreFunctions - Indicates weather functions have to be
+     * @param ignoreFunctions - Indicates whether functions have to be
      * identical to interpret is as equal. If set to "true" two functions will
      * be assumed to be equal (default).
      * @returns Value "true" if both objects are equal and "false" otherwise.
@@ -1703,6 +1752,22 @@ class Tools {
     }
     // / endregion
     // / region array
+    // TODO TEST
+    /**
+     * Converts given object into an array.
+     * @param object - Target to convert.
+     * @returns Generated array.
+     */
+    static makeArray(object:any) {
+        const result:Array<any> = []
+        if ([null, undefined].includes(result))
+            if (Tools.isArrayLike(Object(object)))
+                Tools.merge(
+                    result, typeof object === 'string' ? [ object ] : object)
+            else
+                push.call(result, object)
+        return result
+    }
     /**
      * Makes all values in given iterable unique by removing duplicates (The
      * first occurrences will be left).
@@ -1871,7 +1936,7 @@ class Tools {
      * @param firstSet - Referenced data to check for.
      * @param secondSet - Data to check for existence.
      * @param keys - Keys to define equality.
-     * @param strict - The strict parameter indicates weather "null" and
+     * @param strict - The strict parameter indicates whether "null" and
      * "undefined" should be interpreted as equal (takes only effect if given
      * keys aren't empty).
      * @returns Data which does exit in given initial data.
@@ -1989,7 +2054,7 @@ class Tools {
      * Removes given target on given list.
      * @param list - Array to splice.
      * @param target - Target to remove from given list.
-     * @param strict - Indicates weather to fire an exception if given target
+     * @param strict - Indicates whether to fire an exception if given target
      * doesn't exists given list.
      * @returns Item with the appended target.
      */
@@ -2018,7 +2083,7 @@ class Tools {
      * aggressive and encodes stuff that doesn't have to be encoded per
      * "http://tools.ietf.org/html/rfc3986:".
      * @param url - URL to encode.
-     * @param encodeSpaces - Indicates weather given url should encode
+     * @param encodeSpaces - Indicates whether given url should encode
      * whitespaces as "+" or "%20".
      * @returns Encoded given url.
      */
@@ -2349,7 +2414,7 @@ class Tools {
      * cased.
      * @param preserveWrongFormattedAbbreviations - If set to "True" wrong
      * formatted camel case abbreviations will be ignored.
-     * @param removeMultipleDelimiter - Indicates weather a series of delimiter
+     * @param removeMultipleDelimiter - Indicates whether a series of delimiter
      * should be consolidated.
      * @returns The formatted string.
      */
@@ -2438,7 +2503,7 @@ class Tools {
      * @param target - String to search for marker.
      * @param mark - String to search in target for.
      * @param marker - HTML template string to mark.
-     * @param caseSensitive - Indicates weather case takes a role during
+     * @param caseSensitive - Indicates whether case takes a role during
      * searching.
      * @returns Processed result.
      */
@@ -2840,7 +2905,7 @@ class Tools {
     /**
      * Checks if given object is java scripts native "Number.NaN" object.
      * @param object - Object to Check.
-     * @returns Returns weather given value is not a number or not.
+     * @returns Returns whether given value is not a number or not.
      */
     static numberIsNotANumber(object:any):boolean {
         return $.type(object) === 'number' && isNaN(object)
