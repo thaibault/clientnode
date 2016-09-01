@@ -38,9 +38,10 @@
     },
     "devDependencies": {
         "jsdom": ">=9.4.1",
+        "jquery": ">=3.1.0",
         "qunitjs": ">=2.0.0",
         "qunit-cli": ">=0.2.0*",
         "source-map-support": ">=0.4.2"
     },
-    "peerDependencies": {"jquery": ">=3.1.0"}
+    "peerDependencies": {"jquery": "*"}
 }

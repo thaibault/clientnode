@@ -55,6 +55,7 @@ export type $DomNode = {
     Tools(functionName:string, ...additionalArguments:Array<any>):any;
 }
 // endregion
+// region determine context
 const globalContext:Object = (():Object => {
     if (typeof window === 'undefined') {
         if (typeof global === 'undefined')
@@ -75,10 +76,11 @@ else {
         if (typeof parameter === 'string') {
             const $domNodes:Array<any> = selector.apply(
                 globalContext.document, arguments)
-            for (const key:string in $.fn)
-                if ($.fn.hasOwnProperty(key))
-                    // IgnoreTypeCheck
-                    $domNodes[key] = $.fn[key].bind($domNodes)
+            if ('fn' in $)
+                for (const key:string in $.fn)
+                    if ($.fn.hasOwnProperty(key))
+                        // IgnoreTypeCheck
+                        $domNodes[key] = $.fn[key].bind($domNodes)
             return $domNodes
         }
         /* eslint-disable no-use-before-define */
@@ -93,6 +95,7 @@ else {
 if (!('document' in globalContext) && 'context' in $)
     globalContext.document = $.context
 $.global = globalContext
+// endregion
 // region plugins/classes
 /**
  * This plugin provides such interface logic like generic controller logic for
@@ -141,7 +144,17 @@ class Tools {
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
     static animationEndEventNames:string = 'animationend webkitAnimationEnd ' +
         'oAnimationEnd MSAnimationEnd'
-    static classToTypeMapping:{[key:string]:string} = {}
+    static classToTypeMapping:{[key:string]:string} = {
+        '[object Array]': 'array',
+        '[object Boolean]': 'boolean',
+        '[object Date]': 'date',
+        '[object Error]': 'error',
+        '[object Function]': 'function',
+        '[object Number]': 'number',
+        '[object Object]': 'object',
+        '[object RegExp]': 'regexp',
+        '[object String]': 'string'
+    }
     static keyCode:{[key:string]:number} = {
         BACKSPACE: 8,
         COMMA: 188,
@@ -300,7 +313,8 @@ class Tools {
      * @returns Returns the current instance.
      */
     destructor():Tools {
-        this.off('*')
+        if ('off' in $.fn)
+            this.off('*')
         return this
     }
     /**
@@ -347,7 +361,9 @@ class Tools {
                     true, new Tools(), object)
         }
         parameter = this.constructor.arrayMake(parameter)
-        if ($domNode && !$domNode.data(object.constructor._name))
+        if ($domNode && 'data' in $domNode && !$domNode.data(
+            object.constructor._name
+        ))
             // Attach extended object to the associated dom node.
             $domNode.data(object.constructor._name, object)
         if (parameter[0] in object)
@@ -447,15 +463,27 @@ class Tools {
      * @returns A boolean value indicating whether given object is array like.
      */
     static isArrayLike(object:any):boolean {
-        const length:number|boolean = Boolean(
-            object
-        ) && 'length' in object && object.length
+        let length:number|boolean
+        try {
+            length = Boolean(
+                object
+            ) && 'length' in object && object.length
+        } catch (error) {
+            return false
+        }
         const type:string = Tools.determineType(object)
         if (type === 'function' || Tools.isWindow(object))
             return false
-        return (
-            type === 'array' || length === 0 ||
-            typeof length === 'number' && length > 0 && (length - 1) in object)
+        if (type === 'array' || length === 0)
+            return true
+        if (typeof length === 'number' && length > 0)
+            try {
+                /* eslint-disable no-unused-expressions */
+                object[length - 1]
+                /* eslint-enable no-unused-expressions */
+                return true
+            } catch (error) {}
+        return false
     }
     /**
      * Checks whether one of the given pattern matches given string.
@@ -647,7 +675,7 @@ class Tools {
      */
     static show(object:any, level:number = 3, currentLevel:number = 0):string {
         let output:string = ''
-        if (typeof object === 'object') {
+        if (Tools.determineType(object) === 'object') {
             for (const key:string in object)
                 if (object.hasOwnProperty(key)) {
                     output += `${key.toString()}: `
@@ -1033,20 +1061,22 @@ class Tools {
 
             var arguments = this.constructor.arrayMake(arguments)
         */
-        let parameter:Array<any> = this.constructor.arrayMake(arguments)
         if (!scope)
-            parameter[1] = scope = this
+            scope = this
         if (typeof method === 'string' && typeof scope === 'object')
-            return function():void {
+            return function():any {
                 if (!scope[method] && typeof method === 'string')
                     throw Error(
                         `Method "${method}" doesn't exists in "${scope}".`)
-                parameter = this.constructor.arrayMake(arguments)
-                scope[method].apply(scope, parameter.concat(
-                    additionalArguments))
+                return scope[method].apply(scope, additionalArguments.concat(
+                    this.constructor.arrayMake(arguments)))
             }
-        // IgnoreTypeCheck
-        return ():any => method.apply(parameter[0], parameter.slice(1))
+        const self:Tools = this
+        return function():any {
+            // IgnoreTypeCheck
+            return method.apply(scope, additionalArguments.concat(
+                self.constructor.arrayMake(arguments)))
+        }
     }
     /**
      * Implements the identity function.
@@ -1183,14 +1213,17 @@ class Tools {
      * @param object - Object to analyze.
      * @returns Name of determined class.
      */
-    static determineType(object:any):string {
+    static determineType(object:any = undefined):string {
         if ([undefined, null].includes(object))
             return `${object}`
         if (['object', 'function'].includes(
             typeof object
-        ) && 'toString' in object && object.toString(
-        ) in Tools.classToTypeMapping)
-            return Tools.classToTypeMapping[object.toString()]
+        ) && 'toString' in object) {
+            const stringRepresentation:string =
+                Tools.classToTypeMapping.toString.call(object)
+            if (Tools.classToTypeMapping.hasOwnProperty(stringRepresentation))
+                return Tools.classToTypeMapping[stringRepresentation]
+        }
         return typeof object
     }
     /**
