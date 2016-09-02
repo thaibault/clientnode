@@ -64,7 +64,7 @@ const globalContext:Object = (():Object => {
     }
     return window
 })()
-let $:any
+export let $:any
 if ('$' in globalContext)
     $ = globalContext.$
 else {
@@ -3207,8 +3207,6 @@ if ('fn' in $) {
 }
 // / endregion
 // endregion
-/** $ extended with tools plugin. */
-export $
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
