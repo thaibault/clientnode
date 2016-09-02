@@ -1,11 +1,11 @@
 // @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
-/** @module jQuery-tools */
+/** @module tools */
 'use strict'
 /* !
     region header
-    [Project page](http://torben.website/jQuery-tools)
+    [Project page](http://torben.website/tools)
 
     Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
@@ -18,10 +18,11 @@
     endregion
 */
 // region imports
-import $ from 'jquery'
 import type {DomNode, PlainObject} from 'webOptimizer/type'
 // endregion
 // region types
+export type GetterFunction = (keyOrValue:any) => any
+export type SetterFunction = (key:any, value:any) => any
 export type Position = {
     top?:number;
     left?:number;
@@ -53,34 +54,48 @@ export type $DomNode = {
     width():number;
     Tools(functionName:string, ...additionalArguments:Array<any>):any;
 }
-export type $Deferred<Type> = {
-    always:() => $Deferred<Type>;
-    resolve:() => $Deferred<Type>;
-    done:() => $Deferred<Type>;
-    fail:() => $Deferred<Type>;
-    isRejected:() => $Deferred<Type>;
-    isResolved:() => $Deferred<Type>;
-    notify:() => $Deferred<Type>;
-    notifyWith:() => $Deferred<Type>;
-    progress:() => $Deferred<Type>;
-    promise:() => $Deferred<Type>;
-    reject:() => $Deferred<Type>;
-    rejectWith:() => $Deferred<Type>;
-    resolveWith:() => $Deferred<Type>;
-    state:() => $Deferred<Type>;
-    then:() => $Deferred<Type>;
-}
 // endregion
-const context:Object = (():Object => {
-    if ($.type(window) === 'undefined') {
-        if ($.type(global) === 'undefined')
-            return ($.type(module) === 'undefined') ? {} : module
+// region determine context
+const globalContext:Object = (():Object => {
+    if (typeof window === 'undefined') {
+        if (typeof global === 'undefined')
+            return (typeof module === 'undefined') ? {} : module
         return global
     }
     return window
 })()
-if (!('document' in context) && 'context' in $)
-    context.document = $.context
+export let $:any
+if ('$' in globalContext)
+    $ = globalContext.$
+else {
+    const selector:any = (
+        'document' in globalContext &&
+        'querySelectorAll' in globalContext.document
+    ) ? globalContext.document.querySelectorAll : ():null => null
+    $ = function(parameter:any):any {
+        if (typeof parameter === 'string') {
+            const $domNodes:Array<any> = selector.apply(
+                globalContext.document, arguments)
+            if ('fn' in $)
+                for (const key:string in $.fn)
+                    if ($.fn.hasOwnProperty(key))
+                        // IgnoreTypeCheck
+                        $domNodes[key] = $.fn[key].bind($domNodes)
+            return $domNodes
+        }
+        /* eslint-disable no-use-before-define */
+        if (Tools.isFunction(parameter) && 'document' in globalContext)
+        /* eslint-enable no-use-before-define */
+            globalContext.document.addEventListener(
+                'DOMContentLoaded', parameter)
+        return parameter
+    }
+    $.fn = {}
+}
+if (!('document' in globalContext) && 'context' in $)
+    globalContext.document = $.context
+$.global = globalContext
+// endregion
 // region plugins/classes
 /**
  * This plugin provides such interface logic like generic controller logic for
@@ -101,7 +116,7 @@ if (!('document' in context) && 'context' in $)
  * browser specific transition end event names.
  * @property static:consoleMethodNames - This variable contains a collection of
  * methods usually binded to the console object.
- * @property static:_javaScriptDependentContentHandled - Indicates weather
+ * @property static:_javaScriptDependentContentHandled - Indicates whether
  * javaScript dependent content where hide or shown.
  * @property static:_name - Defines this class name to allow retrieving them
  * after name mangling.
@@ -110,7 +125,7 @@ if (!('document' in context) && 'context' in $)
  * @property _options - Options given to the constructor.
  * @property _defaultOptions - Fallback options if not overwritten by the
  * options given to the constructor method.
- * @property _defaultOptions.logging {boolean} - Indicates weather logging
+ * @property _defaultOptions.logging {boolean} - Indicates whether logging
  * should be active.
  * @property _defaultOptions.domNodeSelectorPrefix {string} - Selector prefix
  * for all needed dom nodes.
@@ -123,12 +138,23 @@ if (!('document' in context) && 'context' in $)
  * @property _locks - Mapping of lock descriptions to there corresponding
  * callbacks.
  */
-class Tools {
+export default class Tools {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
     static animationEndEventNames:string = 'animationend webkitAnimationEnd ' +
         'oAnimationEnd MSAnimationEnd'
+    static classToTypeMapping:{[key:string]:string} = {
+        '[object Array]': 'array',
+        '[object Boolean]': 'boolean',
+        '[object Date]': 'date',
+        '[object Error]': 'error',
+        '[object Function]': 'function',
+        '[object Number]': 'number',
+        '[object Object]': 'object',
+        '[object RegExp]': 'regexp',
+        '[object String]': 'string'
+    }
     static keyCode:{[key:string]:number} = {
         BACKSPACE: 8,
         COMMA: 188,
@@ -154,9 +180,9 @@ class Tools {
         UP: 38
     }
     static maximalSupportedInternetExplorerVersion:number = (():number => {
-        if ('document' in context)
+        if (!('document' in $.global))
             return 0
-        const div = context.document.createElement('div')
+        const div = $.global.document.createElement('div')
         let version:number
         for (version = 0; version < 10; version++) {
             /*
@@ -175,15 +201,18 @@ class Tools {
                 break
         }
         // Try special detection for internet explorer 10 and 11.
-        if (version === 0 && 'navigator' in context)
-            if (context.navigator.appVersion.includes('MSIE 10'))
+        if (version === 0 && 'navigator' in $.global)
+            if ($.global.navigator.appVersion.includes('MSIE 10'))
                 return 10
-            else if (context.navigator.userAgent.includes(
+            else if ($.global.navigator.userAgent.includes(
                 'Trident'
-            ) && context.navigator.userAgent.includes('rv:11'))
+            ) && $.global.navigator.userAgent.includes('rv:11'))
                 return 11
         return version
     })()
+    static noop = ('noop' in $) ? $.noop() : ():void => {}
+    static specialRegexSequences:Array<string> = [
+        '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}']
     static transitionEndEventNames:string = 'transitionend ' +
         'webkitTransitionEnd oTransitionEnd MSTransitionEnd'
     static consoleMethodNames:Array<string> = [
@@ -254,15 +283,15 @@ class Tools {
         this._defaultOptions = defaultOptions
         this._locks = locks
         // Avoid errors in browsers that lack a console.
-        if (!('console' in context))
-            context.console = {}
+        if (!('console' in $.global))
+            $.global.console = {}
         for (const methodName:string of this.constructor.consoleMethodNames)
-            if (!(methodName in context.console))
-                context.console[methodName] = 'noop' in $ ? $.noop() : (
-                ):void => {}
+            if (!(methodName in $.global.console))
+                $.global.console[methodName] = this.constructor.noop
         if (
             !this.constructor._javaScriptDependentContentHandled &&
-            'document' in context
+            'document' in $.global && 'filter' in $ && 'hide' in $ &&
+            'show' in $
         ) {
             this.constructor._javaScriptDependentContentHandled = true
             $(
@@ -284,7 +313,8 @@ class Tools {
      * @returns Returns the current instance.
      */
     destructor():Tools {
-        this.off('*')
+        if ('off' in $.fn)
+            this.off('*')
         return this
     }
     /**
@@ -298,7 +328,7 @@ class Tools {
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
         */
-        this._options = $.extend(
+        this._options = this.constructor.extendObject(
             true, {}, this._defaultOptions, this._options, options)
         /*
             The selector prefix should be parsed after extending options
@@ -313,7 +343,7 @@ class Tools {
     // / region object orientation
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
-     * Defines a generic controller for jQuery plugins.
+     * Defines a generic controller for dom node aware plugins.
      * @param object - The object or class to control. If "object" is a class
      * an instance will be generated.
      * @param parameter - The initially given arguments object.
@@ -327,21 +357,24 @@ class Tools {
         if (typeof object === 'function') {
             object = new object($domNode)
             if (!object instanceof Tools)
-                object = $.extend(true, new Tools(), object)
+                object = this.constructor.extendObject(
+                    true, new Tools(), object)
         }
-        parameter = this.constructor.argumentsObjectToArray(parameter)
-        if ($domNode && !$domNode.data(object.constructor._name))
+        parameter = this.constructor.arrayMake(parameter)
+        if ($domNode && 'data' in $domNode && !$domNode.data(
+            object.constructor._name
+        ))
             // Attach extended object to the associated dom node.
             $domNode.data(object.constructor._name, object)
         if (parameter[0] in object)
             return object[parameter[0]].apply(object, parameter.slice(1))
-        else if (parameter.length === 0 || $.type(parameter[0]) === 'object')
+        else if (parameter.length === 0 || typeof parameter[0] === 'object')
             /*
                 If an options object or no method name is given the initializer
                 will be called.
             */
             return object.initialize.apply(object, parameter)
-        $.error(
+        throw Error(
             `Method "${parameter[0]}" does not exist on $-extended dom node ` +
             `"${object.constructor._name}".`)
     }
@@ -393,6 +426,102 @@ class Tools {
             else
                 delete this._locks[description]
         return this
+    }
+    // / endregion
+    // / region boolean
+    /**
+     * Determines whether its argument represents a JavaScript number.
+     * @param object - Object to analyze.
+     * @returns A boolean value indicating whether given object is numeric
+     * like.
+     */
+    static isNumeric(object:any):boolean {
+        const type:string = Tools.determineType(object)
+        /*
+            NOTE: "parseFloat" "NaNs" numeric-cast false positives ("") but
+            misinterprets leading-number strings, particularly hex literals
+            ("0x...") subtraction forces infinities to NaN.
+        */
+        return ['number', 'string'].includes(type) && !isNaN(
+            object - parseFloat(object))
+    }
+    /**
+     * Determine whether the argument is a window.
+     * @param object - Object to check for.
+     * @returns Boolean value indicating the result.
+     */
+    static isWindow(object:any):boolean {
+        return (
+            ![undefined, null].includes(object) &&
+            typeof object === 'object' && 'window' in object &&
+            object === object.window)
+    }
+    /**
+     * Checks if given object is similar to an array and can be handled like an
+     * array.
+     * @param object - Object to check behavior for.
+     * @returns A boolean value indicating whether given object is array like.
+     */
+    static isArrayLike(object:any):boolean {
+        let length:number|boolean
+        try {
+            length = Boolean(
+                object
+            ) && 'length' in object && object.length
+        } catch (error) {
+            return false
+        }
+        const type:string = Tools.determineType(object)
+        if (type === 'function' || Tools.isWindow(object))
+            return false
+        if (type === 'array' || length === 0)
+            return true
+        if (typeof length === 'number' && length > 0)
+            try {
+                /* eslint-disable no-unused-expressions */
+                object[length - 1]
+                /* eslint-enable no-unused-expressions */
+                return true
+            } catch (error) {}
+        return false
+    }
+    /**
+     * Checks whether one of the given pattern matches given string.
+     * @param target - Target to check in pattern for.
+     * @param pattern - List of pattern to check for.
+     * @returns Value "true" if given object is matches by at leas one of the
+     * given pattern and "false" otherwise.
+     */
+    static isAnyMatching(target:string, pattern:Array<string|RegExp>):boolean {
+        for (const currentPattern:RegExp|string of pattern)
+            if (typeof currentPattern === 'string') {
+                if (currentPattern === target)
+                    return true
+            } else if (currentPattern.test(target))
+                return true
+        return false
+    }
+    /**
+     * Checks whether given object is a plain native object.
+     * @param object - Object to check.
+     * @returns Value "true" if given object is a plain javaScript object and
+     * "false" otherwise.
+     */
+    static isPlainObject(object:mixed):boolean {
+        return (
+            typeof object === 'object' && object !== null &&
+            Object.getPrototypeOf(object) === Object.prototype)
+    }
+    /**
+     * Checks whether given object is a function.
+     * @param object - Object to check.
+     * @returns Value "true" if given object is a function and "false"
+     * otherwise.
+     */
+    static isFunction(object:mixed):boolean {
+        return Boolean(object) && {}.toString.call(
+            object
+        ) === '[object Function]'
     }
     // / endregion
     // / region language fixes
@@ -450,7 +579,9 @@ class Tools {
                 message = `${this.constructor._name} (${level}): ` +
                     this.constructor.stringFormat.apply(
                         this, additionalArguments)
-            } else if ($.isNumeric(object) || $.type(object) === 'boolean')
+            } else if (this.constructor.isNumeric(
+                object
+            ) || typeof object === 'boolean')
                 message = `${this.constructor._name} (${level}): ` +
                     object.toString()
             else {
@@ -459,13 +590,13 @@ class Tools {
                 this.log("'--------------------------------------------'")
             }
             if (message)
-                if (!('console' in context && level in context.console) || (
-                    'noop' in $ && context.console[level] === $.noop()
+                if (!('console' in $.global && level in $.global.console) || (
+                    $.global.console[level] === this.constructor.noop
                 )) {
-                    if ('alert' in context)
-                        context.alert(message)
+                    if ('alert' in $.global)
+                        $.global.alert(message)
                 } else
-                    context.console[level](message)
+                    $.global.console[level](message)
         }
         return this
     }
@@ -537,23 +668,28 @@ class Tools {
     /**
      * Dumps a given object in a human readable format.
      * @param object - Any object to show.
+     * @param level - Number of levels to dig into given object recursively.
+     * @param currentLevel - Maximal number of recursive function calls to
+     * represent given object.
      * @returns Returns the serialized version of given object.
      */
-    static show(object:any):string {
+    static show(object:any, level:number = 3, currentLevel:number = 0):string {
         let output:string = ''
-        if ($.type(object) === 'string')
-            output = object
-        else
-            $.each(object, (key:any, value:any):void => {
-                if (value === undefined)
-                    value = 'undefined'
-                else if (value === null)
-                    value = 'null'
-                output += `${key.toString()}: ${value.toString()}\n`
-            })
-        if (!output)
-            output = output.toString()
-        return `${output.trim()}\n(Type: "${$.type(object)}")`
+        if (Tools.determineType(object) === 'object') {
+            for (const key:string in object)
+                if (object.hasOwnProperty(key)) {
+                    output += `${key.toString()}: `
+                    if (currentLevel <= level)
+                        output += Tools.show(
+                            object[key], level, currentLevel + 1)
+                    else
+                        output += `${object[key]}`
+                    output += '\n'
+                }
+            return output.trim()
+        }
+        output = `${object}`.trim()
+        return `${output} (Type: "${Tools.determineType(object)}")`
     }
     // / endregion
     // / region dom node
@@ -610,10 +746,10 @@ class Tools {
         return this
     }
     /**
-     * Checks weather given html or text strings are equal.
+     * Checks whether given html or text strings are equal.
      * @param first - First html, selector to dom node or text to compare.
      * @param second - Second html, selector to dom node  or text to compare.
-     * @param forceHTMLString - Indicates weather given contents are
+     * @param forceHTMLString - Indicates whether given contents are
      * interpreted as html string (otherwise an automatic detection will be
      * triggered).
      * @returns Returns true if both dom representations are equivalent.
@@ -679,9 +815,10 @@ class Tools {
      * @returns Returns one of "above", "left", "below", "right" or "in".
      */
     getPositionRelativeToViewport(delta:Position = {}):RelativePosition {
-        delta = $.extend({top: 0, left: 0, bottom: 0, right: 0}, delta)
+        delta = this.constructor.extendObject(
+            {top: 0, left: 0, bottom: 0, right: 0}, delta)
         if (
-            'window' in context && this.$domNode && this.$domNode.length &&
+            'window' in $.global && this.$domNode && this.$domNode.length &&
             this.$domNode[0]
         ) {
             const $window:$DomNode = $(window)
@@ -824,33 +961,30 @@ class Tools {
         if (domNodeSelectors)
             if (wrapperDomNode) {
                 const $wrapperDomNode:$DomNode = $(wrapperDomNode)
-                $.each(domNodeSelectors, (key:string, value:string):void => {
-                    domNodes[key] = $wrapperDomNode.find(value)
-                })
+                for (const name:string in domNodeSelectors)
+                    if (domNodeSelectors.hasOwnProperty(name))
+                        domNodes[name] = $wrapperDomNode.find(
+                            domNodeSelectors[name])
             } else
-                $.each(domNodeSelectors, (key:string, value:string):void => {
-                    const match:?Array<string> = value.match(', *')
-                    if (match)
-                        $.each(value.split(match[0]), (
-                            key:string, valuePart:string
-                        ):void => {
-                            if (key)
-                                value += ', ' + this._grabDomNodeHelper(
-                                    key, valuePart, domNodeSelectors)
-                            else
-                                /* eslint-disable max-statements-per-line */
-                                value = valuePart
-                                /* eslint-enable max-statements-per-line */
-                        })
-                    domNodes[key] = $(this._grabDomNodeHelper(
-                        key, value, domNodeSelectors))
-                })
+                for (const name:string in domNodeSelectors)
+                    if (domNodeSelectors.hasOwnProperty(name)) {
+                        const match:?Array<string> =
+                            domNodeSelectors[name].match(', *')
+                        if (match)
+                            for (const selectorPart:string of domNodeSelectors[
+                                name
+                            ].split(match[0]))
+                                domNodeSelectors[name] += ', ' +
+                                    this.normalizeDomNodeSelector(selectorPart)
+                        domNodes[name] = $(this.normalizeDomNodeSelector(
+                            domNodeSelectors[name]))
+                    }
         if (this._options.domNodeSelectorPrefix)
             domNodes.parent = $(this._options.domNodeSelectorPrefix)
-        if ('window' in context)
+        if ('window' in $.global)
             domNodes.window = $(window)
-        if ('document' in context)
-            domNodes.document = $(context.document)
+        if ('document' in $.global)
+            domNodes.document = $($.global.document)
         return domNodes
     }
     // / endregion
@@ -885,8 +1019,8 @@ class Tools {
      * @returns The function name.
      */
     static determineUniqueScopeName(
-        prefix:string = 'callback', suffix:string = '', scope:Object = context,
-        initialUniqueName:string = ''
+        prefix:string = 'callback', suffix:string = '',
+        scope:Object = $.global, initialUniqueName:string = ''
     ):string {
         if (initialUniqueName.length && !(initialUniqueName in scope))
             return initialUniqueName
@@ -906,7 +1040,7 @@ class Tools {
      * Methods given by this method has the plugin scope referenced with
      * "this". Otherwise "this" usually points to the object the given method
      * was attached to. If "method" doesn't match string arguments are passed
-     * through "$.proxy()" with "context" setted as "scope" or "this" if
+     * through a wrapper function with "context" setted as "scope" or "this" if
      * nothing is provided.
      * @param method - A method name of given scope.
      * @param scope - A given scope.
@@ -925,25 +1059,24 @@ class Tools {
             doesn't care about that the magic arguments object is necessary to
             generate the arguments array in this context.
 
-            var arguments = Tools.argumentsObjectToArray(arguments)
-
-            use something like this instead:
-
-            var parameter = Tools.argumentsObjectToArray(arguments)
+            var arguments = this.constructor.arrayMake(arguments)
         */
-        let parameter:Array<any> = this.constructor.argumentsObjectToArray(
-            arguments)
         if (!scope)
-            parameter[1] = scope = this
+            scope = this
         if (typeof method === 'string' && typeof scope === 'object')
-            return function():void {
+            return function():any {
                 if (!scope[method] && typeof method === 'string')
-                    $.error(`Method "${method}" doesn't exists in "${scope}".`)
-                parameter = $.Tools().argumentsObjectToArray(arguments)
-                scope[method].apply(scope, parameter.concat(
-                    additionalArguments))
+                    throw Error(
+                        `Method "${method}" doesn't exists in "${scope}".`)
+                return scope[method].apply(scope, additionalArguments.concat(
+                    this.constructor.arrayMake(arguments)))
             }
-        return $.proxy.apply($, parameter)
+        const self:Tools = this
+        return function():any {
+            // IgnoreTypeCheck
+            return method.apply(scope, additionalArguments.concat(
+                self.constructor.arrayMake(arguments)))
+        }
     }
     /**
      * Implements the identity function.
@@ -999,8 +1132,7 @@ class Tools {
         let waitingCallArguments:?Array<any> = null
         let timeoutID:?number = null
         return function():?number {
-            const parameter:Array<any> = Tools.argumentsObjectToArray(
-                arguments)
+            const parameter:Array<any> = Tools.arrayMake(arguments)
             if (lock)
                 waitingCallArguments = parameter.concat(
                     additionalArguments || [])
@@ -1061,7 +1193,7 @@ class Tools {
      */
     on():$DomNode {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        return this._bindHelper(arguments, false)
+        return this._bindEventHelper(arguments, false)
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
@@ -1072,10 +1204,336 @@ class Tools {
      */
     off():$DomNode {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        return this._bindHelper(arguments, true, 'off')
+        return this._bindEventHelper(arguments, true, 'off')
     }
     // / endregion
     // / region object
+    /**
+     * Determine the internal JavaScript [[Class]] of an object.
+     * @param object - Object to analyze.
+     * @returns Name of determined class.
+     */
+    static determineType(object:any = undefined):string {
+        if ([undefined, null].includes(object))
+            return `${object}`
+        if (['object', 'function'].includes(
+            typeof object
+        ) && 'toString' in object) {
+            const stringRepresentation:string =
+                Tools.classToTypeMapping.toString.call(object)
+            if (Tools.classToTypeMapping.hasOwnProperty(stringRepresentation))
+                return Tools.classToTypeMapping[stringRepresentation]
+        }
+        return typeof object
+    }
+    /**
+     * Replaces given pattern in each value in given object recursively with
+     * given string replacement.
+     * @param object - Object to convert substrings in.
+     * @param pattern - Regular expression to replace.
+     * @param replacement - String to use as replacement for found patterns.
+     * @returns Converted object with replaced patterns.
+     */
+    static convertSubstringInPlainObject(
+        object:PlainObject, pattern:RegExp, replacement:string
+    ):PlainObject {
+        for (const key:string in object)
+            if (object.hasOwnProperty(key))
+                if (Tools.isPlainObject(object[key]))
+                    object[key] = Tools.convertSubstringInPlainObject(
+                        object[key], pattern, replacement)
+                else if (typeof object[key] === 'string')
+                    object[key] = object[key].replace(pattern, replacement)
+        return object
+    }
+    /**
+     * Extends given target object with given sources object. As target and
+     * sources many expandable types are allowed but target and sources have to
+     * to come from the same type.
+     * @param targetOrDeepIndicator - Maybe the target or deep indicator.
+     * @param _targetAndOrSources - Target and at least one source object.
+     * @returns Returns given target extended with all given sources.
+     */
+    static extendObject(
+        targetOrDeepIndicator:boolean|any, ..._targetAndOrSources:Array<any>
+    ):any {
+        let index:number = 1
+        let deep:boolean = false
+        let target:mixed
+        if (typeof targetOrDeepIndicator === 'boolean') {
+            // Handle a deep copy situation and skip deep indicator and target.
+            deep = targetOrDeepIndicator
+            target = arguments[index]
+            index = 2
+        } else
+            target = targetOrDeepIndicator
+        const mergeValue = (key:string, value:any, targetValue:any):any => {
+            if (value === targetValue)
+                return targetValue
+            // Recurse if we're merging plain objects or maps.
+            if (deep && value && (
+                Tools.isPlainObject(value) || value instanceof Map
+            )) {
+                let clone:any
+                if (value instanceof Map)
+                    clone = targetValue && (
+                        targetValue instanceof Map
+                    ) ? targetValue : new Map()
+                else
+                    clone = targetValue && Tools.isPlainObject(
+                        targetValue
+                    ) ? targetValue : {}
+                return Tools.extendObject(deep, clone, value)
+            }
+            return value
+        }
+        while (index < arguments.length) {
+            const source:any = arguments[index]
+            let targetType:string = typeof target
+            let sourceType:string = typeof source
+            if (target instanceof Map)
+                targetType += ' Map'
+            if (source instanceof Map)
+                sourceType += ' Map'
+            if (targetType === sourceType && target !== source)
+                if (target instanceof Map && source instanceof Map)
+                    for (const [key:string, value:any] of source)
+                        target.set(key, mergeValue(key, value, target.get(
+                            key)))
+                else if (Tools.isPlainObject(target) && Tools.isPlainObject(
+                    source
+                )) {
+                    for (const key:string in source)
+                        if (source.hasOwnProperty(key))
+                            target[key] = mergeValue(
+                                key, source[key], target[key])
+                } else
+                    target = source
+            else
+                target = source
+            index += 1
+        }
+        return target
+    }
+    /**
+     * Removes a proxies from given data structure recursivley.
+     * @param object - Object to proxy.
+     * @param seenObjects - Tracks all already processed obejcts to avoid
+     * endless loops (usually only needed for internal prupose).
+     * @returns Returns given object unwrapped from a dynamic proxy.
+     */
+    static unwrapProxy(object:any, seenObjects:Array<any> = []):any {
+        if (object !== null && typeof object === 'object') {
+            while (object.__target__)
+                object = object.__target__
+            const index:number = seenObjects.indexOf(object)
+            if (index !== -1)
+                return seenObjects[index]
+            seenObjects.push(object)
+            if (Array.isArray(object)) {
+                let index:number = 0
+                for (const value:mixed of object) {
+                    object[index] = Tools.unwrapProxy(value, seenObjects)
+                    index += 1
+                }
+            } else if (object instanceof Map)
+                for (const [key:mixed, value:mixed] of object)
+                    object.set(key, Tools.unwrapProxy(value, seenObjects))
+            else
+                for (const key:string in object)
+                    if (object.hasOwnProperty(key))
+                        object[key] = Tools.unwrapProxy(
+                            object[key], seenObjects)
+        }
+        return object
+    }
+    /**
+     * Adds dynamic getter and setter to any given data structure such as maps.
+     * @param object - Object to proxy.
+     * @param getterWrapper - Function to wrap each property get.
+     * @param setterWrapper - Function to wrap each property set.
+     * @param getterMethodName - Method name to get a stored value by key.
+     * @param setterMethodName - Method name to set a stored value by key.
+     * @param containesMethodName - Method name to indicate if a key is stored
+     * in given data structure.
+     * @param deep - Indicates to perform a deep wrapping of specified types.
+     * performed via "value instanceof type".).
+     * @param typesToExtend - Types which should be extended (Checks are
+     * performed via "value instanceof type".).
+     * @returns Returns given object wrapped with a dynamic getter proxy.
+     */
+    static addDynamicGetterAndSetter<Value>(
+        object:Value, getterWrapper:GetterFunction = (value:any):any => value,
+        setterWrapper:SetterFunction = (key:any, value:any):any => value,
+        getterMethodName:string = '[]', setterMethodName:string = '[]',
+        containesMethodName:string = 'hasOwnProperty', deep:boolean = true,
+        typesToExtend:Array<mixed> = [Object]
+    ):Value {
+        if (deep)
+            if (object instanceof Map)
+                for (const [key:mixed, value:mixed] of object)
+                    object.set(key, Tools.addDynamicGetterAndSetter(
+                        value, getterWrapper, setterWrapper, getterMethodName,
+                        setterMethodName, containesMethodName, deep,
+                        typesToExtend))
+            else if (typeof object === 'object' && object !== null) {
+                for (const key:string in object)
+                    if (object.hasOwnProperty(key))
+                        object[key] = Tools.addDynamicGetterAndSetter(
+                            object[key], getterWrapper, setterWrapper,
+                            getterMethodName, setterMethodName,
+                            containesMethodName, deep, typesToExtend)
+            } else if (Array.isArray(object)) {
+                let index:number = 0
+                for (const value:mixed of object) {
+                    object[index] = Tools.addDynamicGetterAndSetter(
+                        value, getterWrapper, setterWrapper, getterMethodName,
+                        setterMethodName, containesMethodName, deep,
+                        typesToExtend)
+                    index += 1
+                }
+            }
+        for (const type:mixed of typesToExtend)
+            if (object instanceof type) {
+                if (object.__target__)
+                    return object
+                const handler:{
+                    has?:(target:Object, name:string) => boolean;
+                    get?:(target:Object, name:string) => any;
+                    set?:(target:Object, name:string) => any
+                } = {}
+                if (containesMethodName)
+                    handler.has = (target:Object, name:string):boolean => {
+                        if (containesMethodName === '[]')
+                            return name in target
+                        return target[containesMethodName](name)
+                    }
+                if (containesMethodName && getterMethodName)
+                    handler.get = (target:Object, name:string):any => {
+                        if (name === '__target__')
+                            return target
+                        if (typeof target[name] === 'function')
+                            return target[name].bind(target)
+                        if (target[containesMethodName](name)) {
+                            if (getterMethodName === '[]')
+                                return getterWrapper(target[name])
+                            return getterWrapper(target[getterMethodName](
+                                name))
+                        }
+                        return target[name]
+                    }
+                if (setterMethodName)
+                    handler.set = (
+                        target:Object, name:string, value:any
+                    ):void => {
+                        if (setterMethodName === '[]')
+                            target[name] = setterWrapper(name, value)
+                        else
+                            target[setterMethodName](name, setterWrapper(
+                                name, value))
+                    }
+                // IgnoreTypeCheck
+                return new Proxy(object, handler)
+            }
+        return object
+    }
+    /**
+     * Searches for nested mappings with given indicator key and resolves
+     * marked values. Additionally all objects are wrapped with a proxy to
+     * dynamically resolve nested properties.
+     * @param object - Given mapping to resolve.
+     * @param parameterDescription - Array of scope names.
+     * @param parameter - Array of values for given scope names. If there is
+     * one missing given object will be added.
+     * @param deep - Indicates whether to perform a recursive resolving.
+     * @param evaluationIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @param executionIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @returns Evaluated given mapping.
+     */
+    static resolveDynamicDataStructure(
+        object:any, parameterDescription:Array<string> = [],
+        parameter:Array<any> = [], deep:boolean = true,
+        evaluationIndicatorKey:string = '__evaluate__',
+        executionIndicatorKey:string = '__execute__'
+    ):any {
+        if (object === null || typeof object !== 'object')
+            return object
+        let configuration:any = object
+        if (deep && configuration && !configuration.__target__)
+            configuration = Tools.addDynamicGetterAndSetter(
+                Tools.copyLimitedRecursively(object), ((value:any):any =>
+                    Tools.resolveDynamicDataStructure(
+                        value, parameterDescription, parameter, false,
+                        evaluationIndicatorKey, executionIndicatorKey
+                    )), (key:any, value:any):any => value, '[]', '')
+        if (parameterDescription.length > parameter.length)
+            parameter.push(configuration)
+        if (Array.isArray(object) && deep) {
+            let index:number = 0
+            for (const value:mixed of object) {
+                object[index] = Tools.resolveDynamicDataStructure(
+                    value, parameterDescription, parameter, deep,
+                    evaluationIndicatorKey, executionIndicatorKey)
+                index += 1
+            }
+        } else
+            for (const key:string in object)
+                if (object.hasOwnProperty(key))
+                    if ([
+                        evaluationIndicatorKey, executionIndicatorKey
+                    ].includes(key))
+                        try {
+                            return Tools.resolveDynamicDataStructure((new (
+                                // IgnoreTypeCheck
+                                Function.prototype.bind.apply(Function, [
+                                    null
+                                ].concat(parameterDescription).concat(((
+                                    key === evaluationIndicatorKey
+                                ) ? 'return ' : '') + object[key])))).apply(
+                                    null, parameter
+                            ), parameterDescription, parameter, false,
+                            evaluationIndicatorKey, executionIndicatorKey)
+                        } catch (error) {
+                            throw Error(
+                                'Error during ' + (
+                                    key === evaluationIndicatorKey ?
+                                        'executing' : 'evaluating'
+                                ) + ` "${object[key]}": ${error}`)
+                        }
+                    else if (deep)
+                        object[key] = Tools.resolveDynamicDataStructure(
+                            object[key], parameterDescription, parameter, deep,
+                            evaluationIndicatorKey, executionIndicatorKey)
+        return object
+    }
+    /**
+     * Converts given object into its serialized json representation by
+     * replacing circular references with a given provided value.
+     * @param object - Object to serialize.
+     * @param determineCicularReferenceValue - Callback to create a fallback
+     * value depending on given redundant value.
+     * @param numberOfSpaces - Number of spaces to use for string formatting.
+     */
+    static convertCircularObjectToJSON(
+        object:Object, determineCicularReferenceValue:((
+            key:string, value:any, seendObjects:Array<any>
+        ) => any) = ():string => '__circularReference__',
+        numberOfSpaces:number = 0
+    ):string {
+        const seenObjects:Array<any> = []
+        return JSON.stringify(object, (key:string, value:any):any => {
+            if (typeof value === 'object' && value !== null) {
+                if (seenObjects.includes(value))
+                    return determineCicularReferenceValue(
+                        key, value, seenObjects)
+                seenObjects.push(value)
+                return value
+            }
+            return value
+        }, numberOfSpaces)
+    }
     /**
      * Converts given plain object and all nested found objects to
      * corresponding map.
@@ -1086,7 +1544,7 @@ class Tools {
     static convertPlainObjectToMap<Value>(
         object:Value, deep:boolean = true
     ):Value|Map<any, any> {
-        if (typeof object === 'object' && $.isPlainObject(object)) {
+        if (typeof object === 'object' && Tools.isPlainObject(object)) {
             const newObject:Map<any, any> = new Map()
             for (const key:string in object)
                 if (object.hasOwnProperty(key)) {
@@ -1100,7 +1558,7 @@ class Tools {
         if (deep)
             if (Array.isArray(object)) {
                 let index:number = 0
-                for (const value:Object of object) {
+                for (const value:any of object) {
                     object[index] = Tools.convertPlainObjectToMap(value, deep)
                     index += 1
                 }
@@ -1131,7 +1589,7 @@ class Tools {
             return newObject
         }
         if (deep)
-            if (typeof object === 'object' && $.isPlainObject(object)) {
+            if (typeof object === 'object' && Tools.isPlainObject(object)) {
                 for (const key:string in object)
                     if (object.hasOwnProperty(key))
                         object[key] = Tools.convertMapToPlainObject(
@@ -1156,8 +1614,7 @@ class Tools {
      * @returns List of given sorted keys.
      */
     static forEachSorted(
-        object:mixed, iterator:(key:any, value:any) => any,
-        context:Object
+        object:mixed, iterator:(key:any, value:any) => any, context:Object
     ):Array<any> {
         const keys:Array<any> = Tools.sort(object)
         for (const key:any of keys)
@@ -1198,7 +1655,7 @@ class Tools {
      * (default).
      * @param exceptionPrefixes - Property prefixes which indicates properties
      * to ignore.
-     * @param ignoreFunctions - Indicates weather functions have to be
+     * @param ignoreFunctions - Indicates whether functions have to be
      * identical to interpret is as equal. If set to "true" two functions will
      * be assumed to be equal (default).
      * @returns Value "true" if both objects are equal and "false" otherwise.
@@ -1209,7 +1666,9 @@ class Tools {
         ignoreFunctions:boolean = true
     ):boolean {
         if (
-            ignoreFunctions && $.isFunction(firstValue) && $.isFunction(
+            ignoreFunctions && Tools.isFunction(
+                firstValue
+            ) && Tools.isFunction(
                 secondValue
             ) || firstValue === secondValue || Tools.numberIsNotANumber(
                 firstValue
@@ -1227,36 +1686,58 @@ class Tools {
             )
         )
             return true
-        if ($.isPlainObject(firstValue) && $.isPlainObject(
+        if (Tools.isPlainObject(firstValue) && Tools.isPlainObject(
             secondValue
         ) && !(
             firstValue instanceof RegExp || secondValue instanceof RegExp
-        ) || $.isArray(firstValue) && $.isArray(
+        ) || Array.isArray(firstValue) && Array.isArray(
             secondValue
         ) && firstValue.length === secondValue.length) {
             for (const [first, second] of [[firstValue, secondValue], [
                 secondValue, firstValue
             ]]) {
-                const firstIsArray:boolean = $.isArray(first)
-                if (firstIsArray && (!$.isArray(
+                const firstIsArray:boolean = Array.isArray(first)
+                if (firstIsArray && (!Array.isArray(
                     second
                 )) || first.length !== second.length)
                     return false
                 let equal:boolean = true
-                $.each(first, (key:string|number, value:any):void => {
-                    if (!firstIsArray) {
-                        if (!equal || properties && !properties.includes(key))
-                            return
-                        for (const exceptionPrefix:string of exceptionPrefixes)
-                            if (key.toString().startsWith(exceptionPrefix))
-                                return
+                if (firstIsArray) {
+                    let index:number = 0
+                    for (const value:any of first) {
+                        if (deep !== 0 && !Tools.equals(
+                            value, second[index], properties, deep - 1,
+                            exceptionPrefixes
+                        ))
+                            equal = false
+                        index += 1
                     }
-                    if (deep !== 0 && !Tools.equals(
-                        value, second[key], properties, deep - 1,
-                        exceptionPrefixes
-                    ))
-                        equal = false
-                })
+                } else
+                    for (const key:string in first)
+                        if (first.hasOwnProperty(key)) {
+                            if (!equal || properties && !properties.includes(
+                                key
+                            ))
+                                break
+                            let doBreak:boolean = false
+                            for (
+                                const exceptionPrefix:string of
+                                exceptionPrefixes
+                            )
+                                if (key.toString().startsWith(
+                                    exceptionPrefix
+                                )) {
+                                    doBreak = true
+                                    break
+                                }
+                            if (doBreak)
+                                break
+                            if (deep !== 0 && !Tools.equals(
+                                first[key], second[key], properties, deep - 1,
+                                exceptionPrefixes
+                            ))
+                                equal = false
+                        }
                 if (!equal)
                     return false
             }
@@ -1309,7 +1790,7 @@ class Tools {
                 }
                 return result
             }
-            if ($.isArray(source))
+            if (Array.isArray(source))
                 for (const item:any of source)
                     destination.push(copyValue(item))
             if (source instanceof Map)
@@ -1320,7 +1801,7 @@ class Tools {
                     if (source.hasOwnProperty(key))
                         destination[key] = copyValue(source[key])
         } else if (source) {
-            if ($.isArray(source))
+            if (Array.isArray(source))
                 return Tools.copyLimitedRecursively(
                     source, recursionLimit, [], stackSource, stackDestination,
                     recursionLevel)
@@ -1328,9 +1809,9 @@ class Tools {
                 return Tools.copyLimitedRecursively(
                     source, recursionLimit, new Map(), stackSource,
                     stackDestination, recursionLevel)
-            if ($.type(source) === 'date')
+            if (Tools.determineType(source) === 'date')
                 return new Date(source.getTime())
-            if ($.type(source) === 'regexp') {
+            if (Tools.determineType(source) === 'regexp') {
                 destination = new RegExp(
                     source.source, source.toString().match(/[^\/]*$/)[0])
                 destination.lastIndex = source.lastIndex
@@ -1348,14 +1829,34 @@ class Tools {
     // / endregion
     // / region array
     /**
-     * Converts the interpreter given magic arguments object to a standard
-     * array object.
-     * @param argumentsObject - An argument object.
-     * @returns Returns the array containing all elements in given arguments
-     * object.
+     * Merge the contents of two arrays together into the first array.
+     * @param target - Target array.
+     * @param source - Source array.
+     * @returns Target array with merged given source one.
      */
-    static argumentsObjectToArray(argumentsObject:Array<any>):Array<any> {
-        return Array.prototype.slice.call(argumentsObject)
+    static arrayMerge(target:Array<any>, source:Array<any>):Array<any> {
+        const length:number = Number(source.length)
+        let sourceIndex:number = 0
+        let targetIndex:number = target.length
+        for (;sourceIndex < length; sourceIndex++)
+            target[targetIndex++] = source[sourceIndex]
+        target.length = targetIndex
+        return target
+    }
+    /**
+     * Converts given object into an array.
+     * @param object - Target to convert.
+     * @returns Generated array.
+     */
+    static arrayMake(object:any):Array<any> {
+        const result:Array<any> = []
+        if (![null, undefined].includes(result))
+            if (Tools.isArrayLike(Object(object)))
+                Tools.arrayMerge(
+                    result, typeof object === 'string' ? [object] : object)
+            else
+                result.push(object)
+        return result
     }
     /**
      * Makes all values in given iterable unique by removing duplicates (The
@@ -1451,12 +1952,11 @@ class Tools {
         data:Array<string>, regularExpression:string|RegExp
     ):Array<string> {
         const result:Array<string> = []
-        $.each(data, (index:number, value:string):void => {
+        for (const value:string of data)
             if (((typeof regularExpression === 'string') ? new RegExp(
                 regularExpression
             ) : regularExpression).test(value))
                 result.push(value)
-        })
         return result
     }
     /**
@@ -1525,48 +2025,61 @@ class Tools {
      * @param firstSet - Referenced data to check for.
      * @param secondSet - Data to check for existence.
      * @param keys - Keys to define equality.
-     * @param strict - The strict parameter indicates weather "null" and
+     * @param strict - The strict parameter indicates whether "null" and
      * "undefined" should be interpreted as equal (takes only effect if given
      * keys aren't empty).
      * @returns Data which does exit in given initial data.
      */
     static arrayIntersect(
         firstSet:Array<any>, secondSet:Array<any>,
-        keys:{[key:string]:string}|Array<string> = [], strict:boolean = true
+        keys:Object|Array<string> = [], strict:boolean = true
     ):Array<any> {
         const containingData:Array<any> = []
         for (const initialItem:any of firstSet)
-            if ($.isPlainObject(initialItem))
+            if (Tools.isPlainObject(initialItem))
                 for (const newItem:any of secondSet) {
                     let exists:boolean = true
                     let iterateGivenKeys:boolean
                     const keysAreAnArray:boolean = Array.isArray(keys)
-                    if ($.isPlainObject(keys) || keysAreAnArray && keys.length)
+                    if (Tools.isPlainObject(
+                        keys
+                    ) || keysAreAnArray && keys.length)
                         iterateGivenKeys = true
                     else {
                         iterateGivenKeys = false
                         keys = initialItem
                     }
-                    $.each(keys, (
+                    const handle:Function = (
                         firstSetKey:string|number, secondSetKey:string|number
                     ):?false => {
                         if (keysAreAnArray && iterateGivenKeys)
                             firstSetKey = secondSetKey
                         else if (!iterateGivenKeys)
                             secondSetKey = firstSetKey
-                        if (
-                            newItem[secondSetKey] !==
-                            initialItem[firstSetKey] && (strict || !(
-                                [null, undefined].includes(
-                                    newItem[secondSetKey]
-                                ) && [null, undefined].includes(
-                                    initialItem[firstSetKey]
-                                )))
-                        ) {
+                        if (newItem[secondSetKey] !== initialItem[
+                            firstSetKey
+                        ] && (strict || !(
+                            [null, undefined].includes(
+                                newItem[secondSetKey]
+                            ) && [null, undefined].includes(
+                                initialItem[firstSetKey])
+                        ))) {
                             exists = false
                             return false
                         }
-                    })
+                    }
+                    if (Array.isArray(keys)) {
+                        let index:number = 0
+                        for (const key:string of keys) {
+                            if (handle(index, key) === false)
+                                break
+                            index += 1
+                        }
+                    } else
+                        for (const key:string in keys)
+                            if (keys.hasOwnProperty(key))
+                                if (handle(key, keys[key]) === false)
+                                    break
                     if (exists) {
                         containingData.push(initialItem)
                         break
@@ -1641,7 +2154,7 @@ class Tools {
      * Removes given target on given list.
      * @param list - Array to splice.
      * @param target - Target to remove from given list.
-     * @param strict - Indicates weather to fire an exception if given target
+     * @param strict - Indicates whether to fire an exception if given target
      * doesn't exists given list.
      * @returns Item with the appended target.
      */
@@ -1665,12 +2178,49 @@ class Tools {
     // / region string
     // // region url handling
     /**
+     * Translates given string into the regular expression validated
+     * representation.
+     * @param value - String to convert.
+     * @param excludeSymbols - Symbols not to escape.
+     * @returns Converted string.
+     */
+    static stringConvertToValidRegularExpression(
+        value:string, excludeSymbols:Array<string> = []
+    ):string {
+        // NOTE: This is only for performance improvements.
+        if (value.length === 1 && !Tools.specialRegexSequences.includes(value))
+            return value
+        // The escape sequence must also be escaped; but at first.
+        if (!excludeSymbols.includes('\\'))
+            value.replace(/\\/g, '\\\\')
+        for (const replace:string of Tools.specialRegexSequences)
+            if (!excludeSymbols.includes(replace))
+                value = value.replace(
+                    new RegExp(`\\${replace}`, 'g'), `\\${replace}`)
+        return value
+    }
+    /**
+     * Translates given name into a valid javaScript one.
+     * @param name - Name to convert.
+     * @param allowedSymbols - String of symbols which should be allowed within
+     * a variable name (not the first character).
+     * @returns Converted name is returned.
+     */
+    static stringConvertToValidVariableName(
+        name:string, allowedSymbols:string = '0-9a-zA-Z_$'
+    ):string {
+        return name.toString().replace(/^[^a-zA-Z_$]+/, '').replace(
+            new RegExp(`[^${allowedSymbols}]+([a-zA-Z0-9])`, 'g'), (
+                fullMatch:string, firstLetter:string
+            ):string => firstLetter.toUpperCase())
+    }
+    /**
      * This method is intended for encoding *key* or *value* parts of query
      * component. We need a custom method because "encodeURIComponent()" is too
      * aggressive and encodes stuff that doesn't have to be encoded per
      * "http://tools.ietf.org/html/rfc3986:".
      * @param url - URL to encode.
-     * @param encodeSpaces - Indicates weather given url should encode
+     * @param encodeSpaces - Indicates whether given url should encode
      * whitespaces as "+" or "%20".
      * @returns Encoded given url.
      */
@@ -1704,7 +2254,7 @@ class Tools {
      */
     static stringHasPathPrefix(
         prefix:?string = '/admin',
-        path:string = 'location' in context && location.pathname || '',
+        path:string = 'location' in $.global && location.pathname || '',
         separator:string = '/'
     ):boolean {
         if (typeof prefix === 'string') {
@@ -1726,8 +2276,8 @@ class Tools {
      * @returns Extracted domain.
      */
     static stringGetDomainName(
-        url:string = 'location' in context && location.href || '',
-        fallback:any = 'location' in context && location.hostname || ''
+        url:string = 'location' in $.global && location.href || '',
+        fallback:any = 'location' in $.global && location.hostname || ''
     ):any {
         const result:Array<?string> =
             /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
@@ -1749,7 +2299,7 @@ class Tools {
      * @returns Extracted port number.
      */
     static stringGetPortNumber(
-        url:string = 'location' in context && location.href || '',
+        url:string = 'location' in $.global && location.href || '',
         fallback:any = null, parameter:Array<string> = []
     ):number {
         const result:Array<?string> =
@@ -1760,7 +2310,7 @@ class Tools {
             return fallback
         if (Tools.stringIsInternalURL.apply(
             this, [url].concat(parameter)
-            ) && 'location' in context && location.port &&
+            ) && 'location' in $.global && location.port &&
             parseInt(location.port, 10)
         )
             return parseInt(location.port, 10)
@@ -1776,8 +2326,8 @@ class Tools {
      * returns Extracted protocol.
      */
     static stringGetProtocolName(
-        url:string = 'location' in context && location.href || '',
-        fallback:any = 'location' in context &&
+        url:string = 'location' in $.global && location.href || '',
+        fallback:any = 'location' in $.global &&
             location.protocol.substring(0, location.protocol.length - 1) || ''
     ):any {
         const result:Array<?string> = /^([a-z]+):\/\//i.exec(url)
@@ -1811,7 +2361,7 @@ class Tools {
     static stringGetURLVariable(
         keyToGet:string, givenInput:?string, subDelimiter:string = '$',
         hashedPathIndicator:string = '!', givenSearch:?string,
-        givenHash:?string = 'location' in context && location.hash || ''
+        givenHash:?string = 'location' in $.global && location.hash || ''
     ):Array<string>|string {
         // region set search and hash
         let hash:string = (givenHash) ? givenHash : '#'
@@ -1832,7 +2382,7 @@ class Tools {
             const subSearchStartIndex:number = pathAndSearch.indexOf('?')
             if (subSearchStartIndex !== -1)
                 search = pathAndSearch.substring(subSearchStartIndex)
-        } else if ('location' in context)
+        } else if ('location' in $.global)
             search = location.search || ''
         let input:string = (givenInput) ? givenInput : search
         // endregion
@@ -1860,10 +2410,10 @@ class Tools {
         // endregion
         // region construct data structure
         const variables:Array<string> = []
-        $.each(data, (key:string, value:string):void => {
+        for (let value:string of data) {
             const keyValuePair:Array<string> = value.split('=')
+            let key:string
             try {
-                // IgnoreTypeCheck
                 key = decodeURIComponent(keyValuePair[0])
             } catch (error) {
                 key = ''
@@ -1876,7 +2426,7 @@ class Tools {
             variables.push(key)
             // IgnoreTypeCheck
             variables[key] = value
-        })
+        }
         // endregion
         if (keyToGet)
             // IgnoreTypeCheck
@@ -1892,7 +2442,7 @@ class Tools {
      * second (or current).
      */
     static stringIsInternalURL(
-        firstURL:string, secondURL:string = 'location' in context &&
+        firstURL:string, secondURL:string = 'location' in $.global &&
         location.href || ''
     ):boolean {
         const explicitDomainName:string = Tools.stringGetDomainName(
@@ -2001,7 +2551,7 @@ class Tools {
      * cased.
      * @param preserveWrongFormattedAbbreviations - If set to "True" wrong
      * formatted camel case abbreviations will be ignored.
-     * @param removeMultipleDelimiter - Indicates weather a series of delimiter
+     * @param removeMultipleDelimiter - Indicates whether a series of delimiter
      * should be consolidated.
      * @returns The formatted string.
      */
@@ -2060,12 +2610,12 @@ class Tools {
         string:string, ...additionalArguments:Array<any>
     ):string {
         additionalArguments.unshift(string)
-        $.each(additionalArguments, (
-            index:number, value:string|number
-        ):void => {
+        let index:number = 0
+        for (const value:string|number of additionalArguments) {
             string = string.replace(
                 new RegExp(`\\{${index}\\}`, 'gm'), `${value}`)
-        })
+            index += 1
+        }
         return string
     }
     /**
@@ -2090,7 +2640,7 @@ class Tools {
      * @param target - String to search for marker.
      * @param mark - String to search in target for.
      * @param marker - HTML template string to mark.
-     * @param caseSensitive - Indicates weather case takes a role during
+     * @param caseSensitive - Indicates whether case takes a role during
      * searching.
      * @returns Processed result.
      */
@@ -2449,7 +2999,7 @@ class Tools {
      * @returns Formatted number.
      */
     static stringRepresentPhoneNumber(phoneNumber:?string|?number):string {
-        if (['number', 'string'].includes($.type(
+        if (['number', 'string'].includes(Tools.determineType(
             phoneNumber
         )) && phoneNumber) {
             // Represent country code and leading area code zero.
@@ -2480,22 +3030,36 @@ class Tools {
      * @returns Decoded html string.
      */
     static stringDecodeHTMLEntities(htmlString:string):?string {
-        if ('document' in context) {
-            const textareaDomNode = context.document.createElement('textarea')
+        if ('document' in $.global) {
+            const textareaDomNode = $.global.document.createElement('textarea')
             textareaDomNode.innerHTML = htmlString
             return textareaDomNode.value
         }
         return null
+    }
+    /**
+     * Converts a dom selector to a prefixed dom selector string.
+     * @param selector - A dom node selector.
+     * @returns Returns given selector prefixed.
+     */
+    normalizeDomNodeSelector(selector:string):string {
+        let domNodeSelectorPrefix:string = ''
+        if (this._options.domNodeSelectorPrefix)
+            domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
+        if (!(selector.startsWith(domNodeSelectorPrefix) || selector.trim(
+        ).startsWith('<')))
+            selector = domNodeSelectorPrefix + selector
+        return selector.trim()
     }
     // / endregion
     // / region number
     /**
      * Checks if given object is java scripts native "Number.NaN" object.
      * @param object - Object to Check.
-     * @returns Returns weather given value is not a number or not.
+     * @returns Returns whether given value is not a number or not.
      */
     static numberIsNotANumber(object:any):boolean {
-        return $.type(object) === 'number' && isNaN(object)
+        return Tools.determineType(object) === 'number' && isNaN(object)
     }
     /**
      * Rounds a given number accurate to given number of digits.
@@ -2579,21 +3143,23 @@ class Tools {
      * @param eventFunctionName - Name of function to wrap.
      * @returns Returns $'s wrapped dom node.
      */
-    _bindHelper(
+    _bindEventHelper(
         parameter:Array<any>, removeEvent:boolean = false,
         eventFunctionName:string = 'on'
     ):$DomNode {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         const $domNode:$DomNode = $(parameter[0])
-        if ($.type(parameter[1]) === 'object' && !removeEvent) {
-            $.each(parameter[1], (
-                eventType:string, handler:Function
-            ):$DomNode =>
-                // IgnoreTypeCheck
-                this[eventFunctionName]($domNode, eventType, handler))
+        if (this.constructor.determineType(
+            parameter[1]
+        ) === 'object' && !removeEvent) {
+            for (const eventType:string in parameter[1])
+                if (parameter[1].hasOwnProperty(eventType))
+                    // IgnoreTypeCheck
+                    this[eventFunctionName](
+                        $domNode, eventType, parameter[1][eventType])
             return $domNode
         }
-        parameter = this.constructor.argumentsObjectToArray(parameter).slice(1)
+        parameter = this.constructor.arrayMake(parameter).slice(1)
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
@@ -2601,26 +3167,6 @@ class Tools {
         if (removeEvent)
             return $domNode[eventFunctionName].apply($domNode, parameter)
         return $domNode[eventFunctionName].apply($domNode, parameter)
-    }
-    /**
-     * Converts a dom selector to a prefixed dom selector string.
-     * @param key - Current element in options array to grab.
-     * @param selector - A dom node selector.
-     * @param domNodeSelectors - An object with dom node selectors.
-     * @returns Returns given selector prefixed.
-     */
-    _grabDomNodeHelper(
-        key:string, selector:string, domNodeSelectors:{[key:string]:string}
-    ):string {
-        let domNodeSelectorPrefix:string = ''
-        if (this._options.domNodeSelectorPrefix)
-            domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
-        if (!(selector.startsWith(domNodeSelectorPrefix) || selector.trim(
-        ).startsWith('<'))) {
-            domNodeSelectors[key] = domNodeSelectorPrefix + selector
-            return domNodeSelectors[key].trim()
-        }
-        return selector.trim()
     }
     // endregion
 }
@@ -2661,8 +3207,6 @@ if ('fn' in $) {
 }
 // / endregion
 // endregion
-/** The jQuery-tools plugin class. */
-export default Tools
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:

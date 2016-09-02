@@ -2,7 +2,6 @@
 -*- coding: utf-8 -*- -->
 
 <!-- region header
-
 Copyright Torben Sickert 16.12.2012
 
 License
@@ -10,7 +9,6 @@ License
 
 This library written by Torben Sickert stand under a creative commons naming
 3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
-
 endregion -->
 
 <!--|deDE:Einsatz-->
@@ -75,17 +73,74 @@ Features
     </li>
 </ul>
 
-<!--|deDE:Einstieg-->
-Quick start
------------
+<!--|deDE:Installation-->
+Installation
+------------
 
-Easy access of a method in "$.Tools":
-<!--deDE:Einfacher Aufruf einer Methode aus "$.Tools":-->
+<!--|deDE:Klassische Dom-Integration-->
+### Classical dom injection
+
+You can simply download the compiled version as zip file here and inject it
+after needed dependencies:
+<!--deDE:
+    Du kannst einfach das Plugin als Zip-Archiv herunterladen und per
+    Script-Tag in deine Webseite integrieren:
+-->
+
+    #!HTML
+
+    <script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
+    <!--Inject downloaded file:-->
+    <script src="/index.compiled.js"></script>
+    <!--Or integrate via cdn:
+    <script src="http://torben.website/jQuery-tools/data/distributionBundle/index.compiled.js"></script>
+    -->
+
+The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
+into given context (UMD) as export format: You can use a module bundler if you
+want.
+<!--deDE:
+    Das kompilierte Bundle unterstützt AMD, commonjs, commonjs2 und
+    Variable-Injection in den gegebenen Context (UMD) als Export-Format:
+    Dadurch können verschiedene Module-Bundler genutzt werden.
+-->
+
+<!--|deDE:Paket-Management und Modul-Komposition-->
+### Package managed and module bundled
+
+If you are using npm as package manager you can simply add this tool to your
+**package.json** as dependency:
+<!--deDE:
+    Nutzt du npm als Paket-Manager, dann solltest du einfach deine
+    <strong>package.json</strong> erweitern:
+-->
+
+    #!JSON
+
+    ...
+    "dependencies": {
+        ...
+        "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git",
+        ...
+    },
+    ...
+
+After updating your packages you can simply depend on this script and let
+a module bundler do the hard stuff or access it via a exported variable name
+into given context.
+<!--deDE:
+    Nach einem Update deiner Pakete kannst du dieses Plugin einfach in deine
+    JavaScript-Module importieren oder die exportierte Variable im gegebenen
+    Context referenzieren.
+-->
 
     #!JavaScript
 
-    var tools = $.Tools({'logging': true});
-    tools.log('test');
+    ...
+    $ = require('jQuery-tools')
+    ...
+    $.Tools().isEquivalentDom('<div>', '<script>') // false
+    ...
 
 <!--|deDE:Plugin-Vorlage-->
 Plugin pattern
@@ -108,18 +163,18 @@ initializing the plugin without providing a dom node is also provided.
     // !/usr/bin/env node
     // -*- coding: utf-8 -*-
     /** @module jQuery-incrementer */
-    'use strict';
+    'use strict'
     import $ from 'jquery'
     import 'jQuery-tools'
     const context:Object = (():Object => {
-        if ($.type(window) === 'undefined') {
-            if ($.type(global) === 'undefined')
-                return ($.type(module) === 'undefined') ? {} : module
+        if (typeof window === 'undefined') {
+            if (typeof global === 'undefined')
+                return (typeof module === 'undefined') ? {} : module
             return global
         }
         return window
     })()
-    if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
+    if (!('document' in context) && 'context' in $)
         context.document = $.context
     /**
      * This plugin holds all needed methods to extend input fields to select
@@ -148,7 +203,7 @@ initializing the plugin without providing a dom node is also provided.
     $.fn.Example = function() {
         return $.Tools().controller(Example, arguments, this)
     }
-    /** The jQuery-example plugin class. */
+    /** jQuery extended with jQuery-example plugin. */
     export default Example
 
 Initialisation with given dom node and without:
@@ -168,9 +223,9 @@ reference:
 
     #!JavaScript
 
-    const returnValue = $('#domNode').Example('method', 'anArgument');
-    const returnValue = $('#domNode').Example().method('anArgument');
-    const exampleInstance = $.Example({firstOption: 'value'});
+    const returnValue = $('#domNode').Example('method', 'anArgument')
+    const returnValue = $('#domNode').Example().method('anArgument')
+    const exampleInstance = $.Example({firstOption: 'value'})
     const returnValue = exampleInstance.method('anArgument')
 
 <!-- region modline
