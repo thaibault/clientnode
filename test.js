@@ -50,7 +50,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
     })
     // endregion
     for (const roundType:string of ['plain', 'withDocument', 'withJQuery']) {
-        let $:any = require('./index').default
+        let $:any = require('./index').$
         let $bodyDomNode:$DomNode
         let tools:$.Tools = $.Tools()
         if (roundType !== 'plain') {

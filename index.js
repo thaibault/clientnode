@@ -138,7 +138,7 @@ $.global = globalContext
  * @property _locks - Mapping of lock descriptions to there corresponding
  * callbacks.
  */
-export class Tools {
+export default class Tools {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
@@ -3208,7 +3208,7 @@ if ('fn' in $) {
 // / endregion
 // endregion
 /** $ extended with tools plugin. */
-export default $
+export $
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
