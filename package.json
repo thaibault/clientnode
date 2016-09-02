@@ -23,7 +23,7 @@
         "clear": "webOptimizer clear",
         "document": "webOptimizer document",
         "lint": "webOptimizer typeCheck && webOptimizer lint",
-        "postinstall": "webOptimizer build || babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js",
+        "postinstall": "webOptimizer build && echo wait && sleep 30 || babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js",
         "postinstall_back": "babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js",
         "preinstall": "webOptimizer preinstall || echo You should run you install procedure again to resolve dependency cycles.",
         "serve": "webOptimizer serve",
