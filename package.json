@@ -23,7 +23,7 @@
         "clear": "webOptimizer clear",
         "document": "webOptimizer document",
         "lint": "webOptimizer typeCheck && webOptimizer lint",
-        "install": "npm run build || babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js",
+        "install": "npm run build || echo You should rerun install procedure to resolve dependency cycle. && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js",
         "serve": "webOptimizer serve",
         "start": "npm run serve",
         "test": "webOptimizer test",
