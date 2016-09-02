@@ -151,37 +151,30 @@ into given context.
 Plugin pattern
 --------------
 
-Use as extension for object orientated, node and browser compatible jQuery
-plugin using inheritance and dom node as return value reference. This plugin
-pattern gives their instance back if no dom node is provided. Direct
+Use as extension for object orientated, node and browser compatible (optionally
+jQuery) plugin using inheritance and dom node as return value reference. This
+plugin pattern gives their instance back if no dom node is provided. Direct
 initializing the plugin without providing a dom node is also provided.
+Note: if you want to use it as jQuery (or another or even custom) plugin you
+have to provide "$" globally before loading this module.
 <!--deDE:
     Einsatz von "$.Tools" um Objekt orientierte, node und Browser kompatible
-    jQuery Plugins zu verfassen, indem von "$.Tools" geerbt wird und der durch
-    jQuery erweiterte DOM-Knoten als return-Wert referenziert wird. Sollte kein
-    DOM-Knoten an die $-Funktion übergeben worden sein, gibt dieser Pattern
-    seine Instanz zurück.
+    (optional jQuery) Plugins zu implementieren, indem von "$.Tools" geerbt
+    wird und der durch jQuery erweiterte DOM-Knoten als return-Wert
+    referenziert wird. Sollte kein DOM-Knoten an die $-Funktion übergeben
+    worden sein, gibt dieser Pattern seine Instanz zurück.
+    Beachte: Wenn das Modul als jQuery (oder anderem potentiell eigenen) Plugin
+    einer bereits bestehenden Instanz hinzugefügt werden soll muss dieses unter
+    "$" global verfügbar sein bevor das Modul geladen wird.
 -->
 
     #!JavaScript
 
-    // TODO
     // !/usr/bin/env node
     // -*- coding: utf-8 -*-
     /** @module jQuery-incrementer */
     'use strict'
-    import $ from 'jquery'
-    import 'clientNode'
-    const context:Object = (():Object => {
-        if (typeof window === 'undefined') {
-            if (typeof global === 'undefined')
-                return (typeof module === 'undefined') ? {} : module
-            return global
-        }
-        return window
-    })()
-    if (!('document' in context) && 'context' in $)
-        context.document = $.context
+    import {$} from 'clientNode'
     /**
      * This plugin holds all needed methods to extend input fields to select
      * numbers very smart.
@@ -191,7 +184,7 @@ initializing the plugin without providing a dom node is also provided.
      * @property _options - Options extended by the options given to the
      * initializer method.
      */
-    class Example extends $.Tools.class {
+    export default class Example extends $.Tools.class {
         static _name = 'Example';
         /* eslint-disable jsdoc/require-description-complete-sentence */
         /**
@@ -209,8 +202,6 @@ initializing the plugin without providing a dom node is also provided.
     $.fn.Example = function() {
         return $.Tools().controller(Example, arguments, this)
     }
-    /** jQuery extended with jQuery-example plugin. */
-    export default Example
 
 Initialisation with given dom node and without:
 <!--deDE:Aufruf mit und ohne übergebenen DOM-Knoten:-->
