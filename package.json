@@ -27,6 +27,9 @@
       }
     },
     "module": {
+        "preprocessor": {
+        "babel": {"presets": ["latest", "stage-0"]}
+        },
       "skipParseRegularExpression": {
         "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
