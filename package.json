@@ -23,7 +23,7 @@
         "clear": "webOptimizer clear",
         "document": "webOptimizer document",
         "lint": "webOptimizer typeCheck && webOptimizer lint",
-        "postinstall": "webOptimizer build || echo webOptimizer is not present yet. Rerun installation to resolve dependencies.",
+        "postinstall": "babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js",
         "preinstall": "webOptimizer preinstall || true",
         "serve": "webOptimizer serve",
         "start": "npm run serve",
