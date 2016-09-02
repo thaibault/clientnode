@@ -1,13 +1,13 @@
 {
-    "name": "tools",
+    "name": "clientNode",
     "version": "1.0.0",
     "description": "upgrade to object orientated rock solid plugins",
-    "keywords": ["tools"],
+    "keywords": ["client", "tools", "node", "polymorph", "jquery"],
     "files": ["index.js"],
     "repository": {
-        "type": "git", "url": "https://github.com/thaibault/tools"
+        "type": "git", "url": "https://github.com/thaibault/clientNode"
     },
-    "homepage": "http://torben.website/tools",
+    "homepage": "http://torben.website/clientNode",
     "main": "index.compiled.js",
     "webOptimizer": {
         "injection": {"internal": {"vendor": {
