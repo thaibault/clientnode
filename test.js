@@ -31,9 +31,8 @@ else
         require('script!qunitjs') && window.QUnit)
 browserAPI((browserAPI:BrowserAPI):void => {
     // region configuration
-    QUnit.config = require(
-        './index'
-    ).default.Tools.class.extendObject(QUnit.config || {}, {
+    QUnit.config = require('./index').default.extendObject(QUnit.config || {
+    }, {
         /*
         notrycatch: true,
         noglobals: true,
