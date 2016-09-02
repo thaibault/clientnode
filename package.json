@@ -1,6 +1,6 @@
 {
   "name": "clientNode",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "upgrade to object orientated rock solid plugins",
   "keywords": [
     "client",
@@ -27,9 +27,14 @@
       }
     },
     "module": {
-        "preprocessor": {
-        "babel": {"presets": ["latest", "stage-0"]}
-        },
+      "preprocessor": {
+        "babel": {
+          "presets": [
+            "latest",
+            "stage-0"
+          ]
+        }
+      },
       "skipParseRegularExpression": {
         "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
