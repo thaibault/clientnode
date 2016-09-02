@@ -23,7 +23,7 @@
         "clear": "webOptimizer clear",
         "document": "webOptimizer document",
         "lint": "webOptimizer typeCheck && webOptimizer lint",
-        "postinstall": "type webOptimizer && hash webOptimizer && webOptimizer build && echo AAA $?;echo wait && sleep 10 && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js",
+        "postinstall": "type webOptimizer && head /home/torben/cloud/data/repository/public/tools/node_modules/.bin/webOptimizer && webOptimizer build && echo AAA $?;echo wait && sleep 10 && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js",
         "preinstall_back": "webOptimizer preinstall || echo You should run you install procedure again to resolve dependency cycles.",
         "serve": "webOptimizer serve",
         "start": "npm run serve",
