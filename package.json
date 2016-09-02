@@ -46,7 +46,7 @@
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "lint": "webOptimizer typeCheck && webOptimizer lint",
-    "prepublish": "npm run build || echo You should rerun install procedure to resolve dependency cycle. && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js",
+    "prepublish": "if ! npm run build; then echo You should rerun install procedure to resolve dependency cycle. && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js; fi",
     "serve": "webOptimizer serve",
     "start": "npm run serve",
     "test": "webOptimizer test",
