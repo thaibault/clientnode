@@ -20,15 +20,13 @@ import type {BrowserAPI} from 'webOptimizer/type'
 import type {$DomNode} from './index'
 // endregion
 // region declaration
-declare var DEBUG:boolean
 declare var TARGET_TECHNOLOGY:string
 // endregion
 let QUnit:Object
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node')
     QUnit = require('qunit-cli')
 else
-    QUnit = DEBUG ? require('qunitjs') : (
-        require('script!qunitjs') && window.QUnit)
+    QUnit = require('script!qunitjs') && window.QUnit
 browserAPI((browserAPI:BrowserAPI):void => {
     // region configuration
     QUnit.config = require('./index').default.extendObject(QUnit.config || {
@@ -1941,7 +1939,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
         // // region data transfer
         if (
             typeof TARGET_TECHNOLOGY !== 'undefined' &&
-            TARGET_TECHNOLOGY === 'web'
+            TARGET_TECHNOLOGY === 'web' && roundType === 'withJQuery'
         ) {
             QUnit.test(`sendToIFrame (${roundType})`, (assert:Object):void => {
                 const iFrame = $('<iframe>').hide().attr('name', 'test')
