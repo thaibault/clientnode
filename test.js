@@ -2026,7 +2026,10 @@ let testRegistered:boolean = false
  * @returns The list of currently registered tests.
  */
 export default function(
-    callback:(() => void), roundTypes:Array<string> = []
+    callback:((
+        roundType:string, targetTechnology:?string, $:any,
+        browserAPI:BrowserAPI, tools:Object, $bodyDomNode:$DomNode
+    ) => void), roundTypes:Array<string> = []
 ):Array<Test> {
     if (!testRegistered) {
         testRegistered = true
