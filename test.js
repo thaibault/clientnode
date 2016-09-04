@@ -22,7 +22,7 @@ import type {$DomNode} from './index'
 // region types
 export type Test = {
     callback:Function;
-    excludedRoundTypes:Array<string>
+    roundTypes:Array<string>
 }
 // endregion
 // region declaration
@@ -1948,7 +1948,7 @@ let tests:Array<Test> = [{callback: function(
         })
     // / endregion
     // endregion
-}, excludedRoundTypes: []}]
+}, roundTypes: []}]
 // endregion
 // region test runner (in browserAPI)
 browserAPI((browserAPI:BrowserAPI):void => {
@@ -1972,7 +1972,9 @@ browserAPI((browserAPI:BrowserAPI):void => {
     // endregion
     for (const test:Test of tests)
         for (const roundType:string of ['plain', 'withDocument', 'withJQuery'])
-            if (!test.excludedRoundTypes.includes(roundType)) {
+            if (test.roundTypes.length === 0 || test.roundTypes.includes(
+                roundType
+            )) {
                 let $:any = require('./index').$
                 let $bodyDomNode:$DomNode
                 let tools:$.Tools = $.Tools()
@@ -2018,17 +2020,17 @@ let testRegistered:boolean = false
  * Registers a complete test set.
  * @param callback - A function containing all tests to run. This callback gets
  * some useful parameters and will be executed in context of qunit.
- * @param excludedRoundTypes - A list of round types which should be avoided.
+ * @param roundTypes - A list of round types which should be avoided.
  * @returns The list of currently registered tests.
  */
 export default function(
-    callback:(() => void), excludedRoundTypes:Array<string> = []
+    callback:(() => void), roundTypes:Array<string> = []
 ):Array<Test> {
     if (!testRegistered) {
         testRegistered = true
         tests = []
     }
-    tests.push({callback, excludedRoundTypes})
+    tests.push({callback, roundTypes})
     return tests
 }
 // region vim modline
