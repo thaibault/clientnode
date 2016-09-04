@@ -1990,8 +1990,10 @@ browserAPI((browserAPI:BrowserAPI):void => {
                     tools = $('body').Tools()
                 }
                 test.callback.call(
-                    QUnit, roundType, TARGET_TECHNOLOGY || null, $, browserAPI,
-                    tools, $bodyDomNode)
+                    QUnit, roundType, (
+                        typeof TARGET_TECHNOLOGY === 'undefined'
+                    ) ? null : TARGET_TECHNOLOGY, $, browserAPI, tools,
+                    $bodyDomNode)
             }
     if (
         typeof TARGET_TECHNOLOGY === 'undefined' ||
