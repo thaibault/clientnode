@@ -2036,7 +2036,7 @@ export default function(
     callback:((
         roundType:string, targetTechnology:?string, $:any,
         browserAPI:BrowserAPI, tools:Object, $bodyDomNode:$DomNode
-    ) => void), roundTypes:Array<string> = []
+    ) => any), roundTypes:Array<string> = []
 ):Array<Test> {
     if (testRan)
         throw Error(
