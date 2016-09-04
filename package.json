@@ -23,10 +23,10 @@
     "injection": {
       "internal": {
         "index": {
-          "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'build' ? './index' : '__auto__'"
+          "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'build' ? 'index' : ['test', 'testInBrowser'].includes(self.givenCommandLineArguments[2]) ? 'test' : '__auto__'"
         },
         "test": {
-          "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'build' ? './test' : []"
+          "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'build' ? 'test' : []"
         },
         "vendor": {
           "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? self.givenCommandLineArguments[2] === 'serve' ? ['script!jquery'] : ['jquery', 'script!qunitjs', 'webOptimizer/browserAPI'] : []"
