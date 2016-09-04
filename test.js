@@ -1951,7 +1951,9 @@ let tests:Array<Test> = [{callback: function(
 }, roundTypes: []}]
 // endregion
 // region test runner (in browserAPI)
+let testRan:boolean = false
 browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
+    testRan = true
     // region configuration
     QUnit.config = require('./index').default.extendObject(QUnit.config || {
     }, {
@@ -2031,6 +2033,10 @@ export default function(
         browserAPI:BrowserAPI, tools:Object, $bodyDomNode:$DomNode
     ) => void), roundTypes:Array<string> = []
 ):Array<Test> {
+    if (testRan)
+        throw Error(
+            'You have to registere your tests immediately after importing ' +
+            'the client node library.')
     if (!testRegistered) {
         testRegistered = true
         tests = []
