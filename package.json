@@ -10,7 +10,7 @@
     "jquery"
   ],
   "files": [
-    "index.js"
+    "index.js", "test.js"
   ],
   "repository": {
     "type": "git",
