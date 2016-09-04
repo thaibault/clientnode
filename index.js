@@ -56,7 +56,7 @@ export type $DomNode = {
 }
 // endregion
 // region determine context
-const globalContext:Object = (():Object => {
+export const globalContext:Object = (():Object => {
     if (typeof window === 'undefined') {
         if (typeof global === 'undefined')
             return (typeof module === 'undefined') ? {} : module
@@ -64,37 +64,40 @@ const globalContext:Object = (():Object => {
     }
     return window
 })()
-export let $:any
-if ('$' in globalContext)
-    $ = globalContext.$
-else {
-    const selector:any = (
-        'document' in globalContext &&
-        'querySelectorAll' in globalContext.document
-    ) ? globalContext.document.querySelectorAll : ():null => null
-    $ = function(parameter:any):any {
-        if (typeof parameter === 'string') {
-            const $domNodes:Array<any> = selector.apply(
-                globalContext.document, arguments)
-            if ('fn' in $)
-                for (const key:string in $.fn)
-                    if ($.fn.hasOwnProperty(key))
-                        // IgnoreTypeCheck
-                        $domNodes[key] = $.fn[key].bind($domNodes)
-            return $domNodes
+export const $:any = (():any => {
+    let $:any
+    if ('$' in globalContext)
+        $ = globalContext.$
+    else {
+        const selector:any = (
+            'document' in globalContext &&
+            'querySelectorAll' in globalContext.document
+        ) ? globalContext.document.querySelectorAll : ():null => null
+        $ = function(parameter:any):any {
+            if (typeof parameter === 'string') {
+                const $domNodes:Array<any> = selector.apply(
+                    globalContext.document, arguments)
+                if ('fn' in $)
+                    for (const key:string in $.fn)
+                        if ($.fn.hasOwnProperty(key))
+                            // IgnoreTypeCheck
+                            $domNodes[key] = $.fn[key].bind($domNodes)
+                return $domNodes
+            }
+            /* eslint-disable no-use-before-define */
+            if (Tools.isFunction(parameter) && 'document' in globalContext)
+            /* eslint-enable no-use-before-define */
+                globalContext.document.addEventListener(
+                    'DOMContentLoaded', parameter)
+            return parameter
         }
-        /* eslint-disable no-use-before-define */
-        if (Tools.isFunction(parameter) && 'document' in globalContext)
-        /* eslint-enable no-use-before-define */
-            globalContext.document.addEventListener(
-                'DOMContentLoaded', parameter)
-        return parameter
+        $.fn = {}
     }
-    $.fn = {}
-}
-if (!('document' in globalContext) && 'context' in $)
-    globalContext.document = $.context
-$.global = globalContext
+    if (!('document' in globalContext) && 'context' in $)
+        globalContext.document = $.context
+    $.global = globalContext
+    return $
+})()
 // endregion
 // region plugins/classes
 /**
