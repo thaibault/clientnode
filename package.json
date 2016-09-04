@@ -12,7 +12,8 @@
   "files": [
     "index.js",
     "index.compiled.js",
-    "test.js"
+    "test.js",
+    "test.compiled.js"
   ],
   "repository": {
     "type": "git",
@@ -43,7 +44,7 @@
     }
   },
   "scripts": {
-    "build": "webOptimizer build",
+    "build": "webOptimizer build && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
     "buildDLL": "webOptimizer buildDLL",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
