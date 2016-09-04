@@ -824,7 +824,7 @@ export default class Tools {
             'window' in $.global && this.$domNode && this.$domNode.length &&
             this.$domNode[0]
         ) {
-            const $window:$DomNode = $(window)
+            const $window:$DomNode = $($.global.window)
             const rectangle:Position = this.$domNode[0].getBoundingClientRect()
             if ((rectangle.top + delta.top) < 0)
                 return 'above'
@@ -985,7 +985,7 @@ export default class Tools {
         if (this._options.domNodeSelectorPrefix)
             domNodes.parent = $(this._options.domNodeSelectorPrefix)
         if ('window' in $.global)
-            domNodes.window = $(window)
+            domNodes.window = $($.global.window)
         if ('document' in $.global)
             domNodes.document = $($.global.document)
         return domNodes
