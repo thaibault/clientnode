@@ -213,7 +213,7 @@ export default class Tools {
                 return 11
         return version
     })()
-    static noop = ('noop' in $) ? $.noop() : ():void => {}
+    static noop = ('noop' in $) ? $.noop : ():void => {}
     static specialRegexSequences:Array<string> = [
         '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}']
     static transitionEndEventNames:string = 'transitionend ' +
@@ -1077,8 +1077,9 @@ export default class Tools {
         const self:Tools = this
         return function():any {
             // IgnoreTypeCheck
-            return method.apply(scope, additionalArguments.concat(
-                self.constructor.arrayMake(arguments)))
+            return method.apply(scope, self.constructor.arrayMake(
+                arguments
+            ).concat(additionalArguments))
         }
     }
     /**
@@ -1166,8 +1167,8 @@ export default class Tools {
      * called.
      * @param additionalArguments - Additional arguments to forward to
      * corresponding event handlers.
-     * @returns - Returns "true" if an event handler was called and "false"
-     * otherwise.
+     * @returns - Returns "true" if an options event handler was called and
+     * "false" otherwise.
      */
     fireEvent(
         eventName:string, callOnlyOptionsMethod:boolean = false,
