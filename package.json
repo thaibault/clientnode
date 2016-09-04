@@ -12,6 +12,7 @@
   "files": [
     "index.js",
     "index.compiled.js",
+    "test.js",
     "test.compiled.js"
   ],
   "repository": {
