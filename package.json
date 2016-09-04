@@ -1,6 +1,6 @@
 {
   "name": "clientNode",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "upgrade to object orientated rock solid plugins",
   "keywords": [
     "client",
@@ -10,7 +10,8 @@
     "jquery"
   ],
   "files": [
-    "index.js", "test.js"
+    "index.js",
+    "test.js"
   ],
   "repository": {
     "type": "git",
