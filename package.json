@@ -59,15 +59,13 @@
     "watchDLL": "webOptimizer buildDLL --watch"
   },
   "license": "CC-BY-3.0",
-  "dependencies": {
-    "webOptimizer": "latest"
-  },
   "devDependencies": {
     "jsdom": "latest",
     "jquery": "latest",
     "qunitjs": "latest",
     "qunit-cli": "latest",
-    "source-map-support": "latest"
+    "source-map-support": "latest",
+    "webOptimizer": "latest"
   },
   "peerDependencies": {
     "jquery": "*"
