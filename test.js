@@ -1972,6 +1972,7 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
         scrolltop: false
     })
     // endregion
+    const testPromises:Array<Promise<any>> = []
     for (const test:Test of tests)
         for (const roundType:string of ['plain', 'withDocument', 'withJQuery'])
             if (test.roundTypes.length === 0 || test.roundTypes.includes(
@@ -1991,17 +1992,21 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
                     $bodyDomNode = $('body')
                     tools = $('body').Tools()
                 }
-                test.callback.call(
+                const testPromise:?Promise<any> = test.callback.call(
                     QUnit, roundType, (
                         typeof TARGET_TECHNOLOGY === 'undefined'
                     ) ? null : TARGET_TECHNOLOGY, $, browserAPI, tools,
                     $bodyDomNode)
+                if (testPromise instanceof Promise)
+                    testPromises.push(testPromise)
             }
-    if (
-        typeof TARGET_TECHNOLOGY === 'undefined' ||
-        TARGET_TECHNOLOGY === 'node'
-    )
-        QUnit.load()
+    Promise.all(testPromises).then(():void => {
+        if (
+            typeof TARGET_TECHNOLOGY === 'undefined' ||
+            TARGET_TECHNOLOGY === 'node'
+        )
+            QUnit.load()
+    })
     // region hot module replacement handler
     /*
         NOTE: hot module replacement doesn't work with async tests yet since
