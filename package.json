@@ -22,6 +22,7 @@
   "homepage": "http://torben.website/clientNode",
   "main": "index.compiled.js",
   "webOptimizer": {
+    "buildDefinition": {"TARGET_TECHNOLOGY": {"__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'build' ? 'TARGET_TECHNOLOGY': `'${self.targetTechnology}'`"}},
     "injection": {
       "internal": {
         "index": {
