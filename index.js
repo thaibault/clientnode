@@ -1175,7 +1175,6 @@ export default class Tools {
     ):boolean {
         const eventHandlerName:string =
             `on${this.constructor.stringCapitalize(eventName)}`
-        console.log(eventName, callOnlyOptionsMethod)
         if (!callOnlyOptionsMethod)
             if (eventHandlerName in scope)
                 scope[eventHandlerName].apply(scope, additionalArguments)
