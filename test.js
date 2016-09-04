@@ -1951,7 +1951,7 @@ let tests:Array<Test> = [{callback: function(
 }, roundTypes: []}]
 // endregion
 // region test runner (in browserAPI)
-browserAPI((browserAPI:BrowserAPI):void => {
+browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
     // region configuration
     QUnit.config = require('./index').default.extendObject(QUnit.config || {
     }, {
@@ -2015,7 +2015,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
         }
     */
     // endregion
-})
+}, 0))
 // endregion
 let testRegistered:boolean = false
 /**
