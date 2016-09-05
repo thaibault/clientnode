@@ -1,11 +1,11 @@
 // @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
-/** @module tools */
+/** @module clientNode */
 'use strict'
 /* !
     region header
-    [Project page](http://torben.website/tools)
+    [Project page](http://torben.website/clientNode)
 
     Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
