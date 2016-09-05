@@ -1974,7 +1974,10 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
     })
     // endregion
     const testPromises:Array<Promise<any>> = []
-    for (const test:Test of tests)
+    let closeWindow:boolean = false
+    for (const test:Test of tests) {
+        if (test.closeWindow)
+            closeWindow = true
         for (const roundType:string of ['plain', 'withDocument', 'withJQuery'])
             if (test.roundTypes.length === 0 || test.roundTypes.includes(
                 roundType
@@ -2001,6 +2004,7 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
                 if (testPromise instanceof Promise)
                     testPromises.push(testPromise)
             }
+    }
     Promise.all(testPromises).then(():void => {
         if (
             typeof TARGET_TECHNOLOGY === 'undefined' ||
@@ -2035,6 +2039,8 @@ let testRegistered:boolean = false
  * @param callback - A function containing all tests to run. This callback gets
  * some useful parameters and will be executed in context of qunit.
  * @param roundTypes - A list of round types which should be avoided.
+ * @param closeWindow - Indicates whether the window object should be closed
+ * after finishing all tests.
  * @returns The list of currently registered tests.
  */
 export default function(
