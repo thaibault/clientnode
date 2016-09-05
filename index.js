@@ -1321,9 +1321,11 @@ export default class Tools {
                     for (const [key:string, value:any] of source)
                         target.set(key, mergeValue(key, value, target.get(
                             key)))
-                else if (Tools.isPlainObject(target) && Tools.isPlainObject(
-                    source
-                )) {
+                else if (
+                    target !== null && !Array.isArray(target) &&
+                    typeof target === 'object' && source !== null &&
+                    !Array.isArray(source) && typeof source === 'object'
+                ) {
                     for (const key:string in source)
                         if (source.hasOwnProperty(key))
                             target[key] = mergeValue(
