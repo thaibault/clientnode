@@ -1996,12 +1996,15 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
                     $bodyDomNode = $('body')
                     tools = $('body').Tools()
                 }
-                const testPromise:?Promise<any> = test.callback.call(
+                const testPromise:?Object = test.callback.call(
                     QUnit, roundType, (
                         typeof TARGET_TECHNOLOGY === 'undefined'
                     ) ? null : TARGET_TECHNOLOGY, $, browserAPI, tools,
                     $bodyDomNode)
-                if (testPromise instanceof Promise)
+                if (
+                    typeof testPromise === 'object' && testPromise &&
+                    'then' in testPromise
+                )
                     testPromises.push(testPromise)
             }
     }
