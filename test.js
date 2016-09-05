@@ -22,6 +22,7 @@ import type {$DomNode} from './index'
 // region types
 export type Test = {
     callback:Function;
+    closeWindow:boolean;
     roundTypes:Array<string>
 }
 // endregion
@@ -1948,7 +1949,7 @@ let tests:Array<Test> = [{callback: function(
         })
     // / endregion
     // endregion
-}, roundTypes: []}]
+}, closeWindow: false, roundTypes: []}]
 // endregion
 // region test runner (in browserAPI)
 let testRan:boolean = false
@@ -2004,8 +2005,11 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
         if (
             typeof TARGET_TECHNOLOGY === 'undefined' ||
             TARGET_TECHNOLOGY === 'node'
-        )
+        ) {
+            if (closeWindow)
+                browserAPI.window.close()
             QUnit.load()
+        }
     })
     // region hot module replacement handler
     /*
@@ -2024,6 +2028,7 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
     // endregion
 }, 0))
 // endregion
+// region export test register function
 let testRegistered:boolean = false
 /**
  * Registers a complete test set.
@@ -2036,7 +2041,7 @@ export default function(
     callback:((
         roundType:string, targetTechnology:?string, $:any,
         browserAPI:BrowserAPI, tools:Object, $bodyDomNode:$DomNode
-    ) => any), roundTypes:Array<string> = []
+    ) => any), roundTypes:Array<string> = [], closeWindow:boolean = false
 ):Array<Test> {
     if (testRan)
         throw Error(
@@ -2046,9 +2051,10 @@ export default function(
         testRegistered = true
         tests = []
     }
-    tests.push({callback, roundTypes})
+    tests.push({callback, closeWindow, roundTypes})
     return tests
 }
+// endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
