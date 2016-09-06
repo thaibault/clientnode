@@ -81,8 +81,15 @@ export const globalContext:Object = (():Object => {
     }
     return window
 })()
+/*
+    NOTE: We have to bind "$" to a temporary variable to let static parsers
+    know that we assume "$" can be integrated because it can syntactically a
+    free variable in this module scope.
+*/
 /* eslint-disable no-use-before-define */
-export const $ = (typeof $ === 'undefined') ? (():any => {
+// IgnoreTypeCheck
+const binding:any = (typeof $ === 'undefined') ? null : $
+export const $ = binding ? $ : (():any => {
 /* eslint-enable no-use-before-define */
     let $:any
     if ('$' in globalContext)
@@ -113,9 +120,7 @@ export const $ = (typeof $ === 'undefined') ? (():any => {
         $.fn = {}
     }
     return $
-/* eslint-disable no-use-before-define */
-})() : $
-/* eslint-enable no-use-before-define */
+})()
 if (!('global' in $))
     $.global = globalContext
 if (!('context' in $) && 'document' in $.global)
