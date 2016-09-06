@@ -21,9 +21,6 @@
   "homepage": "http://torben.website/clientNode",
   "main": "index.compiled.js",
   "webOptimizer": {
-    "development": {
-      "tool": null
-    },
     "injection": {
       "internal": {
         "vendor": {
