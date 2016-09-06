@@ -81,7 +81,9 @@ export const globalContext:Object = (():Object => {
     }
     return window
 })()
-export const $:any = (():any => {
+/* eslint-disable no-use-before-define */
+export const $ = (typeof $ === 'undefined') ? (():any => {
+/* eslint-enable no-use-before-define */
     let $:any
     if ('$' in globalContext)
         $ = globalContext.$
@@ -110,11 +112,14 @@ export const $:any = (():any => {
         }
         $.fn = {}
     }
-    if (!('document' in globalContext) && 'context' in $)
-        globalContext.document = $.context
-    $.global = globalContext
     return $
-})()
+/* eslint-disable no-use-before-define */
+})() : $
+/* eslint-enable no-use-before-define */
+if (!('global' in $))
+    $.global = globalContext
+if (!('context' in $) && 'document' in $.global)
+    $.contest = $.global.document
 // endregion
 // region plugins/classes
 /**
