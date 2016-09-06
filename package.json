@@ -27,7 +27,7 @@
     "injection": {
       "internal": {
         "vendor": {
-          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'webOptimizer/browserAPI'] : []"
+          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI'] : []"
         }
       }
     },
@@ -70,7 +70,7 @@
     "qunitjs": "latest",
     "qunit-cli": "latest",
     "source-map-support": "latest",
-    "webOptimizer": "latest"
+    "weboptimizer": "latest"
   },
   "peerDependencies": {
     "jquery": "*"

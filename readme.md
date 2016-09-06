@@ -93,7 +93,7 @@ after needed dependencies:
     <!--Inject downloaded file:-->
     <script src="/index.compiled.js"></script>
     <!--Or integrate via cdn:
-    <script src="http://torben.website/clientNode/data/distributionBundle/index.compiled.js"></script>
+    <script src="http://torben.website/clientnode/data/distributionBundle/index.compiled.js"></script>
     -->
 
 The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
@@ -120,7 +120,7 @@ If you are using npm as package manager you can simply add this tool to your
     ...
     "dependencies": {
         ...
-        "clientNode": "latest",
+        "clientnode": "latest",
         ...
     },
     ...
@@ -137,13 +137,13 @@ into given context.
     #!JavaScript
 
     ...
-    import Tools from 'clientNode'
+    import Tools from 'clientnode'
     Tools({logging: true}).log('test') // shows "test" in console
     // or
-    Tools = require('clientNode').default
+    Tools = require('clientnode').default
     $.Tools().arrayMake(2) // [2]
     // or
-    $ = require('clientNode').$
+    $ = require('clientnode').$
     $.Tools().isEquivalentDom('<div>', '<script>') // false
     ...
 
@@ -174,11 +174,11 @@ have to provide "$" globally before loading this module.
     // -*- coding: utf-8 -*-
     /** @module jQuery-incrementer */
     'use strict'
-    import {$} from 'clientNode'
+    import {$} from 'clientnode'
     /**
      * This plugin holds all needed methods to extend input fields to select
      * numbers very smart.
-     * @extends clientNode:Tools
+     * @extends clientnode:Tools
      * @property static:_name - Defines this class name to allow retrieving them
      * after name mangling.
      * @property _options - Options extended by the options given to the
