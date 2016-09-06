@@ -769,6 +769,8 @@ let tests:Array<Test> = [{callback: function(
                 {a: {a: null}}
             ],
             [[true, {a: {a: [1, 2]}}, {a: true}], {a: true}],
+            [[true, {a: {_a: 1}}, {a: {b: 2}}], {a: {_a: 1, b: 2}}],
+            [[false, {_a: 1}, {a: 2}], {a: 2, _a: 1}],
             [[true, {a: {a: [1, 2]}}, false], false],
             [[true, {a: {a: [1, 2]}}, undefined], undefined],
             [[true, {a: 1}, {a: 2}, {a: 3}], {a: 3}],
