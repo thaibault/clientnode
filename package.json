@@ -1,6 +1,6 @@
 {
   "name": "clientNode",
-  "version": "1.0.37",
+  "version": "1.0.38",
   "description": "upgrade to object orientated rock solid plugins",
   "keywords": [
     "client",
@@ -21,9 +21,9 @@
   "homepage": "http://torben.website/clientNode",
   "main": "index.compiled.js",
   "webOptimizer": {
-
-    "development":{"tool":null},
-
+    "development": {
+      "tool": null
+    },
     "injection": {
       "internal": {
         "vendor": {
@@ -40,7 +40,9 @@
           ]
         }
       },
-      "provide": {"__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'serve' ? {$: 'jquery'} : {}"},
+      "provide": {
+        "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'serve' ? {$: 'jquery'} : {}"
+      },
       "skipParseRegularExpression": {
         "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
