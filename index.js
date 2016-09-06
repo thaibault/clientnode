@@ -1,11 +1,11 @@
 // @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
-/** @module clientNode */
+/** @module clientnode */
 'use strict'
 /* !
     region header
-    [Project page](http://torben.website/clientNode)
+    [Project page](http://torben.website/clientnode)
 
     Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
@@ -18,7 +18,7 @@
     endregion
 */
 // region imports
-import type {DomNode, PlainObject} from 'webOptimizer/type'
+import type {DomNode, PlainObject} from 'weboptimizer/type'
 // endregion
 // region types
 export type GetterFunction = (keyOrValue:any) => any

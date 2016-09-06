@@ -15,8 +15,8 @@
     endregion
 */
 // region imports
-import browserAPI from 'webOptimizer/browserAPI'
-import type {BrowserAPI} from 'webOptimizer/type'
+import browserAPI from 'weboptimizer/browserAPI'
+import type {BrowserAPI} from 'weboptimizer/type'
 import type {$DomNode} from './index'
 // endregion
 // region types
