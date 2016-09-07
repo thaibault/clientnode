@@ -37,9 +37,6 @@
           ]
         }
       },
-      "provide": {
-        "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'serve' ? {$: 'jquery'} : {}"
-      },
       "skipParseRegularExpression": {
         "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
