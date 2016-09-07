@@ -77,24 +77,23 @@ export const globalContext:Object = (():Object => {
     if (typeof window === 'undefined') {
         if (typeof global === 'undefined')
             return (typeof module === 'undefined') ? {} : module
+        if ('window' in global)
+            return global.window
         return global
     }
     return window
 })()
-/*
-    NOTE: We have to bind "$" to a temporary variable to let static parsers
-    know that we assume "$" can be integrated because it can syntactically a
-    free variable in this module scope.
-*/
 /* eslint-disable no-use-before-define */
-// IgnoreTypeCheck
-const binding:any = (typeof $ === 'undefined') ? null : $
-export const $ = binding ? $ : (():any => {
+export const $ = (():any => {
 /* eslint-enable no-use-before-define */
     let $:any
-    if ('$' in globalContext)
+    if ('$' in globalContext && globalContext.$ !== null)
         $ = globalContext.$
     else {
+        if (!('$' in globalContext))
+            try {
+                return require('jquery')
+            } catch (error) {}
         const selector:any = (
             'document' in globalContext &&
             'querySelectorAll' in globalContext.document
@@ -2287,7 +2286,8 @@ export default class Tools {
      */
     static stringHasPathPrefix(
         prefix:?string = '/admin',
-        path:string = 'location' in $.global && location.pathname || '',
+        path:string = (
+            'location' in $.global && $.global.location.pathname || ''),
         separator:string = '/'
     ):boolean {
         if (typeof prefix === 'string') {
@@ -2309,8 +2309,9 @@ export default class Tools {
      * @returns Extracted domain.
      */
     static stringGetDomainName(
-        url:string = 'location' in $.global && location.href || '',
-        fallback:any = 'location' in $.global && location.hostname || ''
+        url:string = 'location' in $.global && $.global.location.href || '',
+        fallback:any = (
+            'location' in $.global && $.global.location.hostname || '')
     ):any {
         const result:Array<?string> =
             /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
@@ -2332,7 +2333,7 @@ export default class Tools {
      * @returns Extracted port number.
      */
     static stringGetPortNumber(
-        url:string = 'location' in $.global && location.href || '',
+        url:string = 'location' in $.global && $.global.location.href || '',
         fallback:any = null, parameter:Array<string> = []
     ):number {
         const result:Array<?string> =
@@ -2343,10 +2344,10 @@ export default class Tools {
             return fallback
         if (Tools.stringIsInternalURL.apply(
             this, [url].concat(parameter)
-            ) && 'location' in $.global && location.port &&
-            parseInt(location.port, 10)
+            ) && 'location' in $.global && $.global.location.port &&
+            parseInt($.global.location.port, 10)
         )
-            return parseInt(location.port, 10)
+            return parseInt($.global.location.port, 10)
         return (Tools.stringGetProtocolName(url) === 'https') ? 443 : 80
     }
     /**
@@ -2359,9 +2360,10 @@ export default class Tools {
      * returns Extracted protocol.
      */
     static stringGetProtocolName(
-        url:string = 'location' in $.global && location.href || '',
+        url:string = 'location' in $.global && $.global.location.href || '',
         fallback:any = 'location' in $.global &&
-            location.protocol.substring(0, location.protocol.length - 1) || ''
+            $.global.location.protocol.substring(
+                0, $.global.location.protocol.length - 1) || ''
     ):any {
         const result:Array<?string> = /^([a-z]+):\/\//i.exec(url)
         if (result && result.length > 1 && result[1])
@@ -2394,7 +2396,8 @@ export default class Tools {
     static stringGetURLVariable(
         keyToGet:string, givenInput:?string, subDelimiter:string = '$',
         hashedPathIndicator:string = '!', givenSearch:?string,
-        givenHash:?string = 'location' in $.global && location.hash || ''
+        givenHash:?string = (
+            'location' in $.global && $.global.location.hash || '')
     ):Array<string>|string {
         // region set search and hash
         let hash:string = (givenHash) ? givenHash : '#'
@@ -2416,7 +2419,7 @@ export default class Tools {
             if (subSearchStartIndex !== -1)
                 search = pathAndSearch.substring(subSearchStartIndex)
         } else if ('location' in $.global)
-            search = location.search || ''
+            search = $.global.location.search || ''
         let input:string = (givenInput) ? givenInput : search
         // endregion
         // region determine data from search and hash if specified
@@ -2476,7 +2479,7 @@ export default class Tools {
      */
     static stringIsInternalURL(
         firstURL:string, secondURL:string = 'location' in $.global &&
-        location.href || ''
+        $.global.location.href || ''
     ):boolean {
         const explicitDomainName:string = Tools.stringGetDomainName(
             firstURL, false)

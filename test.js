@@ -138,8 +138,7 @@ let tests:Array<Test> = [{callback: function(
     })
     this.test(`isArrayLike (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
-            [],
-            browserAPI.window.document.querySelectorAll('*')
+            [], window.document.querySelectorAll('*')
         ])
             assert.ok($.Tools.class.isArrayLike(test))
         for (const test:any of [
@@ -1446,15 +1445,21 @@ let tests:Array<Test> = [{callback: function(
             [['http://a.de'], 'a.de'],
             [['http://localhost'], 'localhost'],
             [['localhost', 'a'], 'a'],
-            [['a', location.hostname], location.hostname],
+            [['a', $.global.location.hostname], $.global.location.hostname],
             [['//a'], 'a'],
             [
-                ['a/site/subSite?param=value#hash', location.hostname],
-                location.hostname
+                [
+                    'a/site/subSite?param=value#hash',
+                    $.global.location.hostname
+                ],
+                $.global.location.hostname
             ],
             [
-                ['/a/site/subSite?param=value#hash', location.hostname],
-                location.hostname
+                [
+                    '/a/site/subSite?param=value#hash',
+                    $.global.location.hostname
+                ],
+                $.global.location.hostname
             ],
             [
                 ['//alternate.local/a/site/subSite?param=value#hash'],
@@ -1496,27 +1501,27 @@ let tests:Array<Test> = [{callback: function(
             ],
             [['http://www.test.de'], 'http'],
             [
-                ['//www.test.de', location.protocol.substring(
-                    0, location.protocol.length - 1)],
-                location.protocol.substring(
-                    0, location.protocol.length - 1)
+                ['//www.test.de', $.global.location.protocol.substring(
+                    0, $.global.location.protocol.length - 1)],
+                $.global.location.protocol.substring(
+                    0, $.global.location.protocol.length - 1)
             ],
             [['http://a.de'], 'http'],
             [['ftp://localhost'], 'ftp'],
             [
-                ['a', location.protocol.substring(
-                    0, location.protocol.length - 1)],
-                location.protocol.substring(
-                    0, location.protocol.length - 1)
+                ['a', $.global.location.protocol.substring(
+                    0, $.global.location.protocol.length - 1)],
+                $.global.location.protocol.substring(
+                    0, $.global.location.protocol.length - 1)
             ],
             [
                 [
                     'a/site/subSite?param=value#hash',
-                    location.protocol.substring(
-                        0, location.protocol.length - 1)
+                    $.global.location.protocol.substring(
+                        0, $.global.location.protocol.length - 1)
                 ],
-                location.protocol.substring(
-                    0, location.protocol.length - 1)
+                $.global.location.protocol.substring(
+                    0, $.global.location.protocol.length - 1)
             ],
             [['/a/site/subSite?param=value#hash', 'a'], 'a'],
             [
@@ -1526,11 +1531,11 @@ let tests:Array<Test> = [{callback: function(
             [['alternate.local/', 'c'], 'c'],
             [
                 [
-                    '', location.protocol.substring(
-                        0, location.protocol.length - 1)
+                    '', $.global.location.protocol.substring(
+                        0, $.global.location.protocol.length - 1)
                 ],
-                location.protocol.substring(
-                    0, location.protocol.length - 1)
+                $.global.location.protocol.substring(
+                    0, $.global.location.protocol.length - 1)
             ]
         ])
             assert.strictEqual($.Tools.class.stringGetProtocolName.apply(
@@ -1586,9 +1591,9 @@ let tests:Array<Test> = [{callback: function(
                 '//www.test.de/site/subSite?param=value#hash'
             ],
             [
-                `${location.protocol}//www.test.de/site/subSite` +
+                `${$.global.location.protocol}//www.test.de/site/subSite` +
                     '?param=value#hash',
-                `${location.protocol}//www.test.de/site/subSite` +
+                `${$.global.location.protocol}//www.test.de/site/subSite` +
                     `?param=value#hash`
             ],
             [
@@ -1599,15 +1604,15 @@ let tests:Array<Test> = [{callback: function(
                 '//www.test.de:80/site/subSite?param=value#hash',
                 '//www.test.de/site/subSite?param=value#hash'
             ],
-            [location.href, location.href],
-            ['1', location.href],
-            ['#1', location.href],
-            ['/a', location.href]
+            [$.global.location.href, $.global.location.href],
+            ['1', $.global.location.href],
+            ['#1', $.global.location.href],
+            ['/a', $.global.location.href]
         ])
             assert.ok($.Tools.class.stringIsInternalURL.apply(this, test))
         for (const test:Array<any> of [
             [
-                `${location.protocol}//www.test.de/site/subSite` +
+                `${$.global.location.protocol}//www.test.de/site/subSite` +
                     '?param=value#hash',
                 'ftp://www.test.de/site/subSite?param=value#hash'
             ],
@@ -1620,12 +1625,12 @@ let tests:Array<Test> = [{callback: function(
                 'test.de/site/subSite?param=value#hash'
             ],
             [
-                `${location.protocol}//www.test.de:${location.port}/site` +
-                    '/subSite?param=value#hash/site/subSite?param=value' +
-                    '#hash'
+                `${$.global.location.protocol}//www.test.de:` +
+                `${$.global.location.port}/site/subSite` +
+                '?param=value#hash/site/subSite?param=value#hash'
             ],
             [
-                `http://www.test.de:${location.port}/site/subSite?` +
+                `http://www.test.de:${$.global.location.port}/site/subSite?` +
                     'param=value#hash',
                 'https://www.test.de/site/subSite?param=value#hash'
             ]
@@ -1927,13 +1932,12 @@ let tests:Array<Test> = [{callback: function(
             const iFrame = $('<iframe>').hide().attr('name', 'test')
             $('body').append(iFrame)
             assert.ok($.Tools.class.sendToIFrame(
-                iFrame, browserAPI.window.document.URL, {test: 5}, 'get',
-                true))
+                iFrame, window.document.URL, {test: 5}, 'get', true))
         })
         this.test(`sendToExternalURL (${roundType})`, (
             assert:Object
         ):void => assert.ok(tools.sendToExternalURL(
-            browserAPI.window.document.URL, {test: 5})))
+            window.document.URL, {test: 5})))
     }
     // // endregion
     // / endregion
@@ -1984,20 +1988,24 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
             if (test.roundTypes.length === 0 || test.roundTypes.includes(
                 roundType
             )) {
-                let $:any = require('./index').$
+                // NOTE: Enforce to reload module to rebind "$".
+                delete require.cache[require.resolve('./index')]
                 let $bodyDomNode:$DomNode
-                let tools:$.Tools = $.Tools()
-                if (roundType !== 'plain') {
-                    if (roundType === 'withJQuery')
+                let $:any
+                if (roundType === 'plain') {
+                    window.$ = null
+                    $ = require('./index').$
+                } else {
+                    if (roundType === 'withJQuery') {
                         $ = require('jquery')
-                    $.context = browserAPI.window.document
-                    delete require.cache[require.resolve('./index')]
-                    // IgnoreTypeCheck
-                    browserAPI.window.$ = $
-                    require('./index')
+                        window.$ = $
+                    }
+                    $ = require('./index').$
+                    $.context = window.document
                     $bodyDomNode = $('body')
-                    tools = $('body').Tools()
                 }
+                const tools:$.Tools = (roundType === 'plain') ? $.Tools(
+                ) : $('body').Tools()
                 const testPromise:?Object = test.callback.call(
                     QUnit, roundType, (
                         typeof TARGET_TECHNOLOGY === 'undefined'
