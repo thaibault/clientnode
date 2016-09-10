@@ -5,7 +5,7 @@
   "documentationWebsite": {
     "tagline": "upgrade to object orientated rock solid plugins<!--deDE:Schreibe Objekt orientierte solide Plugins-->",
     "trackingCode": "UA-40192634-7",
-    "language": {"selection": ["deDE", "enUS"]}
+    "languages": ["deDE", "enUS"]
   },
   "keywords": [
     "client",
