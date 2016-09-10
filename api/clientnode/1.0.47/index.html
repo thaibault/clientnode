@@ -26,7 +26,7 @@
     
 
 
-    <h3>jQuery-tools 1.0.0</h3>
+    <h3>clientnode 1.0.47</h3>
 
 
 
@@ -119,7 +119,7 @@ after needed dependencies:
 &lt;!--Inject downloaded file:-->
 &lt;script src=&quot;/index.compiled.js&quot;>&lt;/script>
 &lt;!--Or integrate via cdn:
-&lt;script src=&quot;http://torben.website/jQuery-tools/data/distributionBundle/index.compiled.js&quot;>&lt;/script>
+&lt;script src=&quot;http://torben.website/clientnode/data/distributionBundle/index.compiled.js&quot;>&lt;/script>
 --></code></pre><p>The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
 into given context (UMD) as export format: You can use a module bundler if you
 want.
@@ -129,45 +129,55 @@ want.
     Dadurch können verschiedene Module-Bundler genutzt werden.
 --></p>
 <!--|deDE:Paket-Management und Modul-Komposition-->
-<h3>Package managed and module bundled</h3><p>If you are using npm as package manager and/or a module bundler you can simply
-add this tool to your <strong>package.json</strong> as dependency:
+<h3>Package managed and module bundled</h3><p>If you are using npm as package manager you can simply add this tool to your
+<strong>package.json</strong> as dependency:
 <!--deDE:
-    Nutzt du npm als Paket-Manager und/oder hast einen Module-Bundler, dann
-    solltest du einfach deine <strong>package.json</strong> erweitern:
+    Nutzt du npm als Paket-Manager, dann solltest du einfach deine
+    <strong>package.json</strong> erweitern:
 --></p>
 <pre class="prettyprint source"><code>#!JSON
 
 ...
 &quot;dependencies&quot;: {
     ...
-    &quot;jQuery-tools&quot;: &quot;git+ssh://git@github.com/thaibault/jQuery-tools.git&quot;,
+    &quot;clientnode&quot;: &quot;latest&quot;,
     ...
 },
 ...</code></pre><p>After updating your packages you can simply depend on this script and let
-a module bundler to the hard stuff or access it via a exported variable name
+a module bundler do the hard stuff or access it via a exported variable name
 into given context.
 <!--deDE:
     Nach einem Update deiner Pakete kannst du dieses Plugin einfach in deine
-    JavaScript-Module importieren oder die exportiert Variable im gegebenen
+    JavaScript-Module importieren oder die exportierte Variable im gegebenen
     Context referenzieren.
 --></p>
 <pre class="prettyprint source"><code>#!JavaScript
 
 ...
-$ = require('jQuery-tools')
-...
+import Tools from 'clientnode'
+Tools({logging: true}).log('test') // shows &quot;test&quot; in console
+// or
+Tools = require('clientnode').default
+$.Tools().arrayMake(2) // [2]
+// or
+$ = require('clientnode').$
 $.Tools().isEquivalentDom('&lt;div>', '&lt;script>') // false
 ...</code></pre><!--|deDE:Plugin-Vorlage-->
-<h2>Plugin pattern</h2><p>Use as extension for object orientated, node and browser compatible jQuery
-plugin using inheritance and dom node as return value reference. This plugin
-pattern gives their instance back if no dom node is provided. Direct
+<h2>Plugin pattern</h2><p>Use as extension for object orientated, node and browser compatible (optionally
+jQuery) plugin using inheritance and dom node as return value reference. This
+plugin pattern gives their instance back if no dom node is provided. Direct
 initializing the plugin without providing a dom node is also provided.
+Note: if you want to use it as jQuery (or another or even custom) plugin you
+have to provide &quot;$&quot; globally before loading this module.
 <!--deDE:
     Einsatz von "$.Tools" um Objekt orientierte, node und Browser kompatible
-    jQuery Plugins zu verfassen, indem von "$.Tools" geerbt wird und der durch
-    jQuery erweiterte DOM-Knoten als return-Wert referenziert wird. Sollte kein
-    DOM-Knoten an die $-Funktion übergeben worden sein, gibt dieser Pattern
-    seine Instanz zurück.
+    (optional jQuery) Plugins zu implementieren, indem von "$.Tools" geerbt
+    wird und der durch jQuery erweiterte DOM-Knoten als return-Wert
+    referenziert wird. Sollte kein DOM-Knoten an die $-Funktion übergeben
+    worden sein, gibt dieser Pattern seine Instanz zurück.
+    Beachte: Wenn das Modul als jQuery (oder anderem potentiell eigenen) Plugin
+    einer bereits bestehenden Instanz hinzugefügt werden soll muss dieses unter
+    "$" global verfügbar sein bevor das Modul geladen wird.
 --></p>
 <pre class="prettyprint source"><code>#!JavaScript
 
@@ -175,28 +185,17 @@ initializing the plugin without providing a dom node is also provided.
 // -*- coding: utf-8 -*-
 /** @module jQuery-incrementer */
 'use strict'
-import $ from 'jquery'
-import 'jQuery-tools'
-const context:Object = (():Object => {
-    if (typeof window === 'undefined') {
-        if (typeof global === 'undefined')
-            return (typeof module === 'undefined') ? {} : module
-        return global
-    }
-    return window
-})()
-if (!('document' in context) && 'context' in $)
-    context.document = $.context
+import {$} from 'clientnode'
 /**
  * This plugin holds all needed methods to extend input fields to select
  * numbers very smart.
- * @extends jQuery-tools:Tools
+ * @extends clientnode:Tools
  * @property static:_name - Defines this class name to allow retrieving them
  * after name mangling.
  * @property _options - Options extended by the options given to the
  * initializer method.
  */
-class Example extends $.Tools.class {
+export default class Example extends $.Tools.class {
     static _name = 'Example';
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
@@ -213,9 +212,7 @@ class Example extends $.Tools.class {
 }
 $.fn.Example = function() {
     return $.Tools().controller(Example, arguments, this)
-}
-/** jQuery extended with jQuery-example plugin. */
-export default Example</code></pre><p>Initialisation with given dom node and without:
+}</code></pre><p>Initialisation with given dom node and without:
 <!--deDE:Aufruf mit und ohne übergebenen DOM-Knoten:--></p>
 <pre class="prettyprint source"><code>#!JavaScript
 
@@ -245,13 +242,13 @@ endregion --></article>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-jQuery-tools.html">jQuery-tools</a></li></ul><h3>Classes</h3><ul><li><a href="module-jQuery-tools-Tools.html">Tools</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-clientnode.html">clientnode</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Aug 18 2016 11:01:52 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Sep 10 2016 23:39:56 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
