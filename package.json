@@ -2,6 +2,11 @@
   "name": "clientnode",
   "version": "1.0.47",
   "description": "upgrade to object orientated rock solid plugins",
+  "documentationWebsite": {
+    "tagline": "upgrade to object orientated rock solid plugins<!--deDE:Schreibe Objekt orientierte solide Plugins-->",
+    "trackingCode": "UA-40192634-7",
+    "languages": ["deDE", "enUS"]
+  },
   "keywords": [
     "client",
     "tools",
@@ -54,11 +59,13 @@
     "test": "webOptimizer test",
     "testInBrowser": "webOptimizer testInBrowser",
     "update": "npm version patch && npm publish",
+    "updateDocumentation": "documentationWebsite",
     "watch": "webOptimizer build --watch",
     "watchDLL": "webOptimizer buildDLL --watch"
   },
   "license": "CC-BY-3.0",
   "devDependencies": {
+    "documentation-website": "latest",
     "jsdom": "latest",
     "jquery": "latest",
     "qunitjs": "latest",
