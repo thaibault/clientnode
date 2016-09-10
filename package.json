@@ -59,11 +59,13 @@
     "test": "webOptimizer test",
     "testInBrowser": "webOptimizer testInBrowser",
     "update": "npm version patch && npm publish",
+    "updateDocumentation": "documentationWebsite",
     "watch": "webOptimizer build --watch",
     "watchDLL": "webOptimizer buildDLL --watch"
   },
   "license": "CC-BY-3.0",
   "devDependencies": {
+    "documentation-website": "latest",
     "jsdom": "latest",
     "jquery": "latest",
     "qunitjs": "latest",
