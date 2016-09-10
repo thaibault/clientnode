@@ -1,11 +1,14 @@
 {
   "name": "clientnode",
-  "version": "1.0.47",
+  "version": "1.0.48",
   "description": "upgrade to object orientated rock solid plugins",
   "documentationWebsite": {
     "tagline": "upgrade to object orientated rock solid plugins<!--deDE:Schreibe Objekt orientierte solide Plugins-->",
     "trackingCode": "UA-40192634-7",
-    "languages": ["deDE", "enUS"]
+    "languages": [
+      "deDE",
+      "enUS"
+    ]
   },
   "keywords": [
     "client",
