@@ -93,7 +93,7 @@ after needed dependencies:
     <!--Inject downloaded file:-->
     <script src="index.compiled.js"></script>
     <!--Or integrate via cdn:
-    <script src="http://torben.website/clientnode/data/distributionBundle/index.compiled.js"></script>
+    <script src="http://torben.website/clientNode/data/distributionBundle/index.compiled.js"></script>
     -->
 
 The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
