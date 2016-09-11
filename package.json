@@ -30,6 +30,9 @@
   "main": "index.compiled.js",
   "webOptimizer": {
     "injection": {
+      "externalAliases": {
+        "jquery": "jQuery"
+        },
       "internal": {
         "vendor": {
           "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI'] : []"
