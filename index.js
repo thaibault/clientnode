@@ -1482,13 +1482,19 @@ export default class Tools {
      * to evaluate.
      * @param executionIndicatorKey - Indicator property name to mark a value
      * to evaluate.
+     * @param removeIndicatorKey - Indicator property name to mark a value to
+     * remove from object or list.
+     * @param addIndicatorKey - Indicator property name to mark a value to add
+     * to target list.
      * @returns Evaluated given mapping.
      */
     static resolveDynamicDataStructure(
         object:any, parameterDescription:Array<string> = [],
         parameter:Array<any> = [], deep:boolean = true,
         evaluationIndicatorKey:string = '__evaluate__',
-        executionIndicatorKey:string = '__execute__'
+        executionIndicatorKey:string = '__execute__',
+        removeIndicatorKey:string = '__remove__',
+        addIndicatorKey:string = '__add__'
     ):any {
         if (object === null || typeof object !== 'object')
             return object
