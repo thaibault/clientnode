@@ -1293,7 +1293,7 @@ export default class Tools {
      * modification info from (usually only needed internally).
      * @return Given target modified with given source.
      */
-    static mutateObject(
+    static modifyObject(
         target:any, source:any, removeIndicatorKey:string = '__remove__',
         prependIndicatorKey:string = '__prepend__',
         appendIndicatorKey:string = '__append__', parentSource:any = null,
@@ -1302,7 +1302,7 @@ export default class Tools {
         if (source instanceof Map && target instanceof Map) {
             for (const [key:string, value:any] of source)
                 if (target.has(key))
-                    Tools.mutateObject(
+                    Tools.modifyObject(
                         target.get(key), value, removeIndicatorKey,
                         prependIndicatorKey, appendIndicatorKey, source, key)
         } else if (
@@ -1334,7 +1334,7 @@ export default class Tools {
                         if (parentSource && parentKey)
                             delete parentSource[parentKey]
                     } else if (target !== null && target.hasOwnProperty(key))
-                        Tools.mutateObject(
+                        Tools.modifyObject(
                             target[key], source[key], removeIndicatorKey,
                             prependIndicatorKey, appendIndicatorKey, source,
                             key)

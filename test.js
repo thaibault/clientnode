@@ -722,7 +722,7 @@ let tests:Array<Test> = [{callback: function(
                 test[0], test[1], test[2]
             ), test[3])
     })
-    this.test(`mutateObject (${roundType})`, (assert:Object):void => {
+    this.test(`modifyObject (${roundType})`, (assert:Object):void => {
         for (const test:any of [
             [[{}, {}], {}, {}],
             [[{a: 2}, {}], {a: 2}, {}],
@@ -746,7 +746,7 @@ let tests:Array<Test> = [{callback: function(
                 {a: [2]}, {a: {__prepend__: 1}}
             ]
         ]) {
-            assert.deepEqual($.Tools.class.mutateObject.apply(
+            assert.deepEqual($.Tools.class.modifyObject.apply(
                 $.Tools, test[0]
             ), test[1])
             assert.deepEqual(test[0][1], test[2])
