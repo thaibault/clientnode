@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "1.0.50",
+  "version": "1.0.51",
   "description": "upgrade to object orientated rock solid plugins",
   "documentationWebsite": {
     "name": "clientNode",
@@ -43,7 +43,10 @@
     "module": {
       "preprocessor": {
         "babel": {
-          "presets": ["latest", "stage-0"]
+          "presets": [
+            "latest",
+            "stage-0"
+          ]
         }
       },
       "skipParseRegularExpression": {
@@ -51,7 +54,11 @@
       }
     }
   },
-  "presetsBACKUP": {"__remove__": ["babili"]},
+  "presetsBACKUP": {
+    "__remove__": [
+      "babili"
+    ]
+  },
   "scripts": {
     "build": "webOptimizer build && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
     "buildDLL": "webOptimizer buildDLL",
