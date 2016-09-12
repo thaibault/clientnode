@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "1.0.53",
+  "version": "1.0.54",
   "description": "upgrade to object orientated rock solid plugins",
   "documentationWebsite": {
     "name": "clientNode",
@@ -43,7 +43,9 @@
     "module": {
       "preprocessor": {
         "babel": {
-          "presets": {"__remove__": "babili"}
+          "presets": {
+            "__remove__": "babili"
+          }
         }
       },
       "skipParseRegularExpression": {
