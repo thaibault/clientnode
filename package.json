@@ -43,21 +43,15 @@
     "module": {
       "preprocessor": {
         "babel": {
-          "presets": [
-            "latest",
-            "stage-0"
-          ]
+          "presets": {
+            "__remove__": "babili"
+          }
         }
       },
       "skipParseRegularExpression": {
         "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
     }
-  },
-  "presetsBACKUP": {
-    "__remove__": [
-      "babili"
-    ]
   },
   "scripts": {
     "build": "webOptimizer build && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
