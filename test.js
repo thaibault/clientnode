@@ -722,6 +722,36 @@ let tests:Array<Test> = [{callback: function(
                 test[0], test[1], test[2]
             ), test[3])
     })
+    this.test(`mutateObject (${roundType})`, (assert:Object):void => {
+        for (const test:any of [
+            [[{}, {}], {}, {}],
+            [[{a: 2}, {}], {a: 2}, {}],
+            [[{a: 2}, {b: 1}], {a: 2}, {b: 1}],
+            [[{a: 2}, {__remove__: 'a'}], {}, {}],
+            [[{a: 2}, {__remove__: ['a']}], {}, {}],
+            [[{a: [2]}, {a: {__prepend__: 1}}], {a: [1, 2]}, {}],
+            [[{a: [2]}, {a: {__remove__: 1}}], {a: [2]}, {}],
+            [[{a: [2, 1]}, {a: {__remove__: 1}}], {a: [2]}, {}],
+            [[{a: [2, 1]}, {a: {__remove__: [1, 2]}}], {a: []}, {}],
+            [[{a: [1]}, {a: {__remove__: 1}}], {a: []}, {}],
+            [[{a: [1]}, {a: {__remove__: [1, 2]}}], {a: []}, {}],
+            [[{a: [2]}, {a: {__append__: 1}}], {a: [2, 1]}, {}],
+            [[{a: [2]}, {a: {__append__: [1, 2]}}], {a: [2, 1, 2]}, {}],
+            [
+                [{a: [2]}, {a: {__append__: [1, 2]}, b: 1}],
+                {a: [2, 1, 2]}, {b: 1}
+            ],
+            [
+                [{a: [2]}, {a: {__prepend__: 1}}, '_r', '_p'],
+                {a: [2]}, {a: {__prepend__: 1}}
+            ]
+        ]) {
+            assert.deepEqual($.Tools.class.mutateObject.apply(
+                $.Tools, test[0]
+            ), test[1])
+            assert.deepEqual(test[0][1], test[2])
+        }
+    })
     this.test(`extendObject (${roundType})`, (assert:Object):void => {
         for (const test:any of [
             [[[]], []],

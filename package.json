@@ -30,9 +30,6 @@
   "homepage": "http://torben.website/clientNode",
   "main": "index.compiled.js",
   "webOptimizer": {
-
-    "development": {"tool": null},
-
     "injection": {
       "externalAliases": {
         "jquery": "jQuery"
@@ -46,7 +43,7 @@
     "module": {
       "preprocessor": {
         "babel": {
-          "presets": {"__remove__": ["babili"]}
+          "presets": ["latest", "stage-0"]
         }
       },
       "skipParseRegularExpression": {
@@ -54,6 +51,7 @@
       }
     }
   },
+  "presetsBACKUP": {"__remove__": ["babili"]},
   "scripts": {
     "build": "webOptimizer build && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
     "buildDLL": "webOptimizer buildDLL",

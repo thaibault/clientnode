@@ -1277,6 +1277,71 @@ export default class Tools {
         return object
     }
     /**
+     * Modifies given target corresponding to given source and removes source
+     * modification infos.
+     * @param target - Object to modify.
+     * @param source - Source object to load modifications from.
+     * @param removeIndicatorKey - Indicator property name or value to mark a
+     * value to remove from object or list.
+     * @param prependIndicatorKey - Indicator property name to mark a value to
+     * prepend to target list.
+     * @param appendIndicatorKey - Indicator property name to mark a value to
+     * append to target list.
+     * @param parentSource - Source context to remove modification info from
+     * (usually only needed internally).
+     * @param parentKey - Source key in given source context to remove
+     * modification info from (usually only needed internally).
+     * @return Given target modified with given source.
+     */
+    static mutateObject(
+        target:any, source:any, removeIndicatorKey:string = '__remove__',
+        prependIndicatorKey:string = '__prepend__',
+        appendIndicatorKey:string = '__append__', parentSource:any = null,
+        parentKey:any = null
+    ) {
+        if (source instanceof Map && target instanceof Map) {
+            for (const [key:string, value:any] of source)
+                if (target.has(key))
+                    Tools.mutateObject(
+                        target.get(key), value, removeIndicatorKey,
+                        prependIndicatorKey, appendIndicatorKey, source, key)
+        } else if (
+            source !== null && typeof source === 'object' &&
+            target !== null && typeof target === 'object'
+        ) {
+            for (const key:string in source)
+                if (source.hasOwnProperty(key))
+                    if ([
+                        removeIndicatorKey, prependIndicatorKey,
+                        appendIndicatorKey
+                    ].includes(key)) {
+                        for (const valueToModify:any of [].concat(source[key]))
+                            if (Array.isArray(target)) {
+                                if (key === removeIndicatorKey) {
+                                    if (target.includes(valueToModify))
+                                        target.splice(
+                                            target.indexOf(valueToModify), 1)
+                                } else if (key === prependIndicatorKey)
+                                    target.unshift(valueToModify)
+                                else
+                                    target.push(valueToModify)
+                            } else if (
+                                key === removeIndicatorKey &&
+                                target.hasOwnProperty(valueToModify)
+                            )
+                                delete target[valueToModify]
+                        delete source[key]
+                        if (parentSource && parentKey)
+                            delete parentSource[parentKey]
+                    } else if (target !== null && target.hasOwnProperty(key))
+                        Tools.mutateObject(
+                            target[key], source[key], removeIndicatorKey,
+                            prependIndicatorKey, appendIndicatorKey, source,
+                            key)
+        }
+        return target
+    }
+    /**
      * Extends given target object with given sources object. As target and
      * sources many expandable types are allowed but target and sources have to
      * to come from the same type.
@@ -1482,19 +1547,13 @@ export default class Tools {
      * to evaluate.
      * @param executionIndicatorKey - Indicator property name to mark a value
      * to evaluate.
-     * @param removeIndicatorKey - Indicator property name to mark a value to
-     * remove from object or list.
-     * @param addIndicatorKey - Indicator property name to mark a value to add
-     * to target list.
      * @returns Evaluated given mapping.
      */
     static resolveDynamicDataStructure(
         object:any, parameterDescription:Array<string> = [],
         parameter:Array<any> = [], deep:boolean = true,
         evaluationIndicatorKey:string = '__evaluate__',
-        executionIndicatorKey:string = '__execute__',
-        removeIndicatorKey:string = '__remove__',
-        addIndicatorKey:string = '__add__'
+        executionIndicatorKey:string = '__execute__'
     ):any {
         if (object === null || typeof object !== 'object')
             return object
