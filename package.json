@@ -30,9 +30,6 @@
   "homepage": "http://torben.website/clientNode",
   "main": "index.compiled.js",
   "webOptimizer": {
-
-    "development": {"tool": null},
-
     "injection": {
       "externalAliases": {
         "jquery": "jQuery"
@@ -46,10 +43,7 @@
     "module": {
       "preprocessor": {
         "babel": {
-          "presets": [
-            "latest",
-            "stage-0"
-          ]
+          "presets": ["latest", "stage-0"]
         }
       },
       "skipParseRegularExpression": {
@@ -57,11 +51,13 @@
       }
     }
   },
+  "presetsBACKUP": {"__remove__": ["babili"]},
   "scripts": {
     "build": "webOptimizer build && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
     "buildDLL": "webOptimizer buildDLL",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
+    "export": "webOptimizer build '{module:{preprocessor:{babel:{plugins:{__remove__:['transform-runtime']}}}}}' && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
     "lint": "webOptimizer typeCheck && webOptimizer lint",
     "prepublish": "if ! npm run build; then echo You should rerun install procedure to resolve dependency cycle. && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js; fi",
     "serve": "webOptimizer serve",
