@@ -43,7 +43,7 @@
     "module": {
       "preprocessor": {
         "babel": {
-          "presets": {"__remove__": "babili"},
+          "presets": {"__remove__": "babili"}
         }
       },
       "skipParseRegularExpression": {
