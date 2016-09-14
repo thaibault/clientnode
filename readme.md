@@ -126,8 +126,8 @@ If you are using npm as package manager you can simply add this tool to your
     ...
 
 After updating your packages you can simply depend on this script and let
-a module bundler do the hard stuff or access it via a exported variable name
-into given context.
+a module bundler do the hard stuff or access it via an exported variable name
+in given context.
 <!--deDE:
     Nach einem Update deiner Pakete kannst du dieses Plugin einfach in deine
     JavaScript-Module importieren oder die exportierte Variable im gegebenen
@@ -138,13 +138,22 @@ into given context.
 
     ...
     import Tools from 'clientnode'
+    clas Plugin extends Tools...
     Tools({logging: true}).log('test') // shows "test" in console
     // or
+    import {$} from 'clientnode'
+    $.Tools().isEquivalentDom('<div>', '<script>') // false
+    // or
     Tools = require('clientnode').default
-    $.Tools().arrayMake(2) // [2]
+    Tools.arrayMake(2) // [2]
     // or
     $ = require('clientnode').$
     $.Tools().isEquivalentDom('<div>', '<script>') // false
+    // If "$" was already available:
+    $('body').Tools...
+    // or
+    $.Tools...
+    // is even possible
     ...
 
 <!--|deDE:Plugin-Vorlage-->
