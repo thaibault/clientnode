@@ -142,12 +142,7 @@ Generic none-redundant plugin pattern for JavaScript and CoffeeScript
 11
 12
 13
-14
-15
-16
-17
-18
-19</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="p">...</span>
+14</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="p">...</span>
 <span class="kr">import</span> <span class="nx">Tools</span> <span class="nx">from</span> <span class="s1">'clientnode'</span>
 <span class="nx">clas</span> <span class="nx">Plugin</span> <span class="kr">extends</span> <span class="nx">Tools</span><span class="p">...</span>
 <span class="nx">Tools</span><span class="p">({</span><span class="nx">logging</span><span class="o">:</span> <span class="kc">true</span><span class="p">}).</span><span class="nx">log</span><span class="p">(</span><span class="s1">'test'</span><span class="p">)</span> <span class="c1">// shows "test" in console</span>
@@ -160,11 +155,6 @@ Generic none-redundant plugin pattern for JavaScript and CoffeeScript
 <span class="c1">// or</span>
 <span class="nx">$</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'clientnode'</span><span class="p">).</span><span class="nx">$</span>
 <span class="nx">$</span><span class="p">.</span><span class="nx">Tools</span><span class="p">().</span><span class="nx">isEquivalentDom</span><span class="p">(</span><span class="s1">'&lt;div&gt;'</span><span class="p">,</span> <span class="s1">'&lt;script&gt;'</span><span class="p">)</span> <span class="c1">// false</span>
-<span class="c1">// If "$" was already available:</span>
-<span class="nx">$</span><span class="p">(</span><span class="s1">'body'</span><span class="p">).</span><span class="nx">Tools</span><span class="p">...</span>
-<span class="c1">// or</span>
-<span class="nx">$</span><span class="p">.</span><span class="nx">Tools</span><span class="p">...</span>
-<span class="c1">// is even possible</span>
 <span class="p">...</span>
 </pre></div>
 </td></tr></tbody></table>
