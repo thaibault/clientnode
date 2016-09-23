@@ -403,7 +403,7 @@ export default class Tools {
                 will be called.
             */
             return object.initialize.apply(object, parameter)
-        throw Error(
+        throw new Error(
             `Method "${parameter[0]}" does not exist on $-extended dom node ` +
             `"${object.constructor._name}".`)
     }
@@ -1095,7 +1095,7 @@ export default class Tools {
         if (typeof method === 'string' && typeof scope === 'object')
             return function():any {
                 if (!scope[method] && typeof method === 'string')
-                    throw Error(
+                    throw new Error(
                         `Method "${method}" doesn't exists in "${scope}".`)
                 return scope[method].apply(scope, additionalArguments.concat(
                     this.constructor.arrayMake(arguments)))
@@ -1291,14 +1291,15 @@ export default class Tools {
      * (usually only needed internally).
      * @param parentKey - Source key in given source context to remove
      * modification info from (usually only needed internally).
-     * @return Given target modified with given source.
+     * @returns Given target modified with given source.
      */
     static modifyObject(
         target:any, source:any, removeIndicatorKey:string = '__remove__',
         prependIndicatorKey:string = '__prepend__',
         appendIndicatorKey:string = '__append__', parentSource:any = null,
         parentKey:any = null
-    ) {
+    ):any {
+        /* eslint-disable curly */
         if (source instanceof Map && target instanceof Map) {
             for (const [key:string, value:any] of source)
                 if (target.has(key))
@@ -1306,9 +1307,10 @@ export default class Tools {
                         target.get(key), value, removeIndicatorKey,
                         prependIndicatorKey, appendIndicatorKey, source, key)
         } else if (
+        /* eslint-enable curly */
             source !== null && typeof source === 'object' &&
             target !== null && typeof target === 'object'
-        ) {
+        )
             for (const key:string in source)
                 if (source.hasOwnProperty(key))
                     if ([
@@ -1316,7 +1318,7 @@ export default class Tools {
                         appendIndicatorKey
                     ].includes(key)) {
                         for (const valueToModify:any of [].concat(source[key]))
-                            if (Array.isArray(target)) {
+                            if (Array.isArray(target))
                                 if (key === removeIndicatorKey) {
                                     if (target.includes(valueToModify))
                                         target.splice(
@@ -1325,7 +1327,7 @@ export default class Tools {
                                     target.unshift(valueToModify)
                                 else
                                     target.push(valueToModify)
-                            } else if (
+                            else if (
                                 key === removeIndicatorKey &&
                                 target.hasOwnProperty(valueToModify)
                             )
@@ -1338,7 +1340,6 @@ export default class Tools {
                             target[key], source[key], removeIndicatorKey,
                             prependIndicatorKey, appendIndicatorKey, source,
                             key)
-        }
         return target
     }
     /**
@@ -1582,7 +1583,9 @@ export default class Tools {
                         evaluationIndicatorKey, executionIndicatorKey
                     ].includes(key))
                         try {
+                            /* eslint-disable new-parens */
                             return Tools.resolveDynamicDataStructure((new (
+                            /* eslint-enable new-parens */
                                 // IgnoreTypeCheck
                                 Function.prototype.bind.apply(Function, [
                                     null
@@ -1593,7 +1596,7 @@ export default class Tools {
                             ), parameterDescription, parameter, false,
                             evaluationIndicatorKey, executionIndicatorKey)
                         } catch (error) {
-                            throw Error(
+                            throw new Error(
                                 'Error during ' + (
                                     key === evaluationIndicatorKey ?
                                         'executing' : 'evaluating'
@@ -1862,7 +1865,7 @@ export default class Tools {
     ):any {
         if (destination) {
             if (source === destination)
-                throw Error(
+                throw new Error(
                     "Can't copy because source and destination are identical.")
             if (recursionLimit !== -1 && recursionLimit < recursionLevel)
                 return null
@@ -2262,13 +2265,14 @@ export default class Tools {
             const index:number = list.indexOf(target)
             if (index === -1) {
                 if (strict)
-                    throw Error("Given target doesn't exists in given list.")
+                    throw new Error(
+                        "Given target doesn't exists in given list.")
             } else
                 /* eslint-disable max-statements-per-line */
                 list.splice(index, 1)
                 /* eslint-enable max-statements-per-line */
         } else if (strict)
-            throw Error("Given target isn't an array.")
+            throw new Error("Given target isn't an array.")
         return list
     }
     // / endregion

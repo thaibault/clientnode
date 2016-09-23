@@ -1365,7 +1365,7 @@ let tests:Array<Test> = [{callback: function(
                 $.Tools.class.arrayRemove.apply(this, test[0]), test[1])
         assert.throws(():?Array<any> => $.Tools.class.arrayRemove(
             [], 2, true
-        ), Error("Given target doesn't exists in given list."))
+        ), new Error("Given target doesn't exists in given list."))
     })
     // // endregion
     // // region string
@@ -2093,8 +2093,8 @@ export default function(
     ) => any), roundTypes:Array<string> = [], closeWindow:boolean = false
 ):Array<Test> {
     if (testRan)
-        throw Error(
-            'You have to registere your tests immediately after importing ' +
+        throw new Error(
+            'You have to register your tests immediately after importing ' +
             'the client node library.')
     if (!testRegistered) {
         testRegistered = true

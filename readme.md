@@ -149,11 +149,6 @@ in given context.
     // or
     $ = require('clientnode').$
     $.Tools().isEquivalentDom('<div>', '<script>') // false
-    // If "$" was already available:
-    $('body').Tools...
-    // or
-    $.Tools...
-    // is even possible
     ...
 
 <!--|deDE:Plugin-Vorlage-->
