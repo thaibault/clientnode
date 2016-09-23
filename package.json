@@ -31,9 +31,9 @@
   "main": "index.compiled.js",
   "webOptimizer": {
     "injection": {
-      "externalAliases": {
+      "external":{"aliases": {
         "jquery": "jQuery"
-      },
+      }},
       "internal": {
         "vendor": {
           "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI'] : []"
@@ -48,7 +48,7 @@
           }
         }
       },
-      "skipParseRegularExpression": {
+      "skipParseRegularExpressions": {
         "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
     }
