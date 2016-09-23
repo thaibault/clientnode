@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "1.0.56",
+  "version": "1.0.57",
   "description": "upgrade to object orientated rock solid plugins",
   "documentationWebsite": {
     "name": "clientNode",
@@ -31,9 +31,11 @@
   "main": "index.compiled.js",
   "webOptimizer": {
     "injection": {
-      "external":{"aliases": {
-        "jquery": "jQuery"
-      }},
+      "external": {
+        "aliases": {
+          "jquery": "jQuery"
+        }
+      },
       "internal": {
         "vendor": {
           "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI'] : []"
