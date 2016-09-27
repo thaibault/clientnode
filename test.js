@@ -16,7 +16,7 @@
 */
 // region imports
 import browserAPI from 'weboptimizer/browserAPI'
-import type {BrowserAPI} from 'weboptimizer/type'
+import type {BrowserAPI, PlainObject} from 'weboptimizer/type'
 import type {$DomNode} from './index'
 // endregion
 // region types
@@ -236,7 +236,7 @@ let tests:Array<Test> = [{callback: function(
     // // region dom node handling
     if (roundType === 'withJQuery') {
         this.test(`getStyle (${roundType})`, (assert:Object):void => {
-            for (const test:Array<string> of [
+            for (const test:Array<any> of [
                 ['<span>', {}],
                 ['<span>hans</span>', {}],
                 ['<span style="display:block"></span>', {display: 'block'}],
@@ -247,11 +247,12 @@ let tests:Array<Test> = [{callback: function(
                 const $domNode:$DomNode = $(test[0])
                 $bodyDomNode.append($domNode)
                 const styles:PlainObject = $domNode.Tools('getStyle')
-                for (const propertyName:string in test[1]) {
-                    assert.ok(styles.hasOwnProperty(propertyName))
-                    assert.strictEqual(
-                        styles[propertyName], test[1][propertyName])
-                }
+                for (const propertyName:string in test[1])
+                    if (test[1].hasOwnProperty(propertyName)) {
+                        assert.ok(styles.hasOwnProperty(propertyName))
+                        assert.strictEqual(
+                            styles[propertyName], test[1][propertyName])
+                    }
                 $domNode.remove()
             }
         })
