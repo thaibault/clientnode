@@ -1847,6 +1847,7 @@ let tests:Array<Test> = [{callback: function(
             [['test', 'tests'], 'test'],
             [['', 'test'], ''],
             [['test', 'e', '<a>{1}</a>'], 't<a>e</a>st'],
+            [['test', ['e'], '<a>{1}</a>'], 't<a>e</a>st'],
             [['test', 'E', '<a>{1}</a>'], 't<a>e</a>st'],
             [['test', 'E', '<a>{1}</a>', false], 't<a>e</a>st'],
             [['tesT', 't', '<a>{1}</a>'], '<a>t</a>es<a>T</a>'],
@@ -1854,7 +1855,25 @@ let tests:Array<Test> = [{callback: function(
                 ['tesT', 't', '<a>{1} - {1}</a>'],
                 '<a>t - t</a>es<a>T - T</a>'
             ],
-            [['test', 'E', '<a>{1}</a>', true], 'test']
+            [['test', 'E', '<a>{1}</a>', true], 'test'],
+            [
+                ['abcd', ['a', 'c']],
+                '<span class="tools-mark">a</span>b' +
+                '<span class="tools-mark">c</span>d'
+            ],
+            [
+                ['aabcd', ['a', 'c']],
+                '<span class="tools-mark">a</span>' +
+                '<span class="tools-mark">a</span>b' +
+                '<span class="tools-mark">c</span>d'
+            ],
+            [
+                ['acbcd', ['a', 'c', 'd']],
+                '<span class="tools-mark">a</span>' +
+                '<span class="tools-mark">c</span>b' +
+                '<span class="tools-mark">c</span>' +
+                '<span class="tools-mark">d</span>'
+            ]
         ])
             assert.strictEqual(
                 $.Tools.class.stringMark.apply(this, test[0]), test[1])

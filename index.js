@@ -735,7 +735,7 @@ export default class Tools {
             if (styleProperties) {
                 if ('length' in styleProperties)
                     for (
-                        let index = 0; index < styleProperties.length;
+                        let index:number = 0; index < styleProperties.length;
                         index += 1
                     )
                         result[this.constructor.stringDelimitedToCamelCase(
@@ -2793,39 +2793,56 @@ export default class Tools {
     /**
      * Wraps given mark strings in given target with given marker.
      * @param target - String to search for marker.
-     * @param mark - String to search in target for.
+     * @param words - String or array of strings to search in target for.
      * @param marker - HTML template string to mark.
      * @param caseSensitive - Indicates whether case takes a role during
      * searching.
      * @returns Processed result.
      */
     static stringMark(
-        target:?string, mark:?string,
+        target:?string, words:?string|?Array<string>,
         marker:string = '<span class="tools-mark">{1}</span>',
         caseSensitive:boolean = false
     ):?string {
-        if (target && mark) {
+        if (target && words && words.length) {
             target = target.trim()
-            mark = mark.trim()
-            let offset:number = 0
+            if (!Array.isArray(words))
+                words = [words]
+            let index:number = 0
+            for (const word:string of words) {
+                words[index] = word.trim()
+                if (!caseSensitive)
+                    words[index] = word.toLowerCase()
+                index += 1
+            }
             let searchTarget:string = target
             if (!caseSensitive)
                 searchTarget = searchTarget.toLowerCase()
-            if (!caseSensitive)
-                mark = mark.toLowerCase()
+            let offset:number = 0
             while (true) {
-                const index:number = searchTarget.indexOf(mark, offset)
+                let index:number = -1
+                let currentIndex:number
+                let foundWord:string = words[0]
+                for (const word:string of words) {
+                    currentIndex = searchTarget.indexOf(word, offset)
+                    if (currentIndex > -1 && (
+                        index === -1 || currentIndex < index
+                    )) {
+                        index = currentIndex
+                        foundWord = word
+                    }
+                }
                 if (index === -1)
                     break
                 else {
                     target = target.substring(0, index) + Tools.stringFormat(
-                        marker, target.substr(index, mark.length)
-                    ) + target.substring(index + mark.length)
+                        marker, target.substr(index, foundWord.length)
+                    ) + target.substring(index + foundWord.length)
                     if (!caseSensitive)
                         searchTarget = target.toLowerCase()
                     offset = index + (
                         marker.length - '{1}'.length
-                    ) + mark.length
+                    ) + foundWord.length
                 }
             }
         }
