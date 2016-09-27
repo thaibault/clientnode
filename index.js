@@ -1209,7 +1209,10 @@ export default class Tools {
             else if (`_${eventHandlerName}` in scope)
                 scope[`_${eventHandlerName}`].apply(
                     scope, additionalArguments)
-        if (scope._options && eventHandlerName in scope._options) {
+        if (
+            scope._options && eventHandlerName in scope._options &&
+            scope._options[eventHandlerName] !== this.constructor.noop
+        ) {
             scope._options[eventHandlerName].apply(scope, additionalArguments)
             return true
         }
