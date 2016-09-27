@@ -1100,7 +1100,7 @@ export default class Tools {
                         `Method "${method}" doesn't exists in "${scope}".`)
                 return scope[method].apply(scope, self.constructor.arrayMake(
                     arguments
-                ).concat(additionalArguments.concat))
+                ).concat(additionalArguments))
             }
         return function():any {
             // IgnoreTypeCheck
