@@ -235,6 +235,26 @@ let tests:Array<Test> = [{callback: function(
     // // endregion
     // // region dom node handling
     if (roundType === 'withJQuery') {
+        this.test(`getStyle (${roundType})`, (assert:Object):void => {
+            for (const test:Array<string> of [
+                ['<span>', {}],
+                ['<span>hans</span>', {}],
+                ['<span style="display:block"></span>', {display: 'block'}],
+                ['<span style="display:block;float:left"></span>', {
+                    display: 'block', float: 'left'
+                }]
+            ]) {
+                const $domNode:$DomNode = $(test[0])
+                $bodyDomNode.append($domNode)
+                const styles:PlainObject = $domNode.Tools('getStyle')
+                for (const propertyName:string in test[1]) {
+                    assert.ok(styles.hasOwnProperty(propertyName))
+                    assert.strictEqual(
+                        styles[propertyName], test[1][propertyName])
+                }
+                $domNode.remove()
+            }
+        })
         this.test(`getText (${roundType})`, (assert:Object):void => {
             for (const test:Array<string> of [
                 ['<div>', ''],

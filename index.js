@@ -723,6 +723,51 @@ export default class Tools {
     // / endregion
     // / region dom node
     /**
+     * Retrieves a mapping of computed style attributes to their corresponding
+     * values.
+     * @returns The computed style mapping.
+     */
+    getStyle():PlainObject {
+        const result:PlainObject = {}
+        if ('window' in $.global && $.global.window.getComputedStyle) {
+            const styleProperties:?any = $.global.window.getComputedStyle(
+                this.$domNode[0], null)
+            if (styleProperties) {
+                if ('length' in styleProperties)
+                    for (
+                        let index = 0;index < styleProperties.length;index += 1
+                    )
+                        result[this.constructor.stringDelimitedToCamelCase(
+                            styleProperties[index]
+                        )] = styleProperties.getPropertyValue(
+                            styleProperties[index])
+                else
+                    for (const propertyName:string in styleProperties)
+                        if (styleProperties.hasOwnProperty(propertyName))
+                            result[this.constructor.stringDelimitedToCamelCase(
+                                propertyName
+                            )] = propertyName in styleProperties &&
+                            styleProperties[
+                                propertyName
+                            ] || styleProperties.getPropertyValue(propertyName)
+                return result
+            }
+        }
+        let styleProperties:?PlainObject = this.$domNode[0].currentStyle
+        if (styleProperties) {
+            for (const propertyName:string in styleProperties)
+                if (styleProperties.hasOwnProperty(propertyName))
+                    result[propertyName] = styleProperties[propertyName]
+            return result
+        }
+        styleProperties = this.$domNode[0].style
+        if (styleProperties)
+            for (const propertyName:string in styleProperties)
+                if (typeof styleProperties[propertyName] !== 'function')
+                    result[propertyName] = styleProperties[propertyName]
+        return result
+    }
+    /**
      * Get text content of current element without it children's text contents.
      * @returns The text string.
      */
