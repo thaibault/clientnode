@@ -735,7 +735,8 @@ export default class Tools {
             if (styleProperties) {
                 if ('length' in styleProperties)
                     for (
-                        let index = 0;index < styleProperties.length;index += 1
+                        let index = 0; index < styleProperties.length;
+                        index += 1
                     )
                         result[this.constructor.stringDelimitedToCamelCase(
                             styleProperties[index]
