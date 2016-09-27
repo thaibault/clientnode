@@ -1098,8 +1098,9 @@ export default class Tools {
                 if (!scope[method] && typeof method === 'string')
                     throw new Error(
                         `Method "${method}" doesn't exists in "${scope}".`)
-                return scope[method].apply(scope, additionalArguments.concat(
-                    self.constructor.arrayMake(arguments)))
+                return scope[method].apply(scope, self.constructor.arrayMake(
+                    arguments
+                ).concat(additionalArguments.concat))
             }
         return function():any {
             // IgnoreTypeCheck
