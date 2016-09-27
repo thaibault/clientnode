@@ -1092,15 +1092,15 @@ export default class Tools {
         */
         if (!scope)
             scope = this
+        const self:Tools = this
         if (typeof method === 'string' && typeof scope === 'object')
             return function():any {
                 if (!scope[method] && typeof method === 'string')
                     throw new Error(
                         `Method "${method}" doesn't exists in "${scope}".`)
                 return scope[method].apply(scope, additionalArguments.concat(
-                    this.constructor.arrayMake(arguments)))
+                    self.constructor.arrayMake(arguments)))
             }
-        const self:Tools = this
         return function():any {
             // IgnoreTypeCheck
             return method.apply(scope, self.constructor.arrayMake(
