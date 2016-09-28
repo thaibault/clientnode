@@ -30,7 +30,8 @@
   "homepage": "http://torben.website/clientNode",
   "main": "index.compiled.js",
   "aliases": {
-    "./index": "./index.compiled"
+    "./index": "./index.compiled",
+    "./test": "./test.compiled"
   },
   "webOptimizer": {
     "injection": {
@@ -63,7 +64,7 @@
     "buildDLL": "webOptimizer buildDLL",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
-    "export": "webOptimizer build '{module:{preprocessor:{babel:{plugins:{__remove__:\"transform-runtime\"}}}}}' && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
+    "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{babel:{plugins:{__remove__:\"transform-runtime\"}}}}}' && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
     "lint": "webOptimizer typeCheck && webOptimizer lint",
     "prepublish": "if ! npm run build; then echo You should rerun install procedure to resolve dependency cycle. && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js; fi",
     "serve": "webOptimizer serve",
