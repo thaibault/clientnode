@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "1.0.63",
+  "version": "1.0.64",
   "description": "upgrade to object orientated rock solid plugins",
   "documentationWebsite": {
     "name": "clientNode",
@@ -29,7 +29,9 @@
   },
   "homepage": "http://torben.website/clientNode",
   "main": "index.compiled.js",
-  "aliases": {"./index$": "./index.compiled"},
+  "aliases": {
+    "./index$": "./index.compiled"
+  },
   "webOptimizer": {
     "injection": {
       "external": {
