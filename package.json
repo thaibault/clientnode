@@ -43,6 +43,7 @@
       }
     },
     "module": {
+      "aliases": {"clientnode": "./index"},
       "preprocessor": {
         "babel": {
           "presets": {

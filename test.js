@@ -17,7 +17,7 @@
 // region imports
 import browserAPI from 'weboptimizer/browserAPI'
 import type {BrowserAPI, PlainObject} from 'weboptimizer/type'
-import type {$DomNode} from './index'
+import type {$DomNode} from 'clientnode'
 // endregion
 // region types
 export type Test = {
