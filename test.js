@@ -655,28 +655,15 @@ let tests:Array<Test> = [{callback: function(
         assert.notOk(testValue)
     })
     this.test(`fireEvent (${roundType})`, (assert:Object):void => {
-        let testValue = false
-
-        assert.strictEqual($.Tools({onClick: ():void => {
-            testValue = true
-        }}).fireEvent('click', true), true)
-        assert.ok(testValue)
-        assert.strictEqual($.Tools({onClick: ():void => {
-            testValue = false
-        }}).fireEvent('click', true), true)
-        assert.notOk(testValue)
-        assert.strictEqual(tools.fireEvent('click'), false)
-        assert.notOk(testValue)
-        tools.onClick = ():void => {
-            testValue = true
-        }
-        assert.strictEqual(tools.fireEvent('click'), false)
-        assert.ok(testValue)
-        tools.onClick = ():void => {
-            testValue = false
-        }
-        assert.strictEqual(tools.fireEvent('click', true), false)
-        assert.ok(testValue)
+        assert.strictEqual($.Tools({onClick: ():2 => 2}).fireEvent(
+            'click', true
+        ), 2)
+        assert.notOk($.Tools({onClick: ():false => false}).fireEvent(
+            'click', true))
+        assert.ok(tools.fireEvent('click'))
+        tools.onClick = ():3 => 3
+        assert.strictEqual(tools.fireEvent('click'), true)
+        assert.strictEqual(tools.fireEvent('click', true), true)
     })
     if (roundType === 'withJQuery') {
         this.test(`on (${roundType})`, (assert:Object):void => {

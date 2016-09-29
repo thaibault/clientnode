@@ -29,10 +29,6 @@
   },
   "homepage": "http://torben.website/clientNode",
   "main": "index.compiled.js",
-  "aliases": {
-    "./index": "./index.compiled",
-    "./test": "./test.compiled"
-  },
   "webOptimizer": {
     "injection": {
       "external": {

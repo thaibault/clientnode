@@ -1246,7 +1246,7 @@ export default class Tools {
     fireEvent(
         eventName:string, callOnlyOptionsMethod:boolean = false,
         scope:any = this, ...additionalArguments:Array<any>
-    ):boolean {
+    ):any {
         const eventHandlerName:string =
             `on${this.constructor.stringCapitalize(eventName)}`
         if (!callOnlyOptionsMethod)
@@ -1258,11 +1258,10 @@ export default class Tools {
         if (
             scope._options && eventHandlerName in scope._options &&
             scope._options[eventHandlerName] !== this.constructor.noop
-        ) {
-            scope._options[eventHandlerName].apply(scope, additionalArguments)
-            return true
-        }
-        return false
+        )
+            return scope._options[eventHandlerName].apply(
+                scope, additionalArguments)
+        return true
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
