@@ -2019,7 +2019,7 @@ let testRan:boolean = false
 browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
     testRan = true
     // region configuration
-    QUnit.config = require('./index').default.extendObject(QUnit.config || {
+    QUnit.config = require('clientnode').default.extendObject(QUnit.config || {
     }, {
         /*
         notrycatch: true,
@@ -2046,18 +2046,18 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
                 roundType
             )) {
                 // NOTE: Enforce to reload module to rebind "$".
-                delete require.cache[require.resolve('./index')]
+                delete require.cache[require.resolve('clientnode')]
                 let $bodyDomNode:$DomNode
                 let $:any
                 if (roundType === 'plain') {
                     window.$ = null
-                    $ = require('./index').$
+                    $ = require('clientnode').$
                 } else {
                     if (roundType === 'withJQuery') {
                         $ = require('jquery')
                         window.$ = $
                     }
-                    $ = require('./index').$
+                    $ = require('clientnode').$
                     $.context = window.document
                     $bodyDomNode = $('body')
                 }
