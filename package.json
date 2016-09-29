@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "1.0.66",
+  "version": "1.0.67",
   "description": "upgrade to object orientated rock solid plugins",
   "documentationWebsite": {
     "name": "clientNode",
@@ -43,7 +43,9 @@
       }
     },
     "module": {
-      "aliases": {"clientnode": "./index"},
+      "aliases": {
+        "clientnode": "./index"
+      },
       "preprocessor": {
         "babel": {
           "presets": {
