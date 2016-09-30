@@ -70,31 +70,45 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region mutual exclusion
-    this.test(`acquireLock|releaseLock (${roundType})`, (
+    this.test(`acquireLock|releaseLock (${roundType})`, async (
         assert:Object
-    ):void => {
+    ):Promise<void> => {
         let testValue = false
         tools.acquireLock('test', ():void => {
             testValue = true
         })
-
         assert.ok(testValue)
-        assert.strictEqual(tools.acquireLock('test', ():void => {
+        assert.ok(tools.acquireLock('test', ():void => {
             testValue = false
-        }, true), tools)
+        }, true) instanceof Promise)
         assert.ok(testValue)
-        assert.ok($.Tools().releaseLock('test'))
+        assert.ok($.Tools().releaseLock('test') instanceof $.Tools.class)
         assert.ok(testValue)
-        assert.strictEqual(tools.releaseLock('test'), tools)
+        assert.ok(tools.releaseLock('test') instanceof $.Tools.class)
         assert.notOk(testValue)
-        assert.strictEqual(tools.acquireLock('test', ():void => {
+        assert.ok(tools.acquireLock('test', ():void => {
             testValue = true
-        }, true), tools)
+        }) instanceof Promise)
         assert.ok(testValue)
-        assert.strictEqual(tools.acquireLock('test', ():void => {
+        assert.ok(tools.acquireLock('test', ():void => {
             testValue = false
-        }), tools)
+        }) instanceof Promise)
+        assert.ok(testValue)
+        tools.releaseLock('test')
         assert.notOk(testValue)
+
+        const firstDone:Function = assert.async()
+        tools.acquireLock('test').then((result:string):void => {
+            assert.strictEqual(result, 'test')
+            firstDone()
+        })
+        tools.releaseLock('test')
+
+        const secondDone:Function = assert.async()
+        setTimeout(():tools.constructor => tools.releaseLock('test'), 0)
+        const result:string = await tools.acquireLock('test')
+        assert.strictEqual(result, 'test')
+        secondDone()
     })
     // // endregion
     // // region boolean

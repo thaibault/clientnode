@@ -421,24 +421,26 @@ export default class Tools {
      * @param autoRelease - Release the lock after execution of given callback.
      * @returns Returns the current instance.
      */
-    acquireLock(
-        description:string, callbackFunction:LockCallbackFunction,
+    async acquireLock(
+        description:string, callbackFunction:LockCallbackFunction = Tools.noop,
         autoRelease:boolean = false
-    ):Tools {
-        const wrappedCallbackFunction:LockCallbackFunction = (
-            description:string
-        ):void => {
-            callbackFunction(description)
-            if (autoRelease)
-                this.releaseLock(description)
-        }
-        if (this._locks.hasOwnProperty(description))
-            this._locks[description].push(wrappedCallbackFunction)
-        else {
-            this._locks[description] = []
-            wrappedCallbackFunction(description)
-        }
-        return this
+    ):Promise<string> {
+        return await new Promise((resolve:Function):void => {
+            const wrappedCallbackFunction:LockCallbackFunction = (
+                description:string
+            ):void => {
+                callbackFunction(description)
+                resolve(description)
+                if (autoRelease)
+                    this.releaseLock(description)
+            }
+            if (this._locks.hasOwnProperty(description))
+                this._locks[description].push(wrappedCallbackFunction)
+            else {
+                this._locks[description] = []
+                wrappedCallbackFunction(description)
+            }
+        })
     }
     /**
      * Calling this method  causes the given critical area to be finished and
