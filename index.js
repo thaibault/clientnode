@@ -34,7 +34,7 @@ export type Options = {
     domNodeSelectorPrefix:string;
     [key:string]:any;
 }
-export type LockCallbackFunction = (description:string) => void
+export type LockCallbackFunction = (description:string) => ?Promise<any>
 export type $DomNode = {
     [key:number|string]:DomNode;
     addClass(className:string):$DomNode;
@@ -53,23 +53,6 @@ export type $DomNode = {
     submit():$DomNode;
     width():number;
     Tools(functionName:string, ...additionalArguments:Array<any>):any;
-}
-export type $Deferred<Type> = {
-    always:() => $Deferred<Type>;
-    resolve:() => $Deferred<Type>;
-    done:() => $Deferred<Type>;
-    fail:() => $Deferred<Type>;
-    isRejected:() => $Deferred<Type>;
-    isResolved:() => $Deferred<Type>;
-    notify:() => $Deferred<Type>;
-    notifyWith:() => $Deferred<Type>;
-    progress:() => $Deferred<Type>;
-    promise:() => $Deferred<Type>;
-    reject:() => $Deferred<Type>;
-    rejectWith:() => $Deferred<Type>;
-    resolveWith:() => $Deferred<Type>;
-    state:() => $Deferred<Type>;
-    then:() => $Deferred<Type>;
 }
 // endregion
 // region determine context
@@ -419,20 +402,28 @@ export default class Tools {
      * the interpreter isn't in the given critical area. The lock description
      * string will be given to the callback function.
      * @param autoRelease - Release the lock after execution of given callback.
-     * @returns Returns the current instance.
+     * @returns Returns a promise which will be resolved after releasing lock.
      */
     async acquireLock(
         description:string, callbackFunction:LockCallbackFunction = Tools.noop,
         autoRelease:boolean = false
-    ):Promise<string> {
-        return await new Promise((resolve:Function):void => {
-            const wrappedCallbackFunction:LockCallbackFunction = (
+    ):Promise<any> {
+        return new Promise((resolve:Function):void => {
+            const wrappedCallbackFunction:LockCallbackFunction = async (
                 description:string
-            ):void => {
-                callbackFunction(description)
-                resolve(description)
-                if (autoRelease)
-                    this.releaseLock(description)
+            ):Promise<any> => {
+                const result:?Promise<any> = callbackFunction(description)
+                const finish:Function = (value:any):void => {
+                    if (autoRelease)
+                        this.releaseLock(description)
+                    resolve(value)
+                }
+                if (
+                    result !== null && typeof result === 'object' &&
+                    'then' in result
+                )
+                    return result.then(finish)
+                finish(description)
             }
             if (this._locks.hasOwnProperty(description))
                 this._locks[description].push(wrappedCallbackFunction)
@@ -444,19 +435,26 @@ export default class Tools {
     }
     /**
      * Calling this method  causes the given critical area to be finished and
-     * all functions given to "this.acquireLock()" will be executed in right
-     * order.
+     * all functions given to "acquireLock()" will be executed in right order.
      * @param description - A short string describing the critical areas
      * properties.
-     * @returns Returns the current instance.
+     * @returns Returns the return value of the callback given to the
+     * "acquireLock" method.
      */
-    releaseLock(description:string):Tools {
-        if (this._locks.hasOwnProperty(description))
-            if (this._locks[description].length)
-                this._locks[description].shift()(description)
-            else
-                delete this._locks[description]
-        return this
+    async releaseLock(description:string):?Promise<any> {
+        let result:any
+        if (this._locks.hasOwnProperty(description)) {
+            if (this._locks[description].length) {
+                result = this._locks[description].shift()(description)
+                if (
+                    result !== null && typeof result === 'object' &&
+                    'then' in result
+                )
+                    await result
+            }
+            delete this._locks[description]
+        }
+        return result
     }
     // / endregion
     // / region boolean
