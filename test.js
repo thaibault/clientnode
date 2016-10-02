@@ -73,42 +73,52 @@ let tests:Array<Test> = [{callback: function(
     this.test(`acquireLock|releaseLock (${roundType})`, async (
         assert:Object
     ):Promise<void> => {
-        let testValue = false
+        let testValue:boolean = false
         tools.acquireLock('test', ():void => {
             testValue = true
         })
         assert.ok(testValue)
         assert.ok(tools.acquireLock('test', ():void => {
             testValue = false
-        }, true) instanceof Promise)
-        assert.ok(testValue)
-        assert.ok($.Tools().releaseLock('test') instanceof $.Tools.class)
-        assert.ok(testValue)
-        assert.ok(tools.releaseLock('test') instanceof $.Tools.class)
-        assert.notOk(testValue)
-        assert.ok(tools.acquireLock('test', ():void => {
-            testValue = true
         }) instanceof Promise)
+        assert.ok(testValue)
+        assert.ok($.Tools().releaseLock('test') instanceof Promise)
+        assert.ok(testValue)
+        assert.ok(tools.releaseLock('test') instanceof Promise)
+        assert.notOk(testValue)
+        assert.ok(tools.releaseLock('test') instanceof Promise)
+        await tools.acquireLock('test', ():void => {
+            testValue = true
+        })
         assert.ok(testValue)
         assert.ok(tools.acquireLock('test', ():void => {
             testValue = false
         }) instanceof Promise)
-        assert.ok(testValue)
-        tools.releaseLock('test')
         assert.notOk(testValue)
-
-        const firstDone:Function = assert.async()
-        tools.acquireLock('test').then((result:string):void => {
+        assert.ok(tools.acquireLock('test', ():void => {
+            testValue = true
+        }) instanceof Promise)
+        assert.notOk(testValue)
+        tools.releaseLock('test')
+        assert.ok(testValue)
+        const done:Function = assert.async()
+        tools.acquireLock('test').then(async (result:string):Promise<any> => {
             assert.strictEqual(result, 'test')
-            firstDone()
+            setTimeout(():tools.constructor => tools.releaseLock('test'), 0)
+            result = await tools.acquireLock('test')
+            assert.strictEqual(result, 'test')
+            setTimeout(():tools.constructor => tools.releaseLock('test'), 0)
+            result = await tools.acquireLock('test', ():Promise<boolean> => {
+                return new Promise((resolve:Function):number => setTimeout((
+                ):void => {
+                    testValue = false
+                    resolve(testValue)
+                }, 0))
+            })
+            assert.notOk(testValue)
+            done()
         })
         tools.releaseLock('test')
-
-        const secondDone:Function = assert.async()
-        setTimeout(():tools.constructor => tools.releaseLock('test'), 0)
-        const result:string = await tools.acquireLock('test')
-        assert.strictEqual(result, 'test')
-        secondDone()
     })
     // // endregion
     // // region boolean
@@ -415,8 +425,7 @@ let tests:Array<Test> = [{callback: function(
                 ['text', 'text a'],
                 ['text', 'text a & +']
             ])
-                assert.notOk(
-                    $.Tools.class.isEquivalentDom.apply(this, test))
+                assert.notOk($.Tools.class.isEquivalentDom.apply(this, test))
         })
     }
     if (roundType === 'withJQuery')
