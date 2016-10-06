@@ -1946,6 +1946,14 @@ let tests:Array<Test> = [{callback: function(
                     'str.', 'strasse'
                 ).replace('ß', 'ss')],
                 'a <a>str.</a> <a>2</a>'
+            ],
+            [
+                ['EGO Movement Store E-Bikes München', ['eBikes', 'München'],
+                '<a>{1}</a>', (value:any):string => `${value}`.toLowerCase(
+                ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
+                    /(^| )str\.( |$)/g, 'strasse'
+                ).replace(/[& ]+/g, ' ')],
+                'EGO Movement Store <a>E-Bikes</a> <a>München</a>'
             ]
         ])
             assert.strictEqual(
