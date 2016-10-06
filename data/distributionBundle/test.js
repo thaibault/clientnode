@@ -16,8 +16,8 @@
 */
 // region imports
 import browserAPI from 'weboptimizer/browserAPI'
-import type {BrowserAPI} from 'weboptimizer/type'
-import type {$DomNode} from './index'
+import type {BrowserAPI, PlainObject} from 'weboptimizer/type'
+import type {$DomNode} from 'clientnode'
 // endregion
 // region types
 export type Test = {
@@ -70,31 +70,55 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region mutual exclusion
-    this.test(`acquireLock|releaseLock (${roundType})`, (
+    this.test(`acquireLock|releaseLock (${roundType})`, async (
         assert:Object
-    ):void => {
-        let testValue = false
+    ):Promise<void> => {
+        let testValue:boolean = false
         tools.acquireLock('test', ():void => {
             testValue = true
         })
-
         assert.ok(testValue)
-        assert.strictEqual(tools.acquireLock('test', ():void => {
+        assert.ok(tools.acquireLock('test', ():void => {
             testValue = false
-        }, true), tools)
+        }) instanceof Promise)
         assert.ok(testValue)
-        assert.ok($.Tools().releaseLock('test'))
+        assert.ok($.Tools().releaseLock('test') instanceof Promise)
         assert.ok(testValue)
-        assert.strictEqual(tools.releaseLock('test'), tools)
+        assert.ok(tools.releaseLock('test') instanceof Promise)
         assert.notOk(testValue)
-        assert.strictEqual(tools.acquireLock('test', ():void => {
+        assert.ok(tools.releaseLock('test') instanceof Promise)
+        await tools.acquireLock('test', ():void => {
             testValue = true
-        }, true), tools)
+        })
         assert.ok(testValue)
-        assert.strictEqual(tools.acquireLock('test', ():void => {
+        assert.ok(tools.acquireLock('test', ():void => {
             testValue = false
-        }), tools)
+        }) instanceof Promise)
         assert.notOk(testValue)
+        assert.ok(tools.acquireLock('test', ():void => {
+            testValue = true
+        }) instanceof Promise)
+        assert.notOk(testValue)
+        tools.releaseLock('test')
+        assert.ok(testValue)
+        const done:Function = assert.async()
+        tools.acquireLock('test').then(async (result:string):Promise<any> => {
+            assert.strictEqual(result, 'test')
+            setTimeout(():tools.constructor => tools.releaseLock('test'), 0)
+            result = await tools.acquireLock('test')
+            assert.strictEqual(result, 'test')
+            setTimeout(():tools.constructor => tools.releaseLock('test'), 0)
+            result = await tools.acquireLock('test', ():Promise<boolean> => {
+                return new Promise((resolve:Function):number => setTimeout((
+                ):void => {
+                    testValue = false
+                    resolve(testValue)
+                }, 0))
+            })
+            assert.notOk(testValue)
+            done()
+        })
+        tools.releaseLock('test')
     })
     // // endregion
     // // region boolean
@@ -235,6 +259,27 @@ let tests:Array<Test> = [{callback: function(
     // // endregion
     // // region dom node handling
     if (roundType === 'withJQuery') {
+        this.test(`getStyle (${roundType})`, (assert:Object):void => {
+            for (const test:Array<any> of [
+                ['<span>', {}],
+                ['<span>hans</span>', {}],
+                ['<span style="display:block"></span>', {display: 'block'}],
+                ['<span style="display:block;float:left"></span>', {
+                    display: 'block', float: 'left'
+                }]
+            ]) {
+                const $domNode:$DomNode = $(test[0])
+                $bodyDomNode.append($domNode)
+                const styles:PlainObject = $domNode.Tools('getStyle')
+                for (const propertyName:string in test[1])
+                    if (test[1].hasOwnProperty(propertyName)) {
+                        assert.ok(styles.hasOwnProperty(propertyName))
+                        assert.strictEqual(
+                            styles[propertyName], test[1][propertyName])
+                    }
+                $domNode.remove()
+            }
+        })
         this.test(`getText (${roundType})`, (assert:Object):void => {
             for (const test:Array<string> of [
                 ['<div>', ''],
@@ -380,8 +425,7 @@ let tests:Array<Test> = [{callback: function(
                 ['text', 'text a'],
                 ['text', 'text a & +']
             ])
-                assert.notOk(
-                    $.Tools.class.isEquivalentDom.apply(this, test))
+                assert.notOk($.Tools.class.isEquivalentDom.apply(this, test))
         })
     }
     if (roundType === 'withJQuery')
@@ -634,28 +678,15 @@ let tests:Array<Test> = [{callback: function(
         assert.notOk(testValue)
     })
     this.test(`fireEvent (${roundType})`, (assert:Object):void => {
-        let testValue = false
-
-        assert.strictEqual($.Tools({onClick: ():void => {
-            testValue = true
-        }}).fireEvent('click', true), true)
-        assert.ok(testValue)
-        assert.strictEqual($.Tools({onClick: ():void => {
-            testValue = false
-        }}).fireEvent('click', true), true)
-        assert.notOk(testValue)
-        assert.strictEqual(tools.fireEvent('click'), false)
-        assert.notOk(testValue)
-        tools.onClick = ():void => {
-            testValue = true
-        }
-        assert.strictEqual(tools.fireEvent('click'), false)
-        assert.ok(testValue)
-        tools.onClick = ():void => {
-            testValue = false
-        }
-        assert.strictEqual(tools.fireEvent('click', true), false)
-        assert.ok(testValue)
+        assert.strictEqual($.Tools({onClick: ():2 => 2}).fireEvent(
+            'click', true
+        ), 2)
+        assert.notOk($.Tools({onClick: ():false => false}).fireEvent(
+            'click', true))
+        assert.ok(tools.fireEvent('click'))
+        tools.onClick = ():3 => 3
+        assert.strictEqual(tools.fireEvent('click'), true)
+        assert.strictEqual(tools.fireEvent('click', true), true)
     })
     if (roundType === 'withJQuery') {
         this.test(`on (${roundType})`, (assert:Object):void => {
@@ -1365,7 +1396,7 @@ let tests:Array<Test> = [{callback: function(
                 $.Tools.class.arrayRemove.apply(this, test[0]), test[1])
         assert.throws(():?Array<any> => $.Tools.class.arrayRemove(
             [], 2, true
-        ), Error("Given target doesn't exists in given list."))
+        ), new Error("Given target doesn't exists in given list."))
     })
     // // endregion
     // // region string
@@ -1816,6 +1847,46 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(
                 $.Tools.class.stringLowerCase(test[0]), test[1])
     })
+    this.test(`stringFindNormalizedMatchRange (${roundType})`, (
+        assert:Object
+    ):void => {
+        for (const test:Array<any> of [
+            [['', ''], null],
+            [['hans', ''], null],
+            [['hans', 'a'], [1, 2]],
+            [['hans', 'an'], [1, 3]],
+            [['hans', 'han'], [0, 3]],
+            [['hans', 'hans'], [0, 4]],
+            [['hans', 'ans'], [1, 4]],
+            [['hans hans', 'ans'], [1, 4]],
+            [
+                [' hAns ', 'ans', (value:any):string => value.toLowerCase()],
+                [2, 5]
+            ],
+            [
+                ['a straße b', 'strasse', (value:any):string =>
+                    value.replace(/ß/g, 'ss').toLowerCase()
+                ],
+                [2, 8]
+            ],
+            [
+                ['a strasse b', 'strasse', (value:any):string =>
+                    value.replace(/ß/g, 'ss').toLowerCase()
+                ],
+                [2, 9]
+            ],
+            [
+                ['a strasse b', 'straße', (value:any):string =>
+                    value.replace(/ß/g, 'ss').toLowerCase()
+                ],
+                [2, 9]
+            ]
+        ])
+            assert.deepEqual(
+                $.Tools.class.stringFindNormalizedMatchRange.apply(
+                    this, test[0]
+                ), test[1])
+    })
     this.test(`stringMark (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [[''], ''],
@@ -1826,14 +1897,64 @@ let tests:Array<Test> = [{callback: function(
             [['test', 'tests'], 'test'],
             [['', 'test'], ''],
             [['test', 'e', '<a>{1}</a>'], 't<a>e</a>st'],
+            [['test', ['e'], '<a>{1}</a>'], 't<a>e</a>st'],
             [['test', 'E', '<a>{1}</a>'], 't<a>e</a>st'],
-            [['test', 'E', '<a>{1}</a>', false], 't<a>e</a>st'],
+            [['test', 'E', '<a>{1}</a>'], 't<a>e</a>st'],
             [['tesT', 't', '<a>{1}</a>'], '<a>t</a>es<a>T</a>'],
             [
                 ['tesT', 't', '<a>{1} - {1}</a>'],
                 '<a>t - t</a>es<a>T - T</a>'
             ],
-            [['test', 'E', '<a>{1}</a>', true], 'test']
+            [
+                ['test', 'E', '<a>{1}</a>', (value:any):string => `${value}`],
+                'test'
+            ],
+            [
+                ['abcd', ['a', 'c']],
+                '<span class="tools-mark">a</span>b' +
+                '<span class="tools-mark">c</span>d'
+            ],
+            [
+                ['aabcd', ['a', 'c']],
+                '<span class="tools-mark">a</span>' +
+                '<span class="tools-mark">a</span>b' +
+                '<span class="tools-mark">c</span>d'
+            ],
+            [
+                ['acbcd', ['a', 'c', 'd']],
+                '<span class="tools-mark">a</span>' +
+                '<span class="tools-mark">c</span>b' +
+                '<span class="tools-mark">c</span>' +
+                '<span class="tools-mark">d</span>'
+            ],
+            [
+                ['a EBikes München', ['ebikes', 'münchen'], '<a>{1}</a>', (
+                    value:any
+                ):string => `${value}`.toLowerCase()],
+                'a <a>EBikes</a> <a>München</a>'
+            ],
+            [
+                ['a E-Bikes München', ['ebikes', 'münchen'], '<a>{1}</a>', (
+                    value:any
+                ):string => `${value}`.toLowerCase().replace('-', '')],
+                'a <a>E-Bikes</a> <a>München</a>'
+            ],
+            [
+                ['a str. 2', ['straße', '2'], '<a>{1}</a>', (
+                    value:any
+                ):string => `${value}`.toLowerCase().replace(
+                    'str.', 'strasse'
+                ).replace('ß', 'ss')],
+                'a <a>str.</a> <a>2</a>'
+            ],
+            [
+                ['EGO Movement Store E-Bikes München', ['eBikes', 'München'],
+                '<a>{1}</a>', (value:any):string => `${value}`.toLowerCase(
+                ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
+                    /(^| )str\.( |$)/g, 'strasse'
+                ).replace(/[& ]+/g, ' ')],
+                'EGO Movement Store <a>E-Bikes</a> <a>München</a>'
+            ]
         ])
             assert.strictEqual(
                 $.Tools.class.stringMark.apply(this, test[0]), test[1])
@@ -1992,7 +2113,7 @@ let testRan:boolean = false
 browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
     testRan = true
     // region configuration
-    QUnit.config = require('./index').default.extendObject(QUnit.config || {
+    QUnit.config = require('clientnode').default.extendObject(QUnit.config || {
     }, {
         /*
         notrycatch: true,
@@ -2019,18 +2140,18 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
                 roundType
             )) {
                 // NOTE: Enforce to reload module to rebind "$".
-                delete require.cache[require.resolve('./index')]
+                delete require.cache[require.resolve('clientnode')]
                 let $bodyDomNode:$DomNode
                 let $:any
                 if (roundType === 'plain') {
                     window.$ = null
-                    $ = require('./index').$
+                    $ = require('clientnode').$
                 } else {
                     if (roundType === 'withJQuery') {
                         $ = require('jquery')
                         window.$ = $
                     }
-                    $ = require('./index').$
+                    $ = require('clientnode').$
                     $.context = window.document
                     $bodyDomNode = $('body')
                 }
@@ -2093,8 +2214,8 @@ export default function(
     ) => any), roundTypes:Array<string> = [], closeWindow:boolean = false
 ):Array<Test> {
     if (testRan)
-        throw Error(
-            'You have to registere your tests immediately after importing ' +
+        throw new Error(
+            'You have to register your tests immediately after importing ' +
             'the client node library.')
     if (!testRegistered) {
         testRegistered = true
