@@ -2811,14 +2811,14 @@ export default class Tools {
      * @param target - String to search for marker.
      * @param words - String or array of strings to search in target for.
      * @param marker - HTML template string to mark.
-     * @param caseSensitive - Indicates whether case takes a role during
-     * searching.
+     * @param normalize - Pure normalisation function to use before searching
+     * for matches.
      * @returns Processed result.
      */
     static stringMark(
         target:?string, words:?string|?Array<string>,
         marker:string = '<span class="tools-mark">{1}</span>',
-        caseSensitive:boolean = false
+        normalize:Function = (value:any):string => `${value}`.toLowerCase()
     ):?string {
         if (target && words && words.length) {
             target = target.trim()
@@ -2826,14 +2826,10 @@ export default class Tools {
                 words = [words]
             let index:number = 0
             for (const word:string of words) {
-                words[index] = word.trim()
-                if (!caseSensitive)
-                    words[index] = word.toLowerCase()
+                words[index] = normalize(word)
                 index += 1
             }
-            let searchTarget:string = target
-            if (!caseSensitive)
-                searchTarget = searchTarget.toLowerCase()
+            let searchTarget:string = normalize(target)
             let offset:number = 0
             while (true) {
                 let index:number = -1
@@ -2854,8 +2850,7 @@ export default class Tools {
                     target = target.substring(0, index) + Tools.stringFormat(
                         marker, target.substr(index, foundWord.length)
                     ) + target.substring(index + foundWord.length)
-                    if (!caseSensitive)
-                        searchTarget = target.toLowerCase()
+                    searchTarget = normalize(target)
                     offset = index + (
                         marker.length - '{1}'.length
                     ) + foundWord.length

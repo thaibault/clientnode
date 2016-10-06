@@ -1859,13 +1859,16 @@ let tests:Array<Test> = [{callback: function(
             [['test', 'e', '<a>{1}</a>'], 't<a>e</a>st'],
             [['test', ['e'], '<a>{1}</a>'], 't<a>e</a>st'],
             [['test', 'E', '<a>{1}</a>'], 't<a>e</a>st'],
-            [['test', 'E', '<a>{1}</a>', false], 't<a>e</a>st'],
+            [['test', 'E', '<a>{1}</a>'], 't<a>e</a>st'],
             [['tesT', 't', '<a>{1}</a>'], '<a>t</a>es<a>T</a>'],
             [
                 ['tesT', 't', '<a>{1} - {1}</a>'],
                 '<a>t - t</a>es<a>T - T</a>'
             ],
-            [['test', 'E', '<a>{1}</a>', true], 'test'],
+            [
+                ['test', 'E', '<a>{1}</a>', (value:any):string => `${value}`],
+                'test'
+            ],
             [
                 ['abcd', ['a', 'c']],
                 '<span class="tools-mark">a</span>b' +
