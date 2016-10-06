@@ -1847,6 +1847,46 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(
                 $.Tools.class.stringLowerCase(test[0]), test[1])
     })
+    this.test(`stringFindNormalizedMatchRange (${roundType})`, (
+        assert:Object
+    ):void => {
+        for (const test:Array<any> of [
+            [['', ''], null],
+            [['hans', ''], null],
+            [['hans', 'a'], [1, 2]],
+            [['hans', 'an'], [1, 3]],
+            [['hans', 'han'], [0, 3]],
+            [['hans', 'hans'], [0, 4]],
+            [['hans', 'ans'], [1, 4]],
+            [['hans hans', 'ans'], [1, 4]],
+            [
+                [' hAns ', 'ans', (value:any):string => value.toLowerCase()],
+                [2, 5]
+            ],
+            [
+                ['a straße b', 'strasse', (value:any):string =>
+                    value.replace(/ß/g, 'ss').toLowerCase()
+                ],
+                [2, 8]
+            ],
+            [
+                ['a strasse b', 'strasse', (value:any):string =>
+                    value.replace(/ß/g, 'ss').toLowerCase()
+                ],
+                [2, 9]
+            ],
+            [
+                ['a strasse b', 'straße', (value:any):string =>
+                    value.replace(/ß/g, 'ss').toLowerCase()
+                ],
+                [2, 9]
+            ]
+        ])
+            assert.deepEqual(
+                $.Tools.class.stringFindNormalizedMatchRange.apply(
+                    this, test[0]
+                ), test[1])
+    })
     this.test(`stringMark (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [[''], ''],
@@ -1886,6 +1926,26 @@ let tests:Array<Test> = [{callback: function(
                 '<span class="tools-mark">c</span>b' +
                 '<span class="tools-mark">c</span>' +
                 '<span class="tools-mark">d</span>'
+            ],
+            [
+                ['a EBikes München', ['ebikes', 'münchen'], '<a>{1}</a>', (
+                    value:any
+                ):string => `${value}`.toLowerCase()],
+                'a <a>EBikes</a> <a>München</a>'
+            ],
+            [
+                ['a E-Bikes München', ['ebikes', 'münchen'], '<a>{1}</a>', (
+                    value:any
+                ):string => `${value}`.toLowerCase().replace('-', '')],
+                'a <a>E-Bikes</a> <a>München</a>'
+            ],
+            [
+                ['a str. 2', ['straße', '2'], '<a>{1}</a>', (
+                    value:any
+                ):string => `${value}`.toLowerCase().replace(
+                    'str.', 'strasse'
+                ).replace('ß', 'ss')],
+                'a <a>str.</a> <a>2</a>'
             ]
         ])
             assert.strictEqual(

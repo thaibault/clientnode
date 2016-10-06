@@ -2807,18 +2807,47 @@ export default class Tools {
         return string.charAt(0).toLowerCase() + string.substring(1)
     }
     /**
+     * Finds the string match of given query in given target text by applying
+     * given normalisation function to target and query.
+     * @param target - Target to search in.
+     * @param query - Search string to search for.
+     * @param normalizer - Function to use as normalisation for queries and
+     * search targets.
+     */
+    static stringFindNormalizedMatchRange(
+        target:any, query:any,
+        normalizer:Function = (value:any):string => `${value}`.toLowerCase()
+    ):?Array<number> {
+        query = normalizer(query)
+        if (normalizer(target) && query)
+            for (let index = 0; index < target.length; index += 1)
+                if (normalizer(target.substring(index)).startsWith(query)) {
+                    if (query.length === 1)
+                        return [index, index + 1]
+                    for (
+                        let subIndex = target.length; subIndex > index;
+                        subIndex -= 1
+                    )
+                        if (!normalizer(target.substring(
+                            index, subIndex
+                        )).startsWith(query))
+                            return [index, subIndex + 1]
+                }
+        return null
+    }
+    /**
      * Wraps given mark strings in given target with given marker.
      * @param target - String to search for marker.
      * @param words - String or array of strings to search in target for.
      * @param marker - HTML template string to mark.
-     * @param normalize - Pure normalisation function to use before searching
+     * @param normalizer - Pure normalisation function to use before searching
      * for matches.
      * @returns Processed result.
      */
     static stringMark(
         target:?string, words:?string|?Array<string>,
         marker:string = '<span class="tools-mark">{1}</span>',
-        normalize:Function = (value:any):string => `${value}`.toLowerCase()
+        normalizer:Function = (value:any):string => `${value}`.toLowerCase()
     ):?string {
         if (target && words && words.length) {
             target = target.trim()
@@ -2826,35 +2855,34 @@ export default class Tools {
                 words = [words]
             let index:number = 0
             for (const word:string of words) {
-                words[index] = normalize(word)
+                words[index] = normalizer(word).trim()
                 index += 1
             }
-            let searchTarget:string = normalize(target)
+            let restTarget:string = target
             let offset:number = 0
             while (true) {
-                let index:number = -1
-                let currentIndex:number
-                let foundWord:string = words[0]
+                let nearestRange:?Array<number>
+                let currentRange:?Array<number>
                 for (const word:string of words) {
-                    currentIndex = searchTarget.indexOf(word, offset)
-                    if (currentIndex > -1 && (
-                        index === -1 || currentIndex < index
-                    )) {
-                        index = currentIndex
-                        foundWord = word
-                    }
+                    currentRange = Tools.stringFindNormalizedMatchRange(
+                        restTarget, word, normalizer)
+                    if (currentRange && (
+                        !nearestRange || currentRange[0] < nearestRange[0]
+                    ))
+                        nearestRange = currentRange
                 }
-                if (index === -1)
+                if (nearestRange) {
+                    target = target.substring(
+                        0, offset + nearestRange[0]
+                    ) + Tools.stringFormat(marker, target.substring(
+                        offset + nearestRange[0], offset + nearestRange[1]
+                    )) + target.substring(offset + nearestRange[1])
+                    offset += nearestRange[1] + (marker.length - '{1}'.length)
+                    if (target.length <= offset)
+                        break
+                    restTarget = target.substring(offset)
+                } else
                     break
-                else {
-                    target = target.substring(0, index) + Tools.stringFormat(
-                        marker, target.substr(index, foundWord.length)
-                    ) + target.substring(index + foundWord.length)
-                    searchTarget = normalize(target)
-                    offset = index + (
-                        marker.length - '{1}'.length
-                    ) + foundWord.length
-                }
             }
         }
         return target
