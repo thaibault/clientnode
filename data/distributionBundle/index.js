@@ -34,7 +34,7 @@ export type Options = {
     domNodeSelectorPrefix:string;
     [key:string]:any;
 }
-export type LockCallbackFunction = (description:string) => void
+export type LockCallbackFunction = (description:string) => ?Promise<any>
 export type $DomNode = {
     [key:number|string]:DomNode;
     addClass(className:string):$DomNode;
@@ -403,7 +403,7 @@ export default class Tools {
                 will be called.
             */
             return object.initialize.apply(object, parameter)
-        throw Error(
+        throw new Error(
             `Method "${parameter[0]}" does not exist on $-extended dom node ` +
             `"${object.constructor._name}".`)
     }
@@ -419,42 +419,59 @@ export default class Tools {
      * the interpreter isn't in the given critical area. The lock description
      * string will be given to the callback function.
      * @param autoRelease - Release the lock after execution of given callback.
-     * @returns Returns the current instance.
+     * @returns Returns a promise which will be resolved after releasing lock.
      */
-    acquireLock(
-        description:string, callbackFunction:LockCallbackFunction,
+    async acquireLock(
+        description:string, callbackFunction:LockCallbackFunction = Tools.noop,
         autoRelease:boolean = false
-    ):Tools {
-        const wrappedCallbackFunction:LockCallbackFunction = (
-            description:string
-        ):void => {
-            callbackFunction(description)
-            if (autoRelease)
-                this.releaseLock(description)
-        }
-        if (this._locks.hasOwnProperty(description))
-            this._locks[description].push(wrappedCallbackFunction)
-        else {
-            this._locks[description] = []
-            wrappedCallbackFunction(description)
-        }
-        return this
+    ):Promise<any> {
+        return new Promise((resolve:Function):void => {
+            const wrappedCallbackFunction:LockCallbackFunction = async (
+                description:string
+            ):Promise<any> => {
+                const result:?Promise<any> = callbackFunction(description)
+                const finish:Function = (value:any):void => {
+                    if (autoRelease)
+                        this.releaseLock(description)
+                    resolve(value)
+                }
+                if (
+                    result !== null && typeof result === 'object' &&
+                    'then' in result
+                )
+                    return result.then(finish)
+                finish(description)
+            }
+            if (this._locks.hasOwnProperty(description))
+                this._locks[description].push(wrappedCallbackFunction)
+            else {
+                this._locks[description] = []
+                wrappedCallbackFunction(description)
+            }
+        })
     }
     /**
      * Calling this method  causes the given critical area to be finished and
-     * all functions given to "this.acquireLock()" will be executed in right
-     * order.
+     * all functions given to "acquireLock()" will be executed in right order.
      * @param description - A short string describing the critical areas
      * properties.
-     * @returns Returns the current instance.
+     * @returns Returns the return value of the callback given to the
+     * "acquireLock" method.
      */
-    releaseLock(description:string):Tools {
-        if (this._locks.hasOwnProperty(description))
-            if (this._locks[description].length)
-                this._locks[description].shift()(description)
-            else
-                delete this._locks[description]
-        return this
+    async releaseLock(description:string):?Promise<any> {
+        let result:any
+        if (this._locks.hasOwnProperty(description)) {
+            if (this._locks[description].length) {
+                result = this._locks[description].shift()(description)
+                if (
+                    result !== null && typeof result === 'object' &&
+                    'then' in result
+                )
+                    await result
+            }
+            delete this._locks[description]
+        }
+        return result
     }
     // / endregion
     // / region boolean
@@ -722,6 +739,52 @@ export default class Tools {
     }
     // / endregion
     // / region dom node
+    /**
+     * Retrieves a mapping of computed style attributes to their corresponding
+     * values.
+     * @returns The computed style mapping.
+     */
+    getStyle():PlainObject {
+        const result:PlainObject = {}
+        if ('window' in $.global && $.global.window.getComputedStyle) {
+            const styleProperties:?any = $.global.window.getComputedStyle(
+                this.$domNode[0], null)
+            if (styleProperties) {
+                if ('length' in styleProperties)
+                    for (
+                        let index:number = 0; index < styleProperties.length;
+                        index += 1
+                    )
+                        result[this.constructor.stringDelimitedToCamelCase(
+                            styleProperties[index]
+                        )] = styleProperties.getPropertyValue(
+                            styleProperties[index])
+                else
+                    for (const propertyName:string in styleProperties)
+                        if (styleProperties.hasOwnProperty(propertyName))
+                            result[this.constructor.stringDelimitedToCamelCase(
+                                propertyName
+                            )] = propertyName in styleProperties &&
+                            styleProperties[
+                                propertyName
+                            ] || styleProperties.getPropertyValue(propertyName)
+                return result
+            }
+        }
+        let styleProperties:?PlainObject = this.$domNode[0].currentStyle
+        if (styleProperties) {
+            for (const propertyName:string in styleProperties)
+                if (styleProperties.hasOwnProperty(propertyName))
+                    result[propertyName] = styleProperties[propertyName]
+            return result
+        }
+        styleProperties = this.$domNode[0].style
+        if (styleProperties)
+            for (const propertyName:string in styleProperties)
+                if (typeof styleProperties[propertyName] !== 'function')
+                    result[propertyName] = styleProperties[propertyName]
+        return result
+    }
     /**
      * Get text content of current element without it children's text contents.
      * @returns The text string.
@@ -1092,15 +1155,16 @@ export default class Tools {
         */
         if (!scope)
             scope = this
+        const self:Tools = this
         if (typeof method === 'string' && typeof scope === 'object')
             return function():any {
                 if (!scope[method] && typeof method === 'string')
-                    throw Error(
+                    throw new Error(
                         `Method "${method}" doesn't exists in "${scope}".`)
-                return scope[method].apply(scope, additionalArguments.concat(
-                    this.constructor.arrayMake(arguments)))
+                return scope[method].apply(scope, self.constructor.arrayMake(
+                    arguments
+                ).concat(additionalArguments))
             }
-        const self:Tools = this
         return function():any {
             // IgnoreTypeCheck
             return method.apply(scope, self.constructor.arrayMake(
@@ -1199,7 +1263,7 @@ export default class Tools {
     fireEvent(
         eventName:string, callOnlyOptionsMethod:boolean = false,
         scope:any = this, ...additionalArguments:Array<any>
-    ):boolean {
+    ):any {
         const eventHandlerName:string =
             `on${this.constructor.stringCapitalize(eventName)}`
         if (!callOnlyOptionsMethod)
@@ -1208,11 +1272,13 @@ export default class Tools {
             else if (`_${eventHandlerName}` in scope)
                 scope[`_${eventHandlerName}`].apply(
                     scope, additionalArguments)
-        if (scope._options && eventHandlerName in scope._options) {
-            scope._options[eventHandlerName].apply(scope, additionalArguments)
-            return true
-        }
-        return false
+        if (
+            scope._options && eventHandlerName in scope._options &&
+            scope._options[eventHandlerName] !== this.constructor.noop
+        )
+            return scope._options[eventHandlerName].apply(
+                scope, additionalArguments)
+        return true
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
@@ -1291,14 +1357,15 @@ export default class Tools {
      * (usually only needed internally).
      * @param parentKey - Source key in given source context to remove
      * modification info from (usually only needed internally).
-     * @return Given target modified with given source.
+     * @returns Given target modified with given source.
      */
     static modifyObject(
         target:any, source:any, removeIndicatorKey:string = '__remove__',
         prependIndicatorKey:string = '__prepend__',
         appendIndicatorKey:string = '__append__', parentSource:any = null,
         parentKey:any = null
-    ) {
+    ):any {
+        /* eslint-disable curly */
         if (source instanceof Map && target instanceof Map) {
             for (const [key:string, value:any] of source)
                 if (target.has(key))
@@ -1306,9 +1373,10 @@ export default class Tools {
                         target.get(key), value, removeIndicatorKey,
                         prependIndicatorKey, appendIndicatorKey, source, key)
         } else if (
+        /* eslint-enable curly */
             source !== null && typeof source === 'object' &&
             target !== null && typeof target === 'object'
-        ) {
+        )
             for (const key:string in source)
                 if (source.hasOwnProperty(key))
                     if ([
@@ -1316,7 +1384,7 @@ export default class Tools {
                         appendIndicatorKey
                     ].includes(key)) {
                         for (const valueToModify:any of [].concat(source[key]))
-                            if (Array.isArray(target)) {
+                            if (Array.isArray(target))
                                 if (key === removeIndicatorKey) {
                                     if (target.includes(valueToModify))
                                         target.splice(
@@ -1325,7 +1393,7 @@ export default class Tools {
                                     target.unshift(valueToModify)
                                 else
                                     target.push(valueToModify)
-                            } else if (
+                            else if (
                                 key === removeIndicatorKey &&
                                 target.hasOwnProperty(valueToModify)
                             )
@@ -1338,7 +1406,6 @@ export default class Tools {
                             target[key], source[key], removeIndicatorKey,
                             prependIndicatorKey, appendIndicatorKey, source,
                             key)
-        }
         return target
     }
     /**
@@ -1582,7 +1649,9 @@ export default class Tools {
                         evaluationIndicatorKey, executionIndicatorKey
                     ].includes(key))
                         try {
+                            /* eslint-disable new-parens */
                             return Tools.resolveDynamicDataStructure((new (
+                            /* eslint-enable new-parens */
                                 // IgnoreTypeCheck
                                 Function.prototype.bind.apply(Function, [
                                     null
@@ -1593,7 +1662,7 @@ export default class Tools {
                             ), parameterDescription, parameter, false,
                             evaluationIndicatorKey, executionIndicatorKey)
                         } catch (error) {
-                            throw Error(
+                            throw new Error(
                                 'Error during ' + (
                                     key === evaluationIndicatorKey ?
                                         'executing' : 'evaluating'
@@ -1862,7 +1931,7 @@ export default class Tools {
     ):any {
         if (destination) {
             if (source === destination)
-                throw Error(
+                throw new Error(
                     "Can't copy because source and destination are identical.")
             if (recursionLimit !== -1 && recursionLimit < recursionLevel)
                 return null
@@ -2262,13 +2331,14 @@ export default class Tools {
             const index:number = list.indexOf(target)
             if (index === -1) {
                 if (strict)
-                    throw Error("Given target doesn't exists in given list.")
+                    throw new Error(
+                        "Given target doesn't exists in given list.")
             } else
                 /* eslint-disable max-statements-per-line */
                 list.splice(index, 1)
                 /* eslint-enable max-statements-per-line */
         } else if (strict)
-            throw Error("Given target isn't an array.")
+            throw new Error("Given target isn't an array.")
         return list
     }
     // / endregion
@@ -2737,42 +2807,82 @@ export default class Tools {
         return string.charAt(0).toLowerCase() + string.substring(1)
     }
     /**
+     * Finds the string match of given query in given target text by applying
+     * given normalisation function to target and query.
+     * @param target - Target to search in.
+     * @param query - Search string to search for.
+     * @param normalizer - Function to use as normalisation for queries and
+     * search targets.
+     */
+    static stringFindNormalizedMatchRange(
+        target:any, query:any,
+        normalizer:Function = (value:any):string => `${value}`.toLowerCase()
+    ):?Array<number> {
+        query = normalizer(query)
+        if (normalizer(target) && query)
+            for (let index = 0; index < target.length; index += 1)
+                if (normalizer(target.substring(index)).startsWith(query)) {
+                    if (query.length === 1)
+                        return [index, index + 1]
+                    for (
+                        let subIndex = target.length; subIndex > index;
+                        subIndex -= 1
+                    )
+                        if (!normalizer(target.substring(
+                            index, subIndex
+                        )).startsWith(query))
+                            return [index, subIndex + 1]
+                }
+        return null
+    }
+    /**
      * Wraps given mark strings in given target with given marker.
      * @param target - String to search for marker.
-     * @param mark - String to search in target for.
+     * @param words - String or array of strings to search in target for.
      * @param marker - HTML template string to mark.
-     * @param caseSensitive - Indicates whether case takes a role during
-     * searching.
+     * @param normalizer - Pure normalisation function to use before searching
+     * for matches.
      * @returns Processed result.
      */
     static stringMark(
-        target:?string, mark:?string,
+        target:?string, words:?string|?Array<string>,
         marker:string = '<span class="tools-mark">{1}</span>',
-        caseSensitive:boolean = false
+        normalizer:Function = (value:any):string => `${value}`.toLowerCase()
     ):?string {
-        if (target && mark) {
+        if (target && words && words.length) {
             target = target.trim()
-            mark = mark.trim()
+            if (!Array.isArray(words))
+                words = [words]
+            let index:number = 0
+            for (const word:string of words) {
+                words[index] = normalizer(word).trim()
+                index += 1
+            }
+            let restTarget:string = target
             let offset:number = 0
-            let searchTarget:string = target
-            if (!caseSensitive)
-                searchTarget = searchTarget.toLowerCase()
-            if (!caseSensitive)
-                mark = mark.toLowerCase()
             while (true) {
-                const index:number = searchTarget.indexOf(mark, offset)
-                if (index === -1)
-                    break
-                else {
-                    target = target.substring(0, index) + Tools.stringFormat(
-                        marker, target.substr(index, mark.length)
-                    ) + target.substring(index + mark.length)
-                    if (!caseSensitive)
-                        searchTarget = target.toLowerCase()
-                    offset = index + (
-                        marker.length - '{1}'.length
-                    ) + mark.length
+                let nearestRange:?Array<number>
+                let currentRange:?Array<number>
+                for (const word:string of words) {
+                    currentRange = Tools.stringFindNormalizedMatchRange(
+                        restTarget, word, normalizer)
+                    if (currentRange && (
+                        !nearestRange || currentRange[0] < nearestRange[0]
+                    ))
+                        nearestRange = currentRange
                 }
+                if (nearestRange) {
+                    target = target.substring(
+                        0, offset + nearestRange[0]
+                    ) + Tools.stringFormat(marker, target.substring(
+                        offset + nearestRange[0], offset + nearestRange[1]
+                    )) + target.substring(offset + nearestRange[1])
+                    offset += nearestRange[1] + (marker.length - '{1}'.length)
+                    if (target.length <= offset)
+                        break
+                    restTarget = target.substring(offset)
+                } else
+                    break
             }
         }
         return target
