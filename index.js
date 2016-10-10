@@ -1303,7 +1303,7 @@ export default class Tools {
         return this._bindEventHelper(arguments, true, 'off')
     }
     // / endregion
-    // / region object
+    // / region object//region
     /**
      * Determine the internal JavaScript [[Class]] of an object.
      * @param object - Object to analyze.
@@ -1992,7 +1992,7 @@ export default class Tools {
         }
         return destination || source
     }
-    // / endregion
+    // / endregion//endregion
     // / region array
     /**
      * Merge the contents of two arrays together into the first array.
@@ -2340,6 +2340,85 @@ export default class Tools {
         } else if (strict)
             throw new Error("Given target isn't an array.")
         return list
+    }
+    /**
+     * Sorts given object of dependencies in a topological order.
+     * @param items - Items to sort.
+     * @returns Sorted array of given items respecting their dependencies.
+     */
+    static arraySortTopological(
+        items:{[key:string]:Array<string>}
+    ):Array<string> {
+        const edges:Array<Array<string>> = []
+        for (const name:string in items)
+            if (items.hasOwnProperty(name)) {
+                if (!Array.isArray(items[name]))
+                    items[name] = [items[name]]
+                if (items[name].length > 0)
+                    for (const dependencyName:string of items[name])
+                        edges.push([name, dependencyName])
+                else
+                    edges.push([name])
+            }
+        const nodes:Array<?string> = []
+        // Accumulate unique nodes into a large list.
+        for (const edge:Array<string> of edges)
+            for (const node:string of edge)
+                if (!nodes.includes(node))
+                    nodes.push(node)
+        const sorted:Array<string> = []
+        // Define a visitor function that recursively traverses dependencies.
+        const visit:Function = (
+            node:string, predecessors:Array<string>
+        ):void => {
+            // Check if a node is dependent of itself.
+            if (predecessors.length !== 0 && predecessors.includes(node))
+                throw new Error(
+                    `Cyclic dependency found. "${node}" is dependent of ` +
+                    'itself.\n' +
+                    `Dependency chain: "${predecessors.join('" -> "')}" => "` +
+                    `${node}".`)
+            let index = nodes.indexOf(node)
+            // If the node still exists, traverse its dependencies.
+            if (index !== -1) {
+                let copy:?Array<string>
+                // Mark the node to exclude it from future iterations.
+                nodes[index] = null
+                /*
+                    Loop through all edges and follow dependencies of the
+                    current node
+                */
+                for (const edge:Array<string> of edges)
+                    if (edge[0] === node) {
+                        /*
+                            Lazily create a copy of predecessors with the
+                            current node concatenated onto it.
+                        */
+                        copy = copy || predecessors.concat([node])
+                        // Recurse to node dependencies.
+                        visit(edge[1], copy)
+                    }
+                sorted.push(node)
+            }
+        }
+        for (let index = 0; index < nodes.length; index++) {
+            const node:?string = nodes[index]
+            // Ignore nodes that have been excluded.
+            if (node) {
+                // Mark the node to exclude it from future iterations.
+                nodes[index] = null
+                /*
+                    Loop through all edges and follow dependencies of the
+                    current node.
+                */
+                for (const edge:Array<string> of edges)
+                    if (edge[0] === node)
+                        // Recurse to node dependencies.
+                        visit(edge[1], [node])
+                sorted.push(node)
+            }
+        }
+        return sorted
     }
     // / endregion
     // / region string
