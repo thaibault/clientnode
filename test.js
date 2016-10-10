@@ -1398,6 +1398,26 @@ let tests:Array<Test> = [{callback: function(
             [], 2, true
         ), new Error("Given target doesn't exists in given list."))
     })
+    this.test(`arraySortTopological (${roundType})`, (assert:Object):void => {
+        for (const test:Array<any> of [
+            [{}, []],
+            [{a: []}, ['a']],
+            [{a: 'b'}, ['b', 'a']],
+            [{a: [], b: 'a'}, ['a', 'b']],
+            [{a: [], b: ['a']}, ['a', 'b']],
+            [{a: ['b'], b: []}, ['b', 'a']],
+            [{c: 'b', a: [], b: ['a']}, ['a', 'b', 'c']],
+            [{b: ['a'], a: [], c: ['a', 'b']}, ['a', 'b', 'c']]
+        ])
+            assert.deepEqual(
+                $.Tools.class.arraySortTopological(test[0]), test[1])
+        for (const test:any of [
+            {a: 'a'},
+            {a: 'b', b: 'a'},
+            {a: 'b', b: 'c', c: 'a'}
+        ])
+            assert.throws(():void => $.Tools.class.arraySortTopological(test))
+    })
     // // endregion
     // // region string
     this.test('stringConvertToValidRegularExpression', (
