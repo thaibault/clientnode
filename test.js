@@ -1951,7 +1951,7 @@ let tests:Array<Test> = [{callback: function(
                 ['EGO Movement Store E-Bikes München', ['eBikes', 'München'],
                 '<a>{1}</a>', (value:any):string => `${value}`.toLowerCase(
                 ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
-                    /(^| )str\./g, 'strasse'
+                    /(^| )str\./g, '$1strasse'
                 ).replace(/[& ]+/g, ' ')],
                 'EGO Movement Store <a>E-Bikes</a> <a>München</a>'
             ],
