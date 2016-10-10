@@ -1951,9 +1951,17 @@ let tests:Array<Test> = [{callback: function(
                 ['EGO Movement Store E-Bikes München', ['eBikes', 'München'],
                 '<a>{1}</a>', (value:any):string => `${value}`.toLowerCase(
                 ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
-                    /(^| )str\.( |$)/g, 'strasse'
+                    /(^| )str\./g, 'strasse'
                 ).replace(/[& ]+/g, ' ')],
                 'EGO Movement Store <a>E-Bikes</a> <a>München</a>'
+            ],
+            [
+                ['str.A strasse B straße C str. D', ['str.'],
+                '<a>{1}</a>', (value:any):string => `${value}`.toLowerCase(
+                ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
+                    /(^| )str\./g, '$1strasse'
+                ).replace(/[& ]+/g, ' ')],
+                '<a>str.</a>A <a>strasse</a> B <a>straße</a> C <a>str.</a> D'
             ]
         ])
             assert.strictEqual(
