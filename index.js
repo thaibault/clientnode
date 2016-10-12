@@ -3470,8 +3470,8 @@ $.Tools = function():any {
     return (new Tools()).controller(Tools, arguments)
 }
 $.Tools.class = Tools
-// / region prop fix for comments and text nodes
 if ('fn' in $) {
+    // region prop fix for comments and text nodes
     const nativePropFunction = $.fn.prop
     /**
      * JQuery's native prop implementation ignores properties for text nodes,
@@ -3494,8 +3494,14 @@ if ('fn' in $) {
         }
         return nativePropFunction.apply(this, arguments)
     }
+    // endregion
+    // region fix script loading errors with canceling requests after dom ready
+    $.readyException = (error:Error):void => {
+        if (!(typeof error === 'string' && error === 'canceled'))
+            throw error
+    }
+    // endregion
 }
-// / endregion
 // endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
