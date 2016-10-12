@@ -1226,12 +1226,13 @@ export default class Tools {
         let waitingCallArguments:?Array<any> = null
         let timeoutID:?number = null
         return function():?number {
-            const parameter:Array<any> = Tools.arrayMake(arguments)
+            const parameter:Array<any> = Tools.arrayMake(arguments).concat(
+                additionalArguments || [])
             if (lock)
-                waitingCallArguments = parameter.concat(
-                    additionalArguments || [])
+                waitingCallArguments = parameter
             else {
                 lock = true
+                eventFunction.apply(this, parameter)
                 timeoutID = setTimeout(():void => {
                     lock = false
                     if (waitingCallArguments) {
@@ -1239,8 +1240,6 @@ export default class Tools {
                         waitingCallArguments = null
                     }
                 }, thresholdInMilliseconds)
-                eventFunction.apply(this, parameter.concat(
-                    additionalArguments || []))
             }
             return timeoutID
         }
