@@ -98,10 +98,11 @@ export const $ = (():any => {
             'document' in globalContext &&
             'querySelectorAll' in globalContext.document
         ) ? globalContext.document.querySelectorAll : ():null => null
-        $ = function(parameter:any):any {
+        $ = (parameter:any, ...additionalArguments:Array<any>):any => {
             if (typeof parameter === 'string') {
                 const $domNodes:Array<any> = selector.apply(
-                    globalContext.document, arguments)
+                    globalContext.document, [parameter].concat(
+                        additionalArguments))
                 if ('fn' in $)
                     for (const key:string in $.fn)
                         if ($.fn.hasOwnProperty(key))
@@ -633,7 +634,7 @@ export default class Tools {
             else {
                 this.log(',--------------------------------------------,')
                 this.log(object, force, true)
-                this.log("'--------------------------------------------'")
+                this.log(`'--------------------------------------------'`)
             }
             if (message)
                 if (!('console' in $.global && level in $.global.console) || (
@@ -655,9 +656,7 @@ export default class Tools {
      * @returns Returns the current instance.
      */
     info(object:any, ...additionalArguments:Array<any>):Tools {
-        // IgnoreTypeCheck
-        return this.log.apply(this, [object, false, false, 'info'].concat(
-            additionalArguments))
+        return this.log(object, false, false, 'info', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by

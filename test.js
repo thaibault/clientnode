@@ -562,7 +562,7 @@ let tests:Array<Test> = [{callback: function(
                     }
                 ]
             ]) {
-                const $domNodes = tools.grabDomNode.apply(tools, test[0])
+                const $domNodes = tools.grabDomNode(...test[0])
                 delete $domNodes.window
                 delete $domNodes.document
                 assert.deepEqual($domNodes, test[1])
@@ -937,8 +937,8 @@ let tests:Array<Test> = [{callback: function(
             [[3], 3],
             [[{}], {}],
             [[{__evaluate__: '1'}], 1],
-            [[{__evaluate__: "'1'"}], '1'],
-            [[{a: {__evaluate__: "'a'"}}], {a: 'a'}],
+            [[{__evaluate__: `'1'`}], '1'],
+            [[{a: {__evaluate__: `'a'`}}], {a: 'a'}],
             [[{a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}]], {a: 1}],
             [
                 [{a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}], false],
@@ -1396,7 +1396,7 @@ let tests:Array<Test> = [{callback: function(
                 $.Tools.class.arrayRemove.apply(this, test[0]), test[1])
         assert.throws(():?Array<any> => $.Tools.class.arrayRemove(
             [], 2, true
-        ), new Error("Given target doesn't exists in given list."))
+        ), new Error(`Given target doesn't exists in given list.`))
     })
     this.test(`arraySortTopological (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
