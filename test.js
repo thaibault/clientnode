@@ -1425,7 +1425,7 @@ let tests:Array<Test> = [{callback: function(
     ):void => {
         for (const test:Array<any> of [
             [[''], ''],
-            [["that's no regex: .*$"], "that's no regex: \\.\\*\\$"],
+            [[`that's no regex: .*$`], `that's no regex: \\.\\*\\$`],
             [
                 ['-\\[]()^$*+.}-', '}'],
                 '\\-\\\\[\\]\\(\\)\\^\\$\\*\\+\\.}\\-'
@@ -1845,7 +1845,7 @@ let tests:Array<Test> = [{callback: function(
         assert:Object
     ):void => {
         for (const test:Array<any> of [
-            ["that's no regex: .*$", "that's no regex: \\.\\*\\$"],
+            [`that's no regex: .*$`, `that's no regex: \\.\\*\\$`],
             ['', ''],
             ['-[]()^$*+.}-\\', '\\-\\[\\]\\(\\)\\^\\$\\*\\+\\.\\}\\-\\\\'],
             ['-', '\\-']
@@ -2130,7 +2130,7 @@ let tests:Array<Test> = [{callback: function(
                 [['body'], true],
                 [['body'], false, 'bind']
             ])
-                assert.ok(tools._bindEventHelper.apply(tools, test))
+                assert.ok(tools._bindEventHelper(...test))
         })
     // / endregion
     // endregion

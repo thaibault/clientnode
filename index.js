@@ -100,9 +100,8 @@ export const $ = (():any => {
         ) ? globalContext.document.querySelectorAll : ():null => null
         $ = (parameter:any, ...additionalArguments:Array<any>):any => {
             if (typeof parameter === 'string') {
-                const $domNodes:Array<any> = selector.apply(
-                    globalContext.document, [parameter].concat(
-                        additionalArguments))
+                const $domNodes:Array<any> = selector.call(
+                    globalContext.document, parameter, ...additionalArguments)
                 if ('fn' in $)
                     for (const key:string in $.fn)
                         if ($.fn.hasOwnProperty(key))
@@ -397,13 +396,13 @@ export default class Tools {
             // Attach extended object to the associated dom node.
             $domNode.data(object.constructor._name, object)
         if (parameter[0] in object)
-            return object[parameter[0]].apply(object, parameter.slice(1))
+            return object[parameter[0]](...parameter.slice(1))
         else if (parameter.length === 0 || typeof parameter[0] === 'object')
             /*
                 If an options object or no method name is given the initializer
                 will be called.
             */
-            return object.initialize.apply(object, parameter)
+            return object.initialize(...parameter)
         throw new Error(
             `Method "${parameter[0]}" does not exist on $-extended dom node ` +
             `"${object.constructor._name}".`)
@@ -582,8 +581,7 @@ export default class Tools {
      * @returns Returns the given function wrapped by the workaround logic.
      */
     static mouseOutEventHandlerFix(eventHandler:Function):Function {
-        const self:Object = this
-        return function(event:Object):any {
+        return (event:Object, ...additionalParameter:Array<any>):any => {
             let relatedTarget:DomNode = event.toElement
             if ('relatedTarget' in event)
                 relatedTarget = event.relatedTarget
@@ -592,7 +590,7 @@ export default class Tools {
                     return
                 relatedTarget = relatedTarget.parentNode
             }
-            return eventHandler.apply(self, arguments)
+            return eventHandler.call(this, ...additionalParameter)
         }
     }
     // / endregion
@@ -624,8 +622,7 @@ export default class Tools {
             else if (typeof object === 'string') {
                 additionalArguments.unshift(object)
                 message = `${this.constructor._name} (${level}): ` +
-                    this.constructor.stringFormat.apply(
-                        this, additionalArguments)
+                    this.constructor.stringFormat(...additionalArguments)
             } else if (this.constructor.isNumeric(
                 object
             ) || typeof object === 'boolean')
@@ -667,9 +664,7 @@ export default class Tools {
      * @returns Returns the current instance.
      */
     debug(object:any, ...additionalArguments:Array<any>):Tools {
-        // IgnoreTypeCheck
-        return this.log.apply(this, [object, false, false, 'debug'].concat(
-            additionalArguments))
+        return this.log(object, false, false, 'debug', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by
@@ -680,9 +675,7 @@ export default class Tools {
      * @returns Returns the current instance.
      */
     error(object:any, ...additionalArguments:Array<any>):Tools {
-        // IgnoreTypeCheck
-        return this.log.apply(this, [object, true, false, 'error'].concat(
-            additionalArguments))
+        return this.log(object, true, false, 'error', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by
@@ -693,9 +686,7 @@ export default class Tools {
      * @returns Returns the current instance.
      */
     critical(object:any, ...additionalArguments:Array<any>):Tools {
-        // IgnoreTypeCheck
-        return this.log.apply(this, [object, true, false, 'warn'].concat(
-            additionalArguments))
+        return this.log(object, true, false, 'warn', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by
@@ -706,9 +697,7 @@ export default class Tools {
      * @returns Returns the current instance.
      */
     warn(object:any, ...additionalArguments:Array<any>):Tools {
-        // IgnoreTypeCheck
-        return this.log.apply(this, [object, false, false, 'warn'].concat(
-            additionalArguments))
+        return this.log(object, false, false, 'warn', ...additionalArguments)
     }
     /**
      * Dumps a given object in a human readable format.
@@ -826,8 +815,7 @@ export default class Tools {
                     ).split(';').sort() || []
                 $thisDomNode.attr('style', '')
                 for (const style:string of sortedStyles)
-                    $thisDomNode.css.apply($thisDomNode, style.trim().split(
-                        ':'))
+                    $thisDomNode.css(...style.trim().split(':'))
                 $thisDomNode.attr(
                     'style', self.constructor.stringCompressStyleValue(
                         $thisDomNode.attr('style')))
@@ -1154,21 +1142,16 @@ export default class Tools {
         */
         if (!scope)
             scope = this
-        const self:Tools = this
         if (typeof method === 'string' && typeof scope === 'object')
-            return function():any {
+            return function(...parameter:Array<any>):any {
                 if (!scope[method] && typeof method === 'string')
                     throw new Error(
                         `Method "${method}" doesn't exists in "${scope}".`)
-                return scope[method].apply(scope, self.constructor.arrayMake(
-                    arguments
-                ).concat(additionalArguments))
+                return scope[method](...parameter.concat(additionalArguments))
             }
-        return function():any {
+        return function(...parameter:Array<any>):any {
             // IgnoreTypeCheck
-            return method.apply(scope, self.constructor.arrayMake(
-                arguments
-            ).concat(additionalArguments))
+            return method.call(scope, ...parameter.concat(additionalArguments))
         }
     }
     /**
@@ -1185,9 +1168,10 @@ export default class Tools {
      * @returns The inverted filter.
      */
     static invertArrayFilter(filter:Function):Function {
-        return function(data:any):any {
+        return function(data:any, ...additionalParameter:Array<any>):any {
             if (data) {
-                const filteredData:any = filter.apply(this, arguments)
+                const filteredData:any = filter.call(
+                    this, data, ...additionalParameter)
                 let result:Array<any> = []
                 /* eslint-disable curly */
                 if (filteredData.length) {
@@ -1224,18 +1208,17 @@ export default class Tools {
         let lock:boolean = false
         let waitingCallArguments:?Array<any> = null
         let timeoutID:?number = null
-        return function():?number {
-            const parameter:Array<any> = Tools.arrayMake(arguments).concat(
-                additionalArguments || [])
+        return function(...parameter:Array<any>):?number {
+            parameter = parameter.concat(additionalArguments || [])
             if (lock)
                 waitingCallArguments = parameter
             else {
                 lock = true
-                eventFunction.apply(this, parameter)
+                eventFunction.call(this, ...parameter)
                 timeoutID = setTimeout(():void => {
                     lock = false
                     if (waitingCallArguments) {
-                        eventFunction.apply(this, waitingCallArguments)
+                        eventFunction.call(this, ...waitingCallArguments)
                         waitingCallArguments = null
                     }
                 }, thresholdInMilliseconds)
@@ -1266,16 +1249,14 @@ export default class Tools {
             `on${this.constructor.stringCapitalize(eventName)}`
         if (!callOnlyOptionsMethod)
             if (eventHandlerName in scope)
-                scope[eventHandlerName].apply(scope, additionalArguments)
+                scope[eventHandlerName](...additionalArguments)
             else if (`_${eventHandlerName}` in scope)
-                scope[`_${eventHandlerName}`].apply(
-                    scope, additionalArguments)
+                scope[`_${eventHandlerName}`](...additionalArguments)
         if (
             scope._options && eventHandlerName in scope._options &&
             scope._options[eventHandlerName] !== this.constructor.noop
         )
-            return scope._options[eventHandlerName].apply(
-                scope, additionalArguments)
+            return scope._options[eventHandlerName](...additionalArguments)
         return true
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
@@ -1283,22 +1264,24 @@ export default class Tools {
      * A wrapper method for "$.on()". It sets current plugin name as event
      * scope if no scope is given. Given arguments are modified and passed
      * through "$.on()".
+     * @param parameter - Parameter to forward.
      * @returns Returns $'s grabbed dom node.
      */
-    on():$DomNode {
+    on(...parameter:Array<any>):$DomNode {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        return this._bindEventHelper(arguments, false)
+        return this._bindEventHelper(parameter, false)
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * A wrapper method fo "$.off()". It sets current plugin name as event
      * scope if no scope is given. Given arguments are modified and passed
      * through "$.off()".
+     * @param parameter - Parameter to forward.
      * @returns Returns $'s grabbed dom node.
      */
-    off():$DomNode {
+    off(...parameter:Array<any>):$DomNode {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        return this._bindEventHelper(arguments, true, 'off')
+        return this._bindEventHelper(parameter, true, 'off')
     }
     // / endregion
     // / region object//region
@@ -1411,20 +1394,20 @@ export default class Tools {
      * sources many expandable types are allowed but target and sources have to
      * to come from the same type.
      * @param targetOrDeepIndicator - Maybe the target or deep indicator.
-     * @param _targetAndOrSources - Target and at least one source object.
+     * @param targetAndOrSources - Target and at least one source object.
      * @returns Returns given target extended with all given sources.
      */
     static extendObject(
-        targetOrDeepIndicator:boolean|any, ..._targetAndOrSources:Array<any>
+        targetOrDeepIndicator:boolean|any, ...targetAndOrSources:Array<any>
     ):any {
-        let index:number = 1
+        let index:number = 0
         let deep:boolean = false
         let target:mixed
         if (typeof targetOrDeepIndicator === 'boolean') {
             // Handle a deep copy situation and skip deep indicator and target.
             deep = targetOrDeepIndicator
-            target = arguments[index]
-            index = 2
+            target = targetAndOrSources[index]
+            index = 1
         } else
             target = targetOrDeepIndicator
         const mergeValue = (key:string, value:any, targetValue:any):any => {
@@ -1447,8 +1430,8 @@ export default class Tools {
             }
             return value
         }
-        while (index < arguments.length) {
-            const source:any = arguments[index]
+        while (index < targetAndOrSources.length) {
+            const source:any = targetAndOrSources[index]
             let targetType:string = typeof target
             let sourceType:string = typeof source
             if (target instanceof Map)
@@ -1651,14 +1634,13 @@ export default class Tools {
                             return Tools.resolveDynamicDataStructure((new (
                             /* eslint-enable new-parens */
                                 // IgnoreTypeCheck
-                                Function.prototype.bind.apply(Function, [
-                                    null
-                                ].concat(parameterDescription).concat(((
+                                Function.prototype.bind(
+                                    null, parameterDescription, ((
                                     key === evaluationIndicatorKey
-                                ) ? 'return ' : '') + object[key])))).apply(
-                                    null, parameter
-                            ), parameterDescription, parameter, false,
-                            evaluationIndicatorKey, executionIndicatorKey)
+                                ) ? 'return ' : '') + object[key])))(
+                                    ...parameter
+                                ), parameterDescription, parameter, false,
+                                evaluationIndicatorKey, executionIndicatorKey)
                         } catch (error) {
                             throw new Error(
                                 'Error during ' + (
@@ -1930,7 +1912,7 @@ export default class Tools {
         if (destination) {
             if (source === destination)
                 throw new Error(
-                    "Can't copy because source and destination are identical.")
+                    `Can't copy because source and destination are identical.`)
             if (recursionLimit !== -1 && recursionLimit < recursionLevel)
                 return null
             if (![undefined, null].includes(
@@ -2330,13 +2312,13 @@ export default class Tools {
             if (index === -1) {
                 if (strict)
                     throw new Error(
-                        "Given target doesn't exists in given list.")
+                        `Given target doesn't exists in given list.`)
             } else
                 /* eslint-disable max-statements-per-line */
                 list.splice(index, 1)
                 /* eslint-enable max-statements-per-line */
         } else if (strict)
-            throw new Error("Given target isn't an array.")
+            throw new Error(`Given target isn't an array.`)
         return list
     }
     /**
@@ -2554,9 +2536,9 @@ export default class Tools {
             return parseInt(result[1], 10)
         if (fallback !== null)
             return fallback
-        if (Tools.stringIsInternalURL.apply(
-            this, [url].concat(parameter)
-            ) && 'location' in $.global && $.global.location.port &&
+        if (Tools.stringIsInternalURL(
+            url, ...parameter
+        ) && 'location' in $.global && $.global.location.port &&
             parseInt($.global.location.port, 10)
         )
             return parseInt($.global.location.port, 10)
@@ -3453,20 +3435,19 @@ export default class Tools {
         if (!parameter[0].includes('.'))
             parameter[0] += `.${this.constructor._name}`
         if (removeEvent)
-            return $domNode[eventFunctionName].apply($domNode, parameter)
-        return $domNode[eventFunctionName].apply($domNode, parameter)
+            return $domNode[eventFunctionName](...parameter)
+        return $domNode[eventFunctionName](...parameter)
     }
     // endregion
 }
 // endregion
 // region handle $ extending
 if ('fn' in $)
-    $.fn.Tools = function():any {
-        return (new Tools()).controller(Tools, arguments, this)
+    $.fn.Tools = function(...parameter:Array<any>):any {
+        return (new Tools()).controller(Tools, parameter, this)
     }
-$.Tools = function():any {
-    return (new Tools()).controller(Tools, arguments)
-}
+$.Tools = (...parameter:Array<any>):any => (new Tools()).controller(
+    Tools, parameter)
 $.Tools.class = Tools
 if ('fn' in $) {
     // region prop fix for comments and text nodes
@@ -3476,21 +3457,26 @@ if ('fn' in $) {
      * comments and attribute nodes.
      * @param key - Name of property to retrieve from current dom node.
      * @param value - Value to set for given property by name.
+     * @param additionalParameter - Additional parameter will be forwarded to
+     * native prop function also.
      * @returns Returns value if used as getter or current dom node if used as
      * setter.
      */
-    $.fn.prop = function(key:string, value:any):any {
-        if (arguments.length < 3 && this.length && [
+    $.fn.prop = function(
+        key:string, value:any, ...additionalParameter:Array<any>
+    ):any {
+        if (additionalParameter.length < 1 && this.length && [
             '#text', '#comment'
         ].includes(this[0].nodeName) && key in this[0]) {
             if (arguments.length === 1)
                 return this[0][key]
-            if (arguments.length === 2) {
+            if (additionalParameter.length === 0) {
                 this[0][key] = value
                 return this
             }
         }
-        return nativePropFunction.apply(this, arguments)
+        return nativePropFunction.call(
+            this, key, value, ...additionalParameter)
     }
     // endregion
     // region fix script loading errors with canceling requests after dom ready
