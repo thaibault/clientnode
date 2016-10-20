@@ -3462,21 +3462,18 @@ if ('fn' in $) {
      * @returns Returns value if used as getter or current dom node if used as
      * setter.
      */
-    $.fn.prop = function(
-        key:string, value:any, ...additionalParameter:Array<any>
-    ):any {
-        if (additionalParameter.length < 1 && this.length && [
+    $.fn.prop = function(key:string, ...additionalParameter:Array<any>):any {
+        if (additionalParameter.length < 2 && this.length && [
             '#text', '#comment'
         ].includes(this[0].nodeName) && key in this[0]) {
-            if (arguments.length === 1)
+            if (additionalParameter.length === 0)
                 return this[0][key]
-            if (additionalParameter.length === 0) {
-                this[0][key] = value
+            if (additionalParameter.length === 1) {
+                this[0][key] = additionalParameter[0]
                 return this
             }
         }
-        return nativePropFunction.call(
-            this, key, value, ...additionalParameter)
+        return nativePropFunction.call(this, key, ...additionalParameter)
     }
     // endregion
     // region fix script loading errors with canceling requests after dom ready
