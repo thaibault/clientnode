@@ -59,13 +59,13 @@
     }
   },
   "scripts": {
-    "build": "webOptimizer build && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
+    "build": "webOptimizer build && babel --plugins transform-flow-strip-types,transform-runtime --presets latest,stage-0 --out-file test.compiled.js test.js",
     "buildDLL": "webOptimizer buildDLL",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
-    "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{babel:{plugins:{__remove__:\"transform-runtime\"}}}}}' && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
+    "export": "webOptimizer build '{development:{tool:false}}' && babel --plugins transform-flow-strip-types,transform-runtime --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
     "lint": "webOptimizer typeCheck && webOptimizer lint",
-    "prepublish": "if ! npm run build; then echo You should rerun install procedure to resolve dependency cycle. && babel --plugins transform-flow-strip-types --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js; fi",
+    "prepublish": "if ! npm run build; then echo You should rerun install procedure to resolve dependency cycle. && babel --plugins transform-flow-strip-types,transform-runtime --presets latest,stage-0 --source-maps inline --out-file index.compiled.js index.js; fi",
     "serve": "webOptimizer serve",
     "start": "npm run serve",
     "test": "webOptimizer test",
