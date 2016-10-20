@@ -1634,13 +1634,13 @@ export default class Tools {
                             return Tools.resolveDynamicDataStructure((new (
                             /* eslint-enable new-parens */
                                 // IgnoreTypeCheck
-                                Function.prototype.bind(
-                                    null, parameterDescription, ((
-                                    key === evaluationIndicatorKey
-                                ) ? 'return ' : '') + object[key])))(
-                                    ...parameter
-                                ), parameterDescription, parameter, false,
-                                evaluationIndicatorKey, executionIndicatorKey)
+                                Function.prototype.bind.call(Function, (
+                                    null, parameterDescription.concat(((
+                                        key === evaluationIndicatorKey
+                                    ) ? 'return ' : '') + object[key])))
+                            ))(...parameter), parameterDescription, parameter,
+                            false, evaluationIndicatorKey,
+                            executionIndicatorKey)
                         } catch (error) {
                             throw new Error(
                                 'Error during ' + (
