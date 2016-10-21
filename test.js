@@ -182,7 +182,7 @@ let tests:Array<Test> = [{callback: function(
             ['test', [/a/, /b/, /es/]],
             ['test', ['', 'test']]
         ])
-            assert.ok($.Tools.class.isAnyMatching.apply($.Tools, test))
+            assert.ok($.Tools.class.isAnyMatching(...test))
         for (const test:Array<any> of [
             ['', []],
             ['test', [/tes$/]],
@@ -190,7 +190,7 @@ let tests:Array<Test> = [{callback: function(
             ['test', [/^est$/]],
             ['test', ['a']]
         ])
-            assert.notOk($.Tools.class.isAnyMatching.apply($.Tools, test))
+            assert.notOk($.Tools.class.isAnyMatching(...test))
     })
     this.test(`isPlainObject (${roundType})`, (assert:Object):void => {
         for (const okValue:any of [
@@ -403,7 +403,7 @@ let tests:Array<Test> = [{callback: function(
                 ],
                 ['a<br>', 'a<br />', true]
             ])
-                assert.ok($.Tools.class.isEquivalentDom.apply(this, test))
+                assert.ok($.Tools.class.isEquivalentDom(...test))
             for (const test:Array<any> of [
                 ['test', ''],
                 ['test', 'hans'],
@@ -425,7 +425,7 @@ let tests:Array<Test> = [{callback: function(
                 ['text', 'text a'],
                 ['text', 'text a & +']
             ])
-                assert.notOk($.Tools.class.isEquivalentDom.apply(this, test))
+                assert.notOk($.Tools.class.isEquivalentDom(...test))
         })
     }
     if (roundType === 'withJQuery')
@@ -777,9 +777,7 @@ let tests:Array<Test> = [{callback: function(
                 {a: [2]}, {a: {__prepend__: 1}}
             ]
         ]) {
-            assert.deepEqual($.Tools.class.modifyObject.apply(
-                $.Tools, test[0]
-            ), test[1])
+            assert.deepEqual($.Tools.class.modifyObject(...test[0]), test[1])
             assert.deepEqual(test[0][1], test[2])
         }
     })
@@ -859,9 +857,7 @@ let tests:Array<Test> = [{callback: function(
                 new Map([['a', new Map([['a', [3, 4]]])]])
             ]
         ])
-            assert.deepEqual($.Tools.class.extendObject.apply(
-                $.Tools, test[0]
-            ), test[1])
+            assert.deepEqual($.Tools.class.extendObject(...test[0]), test[1])
         assert.strictEqual(
             $.Tools.class.extendObject([1, 2], undefined), undefined)
         assert.strictEqual($.Tools.class.extendObject([1, 2], null), null)
@@ -987,9 +983,7 @@ let tests:Array<Test> = [{callback: function(
             ]
         ])
             assert.deepEqual(
-                $.Tools.class.resolveDynamicDataStructure.apply(
-                    this, test[0]
-                ), test[1])
+                $.Tools.class.resolveDynamicDataStructure(...test[0]), test[1])
     })
     this.test(`convertCircularObjectToJSON (${roundType})`, (
         assert:Object
@@ -1030,9 +1024,8 @@ let tests:Array<Test> = [{callback: function(
                 [new Map([['a', [new Map()]], ['b', 2]])]
             ]
         ])
-            assert.deepEqual($.Tools.class.convertPlainObjectToMap.apply(
-                this, test[0]
-            ), test[1])
+            assert.deepEqual(
+                $.Tools.class.convertPlainObjectToMap(...test[0]), test[1])
     })
     this.test(`convertMapToPlainObject (${roundType})`, (
         assert:Object
@@ -1053,9 +1046,8 @@ let tests:Array<Test> = [{callback: function(
                 [{a: {a: 2}, '2': 2}]
             ]
         ])
-            assert.deepEqual($.Tools.class.convertMapToPlainObject.apply(
-                this, test[0]
-            ), test[1])
+            assert.deepEqual(
+                $.Tools.class.convertMapToPlainObject(...test[0]), test[1])
     })
     this.test(`forEachSorted (${roundType})`, (assert:Object):void => {
         let result = []
@@ -1133,7 +1125,7 @@ let tests:Array<Test> = [{callback: function(
             ],
             [():void => {}, ():void => {}]
         ])
-            assert.ok($.Tools.class.equals.apply(this, test))
+            assert.ok($.Tools.class.equals(...test))
         for (const test:Array<any> of [
             [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 2],
             [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3],
@@ -1153,7 +1145,7 @@ let tests:Array<Test> = [{callback: function(
             [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
             [():void => {}, ():void => {}, null, -1, [], false]
         ])
-            assert.notOk($.Tools.class.equals.apply(this, test))
+            assert.notOk($.Tools.class.equals(...test))
         const test = ():void => {}
         assert.ok($.Tools.class.equals(test, test, null, -1, [], false))
     })
@@ -1204,8 +1196,8 @@ let tests:Array<Test> = [{callback: function(
                 new Map([['a', new Map([['a', 2]])]])
             ]
         ])
-            assert.deepEqual($.Tools.class.copyLimitedRecursively.apply(
-                this, test[0]), test[1])
+            assert.deepEqual(
+                $.Tools.class.copyLimitedRecursively(...test[0]), test[1])
     })
     // // endregion
     // // region array
@@ -1246,10 +1238,9 @@ let tests:Array<Test> = [{callback: function(
             [[[{a: 'b'}, {a: 'c'}], 'a'], ''],
             [[[{a: 'b'}, {a: 'c'}], 'a', false], false]
         ])
-            assert.strictEqual(
-                $.Tools.class.arrayAggregatePropertyIfEqual.apply(
-                    this, test[0]
-                ), test[1])
+            assert.strictEqual($.Tools.class.arrayAggregatePropertyIfEqual(
+                ...test[0]
+            ), test[1])
     })
     this.test(`arrayDeleteEmptyItems (${roundType})`, (
         assert:Object
@@ -1261,9 +1252,8 @@ let tests:Array<Test> = [{callback: function(
             [[[], ['a']], []],
             [[[]], []]
         ])
-            assert.deepEqual($.Tools.class.arrayDeleteEmptyItems.apply(
-                this, test[0]
-            ), test[1])
+            assert.deepEqual(
+                $.Tools.class.arrayDeleteEmptyItems(...test[0]), test[1])
     })
     this.test(`arrayExtract (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
@@ -1274,7 +1264,7 @@ let tests:Array<Test> = [{callback: function(
             [[[{a: 'b', c: 'd'}, {c: 3}], ['c']], [{c: 'd'}, {c: 3}]]
         ])
             assert.deepEqual(
-                $.Tools.class.arrayExtract.apply(this, test[0]), test[1])
+                $.Tools.class.arrayExtract(...test[0]), test[1])
     })
     this.test(`arrayExtractIfMatches (${roundType})`, (
         assert:Object
@@ -1346,8 +1336,7 @@ let tests:Array<Test> = [{callback: function(
             [[[{b: undefined}], [{}], ['b'], true], [{b: undefined}]],
             [[[{b: 1}], [{a: 1}], {b: 'a'}, true], [{b: 1}]]
         ])
-            assert.deepEqual(
-                $.Tools.class.arrayIntersect.apply(this, test[0]), test[1])
+            assert.deepEqual($.Tools.class.arrayIntersect(...test[0]), test[1])
     })
     this.test(`arrayMakeRange (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
@@ -1357,8 +1346,7 @@ let tests:Array<Test> = [{callback: function(
             [[[2, 5]], [2, 3, 4, 5]],
             [[[2, 10], 2], [2, 4, 6, 8, 10]]
         ])
-            assert.deepEqual(
-                $.Tools.class.arrayMakeRange.apply(this, test[0]), test[1])
+            assert.deepEqual($.Tools.class.arrayMakeRange(...test[0]), test[1])
     })
     this.test(`arraySumUpProperty (${roundType})`, (
         assert:Object
@@ -1368,9 +1356,8 @@ let tests:Array<Test> = [{callback: function(
             [[[{a: 2}, {b: 3}], 'a'], 2],
             [[[{a: 2}, {b: 3}], 'c'], 0]
         ])
-            assert.strictEqual($.Tools.class.arraySumUpProperty.apply(
-                this, test[0]
-            ), test[1])
+            assert.strictEqual(
+                $.Tools.class.arraySumUpProperty(...test[0]), test[1])
     })
     this.test(`arrayAppendAdd (${roundType})`, (assert:Object):void => {
         const testObject:Object = {}
@@ -1381,8 +1368,7 @@ let tests:Array<Test> = [{callback: function(
             [[{b: [2]}, 2, 'b', false], {b: [2, 2]}],
             [[{b: [2]}, 2, 'b'], {b: [2]}]
         ])
-            assert.deepEqual(
-                $.Tools.class.arrayAppendAdd.apply(this, test[0]), test[1])
+            assert.deepEqual($.Tools.class.arrayAppendAdd(...test[0]), test[1])
     })
     this.test(`arrayRemove (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
@@ -1392,8 +1378,7 @@ let tests:Array<Test> = [{callback: function(
             [[[1, 2], 2], [1]],
             [[[1, 2], 2, true], [1]]
         ])
-            assert.deepEqual(
-                $.Tools.class.arrayRemove.apply(this, test[0]), test[1])
+            assert.deepEqual($.Tools.class.arrayRemove(...test[0]), test[1])
         assert.throws(():?Array<any> => $.Tools.class.arrayRemove(
             [], 2, true
         ), new Error(`Given target doesn't exists in given list.`))
@@ -1437,9 +1422,9 @@ let tests:Array<Test> = [{callback: function(
             [['-', '\\'], '\\-']
         ])
             assert.strictEqual(
-                $.Tools.class.stringConvertToValidRegularExpression.apply(
-                    this, test[0]
-                ), test[1])
+                $.Tools.class.stringConvertToValidRegularExpression(
+                    ...test[0]),
+                test[1])
     })
     this.test('stringConvertToValidVariableName', (
         assert:Object
@@ -1471,9 +1456,7 @@ let tests:Array<Test> = [{callback: function(
             [['+'], '%2B']
         ])
             assert.strictEqual(
-                $.Tools.class.stringEncodeURIComponent.apply(
-                    this, test[0]
-                ), test[1])
+                $.Tools.class.stringEncodeURIComponent(...test[0]), test[1])
     })
     this.test(`stringAddSeparatorToPath (${roundType})`, (
         assert:Object
@@ -1488,9 +1471,7 @@ let tests:Array<Test> = [{callback: function(
             [['/a/bb/', '|'], '/a/bb/|']
         ])
             assert.strictEqual(
-                $.Tools.class.stringAddSeparatorToPath.apply(
-                    this, test[0]
-                ), test[1])
+                $.Tools.class.stringAddSeparatorToPath(...test[0]), test[1])
     })
     this.test(`stringHasPathPrefix (${roundType})`, (
         assert:Object
@@ -1503,15 +1484,14 @@ let tests:Array<Test> = [{callback: function(
             ['a/', 'a/b'],
             ['/admin', '/admin#test', '#']
         ])
-            assert.ok($.Tools.class.stringHasPathPrefix.apply(this, test))
+            assert.ok($.Tools.class.stringHasPathPrefix(...test))
         for (const test:Array<any> of [
             ['b', 'a/b'],
             ['b/', 'a/b'],
             ['/admin/', '/admin/test', '#'],
             ['/admin', '/admin/test', '#']
         ])
-            assert.notOk(
-                $.Tools.class.stringHasPathPrefix.apply(this, test))
+            assert.notOk($.Tools.class.stringHasPathPrefix(...test))
     })
     this.test(`stringGetDomainName (${roundType})`, (
         assert:Object
@@ -1548,9 +1528,8 @@ let tests:Array<Test> = [{callback: function(
             ],
             [['//alternate.local/'], 'alternate.local']
         ])
-            assert.strictEqual($.Tools.class.stringGetDomainName.apply(
-                this, test[0]
-            ), test[1])
+            assert.strictEqual(
+                $.Tools.class.stringGetDomainName(...test[0]), test[1])
     })
     this.test(`stringGetPortNumber (${roundType})`, (
         assert:Object
@@ -1568,9 +1547,8 @@ let tests:Array<Test> = [{callback: function(
             [['http://localhost:89'], 89],
             [['https://localhost:89'], 89]
         ])
-            assert.strictEqual($.Tools.class.stringGetPortNumber.apply(
-                this, test[0]
-            ), test[1])
+            assert.strictEqual(
+                $.Tools.class.stringGetPortNumber(...test[0]), test[1])
     })
     this.test(`stringGetProtocolName (${roundType})`, (
         assert:Object
@@ -1619,9 +1597,8 @@ let tests:Array<Test> = [{callback: function(
                     0, $.global.location.protocol.length - 1)
             ]
         ])
-            assert.strictEqual($.Tools.class.stringGetProtocolName.apply(
-                this, test[0]
-            ), test[1])
+            assert.strictEqual(
+                $.Tools.class.stringGetProtocolName(...test[0]), test[1])
     })
     this.test(`stringGetURLVariable (${roundType})`, (
         assert:Object
@@ -1655,9 +1632,8 @@ let tests:Array<Test> = [{callback: function(
             [['test', '&', '$', '!', null, '#!test#$test=4'], '4'],
             [['test', '&', '$', '!', null, '#!test?test=3#$test=4'], '4']
         ])
-            assert.strictEqual($.Tools.class.stringGetURLVariable.apply(
-                this, test[0]
-            ), test[1])
+            assert.strictEqual(
+                $.Tools.class.stringGetURLVariable(...test[0]), test[1])
     })
     this.test(`stringIsInternalURL (${roundType})`, (
         assert:Object
@@ -1690,7 +1666,7 @@ let tests:Array<Test> = [{callback: function(
             ['#1', $.global.location.href],
             ['/a', $.global.location.href]
         ])
-            assert.ok($.Tools.class.stringIsInternalURL.apply(this, test))
+            assert.ok($.Tools.class.stringIsInternalURL(...test))
         for (const test:Array<any> of [
             [
                 `${$.global.location.protocol}//www.test.de/site/subSite` +
@@ -1716,8 +1692,7 @@ let tests:Array<Test> = [{callback: function(
                 'https://www.test.de/site/subSite?param=value#hash'
             ]
         ])
-            assert.notOk($.Tools.class.stringIsInternalURL.apply(
-                this, test))
+            assert.notOk($.Tools.class.stringIsInternalURL(...test))
     })
     this.test(`stringNormalizeURL (${roundType})`, (
         assert:Object
@@ -1784,9 +1759,7 @@ let tests:Array<Test> = [{callback: function(
             [['hansPeter', '-', []], 'hans-peter']
         ])
             assert.strictEqual(
-                $.Tools.class.stringCamelCaseToDelimited.apply(
-                    this, test[0]
-                ), test[1])
+                $.Tools.class.stringCamelCaseToDelimited(...test[0]), test[1])
     })
     this.test(`stringCapitalize (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
@@ -1827,9 +1800,7 @@ let tests:Array<Test> = [{callback: function(
             [['hans--Url', '-', [], false, true], 'hansUrl']
         ])
             assert.strictEqual(
-                $.Tools.class.stringDelimitedToCamelCase.apply(
-                    this, test[0]
-                ), test[1])
+                $.Tools.class.stringDelimitedToCamelCase(...test[0]), test[1])
     })
     this.test(`stringFormat (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
@@ -1839,7 +1810,7 @@ let tests:Array<Test> = [{callback: function(
             [['{1} test {2} - {2}', 1, 2], '1 test 2 - 2']
         ])
             assert.strictEqual(
-                $.Tools.class.stringFormat.apply(this, test[0]), test[1])
+                $.Tools.class.stringFormat(...test[0]), test[1])
     })
     this.test(`stringGetRegularExpressionValidated (${roundType})`, (
         assert:Object
@@ -1902,10 +1873,9 @@ let tests:Array<Test> = [{callback: function(
                 [2, 9]
             ]
         ])
-            assert.deepEqual(
-                $.Tools.class.stringFindNormalizedMatchRange.apply(
-                    this, test[0]
-                ), test[1])
+            assert.deepEqual($.Tools.class.stringFindNormalizedMatchRange(
+                ...test[0]
+            ), test[1])
     })
     this.test(`stringMark (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
@@ -1984,8 +1954,7 @@ let tests:Array<Test> = [{callback: function(
                 '<a>str.</a>A <a>strasse</a> B <a>straße</a> C <a>str.</a> D'
             ]
         ])
-            assert.strictEqual(
-                $.Tools.class.stringMark.apply(this, test[0]), test[1])
+            assert.strictEqual($.Tools.class.stringMark(...test[0]), test[1])
     })
     this.test(`stringMD5 (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
@@ -1995,8 +1964,7 @@ let tests:Array<Test> = [{callback: function(
             [['test', true], '098f6bcd4621d373cade4e832627b4f6'],
             [['ä', true], 'c15bcc5577f9fade4b4a3256190a59b0']
         ])
-            assert.strictEqual(
-                $.Tools.class.stringMD5.apply(this, test[0]), test[1])
+            assert.strictEqual($.Tools.class.stringMD5(...test[0]), test[1])
     })
     this.test(`stringNormalizePhoneNumber (${roundType})`, (
         assert:Object
@@ -2098,8 +2066,7 @@ let tests:Array<Test> = [{callback: function(
             [[650, -2], 700],
             [[649, -2], 600]
         ])
-            assert.strictEqual(
-                $.Tools.class.numberRound.apply(this, test[0]), test[1])
+            assert.strictEqual($.Tools.class.numberRound(...test[0]), test[1])
     })
     // // endregion
     // // region data transfer
