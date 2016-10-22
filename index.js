@@ -1603,7 +1603,7 @@ export default class Tools {
      * @param parameter - Array of values for given scope names. If there is
      * one missing given object will be added.
      * @param deep - Indicates whether to perform a recursive resolving.
-     * @param expressiopnIndicatorKey - Indicator property name to mark a value
+     * @param expressionIndicatorKey - Indicator property name to mark a value
      * to evaluate.
      * @param executionIndicatorKey - Indicator property name to mark a value
      * to evaluate.
@@ -3447,7 +3447,7 @@ export default class Tools {
      * @returns Determined list if all files.
      */
     static walkDirectoryRecursivelySync(
-        directoryPath:string, callback:Function = (file:File):?boolean => true
+        directoryPath:string, callback:Function = Tools.noop
     ):Array<File> {
         let files:Array<File> = []
         for (const fileName:string of fileSystem.readdirSync(directoryPath)) {
@@ -3585,7 +3585,6 @@ if ('fn' in $) {
      * JQuery's native prop implementation ignores properties for text nodes,
      * comments and attribute nodes.
      * @param key - Name of property to retrieve from current dom node.
-     * @param value - Value to set for given property by name.
      * @param additionalParameter - Additional parameter will be forwarded to
      * native prop function also.
      * @returns Returns value if used as getter or current dom node if used as
