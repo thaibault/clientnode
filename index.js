@@ -1984,7 +1984,7 @@ export default class Tools {
         }
         return destination || source
     }
-    // / endregion//endregion
+    // / endregion
     // / region array
     /**
      * Merge the contents of two arrays together into the first array.
