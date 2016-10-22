@@ -19,8 +19,20 @@
 */
 // region imports
 import type {DomNode, PlainObject} from 'weboptimizer/type'
+let fileSystem:Object = {}
+try {
+    fileSystem = eval('require')('fs')
+} catch (error) {}
+let path:Object = {}
+try {
+    path = eval('require')('path')
+} catch (error) {}
 // endregion
 // region types
+export type File = {
+    path:string;
+    stat:Object;
+}
 export type GetterFunction = (keyOrValue:any) => any
 export type SetterFunction = (key:any, value:any) => any
 export type Position = {
@@ -1591,7 +1603,7 @@ export default class Tools {
      * @param parameter - Array of values for given scope names. If there is
      * one missing given object will be added.
      * @param deep - Indicates whether to perform a recursive resolving.
-     * @param evaluationIndicatorKey - Indicator property name to mark a value
+     * @param expressiopnIndicatorKey - Indicator property name to mark a value
      * to evaluate.
      * @param executionIndicatorKey - Indicator property name to mark a value
      * to evaluate.
@@ -1600,7 +1612,7 @@ export default class Tools {
     static resolveDynamicDataStructure(
         object:any, parameterDescription:Array<string> = [],
         parameter:Array<any> = [], deep:boolean = true,
-        evaluationIndicatorKey:string = '__evaluate__',
+        expressionIndicatorKey:string = '__evaluate__',
         executionIndicatorKey:string = '__execute__'
     ):any {
         if (object === null || typeof object !== 'object')
@@ -1611,7 +1623,7 @@ export default class Tools {
                 Tools.copyLimitedRecursively(object), ((value:any):any =>
                     Tools.resolveDynamicDataStructure(
                         value, parameterDescription, parameter, false,
-                        evaluationIndicatorKey, executionIndicatorKey
+                        expressionIndicatorKey, executionIndicatorKey
                     )), (key:any, value:any):any => value, '[]', '')
         if (parameterDescription.length > parameter.length)
             parameter.push(configuration)
@@ -1620,14 +1632,14 @@ export default class Tools {
             for (const value:mixed of object) {
                 object[index] = Tools.resolveDynamicDataStructure(
                     value, parameterDescription, parameter, deep,
-                    evaluationIndicatorKey, executionIndicatorKey)
+                    expressionIndicatorKey, executionIndicatorKey)
                 index += 1
             }
         } else
             for (const key:string in object)
                 if (object.hasOwnProperty(key))
                     if ([
-                        evaluationIndicatorKey, executionIndicatorKey
+                        expressionIndicatorKey, executionIndicatorKey
                     ].includes(key))
                         try {
                             /* eslint-disable new-parens */
@@ -1636,22 +1648,22 @@ export default class Tools {
                                 // IgnoreTypeCheck
                                 Function.prototype.bind.call(Function,
                                     null, ...parameterDescription.concat(((
-                                        key === evaluationIndicatorKey
+                                        key === expressionIndicatorKey
                                     ) ? 'return ' : '') + object[key]))
                             ))(...parameter), parameterDescription, parameter,
-                            false, evaluationIndicatorKey,
+                            false, expressionIndicatorKey,
                             executionIndicatorKey)
                         } catch (error) {
                             throw new Error(
                                 'Error during ' + (
-                                    key === evaluationIndicatorKey ?
+                                    key === expressionIndicatorKey ?
                                         'executing' : 'evaluating'
                                 ) + ` "${object[key]}": ${error}`)
                         }
                     else if (deep)
                         object[key] = Tools.resolveDynamicDataStructure(
                             object[key], parameterDescription, parameter, deep,
-                            evaluationIndicatorKey, executionIndicatorKey)
+                            expressionIndicatorKey, executionIndicatorKey)
         return object
     }
     /**
@@ -3401,8 +3413,125 @@ export default class Tools {
             $iFrameDomNode, url, data, requestType, removeAfterLoad)
     }
     // / endregion
+    // / region file TODO Migrate everywhere!
+    /**
+     * Checks if given path points to a valid directory.
+     * @param filePath - Path to directory.
+     * @returns A boolean which indicates directory existents.
+     */
+    static isDirectorySync(filePath:string):boolean {
+        try {
+            return fileSystem.statSync(filePath).isDirectory()
+        } catch (error) {
+            return false
+        }
+    }
+    /**
+     * Checks if given path points to a valid file.
+     * @param filePath - Path to file.
+     * @returns A boolean which indicates file existents.
+     */
+    static isFileSync(filePath:string):boolean {
+        try {
+            return fileSystem.statSync(filePath).isFile()
+        } catch (error) {
+            return false
+        }
+    }
+    /**
+     * Iterates through given directory structure recursively and calls given
+     * callback for each found file. Callback gets file path and corresponding
+     * stat object as argument.
+     * @param directoryPath - Path to directory structure to traverse.
+     * @param callback - Function to invoke for each traversed file.
+     * @returns Determined list if all files.
+     */
+    static walkDirectoryRecursivelySync(
+        directoryPath:string, callback:Function = (file:File):?boolean => true
+    ):Array<File> {
+        let files:Array<File> = []
+        for (const fileName:string of fileSystem.readdirSync(directoryPath)) {
+            const filePath:string = path.resolve(directoryPath, fileName)
+            files.push({path: filePath, stat: fileSystem.statSync(filePath)})
+        }
+        /*
+            NOTE: Directories have to be iterated first to potentially avoid
+            deeper iterations.
+        */
+        files.sort((firstFile:File, secondFile:File):number => {
+            if (firstFile.stat.isDirectory()) {
+                if (secondFile.stat.isDirectory())
+                    return 0
+                return -1
+            }
+            if (secondFile.stat.isDirectory())
+                return 1
+            return 0
+        })
+        let finalFiles:Array<File> = files.slice()
+        for (const file:File of files) {
+            const result:any = callback(file)
+            if (result === null)
+                break
+            if (result !== false && file.stat.isDirectory())
+                finalFiles = finalFiles.concat(
+                    Tools.walkDirectoryRecursivelySync(file.path, callback))
+        }
+        return finalFiles
+    }
+    /**
+     * Copies given source file via path to given target directory location
+     * with same target name as source file has or copy to given complete
+     * target file path.
+     * @param sourcePath - Path to file to copy.
+     * @param targetPath - Target directory or complete file location to copy
+     * to.
+     * @returns Determined target file path.
+     */
+    static copyFileSync(sourcePath:string, targetPath:string):string {
+        /*
+            NOTE: If target path references a directory a new file with the
+            same name will be created.
+        */
+        if (Tools.isDirectorySync(targetPath))
+            targetPath = path.resolve(targetPath, path.basename(sourcePath))
+        fileSystem.writeFileSync(targetPath, fileSystem.readFileSync(
+            sourcePath))
+        return targetPath
+    }
+    /**
+     * Copies given source directory via path to given target directory
+     * location with same target name as source file has or copy to given
+     * complete target directory path.
+     * @param sourcePath - Path to directory to copy.
+     * @param targetPath - Target directory or complete directory location to
+     * copy in.
+     * @returns Determined target directory path.
+     */
+    static copyDirectoryRecursiveSync(
+        sourcePath:string, targetPath:string
+    ):string {
+        // Check if folder needs to be created or integrated.
+        if (Tools.isDirectorySync(targetPath))
+            targetPath = path.resolve(targetPath, path.basename(
+                sourcePath))
+        fileSystem.mkdirSync(targetPath)
+        Tools.walkDirectoryRecursivelySync(sourcePath, (
+            currentSourceFile:File
+        ):void => {
+            const currentTargetPath:string = path.join(
+                targetPath, currentSourceFile.path.substring(sourcePath.length)
+            )
+            if (currentSourceFile.stat.isDirectory())
+                fileSystem.mkdirSync(currentTargetPath)
+            else
+                Tools.copyFileSync(currentSourceFile.path, currentTargetPath)
+        })
+        return targetPath
+    }
+    // / endregion
     // endregion
-    // region protected
+    // region protected methods
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Helper method for attach event handler methods and their event handler
