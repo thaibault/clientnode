@@ -2085,7 +2085,7 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region data transfer
-    assert.test('checkRechability', async (assert:Object):Promise<?Object> => {
+    this.test('checkRechability', async (assert:Object):Promise<?Object> => {
         const done:Function = assert.async()
         for (const test:Array<any> of [
             ['unknownURL', false],
