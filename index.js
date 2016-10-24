@@ -3409,6 +3409,70 @@ export default class Tools {
     // / endregion
     // / region data transfer
     /**
+     * Checks if given url response with given status code.
+     * @param url - Url to check reachability.
+     * @param wait - Boolean indicating if we should retry until a status code
+     * will be given.
+     * @param expectedStatusCode - Status code to check for.
+     * @param pollIntervallInSeconds - Seconds between two tries to reach given
+     * url.
+     * @param timeoutInSeconds - Delay after assuming given resource isn't
+     * available if no response is coming.
+     * @returns A promise which will be resolved if a request to given url has
+     * finished and resulting status code matches given expectedstatus code.
+     * Otherwise returned promise will be rejected.
+     *
+     */
+    static async checkReachability(
+        url:string, wait:boolean = false, expectedStatusCode:number = 200,
+        pollIntervallInSeconds:number = 0.1, timeoutInSeconds:number = 10
+    ):Promise<?Object> {
+        const check:Function = (response:?Object):?Object => {
+            if (
+                response && 'status' in response &&
+                response.status !== expectedStatusCode
+            )
+                throw new Error(
+                    `Given status code ${response.status} differs from ` +
+                    `${expectedStatusCode}.`)
+            return response
+        }
+        if (wait)
+            return new Promise((resolve:Function, reject:Function):void => {
+                let timedOut:boolean = false
+                const wrapper:Function = async ():Promise<?Object> => {
+                    let response:Object
+                    try {
+                        response = await fetch(url)
+                    } catch (error) {
+                        if (!timedOut)
+                            /* eslint-disable no-use-before-define */
+                            currentlyRunningTimeout = setTimeout(
+                                wrapper, pollIntervallInSeconds * 1000)
+                            /* eslint-enable no-use-before-define */
+                        return response
+                    }
+                    try {
+                        resolve(check(response))
+                    } catch (error) {
+                        reject(error)
+                    } finally {
+                        /* eslint-disable no-use-before-define */
+                        clearTimeout(timeoutID)
+                        /* eslint-enable no-use-before-define */
+                    }
+                    return response
+                }
+                let currentlyRunningTimeout = setTimeout(wrapper, 0)
+                const timeoutID:number = setTimeout(():void => {
+                    timedOut = true
+                    clearTimeout(currentlyRunningTimeout)
+                    reject('timeout')
+                }, timeoutInSeconds * 1000)
+            })
+        return check(await fetch(url))
+    }
+    /**
      * Send given data to a given iframe.
      * @param target - Name of the target iframe or the target iframe itself.
      * @param url - URL to send to data to.
