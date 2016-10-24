@@ -3417,14 +3417,42 @@ export default class Tools {
     /**
      * Checks if given path points to a valid directory.
      * @param filePath - Path to directory.
+     * @returns A promise holding a boolean which indicates directory
+     * existents.
+     */
+    static isDirectory(filePath:string):Promise<boolean> {
+        return new Promise((resolve:Function, reject:Function):void =>
+            fileSystem.stat(filePath, (
+                error:?Error, stat:Object
+            ):void => {
+                if (error)
+                    reject(error)
+                else
+                    resolve(stat.isDirectory())
+            }).isDirectory())
+    }
+    /**
+     * Checks if given path points to a valid directory.
+     * @param filePath - Path to directory.
      * @returns A boolean which indicates directory existents.
      */
     static isDirectorySync(filePath:string):boolean {
-        try {
-            return fileSystem.statSync(filePath).isDirectory()
-        } catch (error) {
-            return false
-        }
+        return fileSystem.statSync(filePath).isDirectory()
+    }
+    /**
+     * Checks if given path points to a valid directory.
+     * @param filePath - Path to directory.
+     * @returns A promise holding a boolean which indicates directory
+     * existents.
+     */
+    static isFile(filePath:string):Promise<boolean> {
+        return new Promise((resolve:Function, reject:Function):void =>
+            fileSystem.stat(filePath, (error:?Error, stat:Object):void => {
+                if (error)
+                    reject(error)
+                else
+                    resolve(stat.isFile())
+            }).isDirectory())
     }
     /**
      * Checks if given path points to a valid file.
@@ -3432,11 +3460,69 @@ export default class Tools {
      * @returns A boolean which indicates file existents.
      */
     static isFileSync(filePath:string):boolean {
-        try {
-            return fileSystem.statSync(filePath).isFile()
-        } catch (error) {
-            return false
-        }
+        return fileSystem.statSync(filePath).isFile()
+    }
+    /**
+     * Iterates through given directory structure recursively and calls given
+     * callback for each found file. Callback gets file path and corresponding
+     * stat object as argument.
+     * @param directoryPath - Path to directory structure to traverse.
+     * @param callback - Function to invoke for each traversed file and
+     * potentially manipulate further traversing.
+     * @returns A promise holding the determined files.
+     */
+    static walkDirectoryRecursively(
+        directoryPath:string, callback:Function = Tools.noop
+    ):Promise<Array<File>> {
+        return new Promise((resolve:Function, reject:Function):void => {
+            fileSystem.readdirSync(directoryPath, {encoding: 'utf8'}, async (
+                error:?Object, fileNames:Array<string>
+            ):Promise<void> => {
+                if (error)
+                    return reject(error)
+                const files:Array<File> = []
+                const statPromises:Array<Promise<void>> = []
+                for (const fileName:string of fileNames) {
+                    const filePath:string = path.resolve(
+                        directoryPath, fileName)
+                    statPromises.push(new Promise((resolve:Function):void =>
+                        fileSystem.stat(filePath, (
+                            error:?Error, stat:Object
+                        ):void => {
+                            files.push({path: filePath, stat: error || stat})
+                            resolve()
+                        })
+                    ))
+                }
+                await Promise.all(statPromises)
+                if (callback)
+                    /*
+                        NOTE: Directories have to be iterated first to
+                        potentially avoid deeper iterations.
+                    */
+                    files.sort((firstFile:File, secondFile:File):number => {
+                        if (firstFile.stat.isDirectory()) {
+                            if (secondFile.stat.isDirectory())
+                                return 0
+                            return -1
+                        }
+                        if (secondFile.stat.isDirectory())
+                            return 1
+                        return 0
+                    })
+                let finalFiles:Array<File> = files.slice()
+                for (const file:File of files) {
+                    const result:any = callback(file)
+                    if (result === null)
+                        break
+                    if (result !== false && file.stat.isDirectory())
+                        finalFiles = finalFiles.concat(
+                            await Tools.walkDirectoryRecursively(
+                                file.path, callback))
+                }
+                resolve(finalFiles)
+            })
+        })
     }
     /**
      * Iterates through given directory structure recursively and calls given
@@ -3454,20 +3540,21 @@ export default class Tools {
             const filePath:string = path.resolve(directoryPath, fileName)
             files.push({path: filePath, stat: fileSystem.statSync(filePath)})
         }
-        /*
-            NOTE: Directories have to be iterated first to potentially avoid
-            deeper iterations.
-        */
-        files.sort((firstFile:File, secondFile:File):number => {
-            if (firstFile.stat.isDirectory()) {
+        if (callback)
+            /*
+                NOTE: Directories have to be iterated first to potentially
+                avoid deeper iterations.
+            */
+            files.sort((firstFile:File, secondFile:File):number => {
+                if (firstFile.stat.isDirectory()) {
+                    if (secondFile.stat.isDirectory())
+                        return 0
+                    return -1
+                }
                 if (secondFile.stat.isDirectory())
-                    return 0
-                return -1
-            }
-            if (secondFile.stat.isDirectory())
-                return 1
-            return 0
-        })
+                    return 1
+                return 0
+            })
         let finalFiles:Array<File> = files.slice()
         for (const file:File of files) {
             const result:any = callback(file)
@@ -3486,9 +3573,64 @@ export default class Tools {
      * @param sourcePath - Path to file to copy.
      * @param targetPath - Target directory or complete file location to copy
      * to.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
      * @returns Determined target file path.
      */
-    static copyFileSync(sourcePath:string, targetPath:string):string {
+    static copyFile(
+        sourcePath:string, targetPath:string,
+        readOptions:PlainObject = {encoding: null, flag: 'r'},
+        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+    ):Promise<void> {
+        /*
+            NOTE: If target path references a directory a new file with the
+            same name will be created.
+        */
+        return new Promise(async (
+            resolve:Function, reject:Function
+        ):Promise<void> => {
+            let isDirectory:boolean
+            try {
+                isDirectory = await Tools.isDirectory(targetPath)
+            } catch (error) {
+                return reject(error)
+            }
+            if (isDirectory)
+                targetPath = path.resolve(targetPath, path.basename(
+                    sourcePath))
+            fileSystem.readFile(sourcePath, readOptions, (
+                error:?Error, data:Object|string
+            ):void => {
+                if (error)
+                    reject(error)
+                else
+                    fileSystem.writeFile(targetPath, data, writeOptions, (
+                        error:?Error
+                    ):void => {
+                        if (error)
+                            reject(error)
+                        else
+                            resolve()
+                    })
+            })
+        })
+    }
+    /**
+     * Copies given source file via path to given target directory location
+     * with same target name as source file has or copy to given complete
+     * target file path.
+     * @param sourcePath - Path to file to copy.
+     * @param targetPath - Target directory or complete file location to copy
+     * to.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
+     * @returns Determined target file path.
+     */
+    static copyFileSync(
+        sourcePath:string, targetPath:string,
+        readOptions:PlainObject = {encoding: null, flag: 'r'},
+        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+    ):string {
         /*
             NOTE: If target path references a directory a new file with the
             same name will be created.
@@ -3496,7 +3638,8 @@ export default class Tools {
         if (Tools.isDirectorySync(targetPath))
             targetPath = path.resolve(targetPath, path.basename(sourcePath))
         fileSystem.writeFileSync(targetPath, fileSystem.readFileSync(
-            sourcePath))
+            sourcePath, readOptions
+        ), writeOptions)
         return targetPath
     }
     /**
@@ -3506,27 +3649,92 @@ export default class Tools {
      * @param sourcePath - Path to directory to copy.
      * @param targetPath - Target directory or complete directory location to
      * copy in.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
+     * @returns Promise holding the determined target directory path.
+     */
+    static copyDirectoryRecursive(
+        sourcePath:string, targetPath:string,
+        readOptions:PlainObject = {encoding: null, flag: 'r'},
+        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+    ):Promise<string> {
+        return new Promise(async (
+            resolve:Function, reject:Function
+        ):Promise<void> => {
+            // NOTE: Check if folder needs to be created or integrated.
+            let isDirectory:boolean
+            try {
+                isDirectory = await Tools.isDirectory(targetPath)
+            } catch (error) {
+                return reject(error)
+            }
+            if (isDirectory)
+                targetPath = path.resolve(targetPath, path.basename(
+                    sourcePath))
+            fileSystem.mkdir(targetPath, async (
+                error:?Error
+            ):Promise<void> => {
+                if (error)
+                    return reject(error)
+                let files:Array<File>
+                try {
+                    files = await Tools.walkDirectoryRecursively(sourcePath)
+                } catch (error) {
+                    return reject(error)
+                }
+                for (const currentSourceFile:File of files) {
+                    const currentTargetPath:string = path.join(
+                        targetPath, currentSourceFile.path.substring(
+                            sourcePath.length))
+                    if (currentSourceFile.stat.isDirectory())
+                        fileSystem.mkdirSync(currentTargetPath)
+                    else
+                        try {
+                            await Tools.copyFile(
+                                currentSourceFile.path, currentTargetPath,
+                                readOptions, writeOptions)
+                        } catch (error) {
+                            return reject(error)
+                        }
+                }
+                resolve(targetPath)
+            })
+        })
+    }
+    /**
+     * Copies given source directory via path to given target directory
+     * location with same target name as source file has or copy to given
+     * complete target directory path.
+     * @param sourcePath - Path to directory to copy.
+     * @param targetPath - Target directory or complete directory location to
+     * copy in.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
      * @returns Determined target directory path.
      */
     static copyDirectoryRecursiveSync(
-        sourcePath:string, targetPath:string
+        sourcePath:string, targetPath:string,
+        readOptions:PlainObject = {encoding: null, flag: 'r'},
+        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):string {
         // Check if folder needs to be created or integrated.
         if (Tools.isDirectorySync(targetPath))
-            targetPath = path.resolve(targetPath, path.basename(
-                sourcePath))
+            targetPath = path.resolve(targetPath, path.basename(sourcePath))
         fileSystem.mkdirSync(targetPath)
-        Tools.walkDirectoryRecursivelySync(sourcePath, (
-            currentSourceFile:File
-        ):void => {
+        for (
+            const currentSourceFile:File of Tools.walkDirectoryRecursivelySync(
+                sourcePath)
+        ) {
             const currentTargetPath:string = path.join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
             if (currentSourceFile.stat.isDirectory())
                 fileSystem.mkdirSync(currentTargetPath)
             else
-                Tools.copyFileSync(currentSourceFile.path, currentTargetPath)
-        })
+                Tools.copyFileSync(
+                    currentSourceFile.path, currentTargetPath, readOptions,
+                    writeOptions)
+        }
         return targetPath
     }
     // / endregion
