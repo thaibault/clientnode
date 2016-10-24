@@ -18,7 +18,7 @@
     endregion
 */
 // region imports
-import type {DomNode, PlainObject} from 'weboptimizer/type'
+import type {ChildProcess} from 'child_process'
 let fileSystem:Object = {}
 try {
     fileSystem = eval('require')('fs')
@@ -29,6 +29,8 @@ try {
 } catch (error) {}
 // endregion
 // region types
+export type PlainObject = {[key:string]:any}
+export type ProcedureFunction = () => void
 export type File = {
     path:string;
     stat:Object;
@@ -83,6 +85,39 @@ export type $Deferred<Type> = {
     state:() => $Deferred<Type>;
     then:() => $Deferred<Type>;
 }
+// / region browser
+export type DomNode = any
+export type Location = {
+    hash:string;
+    search:string;
+    pathname:string;
+    port:string;
+    hostname:string;
+    host:string;
+    protocol:string;
+    origin:string;
+    href:string;
+    username:string;
+    password:string;
+    assign:Function;
+    reload:Function;
+    replace:Function;
+    toString:() => string
+}
+export type Storage = {
+    getItem(key:string):any;
+    setItem(key:string, value:any):void;
+    removeItem(key:string, value:any):void;
+}
+export type Window = {
+    addEventListener:(type:string, callback:Function) => void;
+    document:Object;
+    location:Location;
+    localStorage:Storage;
+    sessionStorage:Storage;
+    close:() => void;
+}
+// / endregion
 // endregion
 // region determine context
 export const globalContext:Object = (():Object => {
@@ -3433,7 +3468,10 @@ export default class Tools {
                 error:?Error, stat:Object
             ):void => {
                 if (error)
-                    reject(error)
+                    if (error.code === 'ENOENT')
+                        resolve(false)
+                    else
+                        reject(error)
                 else
                     resolve(stat.isDirectory())
             }).isDirectory())
@@ -3444,7 +3482,13 @@ export default class Tools {
      * @returns A boolean which indicates directory existents.
      */
     static isDirectorySync(filePath:string):boolean {
-        return fileSystem.statSync(filePath).isDirectory()
+        try {
+            return fileSystem.statSync(filePath).isDirectory()
+        } catch (error) {
+            if (error.code === 'ENOENT')
+                return false
+            throw error
+        }
     }
     /**
      * Checks if given path points to a valid directory.
@@ -3456,7 +3500,10 @@ export default class Tools {
         return new Promise((resolve:Function, reject:Function):void =>
             fileSystem.stat(filePath, (error:?Error, stat:Object):void => {
                 if (error)
-                    reject(error)
+                    if (error.code === 'ENOENT')
+                        resolve(false)
+                    else
+                        reject(error)
                 else
                     resolve(stat.isFile())
             }).isDirectory())
@@ -3467,7 +3514,13 @@ export default class Tools {
      * @returns A boolean which indicates file existents.
      */
     static isFileSync(filePath:string):boolean {
-        return fileSystem.statSync(filePath).isFile()
+        try {
+            return fileSystem.statSync(filePath).isFile()
+        } catch (error) {
+            if (error.code === 'ENOENT')
+                return false
+            throw error
+        }
     }
     /**
      * Iterates through given directory structure recursively and calls given
@@ -3517,8 +3570,9 @@ export default class Tools {
                             return 1
                         return 0
                     })
-                let finalFiles:Array<File> = files.slice()
+                let finalFiles:Array<File> = []
                 for (const file:File of files) {
+                    finalFiles.push(file)
                     const result:any = callback(file)
                     if (result === null)
                         break
@@ -3562,8 +3616,9 @@ export default class Tools {
                     return 1
                 return 0
             })
-        let finalFiles:Array<File> = files.slice()
+        let finalFiles:Array<File> = []
         for (const file:File of files) {
+            finalFiles.push(file)
             const result:any = callback(file)
             if (result === null)
                 break
@@ -3656,12 +3711,13 @@ export default class Tools {
      * @param sourcePath - Path to directory to copy.
      * @param targetPath - Target directory or complete directory location to
      * copy in.
+     * @param callback - Function to invoke for each traversed file.
      * @param readOptions - Options to use for reading source file.
      * @param writeOptions - Options to use for writing to target file.
      * @returns Promise holding the determined target directory path.
      */
     static copyDirectoryRecursive(
-        sourcePath:string, targetPath:string,
+        sourcePath:string, targetPath:string, callback:Function = Tools.noop,
         readOptions:PlainObject = {encoding: null, flag: 'r'},
         writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):Promise<string> {
@@ -3685,7 +3741,8 @@ export default class Tools {
                     return reject(error)
                 let files:Array<File>
                 try {
-                    files = await Tools.walkDirectoryRecursively(sourcePath)
+                    files = await Tools.walkDirectoryRecursively(
+                        sourcePath, callback)
                 } catch (error) {
                     return reject(error)
                 }
@@ -3715,22 +3772,24 @@ export default class Tools {
      * @param sourcePath - Path to directory to copy.
      * @param targetPath - Target directory or complete directory location to
      * copy in.
+     * @param callback - Function to invoke for each traversed file.
      * @param readOptions - Options to use for reading source file.
      * @param writeOptions - Options to use for writing to target file.
      * @returns Determined target directory path.
      */
     static copyDirectoryRecursiveSync(
-        sourcePath:string, targetPath:string,
+        sourcePath:string, targetPath:string, callback:Function = Tools.noop,
         readOptions:PlainObject = {encoding: null, flag: 'r'},
         writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):string {
         // Check if folder needs to be created or integrated.
+        sourcePath = path.resolve(sourcePath)
         if (Tools.isDirectorySync(targetPath))
             targetPath = path.resolve(targetPath, path.basename(sourcePath))
         fileSystem.mkdirSync(targetPath)
         for (
             const currentSourceFile:File of Tools.walkDirectoryRecursivelySync(
-                sourcePath)
+                sourcePath, callback)
         ) {
             const currentTargetPath:string = path.join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)

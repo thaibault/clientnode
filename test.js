@@ -15,9 +15,9 @@
     endregion
 */
 // region imports
+import type {$DomNode} from 'clientnode'
 import browserAPI from 'weboptimizer/browserAPI'
 import type {BrowserAPI, PlainObject} from 'weboptimizer/type'
-import type {$DomNode} from 'clientnode'
 // endregion
 // region types
 export type Test = {
@@ -30,13 +30,19 @@ export type Test = {
 declare var TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
+let ChildProcess:Object
+let DuplexStream:Object
 let fileSystem:Object
 let path:Object
 let QUnit:Object
+let removeDirectoryRecursivelySync:Function
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     fileSystem = require('fs')
     path = require('path')
     QUnit = require('qunit-cli')
+    ChildProcess = require('child_process').ChildProcess
+    removeDirectoryRecursivelySync = require('rimraf').sync
+    DuplexStream = require('stream').Duplex
 } else
     QUnit = require('script!qunitjs') && window.QUnit
 // endregion
@@ -2092,86 +2098,106 @@ let tests:Array<Test> = [{callback: function(
     // // endregion
     // // region file
     if (fileSystem) {
-        QUnit.test('isDirectorySync', (assert:Object):void => {
-            for (const filePath:string of [
-                __dirname, path.resolve(__dirname, '../')
-            ])
+        QUnit.test(`isDirectorySync (${roundType})`, (assert:Object):void => {
+            for (const filePath:string of ['./', '../'])
                 assert.ok($.Tools.class.isDirectorySync(filePath))
-        })
-        QUnit.test('isFileSync', (assert:Object):void => {
             for (const filePath:string of [
-                __filename, path.join(__dirname, path.basename(__filename))
+                path.resolve('./', path.basename(__filename))
+            ])
+                assert.notOk($.Tools.class.isDirectorySync(filePath))
+        })
+        QUnit.test(`isFileSync (${roundType})`, (assert:Object):void => {
+            for (const filePath:string of [
+                path.resolve('./', path.basename(__filename))
             ])
                 assert.ok($.Tools.class.isFileSync(filePath))
+            for (const filePath:string of ['./', '../'])
+                assert.notOk($.Tools.class.isFileSync(filePath))
         })
-        QUnit.test('walkDirectoryRecursivelySync', (assert:Object):void => {
+        QUnit.test(`walkDirectoryRecursivelySync (${roundType})`, (
+            assert:Object
+        ):void => {
             const filePaths:Array<string> = []
             const callback:Function = (filePath:string):null => {
                 filePaths.push(filePath)
                 return null
             }
-            $.Tools.class.walkDirectoryRecursivelySync('./', callback)
+            const files:Array<File> =
+                $.Tools.class.walkDirectoryRecursivelySync('./', callback)
+            assert.strictEqual(files.length, 1)
+            assert.ok(files[0].hasOwnProperty('path'))
+            assert.ok(files[0].hasOwnProperty('stat'))
             assert.strictEqual(filePaths.length, 1)
         })
-        QUnit.test('copyFileSync', (assert:Object):void => {
+        QUnit.test(`copyFileSync (${roundType})`, (assert:Object):void => {
             assert.ok($.Tools.class.copyFileSync(
-                path.join(__dirname, 'helper.js'),
-                path.join(__dirname, 'test.compiled.js')
+                path.resolve('./', path.basename(__filename)),
+                './test.compiled.js'
             ).endsWith('/test.compiled.js'))
-            fileSystem.unlinkSync(path.join(__dirname, 'test.compiled.js'))
+            fileSystem.unlinkSync('./test.compiled.js')
         })
-        QUnit.test('copyDirectoryRecursiveSync', (assert:Object):void =>
+        QUnit.test(`copyDirectoryRecursiveSync (${roundType})`, (
+            assert:Object
+        ):void => {
             assert.ok($.Tools.class.copyDirectoryRecursiveSync(
-                __dirname, path.resolve(__dirname, '../test.compiled')
-            ).endsWith('/test.compiled')))
+                './', './test.compiled', ():null => null
+            ).endsWith('/test.compiled'))
+            removeDirectoryRecursivelySync('./test.compiled')
+        })
     }
     // // endregion
     // // region process handler
-    QUnit.test('getProcessCloseHandler', (assert:Object):void =>
-        assert.strictEqual(typeof $.Tools.class.getProcessCloseHandler(
-            ():void => {}, ():void => {}
-        ), 'function'))
-    QUnit.test('handleChildProcess', (assert:Object):void => {
-        /**
-         * A mockup duplex stream for mocking "stdout" and "strderr" process
-         * connections.
-         */
-        class MockupDuplexStream extends DuplexStream {
+    if (ChildProcess) {
+        QUnit.test(`gettProcessCloseHandler (${roundType})`, (
+            assert:Object
+        ):void => assert.strictEqual(
+            typeof $.Tools.class.getProcessCloseHandler(
+                ():void => {}, ():void => {}
+            ), 'function'))
+        QUnit.test(`handleChildProcess (${roundType})`, (
+            assert:Object
+        ):void => {
             /**
-             * Triggers if contents from current stream should be red.
-             * @param size - Number of bytes to read asynchronously.
-             * @returns Red data.
+             * A mockup duplex stream for mocking "stdout" and "strderr" process
+             * connections.
              */
-            _read(size:number):string {
-                return `${size}`
+            class MockupDuplexStream extends DuplexStream {
+                /**
+                 * Triggers if contents from current stream should be red.
+                 * @param size - Number of bytes to read asynchronously.
+                 * @returns Red data.
+                 */
+                _read(size:number):string {
+                    return `${size}`
+                }
+                /**
+                 * Triggers if contents should be written on current stream.
+                 * @param chunk - The chunk to be written. Will always be a buffer
+                 * unless the "decodeStrings" option was set to "false".
+                 * @param encoding - Specifies encoding to be used as input data.
+                 * @param callback - Will be called if data has been written.
+                 * @returns Returns "true" if more data could be written and
+                 * "false" otherwise.
+                 */
+                _write(
+                    chunk:Buffer|string, encoding:string, callback:Function
+                ):boolean {
+                    callback(new Error('test'))
+                    return true
+                }
             }
-            /**
-             * Triggers if contents should be written on current stream.
-             * @param chunk - The chunk to be written. Will always be a buffer
-             * unless the "decodeStrings" option was set to "false".
-             * @param encoding - Specifies encoding to be used as input data.
-             * @param callback - Will be called if data has been written.
-             * @returns Returns "true" if more data could be written and
-             * "false" otherwise.
-             */
-            _write(
-                chunk:Buffer|string, encoding:string, callback:Function
-            ):boolean {
-                callback(new Error('test'))
-                return true
-            }
-        }
-        const stdoutMockupDuplexStream:MockupDuplexStream =
-            new MockupDuplexStream()
-        const stderrMockupDuplexStream:MockupDuplexStream =
-            new MockupDuplexStream()
-        const childProcess:ChildProcess = new ChildProcess()
-        childProcess.stdout = stdoutMockupDuplexStream
-        childProcess.stderr = stderrMockupDuplexStream
+            const stdoutMockupDuplexStream:MockupDuplexStream =
+                new MockupDuplexStream()
+            const stderrMockupDuplexStream:MockupDuplexStream =
+                new MockupDuplexStream()
+            const childProcess:ChildProcess = new ChildProcess()
+            childProcess.stdout = stdoutMockupDuplexStream
+            childProcess.stderr = stderrMockupDuplexStream
 
-        assert.strictEqual(
-            $.Tools.class.handleChildProcess(childProcess), childProcess)
-    })
+            assert.strictEqual(
+                $.Tools.class.handleChildProcess(childProcess), childProcess)
+        })
+    }
     // // endregion
     // / endregion
     // / region protected
