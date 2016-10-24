@@ -2098,7 +2098,79 @@ let tests:Array<Test> = [{callback: function(
     // // endregion
     // // region file
     if (fileSystem) {
-        QUnit.test(`isDirectorySync (${roundType})`, (assert:Object):void => {
+        this.test(`copyDirectoryRecursive (${roundType})`, async (
+            assert:Object
+        ):Promise<void> => {
+            const done:Function = assert.async()
+            let result:string
+            try {
+                result = await $.Tools.class.copyDirectoryRecursive(
+                    './', './test.compiled', ():null => null)
+            } catch (error) {
+                console.error(error)
+            }
+            assert.ok(result.endsWith('/test.compiled'))
+            removeDirectoryRecursivelySync('./test.compiled')
+            done()
+        })
+        this.test(`copyDirectoryRecursiveSync (${roundType})`, (
+            assert:Object
+        ):void => {
+            assert.ok($.Tools.class.copyDirectoryRecursiveSync(
+                './', './synctest.compiled', ():null => null
+            ).endsWith('/synctest.compiled'))
+            removeDirectoryRecursivelySync('./synctest.compiled')
+        })
+        this.test(`copyFile (${roundType})`, async (
+            assert:Object
+        ):Promise<void> => {
+            const done:Function = assert.async()
+            let result:string
+            try {
+                result = await $.Tools.class.copyFile(
+                    path.resolve('./', path.basename(__filename)),
+                    './test.compiled.js')
+            } catch (error) {
+                console.error(error)
+            }
+            assert.ok(result.endsWith('/test.compiled.js'))
+            fileSystem.unlinkSync('./test.compiled.js')
+            done()
+        })
+        this.test(`copyFileSync (${roundType})`, (assert:Object):void => {
+            assert.ok($.Tools.class.copyFileSync(
+                path.resolve('./', path.basename(__filename)),
+                './synctest.compiled.js'
+            ).endsWith('/synctest.compiled.js'))
+            fileSystem.unlinkSync('./synctest.compiled.js')
+        })
+        this.test(`isDirectory (${roundType})`, async (
+            assert:Object
+        ):Promise<void> => {
+            const done:Function = assert.async()
+            for (const filePath:string of ['./', '../']) {
+                let result:boolean
+                try {
+                    result = await $.Tools.class.isDirectory(filePath)
+                } catch (error) {
+                    console.error(error)
+                }
+                assert.ok(result)
+            }
+            for (const filePath:string of [
+                path.resolve('./', path.basename(__filename))
+            ]) {
+                let result:boolean
+                try {
+                    result = await $.Tools.class.isDirectory(filePath)
+                } catch (error) {
+                    console.error(error)
+                }
+                assert.notOk(result)
+            }
+            done()
+        })
+        this.test(`isDirectorySync (${roundType})`, (assert:Object):void => {
             for (const filePath:string of ['./', '../'])
                 assert.ok($.Tools.class.isDirectorySync(filePath))
             for (const filePath:string of [
@@ -2106,7 +2178,33 @@ let tests:Array<Test> = [{callback: function(
             ])
                 assert.notOk($.Tools.class.isDirectorySync(filePath))
         })
-        QUnit.test(`isFileSync (${roundType})`, (assert:Object):void => {
+        this.test(`isFile (${roundType})`, async (
+            assert:Object
+        ):Promise<void> => {
+            const done:Function = assert.async()
+            for (const filePath:string of [
+                path.resolve('./', path.basename(__filename))
+            ]) {
+                let result:boolean
+                try {
+                    result = await $.Tools.class.isFile(filePath)
+                } catch (error) {
+                    console.error(error)
+                }
+                assert.ok(result)
+            }
+            for (const filePath:string of ['./', '../']) {
+                let result:boolean
+                try {
+                    result = await $.Tools.class.isFile(filePath)
+                } catch (error) {
+                    console.error(error)
+                }
+                assert.notOk(result)
+            }
+            done()
+        })
+        this.test(`isFileSync (${roundType})`, (assert:Object):void => {
             for (const filePath:string of [
                 path.resolve('./', path.basename(__filename))
             ])
@@ -2114,7 +2212,29 @@ let tests:Array<Test> = [{callback: function(
             for (const filePath:string of ['./', '../'])
                 assert.notOk($.Tools.class.isFileSync(filePath))
         })
-        QUnit.test(`walkDirectoryRecursivelySync (${roundType})`, (
+        this.test(`walkDirectoryRecursively (${roundType})`, async (
+            assert:Object
+        ):Promise<void> => {
+            const done:Function = assert.async()
+            const filePaths:Array<string> = []
+            const callback:Function = (filePath:string):null => {
+                filePaths.push(filePath)
+                return null
+            }
+            let files:Array<File>
+            try {
+                files = await $.Tools.class.walkDirectoryRecursively(
+                    './', callback)
+            } catch (error) {
+                console.error(error)
+            }
+            assert.strictEqual(files.length, 1)
+            assert.ok(files[0].hasOwnProperty('path'))
+            assert.ok(files[0].hasOwnProperty('stat'))
+            assert.strictEqual(filePaths.length, 1)
+            done()
+        })
+        this.test(`walkDirectoryRecursivelySync (${roundType})`, (
             assert:Object
         ):void => {
             const filePaths:Array<string> = []
@@ -2129,32 +2249,17 @@ let tests:Array<Test> = [{callback: function(
             assert.ok(files[0].hasOwnProperty('stat'))
             assert.strictEqual(filePaths.length, 1)
         })
-        QUnit.test(`copyFileSync (${roundType})`, (assert:Object):void => {
-            assert.ok($.Tools.class.copyFileSync(
-                path.resolve('./', path.basename(__filename)),
-                './test.compiled.js'
-            ).endsWith('/test.compiled.js'))
-            fileSystem.unlinkSync('./test.compiled.js')
-        })
-        QUnit.test(`copyDirectoryRecursiveSync (${roundType})`, (
-            assert:Object
-        ):void => {
-            assert.ok($.Tools.class.copyDirectoryRecursiveSync(
-                './', './test.compiled', ():null => null
-            ).endsWith('/test.compiled'))
-            removeDirectoryRecursivelySync('./test.compiled')
-        })
     }
     // // endregion
     // // region process handler
     if (ChildProcess) {
-        QUnit.test(`gettProcessCloseHandler (${roundType})`, (
+        this.test(`getProcessCloseHandler (${roundType})`, (
             assert:Object
         ):void => assert.strictEqual(
             typeof $.Tools.class.getProcessCloseHandler(
                 ():void => {}, ():void => {}
             ), 'function'))
-        QUnit.test(`handleChildProcess (${roundType})`, (
+        this.test(`handleChildProcess (${roundType})`, (
             assert:Object
         ):void => {
             /**

@@ -3457,176 +3457,104 @@ export default class Tools {
     // / endregion
     // / region file TODO Migrate everywhere!
     /**
-     * Checks if given path points to a valid directory.
-     * @param filePath - Path to directory.
-     * @returns A promise holding a boolean which indicates directory
-     * existents.
+     * Copies given source directory via path to given target directory
+     * location with same target name as source file has or copy to given
+     * complete target directory path.
+     * @param sourcePath - Path to directory to copy.
+     * @param targetPath - Target directory or complete directory location to
+     * copy in.
+     * @param callback - Function to invoke for each traversed file.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
+     * @returns Promise holding the determined target directory path.
      */
-    static isDirectory(filePath:string):Promise<boolean> {
-        return new Promise((resolve:Function, reject:Function):void =>
-            fileSystem.stat(filePath, (
-                error:?Error, stat:Object
-            ):void => {
-                if (error)
-                    if (error.code === 'ENOENT')
-                        resolve(false)
-                    else
-                        reject(error)
-                else
-                    resolve(stat.isDirectory())
-            }).isDirectory())
-    }
-    /**
-     * Checks if given path points to a valid directory.
-     * @param filePath - Path to directory.
-     * @returns A boolean which indicates directory existents.
-     */
-    static isDirectorySync(filePath:string):boolean {
-        try {
-            return fileSystem.statSync(filePath).isDirectory()
-        } catch (error) {
-            if (error.code === 'ENOENT')
-                return false
-            throw error
-        }
-    }
-    /**
-     * Checks if given path points to a valid directory.
-     * @param filePath - Path to directory.
-     * @returns A promise holding a boolean which indicates directory
-     * existents.
-     */
-    static isFile(filePath:string):Promise<boolean> {
-        return new Promise((resolve:Function, reject:Function):void =>
-            fileSystem.stat(filePath, (error:?Error, stat:Object):void => {
-                if (error)
-                    if (error.code === 'ENOENT')
-                        resolve(false)
-                    else
-                        reject(error)
-                else
-                    resolve(stat.isFile())
-            }).isDirectory())
-    }
-    /**
-     * Checks if given path points to a valid file.
-     * @param filePath - Path to file.
-     * @returns A boolean which indicates file existents.
-     */
-    static isFileSync(filePath:string):boolean {
-        try {
-            return fileSystem.statSync(filePath).isFile()
-        } catch (error) {
-            if (error.code === 'ENOENT')
-                return false
-            throw error
-        }
-    }
-    /**
-     * Iterates through given directory structure recursively and calls given
-     * callback for each found file. Callback gets file path and corresponding
-     * stat object as argument.
-     * @param directoryPath - Path to directory structure to traverse.
-     * @param callback - Function to invoke for each traversed file and
-     * potentially manipulate further traversing.
-     * @returns A promise holding the determined files.
-     */
-    static walkDirectoryRecursively(
-        directoryPath:string, callback:Function = Tools.noop
-    ):Promise<Array<File>> {
-        return new Promise((resolve:Function, reject:Function):void => {
-            fileSystem.readdirSync(directoryPath, {encoding: 'utf8'}, async (
-                error:?Object, fileNames:Array<string>
+    static copyDirectoryRecursive(
+        sourcePath:string, targetPath:string, callback:Function = Tools.noop,
+        readOptions:PlainObject = {encoding: null, flag: 'r'},
+        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+    ):Promise<string> {
+        return new Promise(async (
+            resolve:Function, reject:Function
+        ):Promise<void> => {
+            // NOTE: Check if folder needs to be created or integrated.
+            let isDirectory:boolean
+            try {
+                isDirectory = await Tools.isDirectory(targetPath)
+            } catch (error) {
+                return reject(error)
+            }
+            if (isDirectory)
+                targetPath = path.resolve(targetPath, path.basename(
+                    sourcePath))
+            sourcePath = path.resolve(sourcePath)
+            fileSystem.mkdir(targetPath, async (
+                error:?Error
             ):Promise<void> => {
                 if (error)
                     return reject(error)
-                const files:Array<File> = []
-                const statPromises:Array<Promise<void>> = []
-                for (const fileName:string of fileNames) {
-                    const filePath:string = path.resolve(
-                        directoryPath, fileName)
-                    statPromises.push(new Promise((resolve:Function):void =>
-                        fileSystem.stat(filePath, (
-                            error:?Error, stat:Object
-                        ):void => {
-                            files.push({path: filePath, stat: error || stat})
-                            resolve()
-                        })
-                    ))
+                let files:Array<File>
+                try {
+                    files = await Tools.walkDirectoryRecursively(
+                        sourcePath, callback)
+                } catch (error) {
+                    return reject(error)
                 }
-                await Promise.all(statPromises)
-                if (callback)
-                    /*
-                        NOTE: Directories have to be iterated first to
-                        potentially avoid deeper iterations.
-                    */
-                    files.sort((firstFile:File, secondFile:File):number => {
-                        if (firstFile.stat.isDirectory()) {
-                            if (secondFile.stat.isDirectory())
-                                return 0
-                            return -1
+                for (const currentSourceFile:File of files) {
+                    const currentTargetPath:string = path.join(
+                        targetPath, currentSourceFile.path.substring(
+                            sourcePath.length))
+                    if (currentSourceFile.stat.isDirectory())
+                        fileSystem.mkdirSync(currentTargetPath)
+                    else
+                        try {
+                            await Tools.copyFile(
+                                currentSourceFile.path, currentTargetPath,
+                                readOptions, writeOptions)
+                        } catch (error) {
+                            return reject(error)
                         }
-                        if (secondFile.stat.isDirectory())
-                            return 1
-                        return 0
-                    })
-                let finalFiles:Array<File> = []
-                for (const file:File of files) {
-                    finalFiles.push(file)
-                    const result:any = callback(file)
-                    if (result === null)
-                        break
-                    if (result !== false && file.stat.isDirectory())
-                        finalFiles = finalFiles.concat(
-                            await Tools.walkDirectoryRecursively(
-                                file.path, callback))
                 }
-                resolve(finalFiles)
+                resolve(targetPath)
             })
         })
     }
     /**
-     * Iterates through given directory structure recursively and calls given
-     * callback for each found file. Callback gets file path and corresponding
-     * stat object as argument.
-     * @param directoryPath - Path to directory structure to traverse.
+     * Copies given source directory via path to given target directory
+     * location with same target name as source file has or copy to given
+     * complete target directory path.
+     * @param sourcePath - Path to directory to copy.
+     * @param targetPath - Target directory or complete directory location to
+     * copy in.
      * @param callback - Function to invoke for each traversed file.
-     * @returns Determined list if all files.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
+     * @returns Determined target directory path.
      */
-    static walkDirectoryRecursivelySync(
-        directoryPath:string, callback:Function = Tools.noop
-    ):Array<File> {
-        let files:Array<File> = []
-        for (const fileName:string of fileSystem.readdirSync(directoryPath)) {
-            const filePath:string = path.resolve(directoryPath, fileName)
-            files.push({path: filePath, stat: fileSystem.statSync(filePath)})
+    static copyDirectoryRecursiveSync(
+        sourcePath:string, targetPath:string, callback:Function = Tools.noop,
+        readOptions:PlainObject = {encoding: null, flag: 'r'},
+        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+    ):string {
+        // Check if folder needs to be created or integrated.
+        sourcePath = path.resolve(sourcePath)
+        if (Tools.isDirectorySync(targetPath))
+            targetPath = path.resolve(targetPath, path.basename(sourcePath))
+        fileSystem.mkdirSync(targetPath)
+        for (
+            const currentSourceFile:File of Tools.walkDirectoryRecursivelySync(
+                sourcePath, callback)
+        ) {
+            const currentTargetPath:string = path.join(
+                targetPath, currentSourceFile.path.substring(sourcePath.length)
+            )
+            if (currentSourceFile.stat.isDirectory())
+                fileSystem.mkdirSync(currentTargetPath)
+            else
+                Tools.copyFileSync(
+                    currentSourceFile.path, currentTargetPath, readOptions,
+                    writeOptions)
         }
-        if (callback)
-            /*
-                NOTE: Directories have to be iterated first to potentially
-                avoid deeper iterations.
-            */
-            files.sort((firstFile:File, secondFile:File):number => {
-                if (firstFile.stat.isDirectory()) {
-                    if (secondFile.stat.isDirectory())
-                        return 0
-                    return -1
-                }
-                if (secondFile.stat.isDirectory())
-                    return 1
-                return 0
-            })
-        let finalFiles:Array<File> = []
-        for (const file:File of files) {
-            finalFiles.push(file)
-            const result:any = callback(file)
-            if (result === null)
-                break
-            if (result !== false && file.stat.isDirectory())
-                finalFiles = finalFiles.concat(
-                    Tools.walkDirectoryRecursivelySync(file.path, callback))
-        }
-        return finalFiles
+        return targetPath
     }
     /**
      * Copies given source file via path to given target directory location
@@ -3705,103 +3633,182 @@ export default class Tools {
         return targetPath
     }
     /**
-     * Copies given source directory via path to given target directory
-     * location with same target name as source file has or copy to given
-     * complete target directory path.
-     * @param sourcePath - Path to directory to copy.
-     * @param targetPath - Target directory or complete directory location to
-     * copy in.
-     * @param callback - Function to invoke for each traversed file.
-     * @param readOptions - Options to use for reading source file.
-     * @param writeOptions - Options to use for writing to target file.
-     * @returns Promise holding the determined target directory path.
+     * Checks if given path points to a valid directory.
+     * @param filePath - Path to directory.
+     * @returns A promise holding a boolean which indicates directory
+     * existents.
      */
-    static copyDirectoryRecursive(
-        sourcePath:string, targetPath:string, callback:Function = Tools.noop,
-        readOptions:PlainObject = {encoding: null, flag: 'r'},
-        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
-    ):Promise<string> {
-        return new Promise(async (
-            resolve:Function, reject:Function
-        ):Promise<void> => {
-            // NOTE: Check if folder needs to be created or integrated.
-            let isDirectory:boolean
-            try {
-                isDirectory = await Tools.isDirectory(targetPath)
-            } catch (error) {
-                return reject(error)
-            }
-            if (isDirectory)
-                targetPath = path.resolve(targetPath, path.basename(
-                    sourcePath))
-            fileSystem.mkdir(targetPath, async (
-                error:?Error
+    static isDirectory(filePath:string):Promise<boolean> {
+        return new Promise((resolve:Function, reject:Function):void =>
+            fileSystem.stat(filePath, (
+                error:?Error, stat:Object
+            ):void => {
+                if (error)
+                    if (error.code === 'ENOENT')
+                        resolve(false)
+                    else
+                        reject(error)
+                else
+                    resolve(stat.isDirectory())
+            }))
+    }
+    /**
+     * Checks if given path points to a valid directory.
+     * @param filePath - Path to directory.
+     * @returns A boolean which indicates directory existents.
+     */
+    static isDirectorySync(filePath:string):boolean {
+        try {
+            return fileSystem.statSync(filePath).isDirectory()
+        } catch (error) {
+            if (error.code === 'ENOENT')
+                return false
+            throw error
+        }
+    }
+    /**
+     * Checks if given path points to a valid directory.
+     * @param filePath - Path to directory.
+     * @returns A promise holding a boolean which indicates directory
+     * existents.
+     */
+    static isFile(filePath:string):Promise<boolean> {
+        return new Promise((resolve:Function, reject:Function):void =>
+            fileSystem.stat(filePath, (error:?Error, stat:Object):void => {
+                if (error)
+                    if (error.code === 'ENOENT')
+                        resolve(false)
+                    else
+                        reject(error)
+                else
+                    resolve(stat.isFile())
+            }))
+    }
+    /**
+     * Checks if given path points to a valid file.
+     * @param filePath - Path to file.
+     * @returns A boolean which indicates file existents.
+     */
+    static isFileSync(filePath:string):boolean {
+        try {
+            return fileSystem.statSync(filePath).isFile()
+        } catch (error) {
+            if (error.code === 'ENOENT')
+                return false
+            throw error
+        }
+    }
+    /**
+     * Iterates through given directory structure recursively and calls given
+     * callback for each found file. Callback gets file path and corresponding
+     * stat object as argument.
+     * @param directoryPath - Path to directory structure to traverse.
+     * @param callback - Function to invoke for each traversed file and
+     * potentially manipulate further traversing.
+     * @param options - Options to use for nested "readdir"
+     * @returns A promise holding the determined files.
+     */
+    static walkDirectoryRecursively(
+        directoryPath:string, callback:Function = Tools.noop,
+        options:PlainObject = {encoding: 'utf8'}
+    ):Promise<Array<File>> {
+        return new Promise((resolve:Function, reject:Function):void => {
+            fileSystem.readdir(directoryPath, options, async (
+                error:?Object, fileNames:Array<string>
             ):Promise<void> => {
                 if (error)
                     return reject(error)
-                let files:Array<File>
-                try {
-                    files = await Tools.walkDirectoryRecursively(
-                        sourcePath, callback)
-                } catch (error) {
-                    return reject(error)
+                const files:Array<File> = []
+                const statPromises:Array<Promise<void>> = []
+                for (const fileName:string of fileNames) {
+                    const filePath:string = path.resolve(
+                        directoryPath, fileName)
+                    statPromises.push(new Promise((resolve:Function):void =>
+                        fileSystem.stat(filePath, (
+                            error:?Error, stat:Object
+                        ):void => {
+                            files.push({path: filePath, stat: error || stat})
+                            resolve()
+                        })
+                    ))
                 }
-                for (const currentSourceFile:File of files) {
-                    const currentTargetPath:string = path.join(
-                        targetPath, currentSourceFile.path.substring(
-                            sourcePath.length))
-                    if (currentSourceFile.stat.isDirectory())
-                        fileSystem.mkdirSync(currentTargetPath)
-                    else
-                        try {
-                            await Tools.copyFile(
-                                currentSourceFile.path, currentTargetPath,
-                                readOptions, writeOptions)
-                        } catch (error) {
-                            return reject(error)
+                await Promise.all(statPromises)
+                if (callback)
+                    /*
+                        NOTE: Directories have to be iterated first to
+                        potentially avoid deeper iterations.
+                    */
+                    files.sort((firstFile:File, secondFile:File):number => {
+                        if (firstFile.stat.isDirectory()) {
+                            if (secondFile.stat.isDirectory())
+                                return 0
+                            return -1
                         }
+                        if (secondFile.stat.isDirectory())
+                            return 1
+                        return 0
+                    })
+                let finalFiles:Array<File> = []
+                for (const file:File of files) {
+                    finalFiles.push(file)
+                    const result:any = callback(file)
+                    if (result === null)
+                        break
+                    if (result !== false && file.stat.isDirectory())
+                        finalFiles = finalFiles.concat(
+                            await Tools.walkDirectoryRecursively(
+                                file.path, callback))
                 }
-                resolve(targetPath)
+                resolve(finalFiles)
             })
         })
     }
     /**
-     * Copies given source directory via path to given target directory
-     * location with same target name as source file has or copy to given
-     * complete target directory path.
-     * @param sourcePath - Path to directory to copy.
-     * @param targetPath - Target directory or complete directory location to
-     * copy in.
+     * Iterates through given directory structure recursively and calls given
+     * callback for each found file. Callback gets file path and corresponding
+     * stat object as argument.
+     * @param directoryPath - Path to directory structure to traverse.
      * @param callback - Function to invoke for each traversed file.
-     * @param readOptions - Options to use for reading source file.
-     * @param writeOptions - Options to use for writing to target file.
-     * @returns Determined target directory path.
+     * @param options - Options to use for nested "readdir"
+     * @returns Determined list if all files.
      */
-    static copyDirectoryRecursiveSync(
-        sourcePath:string, targetPath:string, callback:Function = Tools.noop,
-        readOptions:PlainObject = {encoding: null, flag: 'r'},
-        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
-    ):string {
-        // Check if folder needs to be created or integrated.
-        sourcePath = path.resolve(sourcePath)
-        if (Tools.isDirectorySync(targetPath))
-            targetPath = path.resolve(targetPath, path.basename(sourcePath))
-        fileSystem.mkdirSync(targetPath)
-        for (
-            const currentSourceFile:File of Tools.walkDirectoryRecursivelySync(
-                sourcePath, callback)
-        ) {
-            const currentTargetPath:string = path.join(
-                targetPath, currentSourceFile.path.substring(sourcePath.length)
-            )
-            if (currentSourceFile.stat.isDirectory())
-                fileSystem.mkdirSync(currentTargetPath)
-            else
-                Tools.copyFileSync(
-                    currentSourceFile.path, currentTargetPath, readOptions,
-                    writeOptions)
+    static walkDirectoryRecursivelySync(
+        directoryPath:string, callback:Function = Tools.noop,
+        options:PlainObject = {encoding: 'utf8'}
+    ):Array<File> {
+        let files:Array<File> = []
+        for (const fileName:string of fileSystem.readdirSync(
+            directoryPath, options
+        )) {
+            const filePath:string = path.resolve(directoryPath, fileName)
+            files.push({path: filePath, stat: fileSystem.statSync(filePath)})
         }
-        return targetPath
+        if (callback)
+            /*
+                NOTE: Directories have to be iterated first to potentially
+                avoid deeper iterations.
+            */
+            files.sort((firstFile:File, secondFile:File):number => {
+                if (firstFile.stat.isDirectory()) {
+                    if (secondFile.stat.isDirectory())
+                        return 0
+                    return -1
+                }
+                if (secondFile.stat.isDirectory())
+                    return 1
+                return 0
+            })
+        let finalFiles:Array<File> = []
+        for (const file:File of files) {
+            finalFiles.push(file)
+            const result:any = callback(file)
+            if (result === null)
+                break
+            if (result !== false && file.stat.isDirectory())
+                finalFiles = finalFiles.concat(
+                    Tools.walkDirectoryRecursivelySync(file.path, callback))
+        }
+        return finalFiles
     }
     // / endregion
     // region process handler
