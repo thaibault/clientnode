@@ -15,9 +15,9 @@
     endregion
 */
 // region imports
-import type {$DomNode} from 'clientnode'
+import type {File, PlainObject, $DomNode} from 'clientnode'
 import browserAPI from 'weboptimizer/browserAPI'
-import type {BrowserAPI, PlainObject} from 'weboptimizer/type'
+import type {BrowserAPI} from 'weboptimizer/type'
 // endregion
 // region types
 export type Test = {

@@ -29,7 +29,6 @@ try {
 } catch (error) {}
 // endregion
 // region types
-// TODO migrate
 export type PlainObject = {[key:string]:any}
 export type ProcedureFunction = () => void
 export type File = {
