@@ -2085,6 +2085,21 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region data transfer
+    assert.test('checkRechability', async (assert:Object):Promise<?Object> => {
+        const done:Function = assert.async()
+        for (const test:Array<any> of [
+            ['unknownURL', false],
+            ['unknownURL', false, 301],
+            ['http://unknownHostName', true, 200, 0.01, 0.025]
+        ])
+            try {
+                await $.Tools.class.checkReachability(...test)
+                assert.ok(false)
+            } catch (error) {
+                assert.ok(true)
+            }
+        done()
+    })
     if (
         typeof targetTechnology !== 'undefined' &&
         targetTechnology === 'web' && roundType === 'withJQuery'
