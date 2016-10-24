@@ -235,7 +235,6 @@ export default class Tools {
         '[object RegExp]': 'regexp',
         '[object String]': 'string'
     }
-    // TODO migrate
     static closeEventNames:Array<string> = [
         'exit', 'close', 'uncaughtException', 'SIGINT', 'SIGTERM', 'SIGQUIT']
     static keyCode:{[key:string]:number} = {
@@ -3455,7 +3454,7 @@ export default class Tools {
             $iFrameDomNode, url, data, requestType, removeAfterLoad)
     }
     // / endregion
-    // / region file TODO Migrate everywhere!
+    // / region file
     /**
      * Copies given source directory via path to given target directory
      * location with same target name as source file has or copy to given
@@ -3578,7 +3577,7 @@ export default class Tools {
         */
         return new Promise(async (
             resolve:Function, reject:Function
-        ):Promise<void> => {
+        ):Promise<string> => {
             let isDirectory:boolean
             try {
                 isDirectory = await Tools.isDirectory(targetPath)
@@ -3600,7 +3599,7 @@ export default class Tools {
                         if (error)
                             reject(error)
                         else
-                            resolve()
+                            resolve(targetPath)
                     })
             })
         })
@@ -3811,7 +3810,7 @@ export default class Tools {
         return finalFiles
     }
     // / endregion
-    // region process handler
+    // / region process handler
     /**
      * Generates a one shot close handler which triggers given promise methods.
      * If a reason is provided it will be given as resolve target. An Error
@@ -3860,8 +3859,7 @@ export default class Tools {
         })
         return childProcess
     }
-    // endregion
-    // TODO until here
+    // / endregion
     // endregion
     // region protected methods
     /* eslint-disable jsdoc/require-description-complete-sentence */
