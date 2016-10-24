@@ -29,11 +29,15 @@ export type Test = {
 // region declaration
 declare var TARGET_TECHNOLOGY:string
 // endregion
-// region determine technology specific qunit implementation
+// region determine technology specific implementations
+let fileSystem:Object
+let path:Object
 let QUnit:Object
-if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node')
+if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
+    fileSystem = require('fs')
+    path = require('path')
     QUnit = require('qunit-cli')
-else
+} else
     QUnit = require('script!qunitjs') && window.QUnit
 // endregion
 // region default test specification
@@ -2084,6 +2088,42 @@ let tests:Array<Test> = [{callback: function(
             assert:Object
         ):void => assert.ok(tools.sendToExternalURL(
             window.document.URL, {test: 5})))
+    }
+    // // endregion
+    // // region file
+    if (fileSystem) {
+        QUnit.test('isDirectorySync', (assert:Object):void => {
+            for (const filePath:string of [
+                __dirname, path.resolve(__dirname, '../')
+            ])
+                assert.ok($.Tools.class.isDirectorySync(filePath))
+        })
+        QUnit.test('isFileSync', (assert:Object):void => {
+            for (const filePath:string of [
+                __filename, path.join(__dirname, path.basename(__filename))
+            ])
+                assert.ok($.Tools.class.isFileSync(filePath))
+        })
+        QUnit.test('walkDirectoryRecursivelySync', (assert:Object):void => {
+            const filePaths:Array<string> = []
+            const callback:Function = (filePath:string):null => {
+                filePaths.push(filePath)
+                return null
+            }
+            $.Tools.class.walkDirectoryRecursivelySync('./', callback)
+            assert.strictEqual(filePaths.length, 1)
+        })
+        QUnit.test('copyFileSync', (assert:Object):void => {
+            assert.ok($.Tools.class.copyFileSync(
+                path.join(__dirname, 'helper.js'),
+                path.join(__dirname, 'test.compiled.js')
+            ).endsWith('/test.compiled.js'))
+            fileSystem.unlinkSync(path.join(__dirname, 'test.compiled.js'))
+        })
+        QUnit.test('copyDirectoryRecursiveSync', (assert:Object):void =>
+            assert.ok($.Tools.class.copyDirectoryRecursiveSync(
+                __dirname, path.resolve(__dirname, '../test.compiled')
+            ).endsWith('/test.compiled')))
     }
     // // endregion
     // / endregion
