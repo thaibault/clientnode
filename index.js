@@ -3745,6 +3745,57 @@ export default class Tools {
         return targetPath
     }
     // / endregion
+    // region process handler
+    /**
+     * Generates a one shot close handler which triggers given promise methods.
+     * If a reason is provided it will be given as resolve target. An Error
+     * will be generated if return code is not zero. The generated Error has
+     * a property "returnCode" which provides corresponding process return
+     * code.
+     * @param resolve - Promise's resolve function.
+     * @param reject - Promise's reject function.
+     * @param reason - Promise target if process has a zero return code.
+     * @param callback - Optional function to call of process has successfully
+     * finished.
+     * @returns Process close handler function.
+     */
+    static getProcessCloseHandler(
+        resolve:Function, reject:Function, reason:any = null,
+        callback:Function = ():void => {}
+    ):((returnCode:?number) => void) {
+        let finished:boolean = false
+        return (returnCode:?number):void => {
+            if (!finished)
+                if (typeof returnCode !== 'number' || returnCode === 0) {
+                    callback()
+                    resolve(reason)
+                } else {
+                    const error:Error = new Error(
+                        `Task exited with error code ${returnCode}`)
+                    // IgnoreTypeCheck
+                    error.returnCode = returnCode
+                    reject(error)
+                }
+            finished = true
+        }
+    }
+    /**
+     * Forwards given child process communication channels to corresponding
+     * current process communication channels.
+     * @param childProcess - Child process meta data.
+     * @returns Given child process meta data.
+     */
+    static handleChildProcess(childProcess:ChildProcess):ChildProcess {
+        childProcess.stdout.pipe(process.stdout)
+        childProcess.stderr.pipe(process.stderr)
+        childProcess.on('close', (returnCode:number):void => {
+            if (returnCode !== 0)
+                console.error(`Task exited with error code ${returnCode}`)
+        })
+        return childProcess
+    }
+    // endregion
+    // TODO until here
     // endregion
     // region protected methods
     /* eslint-disable jsdoc/require-description-complete-sentence */

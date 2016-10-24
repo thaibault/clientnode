@@ -2126,6 +2126,53 @@ let tests:Array<Test> = [{callback: function(
             ).endsWith('/test.compiled')))
     }
     // // endregion
+    // // region process handler
+    QUnit.test('getProcessCloseHandler', (assert:Object):void =>
+        assert.strictEqual(typeof $.Tools.class.getProcessCloseHandler(
+            ():void => {}, ():void => {}
+        ), 'function'))
+    QUnit.test('handleChildProcess', (assert:Object):void => {
+        /**
+         * A mockup duplex stream for mocking "stdout" and "strderr" process
+         * connections.
+         */
+        class MockupDuplexStream extends DuplexStream {
+            /**
+             * Triggers if contents from current stream should be red.
+             * @param size - Number of bytes to read asynchronously.
+             * @returns Red data.
+             */
+            _read(size:number):string {
+                return `${size}`
+            }
+            /**
+             * Triggers if contents should be written on current stream.
+             * @param chunk - The chunk to be written. Will always be a buffer
+             * unless the "decodeStrings" option was set to "false".
+             * @param encoding - Specifies encoding to be used as input data.
+             * @param callback - Will be called if data has been written.
+             * @returns Returns "true" if more data could be written and
+             * "false" otherwise.
+             */
+            _write(
+                chunk:Buffer|string, encoding:string, callback:Function
+            ):boolean {
+                callback(new Error('test'))
+                return true
+            }
+        }
+        const stdoutMockupDuplexStream:MockupDuplexStream =
+            new MockupDuplexStream()
+        const stderrMockupDuplexStream:MockupDuplexStream =
+            new MockupDuplexStream()
+        const childProcess:ChildProcess = new ChildProcess()
+        childProcess.stdout = stdoutMockupDuplexStream
+        childProcess.stderr = stderrMockupDuplexStream
+
+        assert.strictEqual(
+            $.Tools.class.handleChildProcess(childProcess), childProcess)
+    })
+    // // endregion
     // / endregion
     // / region protected
     if (roundType === 'withJQuery')
