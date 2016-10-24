@@ -18,7 +18,7 @@
     endregion
 */
 // region imports
-import type {DomNode, PlainObject} from 'weboptimizer/type'
+import type {ChildProcess} from 'child_process'
 let fileSystem:Object = {}
 try {
     fileSystem = eval('require')('fs')
@@ -29,6 +29,9 @@ try {
 } catch (error) {}
 // endregion
 // region types
+// TODO migrate
+export type PlainObject = {[key:string]:any}
+export type ProcedureFunction = () => void
 export type File = {
     path:string;
     stat:Object;
@@ -83,6 +86,39 @@ export type $Deferred<Type> = {
     state:() => $Deferred<Type>;
     then:() => $Deferred<Type>;
 }
+// / region browser
+export type DomNode = any
+export type Location = {
+    hash:string;
+    search:string;
+    pathname:string;
+    port:string;
+    hostname:string;
+    host:string;
+    protocol:string;
+    origin:string;
+    href:string;
+    username:string;
+    password:string;
+    assign:Function;
+    reload:Function;
+    replace:Function;
+    toString:() => string
+}
+export type Storage = {
+    getItem(key:string):any;
+    setItem(key:string, value:any):void;
+    removeItem(key:string, value:any):void;
+}
+export type Window = {
+    addEventListener:(type:string, callback:Function) => void;
+    document:Object;
+    location:Location;
+    localStorage:Storage;
+    sessionStorage:Storage;
+    close:() => void;
+}
+// / endregion
 // endregion
 // region determine context
 export const globalContext:Object = (():Object => {
@@ -200,7 +236,6 @@ export default class Tools {
         '[object RegExp]': 'regexp',
         '[object String]': 'string'
     }
-    // TODO migrate
     static closeEventNames:Array<string> = [
         'exit', 'close', 'uncaughtException', 'SIGINT', 'SIGTERM', 'SIGQUIT']
     static keyCode:{[key:string]:number} = {
@@ -1303,214 +1338,7 @@ export default class Tools {
         return this._bindEventHelper(parameter, true, 'off')
     }
     // / endregion
-    // / region object//region
-    /**
-     * Determine the internal JavaScript [[Class]] of an object.
-     * @param object - Object to analyze.
-     * @returns Name of determined class.
-     */
-    static determineType(object:any = undefined):string {
-        if ([undefined, null].includes(object))
-            return `${object}`
-        if (['object', 'function'].includes(
-            typeof object
-        ) && 'toString' in object) {
-            const stringRepresentation:string =
-                Tools.classToTypeMapping.toString.call(object)
-            if (Tools.classToTypeMapping.hasOwnProperty(stringRepresentation))
-                return Tools.classToTypeMapping[stringRepresentation]
-        }
-        return typeof object
-    }
-    /**
-     * Replaces given pattern in each value in given object recursively with
-     * given string replacement.
-     * @param object - Object to convert substrings in.
-     * @param pattern - Regular expression to replace.
-     * @param replacement - String to use as replacement for found patterns.
-     * @returns Converted object with replaced patterns.
-     */
-    static convertSubstringInPlainObject(
-        object:PlainObject, pattern:RegExp, replacement:string
-    ):PlainObject {
-        for (const key:string in object)
-            if (object.hasOwnProperty(key))
-                if (Tools.isPlainObject(object[key]))
-                    object[key] = Tools.convertSubstringInPlainObject(
-                        object[key], pattern, replacement)
-                else if (typeof object[key] === 'string')
-                    object[key] = object[key].replace(pattern, replacement)
-        return object
-    }
-    /**
-     * Modifies given target corresponding to given source and removes source
-     * modification infos.
-     * @param target - Object to modify.
-     * @param source - Source object to load modifications from.
-     * @param removeIndicatorKey - Indicator property name or value to mark a
-     * value to remove from object or list.
-     * @param prependIndicatorKey - Indicator property name to mark a value to
-     * prepend to target list.
-     * @param appendIndicatorKey - Indicator property name to mark a value to
-     * append to target list.
-     * @param parentSource - Source context to remove modification info from
-     * (usually only needed internally).
-     * @param parentKey - Source key in given source context to remove
-     * modification info from (usually only needed internally).
-     * @returns Given target modified with given source.
-     */
-    static modifyObject(
-        target:any, source:any, removeIndicatorKey:string = '__remove__',
-        prependIndicatorKey:string = '__prepend__',
-        appendIndicatorKey:string = '__append__', parentSource:any = null,
-        parentKey:any = null
-    ):any {
-        /* eslint-disable curly */
-        if (source instanceof Map && target instanceof Map) {
-            for (const [key:string, value:any] of source)
-                if (target.has(key))
-                    Tools.modifyObject(
-                        target.get(key), value, removeIndicatorKey,
-                        prependIndicatorKey, appendIndicatorKey, source, key)
-        } else if (
-        /* eslint-enable curly */
-            source !== null && typeof source === 'object' &&
-            target !== null && typeof target === 'object'
-        )
-            for (const key:string in source)
-                if (source.hasOwnProperty(key))
-                    if ([
-                        removeIndicatorKey, prependIndicatorKey,
-                        appendIndicatorKey
-                    ].includes(key)) {
-                        for (const valueToModify:any of [].concat(source[key]))
-                            if (Array.isArray(target))
-                                if (key === removeIndicatorKey) {
-                                    if (target.includes(valueToModify))
-                                        target.splice(
-                                            target.indexOf(valueToModify), 1)
-                                } else if (key === prependIndicatorKey)
-                                    target.unshift(valueToModify)
-                                else
-                                    target.push(valueToModify)
-                            else if (
-                                key === removeIndicatorKey &&
-                                target.hasOwnProperty(valueToModify)
-                            )
-                                delete target[valueToModify]
-                        delete source[key]
-                        if (parentSource && parentKey)
-                            delete parentSource[parentKey]
-                    } else if (target !== null && target.hasOwnProperty(key))
-                        Tools.modifyObject(
-                            target[key], source[key], removeIndicatorKey,
-                            prependIndicatorKey, appendIndicatorKey, source,
-                            key)
-        return target
-    }
-    /**
-     * Extends given target object with given sources object. As target and
-     * sources many expandable types are allowed but target and sources have to
-     * to come from the same type.
-     * @param targetOrDeepIndicator - Maybe the target or deep indicator.
-     * @param targetAndOrSources - Target and at least one source object.
-     * @returns Returns given target extended with all given sources.
-     */
-    static extendObject(
-        targetOrDeepIndicator:boolean|any, ...targetAndOrSources:Array<any>
-    ):any {
-        let index:number = 0
-        let deep:boolean = false
-        let target:mixed
-        if (typeof targetOrDeepIndicator === 'boolean') {
-            // Handle a deep copy situation and skip deep indicator and target.
-            deep = targetOrDeepIndicator
-            target = targetAndOrSources[index]
-            index = 1
-        } else
-            target = targetOrDeepIndicator
-        const mergeValue = (key:string, value:any, targetValue:any):any => {
-            if (value === targetValue)
-                return targetValue
-            // Recurse if we're merging plain objects or maps.
-            if (deep && value && (
-                Tools.isPlainObject(value) || value instanceof Map
-            )) {
-                let clone:any
-                if (value instanceof Map)
-                    clone = targetValue && (
-                        targetValue instanceof Map
-                    ) ? targetValue : new Map()
-                else
-                    clone = targetValue && Tools.isPlainObject(
-                        targetValue
-                    ) ? targetValue : {}
-                return Tools.extendObject(deep, clone, value)
-            }
-            return value
-        }
-        while (index < targetAndOrSources.length) {
-            const source:any = targetAndOrSources[index]
-            let targetType:string = typeof target
-            let sourceType:string = typeof source
-            if (target instanceof Map)
-                targetType += ' Map'
-            if (source instanceof Map)
-                sourceType += ' Map'
-            if (targetType === sourceType && target !== source)
-                if (target instanceof Map && source instanceof Map)
-                    for (const [key:string, value:any] of source)
-                        target.set(key, mergeValue(key, value, target.get(
-                            key)))
-                else if (
-                    target !== null && !Array.isArray(target) &&
-                    typeof target === 'object' && source !== null &&
-                    !Array.isArray(source) && typeof source === 'object'
-                ) {
-                    for (const key:string in source)
-                        if (source.hasOwnProperty(key))
-                            target[key] = mergeValue(
-                                key, source[key], target[key])
-                } else
-                    target = source
-            else
-                target = source
-            index += 1
-        }
-        return target
-    }
-    /**
-     * Removes a proxies from given data structure recursivley.
-     * @param object - Object to proxy.
-     * @param seenObjects - Tracks all already processed obejcts to avoid
-     * endless loops (usually only needed for internal prupose).
-     * @returns Returns given object unwrapped from a dynamic proxy.
-     */
-    static unwrapProxy(object:any, seenObjects:Array<any> = []):any {
-        if (object !== null && typeof object === 'object') {
-            while (object.__target__)
-                object = object.__target__
-            const index:number = seenObjects.indexOf(object)
-            if (index !== -1)
-                return seenObjects[index]
-            seenObjects.push(object)
-            if (Array.isArray(object)) {
-                let index:number = 0
-                for (const value:mixed of object) {
-                    object[index] = Tools.unwrapProxy(value, seenObjects)
-                    index += 1
-                }
-            } else if (object instanceof Map)
-                for (const [key:mixed, value:mixed] of object)
-                    object.set(key, Tools.unwrapProxy(value, seenObjects))
-            else
-                for (const key:string in object)
-                    if (object.hasOwnProperty(key))
-                        object[key] = Tools.unwrapProxy(
-                            object[key], seenObjects)
-        }
-        return object
-    }
+    // / region object
     /**
      * Adds dynamic getter and setter to any given data structure such as maps.
      * @param object - Object to proxy.
@@ -1602,78 +1430,6 @@ export default class Tools {
         return object
     }
     /**
-     * Searches for nested mappings with given indicator key and resolves
-     * marked values. Additionally all objects are wrapped with a proxy to
-     * dynamically resolve nested properties.
-     * @param object - Given mapping to resolve.
-     * @param parameterDescription - Array of scope names.
-     * @param parameter - Array of values for given scope names. If there is
-     * one missing given object will be added.
-     * @param deep - Indicates whether to perform a recursive resolving.
-     * @param expressionIndicatorKey - Indicator property name to mark a value
-     * to evaluate.
-     * @param executionIndicatorKey - Indicator property name to mark a value
-     * to evaluate.
-     * @returns Evaluated given mapping.
-     */
-    static resolveDynamicDataStructure(
-        object:any, parameterDescription:Array<string> = [],
-        parameter:Array<any> = [], deep:boolean = true,
-        expressionIndicatorKey:string = '__evaluate__',
-        executionIndicatorKey:string = '__execute__'
-    ):any {
-        if (object === null || typeof object !== 'object')
-            return object
-        let configuration:any = object
-        if (deep && configuration && !configuration.__target__)
-            configuration = Tools.addDynamicGetterAndSetter(
-                Tools.copyLimitedRecursively(object), ((value:any):any =>
-                    Tools.resolveDynamicDataStructure(
-                        value, parameterDescription, parameter, false,
-                        expressionIndicatorKey, executionIndicatorKey
-                    )), (key:any, value:any):any => value, '[]', '')
-        if (parameterDescription.length > parameter.length)
-            parameter.push(configuration)
-        if (Array.isArray(object) && deep) {
-            let index:number = 0
-            for (const value:mixed of object) {
-                object[index] = Tools.resolveDynamicDataStructure(
-                    value, parameterDescription, parameter, deep,
-                    expressionIndicatorKey, executionIndicatorKey)
-                index += 1
-            }
-        } else
-            for (const key:string in object)
-                if (object.hasOwnProperty(key))
-                    if ([
-                        expressionIndicatorKey, executionIndicatorKey
-                    ].includes(key))
-                        try {
-                            /* eslint-disable new-parens */
-                            return Tools.resolveDynamicDataStructure((new (
-                            /* eslint-enable new-parens */
-                                // IgnoreTypeCheck
-                                Function.prototype.bind.call(Function,
-                                    null, ...parameterDescription.concat(((
-                                        key === expressionIndicatorKey
-                                    ) ? 'return ' : '') + object[key]))
-                            ))(...parameter), parameterDescription, parameter,
-                            false, expressionIndicatorKey,
-                            executionIndicatorKey)
-                        } catch (error) {
-                            throw new Error(
-                                'Error during ' + (
-                                    key === expressionIndicatorKey ?
-                                        'executing' : 'evaluating'
-                                ) + ` "${object[key]}": ${error}`)
-                        }
-                    else if (deep)
-                        object[key] = Tools.resolveDynamicDataStructure(
-                            object[key], parameterDescription, parameter, deep,
-                            expressionIndicatorKey, executionIndicatorKey)
-        return object
-    }
-    /**
      * Converts given object into its serialized json representation by
      * replacing circular references with a given provided value.
      * @param object - Object to serialize.
@@ -1698,6 +1454,40 @@ export default class Tools {
             }
             return value
         }, numberOfSpaces)
+    }
+    /**
+     * Converts given map and all nested found maps objects to corresponding
+     * object.
+     * @param object - Map to convert to.
+     * @param deep - Indicates whether to perform a recursive conversion.
+     * @returns Given map as object.
+     */
+    static convertMapToPlainObject<Value>(
+        object:Value, deep:boolean = true
+    ):Value|PlainObject {
+        if (object instanceof Map) {
+            const newObject:PlainObject = {}
+            for (let [key:any, value:mixed] of object) {
+                if (deep)
+                    value = Tools.convertMapToPlainObject(value, deep)
+                newObject[`${key}`] = value
+            }
+            return newObject
+        }
+        if (deep)
+            if (typeof object === 'object' && Tools.isPlainObject(object)) {
+                for (const key:string in object)
+                    if (object.hasOwnProperty(key))
+                        object[key] = Tools.convertMapToPlainObject(
+                            object[key], deep)
+            } else if (Array.isArray(object)) {
+                let index:number = 0
+                for (const value:mixed of object) {
+                    object[index] = Tools.convertMapToPlainObject(value, deep)
+                    index += 1
+                }
+            }
+        return object
     }
     /**
      * Converts given plain object and all nested found objects to
@@ -1735,78 +1525,123 @@ export default class Tools {
         return object
     }
     /**
-     * Converts given map and all nested found maps objects to corresponding
-     * object.
-     * @param object - Map to convert to.
-     * @param deep - Indicates whether to perform a recursive conversion.
-     * @returns Given map as object.
+     * Replaces given pattern in each value in given object recursively with
+     * given string replacement.
+     * @param object - Object to convert substrings in.
+     * @param pattern - Regular expression to replace.
+     * @param replacement - String to use as replacement for found patterns.
+     * @returns Converted object with replaced patterns.
      */
-    static convertMapToPlainObject<Value>(
-        object:Value, deep:boolean = true
-    ):Value|PlainObject {
-        if (object instanceof Map) {
-            const newObject:PlainObject = {}
-            for (let [key:any, value:mixed] of object) {
-                if (deep)
-                    value = Tools.convertMapToPlainObject(value, deep)
-                newObject[`${key}`] = value
-            }
-            return newObject
-        }
-        if (deep)
-            if (typeof object === 'object' && Tools.isPlainObject(object)) {
-                for (const key:string in object)
-                    if (object.hasOwnProperty(key))
-                        object[key] = Tools.convertMapToPlainObject(
-                            object[key], deep)
-            } else if (Array.isArray(object)) {
-                let index:number = 0
-                for (const value:mixed of object) {
-                    object[index] = Tools.convertMapToPlainObject(value, deep)
-                    index += 1
-                }
-            }
+    static convertSubstringInPlainObject(
+        object:PlainObject, pattern:RegExp, replacement:string
+    ):PlainObject {
+        for (const key:string in object)
+            if (object.hasOwnProperty(key))
+                if (Tools.isPlainObject(object[key]))
+                    object[key] = Tools.convertSubstringInPlainObject(
+                        object[key], pattern, replacement)
+                else if (typeof object[key] === 'string')
+                    object[key] = object[key].replace(pattern, replacement)
         return object
     }
     /**
-     * Iterates given objects own properties in sorted fashion. For
-     * each key value pair given iterator function will be called with
-     * value and key as arguments.
-     * @param object - Object to iterate.
-     * @param iterator - Function to execute for each key value pair. Value
-     * will be the first and key will be the second argument.
-     * @param context - The "this" binding for given iterator function.
-     * @returns List of given sorted keys.
+     * Copies given object (of any type) into optionally given destination.
+     * @param source - Object to copy.
+     * @param recursionLimit - Specifies how deep we should traverse into given
+     * object recursively.
+     * @param destination - Target to copy source to.
+     * @param stackSource - Internally used to avoid traversing loops.
+     * @param stackDestination - Internally used to avoid traversing loops and
+     * referencing them correctly.
+     * @param recursionLevel - Internally used to track current recursion
+     * level in given source data structure.
+     * @returns Value "true" if both objects are equal and "false" otherwise.
      */
-    static forEachSorted(
-        object:mixed, iterator:(key:any, value:any) => any, context:Object
-    ):Array<any> {
-        const keys:Array<any> = Tools.sort(object)
-        for (const key:any of keys)
-            if (object instanceof Map)
-                iterator.call(context, object.get(key), key)
-            else if (Array.isArray(object) || object instanceof Object)
-                iterator.call(context, object[key], key)
-        return keys
+    static copyLimitedRecursively(
+        source:any, recursionLimit:number = -1, destination:any = null,
+        stackSource:Array<any> = [], stackDestination:Array<any> = [],
+        recursionLevel:number = 0
+    ):any {
+        if (destination) {
+            if (source === destination)
+                throw new Error(
+                    `Can't copy because source and destination are identical.`)
+            if (recursionLimit !== -1 && recursionLimit < recursionLevel)
+                return null
+            if (![undefined, null].includes(
+                source
+            ) && typeof source === 'object') {
+                const index:number = stackSource.indexOf(source)
+                if (index !== -1)
+                    return stackDestination[index]
+                stackSource.push(source)
+                stackDestination.push(destination)
+            }
+            const copyValue:Function = (value:any):any => {
+                const result:any = Tools.copyLimitedRecursively(
+                    value, recursionLimit, null, stackSource, stackDestination,
+                    recursionLevel + 1)
+                if (![undefined, null].includes(
+                    value
+                ) && typeof value === 'object') {
+                    stackSource.push(value)
+                    stackDestination.push(result)
+                }
+                return result
+            }
+            if (Array.isArray(source))
+                for (const item:any of source)
+                    destination.push(copyValue(item))
+            if (source instanceof Map)
+                for (const [key:mixed, value:mixed] of source)
+                    destination.set(key, copyValue(value))
+            else
+                for (const key:string in source)
+                    if (source.hasOwnProperty(key))
+                        destination[key] = copyValue(source[key])
+        } else if (source) {
+            if (Array.isArray(source))
+                return Tools.copyLimitedRecursively(
+                    source, recursionLimit, [], stackSource, stackDestination,
+                    recursionLevel)
+            if (source instanceof Map)
+                return Tools.copyLimitedRecursively(
+                    source, recursionLimit, new Map(), stackSource,
+                    stackDestination, recursionLevel)
+            if (Tools.determineType(source) === 'date')
+                return new Date(source.getTime())
+            if (Tools.determineType(source) === 'regexp') {
+                destination = new RegExp(
+                    source.source, source.toString().match(/[^\/]*$/)[0])
+                destination.lastIndex = source.lastIndex
+                return destination
+            }
+            if (![undefined, null].includes(
+                source
+            ) && typeof source === 'object')
+                return Tools.copyLimitedRecursively(
+                    source, recursionLimit, {}, stackSource, stackDestination,
+                    recursionLevel)
+        }
+        return destination || source
     }
     /**
-     * Sort given objects keys.
-     * @param object - Object which keys should be sorted.
-     * @returns Sorted list of given keys.
+     * Determine the internal JavaScript [[Class]] of an object.
+     * @param object - Object to analyze.
+     * @returns Name of determined class.
      */
-    static sort(object:mixed):Array<any> {
-        const keys:Array<any> = []
-        if (Array.isArray(object))
-            for (let index:number = 0; index < object.length; index++)
-                keys.push(index)
-        else if (object instanceof Map)
-            for (const keyValuePair:Array<any> of object)
-                keys.push(keyValuePair[0])
-        else if (object instanceof Object)
-            for (const key:string in object)
-                if (object.hasOwnProperty(key))
-                    keys.push(key)
-        return keys.sort()
+    static determineType(object:any = undefined):string {
+        if ([undefined, null].includes(object))
+            return `${object}`
+        if (['object', 'function'].includes(
+            typeof object
+        ) && 'toString' in object) {
+            const stringRepresentation:string =
+                Tools.classToTypeMapping.toString.call(object)
+            if (Tools.classToTypeMapping.hasOwnProperty(stringRepresentation))
+                return Tools.classToTypeMapping[stringRepresentation]
+        }
+        return typeof object
     }
     /**
      * Returns true if given items are equal for given property list. If
@@ -1911,85 +1746,297 @@ export default class Tools {
         return false
     }
     /**
-     * Copies given object (of any type) into optionally given destination.
-     * @param source - Object to copy.
-     * @param recursionLimit - Specifies how deep we should traverse into given
-     * object recursively.
-     * @param destination - Target to copy source to.
-     * @param stackSource - Internally used to avoid traversing loops.
-     * @param stackDestination - Internally used to avoid traversing loops and
-     * referencing them correctly.
-     * @param recursionLevel - Internally used to track current recursion
-     * level in given source data structure.
-     * @returns Value "true" if both objects are equal and "false" otherwise.
+     * Extends given target object with given sources object. As target and
+     * sources many expandable types are allowed but target and sources have to
+     * to come from the same type.
+     * @param targetOrDeepIndicator - Maybe the target or deep indicator.
+     * @param targetAndOrSources - Target and at least one source object.
+     * @returns Returns given target extended with all given sources.
      */
-    static copyLimitedRecursively(
-        source:any, recursionLimit:number = -1, destination:any = null,
-        stackSource:Array<any> = [], stackDestination:Array<any> = [],
-        recursionLevel:number = 0
+    static extendObject(
+        targetOrDeepIndicator:boolean|any, ...targetAndOrSources:Array<any>
     ):any {
-        if (destination) {
-            if (source === destination)
-                throw new Error(
-                    `Can't copy because source and destination are identical.`)
-            if (recursionLimit !== -1 && recursionLimit < recursionLevel)
-                return null
-            if (![undefined, null].includes(
-                source
-            ) && typeof source === 'object') {
-                const index:number = stackSource.indexOf(source)
-                if (index !== -1)
-                    return stackDestination[index]
-                stackSource.push(source)
-                stackDestination.push(destination)
+        let index:number = 0
+        let deep:boolean = false
+        let target:mixed
+        if (typeof targetOrDeepIndicator === 'boolean') {
+            // Handle a deep copy situation and skip deep indicator and target.
+            deep = targetOrDeepIndicator
+            target = targetAndOrSources[index]
+            index = 1
+        } else
+            target = targetOrDeepIndicator
+        const mergeValue = (key:string, value:any, targetValue:any):any => {
+            if (value === targetValue)
+                return targetValue
+            // Recurse if we're merging plain objects or maps.
+            if (deep && value && (
+                Tools.isPlainObject(value) || value instanceof Map
+            )) {
+                let clone:any
+                if (value instanceof Map)
+                    clone = targetValue && (
+                        targetValue instanceof Map
+                    ) ? targetValue : new Map()
+                else
+                    clone = targetValue && Tools.isPlainObject(
+                        targetValue
+                    ) ? targetValue : {}
+                return Tools.extendObject(deep, clone, value)
             }
-            const copyValue:Function = (value:any):any => {
-                const result:any = Tools.copyLimitedRecursively(
-                    value, recursionLimit, null, stackSource, stackDestination,
-                    recursionLevel + 1)
-                if (![undefined, null].includes(
-                    value
-                ) && typeof value === 'object') {
-                    stackSource.push(value)
-                    stackDestination.push(result)
-                }
-                return result
-            }
-            if (Array.isArray(source))
-                for (const item:any of source)
-                    destination.push(copyValue(item))
-            if (source instanceof Map)
-                for (const [key:mixed, value:mixed] of source)
-                    destination.set(key, copyValue(value))
-            else
-                for (const key:string in source)
-                    if (source.hasOwnProperty(key))
-                        destination[key] = copyValue(source[key])
-        } else if (source) {
-            if (Array.isArray(source))
-                return Tools.copyLimitedRecursively(
-                    source, recursionLimit, [], stackSource, stackDestination,
-                    recursionLevel)
-            if (source instanceof Map)
-                return Tools.copyLimitedRecursively(
-                    source, recursionLimit, new Map(), stackSource,
-                    stackDestination, recursionLevel)
-            if (Tools.determineType(source) === 'date')
-                return new Date(source.getTime())
-            if (Tools.determineType(source) === 'regexp') {
-                destination = new RegExp(
-                    source.source, source.toString().match(/[^\/]*$/)[0])
-                destination.lastIndex = source.lastIndex
-                return destination
-            }
-            if (![undefined, null].includes(
-                source
-            ) && typeof source === 'object')
-                return Tools.copyLimitedRecursively(
-                    source, recursionLimit, {}, stackSource, stackDestination,
-                    recursionLevel)
+            return value
         }
-        return destination || source
+        while (index < targetAndOrSources.length) {
+            const source:any = targetAndOrSources[index]
+            let targetType:string = typeof target
+            let sourceType:string = typeof source
+            if (target instanceof Map)
+                targetType += ' Map'
+            if (source instanceof Map)
+                sourceType += ' Map'
+            if (targetType === sourceType && target !== source)
+                if (target instanceof Map && source instanceof Map)
+                    for (const [key:string, value:any] of source)
+                        target.set(key, mergeValue(key, value, target.get(
+                            key)))
+                else if (
+                    target !== null && !Array.isArray(target) &&
+                    typeof target === 'object' && source !== null &&
+                    !Array.isArray(source) && typeof source === 'object'
+                ) {
+                    for (const key:string in source)
+                        if (source.hasOwnProperty(key))
+                            target[key] = mergeValue(
+                                key, source[key], target[key])
+                } else
+                    target = source
+            else
+                target = source
+            index += 1
+        }
+        return target
+    }
+    /**
+     * Iterates given objects own properties in sorted fashion. For
+     * each key value pair given iterator function will be called with
+     * value and key as arguments.
+     * @param object - Object to iterate.
+     * @param iterator - Function to execute for each key value pair. Value
+     * will be the first and key will be the second argument.
+     * @param context - The "this" binding for given iterator function.
+     * @returns List of given sorted keys.
+     */
+    static forEachSorted(
+        object:mixed, iterator:(key:any, value:any) => any, context:Object
+    ):Array<any> {
+        const keys:Array<any> = Tools.sort(object)
+        for (const key:any of keys)
+            if (object instanceof Map)
+                iterator.call(context, object.get(key), key)
+            else if (Array.isArray(object) || object instanceof Object)
+                iterator.call(context, object[key], key)
+        return keys
+    }
+    /**
+     * Modifies given target corresponding to given source and removes source
+     * modification infos.
+     * @param target - Object to modify.
+     * @param source - Source object to load modifications from.
+     * @param removeIndicatorKey - Indicator property name or value to mark a
+     * value to remove from object or list.
+     * @param prependIndicatorKey - Indicator property name to mark a value to
+     * prepend to target list.
+     * @param appendIndicatorKey - Indicator property name to mark a value to
+     * append to target list.
+     * @param parentSource - Source context to remove modification info from
+     * (usually only needed internally).
+     * @param parentKey - Source key in given source context to remove
+     * modification info from (usually only needed internally).
+     * @returns Given target modified with given source.
+     */
+    static modifyObject(
+        target:any, source:any, removeIndicatorKey:string = '__remove__',
+        prependIndicatorKey:string = '__prepend__',
+        appendIndicatorKey:string = '__append__', parentSource:any = null,
+        parentKey:any = null
+    ):any {
+        /* eslint-disable curly */
+        if (source instanceof Map && target instanceof Map) {
+            for (const [key:string, value:any] of source)
+                if (target.has(key))
+                    Tools.modifyObject(
+                        target.get(key), value, removeIndicatorKey,
+                        prependIndicatorKey, appendIndicatorKey, source, key)
+        } else if (
+        /* eslint-enable curly */
+            source !== null && typeof source === 'object' &&
+            target !== null && typeof target === 'object'
+        )
+            for (const key:string in source)
+                if (source.hasOwnProperty(key))
+                    if ([
+                        removeIndicatorKey, prependIndicatorKey,
+                        appendIndicatorKey
+                    ].includes(key)) {
+                        for (const valueToModify:any of [].concat(source[key]))
+                            if (Array.isArray(target))
+                                if (key === removeIndicatorKey) {
+                                    if (target.includes(valueToModify))
+                                        target.splice(
+                                            target.indexOf(valueToModify), 1)
+                                } else if (key === prependIndicatorKey)
+                                    target.unshift(valueToModify)
+                                else
+                                    target.push(valueToModify)
+                            else if (
+                                key === removeIndicatorKey &&
+                                target.hasOwnProperty(valueToModify)
+                            )
+                                delete target[valueToModify]
+                        delete source[key]
+                        if (parentSource && parentKey)
+                            delete parentSource[parentKey]
+                    } else if (target !== null && target.hasOwnProperty(key))
+                        Tools.modifyObject(
+                            target[key], source[key], removeIndicatorKey,
+                            prependIndicatorKey, appendIndicatorKey, source,
+                            key)
+        return target
+    }
+    /**
+     * Represents given object as formatted string.
+     * @param object - Object to Represents.
+     * @param indention - String of number of whitespaces to use as indention.
+     * @param stringifier - Optional serialisation function to use.
+     * @returns Representation string.
+     */
+    static representObject(
+        object:any, indention:string|number = 4, stringifier:?Function = null
+    ):string {
+        return JSON.stringify(object, stringifier, indention)
+    }
+    /**
+     * Searches for nested mappings with given indicator key and resolves
+     * marked values. Additionally all objects are wrapped with a proxy to
+     * dynamically resolve nested properties.
+     * @param object - Given mapping to resolve.
+     * @param parameterDescription - Array of scope names.
+     * @param parameter - Array of values for given scope names. If there is
+     * one missing given object will be added.
+     * @param deep - Indicates whether to perform a recursive resolving.
+     * @param expressionIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @param executionIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @returns Evaluated given mapping.
+     */
+    static resolveDynamicDataStructure(
+        object:any, parameterDescription:Array<string> = [],
+        parameter:Array<any> = [], deep:boolean = true,
+        expressionIndicatorKey:string = '__evaluate__',
+        executionIndicatorKey:string = '__execute__'
+    ):any {
+        if (object === null || typeof object !== 'object')
+            return object
+        let configuration:any = object
+        if (deep && configuration && !configuration.__target__)
+            configuration = Tools.addDynamicGetterAndSetter(
+                Tools.copyLimitedRecursively(object), ((value:any):any =>
+                    Tools.resolveDynamicDataStructure(
+                        value, parameterDescription, parameter, false,
+                        expressionIndicatorKey, executionIndicatorKey
+                    )), (key:any, value:any):any => value, '[]', '')
+        if (parameterDescription.length > parameter.length)
+            parameter.push(configuration)
+        if (Array.isArray(object) && deep) {
+            let index:number = 0
+            for (const value:mixed of object) {
+                object[index] = Tools.resolveDynamicDataStructure(
+                    value, parameterDescription, parameter, deep,
+                    expressionIndicatorKey, executionIndicatorKey)
+                index += 1
+            }
+        } else
+            for (const key:string in object)
+                if (object.hasOwnProperty(key))
+                    if ([
+                        expressionIndicatorKey, executionIndicatorKey
+                    ].includes(key))
+                        try {
+                            /* eslint-disable new-parens */
+                            return Tools.resolveDynamicDataStructure((new (
+                            /* eslint-enable new-parens */
+                                // IgnoreTypeCheck
+                                Function.prototype.bind.call(Function,
+                                    null, ...parameterDescription.concat(((
+                                        key === expressionIndicatorKey
+                                    ) ? 'return ' : '') + object[key]))
+                            ))(...parameter), parameterDescription, parameter,
+                            false, expressionIndicatorKey,
+                            executionIndicatorKey)
+                        } catch (error) {
+                            throw new Error(
+                                'Error during ' + (
+                                    key === expressionIndicatorKey ?
+                                        'executing' : 'evaluating'
+                                ) + ` "${object[key]}": ${error}`)
+                        }
+                    else if (deep)
+                        object[key] = Tools.resolveDynamicDataStructure(
+                            object[key], parameterDescription, parameter, deep,
+                            expressionIndicatorKey, executionIndicatorKey)
+        return object
+    }
+    /**
+     * Sort given objects keys.
+     * @param object - Object which keys should be sorted.
+     * @returns Sorted list of given keys.
+     */
+    static sort(object:mixed):Array<any> {
+        const keys:Array<any> = []
+        if (Array.isArray(object))
+            for (let index:number = 0; index < object.length; index++)
+                keys.push(index)
+        else if (object instanceof Map)
+            for (const keyValuePair:Array<any> of object)
+                keys.push(keyValuePair[0])
+        else if (object instanceof Object)
+            for (const key:string in object)
+                if (object.hasOwnProperty(key))
+                    keys.push(key)
+        return keys.sort()
+    }
+    /**
+     * Removes a proxies from given data structure recursivley.
+     * @param object - Object to proxy.
+     * @param seenObjects - Tracks all already processed obejcts to avoid
+     * endless loops (usually only needed for internal prupose).
+     * @returns Returns given object unwrapped from a dynamic proxy.
+     */
+    static unwrapProxy(object:any, seenObjects:Array<any> = []):any {
+        if (object !== null && typeof object === 'object') {
+            while (object.__target__)
+                object = object.__target__
+            const index:number = seenObjects.indexOf(object)
+            if (index !== -1)
+                return seenObjects[index]
+            seenObjects.push(object)
+            if (Array.isArray(object)) {
+                let index:number = 0
+                for (const value:mixed of object) {
+                    object[index] = Tools.unwrapProxy(value, seenObjects)
+                    index += 1
+                }
+            } else if (object instanceof Map)
+                for (const [key:mixed, value:mixed] of object)
+                    object.set(key, Tools.unwrapProxy(value, seenObjects))
+            else
+                for (const key:string in object)
+                    if (object.hasOwnProperty(key))
+                        object[key] = Tools.unwrapProxy(
+                            object[key], seenObjects)
+        }
+        return object
     }
     // / endregion
     // / region array
@@ -3420,7 +3467,183 @@ export default class Tools {
             $iFrameDomNode, url, data, requestType, removeAfterLoad)
     }
     // / endregion
-    // / region file TODO Migrate everywhere!
+    // / region file
+    /**
+     * Copies given source directory via path to given target directory
+     * location with same target name as source file has or copy to given
+     * complete target directory path.
+     * @param sourcePath - Path to directory to copy.
+     * @param targetPath - Target directory or complete directory location to
+     * copy in.
+     * @param callback - Function to invoke for each traversed file.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
+     * @returns Promise holding the determined target directory path.
+     */
+    static copyDirectoryRecursive(
+        sourcePath:string, targetPath:string, callback:Function = Tools.noop,
+        readOptions:PlainObject = {encoding: null, flag: 'r'},
+        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+    ):Promise<string> {
+        return new Promise(async (
+            resolve:Function, reject:Function
+        ):Promise<void> => {
+            // NOTE: Check if folder needs to be created or integrated.
+            let isDirectory:boolean
+            try {
+                isDirectory = await Tools.isDirectory(targetPath)
+            } catch (error) {
+                return reject(error)
+            }
+            if (isDirectory)
+                targetPath = path.resolve(targetPath, path.basename(
+                    sourcePath))
+            sourcePath = path.resolve(sourcePath)
+            fileSystem.mkdir(targetPath, async (
+                error:?Error
+            ):Promise<void> => {
+                if (error)
+                    return reject(error)
+                let files:Array<File>
+                try {
+                    files = await Tools.walkDirectoryRecursively(
+                        sourcePath, callback)
+                } catch (error) {
+                    return reject(error)
+                }
+                for (const currentSourceFile:File of files) {
+                    const currentTargetPath:string = path.join(
+                        targetPath, currentSourceFile.path.substring(
+                            sourcePath.length))
+                    if (currentSourceFile.stat.isDirectory())
+                        fileSystem.mkdirSync(currentTargetPath)
+                    else
+                        try {
+                            await Tools.copyFile(
+                                currentSourceFile.path, currentTargetPath,
+                                readOptions, writeOptions)
+                        } catch (error) {
+                            return reject(error)
+                        }
+                }
+                resolve(targetPath)
+            })
+        })
+    }
+    /**
+     * Copies given source directory via path to given target directory
+     * location with same target name as source file has or copy to given
+     * complete target directory path.
+     * @param sourcePath - Path to directory to copy.
+     * @param targetPath - Target directory or complete directory location to
+     * copy in.
+     * @param callback - Function to invoke for each traversed file.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
+     * @returns Determined target directory path.
+     */
+    static copyDirectoryRecursiveSync(
+        sourcePath:string, targetPath:string, callback:Function = Tools.noop,
+        readOptions:PlainObject = {encoding: null, flag: 'r'},
+        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+    ):string {
+        // Check if folder needs to be created or integrated.
+        sourcePath = path.resolve(sourcePath)
+        if (Tools.isDirectorySync(targetPath))
+            targetPath = path.resolve(targetPath, path.basename(sourcePath))
+        fileSystem.mkdirSync(targetPath)
+        for (
+            const currentSourceFile:File of Tools.walkDirectoryRecursivelySync(
+                sourcePath, callback)
+        ) {
+            const currentTargetPath:string = path.join(
+                targetPath, currentSourceFile.path.substring(sourcePath.length)
+            )
+            if (currentSourceFile.stat.isDirectory())
+                fileSystem.mkdirSync(currentTargetPath)
+            else
+                Tools.copyFileSync(
+                    currentSourceFile.path, currentTargetPath, readOptions,
+                    writeOptions)
+        }
+        return targetPath
+    }
+    /**
+     * Copies given source file via path to given target directory location
+     * with same target name as source file has or copy to given complete
+     * target file path.
+     * @param sourcePath - Path to file to copy.
+     * @param targetPath - Target directory or complete file location to copy
+     * to.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
+     * @returns Determined target file path.
+     */
+    static copyFile(
+        sourcePath:string, targetPath:string,
+        readOptions:PlainObject = {encoding: null, flag: 'r'},
+        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+    ):Promise<string> {
+        /*
+            NOTE: If target path references a directory a new file with the
+            same name will be created.
+        */
+        return new Promise(async (
+            resolve:Function, reject:Function
+        ):Promise<void> => {
+            let isDirectory:boolean
+            try {
+                isDirectory = await Tools.isDirectory(targetPath)
+            } catch (error) {
+                return reject(error)
+            }
+            if (isDirectory)
+                targetPath = path.resolve(targetPath, path.basename(
+                    sourcePath))
+            fileSystem.readFile(sourcePath, readOptions, (
+                error:?Error, data:Object|string
+            ):void => {
+                if (error)
+                    reject(error)
+                else
+                    fileSystem.writeFile(targetPath, data, writeOptions, (
+                        error:?Error
+                    ):void => {
+                        if (error)
+                            reject(error)
+                        else
+                            resolve(targetPath)
+                    })
+            })
+        })
+    }
+    /**
+     * Copies given source file via path to given target directory location
+     * with same target name as source file has or copy to given complete
+     * target file path.
+     * @param sourcePath - Path to file to copy.
+     * @param targetPath - Target directory or complete file location to copy
+     * to.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
+     * @returns Determined target file path.
+     */
+    static copyFileSync(
+        sourcePath:string, targetPath:string,
+        readOptions:PlainObject = {encoding: null, flag: 'r'},
+        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+    ):string {
+        /*
+            NOTE: If target path references a directory a new file with the
+            same name will be created.
+        */
+        if (Tools.isDirectorySync(targetPath))
+            targetPath = path.resolve(targetPath, path.basename(sourcePath))
+        fileSystem.writeFileSync(targetPath, fileSystem.readFileSync(
+            sourcePath, readOptions
+        ), writeOptions)
+        return targetPath
+    }
     /**
      * Checks if given path points to a valid directory.
      * @param filePath - Path to directory.
@@ -3433,10 +3656,16 @@ export default class Tools {
                 error:?Error, stat:Object
             ):void => {
                 if (error)
-                    reject(error)
+                    if (error.hasOwnProperty(
+                        'code'
+                    // IgnoreTypeCheck
+                    ) && error.code === 'ENOENT')
+                        resolve(false)
+                    else
+                        reject(error)
                 else
                     resolve(stat.isDirectory())
-            }).isDirectory())
+            }))
     }
     /**
      * Checks if given path points to a valid directory.
@@ -3444,7 +3673,15 @@ export default class Tools {
      * @returns A boolean which indicates directory existents.
      */
     static isDirectorySync(filePath:string):boolean {
-        return fileSystem.statSync(filePath).isDirectory()
+        try {
+            return fileSystem.statSync(filePath).isDirectory()
+        } catch (error) {
+            if (error.hasOwnProperty(
+                'code'
+            ) && error.code === 'ENOENT')
+                return false
+            throw error
+        }
     }
     /**
      * Checks if given path points to a valid directory.
@@ -3456,10 +3693,16 @@ export default class Tools {
         return new Promise((resolve:Function, reject:Function):void =>
             fileSystem.stat(filePath, (error:?Error, stat:Object):void => {
                 if (error)
-                    reject(error)
+                    if (error.hasOwnProperty(
+                        'code'
+                    // IgnoreTypeCheck
+                    ) && error.code === 'ENOENT')
+                        resolve(false)
+                    else
+                        reject(error)
                 else
                     resolve(stat.isFile())
-            }).isDirectory())
+            }))
     }
     /**
      * Checks if given path points to a valid file.
@@ -3467,7 +3710,15 @@ export default class Tools {
      * @returns A boolean which indicates file existents.
      */
     static isFileSync(filePath:string):boolean {
-        return fileSystem.statSync(filePath).isFile()
+        try {
+            return fileSystem.statSync(filePath).isFile()
+        } catch (error) {
+            if (error.hasOwnProperty(
+                'code'
+            ) && error.code === 'ENOENT')
+                return false
+            throw error
+        }
     }
     /**
      * Iterates through given directory structure recursively and calls given
@@ -3476,13 +3727,15 @@ export default class Tools {
      * @param directoryPath - Path to directory structure to traverse.
      * @param callback - Function to invoke for each traversed file and
      * potentially manipulate further traversing.
+     * @param options - Options to use for nested "readdir" calls.
      * @returns A promise holding the determined files.
      */
     static walkDirectoryRecursively(
-        directoryPath:string, callback:Function = Tools.noop
+        directoryPath:string, callback:Function = Tools.noop,
+        options:PlainObject = {encoding: 'utf8'}
     ):Promise<Array<File>> {
         return new Promise((resolve:Function, reject:Function):void => {
-            fileSystem.readdirSync(directoryPath, {encoding: 'utf8'}, async (
+            fileSystem.readdir(directoryPath, options, async (
                 error:?Object, fileNames:Array<string>
             ):Promise<void> => {
                 if (error)
@@ -3517,8 +3770,9 @@ export default class Tools {
                             return 1
                         return 0
                     })
-                let finalFiles:Array<File> = files.slice()
+                let finalFiles:Array<File> = []
                 for (const file:File of files) {
+                    finalFiles.push(file)
                     const result:any = callback(file)
                     if (result === null)
                         break
@@ -3537,13 +3791,17 @@ export default class Tools {
      * stat object as argument.
      * @param directoryPath - Path to directory structure to traverse.
      * @param callback - Function to invoke for each traversed file.
+     * @param options - Options to use for nested "readdir" calls.
      * @returns Determined list if all files.
      */
     static walkDirectoryRecursivelySync(
-        directoryPath:string, callback:Function = Tools.noop
+        directoryPath:string, callback:Function = Tools.noop,
+        options:PlainObject = {encoding: 'utf8'}
     ):Array<File> {
         let files:Array<File> = []
-        for (const fileName:string of fileSystem.readdirSync(directoryPath)) {
+        for (const fileName:string of fileSystem.readdirSync(
+            directoryPath, options
+        )) {
             const filePath:string = path.resolve(directoryPath, fileName)
             files.push({path: filePath, stat: fileSystem.statSync(filePath)})
         }
@@ -3562,8 +3820,9 @@ export default class Tools {
                     return 1
                 return 0
             })
-        let finalFiles:Array<File> = files.slice()
+        let finalFiles:Array<File> = []
         for (const file:File of files) {
+            finalFiles.push(file)
             const result:any = callback(file)
             if (result === null)
                 break
@@ -3573,176 +3832,55 @@ export default class Tools {
         }
         return finalFiles
     }
+    // / endregion
+    // / region process handler
     /**
-     * Copies given source file via path to given target directory location
-     * with same target name as source file has or copy to given complete
-     * target file path.
-     * @param sourcePath - Path to file to copy.
-     * @param targetPath - Target directory or complete file location to copy
-     * to.
-     * @param readOptions - Options to use for reading source file.
-     * @param writeOptions - Options to use for writing to target file.
-     * @returns Determined target file path.
+     * Generates a one shot close handler which triggers given promise methods.
+     * If a reason is provided it will be given as resolve target. An Error
+     * will be generated if return code is not zero. The generated Error has
+     * a property "returnCode" which provides corresponding process return
+     * code.
+     * @param resolve - Promise's resolve function.
+     * @param reject - Promise's reject function.
+     * @param reason - Promise target if process has a zero return code.
+     * @param callback - Optional function to call of process has successfully
+     * finished.
+     * @returns Process close handler function.
      */
-    static copyFile(
-        sourcePath:string, targetPath:string,
-        readOptions:PlainObject = {encoding: null, flag: 'r'},
-        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
-    ):Promise<void> {
-        /*
-            NOTE: If target path references a directory a new file with the
-            same name will be created.
-        */
-        return new Promise(async (
-            resolve:Function, reject:Function
-        ):Promise<void> => {
-            let isDirectory:boolean
-            try {
-                isDirectory = await Tools.isDirectory(targetPath)
-            } catch (error) {
-                return reject(error)
-            }
-            if (isDirectory)
-                targetPath = path.resolve(targetPath, path.basename(
-                    sourcePath))
-            fileSystem.readFile(sourcePath, readOptions, (
-                error:?Error, data:Object|string
-            ):void => {
-                if (error)
+    static getProcessCloseHandler(
+        resolve:Function, reject:Function, reason:any = null,
+        callback:Function = ():void => {}
+    ):((returnCode:?number) => void) {
+        let finished:boolean = false
+        return (returnCode:?number):void => {
+            if (!finished)
+                if (typeof returnCode !== 'number' || returnCode === 0) {
+                    callback()
+                    resolve(reason)
+                } else {
+                    const error:Error = new Error(
+                        `Task exited with error code ${returnCode}`)
+                    // IgnoreTypeCheck
+                    error.returnCode = returnCode
                     reject(error)
-                else
-                    fileSystem.writeFile(targetPath, data, writeOptions, (
-                        error:?Error
-                    ):void => {
-                        if (error)
-                            reject(error)
-                        else
-                            resolve()
-                    })
-            })
-        })
-    }
-    /**
-     * Copies given source file via path to given target directory location
-     * with same target name as source file has or copy to given complete
-     * target file path.
-     * @param sourcePath - Path to file to copy.
-     * @param targetPath - Target directory or complete file location to copy
-     * to.
-     * @param readOptions - Options to use for reading source file.
-     * @param writeOptions - Options to use for writing to target file.
-     * @returns Determined target file path.
-     */
-    static copyFileSync(
-        sourcePath:string, targetPath:string,
-        readOptions:PlainObject = {encoding: null, flag: 'r'},
-        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
-    ):string {
-        /*
-            NOTE: If target path references a directory a new file with the
-            same name will be created.
-        */
-        if (Tools.isDirectorySync(targetPath))
-            targetPath = path.resolve(targetPath, path.basename(sourcePath))
-        fileSystem.writeFileSync(targetPath, fileSystem.readFileSync(
-            sourcePath, readOptions
-        ), writeOptions)
-        return targetPath
-    }
-    /**
-     * Copies given source directory via path to given target directory
-     * location with same target name as source file has or copy to given
-     * complete target directory path.
-     * @param sourcePath - Path to directory to copy.
-     * @param targetPath - Target directory or complete directory location to
-     * copy in.
-     * @param readOptions - Options to use for reading source file.
-     * @param writeOptions - Options to use for writing to target file.
-     * @returns Promise holding the determined target directory path.
-     */
-    static copyDirectoryRecursive(
-        sourcePath:string, targetPath:string,
-        readOptions:PlainObject = {encoding: null, flag: 'r'},
-        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
-    ):Promise<string> {
-        return new Promise(async (
-            resolve:Function, reject:Function
-        ):Promise<void> => {
-            // NOTE: Check if folder needs to be created or integrated.
-            let isDirectory:boolean
-            try {
-                isDirectory = await Tools.isDirectory(targetPath)
-            } catch (error) {
-                return reject(error)
-            }
-            if (isDirectory)
-                targetPath = path.resolve(targetPath, path.basename(
-                    sourcePath))
-            fileSystem.mkdir(targetPath, async (
-                error:?Error
-            ):Promise<void> => {
-                if (error)
-                    return reject(error)
-                let files:Array<File>
-                try {
-                    files = await Tools.walkDirectoryRecursively(sourcePath)
-                } catch (error) {
-                    return reject(error)
                 }
-                for (const currentSourceFile:File of files) {
-                    const currentTargetPath:string = path.join(
-                        targetPath, currentSourceFile.path.substring(
-                            sourcePath.length))
-                    if (currentSourceFile.stat.isDirectory())
-                        fileSystem.mkdirSync(currentTargetPath)
-                    else
-                        try {
-                            await Tools.copyFile(
-                                currentSourceFile.path, currentTargetPath,
-                                readOptions, writeOptions)
-                        } catch (error) {
-                            return reject(error)
-                        }
-                }
-                resolve(targetPath)
-            })
-        })
-    }
-    /**
-     * Copies given source directory via path to given target directory
-     * location with same target name as source file has or copy to given
-     * complete target directory path.
-     * @param sourcePath - Path to directory to copy.
-     * @param targetPath - Target directory or complete directory location to
-     * copy in.
-     * @param readOptions - Options to use for reading source file.
-     * @param writeOptions - Options to use for writing to target file.
-     * @returns Determined target directory path.
-     */
-    static copyDirectoryRecursiveSync(
-        sourcePath:string, targetPath:string,
-        readOptions:PlainObject = {encoding: null, flag: 'r'},
-        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
-    ):string {
-        // Check if folder needs to be created or integrated.
-        if (Tools.isDirectorySync(targetPath))
-            targetPath = path.resolve(targetPath, path.basename(sourcePath))
-        fileSystem.mkdirSync(targetPath)
-        for (
-            const currentSourceFile:File of Tools.walkDirectoryRecursivelySync(
-                sourcePath)
-        ) {
-            const currentTargetPath:string = path.join(
-                targetPath, currentSourceFile.path.substring(sourcePath.length)
-            )
-            if (currentSourceFile.stat.isDirectory())
-                fileSystem.mkdirSync(currentTargetPath)
-            else
-                Tools.copyFileSync(
-                    currentSourceFile.path, currentTargetPath, readOptions,
-                    writeOptions)
+            finished = true
         }
-        return targetPath
+    }
+    /**
+     * Forwards given child process communication channels to corresponding
+     * current process communication channels.
+     * @param childProcess - Child process meta data.
+     * @returns Given child process meta data.
+     */
+    static handleChildProcess(childProcess:ChildProcess):ChildProcess {
+        childProcess.stdout.pipe(process.stdout)
+        childProcess.stderr.pipe(process.stderr)
+        childProcess.on('close', (returnCode:number):void => {
+            if (returnCode !== 0)
+                console.error(`Task exited with error code ${returnCode}`)
+        })
+        return childProcess
     }
     // / endregion
     // endregion

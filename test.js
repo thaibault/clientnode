@@ -15,9 +15,9 @@
     endregion
 */
 // region imports
+import type {$DomNode} from 'clientnode'
 import browserAPI from 'weboptimizer/browserAPI'
 import type {BrowserAPI, PlainObject} from 'weboptimizer/type'
-import type {$DomNode} from 'clientnode'
 // endregion
 // region types
 export type Test = {
@@ -33,10 +33,12 @@ declare var TARGET_TECHNOLOGY:string
 let fileSystem:Object
 let path:Object
 let QUnit:Object
+let removeDirectoryRecursivelySync:Function
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     fileSystem = require('fs')
     path = require('path')
     QUnit = require('qunit-cli')
+    removeDirectoryRecursivelySync = require('rimraf').sync
 } else
     QUnit = require('script!qunitjs') && window.QUnit
 // endregion
@@ -715,6 +717,182 @@ let tests:Array<Test> = [{callback: function(
     }
     // // endregion
     // // region object
+    this.test(`addDynamicGetterAndSetter (${roundType})`, (
+        assert:Object
+    ):void => {
+        assert.strictEqual(
+            $.Tools.class.addDynamicGetterAndSetter(null), null)
+        assert.strictEqual(
+            $.Tools.class.addDynamicGetterAndSetter(true), true)
+        assert.notDeepEqual(
+            $.Tools.class.addDynamicGetterAndSetter({}), {})
+        assert.ok($.Tools.class.addDynamicGetterAndSetter({
+        }).__target__ instanceof Object)
+        const mockup = {}
+        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(
+            mockup
+        ).__target__, mockup)
+        assert.deepEqual(
+            $.Tools.class.addDynamicGetterAndSetter({}).__target__, {})
+        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter({a: 1}, (
+            value:any
+        ):any => value + 2).a, 3)
+        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
+            {a: {a: 1}}, (value:any):any => (
+                value instanceof Object
+            ) ? value : value + 2).a.a, 3)
+        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter({a: {a: [{
+            a: 1
+        }]}}, (value:any):any => (
+            value instanceof Object
+        ) ? value : value + 2).a.a[0].a, 3)
+        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
+            {a: {a: 1}}, (value:any):any =>
+                (value instanceof Object) ? value : value + 2,
+            (key:any, value:any):any => value, '[]', '[]',
+            'hasOwnProperty', false
+        ).a.a, 1)
+        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
+            {a: 1}, (value:any):any =>
+                (value instanceof Object) ? value : value + 2,
+            (key:any, value:any):any => value, '[]', '[]',
+            'hasOwnProperty', false, []
+        ).a, 1)
+        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
+            {a: new Map([['a', 1]])}, (value:any):any =>
+                (value instanceof Object) ? value : value + 2,
+            (key:any, value:any):any => value, 'get', 'set', 'has', true, [
+                Map]
+        ).a.a, 3)
+    })
+    this.test(`convertCircularObjectToJSON (${roundType})`, (
+        assert:Object
+    ):void => {
+        let testObject1:Object = {}
+        const testObject2:Object = {a: testObject1}
+        testObject1.a = testObject2
+        for (const test:Array<any> of [
+            [{}, '{}'],
+            [{a: null}, '{"a":null}'],
+            [{a: {a: 2}}, '{"a":{"a":2}}'],
+            [testObject1, '{"a":{"a":"__circularReference__"}}']
+        ])
+            assert.deepEqual(
+                $.Tools.class.convertCircularObjectToJSON(test[0]), test[1]
+            )
+    })
+    this.test(`convertMapToPlainObject (${roundType})`, (
+        assert:Object
+    ):void => {
+        for (const test:Array<any> of [
+            [[null], null],
+            [[true], true],
+            [[0], 0],
+            [[2], 2],
+            [['a'], 'a'],
+            [[new Map()], {}],
+            [[[new Map()]], [{}]],
+            [[[new Map()], false], [new Map()]],
+            [[[new Map([['a', 2], [2, 2]])]], [{a: 2, '2': 2}]],
+            [[[new Map([['a', new Map()], [2, 2]])]], [{a: {}, '2': 2}]],
+            [
+                [[new Map([['a', new Map([['a', 2]])], [2, 2]])]],
+                [{a: {a: 2}, '2': 2}]
+            ]
+        ])
+            assert.deepEqual(
+                $.Tools.class.convertMapToPlainObject(...test[0]), test[1])
+    })
+    this.test(`convertPlainObjectToMap (${roundType})`, (
+        assert:Object
+    ):void => {
+        for (const test:Array<any> of [
+            [[null], null],
+            [[true], true],
+            [[0], 0],
+            [[2], 2],
+            [['a'], 'a'],
+            [[{}], new Map()],
+            [[[{}]], [new Map()]],
+            [[[{}], false], [{}]],
+            [[[{a: {}, b: 2}]], [new Map([['a', new Map()], ['b', 2]])]],
+            [[[{b: 2, a: {}}]], [new Map([['a', new Map()], ['b', 2]])]],
+            [
+                [[{b: 2, a: new Map()}]],
+                [new Map([['a', new Map()], ['b', 2]])]
+            ],
+            [
+                [[{b: 2, a: [{}]}]],
+                [new Map([['a', [new Map()]], ['b', 2]])]
+            ]
+        ])
+            assert.deepEqual(
+                $.Tools.class.convertPlainObjectToMap(...test[0]), test[1])
+    })
+    this.test(`convertSubstringInPlainObject (${roundType})`, (
+        assert:Object
+    ):void => {
+        for (const test:Array<any> of [
+            [{}, /a/, '', {}],
+            [{a: 'a'}, /a/, 'b', {a: 'b'}],
+            [{a: 'aa'}, /a/, 'b', {a: 'ba'}],
+            [{a: 'aa'}, /a/g, 'b', {a: 'bb'}],
+            [{a: {a: 'aa'}}, /a/g, 'b', {a: {a: 'bb'}}]
+        ])
+            assert.deepEqual($.Tools.class.convertSubstringInPlainObject(
+                test[0], test[1], test[2]
+            ), test[3])
+    })
+    this.test(`copyLimitedRecursively (${roundType})`, (
+        assert:Object
+    ):void => {
+        for (const test:Array<any> of [
+            [[21], 21],
+            [[0, -1], 0],
+            [[0, 1], 0],
+            [[0, 10], 0],
+            [[new Date(0)], new Date(0)],
+            [[/a/], /a/],
+            [[{}], {}],
+            [[{}, -1], {}],
+            [[[]], []],
+            [[new Map(), -1], new Map()],
+            [[{a: 2}, 0], {a: 2}],
+            [[{a: {a: 2}}, 0], {a: null}],
+            [[{a: {a: 2}}, 1], {a: {a: 2}}],
+            [[{a: {a: 2}}, 2], {a: {a: 2}}],
+            [[{a: [{a: 2}]}, 1], {a: [null]}],
+            [[{a: [{a: 2}]}, 2], {a: [{a: 2}]}],
+            [[{a: {a: 2}}, 10], {a: {a: 2}}],
+            [[new Map([['a', 2]]), 0], new Map([['a', 2]])],
+            [
+                [new Map([['a', new Map([['a', 2]])]]), 0],
+                new Map([['a', null]])
+            ],
+            [
+                [new Map([['a', new Map([['a', 2]])]]), 1],
+                new Map([['a', new Map([['a', 2]])]])
+            ],
+            [
+                [new Map([['a', new Map([['a', 2]])]]), 2],
+                new Map([['a', new Map([['a', 2]])]])
+            ],
+            [
+                [new Map([['a', [new Map([['a', 2]])]]]), 1],
+                new Map([['a', [null]]])
+            ],
+            [
+                [new Map([['a', [new Map([['a', 2]])]]]), 2],
+                new Map([['a', [new Map([['a', 2]])]]])
+            ],
+            [
+                [new Map([['a', new Map([['a', 2]])]]), 10],
+                new Map([['a', new Map([['a', 2]])]])
+            ]
+        ])
+            assert.deepEqual(
+                $.Tools.class.copyLimitedRecursively(...test[0]), test[1])
+    })
     this.test(`determineType (${roundType})`, (assert:Object):void => {
         assert.strictEqual($.Tools.class.determineType(), 'undefined')
         for (const test:Array<any> of [
@@ -743,47 +921,57 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(
                 $.Tools.class.determineType(test[0]), test[1])
     })
-    this.test(`convertSubstringInPlainObject (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`equals (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
-            [{}, /a/, '', {}],
-            [{a: 'a'}, /a/, 'b', {a: 'b'}],
-            [{a: 'aa'}, /a/, 'b', {a: 'ba'}],
-            [{a: 'aa'}, /a/g, 'b', {a: 'bb'}],
-            [{a: {a: 'aa'}}, /a/g, 'b', {a: {a: 'bb'}}]
-        ])
-            assert.deepEqual($.Tools.class.convertSubstringInPlainObject(
-                test[0], test[1], test[2]
-            ), test[3])
-    })
-    this.test(`modifyObject (${roundType})`, (assert:Object):void => {
-        for (const test:any of [
-            [[{}, {}], {}, {}],
-            [[{a: 2}, {}], {a: 2}, {}],
-            [[{a: 2}, {b: 1}], {a: 2}, {b: 1}],
-            [[{a: 2}, {__remove__: 'a'}], {}, {}],
-            [[{a: 2}, {__remove__: ['a']}], {}, {}],
-            [[{a: [2]}, {a: {__prepend__: 1}}], {a: [1, 2]}, {}],
-            [[{a: [2]}, {a: {__remove__: 1}}], {a: [2]}, {}],
-            [[{a: [2, 1]}, {a: {__remove__: 1}}], {a: [2]}, {}],
-            [[{a: [2, 1]}, {a: {__remove__: [1, 2]}}], {a: []}, {}],
-            [[{a: [1]}, {a: {__remove__: 1}}], {a: []}, {}],
-            [[{a: [1]}, {a: {__remove__: [1, 2]}}], {a: []}, {}],
-            [[{a: [2]}, {a: {__append__: 1}}], {a: [2, 1]}, {}],
-            [[{a: [2]}, {a: {__append__: [1, 2]}}], {a: [2, 1, 2]}, {}],
+            [1, 1],
+            [new Date(), new Date()],
+            [new Date(1995, 11, 17), new Date(1995, 11, 17)],
+            [/a/, /a/],
+            [{a: 2}, {a: 2}],
+            [{a: 2, b: 3}, {a: 2, b: 3}],
+            [[1, 2, 3], [1, 2, 3]],
+            [[], []],
+            [{}, {}],
+            [[1, 2, 3, {a: 2}], [1, 2, 3, {a: 2}]],
+            [[1, 2, 3, [1, 2]], [1, 2, 3, [1, 2]]],
+            [[{a: 1}], [{a: 1}]],
+            [[{a: 1, b: 1}], [{a: 1}], []],
+            [[{a: 1, b: 1}], [{a: 1}], ['a']],
+            [2, 2, 0],
+            [[{a: 1, b: 1}], [{a: 1}], null, 0],
+            [[{a: 1}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
+            [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
+            [[{a: {b: 1}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 2],
+            [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 2],
             [
-                [{a: [2]}, {a: {__append__: [1, 2]}, b: 1}],
-                {a: [2, 1, 2]}, {b: 1}
+                [{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3,
+                ['b']
             ],
-            [
-                [{a: [2]}, {a: {__prepend__: 1}}, '_r', '_p'],
-                {a: [2]}, {a: {__prepend__: 1}}
-            ]
-        ]) {
-            assert.deepEqual($.Tools.class.modifyObject(...test[0]), test[1])
-            assert.deepEqual(test[0][1], test[2])
-        }
+            [():void => {}, ():void => {}]
+        ])
+            assert.ok($.Tools.class.equals(...test))
+        for (const test:Array<any> of [
+            [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 2],
+            [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3],
+            [new Date(1995, 11, 17), new Date(1995, 11, 16)],
+            [/a/i, /a/],
+            [1, 2],
+            [{a: 2, b: 3}, {a: 2}],
+            [[1, 2, 3, 4], [1, 2, 3, 5]],
+            [[1, 2, 3, 4], [1, 2, 3]],
+            [[1, 2, 3, {a: 2}], [1, 2, 3, {b: 2}]],
+            [[1, 2, 3, [1, 2]], [1, 2, 3, [1, 2, 3]]],
+            [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2]]],
+            [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2, {}]]],
+            [[{a: 1, b: 1}], [{a: 1}]],
+            [[{a: 1, b: 1}], [{a: 1}], ['a', 'b']],
+            [1, 2, 0],
+            [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
+            [():void => {}, ():void => {}, null, -1, [], false]
+        ])
+            assert.notOk($.Tools.class.equals(...test))
+        const test = ():void => {}
+        assert.ok($.Tools.class.equals(test, test, null, -1, [], false))
     })
     this.test(`extendObject (${roundType})`, (assert:Object):void => {
         for (const test:any of [
@@ -869,63 +1057,73 @@ let tests:Array<Test> = [{callback: function(
         $.Tools.class.extendObject(true, target, {a: [3, 4]})
         assert.deepEqual(target, {a: [3, 4]})
     })
-    this.test(`unwrapProxy (${roundType})`, (assert:Object):void => {
-        for (const test:Array<any> of [
-            [{}, {}],
-            [{a: 'a'}, {a: 'a'}],
-            [{a: 'aa'}, {a: 'aa'}],
-            [{a: {__target__: 2}}, {a: 2}],
-            [{a: {__target__: {__target__: 2}}}, {a: 2}]
-        ])
-            assert.deepEqual($.Tools.class.unwrapProxy(test[0]), test[1])
+    this.test(`forEachSorted (${roundType})`, (assert:Object):void => {
+        let result = []
+        const tester = (item:Array<any>|Object):Array<any> =>
+            $.Tools.class.forEachSorted(
+                item, (value:any, key:string|number):number =>
+                    result.push([key, value]))
+        tester({})
+        assert.deepEqual(result, [])
+        assert.deepEqual(tester({}), [])
+        assert.deepEqual(tester([]), [])
+        assert.deepEqual(tester({a: 2}), ['a'])
+        assert.deepEqual(tester({b: 1, a: 2}), ['a', 'b'])
+        result = []
+        tester({b: 1, a: 2})
+        assert.deepEqual(result, [['a', 2], ['b', 1]])
+        result = []
+
+        tester([2, 2])
+        assert.deepEqual(result, [[0, 2], [1, 2]])
+        result = []
+        tester({'5': 2, '6': 2, '2': 3})
+        assert.deepEqual(result, [['2', 3], ['5', 2], ['6', 2]])
+        result = []
+        tester({a: 2, c: 2, z: 3})
+        assert.deepEqual(result, [['a', 2], ['c', 2], ['z', 3]])
+        $.Tools.class.forEachSorted([1], function():number {
+            result = this
+            return result
+        }, 2)
+        assert.deepEqual(result, 2)
     })
-    this.test(`addDynamicGetterAndSetter (${roundType})`, (
-        assert:Object
-    ):void => {
-        assert.strictEqual(
-            $.Tools.class.addDynamicGetterAndSetter(null), null)
-        assert.strictEqual(
-            $.Tools.class.addDynamicGetterAndSetter(true), true)
-        assert.notDeepEqual(
-            $.Tools.class.addDynamicGetterAndSetter({}), {})
-        assert.ok($.Tools.class.addDynamicGetterAndSetter({
-        }).__target__ instanceof Object)
-        const mockup = {}
-        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(
-            mockup
-        ).__target__, mockup)
-        assert.deepEqual(
-            $.Tools.class.addDynamicGetterAndSetter({}).__target__, {})
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter({a: 1}, (
-            value:any
-        ):any => value + 2).a, 3)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
-            {a: {a: 1}}, (value:any):any => (
-                value instanceof Object
-            ) ? value : value + 2).a.a, 3)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter({a: {a: [{
-            a: 1
-        }]}}, (value:any):any => (
-            value instanceof Object
-        ) ? value : value + 2).a.a[0].a, 3)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
-            {a: {a: 1}}, (value:any):any =>
-                (value instanceof Object) ? value : value + 2,
-            (key:any, value:any):any => value, '[]', '[]',
-            'hasOwnProperty', false
-        ).a.a, 1)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
-            {a: 1}, (value:any):any =>
-                (value instanceof Object) ? value : value + 2,
-            (key:any, value:any):any => value, '[]', '[]',
-            'hasOwnProperty', false, []
-        ).a, 1)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
-            {a: new Map([['a', 1]])}, (value:any):any =>
-                (value instanceof Object) ? value : value + 2,
-            (key:any, value:any):any => value, 'get', 'set', 'has', true, [
-                Map]
-        ).a.a, 3)
+    this.test(`modifyObject (${roundType})`, (assert:Object):void => {
+        for (const test:any of [
+            [[{}, {}], {}, {}],
+            [[{a: 2}, {}], {a: 2}, {}],
+            [[{a: 2}, {b: 1}], {a: 2}, {b: 1}],
+            [[{a: 2}, {__remove__: 'a'}], {}, {}],
+            [[{a: 2}, {__remove__: ['a']}], {}, {}],
+            [[{a: [2]}, {a: {__prepend__: 1}}], {a: [1, 2]}, {}],
+            [[{a: [2]}, {a: {__remove__: 1}}], {a: [2]}, {}],
+            [[{a: [2, 1]}, {a: {__remove__: 1}}], {a: [2]}, {}],
+            [[{a: [2, 1]}, {a: {__remove__: [1, 2]}}], {a: []}, {}],
+            [[{a: [1]}, {a: {__remove__: 1}}], {a: []}, {}],
+            [[{a: [1]}, {a: {__remove__: [1, 2]}}], {a: []}, {}],
+            [[{a: [2]}, {a: {__append__: 1}}], {a: [2, 1]}, {}],
+            [[{a: [2]}, {a: {__append__: [1, 2]}}], {a: [2, 1, 2]}, {}],
+            [
+                [{a: [2]}, {a: {__append__: [1, 2]}, b: 1}],
+                {a: [2, 1, 2]}, {b: 1}
+            ],
+            [
+                [{a: [2]}, {a: {__prepend__: 1}}, '_r', '_p'],
+                {a: [2]}, {a: {__prepend__: 1}}
+            ]
+        ]) {
+            assert.deepEqual($.Tools.class.modifyObject(...test[0]), test[1])
+            assert.deepEqual(test[0][1], test[2])
+        }
+    })
+    QUnit.test('representObject', (assert:Object):void => {
+        for (const test:Array<any> of [
+            [{}, '{}'],
+            [5, '5'],
+            [[], '[]'],
+            [{a: 2, b: 3}, '{\n    "a": 2,\n    "b": 3\n}']
+        ])
+            assert.strictEqual($.Tools.class.representObject(test[0]), test[1])
     })
     this.test(`resolveDynamicDataStructure (${roundType})`, (
         assert:Object
@@ -989,101 +1187,6 @@ let tests:Array<Test> = [{callback: function(
             assert.deepEqual(
                 $.Tools.class.resolveDynamicDataStructure(...test[0]), test[1])
     })
-    this.test(`convertCircularObjectToJSON (${roundType})`, (
-        assert:Object
-    ):void => {
-        let testObject1:Object = {}
-        const testObject2:Object = {a: testObject1}
-        testObject1.a = testObject2
-        for (const test:Array<any> of [
-            [{}, '{}'],
-            [{a: null}, '{"a":null}'],
-            [{a: {a: 2}}, '{"a":{"a":2}}'],
-            [testObject1, '{"a":{"a":"__circularReference__"}}']
-        ])
-            assert.deepEqual(
-                $.Tools.class.convertCircularObjectToJSON(test[0]), test[1]
-            )
-    })
-    this.test(`convertPlainObjectToMap (${roundType})`, (
-        assert:Object
-    ):void => {
-        for (const test:Array<any> of [
-            [[null], null],
-            [[true], true],
-            [[0], 0],
-            [[2], 2],
-            [['a'], 'a'],
-            [[{}], new Map()],
-            [[[{}]], [new Map()]],
-            [[[{}], false], [{}]],
-            [[[{a: {}, b: 2}]], [new Map([['a', new Map()], ['b', 2]])]],
-            [[[{b: 2, a: {}}]], [new Map([['a', new Map()], ['b', 2]])]],
-            [
-                [[{b: 2, a: new Map()}]],
-                [new Map([['a', new Map()], ['b', 2]])]
-            ],
-            [
-                [[{b: 2, a: [{}]}]],
-                [new Map([['a', [new Map()]], ['b', 2]])]
-            ]
-        ])
-            assert.deepEqual(
-                $.Tools.class.convertPlainObjectToMap(...test[0]), test[1])
-    })
-    this.test(`convertMapToPlainObject (${roundType})`, (
-        assert:Object
-    ):void => {
-        for (const test:Array<any> of [
-            [[null], null],
-            [[true], true],
-            [[0], 0],
-            [[2], 2],
-            [['a'], 'a'],
-            [[new Map()], {}],
-            [[[new Map()]], [{}]],
-            [[[new Map()], false], [new Map()]],
-            [[[new Map([['a', 2], [2, 2]])]], [{a: 2, '2': 2}]],
-            [[[new Map([['a', new Map()], [2, 2]])]], [{a: {}, '2': 2}]],
-            [
-                [[new Map([['a', new Map([['a', 2]])], [2, 2]])]],
-                [{a: {a: 2}, '2': 2}]
-            ]
-        ])
-            assert.deepEqual(
-                $.Tools.class.convertMapToPlainObject(...test[0]), test[1])
-    })
-    this.test(`forEachSorted (${roundType})`, (assert:Object):void => {
-        let result = []
-        const tester = (item:Array<any>|Object):Array<any> =>
-            $.Tools.class.forEachSorted(
-                item, (value:any, key:string|number):number =>
-                    result.push([key, value]))
-        tester({})
-        assert.deepEqual(result, [])
-        assert.deepEqual(tester({}), [])
-        assert.deepEqual(tester([]), [])
-        assert.deepEqual(tester({a: 2}), ['a'])
-        assert.deepEqual(tester({b: 1, a: 2}), ['a', 'b'])
-        result = []
-        tester({b: 1, a: 2})
-        assert.deepEqual(result, [['a', 2], ['b', 1]])
-        result = []
-
-        tester([2, 2])
-        assert.deepEqual(result, [[0, 2], [1, 2]])
-        result = []
-        tester({'5': 2, '6': 2, '2': 3})
-        assert.deepEqual(result, [['2', 3], ['5', 2], ['6', 2]])
-        result = []
-        tester({a: 2, c: 2, z: 3})
-        assert.deepEqual(result, [['a', 2], ['c', 2], ['z', 3]])
-        $.Tools.class.forEachSorted([1], function():number {
-            result = this
-            return result
-        }, 2)
-        assert.deepEqual(result, 2)
-    })
     this.test(`sort (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [[], []],
@@ -1101,107 +1204,15 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.deepEqual($.Tools.class.sort(test[0]), test[1])
     })
-    this.test(`equals (${roundType})`, (assert:Object):void => {
+    this.test(`unwrapProxy (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
-            [1, 1],
-            [new Date(), new Date()],
-            [new Date(1995, 11, 17), new Date(1995, 11, 17)],
-            [/a/, /a/],
-            [{a: 2}, {a: 2}],
-            [{a: 2, b: 3}, {a: 2, b: 3}],
-            [[1, 2, 3], [1, 2, 3]],
-            [[], []],
             [{}, {}],
-            [[1, 2, 3, {a: 2}], [1, 2, 3, {a: 2}]],
-            [[1, 2, 3, [1, 2]], [1, 2, 3, [1, 2]]],
-            [[{a: 1}], [{a: 1}]],
-            [[{a: 1, b: 1}], [{a: 1}], []],
-            [[{a: 1, b: 1}], [{a: 1}], ['a']],
-            [2, 2, 0],
-            [[{a: 1, b: 1}], [{a: 1}], null, 0],
-            [[{a: 1}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
-            [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
-            [[{a: {b: 1}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 2],
-            [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 2],
-            [
-                [{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3,
-                ['b']
-            ],
-            [():void => {}, ():void => {}]
+            [{a: 'a'}, {a: 'a'}],
+            [{a: 'aa'}, {a: 'aa'}],
+            [{a: {__target__: 2}}, {a: 2}],
+            [{a: {__target__: {__target__: 2}}}, {a: 2}]
         ])
-            assert.ok($.Tools.class.equals(...test))
-        for (const test:Array<any> of [
-            [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 2],
-            [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3],
-            [new Date(1995, 11, 17), new Date(1995, 11, 16)],
-            [/a/i, /a/],
-            [1, 2],
-            [{a: 2, b: 3}, {a: 2}],
-            [[1, 2, 3, 4], [1, 2, 3, 5]],
-            [[1, 2, 3, 4], [1, 2, 3]],
-            [[1, 2, 3, {a: 2}], [1, 2, 3, {b: 2}]],
-            [[1, 2, 3, [1, 2]], [1, 2, 3, [1, 2, 3]]],
-            [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2]]],
-            [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2, {}]]],
-            [[{a: 1, b: 1}], [{a: 1}]],
-            [[{a: 1, b: 1}], [{a: 1}], ['a', 'b']],
-            [1, 2, 0],
-            [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
-            [():void => {}, ():void => {}, null, -1, [], false]
-        ])
-            assert.notOk($.Tools.class.equals(...test))
-        const test = ():void => {}
-        assert.ok($.Tools.class.equals(test, test, null, -1, [], false))
-    })
-    this.test(`copyLimitedRecursively (${roundType})`, (
-        assert:Object
-    ):void => {
-        for (const test:Array<any> of [
-            [[21], 21],
-            [[0, -1], 0],
-            [[0, 1], 0],
-            [[0, 10], 0],
-            [[new Date(0)], new Date(0)],
-            [[/a/], /a/],
-            [[{}], {}],
-            [[{}, -1], {}],
-            [[[]], []],
-            [[new Map(), -1], new Map()],
-            [[{a: 2}, 0], {a: 2}],
-            [[{a: {a: 2}}, 0], {a: null}],
-            [[{a: {a: 2}}, 1], {a: {a: 2}}],
-            [[{a: {a: 2}}, 2], {a: {a: 2}}],
-            [[{a: [{a: 2}]}, 1], {a: [null]}],
-            [[{a: [{a: 2}]}, 2], {a: [{a: 2}]}],
-            [[{a: {a: 2}}, 10], {a: {a: 2}}],
-            [[new Map([['a', 2]]), 0], new Map([['a', 2]])],
-            [
-                [new Map([['a', new Map([['a', 2]])]]), 0],
-                new Map([['a', null]])
-            ],
-            [
-                [new Map([['a', new Map([['a', 2]])]]), 1],
-                new Map([['a', new Map([['a', 2]])]])
-            ],
-            [
-                [new Map([['a', new Map([['a', 2]])]]), 2],
-                new Map([['a', new Map([['a', 2]])]])
-            ],
-            [
-                [new Map([['a', [new Map([['a', 2]])]]]), 1],
-                new Map([['a', [null]]])
-            ],
-            [
-                [new Map([['a', [new Map([['a', 2]])]]]), 2],
-                new Map([['a', [new Map([['a', 2]])]]])
-            ],
-            [
-                [new Map([['a', new Map([['a', 2]])]]), 10],
-                new Map([['a', new Map([['a', 2]])]])
-            ]
-        ])
-            assert.deepEqual(
-                $.Tools.class.copyLimitedRecursively(...test[0]), test[1])
+            assert.deepEqual($.Tools.class.unwrapProxy(test[0]), test[1])
     })
     // // endregion
     // // region array
@@ -2091,39 +2102,215 @@ let tests:Array<Test> = [{callback: function(
     }
     // // endregion
     // // region file
-    if (fileSystem) {
-        QUnit.test('isDirectorySync', (assert:Object):void => {
-            for (const filePath:string of [
-                __dirname, path.resolve(__dirname, '../')
-            ])
-                assert.ok($.Tools.class.isDirectorySync(filePath))
+    if (TARGET_TECHNOLOGY === 'node') {
+        this.test(`copyDirectoryRecursive (${roundType})`, async (
+            assert:Object
+        ):Promise<void> => {
+            const done:Function = assert.async()
+            let result:string = ''
+            try {
+                result = await $.Tools.class.copyDirectoryRecursive(
+                    './', './test.compiled', ():null => null)
+            } catch (error) {
+                console.error(error)
+            }
+            assert.ok(result.endsWith('/test.compiled'))
+            removeDirectoryRecursivelySync('./test.compiled')
+            done()
         })
-        QUnit.test('isFileSync', (assert:Object):void => {
+        this.test(`copyDirectoryRecursiveSync (${roundType})`, (
+            assert:Object
+        ):void => {
+            assert.ok($.Tools.class.copyDirectoryRecursiveSync(
+                './', './synctest.compiled', ():null => null
+            ).endsWith('/synctest.compiled'))
+            removeDirectoryRecursivelySync('./synctest.compiled')
+        })
+        this.test(`copyFile (${roundType})`, async (
+            assert:Object
+        ):Promise<void> => {
+            const done:Function = assert.async()
+            let result:string = ''
+            try {
+                result = await $.Tools.class.copyFile(
+                    path.resolve('./', path.basename(__filename)),
+                    './test.compiled.js')
+            } catch (error) {
+                console.error(error)
+            }
+            assert.ok(result.endsWith('/test.compiled.js'))
+            fileSystem.unlinkSync('./test.compiled.js')
+            done()
+        })
+        this.test(`copyFileSync (${roundType})`, (assert:Object):void => {
+            assert.ok($.Tools.class.copyFileSync(
+                path.resolve('./', path.basename(__filename)),
+                './synctest.compiled.js'
+            ).endsWith('/synctest.compiled.js'))
+            fileSystem.unlinkSync('./synctest.compiled.js')
+        })
+        this.test(`isDirectory (${roundType})`, async (
+            assert:Object
+        ):Promise<void> => {
+            const done:Function = assert.async()
+            for (const filePath:string of ['./', '../']) {
+                let result:boolean
+                try {
+                    result = await $.Tools.class.isDirectory(filePath)
+                } catch (error) {
+                    console.error(error)
+                }
+                assert.ok(result)
+            }
             for (const filePath:string of [
-                __filename, path.join(__dirname, path.basename(__filename))
+                path.resolve('./', path.basename(__filename))
+            ]) {
+                let result:boolean
+                try {
+                    result = await $.Tools.class.isDirectory(filePath)
+                } catch (error) {
+                    console.error(error)
+                }
+                assert.notOk(result)
+            }
+            done()
+        })
+        this.test(`isDirectorySync (${roundType})`, (assert:Object):void => {
+            for (const filePath:string of ['./', '../'])
+                assert.ok($.Tools.class.isDirectorySync(filePath))
+            for (const filePath:string of [
+                path.resolve('./', path.basename(__filename))
+            ])
+                assert.notOk($.Tools.class.isDirectorySync(filePath))
+        })
+        this.test(`isFile (${roundType})`, async (
+            assert:Object
+        ):Promise<void> => {
+            const done:Function = assert.async()
+            for (const filePath:string of [
+                path.resolve('./', path.basename(__filename))
+            ]) {
+                let result:boolean
+                try {
+                    result = await $.Tools.class.isFile(filePath)
+                } catch (error) {
+                    console.error(error)
+                }
+                assert.ok(result)
+            }
+            for (const filePath:string of ['./', '../']) {
+                let result:boolean
+                try {
+                    result = await $.Tools.class.isFile(filePath)
+                } catch (error) {
+                    console.error(error)
+                }
+                assert.notOk(result)
+            }
+            done()
+        })
+        this.test(`isFileSync (${roundType})`, (assert:Object):void => {
+            for (const filePath:string of [
+                path.resolve('./', path.basename(__filename))
             ])
                 assert.ok($.Tools.class.isFileSync(filePath))
+            for (const filePath:string of ['./', '../'])
+                assert.notOk($.Tools.class.isFileSync(filePath))
         })
-        QUnit.test('walkDirectoryRecursivelySync', (assert:Object):void => {
+        this.test(`walkDirectoryRecursively (${roundType})`, async (
+            assert:Object
+        ):Promise<void> => {
+            const done:Function = assert.async()
             const filePaths:Array<string> = []
             const callback:Function = (filePath:string):null => {
                 filePaths.push(filePath)
                 return null
             }
-            $.Tools.class.walkDirectoryRecursivelySync('./', callback)
+            let files:Array<File> = []
+            try {
+                files = await $.Tools.class.walkDirectoryRecursively(
+                    './', callback)
+            } catch (error) {
+                console.error(error)
+            }
+            assert.strictEqual(files.length, 1)
+            assert.ok(files[0].hasOwnProperty('path'))
+            assert.ok(files[0].hasOwnProperty('stat'))
+            assert.strictEqual(filePaths.length, 1)
+            done()
+        })
+        this.test(`walkDirectoryRecursivelySync (${roundType})`, (
+            assert:Object
+        ):void => {
+            const filePaths:Array<string> = []
+            const callback:Function = (filePath:string):null => {
+                filePaths.push(filePath)
+                return null
+            }
+            const files:Array<File> =
+                $.Tools.class.walkDirectoryRecursivelySync('./', callback)
+            assert.strictEqual(files.length, 1)
+            assert.ok(files[0].hasOwnProperty('path'))
+            assert.ok(files[0].hasOwnProperty('stat'))
             assert.strictEqual(filePaths.length, 1)
         })
-        QUnit.test('copyFileSync', (assert:Object):void => {
-            assert.ok($.Tools.class.copyFileSync(
-                path.join(__dirname, 'helper.js'),
-                path.join(__dirname, 'test.compiled.js')
-            ).endsWith('/test.compiled.js'))
-            fileSystem.unlinkSync(path.join(__dirname, 'test.compiled.js'))
+    }
+    // // endregion
+    // // region process handler
+    if (TARGET_TECHNOLOGY === 'node') {
+        this.test(`getProcessCloseHandler (${roundType})`, (
+            assert:Object
+        ):void => assert.strictEqual(
+            typeof $.Tools.class.getProcessCloseHandler(
+                ():void => {}, ():void => {}
+            ), 'function'))
+        this.test(`handleChildProcess (${roundType})`, (
+            assert:Object
+        ):void => {
+            const ChildProcess:ChildProcess = require(
+                'child_process'
+            ).ChildProcess
+            /**
+             * A mockup duplex stream for mocking "stdout" and "strderr"
+             * process connections.
+             */
+            class MockupDuplexStream extends require('stream').Duplex {
+                /**
+                 * Triggers if contents from current stream should be red.
+                 * @param size - Number of bytes to read asynchronously.
+                 * @returns Red data.
+                 */
+                _read(size:number):string {
+                    return `${size}`
+                }
+                /**
+                 * Triggers if contents should be written on current stream.
+                 * @param chunk - The chunk to be written. Will always be a
+                 * buffer unless the "decodeStrings" option was set to "false".
+                 * @param encoding - Specifies encoding to be used as input
+                 * data.
+                 * @param callback - Will be called if data has been written.
+                 * @returns Returns "true" if more data could be written and
+                 * "false" otherwise.
+                 */
+                _write(
+                    chunk:Buffer|string, encoding:string, callback:Function
+                ):boolean {
+                    callback(new Error('test'))
+                    return true
+                }
+            }
+            const stdoutMockupDuplexStream:MockupDuplexStream =
+                new MockupDuplexStream()
+            const stderrMockupDuplexStream:MockupDuplexStream =
+                new MockupDuplexStream()
+            const childProcess:ChildProcess = new ChildProcess()
+            childProcess.stdout = stdoutMockupDuplexStream
+            childProcess.stderr = stderrMockupDuplexStream
+
+            assert.strictEqual(
+                $.Tools.class.handleChildProcess(childProcess), childProcess)
         })
-        QUnit.test('copyDirectoryRecursiveSync', (assert:Object):void =>
-            assert.ok($.Tools.class.copyDirectoryRecursiveSync(
-                __dirname, path.resolve(__dirname, '../test.compiled')
-            ).endsWith('/test.compiled')))
     }
     // // endregion
     // / endregion

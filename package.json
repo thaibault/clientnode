@@ -78,6 +78,7 @@
   "license": "CC-BY-3.0",
   "devDependencies": {
     "documentation-website": "latest",
+    "rimraf": "latest",
     "jsdom": "latest",
     "jquery": "latest",
     "qunitjs": "latest",
