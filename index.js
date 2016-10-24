@@ -148,6 +148,10 @@ if (!('context' in $) && 'document' in $.global)
  * camel case to delimited and back conversion.
  * @property static:animationEndEventNames - Saves a string with all css3
  * browser specific animation end event names.
+ * @property static:classToTypeMapping - String representation to object type
+ * name mapping.
+ * @property static:closeEventNames - Process event names which indicates that
+ * a process has finished.
  * @property static:keyCode - Saves a mapping from key codes to their
  * corresponding name.
  * @property static:maximalSupportedInternetExplorerVersion - Saves currently
@@ -196,6 +200,9 @@ export default class Tools {
         '[object RegExp]': 'regexp',
         '[object String]': 'string'
     }
+    // TODO migrate
+    static closeEventNames:Array<string> = [
+        'exit', 'close', 'uncaughtException', 'SIGINT', 'SIGTERM', 'SIGQUIT']
     static keyCode:{[key:string]:number} = {
         BACKSPACE: 8,
         COMMA: 188,
