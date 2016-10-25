@@ -3328,6 +3328,35 @@ export default class Tools {
         return ''
     }
     /**
+     * Converts given serialized, base64 encoded or file path given object into
+     * a native javaScript one if possible.
+     * @param serializedObject - Object as string.
+     * @param scope - An optional scope which will be used to evaluate given
+     * object in.
+     * @param name - The name under given scope will be available.
+     * @returns The parsed object if possible and null otherwise.
+     */
+    static stringParseEncodedObject(
+        serializedObject:string, scope:Object = {}, name:string = 'scope'
+    ):?PlainObject {
+        if (serializedObject.endsWith('.json') && Tools.isFileSync(
+            serializedObject
+        ))
+            serializedObject = fileSystem.readFileSync(serializedObject, {
+                encoding: 'utf-8'})
+        if (!serializedObject.startsWith('{'))
+            serializedObject = Buffer.from(
+                serializedObject, 'base64'
+            ).toString('utf8')
+        let result:any
+        try {
+            result = (new Function(name, `return ${serializedObject}`))(scope)
+        } catch (error) {}
+        if (typeof result === 'object')
+            return result
+        return null
+    }
+    /**
      * Represents given phone number. NOTE: Currently only support german phone
      * numbers.
      * @param phoneNumber - Number to format.
