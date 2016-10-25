@@ -1309,7 +1309,8 @@ export default class Tools {
             scope._options && eventHandlerName in scope._options &&
             scope._options[eventHandlerName] !== this.constructor.noop
         )
-            return scope._options[eventHandlerName](...additionalArguments)
+            return scope._options[eventHandlerName].call(
+                this, ...additionalArguments)
         return true
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
