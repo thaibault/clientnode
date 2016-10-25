@@ -33,6 +33,7 @@
     "injection": {
       "external": {
         "aliases": {
+          "buffer/index.js": "Object",
           "jquery": "jQuery"
         }
       },
