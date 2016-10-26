@@ -3450,12 +3450,11 @@ export default class Tools {
      * @returns A promise which will be resolved if a request to given url has
      * finished and resulting status code matches given expectedstatus code.
      * Otherwise returned promise will be rejected.
-     *
      */
     static async checkReachability(
         url:string, wait:boolean = false, expectedStatusCode:number = 200,
         pollIntervallInSeconds:number = 0.1, timeoutInSeconds:number = 10
-    ):Promise<?Object> {
+    ):Promise<Object> {
         const check:Function = (response:?Object):?Object => {
             if (
                 response && 'status' in response &&
@@ -3479,7 +3478,7 @@ export default class Tools {
                             currentlyRunningTimeout = setTimeout(
                                 wrapper, pollIntervallInSeconds * 1000)
                             /* eslint-enable no-use-before-define */
-                        return response
+                        return error
                     }
                     try {
                         resolve(check(response))
@@ -3500,6 +3499,56 @@ export default class Tools {
                 }, timeoutInSeconds * 1000)
             })
         return check(await fetch(url))
+    }
+    /**
+     * Checks if given url isn't reachable.
+     * @param url - Url to check reachability.
+     * @param wait - Boolean indicating if we should retry until a status code
+     * will be given.
+     * @param pollIntervallInSeconds - Seconds between two tries to reach given
+     * url.
+     * @param timeoutInSeconds - Delay after assuming given resource will stay
+     * available.
+     * @returns A promise which will be resolved if a request to given url
+     * couldn't finished. Otherwise returned promise will be rejected.
+     */
+    static async checkUnreachability(
+        url:string, wait:boolean = false, pollIntervallInSeconds:number = 0.1,
+        timeoutInSeconds:number = 10
+    ):Promise<Object> {
+        if (wait)
+            return new Promise((resolve:Function, reject:Function):void => {
+                let timedOut:boolean = false
+                const wrapper:Function = async ():Promise<?Object> => {
+                    try {
+                        const response:Object = await fetch(url)
+                        if (timedOut)
+                            return response
+                        /* eslint-disable no-use-before-define */
+                        currentlyRunningTimeout = setTimeout(
+                            wrapper, pollIntervallInSeconds * 1000)
+                        /* eslint-enable no-use-before-define */
+                    } catch (error) {
+                        /* eslint-disable no-use-before-define */
+                        clearTimeout(timeoutID)
+                        /* eslint-enable no-use-before-define */
+                        resolve(error)
+                        return error
+                    }
+                }
+                let currentlyRunningTimeout = setTimeout(wrapper, 0)
+                const timeoutID:number = setTimeout(():void => {
+                    timedOut = true
+                    clearTimeout(currentlyRunningTimeout)
+                    reject('timeout')
+                }, timeoutInSeconds * 1000)
+            })
+        try {
+            await fetch(url)
+        } catch (error) {
+            return error
+        }
+        throw new Error(`Given url "${url}" is reachable.`)
     }
     /**
      * Send given data to a given iframe.
