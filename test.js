@@ -2113,7 +2113,7 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region data transfer
-    this.test('checkRechability', async (assert:Object):Promise<?Object> => {
+    this.test('checkReachability', async (assert:Object):Promise<void> => {
         const done:Function = assert.async()
         for (const test:Array<any> of [
             ['unknownURL', false],
@@ -2125,6 +2125,20 @@ let tests:Array<Test> = [{callback: function(
                 assert.ok(false)
             } catch (error) {
                 assert.ok(true)
+            }
+        done()
+    })
+    this.test('checkUnreachability', async (assert:Object):Promise<void> => {
+        const done:Function = assert.async()
+        for (const test:Array<any> of [
+            ['unknownURL', false],
+            ['http://unknownHostName', true]
+        ])
+            try {
+                await $.Tools.class.checkUnreachability(...test)
+                assert.ok(true)
+            } catch (error) {
+                assert.ok(false)
             }
         done()
     })
