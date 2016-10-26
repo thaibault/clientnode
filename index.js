@@ -30,7 +30,7 @@ try {
 // endregion
 // region types
 export type PlainObject = {[key:string]:any}
-export type ProcedureFunction = () => void
+export type ProcedureFunction = () => void|Promise<void>
 export type File = {
     path:string;
     stat:Object;
