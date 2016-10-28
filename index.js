@@ -3495,7 +3495,7 @@ export default class Tools {
                 const timeoutID:number = setTimeout(():void => {
                     timedOut = true
                     clearTimeout(currentlyRunningTimeout)
-                    reject('timeout')
+                    reject(`Timeout of ${timeoutInSeconds} seconds reached.`)
                 }, timeoutInSeconds * 1000)
             })
         return check(await fetch(url))
