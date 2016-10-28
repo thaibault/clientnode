@@ -3443,17 +3443,17 @@ export default class Tools {
      * @param wait - Boolean indicating if we should retry until a status code
      * will be given.
      * @param expectedStatusCode - Status code to check for.
-     * @param pollIntervallInSeconds - Seconds between two tries to reach given
-     * url.
      * @param timeoutInSeconds - Delay after assuming given resource isn't
      * available if no response is coming.
+     * @param pollIntervallInSeconds - Seconds between two tries to reach given
+     * url.
      * @returns A promise which will be resolved if a request to given url has
      * finished and resulting status code matches given expectedstatus code.
      * Otherwise returned promise will be rejected.
      */
     static async checkReachability(
         url:string, wait:boolean = false, expectedStatusCode:number = 200,
-        pollIntervallInSeconds:number = 0.1, timeoutInSeconds:number = 10
+        timeoutInSeconds:number = 10, pollIntervallInSeconds:number = 0.1
     ):Promise<Object> {
         const check:Function = (response:?Object):?Object => {
             if (
@@ -3505,16 +3505,16 @@ export default class Tools {
      * @param url - Url to check reachability.
      * @param wait - Boolean indicating if we should retry until a status code
      * will be given.
-     * @param pollIntervallInSeconds - Seconds between two tries to reach given
-     * url.
      * @param timeoutInSeconds - Delay after assuming given resource will stay
      * available.
+     * @param pollIntervallInSeconds - Seconds between two tries to reach given
+     * url.
      * @returns A promise which will be resolved if a request to given url
      * couldn't finished. Otherwise returned promise will be rejected.
      */
     static async checkUnreachability(
-        url:string, wait:boolean = false, pollIntervallInSeconds:number = 0.1,
-        timeoutInSeconds:number = 10
+        url:string, wait:boolean = false, timeoutInSeconds:number = 10,
+        pollIntervallInSeconds:number = 0.1
     ):Promise<Object> {
         if (wait)
             return new Promise((resolve:Function, reject:Function):void => {

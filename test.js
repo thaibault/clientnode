@@ -2118,7 +2118,7 @@ let tests:Array<Test> = [{callback: function(
         for (const test:Array<any> of [
             ['unknownURL', false],
             ['unknownURL', false, 301],
-            ['http://unknownHostName', true, 200, 0.01, 0.025]
+            ['http://unknownHostName', true, 200, 0.025]
         ])
             try {
                 await $.Tools.class.checkReachability(...test)
