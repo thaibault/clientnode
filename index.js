@@ -1911,7 +1911,17 @@ export default class Tools {
      * @returns Representation string.
      */
     static representObject(
-        object:any, indention:string|number = 4, stringifier:?Function = null
+        object:any, indention:string|number = 4, stringifier:?Function = (
+            key:string, value:any
+        ):any => {
+            if (value instanceof Error) {
+                const result:Object = {}
+                for (const key:string of Object.getOwnPropertyNames(value))
+                    result[key] = value[key]
+                return result
+            }
+            return value
+        }
     ):string {
         return JSON.stringify(object, stringifier, indention)
     }
