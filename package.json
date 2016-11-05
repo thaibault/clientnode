@@ -48,9 +48,11 @@
         "clientnode$": "./index"
       },
       "preprocessor": {
-        "babel": {
-          "presets": {
-            "__remove__": "babili"
+        "javaScript": {
+          "configuration": {
+            "presets": {
+              "__remove__": "babili"
+            }
           }
         }
       },
