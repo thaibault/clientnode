@@ -51,8 +51,8 @@ let tests:Array<Test> = [{callback: function(
     // region tests
     // / region public methods
     // // region special
-    this.test(`constructor (${roundType})`, (assert:Object):void =>
-        assert.ok(tools))
+    this.test(`constructor (${roundType})`, (assert:Object):void => assert.ok(
+        tools))
     this.test(`destructor (${roundType})`, (assert:Object):void =>
         assert.strictEqual(tools.destructor(), tools))
     this.test(`initialize (${roundType})`, (assert:Object):void => {
@@ -70,9 +70,9 @@ let tests:Array<Test> = [{callback: function(
     // // region object orientation
     this.test(`controller (${roundType})`, (assert:Object):void => {
         assert.strictEqual(tools.controller(tools, []), tools)
-        assert.strictEqual(tools.controller(
-            $.Tools.class, [], $('body')
-        ).constructor.name, tools.constructor.name)
+        assert.strictEqual(tools.controller($.Tools.class, [], $(
+            'body'
+        )).constructor.name, tools.constructor.name)
     })
     // // endregion
     // // region mutual exclusion
@@ -130,40 +130,18 @@ let tests:Array<Test> = [{callback: function(
     // // region boolean
     this.test(`isNumeric (${roundType})`, (assert:Object):void => {
         for (const test:any of [
-            0,
-            1,
-            '-10',
-            '0',
-            0xFF,
-            '0xFF',
-            '8e5',
-            '3.1415',
-            +10
+            0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10
         ])
             assert.ok($.Tools.class.isNumeric(test))
         for (const test:any of [
-            null,
-            undefined,
-            false,
-            true,
-            '',
-            'a',
-            {},
-            /a/,
-            '-0x42',
-            '7.2acdgs',
-            NaN,
-            Infinity
+            null, undefined, false, true, '', 'a', {}, /a/, '-0x42',
+            '7.2acdgs', NaN, Infinity
         ])
             assert.notOk($.Tools.class.isNumeric(test))
     })
     this.test(`isWindow (${roundType})`, (assert:Object):void => {
         assert.ok($.Tools.class.isWindow(browserAPI.window))
-        for (const test:any of [
-            null,
-            {},
-            browserAPI
-        ])
+        for (const test:any of [null, {}, browserAPI])
             assert.notOk($.Tools.class.isWindow(test))
     })
     this.test(`isArrayLike (${roundType})`, (assert:Object):void => {
@@ -171,14 +149,7 @@ let tests:Array<Test> = [{callback: function(
             [], window.document.querySelectorAll('*')
         ])
             assert.ok($.Tools.class.isArrayLike(test))
-        for (const test:any of [
-            {},
-            null,
-            undefined,
-            false,
-            true,
-            /a/
-        ])
+        for (const test:any of [{}, null, undefined, false, true, /a/])
             assert.notOk($.Tools.class.isArrayLike(test))
     })
     this.test(`isAnyMatching (${roundType})`, (assert:Object):void => {
@@ -214,8 +185,7 @@ let tests:Array<Test> = [{callback: function(
     })
     this.test(`isFunction (${roundType})`, (assert:Object):void => {
         for (const okValue:any of [
-            Object, new Function('return 1'), function():void {},
-            ():void => {}
+            Object, new Function('return 1'), function():void {}, ():void => {}
         ])
             assert.ok($.Tools.class.isFunction(okValue))
         for (const notOkValue:any of [
@@ -225,23 +195,19 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region language fixes
-    this.test(`mouseOutEventHandlerFix (${roundType})`, (
-        assert:Object
-    ):void => assert.ok($.Tools.class.mouseOutEventHandlerFix(
-        ():void => {})))
+    this.test(`mouseOutEventHandlerFix (${roundType})`, (assert:Object):void =>
+        assert.ok($.Tools.class.mouseOutEventHandlerFix(():void => {})))
     // // endregion
     // // region logging
-    this.test(`log (${roundType})`, (assert:Object):void =>
-        assert.strictEqual(tools.log('test'), tools))
+    this.test(`log (${roundType})`, (assert:Object):void => assert.strictEqual(
+        tools.log('test'), tools))
     this.test(`info (${roundType})`, (assert:Object):void =>
         assert.strictEqual(tools.info('test {0}'), tools))
     this.test(`debug (${roundType})`, (assert:Object):void =>
         assert.strictEqual(tools.debug('test'), tools))
     // NOTE: This test breaks javaScript modules in strict mode.
-    this.skip(`${roundType}-error`, (assert:Object):void =>
-        assert.strictEqual(tools.error(
-            'ignore this error, it is only a {1}', 'test'
-        ), tools))
+    this.skip(`${roundType}-error`, (assert:Object):void => assert.strictEqual(
+        tools.error('ignore this error, it is only a {1}', 'test'), tools))
     this.test(`warn (${roundType})`, (assert:Object):void =>
         assert.strictEqual(tools.warn('test'), tools))
     this.test(`show (${roundType})`, (assert:Object):void => {
@@ -250,10 +216,7 @@ let tests:Array<Test> = [{callback: function(
             [null, 'null (Type: "null")'],
             [/a/, '/a/ (Type: "regexp")'],
             ['hans', 'hans (Type: "string")'],
-            [
-                {A: 'a', B: 'b'},
-                'A: a (Type: "string")\nB: b (Type: "string")'
-            ]
+            [{A: 'a', B: 'b'}, 'A: a (Type: "string")\nB: b (Type: "string")']
         ])
             assert.strictEqual($.Tools.class.show(test[0]), test[1])
         assert.ok((new RegExp(
@@ -321,9 +284,7 @@ let tests:Array<Test> = [{callback: function(
             $('<div class="a b"><pre class="a b c"></pre></div>').prop(
                 'outerHTML'))
         })
-        this.test(`normalizeStyles (${roundType})`, (
-            assert:Object
-        ):void => {
+        this.test(`normalizeStyles (${roundType})`, (assert:Object):void => {
             assert.strictEqual($('<div>').Tools(
                 'normalizeStyles'
             ).$domNode.prop('outerHTML'), $('<div>').prop('outerHTML'))
@@ -360,9 +321,7 @@ let tests:Array<Test> = [{callback: function(
                 '</div>'
             ).prop('outerHTML'))
         })
-        this.test(`isEquivalentDom (${roundType})`, (
-            assert:Object
-        ):void => {
+        this.test(`isEquivalentDom (${roundType})`, (assert:Object):void => {
             for (const test:Array<any> of [
                 ['test', 'test'],
                 ['test test', 'test test'],
@@ -382,8 +341,7 @@ let tests:Array<Test> = [{callback: function(
                     '<a class="a" target="_blank"></a>'
                 ],
                 [
-                    '<a target="_blank" class="a"><div b="3" a="2">' +
-                    '</div></a>',
+                    '<a target="_blank" class="a"><div b="3" a="2"></div></a>',
                     '<a class="a" target="_blank"><div a="2" b="3">' +
                     '</div></a>'
                 ],
@@ -401,10 +359,8 @@ let tests:Array<Test> = [{callback: function(
                 ['<div><br><br /></div>', '<div><br /><br /></div>'],
                 [
                     ' <div style="">' +
-                    'german<!--deDE--><!--enUS: english --> ' +
-                    '</div>',
-                    ' <div style="">' +
-                    'german<!--deDE--><!--enUS: english --> ' +
+                    'german<!--deDE--><!--enUS: english --> </div>',
+                    ' <div style="">german<!--deDE--><!--enUS: english --> ' +
                     '</div>'
                 ],
                 ['a<br>', 'a<br />', true]
@@ -416,10 +372,7 @@ let tests:Array<Test> = [{callback: function(
                 ['test test', 'testtest'],
                 ['test test:', ''],
                 ['<div class="a"></div>', '<div>'],
-                [
-                    $('<a class="a"></a>'),
-                    '<a class="a" target="_blank"></a>'
-                ],
+                [$('<a class="a"></a>'), '<a class="a" target="_blank"></a>'],
                 [
                     '<a target="_blank" class="a"><div a="2"></div></a>',
                     '<a class="a" target="_blank"></a>'
@@ -444,20 +397,14 @@ let tests:Array<Test> = [{callback: function(
         assert:Object
     ):void => {
         for (const test:Array<string> of [
-            [
-                'a-b', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], ' +
-                '[a_b]'
-            ],
-            [
-                'aB', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], ' +
-                '[a_b]'
-            ],
+            ['a-b', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
+            ['aB', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
             ['a', 'a, .a, [a], [data-a], [x-a]'],
             ['aa', 'aa, .aa, [aa], [data-aa], [x-aa]'],
             [
                 'aaBB',
-                'aa-bb, .aa-bb, [aa-bb], [data-aa-bb], [x-aa-bb], ' +
-                    '[aa\\:bb], [aa_bb]'
+                'aa-bb, .aa-bb, [aa-bb], [data-aa-bb], [x-aa-bb], [aa\\:bb],' +
+                ' [aa_bb]'
             ],
             [
                 'aaBbCcDd',
@@ -476,9 +423,7 @@ let tests:Array<Test> = [{callback: function(
             ), test[1])
     })
     if (roundType === 'withJQuery')
-        this.test(`removeDirective (${roundType})`, (
-            assert:Object
-        ):void => {
+        this.test(`removeDirective (${roundType})`, (assert:Object):void => {
             const $localBodyDomNode = $bodyDomNode.Tools(
                 'removeDirective', 'a')
             assert.equal($localBodyDomNode.Tools().removeDirective(
@@ -498,15 +443,12 @@ let tests:Array<Test> = [{callback: function(
                 $.Tools.class.getNormalizedDirectiveName(test[0]), test[1])
     })
     if (roundType === 'withJQuery')
-        this.test(`getDirectiveValue (${roundType})`, (
-            assert:Object
-        ):void => assert.equal(
-            $('body').Tools('getDirectiveValue', 'a'), null))
+        this.test(`getDirectiveValue (${roundType})`, (assert:Object):void =>
+            assert.equal($('body').Tools('getDirectiveValue', 'a'), null))
     this.test(`sliceDomNodeSelectorPrefix (${roundType})`, (
         assert:Object
     ):void => {
-        assert.strictEqual(
-            tools.sliceDomNodeSelectorPrefix('body div'), 'div')
+        assert.strictEqual(tools.sliceDomNodeSelectorPrefix('body div'), 'div')
         assert.strictEqual($.Tools({
             domNodeSelectorPrefix: 'body div'
         }).sliceDomNodeSelectorPrefix('body div'), '')
@@ -525,8 +467,7 @@ let tests:Array<Test> = [{callback: function(
             ['<a />', 'a'],
             ['<a></a>', 'a']
         ])
-            assert.strictEqual(
-                $.Tools.class.getDomNodeName(test[0]), test[1])
+            assert.strictEqual($.Tools.class.getDomNodeName(test[0]), test[1])
     })
     if (roundType === 'withJQuery')
         this.test(`grabDomNode (${roundType})`, (assert:Object):void => {
@@ -720,8 +661,7 @@ let tests:Array<Test> = [{callback: function(
     this.test(`addDynamicGetterAndSetter (${roundType})`, (
         assert:Object
     ):void => {
-        assert.strictEqual(
-            $.Tools.class.addDynamicGetterAndSetter(null), null)
+        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(null), null)
         assert.strictEqual(
             $.Tools.class.addDynamicGetterAndSetter(true), true)
         assert.notDeepEqual(
@@ -778,8 +718,7 @@ let tests:Array<Test> = [{callback: function(
             [testObject1, '{"a":{"a":"__circularReference__"}}']
         ])
             assert.deepEqual(
-                $.Tools.class.convertCircularObjectToJSON(test[0]), test[1]
-            )
+                $.Tools.class.convertCircularObjectToJSON(test[0]), test[1])
     })
     this.test(`convertMapToPlainObject (${roundType})`, (
         assert:Object
@@ -918,8 +857,7 @@ let tests:Array<Test> = [{callback: function(
             [new Error(), 'error'],
             [/test/, 'regexp']
         ])
-            assert.strictEqual(
-                $.Tools.class.determineType(test[0]), test[1])
+            assert.strictEqual($.Tools.class.determineType(test[0]), test[1])
     })
     this.test(`equals (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
@@ -1257,9 +1195,7 @@ let tests:Array<Test> = [{callback: function(
                 ...test[0]
             ), test[1])
     })
-    this.test(`arrayDeleteEmptyItems (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`arrayDeleteEmptyItems (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [[[{a: null}]], []],
             [[[{a: null, b: 2}]], [{a: null, b: 2}]],
@@ -1281,9 +1217,7 @@ let tests:Array<Test> = [{callback: function(
             assert.deepEqual(
                 $.Tools.class.arrayExtract(...test[0]), test[1])
     })
-    this.test(`arrayExtractIfMatches (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`arrayExtractIfMatches (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [['b'], /b/, ['b']],
             [['b'], 'b', ['b']],
@@ -1363,9 +1297,7 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.deepEqual($.Tools.class.arrayMakeRange(...test[0]), test[1])
     })
-    this.test(`arraySumUpProperty (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`arraySumUpProperty (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [[[{a: 2}, {a: 3}], 'a'], 5],
             [[[{a: 2}, {b: 3}], 'a'], 2],
@@ -1441,9 +1373,7 @@ let tests:Array<Test> = [{callback: function(
                     ...test[0]),
                 test[1])
     })
-    this.test('stringConvertToValidVariableName', (
-        assert:Object
-    ):void => {
+    this.test('stringConvertToValidVariableName', (assert:Object):void => {
         for (const test:Array<string> of [
             ['', ''],
             ['a', 'a'],
@@ -1488,9 +1418,7 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(
                 $.Tools.class.stringAddSeparatorToPath(...test[0]), test[1])
     })
-    this.test(`stringHasPathPrefix (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`stringHasPathPrefix (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             ['/admin', '/admin'],
             ['test', 'test'],
@@ -1508,9 +1436,7 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.notOk($.Tools.class.stringHasPathPrefix(...test))
     })
-    this.test(`stringGetDomainName (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`stringGetDomainName (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [
                 ['https://www.test.de/site/subSite?param=value#hash'],
@@ -1546,9 +1472,7 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(
                 $.Tools.class.stringGetDomainName(...test[0]), test[1])
     })
-    this.test(`stringGetPortNumber (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`stringGetPortNumber (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [['https://www.test.de/site/subSite?param=value#hash'], 443],
             [['http://www.test.de'], 80],
@@ -1565,9 +1489,7 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(
                 $.Tools.class.stringGetPortNumber(...test[0]), test[1])
     })
-    this.test(`stringGetProtocolName (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`stringGetProtocolName (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [
                 ['https://www.test.de/site/subSite?param=value#hash'],
@@ -1615,14 +1537,10 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(
                 $.Tools.class.stringGetProtocolName(...test[0]), test[1])
     })
-    this.test(`stringGetURLVariable (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`stringGetURLVariable (${roundType})`, (assert:Object):void => {
         assert.ok(Array.isArray($.Tools.class.stringGetURLVariable()))
-        assert.ok(Array.isArray($.Tools.class.stringGetURLVariable(
-            null, '&')))
-        assert.ok(Array.isArray($.Tools.class.stringGetURLVariable(
-            null, '#')))
+        assert.ok(Array.isArray($.Tools.class.stringGetURLVariable(null, '&')))
+        assert.ok(Array.isArray($.Tools.class.stringGetURLVariable(null, '#')))
         for (const test:Array<any> of [
             [['notExisting'], undefined],
             [['notExisting', '&'], undefined],
@@ -1650,9 +1568,7 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(
                 $.Tools.class.stringGetURLVariable(...test[0]), test[1])
     })
-    this.test(`stringIsInternalURL (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`stringIsInternalURL (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [
                 'https://www.test.de/site/subSite?param=value#hash',
@@ -1709,9 +1625,7 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.notOk($.Tools.class.stringIsInternalURL(...test))
     })
-    this.test(`stringNormalizeURL (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`stringNormalizeURL (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             ['www.test.com', 'http://www.test.com'],
             ['test', 'http://test'],
@@ -1721,9 +1635,7 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(
                 $.Tools.class.stringNormalizeURL(test[0]), test[1])
     })
-    this.test(`stringRepresentURL (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`stringRepresentURL (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             ['http://www.test.com', 'www.test.com'],
             ['ftp://www.test.com', 'ftp://www.test.com'],
@@ -1850,8 +1762,7 @@ let tests:Array<Test> = [{callback: function(
             ['Aa', 'aa'],
             ['aa', 'aa']
         ])
-            assert.strictEqual(
-                $.Tools.class.stringLowerCase(test[0]), test[1])
+            assert.strictEqual($.Tools.class.stringLowerCase(test[0]), test[1])
     })
     this.test(`stringFindNormalizedMatchRange (${roundType})`, (
         assert:Object
@@ -1953,19 +1864,23 @@ let tests:Array<Test> = [{callback: function(
                 'a <a>str.</a> <a>2</a>'
             ],
             [
-                ['EGO Movement Store E-Bikes München', ['eBikes', 'München'],
-                '<a>{1}</a>', (value:any):string => `${value}`.toLowerCase(
-                ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
-                    /(^| )str\./g, '$1strasse'
-                ).replace(/[& ]+/g, ' ')],
-                'EGO Movement Store <a>E-Bikes</a> <a>München</a>'
+                [
+                    'EGO Movement Store E-Bikes München',
+                    ['eBikes', 'München'],
+                    '<a>{1}</a>', (value:any):string => `${value}`.toLowerCase(
+                    ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
+                        /(^| )str\./g, '$1strasse'
+                    ).replace(/[& ]+/g, ' ')
+                ], 'EGO Movement Store <a>E-Bikes</a> <a>München</a>'
             ],
             [
-                ['str.A strasse B straße C str. D', ['str.'],
-                '<a>{1}</a>', (value:any):string => `${value}`.toLowerCase(
-                ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
-                    /(^| )str\./g, '$1strasse'
-                ).replace(/[& ]+/g, ' ')],
+                [
+                    'str.A strasse B straße C str. D', ['str.'],
+                    '<a>{1}</a>', (value:any):string => `${value}`.toLowerCase(
+                    ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
+                        /(^| )str\./g, '$1strasse'
+                    ).replace(/[& ]+/g, ' ')
+                ],
                 '<a>str.</a>A <a>strasse</a> B <a>straße</a> C <a>str.</a> D'
             ]
         ])
@@ -2074,11 +1989,9 @@ let tests:Array<Test> = [{callback: function(
                 domNodeSelectorPrefix: ''
             }).normalizeDomNodeSelector(test), test)
     })
-    // / endregion
+    // // endregion
     // // region number
-    this.test(`numberIsNotANumber (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`numberIsNotANumber (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [NaN, true],
             [{}, false],
