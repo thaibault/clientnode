@@ -1962,7 +1962,7 @@ export default class Tools {
             let index:number = 0
             for (const value:mixed of object) {
                 object[index] = Tools.resolveDynamicDataStructure(
-                    value, parameterDescription, parameter, deep,
+                    value, parameterDescription, parameter, false,
                     expressionIndicatorKey, executionIndicatorKey)
                 index += 1
             }
@@ -1982,13 +1982,13 @@ export default class Tools {
                                         key === expressionIndicatorKey
                                     ) ? 'return ' : '') + object[key]))
                             ))(...parameter), parameterDescription, parameter,
-                            false, expressionIndicatorKey,
-                            executionIndicatorKey)
+                            deep, expressionIndicatorKey, executionIndicatorKey
+                            )
                         } catch (error) {
                             throw new Error(
                                 'Error during ' + (
                                     key === expressionIndicatorKey ?
-                                        'executing' : 'evaluating'
+                                        'evaluating' : 'executing'
                                 ) + ` "${object[key]}": ${error}`)
                         }
                     else if (deep)
