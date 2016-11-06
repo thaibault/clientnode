@@ -1146,9 +1146,7 @@ let tests:Array<Test> = [{callback: function(
         for (const test:Array<any> of [
             [{}, {}],
             [{a: 'a'}, {a: 'a'}],
-            [{a: 'aa'}, {a: 'aa'}],
-            [{a: {__target__: 2}}, {a: 2}],
-            [{a: {__target__: {__target__: 2}}}, {a: 2}]
+            [{a: 'aa'}, {a: 'aa'}]
         ])
             assert.deepEqual($.Tools.class.unwrapProxy(test[0]), test[1])
     })
