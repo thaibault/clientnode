@@ -35,8 +35,8 @@ export type File = {
     path:string;
     stat:Object;
 }
-export type GetterFunction = (keyOrValue:any) => any
-export type SetterFunction = (key:any, value:any) => any
+export type GetterFunction = (keyOrValue:any, key:?any, target:?any) => any
+export type SetterFunction = (key:any, value:any, target:?any) => any
 export type Position = {
     top?:number;
     left?:number;
@@ -1387,8 +1387,6 @@ export default class Tools {
             }
         for (const type:mixed of typesToExtend)
             if (object instanceof type) {
-                if (object.__target__)
-                    return object
                 const handler:{
                     has?:(target:Object, name:string) => boolean;
                     get?:(target:Object, name:string) => any;
@@ -1404,13 +1402,19 @@ export default class Tools {
                     handler.get = (target:Object, name:string):any => {
                         if (name === '__target__')
                             return target
+                        if (name === '__unwrap__')
+                            return ():any => {
+                                revoke()
+                                return object
+                            }
                         if (typeof target[name] === 'function')
                             return target[name].bind(target)
                         if (target[containesMethodName](name)) {
                             if (getterMethodName === '[]')
-                                return getterWrapper(target[name])
+                                return getterWrapper(
+                                    target[name], name, target)
                             return getterWrapper(target[getterMethodName](
-                                name))
+                                name), name, target)
                         }
                         return target[name]
                     }
@@ -1419,13 +1423,14 @@ export default class Tools {
                         target:Object, name:string, value:any
                     ):void => {
                         if (setterMethodName === '[]')
-                            target[name] = setterWrapper(name, value)
+                            target[name] = setterWrapper(name, value, target)
                         else
                             target[setterMethodName](name, setterWrapper(
-                                name, value))
+                                name, value, target))
                     }
                 // IgnoreTypeCheck
-                return new Proxy(object, handler)
+                const {proxy, revoke} = Proxy.revocable(object, handler)
+                return proxy
             }
         return object
     }
@@ -1439,7 +1444,7 @@ export default class Tools {
      */
     static convertCircularObjectToJSON(
         object:Object, determineCicularReferenceValue:((
-            key:string, value:any, seendObjects:Array<any>
+            key:string, value:any, seenObjects:Array<any>
         ) => any) = ():string => '__circularReference__',
         numberOfSpaces:number = 0
     ):string {
@@ -1938,63 +1943,66 @@ export default class Tools {
      * to evaluate.
      * @param executionIndicatorKey - Indicator property name to mark a value
      * to evaluate.
+     * @param applyDynamicGetter - Indicates to avoid nested dynamic getter
+     * proxy apply (only needed for internal use).
      * @returns Evaluated given mapping.
      */
     static resolveDynamicDataStructure(
         object:any, parameterDescription:Array<string> = [],
         parameter:Array<any> = [], deep:boolean = true,
         expressionIndicatorKey:string = '__evaluate__',
-        executionIndicatorKey:string = '__execute__'
+        executionIndicatorKey:string = '__execute__',
+        applyDynamicGetter:boolean = true
     ):any {
         if (object === null || typeof object !== 'object')
             return object
         let configuration:any = object
-        if (deep && configuration && !configuration.__target__)
+        const resolve = (value:any):any => Tools.resolveDynamicDataStructure(
+            /* eslint-disable new-parens */
+            // IgnoreTypeCheck
+            (new (Function.prototype.bind.call(
+            /* eslint-enable new-parens */
+                Function, null, ...parameterDescription.concat((
+                    value.hasOwnProperty(expressionIndicatorKey)
+                ) ? `return ${value[expressionIndicatorKey]}` : value[
+                    executionIndicatorKey])
+            )))(...parameter), parameterDescription, parameter, deep,
+            expressionIndicatorKey, executionIndicatorKey, false)
+        if (deep && configuration && applyDynamicGetter)
             configuration = Tools.addDynamicGetterAndSetter(
-                Tools.copyLimitedRecursively(object), ((value:any):any =>
-                    Tools.resolveDynamicDataStructure(
-                        value, parameterDescription, parameter, false,
-                        expressionIndicatorKey, executionIndicatorKey
-                    )), (key:any, value:any):any => value, '[]', '')
+                object, (value:any):any => {
+                    if (typeof value === 'object' && value !== null && (
+                        value.hasOwnProperty(expressionIndicatorKey) ||
+                        value.hasOwnProperty(executionIndicatorKey)
+                    ))
+                        return resolve(value)
+                    return value
+                }, (key:any, value:any):any => value, '[]', '')
         if (parameterDescription.length > parameter.length)
             parameter.push(configuration)
         if (Array.isArray(object) && deep) {
             let index:number = 0
             for (const value:mixed of object) {
                 object[index] = Tools.resolveDynamicDataStructure(
-                    value, parameterDescription, parameter, false,
-                    expressionIndicatorKey, executionIndicatorKey)
+                    value, parameterDescription, parameter, deep,
+                    expressionIndicatorKey, executionIndicatorKey, false)
                 index += 1
             }
         } else
-            for (const key:string in object)
-                if (object.hasOwnProperty(key))
-                    if ([
-                        expressionIndicatorKey, executionIndicatorKey
-                    ].includes(key))
-                        try {
-                            /* eslint-disable new-parens */
-                            return Tools.resolveDynamicDataStructure((new (
-                            /* eslint-enable new-parens */
-                                // IgnoreTypeCheck
-                                Function.prototype.bind.call(Function,
-                                    null, ...parameterDescription.concat(((
-                                        key === expressionIndicatorKey
-                                    ) ? 'return ' : '') + object[key]))
-                            ))(...parameter), parameterDescription, parameter,
-                            deep, expressionIndicatorKey, executionIndicatorKey
-                            )
-                        } catch (error) {
-                            throw new Error(
-                                'Error during ' + (
-                                    key === expressionIndicatorKey ?
-                                        'evaluating' : 'executing'
-                                ) + ` "${object[key]}": ${error}`)
-                        }
-                    else if (deep)
+            if (typeof object === 'object' && object !== null && (
+                object.hasOwnProperty(expressionIndicatorKey) ||
+                object.hasOwnProperty(executionIndicatorKey)
+            ))
+                object = resolve(object)
+            else
+                for (const key:string in object)
+                    if (object.hasOwnProperty(key) && deep)
                         object[key] = Tools.resolveDynamicDataStructure(
                             object[key], parameterDescription, parameter, deep,
-                            expressionIndicatorKey, executionIndicatorKey)
+                            expressionIndicatorKey, executionIndicatorKey,
+                            false)
+        if (deep && configuration && applyDynamicGetter)
+            return Tools.unwrapProxy(object)
         return object
     }
     /**
@@ -2017,20 +2025,26 @@ export default class Tools {
         return keys.sort()
     }
     /**
-     * Removes a proxies from given data structure recursivley.
+     * Removes a proxy from given data structure recursively.
      * @param object - Object to proxy.
-     * @param seenObjects - Tracks all already processed obejcts to avoid
-     * endless loops (usually only needed for internal prupose).
+     * @param seenObjects - Tracks all already processed objects to avoid
+     * endless loops (usually only needed for internal purpose).
      * @returns Returns given object unwrapped from a dynamic proxy.
      */
-    static unwrapProxy(object:any, seenObjects:Array<any> = []):any {
+    static unwrapProxy(object:any, seenObjects:Set<any> = new Set()):any {
         if (object !== null && typeof object === 'object') {
-            while (object.__target__)
-                object = object.__target__
-            const index:number = seenObjects.indexOf(object)
-            if (index !== -1)
-                return seenObjects[index]
-            seenObjects.push(object)
+            if (seenObjects.has(object))
+                return object
+            try {
+                if (object.__unwrap__) {
+                    object = object.__target__
+                    object.__unwrap__()
+                }
+            } catch (error) {
+                return object
+            } finally {
+                seenObjects.add(object)
+            }
             if (Array.isArray(object)) {
                 let index:number = 0
                 for (const value:mixed of object) {
