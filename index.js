@@ -3531,13 +3531,28 @@ export default class Tools {
      * available.
      * @param pollIntervallInSeconds - Seconds between two tries to reach given
      * url.
+     * @param unexpectedStatusCode - Status code to check for.
      * @returns A promise which will be resolved if a request to given url
      * couldn't finished. Otherwise returned promise will be rejected.
      */
     static async checkUnreachability(
         url:string, wait:boolean = false, timeoutInSeconds:number = 10,
-        pollIntervallInSeconds:number = 0.1
+        pollIntervallInSeconds:number = 0.1,
+        unexpectedStatusCode:?number = null
     ):Promise<Object> {
+        const check:Function = (response:?Object):?Error => {
+            if (unexpectedStatusCode !== null) {
+                if (
+                    response && 'status' in response &&
+                    response.status === unexpectedStatusCode
+                )
+                    throw new Error(
+                        `Given url "${url}" is reachable ans responses with ` +
+                        `unexpeced status code "${response.status}".`)
+                return new Error(
+                    `Given status code is not "${unexpectedStatusCode}".`)
+            }
+        }
         if (wait)
             return new Promise((resolve:Function, reject:Function):void => {
                 let timedOut:boolean = false
@@ -3546,6 +3561,12 @@ export default class Tools {
                         const response:Object = await fetch(url)
                         if (timedOut)
                             return response
+                        const result:Error = check(result)
+                        if (result) {
+                            clearTimeout(timeoutID)
+                            resolve(error)
+                            return error
+                        }
                         /* eslint-disable no-use-before-define */
                         currentlyRunningTimeout = setTimeout(
                             wrapper, pollIntervallInSeconds * 1000)
@@ -3566,7 +3587,9 @@ export default class Tools {
                 }, timeoutInSeconds * 1000)
             })
         try {
-            await fetch(url)
+            const result:Error = check(await fetch(url))
+            if (result)
+                return result
         } catch (error) {
             return error
         }

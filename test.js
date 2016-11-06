@@ -2044,7 +2044,8 @@ let tests:Array<Test> = [{callback: function(
     this.test('checkUnreachability', async (assert:Object):Promise<void> => {
         const done:Function = assert.async()
         for (const test:Array<any> of [
-            ['unknownURL', false],
+            ['unknownURL', false, 10, 0.1, 200],
+            ['unknownURL', true, 10, 0.1, 200],
             ['http://unknownHostName', true]
         ])
             try {
