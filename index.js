@@ -3541,7 +3541,7 @@ export default class Tools {
         unexpectedStatusCode:?number = null
     ):Promise<Object> {
         const check:Function = (response:?Object):?Error => {
-            if (unexpectedStatusCode !== null) {
+            if (unexpectedStatusCode) {
                 if (
                     response && 'status' in response &&
                     response.status === unexpectedStatusCode
@@ -3564,8 +3564,8 @@ export default class Tools {
                         const result:Error = check(result)
                         if (result) {
                             clearTimeout(timeoutID)
-                            resolve(error)
-                            return error
+                            resolve(result)
+                            return result
                         }
                         /* eslint-disable no-use-before-define */
                         currentlyRunningTimeout = setTimeout(
