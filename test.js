@@ -1122,8 +1122,9 @@ let tests:Array<Test> = [{callback: function(
                 {a: 2, b: 2, c: 2}
             ]
         ])
-            assert.deepEqual(
-                $.Tools.class.resolveDynamicDataStructure(...test[0]), test[1])
+            assert.deepEqual($.Tools.class.unwrapProxy(
+                $.Tools.class.resolveDynamicDataStructure(...test[0])
+            ), test[1])
     })
     this.test(`sort (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [

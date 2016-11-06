@@ -2001,8 +2001,6 @@ export default class Tools {
                             object[key], parameterDescription, parameter, deep,
                             expressionIndicatorKey, executionIndicatorKey,
                             false)
-        if (deep && configuration && applyDynamicGetter)
-            return Tools.unwrapProxy(object)
         return object
     }
     /**
