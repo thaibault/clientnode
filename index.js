@@ -1350,89 +1350,82 @@ export default class Tools {
      * in given data structure.
      * @param deep - Indicates to perform a deep wrapping of specified types.
      * performed via "value instanceof type".).
-     * @param typesToExtend - Types which should be extended (Checks are
-     * performed via "value instanceof type".).
      * @returns Returns given object wrapped with a dynamic getter proxy.
      */
     static addDynamicGetterAndSetter<Value>(
-        object:Value, getterWrapper:GetterFunction = (value:any):any => value,
+        object:any, getterWrapper:GetterFunction = (value:any):any => value,
         setterWrapper:SetterFunction = (key:any, value:any):any => value,
         getterMethodName:string = '[]', setterMethodName:string = '[]',
-        containesMethodName:string = 'hasOwnProperty', deep:boolean = true,
-        typesToExtend:Array<mixed> = [Object]
-    ):Value {
+        containesMethodName:string = 'hasOwnProperty', deep:boolean = true
+    ):any {
         if (deep)
             if (object instanceof Map)
                 for (const [key:mixed, value:mixed] of object)
                     object.set(key, Tools.addDynamicGetterAndSetter(
                         value, getterWrapper, setterWrapper, getterMethodName,
-                        setterMethodName, containesMethodName, deep,
-                        typesToExtend))
+                        setterMethodName, containesMethodName, deep))
             else if (typeof object === 'object' && object !== null) {
                 for (const key:string in object)
                     if (object.hasOwnProperty(key))
                         object[key] = Tools.addDynamicGetterAndSetter(
                             object[key], getterWrapper, setterWrapper,
                             getterMethodName, setterMethodName,
-                            containesMethodName, deep, typesToExtend)
+                            containesMethodName, deep)
             } else if (Array.isArray(object)) {
                 let index:number = 0
                 for (const value:mixed of object) {
                     object[index] = Tools.addDynamicGetterAndSetter(
                         value, getterWrapper, setterWrapper, getterMethodName,
-                        setterMethodName, containesMethodName, deep,
-                        typesToExtend)
+                        setterMethodName, containesMethodName, deep)
                     index += 1
                 }
             }
-        for (const type:mixed of typesToExtend)
-            if (object instanceof type) {
-                const handler:{
-                    has?:(target:Object, name:string) => boolean;
-                    get?:(target:Object, name:string) => any;
-                    set?:(target:Object, name:string) => any
-                } = {}
-                if (containesMethodName)
-                    handler.has = (target:PlainObject, name:string):boolean => {
-                        if (containesMethodName === '[]')
-                            return name in object
-                        return object[containesMethodName](name)
-                    }
-                if (containesMethodName && getterMethodName)
-                    handler.get = (target:PlainObject, name:string):any => {
-                        if (name === '__target__')
+        if (object instanceof Object) {
+            const handler:{
+                has?:(target:Object, name:string) => boolean;
+                get?:(target:Object, name:string) => any;
+                set?:(target:Object, name:string) => any
+            } = {}
+            if (containesMethodName)
+                handler.has = (target:PlainObject, name:string):boolean => {
+                    if (containesMethodName === '[]')
+                        return name in object
+                    return object[containesMethodName](name)
+                }
+            if (containesMethodName && getterMethodName)
+                handler.get = (target:PlainObject, name:string):any => {
+                    if (name === '__target__')
+                        return object
+                    if (name === '__unwrap__')
+                        return ():any => {
+                            revoke()
                             return object
-                        if (name === '__unwrap__')
-                            return ():any => {
-                                revoke()
-                                return object
-                            }
-                        if (typeof object[name] === 'function')
-                            return object[name]
-                        if (object[containesMethodName](name)) {
-                            if (getterMethodName === '[]')
-                                return getterWrapper(
-                                    object[name], name, object)
-                            return getterWrapper(object[getterMethodName](
-                                name
-                            ), name, object)
                         }
+                    if (typeof object[name] === 'function')
                         return object[name]
+                    if (object[containesMethodName](name)) {
+                        if (getterMethodName === '[]')
+                            return getterWrapper(object[name], name, object)
+                        return getterWrapper(object[getterMethodName](
+                            name
+                        ), name, object)
                     }
-                if (setterMethodName)
-                    handler.set = (
-                        target:PlainObject, name:string, value:any
-                    ):void => {
-                        if (setterMethodName === '[]')
-                            object[name] = setterWrapper(name, value, object)
-                        else
-                            object[setterMethodName](name, setterWrapper(
-                                name, value, object))
-                    }
-                // IgnoreTypeCheck
-                const {proxy, revoke} = Proxy.revocable({}, handler)
-                return proxy
-            }
+                    return object[name]
+                }
+            if (setterMethodName)
+                handler.set = (
+                    target:PlainObject, name:string, value:any
+                ):void => {
+                    if (setterMethodName === '[]')
+                        object[name] = setterWrapper(name, value, object)
+                    else
+                        object[setterMethodName](name, setterWrapper(
+                            name, value, object))
+                }
+            // IgnoreTypeCheck
+            const {proxy, revoke} = Proxy.revocable({}, handler)
+            return proxy
+        }
         return object
     }
     /**
@@ -1985,7 +1978,7 @@ export default class Tools {
         }
         if (deep && configuration && applyDynamicGetter)
             configuration = Tools.addDynamicGetterAndSetter(
-                object, (value:any, name:string, target:any):any => {
+                object, (value:any, name:any, target:any):any => {
                     if (typeof value === 'object' && value !== null && (
                         value.hasOwnProperty(expressionIndicatorKey) ||
                         value.hasOwnProperty(executionIndicatorKey)
