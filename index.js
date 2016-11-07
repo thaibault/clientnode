@@ -1393,43 +1393,44 @@ export default class Tools {
                     set?:(target:Object, name:string) => any
                 } = {}
                 if (containesMethodName)
-                    handler.has = (target:Object, name:string):boolean => {
+                    handler.has = (target:PlainObject, name:string):boolean => {
                         if (containesMethodName === '[]')
-                            return name in target
-                        return target[containesMethodName](name)
+                            return name in object
+                        return object[containesMethodName](name)
                     }
                 if (containesMethodName && getterMethodName)
-                    handler.get = (target:Object, name:string):any => {
+                    handler.get = (target:PlainObject, name:string):any => {
                         if (name === '__target__')
-                            return target
+                            return object
                         if (name === '__unwrap__')
                             return ():any => {
                                 revoke()
                                 return object
                             }
-                        if (typeof target[name] === 'function')
-                            return target[name].bind(target)
-                        if (target[containesMethodName](name)) {
+                        if (typeof object[name] === 'function')
+                            return object[name]
+                        if (object[containesMethodName](name)) {
                             if (getterMethodName === '[]')
                                 return getterWrapper(
-                                    target[name], name, target)
-                            return getterWrapper(target[getterMethodName](
-                                name), name, target)
+                                    object[name], name, object)
+                            return getterWrapper(object[getterMethodName](
+                                name
+                            ), name, object)
                         }
-                        return target[name]
+                        return object[name]
                     }
                 if (setterMethodName)
                     handler.set = (
-                        target:Object, name:string, value:any
+                        target:PlainObject, name:string, value:any
                     ):void => {
                         if (setterMethodName === '[]')
-                            target[name] = setterWrapper(name, value, target)
+                            object[name] = setterWrapper(name, value, object)
                         else
-                            target[setterMethodName](name, setterWrapper(
-                                name, value, target))
+                            object[setterMethodName](name, setterWrapper(
+                                name, value, object))
                     }
                 // IgnoreTypeCheck
-                const {proxy, revoke} = Proxy.revocable(object, handler)
+                const {proxy, revoke} = Proxy.revocable({}, handler)
                 return proxy
             }
         return object
@@ -1952,30 +1953,44 @@ export default class Tools {
         parameter:Array<any> = [], deep:boolean = true,
         expressionIndicatorKey:string = '__evaluate__',
         executionIndicatorKey:string = '__execute__',
-        applyDynamicGetter:boolean = true
+        applyDynamicGetter:boolean = true,
+        cache:{[key:string]:Map<any, any>} = {}
     ):any {
         if (object === null || typeof object !== 'object')
             return object
         let configuration:any = object
-        const resolve = (value:any):any => Tools.resolveDynamicDataStructure(
-            /* eslint-disable new-parens */
-            // IgnoreTypeCheck
-            (new (Function.prototype.bind.call(
-            /* eslint-enable new-parens */
-                Function, null, ...parameterDescription.concat((
-                    value.hasOwnProperty(expressionIndicatorKey)
-                ) ? `return ${value[expressionIndicatorKey]}` : value[
-                    executionIndicatorKey])
-            )))(...parameter), parameterDescription, parameter, deep,
-            expressionIndicatorKey, executionIndicatorKey, false)
+        const resolve = (value:any, name:string, target:any):any => {
+            if (cache.hasOwnProperty(name)) {
+                if (cache[name].has(target))
+                    return cache[name].get(target)
+                else
+                    cache[name].set(target, value)
+            } else
+                cache[name] = new Map([[target, value]])
+            value = Tools.resolveDynamicDataStructure(
+                /* eslint-disable new-parens */
+                // IgnoreTypeCheck
+                (new (Function.prototype.bind.call(
+                /* eslint-enable new-parens */
+                    Function, null, ...parameterDescription.concat((
+                        value.hasOwnProperty(expressionIndicatorKey)
+                    ) ? `return ${value[expressionIndicatorKey]}` : value[
+                        executionIndicatorKey])
+                )))(...parameter), parameterDescription, parameter, deep,
+                expressionIndicatorKey, executionIndicatorKey, false, cache)
+            cache[name].delete(target)
+            if (cache[name].size === 0)
+                delete cache[name]
+            return value
+        }
         if (deep && configuration && applyDynamicGetter)
             configuration = Tools.addDynamicGetterAndSetter(
-                object, (value:any):any => {
+                object, (value:any, name:string, target:any):any => {
                     if (typeof value === 'object' && value !== null && (
                         value.hasOwnProperty(expressionIndicatorKey) ||
                         value.hasOwnProperty(executionIndicatorKey)
                     ))
-                        return resolve(value)
+                        return resolve(value, name, target)
                     return value
                 }, (key:any, value:any):any => value, '[]', '')
         if (parameterDescription.length > parameter.length)
@@ -1985,7 +2000,8 @@ export default class Tools {
             for (const value:mixed of object) {
                 object[index] = Tools.resolveDynamicDataStructure(
                     value, parameterDescription, parameter, deep,
-                    expressionIndicatorKey, executionIndicatorKey, false)
+                    expressionIndicatorKey, executionIndicatorKey, false, cache
+                )
                 index += 1
             }
         } else
@@ -1993,14 +2009,18 @@ export default class Tools {
                 object.hasOwnProperty(expressionIndicatorKey) ||
                 object.hasOwnProperty(executionIndicatorKey)
             ))
-                object = resolve(object)
+                object = resolve(object, object.hasOwnProperty(
+                    expressionIndicatorKey
+                ) ? expressionIndicatorKey : executionIndicatorKey)
             else
                 for (const key:string in object)
                     if (object.hasOwnProperty(key) && deep)
                         object[key] = Tools.resolveDynamicDataStructure(
                             object[key], parameterDescription, parameter, deep,
                             expressionIndicatorKey, executionIndicatorKey,
-                            false)
+                            false, cache)
+        if (deep && configuration && applyDynamicGetter)
+            return Tools.unwrapProxy(object)
         return object
     }
     /**
