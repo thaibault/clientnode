@@ -1976,14 +1976,29 @@ export default class Tools {
             parameterDescription.push('self')
         const evaluate:Function = (
             code:string, type:string = expressionIndicatorKey
-        /* eslint-disable new-parens */
-        // IgnoreTypeCheck
-        ):any => (new (Function.prototype.bind.call(
-        /* eslint-enable new-parens */
-            Function, null, ...parameterDescription.concat((
-                type === expressionIndicatorKey
-            ) ? `return ${code}` : code)
-        )))(...parameter)
+        ):any => {
+            code = (type === expressionIndicatorKey) ? `return ${code}` : code
+            let compiledFunction:Function
+            try {
+                /* eslint-disable new-parens */
+                // IgnoreTypeCheck
+                compiledFunction = new (Function.prototype.bind.call(
+                /* eslint-enable new-parens */
+                    Function, null, ...parameterDescription.concat(code)))
+            } catch (error) {
+                throw new Error(
+                    `Error during compiling code "${code}": "` +
+                    `${Tools.representObject(error)}".`)
+            }
+            try {
+                return compiledFunction(...parameter)
+            } catch (error) {
+                throw new Error(
+                    `Error running code "${code}" in scope with variables "` +
+                    `${parameterDescription.join('", "')}": "` +
+                    `${Tools.representObject(error)}".`)
+            }
+        }
         const addProxy:Function = (data:any):any => {
             if (typeof data !== 'object' || data === null)
                 return data
