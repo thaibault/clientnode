@@ -1534,6 +1534,9 @@ export default class Tools {
      * @param recursionLimit - Specifies how deep we should traverse into given
      * object recursively.
      * @param destination - Target to copy source to.
+     * @param cyclic - Indicates weather known sub structures should be copied
+     * or referenced (if "true" endless loops can occur of source has cyclic
+     * structures).
      * @param stackSource - Internally used to avoid traversing loops.
      * @param stackDestination - Internally used to avoid traversing loops and
      * referencing them correctly.
@@ -1543,8 +1546,8 @@ export default class Tools {
      */
     static copyLimitedRecursively(
         source:any, recursionLimit:number = -1, destination:any = null,
-        stackSource:Array<any> = [], stackDestination:Array<any> = [],
-        recursionLevel:number = 0
+        cyclic:boolean = false, stackSource:Array<any> = [],
+        stackDestination:Array<any> = [], recursionLevel:number = 0
     ):any {
         if (destination) {
             if (source === destination)
@@ -1552,7 +1555,7 @@ export default class Tools {
                     `Can't copy because source and destination are identical.`)
             if (recursionLimit !== -1 && recursionLimit < recursionLevel)
                 return null
-            if (![undefined, null].includes(
+            if (!cyclic && ![undefined, null].includes(
                 source
             ) && typeof source === 'object') {
                 const index:number = stackSource.indexOf(source)
@@ -1563,9 +1566,9 @@ export default class Tools {
             }
             const copyValue:Function = (value:any):any => {
                 const result:any = Tools.copyLimitedRecursively(
-                    value, recursionLimit, null, stackSource, stackDestination,
-                    recursionLevel + 1)
-                if (![undefined, null].includes(
+                    value, recursionLimit, null, cyclic, stackSource,
+                    stackDestination, recursionLevel + 1)
+                if (!cyclic && ![undefined, null].includes(
                     value
                 ) && typeof value === 'object') {
                     stackSource.push(value)
@@ -1586,11 +1589,11 @@ export default class Tools {
         } else if (source) {
             if (Array.isArray(source))
                 return Tools.copyLimitedRecursively(
-                    source, recursionLimit, [], stackSource, stackDestination,
-                    recursionLevel)
+                    source, recursionLimit, [], cyclic, stackSource,
+                    stackDestination, recursionLevel)
             if (source instanceof Map)
                 return Tools.copyLimitedRecursively(
-                    source, recursionLimit, new Map(), stackSource,
+                    source, recursionLimit, new Map(), cyclic, stackSource,
                     stackDestination, recursionLevel)
             if (Tools.determineType(source) === 'date')
                 return new Date(source.getTime())
@@ -1604,8 +1607,8 @@ export default class Tools {
                 source
             ) && typeof source === 'object')
                 return Tools.copyLimitedRecursively(
-                    source, recursionLimit, {}, stackSource, stackDestination,
-                    recursionLevel)
+                    source, recursionLimit, {}, cyclic, stackSource,
+                    stackDestination, recursionLevel)
         }
         return destination || source
     }
