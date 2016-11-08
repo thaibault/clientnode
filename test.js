@@ -658,7 +658,6 @@ let tests:Array<Test> = [{callback: function(
     }
     // // endregion
     // // region object
-    /*TODO
     this.test(`addDynamicGetterAndSetter (${roundType})`, (
         assert:Object
     ):void => {
@@ -707,7 +706,6 @@ let tests:Array<Test> = [{callback: function(
             [Map]
         ).a.a, 3)
     })
-    */
     this.test(`convertCircularObjectToJSON (${roundType})`, (
         assert:Object
     ):void => {

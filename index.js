@@ -1355,7 +1355,7 @@ export default class Tools {
      * performed via "value instanceof type".).
      * @returns Returns given object wrapped with a dynamic getter proxy.
      */
-    static addDynamicGetterAndSetter<Value>(
+    static addDynamicGetterAndSetter(
         object:any, getterWrapper:?GetterFunction = null,
         setterWrapper:?SetterFunction = null, methodNames:PlainObject = {},
         deep:boolean = true, typesToExtend:Array<mixed> = [Object]
@@ -1970,6 +1970,7 @@ export default class Tools {
     ):any {
         if (typeof object !== 'object' || object === null)
             return object
+        parameter = parameter.slice()
         parameter.push(object)
         if (parameterDescription.length < parameter.length)
             parameterDescription.push('self')
@@ -1977,7 +1978,7 @@ export default class Tools {
             code:string, type:string = expressionIndicatorKey
         /* eslint-disable new-parens */
         // IgnoreTypeCheck
-        ) => (new (Function.prototype.bind.call(
+        ):any => (new (Function.prototype.bind.call(
         /* eslint-enable new-parens */
             Function, null, ...parameterDescription.concat((
                 type === expressionIndicatorKey
@@ -2008,7 +2009,7 @@ export default class Tools {
                             else {
                                 const resolvedTarget:any = resolve(target)
                                 if (typeof key !== 'string')
-                                    return () => evaluate(resolvedTarget)
+                                    return ():any => evaluate(resolvedTarget)
                                 if (target.hasOwnProperty(
                                     expressionIndicatorKey
                                 ))
