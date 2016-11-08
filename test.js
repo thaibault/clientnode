@@ -1169,7 +1169,7 @@ let tests:Array<Test> = [{callback: function(
         types: {
             default: {
                 filePathPattern: {
-                    __evaluate__: '`^${tools.stringGetRegularExpressionValidated(self.path.target.asset.javaScript)}.+${self.path.target.asset.javaScript === self.path.source.asset.javaScript ? \'\\\\.compiled\' : \'\'}(?:\\\\.[^.]+(?:\\\\.map)?)?$`'
+                    __evaluate__: '`^${self.path.target.asset.javaScript}.+${self.path.target.asset.javaScript === self.path.source.asset.javaScript ? \'\\\\.compiled\' : \'\'}(?:\\\\.[^.]+(?:\\\\.map)?)?$`'
                 },
                 outputExtension: 'js',
                 preinstall: {
@@ -1182,7 +1182,7 @@ let tests:Array<Test> = [{callback: function(
             cascadingStyleSheet: {
                 extension: 'css',
                 filePathPattern: {
-                    __evaluate__: '`^${tools.stringGetRegularExpressionValidated(self.path.target.asset.cascadingStyleSheet)}.+${self.path.target.asset.cascadingStyleSheet === self.path.source.asset.cascadingStyleSheet ? \'\\\\.compiled\' : \'\'}(?:\\\\.[^.]+(?:\\\\.map)?)?$`'
+                    __evaluate__: '`^${self.path.target.asset.cascadingStyleSheet}.+${self.path.target.asset.cascadingStyleSheet === self.path.source.asset.cascadingStyleSheet ? \'\\\\.compiled\' : \'\'}(?:\\\\.[^.]+(?:\\\\.map)?)?$`'
                 },
                 outputExtension: 'css'
             },
@@ -1408,7 +1408,7 @@ let tests:Array<Test> = [{callback: function(
                 __evaluate__: 'self.module.optimizer.htmlMinifier'
             },
             template: {
-                __evaluate__: '`${self.module.html.loader}?${tools.convertCircularObjectToJSON(self.module.html.configuration)}!${self.module.preprocessor.html.loader}?${tools.convertCircularObjectToJSON(self.module.preprocessor.html.configuration)}!${tools.isFileSync(path.resolve(self.path.source.base, \'playground.pug\')) ? path.resolve(self.path.source.base, \'playground.pug\') : path.resolve(webOptimizerPath, \'index.pug\')}`'
+                __evaluate__: '`${self.module.html.loader}?!${self.module.preprocessor.html.loader}?!${path.resolve(self.path.source.base, \'playground.pug\')}`'
             }
         },
         html: {
@@ -1756,7 +1756,7 @@ let tests:Array<Test> = [{callback: function(
     targetTechnology: 'web',
     contextType: 'main',
     libraryName: {
-        __evaluate__: '2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === \'serve\' ? [tools.stringConvertToValidVariableName(self.name), \'[name]\']: null'
+        __evaluate__: '2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === \'serve\' ? [self.name, \'[name]\']: null'
     },
     name: 'mockup',
     givenCommandLineArguments: ['/usr/bin/node',
