@@ -1999,6 +1999,19 @@ export default class Tools {
                     `${Tools.representObject(error)}".`)
             }
         }
+        const stack:Map<any, string> = new Map()
+        const registerEvaluation = (target, code) => {
+            if (stack.has(target))
+                if (stack.get(target).hasOwnProperty(code))
+                    throw stack
+                else
+                    stack.get(target)[code] = null
+            else
+                stack.set(target, {[code]: null})
+        }
+        const unregisterEvaluation = (target, code) => {
+            delete stack.get(target)[code]
+        }
         const addProxy:Function = (data:any):any => {
             if (typeof data !== 'object' || data === null)
                 return data
@@ -2012,17 +2025,33 @@ export default class Tools {
                         get: (target:any, key:any):any => {
                             if (key === '__target__')
                                 return target
+                            if (key === 'hasOwnProperty')
+                                return target[key]
                             /*
                                 NOTE: Very complicated stuff section, only
                                 change while doing a lot of tests.
                             */
-                            if (key === expressionIndicatorKey)
-                                return resolve(evaluate(target[key]))
-                            else if (key === executionIndicatorKey)
-                                return resolve(evaluate(
-                                    target[key], executionIndicatorKey))
-                            else {
-                                const resolvedTarget:any = resolve(target)
+                            if (key === expressionIndicatorKey) {
+                                registerEvaluation(target, target[key])
+                                const evaluatedValue = evaluate(target[key])
+                                unregisterEvaluation(target, target[key])
+                                return resolve(evaluatedValue)
+                            } else if (key === executionIndicatorKey) {
+                                registerEvaluation(target, target[key])
+                                const evaluatedValue = evaluate(
+                                    target[key], executionIndicatorKey)
+                                unregisterEvaluation(target, target[key])
+                                return resolve(evaluatedValue)
+                            } else {
+                                let resolvedTarget:any
+                                try {
+                                    resolvedTarget = resolve(target)
+                                } catch (error) {
+                                    if (error === stack)
+                                        resolvedTarget = target
+                                    else
+                                        throw error
+                                }
                                 if (typeof key !== 'string')
                                     return ():any => evaluate(resolvedTarget)
                                 if (target.hasOwnProperty(
