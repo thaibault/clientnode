@@ -1153,7 +1153,621 @@ let tests:Array<Test> = [{callback: function(
                     __evaluate__: 'tools.copyLimitedRecursively([2])'
                 }}}
             }, ['tools', '_'], [$.Tools.class]],
-            {a: [2], b: {d: {e: [2]}}, c: {d: {e: [2]}}}]
+            {a: [2], b: {d: {e: [2]}}, c: {d: {e: [2]}}}],
+            [[
+
+{
+    assetPattern: {
+        javaScript: {
+            excludeFilePathRegularExpression: {
+                __evaluate__: '`^(?:.*/)?(?:developmentHelper|vendor${self.debug && self.inPlace.externalLibrary.normal ? \'|index\' : \'\'})(?:\\.compiled)?\\.js$`'
+            },
+            pattern: '\'use strict\';\n{1}'
+        }
+    },
+    build: {
+        types: {
+            default: {
+                filePathPattern: {
+                    __evaluate__: '`^${tools.stringGetRegularExpressionValidated(self.path.target.asset.javaScript)}.+${self.path.target.asset.javaScript === self.path.source.asset.javaScript ? \'\\\\.compiled\' : \'\'}(?:\\\\.[^.]+(?:\\\\.map)?)?$`'
+                },
+                outputExtension: 'js',
+                preinstall: {
+                    __evaluate__: '`touch \'\\${path.resolve(self.path.target.asset[buildConfiguration.type], path.basename(filePath, \\`.\\${buildConfiguration.extension}\\`))}.compiled.\\${buildConfiguration.outputExtension}\'`'
+                }
+            },
+            javaScript: {
+                extension: 'js'
+            },
+            cascadingStyleSheet: {
+                extension: 'css',
+                filePathPattern: {
+                    __evaluate__: '`^${tools.stringGetRegularExpressionValidated(self.path.target.asset.cascadingStyleSheet)}.+${self.path.target.asset.cascadingStyleSheet === self.path.source.asset.cascadingStyleSheet ? \'\\\\.compiled\' : \'\'}(?:\\\\.[^.]+(?:\\\\.map)?)?$`'
+                },
+                outputExtension: 'css'
+            },
+            additional: {
+                filePathPattern: '^.+\\.compiled(?:\\.map)?$',
+                outputExtension: ''
+            }
+        },
+        definitions: {
+            CONTEXT_TYPE: {
+                __evaluate__: 'self.contextType'
+            },
+            DEBUG: {
+                __evaluate__: 'self.debug'
+            },
+            EXTERNAL_EXPORT_FORMAT: {
+                __evaluate__: '`\'${self.exportFormat.external}\'`'
+            },
+            NAME: {
+                __evaluate__: '`\'${self.name}\'`'
+            },
+            OFFLINE: {
+                __evaluate__: 'Boolean(self.offline)'
+            },
+            SELF_EXPORT_FORMAT: {
+                __evaluate__: '`\'${self.exportFormat.self}\'`'
+            },
+            TARGET_TECHNOLOGY: {
+                __evaluate__: '`\'${self.targetTechnology}\'`'
+            }
+        }
+    },
+    cache: {
+        main: true,
+        unsafe: true
+    },
+    commandLine: {
+        build: {
+            arguments: ['--bail',
+                '--config', {
+                    __evaluate__: '`${webOptimizerPath}/webpackConfigurator.compiled.js`'
+                },
+                '--progress',
+                '--display-chunks',
+                '--display-reasons',
+                '--display-error-details'
+            ],
+            command: 'webpack'
+        },
+        document: {
+            arguments: ['--package',
+                './package.json',
+                '--readme',
+                './readme.md',
+                '--destination', {
+                    __evaluate__: 'self.path.apiDocumentation'
+                }, {
+                    __evaluate__: '`\'${self.path.target.asset.javaScript}\'*.js`'
+                }
+            ],
+            command: 'jsdoc',
+            indicator: 'self.needed.javaScript'
+        },
+        lint: [{
+            arguments: [{
+                    __evaluate__: 'path.resolve(self.path.source.asset.cascadingStyleSheet, \'**/*.css\')'
+                },
+                '--config', {
+                    __evaluate__: 'path.relative(self.path.context, path.resolve(webOptimizerPath, \'stylelintConfigurator.compiled.js\'))'
+                }
+            ],
+            command: 'stylelint',
+            indicator: 'self.needed.cascadingStyleSheet'
+        }, {
+            arguments: ['--config', {
+                    __evaluate__: '`\'${webOptimizerPath}/package.json\'`'
+                },
+                '--ignore-pattern', {
+                    __evaluate__: '`\'${self.path.target.base.substring(currentPath.length + 1) ? path.relative(currentPath, self.path.target.base, \'**\') : "*.compiled.js"}\'`'
+                },
+                '--ignore-pattern', {
+                    __evaluate__: '`\'${self.path.apiDocumentation}\'`'
+                },
+                '\'**/*.js\''
+            ],
+            command: 'eslint',
+            indicator: 'self.needed.javaScript'
+        }],
+        serve: {
+            arguments: ['--config', {
+                    __evaluate__: '`\'${webOptimizerPath}/webpackConfigurator.compiled.js\'`'
+                }, {
+                    __evaluate__: 'self.debug ? \'--hot\' : \'\''
+                }, {
+                    __evaluate__: 'self.debug ? \'--inline\' : \'\''
+                },
+                '--host',
+                '0.0.0.0',
+                '--port', {
+                    __evaluate__: 'self.development.server.port'
+                },
+                '--colors',
+                '--compress',
+                '--history-api-fallback'
+            ],
+            command: 'webpack-dev-server'
+        },
+        test: {
+            command: {
+                __evaluate__: 'helper.stripLoader(self.files.compose.javaScript)'
+            }
+        },
+        testInBrowser: {
+            __evaluate__: 'self.commandLine.serve'
+        },
+        typeCheck: {
+            arguments: ['--color', 'always', '--strip-root', '--show-all-errors'],
+            command: 'flow'
+        }
+    },
+    debug: false,
+    development: {
+        openBrowser: null,
+        server: {
+            contentBase: {
+                __evaluate__: 'self.path.source.base'
+            },
+            historyApiFallback: true,
+            hot: true,
+            stats: {
+                colors: true
+            },
+            host: 'localhost',
+            port: 8080,
+            protocol: 'http'
+        },
+        tool: false
+    },
+    exportFormat: {
+        external: 'umd',
+        self: {
+            __evaluate__: '2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === \'serve\' ? \'var\' : \'umd\''
+        }
+    },
+    extensions: {
+        file: {
+            internal: ['.js',
+                '.json',
+                '.css',
+                '.eot',
+                '.gif',
+                '.html',
+                '.ico',
+                '.jpg',
+                '.png',
+                '.pug',
+                '.svg',
+                '.ttf',
+                '.woff',
+                '.woff2'
+            ],
+            external: {
+                __evaluate__: 'self.targetTechnology === \'node\' ? [\'.js\', \'.json\'] : [\'.js\', \'.css\', \'.eot\', \'.gif\', \'.html\', \'.ico\', \'.jpg\', \'.png\', \'.svg\', \'.ttf\', \'.woff\', \'.woff2\']'
+            }
+        },
+        module: []
+    },
+    favicon: {
+        background: 'white',
+        emitStats: false,
+        icons: {
+            android: true,
+            appleIcon: true,
+            appleStartup: true,
+            coast: true,
+            favicons: true,
+            firefox: true,
+            opengraph: true,
+            twitter: true,
+            windows: true,
+            yandex: true
+        },
+        inject: true,
+        logo: {
+            __evaluate__: 'self.path.source.asset.favicon'
+        },
+        persistentCache: true,
+        prefix: {
+            __evaluate__: '`${path.relative(self.path.target.base, path.resolve(self.path.target.asset.image, \'favicons-[hash]\'))}/`'
+        },
+        statsFilename: 'iconStats.json',
+        title: {
+            __evaluate__: 'self.name'
+        }
+    },
+    files: {
+        additionalPaths: ['crossdomain.xml',
+            'favicon.ico',
+            'humans.txt',
+            'license.txt',
+            'robots.txt',
+            '404.html',
+            '.htaccess'
+        ],
+        compose: {
+            cascadingStyleSheet: {
+                __evaluate__: 'self.debug && 2 < self.givenCommandLineArguments.length && [\'testInBrowser\', \'serve\'].includes(self.givenCommandLineArguments[2]) ? null : `${path.resolve(self.path.target.asset.cascadingStyleSheet, `index${self.path.target.asset.cascadingStyleSheet === self.path.source.asset.cascadingStyleSheet ? \'.compiled\' : \'\'}.css`)}?${self.hashAlgorithm}=[contenthash]`'
+            },
+            image: {
+                __evaluate__: 'self.debug ? null : path.resolve(self.path.target.asset.image, \'sprite.png\')'
+            },
+            javaScript: {
+                __evaluate__: '`${path.resolve(self.path.target.asset.javaScript, `[name]${self.path.target.asset.javaScript === self.path.source.asset.javaScript ? \'.compiled\' : \'\'}.js`)}?${self.hashAlgorithm}=[hash]`'
+            }
+        },
+        defaultHTML: {
+            chunksSortMode: 'auto',
+            debug: false,
+            filename: 'playground.html',
+            hash: true,
+            inject: 'head',
+            minify: {
+                __evaluate__: 'self.module.optimizer.htmlMinifier'
+            },
+            template: {
+                __evaluate__: '`${self.module.html.loader}?${tools.convertCircularObjectToJSON(self.module.html.configuration)}!${self.module.preprocessor.html.loader}?${tools.convertCircularObjectToJSON(self.module.preprocessor.html.configuration)}!${tools.isFileSync(path.resolve(self.path.source.base, \'playground.pug\')) ? path.resolve(self.path.source.base, \'playground.pug\') : path.resolve(webOptimizerPath, \'index.pug\')}`'
+            }
+        },
+        html: {
+            __evaluate__: '2 < self.givenCommandLineArguments.length && [\'testInBrowser\', \'serve\'].includes(self.givenCommandLineArguments[2]) ? [{}] : []'
+        }
+    },
+    hashAlgorithm: 'md5',
+    injection: {
+        autoExclude: ['test'],
+        commonChunkIDs: ['vendor'],
+        dllChunkIDs: ['vendor', 'developmentHelper'],
+        external: {
+            aliases: {},
+            implicit: {
+                pattern: {
+                    exclude: [{
+                        __evaluate__: '/^weboptimizer\\/browserAPI(?:\\.compiled)?(?:\\.js)?$/'
+                    }, {
+                        __evaluate__: '/(?:^|\\/)webpack(?:$|\\/)/'
+                    }],
+                    include: []
+                }
+            },
+            modules: '__implicit__'
+        },
+        ignorePattern: [],
+        internal: {
+            index: '__auto__'
+        }
+    },
+    inPlace: {
+        cascadingStyleSheet: true,
+        externalLibrary: {
+            normal: {
+                __evaluate__: '2 < self.givenCommandLineArguments.length && [\'buildDLL\', \'serve\', \'watchDLL\'].includes(self.givenCommandLineArguments[2])'
+            },
+            dynamic: true
+        },
+        javaScript: false,
+        otherMaximumFileSizeLimitInByte: 1
+    },
+    library: true,
+    loader: {
+        aliases: {
+            pug: 'weboptimizer/pugLoader.compiled'
+        },
+        extensions: {
+            file: ['.js'],
+            module: ['-loader']
+        },
+        directoryNames: ['web_loaders', 'web_modules', 'node_loaders', 'node_modules']
+    },
+    module: {
+        additional: [],
+        aliases: {
+            'weboptimizer/browserAPI$': 'weboptimizer/browserAPI.compiled',
+            'weboptimizer/helper$': 'weboptimizer/helper.compiled'
+        },
+        cascadingStyleSheet: {
+            configuration: '',
+            exclude: 'false',
+            loader: 'css'
+        },
+        contextReplacements: [],
+        directoryNames: ['web_modules', 'node_modules'],
+        html: {
+            configuration: {
+                config: 'html',
+                attrs: ['img:src', 'link:href']
+            },
+            exclude: 'false',
+            loader: 'html'
+        },
+        optimizer: {
+            data: {
+                configuration: {
+                    limit: {
+                        __evaluate__: 'self.inPlace.otherMaximumFileSizeLimitInByte'
+                    },
+                    name: {
+                        __evaluate__: '`${path.join(path.relative(self.path.target.base, self.path.target.asset.data), \'[name].[ext]\')}?${self.hashAlgorithm}=[hash]`'
+                    }
+                },
+                exclude: 'false',
+                loader: 'url'
+            },
+            font: {
+                eot: {
+                    configuration: {
+                        limit: {
+                            __evaluate__: 'self.inPlace.otherMaximumFileSizeLimitInByte'
+                        },
+                        name: {
+                            __evaluate__: '`${path.join(path.relative(self.path.target.base, self.path.target.asset.font), \'[name].[ext]\')}?${self.hashAlgorithm}=[hash]`'
+                        }
+                    },
+                    exclude: 'false',
+                    loader: 'url'
+                },
+                svg: {
+                    configuration: {
+                        limit: {
+                            __evaluate__: 'self.inPlace.otherMaximumFileSizeLimitInByte'
+                        },
+                        mimetype: 'image/svg+xml',
+                        name: {
+                            __evaluate__: '`${path.join(path.relative(self.path.target.base, self.path.target.asset.font), \'[name].[ext]\')}?${self.hashAlgorithm}=[hash]`'
+                        }
+                    },
+                    exclude: 'false',
+                    loader: 'url'
+                },
+                ttf: {
+                    configuration: {
+                        limit: {
+                            __evaluate__: 'self.inPlace.otherMaximumFileSizeLimitInByte'
+                        },
+                        mimetype: 'application/octet-stream',
+                        name: {
+                            __evaluate__: '`${path.join(path.relative(self.path.target.base, self.path.target.asset.font), \'[name].[ext]\')}?${self.hashAlgorithm}=[hash]`'
+                        }
+                    },
+                    exclude: 'false',
+                    loader: 'url'
+                },
+                woff: {
+                    configuration: {
+                        limit: {
+                            __evaluate__: 'self.inPlace.otherMaximumFileSizeLimitInByte'
+                        },
+                        name: {
+                            __evaluate__: '`${path.join(path.relative(self.path.target.base, self.path.target.asset.font), \'[name].[ext]\')}?${self.hashAlgorithm}=[hash]`'
+                        }
+                    },
+                    exclude: 'false',
+                    loader: 'url'
+                }
+            },
+            htmlMinifier: {
+                caseSensitive: true,
+                collapseBooleanAttributes: true,
+                collapseInlineTagWhitespace: true,
+                collapseWhitespace: true,
+                conservativeCollapse: true,
+                ignoreCustomComments: [],
+                ignoreCustomFragments: [{
+                    __evaluate__: '/<%[\\s\\S]*?%>/'
+                }, {
+                    __evaluate__: '/<\\?[\\s\\S]*?\\?>/'
+                }, {
+                    __evaluate__: '/<link[^>]*>/'
+                }, {
+                    __evaluate__: '/<img[^>]*>/'
+                }],
+                includeAutoGeneratedTags: false,
+                keepClosingSlash: true,
+                lint: false,
+                maxLineLength: 1e+31,
+                minifyJS: {
+                    __evaluate__: 'self.module.optimizer.uglifyJS'
+                },
+                minifyCSS: false,
+                minifyURLs: false,
+                preserveLineBreaks: true,
+                preventAttributesEscaping: true,
+                processScripts: [],
+                processConditionalComments: false,
+                quoteCharacter: '"',
+                removeAttributeQuotes: false,
+                removeComments: true,
+                removeCommentsFromCDATA: true,
+                removeCDATASectionsFromCDATA: true,
+                removeTagWhitespace: false,
+                removeRedundantAttributes: false,
+                removeEmptyAttributes: false,
+                removeScriptTypeAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+                removeOptionalTags: false,
+                removeEmptyElements: false,
+                useShortDoctype: false
+            },
+            image: {
+                content: {
+                    disable: {
+                        __evaluate__: 'self.debug'
+                    },
+                    gifsicle: {
+                        optimizationLevel: 3,
+                        interlanced: false,
+                        colors: 256
+                    },
+                    jpegtran: {
+                        progressive: true,
+                        arithmetic: true
+                    },
+                    optipng: {
+                        optimizationLevel: 7
+                    },
+                    plugins: [],
+                    pngquant: null,
+                    svgo: {}
+                },
+                exclude: 'console.warn(`Imagecompression for file "${fileName}" disabled. Use configuration: "{module:{optimizer:{image:{exclude:\'false\'}}}}}". to enable it.\') || true',
+                file: {
+                    limit: {
+                        __evaluate__: 'self.inPlace.otherMaximumFileSizeLimitInByte'
+                    },
+                    name: {
+                        __evaluate__: '`/${path.relative(self.path.target.base, path.resolve(self.path.target.asset.image, \'[name].[ext]\'))}?${self.hashAlgorithm}=[hash]`'
+                    }
+                },
+                loader: 'url'
+            },
+            uglifyJS: {
+                compress: {
+                    warnings: false
+                }
+            }
+        },
+        preprocessor: {
+            cascadingStyleSheet: {
+                configuration: 'sourceMap=inline',
+                loader: 'postcss'
+            },
+            html: {
+                configuration: {
+                    moduleAliases: {
+                        __evaluate__: 'self.module.aliases'
+                    },
+                    extensions: {
+                        __evaluate__: 'self.extensions'
+                    },
+                    context: {
+                        __evaluate__: 'self.path.context'
+                    },
+                    compiler: {
+                        cache: true,
+                        debug: false,
+                        pretty: false
+                    }
+                },
+                exclude: 'false',
+                loader: 'pug'
+            },
+            javaScript: {
+                configuration: {
+                    cacheDirectory: true,
+                    compact: {
+                        __evaluate__: '!self.debug'
+                    },
+                    minified: {
+                        __evaluate__: '!self.debug'
+                    },
+                    presets: ['latest', 'stage-0', 'babili'],
+                    plugins: ['transform-flow-strip-types', 'transform-runtime']
+                },
+                exclude: 'false',
+                loader: 'babel'
+            },
+            json: {
+                exclude: 'false',
+                loader: 'json'
+            }
+        },
+        provide: {},
+        skipParseRegularExpressions: [],
+        style: {
+            configuration: {
+                insertAt: 'top',
+                singleton: true
+            },
+            loader: 'style'
+        }
+    },
+    offline: null,
+    package: {
+        aliasPropertyNames: {
+            __evaluate__: '(self.targetTechnology === \'web\' ? [\'browser\'] : []).concat(\'aliases\')'
+        },
+        main: {
+            fileNames: ['index', 'main'],
+            propertyNames: {
+                __evaluate__: '(self.targetTechnology === \'web\' ? [\'browser\'] : []).concat([\'module\', \'main\'])'
+            }
+        }
+    },
+    path: {
+        apiDocumentation: '/home/torben/cloud/data/repository/public/webOptimizer/apiDocumentation/',
+        base: '/home/torben/cloud/data/repository/public/webOptimizer',
+        ignore: ['.git', {
+            __evaluate__: 'self.path.apiDocumentation'
+        }],
+        source: {
+            asset: {
+                base: '/home/torben/cloud/data/repository/public/webOptimizer',
+                cascadingStyleSheet: '/home/torben/cloud/data/repository/public/webOptimizer/',
+                data: '/home/torben/cloud/data/repository/public/webOptimizer/',
+                favicon: {
+                    __evaluate__: 'path.resolve(self.path.source.asset.image, \'favicon.png\')'
+                },
+                font: '/home/torben/cloud/data/repository/public/webOptimizer/',
+                image: '/home/torben/cloud/data/repository/public/webOptimizer/',
+                javaScript: '/home/torben/cloud/data/repository/public/webOptimizer/',
+                template: '/home/torben/cloud/data/repository/public/webOptimizer/'
+            },
+            base: '/home/torben/cloud/data/repository/public/webOptimizer'
+        },
+        target: {
+            asset: {
+                base: '/home/torben/cloud/data/repository/public/webOptimizer',
+                cascadingStyleSheet: '/home/torben/cloud/data/repository/public/webOptimizer/',
+                data: '/home/torben/cloud/data/repository/public/webOptimizer/',
+                favicon: {
+                    __evaluate__: 'path.resolve(self.path.target.asset.image, \'favicon.png\')'
+                },
+                font: '/home/torben/cloud/data/repository/public/webOptimizer/',
+                image: '/home/torben/cloud/data/repository/public/webOptimizer/',
+                javaScript: '/home/torben/cloud/data/repository/public/webOptimizer/',
+                template: '/home/torben/cloud/data/repository/public/webOptimizer/'
+            },
+            base: '/home/torben/cloud/data/repository/public/webOptimizer',
+            manifest: '/home/torben/cloud/data/repository/public/webOptimizer/manifest.appcache/',
+            public: ''
+        },
+        tidyUp: [{
+            __evaluate__: 'path.resolve(self.path.target.asset.javaScript, \'.__dummy__.compiled.js\')'
+        }, {
+            __evaluate__: 'path.resolve(self.path.target.asset.javaScript, \'.__dummy__.js\')'
+        }, {
+            __evaluate__: 'path.resolve(self.path.target.asset.javaScript, \'.__dummy__.compiled.js.map\')'
+        }, {
+            __evaluate__: 'path.resolve(self.path.target.asset.javaScript, \'.__dummy__.js.map\')'
+        }, {
+            __evaluate__: 'self.files.compose.image ? path.resolve(self.path.source.asset.image, path.relative(self.path.target.asset.image, self.files.compose.image)) : null'
+        }],
+        context: '/home/torben/cloud/data/repository/public/webOptimizer/'
+    },
+    stylelint: {
+        extends: 'stylelint-config-standard',
+        rules: {
+            'comment-empty-line-before': 'never',
+            indentation: 4
+        }
+    },
+    targetTechnology: 'web',
+    contextType: 'main',
+    libraryName: {
+        __evaluate__: '2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === \'serve\' ? [tools.stringConvertToValidVariableName(self.name), \'[name]\']: null'
+    },
+    name: 'mockup',
+    givenCommandLineArguments: ['/usr/bin/node',
+        '/home/torben/cloud/data/repository/public/webOptimizer/test/configurator.compiled.js'
+    ],
+    dllManifestFilePaths: []
+}
+
+            ],
+            {}
+            ]
         ])
             assert.deepEqual(
                 $.Tools.class.resolveDynamicDataStructure(...test[0]), test[1])
