@@ -1999,17 +1999,24 @@ export default class Tools {
                     `${Tools.representObject(error)}".`)
             }
         }
-        const stack:Map<any, string> = new Map()
-        const registerEvaluation = (target, code) => {
+        const stack:Map<Object, {[key:string]:null}> = new Map()
+        const registerEvaluation:Function = (
+            target:Object, code:string
+        ):void => {
             if (stack.has(target))
+                // IgnoreTypeCheck
                 if (stack.get(target).hasOwnProperty(code))
                     throw stack
                 else
+                    // IgnoreTypeCheck
                     stack.get(target)[code] = null
             else
                 stack.set(target, {[code]: null})
         }
-        const unregisterEvaluation = (target, code) => {
+        const unregisterEvaluation:Function = (
+            target:Object, code:string
+        ):void => {
+            // IgnoreTypeCheck
             delete stack.get(target)[code]
         }
         const addProxy:Function = (data:any):any => {
@@ -2033,12 +2040,13 @@ export default class Tools {
                             */
                             if (key === expressionIndicatorKey) {
                                 registerEvaluation(target, target[key])
-                                const evaluatedValue = evaluate(target[key])
+                                const evaluatedValue:any = evaluate(
+                                    target[key])
                                 unregisterEvaluation(target, target[key])
                                 return resolve(evaluatedValue)
                             } else if (key === executionIndicatorKey) {
                                 registerEvaluation(target, target[key])
-                                const evaluatedValue = evaluate(
+                                const evaluatedValue:any = evaluate(
                                     target[key], executionIndicatorKey)
                                 unregisterEvaluation(target, target[key])
                                 return resolve(evaluatedValue)
