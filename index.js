@@ -187,15 +187,18 @@ if (!('context' in $) && 'document' in $.global)
  * name mapping.
  * @property static:closeEventNames - Process event names which indicates that
  * a process has finished.
+ * @property static:consoleMethodNames - This variable contains a collection of
+ * methods usually binded to the console object.
  * @property static:keyCode - Saves a mapping from key codes to their
  * corresponding name.
  * @property static:maximalSupportedInternetExplorerVersion - Saves currently
  * minimal supported internet explorer version. Saves zero if no internet
  * explorer present.
+ * @property static:noop - A no-op dummy function.
+ * @property static:specialRegexSequences - A list of special regular
+ * expression symbols.
  * @property static:transitionEndEventNames - Saves a string with all css3
  * browser specific transition end event names.
- * @property static:consoleMethodNames - This variable contains a collection of
- * methods usually binded to the console object.
  * @property static:_javaScriptDependentContentHandled - Indicates whether
  * javaScript dependent content where hide or shown.
  * @property static:_name - Defines this class name to allow retrieving them
@@ -237,6 +240,30 @@ export default class Tools {
     }
     static closeEventNames:Array<string> = [
         'exit', 'close', 'uncaughtException', 'SIGINT', 'SIGTERM', 'SIGQUIT']
+    static consoleMethodNames:Array<string> = [
+        'assert',
+        'clear',
+        'count',
+        'debug',
+        'dir',
+        'dirxml',
+        'error',
+        'exception',
+        'group',
+        'groupCollapsed',
+        'groupEnd',
+        'info',
+        'log',
+        'markTimeline',
+        'profile',
+        'profileEnd',
+        'table',
+        'time',
+        'timeEnd',
+        'timeStamp',
+        'trace',
+        'warn'
+    ]
     static keyCode:{[key:string]:number} = {
         BACKSPACE: 8,
         COMMA: 188,
@@ -297,30 +324,6 @@ export default class Tools {
         '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}']
     static transitionEndEventNames:string = 'transitionend ' +
         'webkitTransitionEnd oTransitionEnd MSTransitionEnd'
-    static consoleMethodNames:Array<string> = [
-        'assert',
-        'clear',
-        'count',
-        'debug',
-        'dir',
-        'dirxml',
-        'error',
-        'exception',
-        'group',
-        'groupCollapsed',
-        'groupEnd',
-        'info',
-        'log',
-        'markTimeline',
-        'profile',
-        'profileEnd',
-        'table',
-        'time',
-        'timeEnd',
-        'timeStamp',
-        'trace',
-        'warn'
-    ]
     static _javaScriptDependentContentHandled:boolean = false
     static _name:string = 'Tools'
     // endregion
@@ -1344,88 +1347,70 @@ export default class Tools {
      * @param object - Object to proxy.
      * @param getterWrapper - Function to wrap each property get.
      * @param setterWrapper - Function to wrap each property set.
-     * @param getterMethodName - Method name to get a stored value by key.
-     * @param setterMethodName - Method name to set a stored value by key.
-     * @param containesMethodName - Method name to indicate if a key is stored
-     * in given data structure.
+     * @param methodNames - Method names to perform actions on the given
+     * object.
      * @param deep - Indicates to perform a deep wrapping of specified types.
+     * performed via "value instanceof type".).
+     * @param typesToExtend - Types which should be extended (Checks are
      * performed via "value instanceof type".).
      * @returns Returns given object wrapped with a dynamic getter proxy.
      */
     static addDynamicGetterAndSetter<Value>(
-        object:any, getterWrapper:GetterFunction = (value:any):any => value,
-        setterWrapper:SetterFunction = (key:any, value:any):any => value,
-        getterMethodName:string = '[]', setterMethodName:string = '[]',
-        containesMethodName:string = 'hasOwnProperty', deep:boolean = true
+        object:any, getterWrapper:?GetterFunction = null,
+        setterWrapper:?SetterFunction = null, methodNames:PlainObject = {},
+        deep:boolean = true, typesToExtend:Array<mixed> = [Object]
     ):any {
         if (deep)
             if (object instanceof Map)
                 for (const [key:mixed, value:mixed] of object)
                     object.set(key, Tools.addDynamicGetterAndSetter(
-                        value, getterWrapper, setterWrapper, getterMethodName,
-                        setterMethodName, containesMethodName, deep))
+                        value, getterWrapper, setterWrapper, methodNames, deep)
+                    )
             else if (typeof object === 'object' && object !== null) {
                 for (const key:string in object)
                     if (object.hasOwnProperty(key))
                         object[key] = Tools.addDynamicGetterAndSetter(
                             object[key], getterWrapper, setterWrapper,
-                            getterMethodName, setterMethodName,
-                            containesMethodName, deep)
+                            methodNames, deep)
             } else if (Array.isArray(object)) {
                 let index:number = 0
                 for (const value:mixed of object) {
                     object[index] = Tools.addDynamicGetterAndSetter(
-                        value, getterWrapper, setterWrapper, getterMethodName,
-                        setterMethodName, containesMethodName, deep)
+                        value, getterWrapper, setterWrapper, methodNames, deep)
                     index += 1
                 }
             }
-        if (object instanceof Object) {
-            const handler:{
-                has?:(target:Object, name:string) => boolean;
-                get?:(target:Object, name:string) => any;
-                set?:(target:Object, name:string) => any
-            } = {}
-            if (containesMethodName)
-                handler.has = (target:PlainObject, name:string):boolean => {
-                    if (containesMethodName === '[]')
-                        return name in object
-                    return object[containesMethodName](name)
-                }
-            if (containesMethodName && getterMethodName)
-                handler.get = (target:PlainObject, name:string):any => {
-                    if (name === '__target__')
-                        return object
-                    if (name === '__unwrap__')
-                        return ():any => {
-                            revoke()
-                            return object
+        if (getterWrapper || setterWrapper)
+            for (const type:mixed of typesToExtend)
+                if (object instanceof type && object !== null) {
+                    const defaultHandler = Tools.getProxyHandler(
+                        object, methodNames)
+                    const handler:Object = Tools.getProxyHandler(
+                        object, methodNames)
+                    if (getterWrapper)
+                        handler.get = (proxy:Proxy<any>, name:string):any => {
+                            if (name === '__target__')
+                                return object
+                            if (name === '__revoke__')
+                                return ():any => {
+                                    revoke()
+                                    return object
+                                }
+                            if (typeof object[name] === 'function')
+                                return object[name]
+                            // IgnoreTypeCheck
+                            return getterWrapper(
+                                defaultHandler.get(proxy, name), name, object)
                         }
-                    if (typeof object[name] === 'function')
-                        return object[name]
-                    if (object[containesMethodName](name)) {
-                        if (getterMethodName === '[]')
-                            return getterWrapper(object[name], name, object)
-                        return getterWrapper(object[getterMethodName](
-                            name
-                        ), name, object)
-                    }
-                    return object[name]
-                }
-            if (setterMethodName)
-                handler.set = (
-                    target:PlainObject, name:string, value:any
-                ):void => {
-                    if (setterMethodName === '[]')
-                        object[name] = setterWrapper(name, value, object)
-                    else
-                        object[setterMethodName](name, setterWrapper(
+                    if (setterWrapper)
+                        handler.set = (
+                            proxy:Proxy<any>, name:string, value:any
+                        // IgnoreTypeCheck
+                        ):any => defaultHandler.set(proxy, name, setterWrapper(
                             name, value, object))
+                    const {proxy, revoke} = Proxy.revocable({}, handler)
+                    return proxy
                 }
-            // IgnoreTypeCheck
-            const {proxy, revoke} = Proxy.revocable({}, handler)
-            return proxy
-        }
         return object
     }
     /**
@@ -1837,6 +1822,45 @@ export default class Tools {
         return keys
     }
     /**
+     * Generates a proxy handler which forwards all operations to given object
+     * as there wouldn't be a proxy.
+     * @param target - Object to proxy.
+     * @param methodNames - Mapping of operand name to object specific method
+     * name.
+     * @returns Determined proxy handler.
+     */
+    static getProxyHandler(
+        target:any, methodNames:{[key:string]:string} = {}
+    ):Object {
+        methodNames = Tools.extendObject({
+            delete: '[]', get: '[]', has: '[]', set: '[]'
+        }, methodNames)
+        return {
+            deleteProperty: (proxy:Proxy<any>, key:any):any => {
+                if (methodNames.delete === '[]')
+                    delete target[key]
+                else
+                    return target[methodNames.delete](key)
+            },
+            get: (proxy:Proxy<any>, key:any):any => {
+                if (methodNames.get === '[]')
+                    return target[key]
+                return target[methodNames.get](key)
+            },
+            has: (proxy:Proxy<any>, key:any):any => {
+                if (methodNames.has === '[]')
+                    return key in target
+                return target[methodNames.has](key)
+            },
+            set: (proxy:Proxy<any>, key:any, value:any):any => {
+                if (methodNames.set === '[]')
+                    target[key] = value
+                else
+                    return target[methodNames.set](value)
+            }
+        }
+    }
+    /**
      * Modifies given target corresponding to given source and removes source
      * modification infos.
      * @param target - Object to modify.
@@ -1932,89 +1956,109 @@ export default class Tools {
      * @param parameterDescription - Array of scope names.
      * @param parameter - Array of values for given scope names. If there is
      * one missing given object will be added.
-     * @param deep - Indicates whether to perform a recursive resolving.
      * @param expressionIndicatorKey - Indicator property name to mark a value
      * to evaluate.
      * @param executionIndicatorKey - Indicator property name to mark a value
      * to evaluate.
-     * @param applyDynamicGetter - Indicates to avoid nested dynamic getter
-     * proxy apply (only needed for internal use).
      * @returns Evaluated given mapping.
      */
     static resolveDynamicDataStructure(
         object:any, parameterDescription:Array<string> = [],
-        parameter:Array<any> = [], deep:boolean = true,
+        parameter:Array<any> = [],
         expressionIndicatorKey:string = '__evaluate__',
-        executionIndicatorKey:string = '__execute__',
-        applyDynamicGetter:boolean = true,
-        cache:{[key:string]:Map<any, any>} = {}
+        executionIndicatorKey:string = '__execute__'
     ):any {
-        if (object === null || typeof object !== 'object')
+        if (typeof object !== 'object' || object === null)
             return object
-        let configuration:any = object
-        const resolve = (value:any, name:string, target:any):any => {
-            if (cache.hasOwnProperty(name)) {
-                if (cache[name].has(target))
-                    return cache[name].get(target)
-                else
-                    cache[name].set(target, value)
-            } else
-                cache[name] = new Map([[target, value]])
-            value = Tools.resolveDynamicDataStructure(
-                /* eslint-disable new-parens */
-                // IgnoreTypeCheck
-                (new (Function.prototype.bind.call(
-                /* eslint-enable new-parens */
-                    Function, null, ...parameterDescription.concat((
-                        value.hasOwnProperty(expressionIndicatorKey)
-                    ) ? `return ${value[expressionIndicatorKey]}` : value[
-                        executionIndicatorKey])
-                )))(...parameter), parameterDescription, parameter, deep,
-                expressionIndicatorKey, executionIndicatorKey, false, cache)
-            cache[name].delete(target)
-            if (cache[name].size === 0)
-                delete cache[name]
-            return value
+        parameter.push(object)
+        if (parameterDescription.length < parameter.length)
+            parameterDescription.push('self')
+        const evaluate:Function = (
+            code:string, type:string = expressionIndicatorKey
+        /* eslint-disable new-parens */
+        // IgnoreTypeCheck
+        ) => (new (Function.prototype.bind.call(
+        /* eslint-enable new-parens */
+            Function, null, ...parameterDescription.concat((
+                type === expressionIndicatorKey
+            ) ? `return ${code}` : code)
+        )))(...parameter)
+        const addProxy:Function = (data:any):any => {
+            if (typeof data !== 'object' || data === null)
+                return data
+            for (const key:string in data)
+                if (
+                    data.hasOwnProperty(key) && typeof data[key] === 'object'
+                ) {
+                    addProxy(data[key])
+                    data[key] = new Proxy(data[key], {
+                        get: (target:any, key:any):any => {
+                            if (key === '__target__')
+                                return target
+                            /*
+                                NOTE: Very complicated stuff section, only
+                                change while doing a lot of tests.
+                            */
+                            if (key === expressionIndicatorKey)
+                                return resolve(evaluate(target[key]))
+                            else if (key === executionIndicatorKey)
+                                return resolve(evaluate(
+                                    target[key], executionIndicatorKey))
+                            else {
+                                const resolvedTarget:any = resolve(target)
+                                if (typeof key !== 'string')
+                                    return () => evaluate(resolvedTarget)
+                                if (target.hasOwnProperty(
+                                    expressionIndicatorKey
+                                ))
+                                    return evaluate(resolvedTarget)[key]
+                                if (target.hasOwnProperty(
+                                    executionIndicatorKey
+                                ))
+                                    return evaluate(
+                                        resolvedTarget, executionIndicatorKey
+                                    )[key]
+                                return resolvedTarget[key]
+                            }
+                            // End of complicated stuff.
+                        }
+                    })
+                }
+            return data
         }
-        if (deep && configuration && applyDynamicGetter)
-            configuration = Tools.addDynamicGetterAndSetter(
-                object, (value:any, name:any, target:any):any => {
-                    if (typeof value === 'object' && value !== null && (
-                        value.hasOwnProperty(expressionIndicatorKey) ||
-                        value.hasOwnProperty(executionIndicatorKey)
-                    ))
-                        return resolve(value, name, target)
-                    return value
-                }, (key:any, value:any):any => value, '[]', '')
-        if (parameterDescription.length > parameter.length)
-            parameter.push(configuration)
-        if (Array.isArray(object) && deep) {
-            let index:number = 0
-            for (const value:mixed of object) {
-                object[index] = Tools.resolveDynamicDataStructure(
-                    value, parameterDescription, parameter, deep,
-                    expressionIndicatorKey, executionIndicatorKey, false, cache
-                )
-                index += 1
-            }
-        } else
-            if (typeof object === 'object' && object !== null && (
-                object.hasOwnProperty(expressionIndicatorKey) ||
-                object.hasOwnProperty(executionIndicatorKey)
-            ))
-                object = resolve(object, object.hasOwnProperty(
-                    expressionIndicatorKey
-                ) ? expressionIndicatorKey : executionIndicatorKey)
-            else
-                for (const key:string in object)
-                    if (object.hasOwnProperty(key) && deep)
-                        object[key] = Tools.resolveDynamicDataStructure(
-                            object[key], parameterDescription, parameter, deep,
-                            expressionIndicatorKey, executionIndicatorKey,
-                            false, cache)
-        if (deep && configuration && applyDynamicGetter)
-            return Tools.unwrapProxy(object)
-        return object
+        const resolve:Function = (data:any):any => {
+            if (typeof data === 'object' && data !== null)
+                for (const key:string in data)
+                    if (data.hasOwnProperty(key))
+                        if ([
+                            expressionIndicatorKey, executionIndicatorKey
+                        ].includes(key))
+                            return data[key]
+                        else
+                            data[key] = resolve(data[key])
+            return data
+        }
+        const removeProxy:Function = (data:any):any => {
+            if (typeof data === 'object' && data !== null)
+                for (const key:string in data)
+                    if (
+                        data.hasOwnProperty(key) &&
+                        typeof data[key] === 'object' && data[key] !== null
+                    ) {
+                        const target:any = data[key].__target__
+                        if (typeof target !== 'undefined')
+                            data[key] = target
+                        removeProxy(data[key])
+                    }
+            return data
+        }
+        if (typeof object === 'object' && object !== null)
+            if (object.hasOwnProperty(expressionIndicatorKey))
+                return evaluate(object[expressionIndicatorKey])
+            else if (object.hasOwnProperty(executionIndicatorKey))
+                return evaluate(
+                    object[executionIndicatorKey], executionIndicatorKey)
+        return removeProxy(resolve(addProxy(object)))
     }
     /**
      * Sort given objects keys.
@@ -2047,9 +2091,9 @@ export default class Tools {
             if (seenObjects.has(object))
                 return object
             try {
-                if (object.__unwrap__) {
+                if (object.__revoke__) {
                     object = object.__target__
-                    object.__unwrap__()
+                    object.__revoke__()
                 }
             } catch (error) {
                 return object

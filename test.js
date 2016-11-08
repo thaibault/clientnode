@@ -658,22 +658,26 @@ let tests:Array<Test> = [{callback: function(
     }
     // // endregion
     // // region object
+    /*TODO
     this.test(`addDynamicGetterAndSetter (${roundType})`, (
         assert:Object
     ):void => {
         assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(null), null)
-        assert.strictEqual(
-            $.Tools.class.addDynamicGetterAndSetter(true), true)
-        assert.notDeepEqual(
-            $.Tools.class.addDynamicGetterAndSetter({}), {})
-        assert.ok($.Tools.class.addDynamicGetterAndSetter({
+        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(true), true)
+        assert.deepEqual(
+            $.Tools.class.addDynamicGetterAndSetter({a: 2}), {a: 2})
+        assert.notOk($.Tools.class.addDynamicGetterAndSetter({
         }).__target__ instanceof Object)
+        assert.ok($.Tools.class.addDynamicGetterAndSetter({}, (
+            value:any
+        ):any => value).__target__ instanceof Object)
         const mockup = {}
         assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(
             mockup
+        ), mockup)
+        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(
+            mockup, (value:any):any => value
         ).__target__, mockup)
-        assert.deepEqual(
-            $.Tools.class.addDynamicGetterAndSetter({}).__target__, {})
         assert.deepEqual($.Tools.class.addDynamicGetterAndSetter({a: 1}, (
             value:any
         ):any => value + 2).a, 3)
@@ -689,22 +693,21 @@ let tests:Array<Test> = [{callback: function(
         assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
             {a: {a: 1}}, (value:any):any =>
                 (value instanceof Object) ? value : value + 2,
-            (key:any, value:any):any => value, '[]', '[]',
-            'hasOwnProperty', false
+            null, {has: 'hasOwnProperty'}, false
         ).a.a, 1)
         assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
             {a: 1}, (value:any):any =>
                 (value instanceof Object) ? value : value + 2,
-            (key:any, value:any):any => value, '[]', '[]',
-            'hasOwnProperty', false, []
+            null, {has: 'hasOwnProperty'}, false, []
         ).a, 1)
         assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
             {a: new Map([['a', 1]])}, (value:any):any =>
                 (value instanceof Object) ? value : value + 2,
-            (key:any, value:any):any => value, 'get', 'set', 'has', true, [
-                Map]
+            null, {delete: 'delete', get: 'get', set: 'set', has: 'has'}, true,
+            [Map]
         ).a.a, 3)
     })
+    */
     this.test(`convertCircularObjectToJSON (${roundType})`, (
         assert:Object
     ):void => {
@@ -1026,6 +1029,12 @@ let tests:Array<Test> = [{callback: function(
         }, 2)
         assert.deepEqual(result, 2)
     })
+    this.test(`getProxyHandler (${roundType})`, (assert:Object):void => {
+        assert.ok($.Tools.class.isPlainObject($.Tools.class.getProxyHandler(
+            {})))
+        assert.ok($.Tools.class.isPlainObject($.Tools.class.getProxyHandler(
+            new Map(), {get: 'get'})))
+    })
     this.test(`modifyObject (${roundType})`, (assert:Object):void => {
         for (const test:any of [
             [[{}, {}], {}, {}],
@@ -1072,59 +1081,83 @@ let tests:Array<Test> = [{callback: function(
             [['1'], '1'],
             [[3], 3],
             [[{}], {}],
-            [[{__evaluate__: '1'}], 1],
-            [[{__evaluate__: `'1'`}], '1'],
+            [[{__evaluate__: '1 + 3'}], 4],
+            [[[{__evaluate__: '1'}]], [1]],
+            [[[{__evaluate__: `'1'`}]], ['1']],
             [[{a: {__evaluate__: `'a'`}}], {a: 'a'}],
-            [[{a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}]], {a: 1}],
+            [[{a: {__evaluate__: '1'}}], {a: 1}],
             [
-                [{a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}], false],
-                {a: {__evaluate__: 'self.a'}}
+                [{a: {__evaluate__: 'self.b'}, b: 2}, ['self'], [], '__run__'],
+                {a: {__evaluate__: 'self.b'}, b: 2}
             ],
+            [[{a: {__run: '_.b'}, b: 1}, ['_'], [], '__run'], {a: 1, b: 1}],
             [
-                [
-                    {a: {__evaluate__: 'self.a'}}, ['self'], [{a: 1}],
-                    true, '__run__'
-                ],
-                {a: {__evaluate__: 'self.a'}}
+                [{a: [{__run: 'self.b'}], b: 1}, ['self'], [], '__run'],
+                {a: [1], b: 1}
             ],
-            [
-                [
-                    {a: {__run__: 'self.a'}}, ['self'], [{a: 1}], true,
-                    '__run__'
-                ],
-                {a: 1}
-            ],
-            [
-                [
-                    {a: [{__run__: 'self.a'}]}, ['self'], [{a: 1}], true,
-                    '__run__'
-                ],
-                {a: [1]}
-            ],
-            [
-                [{a: {__evaluate__: 'self.b'}, b: 2}, ['self']],
-                {a: 2, b: 2}
-            ],
-            [
-                [{
-                    a: {__evaluate__: 'self.b'},
-                    b: {__evaluate__: 'self.c'},
-                    c: 2
-                }, ['self']],
-                {a: 2, b: 2, c: 2}
-            ],
+            [[{a: {__evaluate__: 'self.b'}, b: 2}, ['self']], {a: 2, b: 2}],
+            [[{a: {__evaluate__: 'c.b'}, b: 2}, ['c']], {a: 2, b: 2}],
+            [[{
+                a: {__evaluate__: 'self.b'},
+                b: {__evaluate__: 'self.c'},
+                c: 2
+            }, ['self']], {a: 2, b: 2, c: 2}],
             [
                 [{
                     a: {__execute__: 'return self.b'},
                     b: {__execute__: 'return self.c'},
-                    c: 2
+                    c: {__execute__: 'return self.d'},
+                    d: {__execute__: 'return self.e'},
+                    e: {__execute__: 'return self.f'},
+                    f: 3
                 }, ['self']],
-                {a: 2, b: 2, c: 2}
-            ]
+                {a: 3, b: 3, c: 3, d: 3, e: 3, f: 3}
+            ],
+            [[{
+                a: {__evaluate__: 'self.b.d.e'},
+                b: {__evaluate__: 'self.c'},
+                c: {d: {e: 3}}
+            }], {a: 3, b: {d: {e: 3}}, c: {d: {e: 3}}}],
+            [[{
+                a: {__evaluate__: 'self.b'},
+                b: {__evaluate__: 'self.c'},
+                c: {__evaluate__: 'self.d'},
+                d: {__evaluate__: 'self.e'},
+                e: {__evaluate__: 'self.f.i'},
+                f: {__evaluate__: 'self.g.h'},
+                g: {h: {i: {__evaluate__: '`${self.k} <-> ${self.j}`'}}},
+                j: 'jj',
+                k: {__evaluate__: '`kk <-> "${self.l.join(\'", "\')}"`'},
+                l: {__evaluate__: 'self.m.a'},
+                m: {a: [1, 2, {__evaluate__: '3'}]},
+                n: {__evaluate__: '{a: [1, 2, 3]}'},
+                o: [{a: 2, b: [[[{__evaluate__: '10 ** 2'}]]]}]
+            }], {
+                a: 'kk <-> "1", "2", "3" <-> jj',
+                b: 'kk <-> "1", "2", "3" <-> jj',
+                c: 'kk <-> "1", "2", "3" <-> jj',
+                d: 'kk <-> "1", "2", "3" <-> jj',
+                e: 'kk <-> "1", "2", "3" <-> jj',
+                f: {i: 'kk <-> "1", "2", "3" <-> jj'},
+                g: {h: {i: 'kk <-> "1", "2", "3" <-> jj'}},
+                j: 'jj',
+                k: 'kk <-> "1", "2", "3"',
+                l: [1, 2, 3],
+                m: {a: [1, 2, 3]},
+                n: {a: [1, 2, 3]},
+                o: [{a: 2, b: [[[100]]]}]
+            }],
+            [[{
+                a: {__evaluate__: '_.b.d.e'},
+                b: {__evaluate__: '_.c'},
+                c: {d: {e: {
+                    __evaluate__: 'tools.copyLimitedRecursively([2])'
+                }}}
+            }, ['tools', '_'], [$.Tools.class]],
+            {a: [2], b: {d: {e: [2]}}, c: {d: {e: [2]}}}]
         ])
-            assert.deepEqual($.Tools.class.unwrapProxy(
-                $.Tools.class.resolveDynamicDataStructure(...test[0])
-            ), test[1])
+            assert.deepEqual(
+                $.Tools.class.resolveDynamicDataStructure(...test[0]), test[1])
     })
     this.test(`sort (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
@@ -1148,7 +1181,7 @@ let tests:Array<Test> = [{callback: function(
             [{}, {}],
             [{a: 'a'}, {a: 'a'}],
             [{a: 'aa'}, {a: 'aa'}],
-            [{a: {__target__: 2, __unwrap__: ():void => {}}}, {a: 2}]
+            [{a: {__target__: 2, __revoke__: ():void => {}}}, {a: 2}]
         ])
             assert.deepEqual($.Tools.class.unwrapProxy(test[0]), test[1])
     })
