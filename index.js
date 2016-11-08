@@ -1988,7 +1988,8 @@ export default class Tools {
                 return data
             for (const key:string in data)
                 if (
-                    data.hasOwnProperty(key) && typeof data[key] === 'object'
+                    data.hasOwnProperty(key) &&
+                    typeof data[key] === 'object' && data[key] !== null
                 ) {
                     addProxy(data[key])
                     data[key] = new Proxy(data[key], {

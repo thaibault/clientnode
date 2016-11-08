@@ -1081,6 +1081,7 @@ let tests:Array<Test> = [{callback: function(
             [['1'], '1'],
             [[3], 3],
             [[{}], {}],
+            [[{a: null}], {a: null}],
             [[{__evaluate__: '1 + 3'}], 4],
             [[[{__evaluate__: '1'}]], [1]],
             [[[{__evaluate__: `'1'`}]], ['1']],
