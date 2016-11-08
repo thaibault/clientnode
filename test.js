@@ -1118,19 +1118,19 @@ let tests:Array<Test> = [{callback: function(
                 c: {d: {e: 3}}
             }], {a: 3, b: {d: {e: 3}}, c: {d: {e: 3}}}],
             [[{
-                a: {__evaluate__: 'self.b'},
-                b: {__evaluate__: 'self.c'},
-                c: {__evaluate__: 'self.d'},
-                d: {__evaluate__: 'self.e'},
-                e: {__evaluate__: 'self.f.i'},
-                f: {__evaluate__: 'self.g.h'},
-                g: {h: {i: {__evaluate__: '`${self.k} <-> ${self.j}`'}}},
-                j: 'jj',
-                k: {__evaluate__: '`kk <-> "${self.l.join(\'", "\')}"`'},
-                l: {__evaluate__: 'self.m.a'},
-                m: {a: [1, 2, {__evaluate__: '3'}]},
                 n: {__evaluate__: '{a: [1, 2, 3]}'},
-                o: [{a: 2, b: [[[{__evaluate__: '10 ** 2'}]]]}]
+                b: {__evaluate__: 'self.c'},
+                f: {__evaluate__: 'self.g.h'},
+                d: {__evaluate__: 'self.e'},
+                a: {__evaluate__: 'self.b'},
+                e: {__evaluate__: 'self.f.i'},
+                k: {__evaluate__: '`kk <-> "${self.l.join(\'", "\')}"`'},
+                c: {__evaluate__: 'self.d'},
+                o: [{a: 2, b: [[[{__evaluate__: '10 ** 2'}]]]}],
+                l: {__evaluate__: 'self.m.a'},
+                g: {h: {i: {__evaluate__: '`${self.k} <-> ${self.j}`'}}},
+                m: {a: [1, 2, {__evaluate__: '3'}]},
+                j: 'jj'
             }], {
                 a: 'kk <-> "1", "2", "3" <-> jj',
                 b: 'kk <-> "1", "2", "3" <-> jj',
@@ -1153,7 +1153,29 @@ let tests:Array<Test> = [{callback: function(
                     __evaluate__: 'tools.copyLimitedRecursively([2])'
                 }}}
             }, ['tools', '_'], [$.Tools.class]],
-            {a: [2], b: {d: {e: [2]}}, c: {d: {e: [2]}}}]
+            {a: [2], b: {d: {e: [2]}}, c: {d: {e: [2]}}}],
+            [[{a: {
+                b: 1,
+                c: {__evaluate__: 'self.a.b'}
+            }}], {a: {b: 1, c: 1}}],
+            [[{a: {
+                b: null,
+                c: {__evaluate__: 'self.a.b'}
+            }}], {a: {b: null, c: null}}],
+            [[{a: {
+                b: undefined,
+                c: {__evaluate__: 'self.a.b'}
+            }}], {a: {b: undefined, c: undefined}}],
+            [[{a: {
+                b: 'jau',
+                c: {__evaluate__: 'self.a.b'}
+            }}], {a: {b: 'jau', c: 'jau'}}],
+            [[{a: {
+                b: {
+                    c: 'jau',
+                    d: {__evaluate__: 'self.a.b.c'}
+                }
+            }}], {a: {b: {c: 'jau', d: 'jau'}}}]
         ])
             assert.deepEqual(
                 $.Tools.class.resolveDynamicDataStructure(...test[0]), test[1])

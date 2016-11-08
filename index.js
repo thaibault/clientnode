@@ -1976,14 +1976,42 @@ export default class Tools {
             parameterDescription.push('self')
         const evaluate:Function = (
             code:string, type:string = expressionIndicatorKey
-        /* eslint-disable new-parens */
-        // IgnoreTypeCheck
-        ):any => (new (Function.prototype.bind.call(
-        /* eslint-enable new-parens */
-            Function, null, ...parameterDescription.concat((
-                type === expressionIndicatorKey
-            ) ? `return ${code}` : code)
-        )))(...parameter)
+        ):any => {
+            code = (type === expressionIndicatorKey) ? `return ${code}` : code
+            let compiledFunction:Function
+            try {
+                /* eslint-disable new-parens */
+                // IgnoreTypeCheck
+                compiledFunction = new (Function.prototype.bind.call(
+                /* eslint-enable new-parens */
+                    Function, null, ...parameterDescription.concat(code)))
+            } catch (error) {
+                throw new Error(
+                    `Error during compiling code "${code}": "` +
+                    `${Tools.representObject(error)}".`)
+            }
+            try {
+                return compiledFunction(...parameter)
+            } catch (error) {
+                throw new Error(
+                    `Error running code "${code}" in scope with variables "` +
+                    `${parameterDescription.join('", "')}": "` +
+                    `${Tools.representObject(error)}".`)
+            }
+        }
+        const stack:Map<any, string> = new Map()
+        const registerEvaluation = (target, code) => {
+            if (stack.has(target))
+                if (stack.get(target).hasOwnProperty(code))
+                    throw stack
+                else
+                    stack.get(target)[code] = null
+            else
+                stack.set(target, {[code]: null})
+        }
+        const unregisterEvaluation = (target, code) => {
+            delete stack.get(target)[code]
+        }
         const addProxy:Function = (data:any):any => {
             if (typeof data !== 'object' || data === null)
                 return data
@@ -1997,17 +2025,33 @@ export default class Tools {
                         get: (target:any, key:any):any => {
                             if (key === '__target__')
                                 return target
+                            if (key === 'hasOwnProperty')
+                                return target[key]
                             /*
                                 NOTE: Very complicated stuff section, only
                                 change while doing a lot of tests.
                             */
-                            if (key === expressionIndicatorKey)
-                                return resolve(evaluate(target[key]))
-                            else if (key === executionIndicatorKey)
-                                return resolve(evaluate(
-                                    target[key], executionIndicatorKey))
-                            else {
-                                const resolvedTarget:any = resolve(target)
+                            if (key === expressionIndicatorKey) {
+                                registerEvaluation(target, target[key])
+                                const evaluatedValue = evaluate(target[key])
+                                unregisterEvaluation(target, target[key])
+                                return resolve(evaluatedValue)
+                            } else if (key === executionIndicatorKey) {
+                                registerEvaluation(target, target[key])
+                                const evaluatedValue = evaluate(
+                                    target[key], executionIndicatorKey)
+                                unregisterEvaluation(target, target[key])
+                                return resolve(evaluatedValue)
+                            } else {
+                                let resolvedTarget:any
+                                try {
+                                    resolvedTarget = resolve(target)
+                                } catch (error) {
+                                    if (error === stack)
+                                        resolvedTarget = target
+                                    else
+                                        throw error
+                                }
                                 if (typeof key !== 'string')
                                     return ():any => evaluate(resolvedTarget)
                                 if (target.hasOwnProperty(
