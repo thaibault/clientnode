@@ -66,7 +66,7 @@
     "buildDLL": "webOptimizer buildDLL",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
-    "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{configuration:{plugins:{__remove__:\"transform-runtime\"}}}}}}' && babel --plugins transform-flow-strip-types,transform-runtime --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
+    "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{configuration:{plugins:{__remove__:\"transform-runtime\", __append__: [[\"transform-es2015-classes\", {loose: true}]]}}}}}}' && babel --plugins transform-flow-strip-types,transform-runtime --presets latest,stage-0 --source-maps inline --out-file test.compiled.js test.js",
     "lint": "webOptimizer typeCheck && webOptimizer lint",
     "prepublish": "if ! npm run build; then echo You should rerun install procedure to resolve dependency cycle. && babel --plugins transform-flow-strip-types,transform-runtime --presets latest,stage-0 --out-file index.compiled.js index.js; fi",
     "serve": "webOptimizer serve",

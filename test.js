@@ -1055,7 +1055,23 @@ let tests:Array<Test> = [{callback: function(
             [
                 [{a: [2]}, {a: {__prepend__: 1}}, '_r', '_p'],
                 {a: [2]}, {a: {__prepend__: 1}}
-            ]
+            ],
+            [
+                [{a: [2]}, {a: {__append__: [1, 2], __prepend__: 's'}}],
+                {a: ['s', 2, 1, 2]}, {}
+            ],
+            [
+                [{a: [2, 2]}, {a: {__prepend__: 's', __remove__: 2}}],
+                {a: ['s', 2]}, {}
+            ],
+            [
+                [{a: [2, 2]}, {a: {__prepend__: 's', __remove__: [2, 2]}}],
+                {a: ['s']}, {}
+            ],
+            [[
+                {a: [2, 1, 2]},
+                {a: {__prepend__: 's', __remove__: [2, 2], __append__: 'a'}}
+            ], {a: ['s', 1, 'a']}, {}]
         ]) {
             assert.deepEqual($.Tools.class.modifyObject(...test[0]), test[1])
             assert.deepEqual(test[0][1], test[2])
