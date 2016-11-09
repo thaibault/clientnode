@@ -2027,7 +2027,7 @@ export default class Tools {
                 return data
             for (const key:string in data)
                 if (
-                    data.hasOwnProperty(key) &&
+                    data.hasOwnProperty(key) && key !== '__target__' &&
                     typeof data[key] === 'object' && data[key] !== null
                 ) {
                     addProxy(data[key])
@@ -2053,30 +2053,29 @@ export default class Tools {
                                     target[key], executionIndicatorKey)
                                 unregisterEvaluation(target, target[key])
                                 return resolve(evaluatedValue)
-                            } else {
-                                let resolvedTarget:any
-                                try {
-                                    resolvedTarget = resolve(target)
-                                } catch (error) {
-                                    if (error === stack)
-                                        resolvedTarget = target
-                                    else
-                                        throw error
-                                }
-                                if (typeof key !== 'string')
-                                    return ():any => evaluate(resolvedTarget)
-                                if (target.hasOwnProperty(
-                                    expressionIndicatorKey
-                                ))
-                                    return evaluate(resolvedTarget)[key]
-                                if (target.hasOwnProperty(
-                                    executionIndicatorKey
-                                ))
-                                    return evaluate(
-                                        resolvedTarget, executionIndicatorKey
-                                    )[key]
-                                return resolvedTarget[key]
                             }
+                            let resolvedTarget:any
+                            try {
+                                resolvedTarget = resolve(target)
+                            } catch (error) {
+                                if (error === stack)
+                                    resolvedTarget = target
+                                else
+                                    throw error
+                            }
+                            if (typeof key !== 'string')
+                                return ():any => evaluate(resolvedTarget)
+                            if (target.hasOwnProperty(
+                                expressionIndicatorKey
+                            ))
+                                return evaluate(resolvedTarget)[key]
+                            if (target.hasOwnProperty(
+                                executionIndicatorKey
+                            ))
+                                return evaluate(
+                                    resolvedTarget, executionIndicatorKey
+                                )[key]
+                            return resolvedTarget[key]
                             // End of complicated stuff.
                         }
                     })
@@ -2086,7 +2085,7 @@ export default class Tools {
         const resolve:Function = (data:any):any => {
             if (typeof data === 'object' && data !== null)
                 for (const key:string in data)
-                    if (data.hasOwnProperty(key))
+                    if (data.hasOwnProperty(key) && key !== '__target__')
                         if ([
                             expressionIndicatorKey, executionIndicatorKey
                         ].includes(key))
@@ -2099,7 +2098,7 @@ export default class Tools {
             if (typeof data === 'object' && data !== null)
                 for (const key:string in data)
                     if (
-                        data.hasOwnProperty(key) &&
+                        data.hasOwnProperty(key) && key !== '__target__' &&
                         typeof data[key] === 'object' && data[key] !== null
                     ) {
                         const target:any = data[key].__target__
