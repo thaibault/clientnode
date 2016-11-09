@@ -4054,11 +4054,7 @@ export default class Tools {
                         })
                     ))
                 }
-                try {
-                    await Promise.all(statPromises)
-                } catch (error) {
-                    throw error
-                }
+                await Promise.all(statPromises)
                 if (callback)
                     /*
                         NOTE: Directories have to be iterated first to
@@ -4081,13 +4077,9 @@ export default class Tools {
                     if (result === null)
                         break
                     if (result !== false && file.stat.isDirectory())
-                        try {
-                            finalFiles = finalFiles.concat(
-                                await Tools.walkDirectoryRecursively(
-                                    file.path, callback))
-                        } catch (error) {
-                            throw error
-                        }
+                        finalFiles = finalFiles.concat(
+                            await Tools.walkDirectoryRecursively(
+                                file.path, callback))
                 }
                 resolve(finalFiles)
             })
