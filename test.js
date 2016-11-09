@@ -1175,7 +1175,13 @@ let tests:Array<Test> = [{callback: function(
                     c: 'jau',
                     d: {__evaluate__: 'self.a.b.c'}
                 }
-            }}], {a: {b: {c: 'jau', d: 'jau'}}}]
+            }}], {a: {b: {c: 'jau', d: 'jau'}}}],
+            [[
+                [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5],
+                [26, 5], [3, 10], [1, 11], [25, 12], [26, 12]
+            ],
+            [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5], [26, 5],
+            [3, 10], [1, 11], [25, 12], [26, 12]]
         ])
             assert.deepEqual(
                 $.Tools.class.resolveDynamicDataStructure(...test[0]), test[1])
