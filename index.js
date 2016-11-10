@@ -2022,7 +2022,7 @@ export default class Tools {
             // IgnoreTypeCheck
             delete stack.get(target)[code]
         }
-        const addProxy:Function = (data:any):any => {
+        const addProxyRecursively:Function = (data:any):any => {
             if (typeof data !== 'object' || data === null)
                 return data
             for (const key:string in data)
@@ -2030,9 +2030,18 @@ export default class Tools {
                     data.hasOwnProperty(key) && key !== '__target__' &&
                     typeof data[key] === 'object' && data[key] !== null
                 ) {
-                    addProxy(data[key])
-                    data[key] = new Proxy(data[key], {
-                        get: (target:any, key:any):any => {
+                    addProxyRecursively(data[key])
+                    /*
+                        NOTE: We only wrap needed objects for performance
+                        reasons.
+                    */
+                    if (
+                        data[key].hasOwnProperty(expressionIndicatorKey) ||
+                        data[key].hasOwnProperty(executionIndicatorKey)
+                    )
+                        data[key] = new Proxy(data[key], {get: (
+                            target:any, key:any
+                        ):any => {
                             if (key === '__target__')
                                 return target
                             if (key === 'hasOwnProperty')
@@ -2077,8 +2086,7 @@ export default class Tools {
                                 )[key]
                             return resolvedTarget[key]
                             // End of complicated stuff.
-                        }
-                    })
+                        }})
                 }
             return data
         }
@@ -2094,7 +2102,7 @@ export default class Tools {
                             data[key] = resolve(data[key])
             return data
         }
-        const removeProxy:Function = (data:any):any => {
+        const removeProxyRecursively:Function = (data:any):any => {
             if (typeof data === 'object' && data !== null)
                 for (const key:string in data)
                     if (
@@ -2104,7 +2112,7 @@ export default class Tools {
                         const target:any = data[key].__target__
                         if (typeof target !== 'undefined')
                             data[key] = target
-                        removeProxy(data[key])
+                        removeProxyRecursively(data[key])
                     }
             return data
         }
@@ -2114,7 +2122,7 @@ export default class Tools {
             else if (object.hasOwnProperty(executionIndicatorKey))
                 return evaluate(
                     object[executionIndicatorKey], executionIndicatorKey)
-        return removeProxy(resolve(addProxy(object)))
+        return removeProxyRecursively(resolve(addProxyRecursively(object)))
     }
     /**
      * Sort given objects keys.

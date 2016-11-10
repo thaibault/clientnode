@@ -1199,8 +1199,10 @@ let tests:Array<Test> = [{callback: function(
             [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5], [26, 5],
             [3, 10], [1, 11], [25, 12], [26, 12]]
         ])
-            assert.deepEqual(
-                $.Tools.class.resolveDynamicDataStructure(...test[0]), test[1])
+            assert.deepEqual($.Tools.class.copyLimitedRecursively(
+                $.Tools.class.resolveDynamicDataStructure(...test[0]),
+                -1, null, true
+            ), test[1])
     })
     this.test(`sort (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
