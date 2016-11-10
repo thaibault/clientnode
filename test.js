@@ -1197,7 +1197,13 @@ let tests:Array<Test> = [{callback: function(
                 [26, 5], [3, 10], [1, 11], [25, 12], [26, 12]
             ],
             [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5], [26, 5],
-            [3, 10], [1, 11], [25, 12], [26, 12]]
+            [3, 10], [1, 11], [25, 12], [26, 12]],
+            [[{a: {
+                b: {__evaluate__: '"t" + "es" + "t"'},
+                c: {__evaluate__: 'removeS(self.a.b)'}
+            }}, ['removeS'], [(value:string):string =>
+                value.replace('s', '')
+            ]], {a: {b: 'test', c: 'tet'}}]
         ])
             assert.deepEqual($.Tools.class.copyLimitedRecursively(
                 $.Tools.class.resolveDynamicDataStructure(...test[0]),
