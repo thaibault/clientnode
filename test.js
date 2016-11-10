@@ -1090,7 +1090,6 @@ let tests:Array<Test> = [{callback: function(
         assert:Object
     ):void => {
         for (const test:Array<any> of [
-            /*
             [[null], null],
             [[false], false],
             [['1'], '1'],
@@ -1102,12 +1101,10 @@ let tests:Array<Test> = [{callback: function(
             [[[{__evaluate__: `'1'`}]], ['1']],
             [[{a: {__evaluate__: `'a'`}}], {a: 'a'}],
             [[{a: {__evaluate__: '1'}}], {a: 1}],
-            */
             [
                 [{a: {__evaluate__: 'self.b'}, b: 2}, ['self'], [], '__run__'],
                 {a: {__evaluate__: 'self.b'}, b: 2}
             ],
-            /*
             [[{a: {__run: '_.b'}, b: 1}, ['_'], [], '__run'], {a: 1, b: 1}],
             [
                 [{a: [{__run: 'self.b'}], b: 1}, ['self'], [], '__run'],
@@ -1201,13 +1198,11 @@ let tests:Array<Test> = [{callback: function(
             ],
             [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5], [26, 5],
             [3, 10], [1, 11], [25, 12], [26, 12]]
-            */
-        ]) {
-            const r = $.Tools.class.resolveDynamicDataStructure(...test[0])
-            console.log('A', r, test[1])
-            assert.deepEqual(
-                $.Tools.class.resolveDynamicDataStructure(r), test[1])
-        }
+        ])
+            assert.deepEqual($.Tools.class.copyLimitedRecursively(
+                $.Tools.class.resolveDynamicDataStructure(...test[0]),
+                -1, null, true
+            ), test[1])
     })
     this.test(`sort (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
