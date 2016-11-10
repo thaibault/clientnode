@@ -2044,46 +2044,43 @@ export default class Tools {
                         ):any => {
                             if (key === '__target__')
                                 return target
-                            if (key === 'hasOwnProperty')
-                                return target[key]
                             /*
                                 NOTE: Very complicated stuff section, only
                                 change while doing a lot of tests.
                             */
-                            if (key === expressionIndicatorKey) {
-                                registerEvaluation(target, target[key])
-                                const evaluatedValue:any = evaluate(
-                                    target[key])
-                                unregisterEvaluation(target, target[key])
-                                return resolve(evaluatedValue)
-                            } else if (key === executionIndicatorKey) {
-                                registerEvaluation(target, target[key])
-                                const evaluatedValue:any = evaluate(
-                                    target[key], executionIndicatorKey)
-                                unregisterEvaluation(target, target[key])
-                                return resolve(evaluatedValue)
-                            }
+                            for (const type:string of [
+                                expressionIndicatorKey, executionIndicatorKey
+                            ])
+                                if (key === type) {
+                                    registerEvaluation(target, target[key])
+                                    const evaluatedValue:any = evaluate(
+                                        target[key], type)
+                                    unregisterEvaluation(target, target[key])
+                                    return resolve(evaluatedValue)
+                                }
+                            if (key in target)
+                                return target[key]
                             let resolvedTarget:any
                             try {
                                 resolvedTarget = resolve(target)
                             } catch (error) {
-                                if (error === stack)
+                                if (error === stack) {
+                                    console.log('STACK', stack)
                                     resolvedTarget = target
-                                else
+                                } else
                                     throw error
                             }
-                            if (typeof key !== 'string')
-                                return ():any => evaluate(resolvedTarget)
-                            if (target.hasOwnProperty(
-                                expressionIndicatorKey
-                            ))
-                                return evaluate(resolvedTarget)[key]
-                            if (target.hasOwnProperty(
-                                executionIndicatorKey
-                            ))
-                                return evaluate(
-                                    resolvedTarget, executionIndicatorKey
-                                )[key]
+                            if (typeof key !== 'string') {
+                                if (typeof resolvedTarget[key] === 'object')
+                                    return resolvedTarget[key]
+                                const result = evaluate(resolvedTarget)
+                                return ():any => result
+                            }
+                            for (const type:string of [
+                                expressionIndicatorKey, executionIndicatorKey
+                            ])
+                                if (target.hasOwnProperty(type))
+                                    return evaluate(resolvedTarget, type)[key]
                             return resolvedTarget[key]
                             // End of complicated stuff.
                         }})
