@@ -2002,26 +2002,6 @@ export default class Tools {
                     `${Tools.representObject(error)}".`)
             }
         }
-        const stack:Map<Object, {[key:string]:null}> = new Map()
-        const registerEvaluation:Function = (
-            target:Object, code:string
-        ):void => {
-            if (stack.has(target))
-                // IgnoreTypeCheck
-                if (stack.get(target).hasOwnProperty(code))
-                    throw stack
-                else
-                    // IgnoreTypeCheck
-                    stack.get(target)[code] = null
-            else
-                stack.set(target, {[code]: null})
-        }
-        const unregisterEvaluation:Function = (
-            target:Object, code:string
-        ):void => {
-            // IgnoreTypeCheck
-            delete stack.get(target)[code]
-        }
         const addProxyRecursively:Function = (data:any):any => {
             if (typeof data !== 'object' || data === null)
                 return data
@@ -2044,6 +2024,8 @@ export default class Tools {
                         ):any => {
                             if (key === '__target__')
                                 return target
+                            if (key === 'hasOwnProperty')
+                                return target[key]
                             /*
                                 NOTE: Very complicated stuff section, only
                                 change while doing a lot of tests.
@@ -2051,30 +2033,18 @@ export default class Tools {
                             for (const type:string of [
                                 expressionIndicatorKey, executionIndicatorKey
                             ])
-                                if (key === type) {
-                                    registerEvaluation(target, target[key])
-                                    const evaluatedValue:any = evaluate(
-                                        target[key], type)
-                                    unregisterEvaluation(target, target[key])
-                                    return resolve(evaluatedValue)
-                                }
-                            if (key in target)
-                                return target[key]
-                            let resolvedTarget:any
-                            try {
-                                resolvedTarget = resolve(target)
-                            } catch (error) {
-                                if (error === stack) {
-                                    console.log('STACK', stack)
-                                    resolvedTarget = target
-                                } else
-                                    throw error
+                                if (key === type)
+                                    return resolve(evaluate(target[key], type))
+                            let resolvedTarget:any = resolve(target)
+                            if (key === 'toString') {
+                                const result:any = evaluate(resolvedTarget)
+                                return result[key].bind(result)
                             }
                             if (typeof key !== 'string') {
-                                if (typeof resolvedTarget[key] === 'object')
-                                    return resolvedTarget[key]
-                                const result = evaluate(resolvedTarget)
-                                return ():any => result
+                                const result:any = evaluate(resolvedTarget)
+                                if (result[key] && result[key].call)
+                                    return result[key].bind(result)
+                                return result[key]
                             }
                             for (const type:string of [
                                 expressionIndicatorKey, executionIndicatorKey

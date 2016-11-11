@@ -1203,12 +1203,19 @@ let tests:Array<Test> = [{callback: function(
                 c: {__evaluate__: 'removeS(self.a.b)'}
             }}, ['removeS'], [(value:string):string =>
                 value.replace('s', '')
-            ]], {a: {b: 'test', c: 'tet'}}]
-        ])
-            assert.deepEqual($.Tools.class.copyLimitedRecursively(
-                $.Tools.class.resolveDynamicDataStructure(...test[0]),
-                -1, null, true
-            ), test[1])
+            ]], {a: {b: 'test', c: 'tet'}}],
+            [[{
+                a: {__evaluate__: 'toString(self.b)'},
+                b: {__evaluate__: `'a'`}
+            }, ['toString'], [(value) => value.toString()]], {a: 'a', b: 'a'}]
+        ]) {
+            const r = $.Tools.class.copyLimitedRecursively(
+                $.Tools.class.resolveDynamicDataStructure(...test[0]), -1,
+                null, true
+            )
+            console.log(require('util').inspect(r, {depth: null}), test[1])
+            assert.deepEqual(r, test[1])
+        }
     })
     this.test(`sort (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
