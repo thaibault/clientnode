@@ -1904,21 +1904,25 @@ export default class Tools {
                         removeIndicatorKey, prependIndicatorKey,
                         appendIndicatorKey
                     ].includes(key)) {
-                        for (const valueToModify:any of [].concat(source[key]))
-                            if (Array.isArray(target))
-                                if (key === removeIndicatorKey) {
+                        if (Array.isArray(target))
+                            if (key === removeIndicatorKey) {
+                                for (const valueToModify:any of [].concat(
+                                    source[key]
+                                ))
                                     if (target.includes(valueToModify))
                                         target.splice(
                                             target.indexOf(valueToModify), 1)
-                                } else if (key === prependIndicatorKey)
-                                    target.unshift(valueToModify)
-                                else
-                                    target.push(valueToModify)
-                            else if (
-                                key === removeIndicatorKey &&
-                                target.hasOwnProperty(valueToModify)
-                            )
-                                delete target[valueToModify]
+                            } else if (key === prependIndicatorKey)
+                                target = [].concat(source[key]).concat(target)
+                            else
+                                // IgnoreTypeCheck
+                                target = target.concat(source[key])
+                        else if (key === removeIndicatorKey)
+                            for (const valueToModify:any of [].concat(
+                                source[key]
+                            ))
+                                if (target.hasOwnProperty(valueToModify))
+                                    delete target[valueToModify]
                         delete source[key]
                         if (parentSource && parentKey)
                             delete parentSource[parentKey]

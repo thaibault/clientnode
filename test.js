@@ -1207,7 +1207,9 @@ let tests:Array<Test> = [{callback: function(
             [[{
                 a: {__evaluate__: 'toString(self.b)'},
                 b: {__evaluate__: `'a'`}
-            }, ['toString'], [(value) => value.toString()]], {a: 'a', b: 'a'}]
+            }, ['toString'], [(value:any):string => value.toString()]], {
+                a: 'a', b: 'a'
+            }]
         ]) {
             const r = $.Tools.class.copyLimitedRecursively(
                 $.Tools.class.resolveDynamicDataStructure(...test[0]), -1,
