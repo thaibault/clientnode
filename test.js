@@ -1053,9 +1053,14 @@ let tests:Array<Test> = [{callback: function(
                 {a: [2, 1, 2]}, {b: 1}
             ],
             [
+                [{a: [2]}, {a: {add: [1, 2]}, b: 1}, 'rm', 'unshift', 'add'],
+                {a: [2, 1, 2]}, {b: 1}
+            ],
+            [
                 [{a: [2]}, {a: {__prepend__: 1}}, '_r', '_p'],
                 {a: [2]}, {a: {__prepend__: 1}}
             ],
+            [[{a: [2]}, {a: {__prepend__: [1, 3]}}], {a: [1, 3, 2]}, {}],
             [
                 [{a: [2]}, {a: {__append__: [1, 2], __prepend__: 's'}}],
                 {a: ['s', 2, 1, 2]}, {}
@@ -1210,14 +1215,11 @@ let tests:Array<Test> = [{callback: function(
             }, ['toString'], [(value:any):string => value.toString()]], {
                 a: 'a', b: 'a'
             }]
-        ]) {
-            const r = $.Tools.class.copyLimitedRecursively(
+        ])
+            assert.deepEqual($.Tools.class.copyLimitedRecursively(
                 $.Tools.class.resolveDynamicDataStructure(...test[0]), -1,
                 null, true
-            )
-            console.log(require('util').inspect(r, {depth: null}), test[1])
-            assert.deepEqual(r, test[1])
-        }
+            ), test[1])
     })
     this.test(`sort (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [

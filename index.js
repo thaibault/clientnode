@@ -1927,7 +1927,7 @@ export default class Tools {
                         if (parentSource && parentKey)
                             delete parentSource[parentKey]
                     } else if (target !== null && target.hasOwnProperty(key))
-                        Tools.modifyObject(
+                        target[key] = Tools.modifyObject(
                             target[key], source[key], removeIndicatorKey,
                             prependIndicatorKey, appendIndicatorKey, source,
                             key)
