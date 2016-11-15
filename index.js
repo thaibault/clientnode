@@ -1199,13 +1199,13 @@ export default class Tools {
         if (!scope)
             scope = this
         if (typeof method === 'string' && typeof scope === 'object')
-            return function(...parameter:Array<any>):any {
+            return (...parameter:Array<any>):any => {
                 if (!scope[method] && typeof method === 'string')
                     throw new Error(
                         `Method "${method}" doesn't exists in "${scope}".`)
                 return scope[method](...parameter.concat(additionalArguments))
             }
-        return function(...parameter:Array<any>):any {
+        return (...parameter:Array<any>):any => {
             // IgnoreTypeCheck
             return method.call(scope, ...parameter.concat(additionalArguments))
         }
