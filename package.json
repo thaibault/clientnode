@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "1.0.117",
+  "version": "1.0.118",
   "description": "upgrade to object orientated rock solid plugins",
   "documentationWebsite": {
     "name": "clientNode",
@@ -82,7 +82,6 @@
   "license": "CC-BY-3.0",
   "devDependencies": {
     "babel-plugin-transform-proto-to-assign": "latest",
-
     "documentation-website": "latest",
     "rimraf": "latest",
     "jsdom": "latest",
