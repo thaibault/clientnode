@@ -1217,8 +1217,7 @@ let tests:Array<Test> = [{callback: function(
             }]
         ])
             assert.deepEqual($.Tools.class.copyLimitedRecursively(
-                $.Tools.class.resolveDynamicDataStructure(...test[0]), -1,
-                null, true
+                $.Tools.class.resolveDynamicDataStructure(...test[0]), -1, true
             ), test[1])
     })
     this.test(`sort (${roundType})`, (assert:Object):void => {
