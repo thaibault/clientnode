@@ -592,28 +592,19 @@ let tests:Array<Test> = [{callback: function(
     })
     this.test(`getParameterNames (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
-
-
-
-console.log(getParameterNames(function(a,/*asd*/ b,c/**/) {}))
-console.log(getParameterNames((a,/*asd*/ b,c/**/) => {}))
-a = (a,/*asd*/ b,c/**/) => {}
-console.log(getParameterNames(a))
-a = (a,/*asd*/ b,c/**/) => {
-    return 2
-}
-console.log(getParameterNames(a))
-a = (a,/*asd*/ b,c/**/) => 2
-console.log(getParameterNames(a))
-a = (a,/*asd*/ b= 2,c/**/) => 2
-console.log(getParameterNames(a))
-a = a => 2
-console.log(getParameterNames(a))
-class A {
-    constructor(a, b, c) {}
-    a() {}
-}
-console.log(getParameterNames(A))
+            [function() {}, []],
+            [function(a,/*asd*/ b,c/**/) {}, ['a', 'b', 'c']],
+            [(a,/*asd*/ b,c/**/) => {}, ['a', 'b', 'c']],
+            [(a,/*asd*/ b,c/**/) => {
+                return 2
+            }, ['a', 'b', 'c']],
+            [(a,/*asd*/ b,c/**/) => 2, ['a', 'b', 'c']],
+            [(a,/*asd*/ b= 2,c/**/) => 2, ['a', 'b', 'c']],
+            [a = a => 2, ['a', 'b', 'c']],
+            [class A {
+                constructor(a, b, c) {}
+                a() {}
+            }, ['a', 'b', 'c']]
         ])
             assert.deepEqual($.Tools.class.getParameterNames(test[0]), test[1])
     })
