@@ -600,7 +600,7 @@ let tests:Array<Test> = [{callback: function(
             }, ['a', 'b', 'c']],
             [(a,/*asd*/ b,c/**/) => 2, ['a', 'b', 'c']],
             [(a,/*asd*/ b= 2,c/**/) => 2, ['a', 'b', 'c']],
-            [a = a => 2, ['a', 'b', 'c']],
+            [a => 2, ['a', 'b', 'c']],
             [class A {
                 constructor(a, b, c) {}
                 a() {}

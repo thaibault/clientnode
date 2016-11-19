@@ -1216,31 +1216,32 @@ export default class Tools {
      * @param callable - Function or function code to inspect.
      * @returns List of parameter names.
      */
-    static getParameterNames(functionCode:Function|string):Array<string> {
-        if (typeof functionCode !== 'string')
-            functionCode = functionCode.toString()
-        // Strip comments.
-        functionCode = functionCode.replace(
+    static getParameterNames(callable:Function|string):Array<string> {
+        const functionCode:string = ((
+            typeof callable === 'string'
+        ) ? callable : callable.toString()).replace(
+            // Strip comments.
             /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg, '')
         if (functionCode.startsWith('class'))
             return Tools.getParameterNames('function ' + functionCode.replace(
                 /.*(constructor\([^)]+\))/m, '$1'))
         // Try classic function delclaration.
-        let parameter = functionCode.match(/^function\s*[^\(]*\(\s*([^\)]*)\)/m)
+        let parameter = functionCode.match(
+            /^function\s*[^\(]*\(\s*([^\)]*)\)/m)
         if (parameter === null)
             // Try arrow function declaration.
             parameter = functionCode.match(/^[^\(]*\(\s*([^\)]*)\) *=>.*/m)
         if (parameter === null)
             // Try one argument and without brackets arrow function declaration.
             parameter = functionCode.match(/([^= ]+) *=>.*/m)
-        if (parameter === null) {
-            return []
+        if (parameter && parameter.length > 2) {
+            const names = []
+            for (const name of parameter[1].split(','))
+                // Remove default parameter values.
+                names.push(name.replace(/=.+$/g, ''))
+            return names
         }
-        const names = []
-        for (const name of parameter[1].split(','))
-            // Remove default parameter values.
-            names.push(name.replace(/=.+$/g, ''))
-        return names
+        return []
     }
     /**
      * Implements the identity function.
