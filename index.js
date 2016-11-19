@@ -1213,15 +1213,17 @@ export default class Tools {
     /**
      * Determines all parameter names from given callable (function or class,
      * ...).
-     * @param callable - Function to inspect.
+     * @param callable - Function or function code to inspect.
      * @returns List of parameter names.
      */
-    static getParameterNames(callable:Function):Array<string> {
+    static getParameterNames(functionCode:Function|string):Array<string> {
+        if (typeof functionCode !== 'string')
+            functionCode = functionCode.toString()
         // Strip comments.
-        const functionCode = callable.toString().replace(
+        functionCode = functionCode.replace(
             /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg, '')
         if (functionCode.startsWith('class'))
-            return getParameterNames('function ' + functionCode.replace(
+            return Tools.getParameterNames('function ' + functionCode.replace(
                 /.*(constructor\([^)]+\))/m, '$1'))
         // Try classic function delclaration.
         let parameter = functionCode.match(/^function\s*[^\(]*\(\s*([^\)]*)\)/m)
