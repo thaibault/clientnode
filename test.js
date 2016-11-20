@@ -590,6 +590,25 @@ let tests:Array<Test> = [{callback: function(
             five:5, two:2, three:3
         ):number => five + two + three, testObject, 5)(2, 3), 10)
     })
+    this.test(`getParameterNames (${roundType})`, (assert:Object):void => {
+        for (const test:Array<any> of [
+            [function():void {}, []],
+            ['function() {}', []],
+            ['function(a, /* asd*/ b, c/**/) {}', ['a', 'b', 'c']],
+            ['(a, /*asd*/b, c/**/) => {}', ['a', 'b', 'c']],
+            [`(a, /*asd*/b, c/**/) => {
+                return 2
+            }`, ['a', 'b', 'c']],
+            ['(a, /* asd*/b, c/* */) => 2', ['a', 'b', 'c']],
+            ['(a, /* asd*/b = 2, c/* */) => 2', ['a', 'b', 'c']],
+            ['a => 2', ['a']],
+            [`class A {
+                constructor(a, b, c) {}
+                a() {}
+            }`, ['a', 'b', 'c']]
+        ])
+            assert.deepEqual($.Tools.class.getParameterNames(test[0]), test[1])
+    })
     this.test(`identity (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [2, 2],

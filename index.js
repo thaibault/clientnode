@@ -1211,6 +1211,39 @@ export default class Tools {
         }
     }
     /**
+     * Determines all parameter names from given callable (function or class,
+     * ...).
+     * @param callable - Function or function code to inspect.
+     * @returns List of parameter names.
+     */
+    static getParameterNames(callable:Function|string):Array<string> {
+        const functionCode:string = ((
+            typeof callable === 'string'
+        ) ? callable : callable.toString()).replace(
+            // Strip comments.
+            /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg, '')
+        if (functionCode.startsWith('class'))
+            return Tools.getParameterNames('function ' + functionCode.replace(
+                /.*(constructor\([^)]+\))/m, '$1'))
+        // Try classic function declaration.
+        let parameter:?Array<string> = functionCode.match(
+            /^function\s*[^\(]*\(\s*([^\)]*)\)/m)
+        if (parameter === null)
+            // Try arrow function declaration.
+            parameter = functionCode.match(/^[^\(]*\(\s*([^\)]*)\) *=>.*/m)
+        if (parameter === null)
+            // Try one argument and without brackets arrow function declaration.
+            parameter = functionCode.match(/([^= ]+) *=>.*/m)
+        const names:Array<string> = []
+        if (parameter && parameter.length > 1 && parameter[1].trim().length) {
+            for (const name:string of parameter[1].split(','))
+                // Remove default parameter values.
+                names.push(name.replace(/=.+$/g, '').trim())
+            return names
+        }
+        return names
+    }
+    /**
      * Implements the identity function.
      * @param value - A value to return.
      * @returns Returns the given value.
