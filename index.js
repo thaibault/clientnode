@@ -1226,7 +1226,7 @@ export default class Tools {
             return Tools.getParameterNames('function ' + functionCode.replace(
                 /.*(constructor\([^)]+\))/m, '$1'))
         // Try classic function declaration.
-        let parameter:Array<string> = functionCode.match(
+        let parameter:?Array<string> = functionCode.match(
             /^function\s*[^\(]*\(\s*([^\)]*)\)/m)
         if (parameter === null)
             // Try arrow function declaration.
