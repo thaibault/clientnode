@@ -1225,8 +1225,8 @@ export default class Tools {
         if (functionCode.startsWith('class'))
             return Tools.getParameterNames('function ' + functionCode.replace(
                 /.*(constructor\([^)]+\))/m, '$1'))
-        // Try classic function delclaration.
-        let parameter = functionCode.match(
+        // Try classic function declaration.
+        let parameter:Array<string> = functionCode.match(
             /^function\s*[^\(]*\(\s*([^\)]*)\)/m)
         if (parameter === null)
             // Try arrow function declaration.
@@ -1234,14 +1234,14 @@ export default class Tools {
         if (parameter === null)
             // Try one argument and without brackets arrow function declaration.
             parameter = functionCode.match(/([^= ]+) *=>.*/m)
-        if (parameter && parameter.length > 2) {
-            const names = []
-            for (const name of parameter[1].split(','))
+        const names:Array<string> = []
+        if (parameter && parameter.length > 1 && parameter[1].trim().length) {
+            for (const name:string of parameter[1].split(','))
                 // Remove default parameter values.
-                names.push(name.replace(/=.+$/g, ''))
+                names.push(name.replace(/=.+$/g, '').trim())
             return names
         }
-        return []
+        return names
     }
     /**
      * Implements the identity function.

@@ -592,34 +592,20 @@ let tests:Array<Test> = [{callback: function(
     })
     this.test(`getParameterNames (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
-            /* eslint-disable no-unused-vars */
             [function():void {}, []],
-            [
-                function(a:any, /* asd*/ b:any, c:any/**/):void {},
-                ['a', 'b', 'c']
-            ],
-            [(a:any, /*asd*/b:any, c:any/**/):void => {}, ['a', 'b', 'c']],
-            [(a:any, /*asd*/b:any, c:any/**/):2 => {
+            ['function() {}', []],
+            ['function(a, /* asd*/ b, c/**/) {}', ['a', 'b', 'c']],
+            ['(a, /*asd*/b, c/**/) => {}', ['a', 'b', 'c']],
+            [`(a, /*asd*/b, c/**/) => {
                 return 2
-            }, ['a', 'b', 'c']],
-            [(a:any, /* asd*/b:any, c:any/* */):2 => 2, ['a', 'b', 'c']],
-            [(a:any, /* asd*/b:any = 2, c:any/* */):2 => 2, ['a', 'b', 'c']],
-            /*
-                eslint-disable
-                arrow-parens,flowtype/require-parameter-type,
-                flowtype/require-return-type
-            */
-            [a => 2, ['a', 'b', 'c']],
-            /*
-                eslint-enable
-                arrow-parens,flowtype/require-parameter-type,
-                flowtype/require-return-type
-            */
-            [class A {
-                constructor(a:any, b:any, c:any):void {}
-                a():void {}
-            }, ['a', 'b', 'c']]
-            /* eslint-enable no-unused-vars */
+            }`, ['a', 'b', 'c']],
+            ['(a, /* asd*/b, c/* */) => 2', ['a', 'b', 'c']],
+            ['(a, /* asd*/b = 2, c/* */) => 2', ['a', 'b', 'c']],
+            ['a => 2', ['a']],
+            [`class A {
+                constructor(a, b, c) {}
+                a() {}
+            }`, ['a', 'b', 'c']]
         ])
             assert.deepEqual($.Tools.class.getParameterNames(test[0]), test[1])
     })
