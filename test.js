@@ -735,6 +735,7 @@ let tests:Array<Test> = [{callback: function(
             [{}, '{}'],
             [{a: null}, '{"a":null}'],
             [{a: {a: 2}}, '{"a":{"a":2}}'],
+            [{a: {a: Infinity}}, '{"a":{"a":null}}'],
             [testObject1, '{"a":{"a":"__circularReference__"}}']
         ])
             assert.deepEqual(
