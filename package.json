@@ -45,7 +45,8 @@
     },
     "module": {
       "aliases": {
-        "clientnode$": "./index"
+        "clientnode$": "./index",
+        "jquery$": "jquery/dist/jquery.min"
       },
       "preprocessor": {
         "javaScript": {
@@ -57,7 +58,7 @@
         }
       },
       "skipParseRegularExpressions": {
-        "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
+        "__evaluate__": "/\\/(?:(?:module)|(?:[^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
     }
   },
