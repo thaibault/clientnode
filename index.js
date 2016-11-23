@@ -131,7 +131,7 @@ export const globalContext:Object = (():Object => {
     return window
 })()
 /* eslint-disable no-use-before-define */
-export const $ = (():any => {
+export const $:any = (():any => {
 /* eslint-enable no-use-before-define */
     let $:any
     if ('$' in globalContext && globalContext.$ !== null)
@@ -1453,6 +1453,7 @@ export default class Tools {
      * @param determineCicularReferenceValue - Callback to create a fallback
      * value depending on given redundant value.
      * @param numberOfSpaces - Number of spaces to use for string formatting.
+     * @returns The formatted json string.
      */
     static convertCircularObjectToJSON(
         object:Object, determineCicularReferenceValue:((
