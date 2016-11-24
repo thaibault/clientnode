@@ -1949,7 +1949,6 @@ export default class Tools {
                             } else if (key === prependIndicatorKey)
                                 target = [].concat(source[key]).concat(target)
                             else
-                                // IgnoreTypeCheck
                                 target = target.concat(source[key])
                         else if (key === removeIndicatorKey)
                             for (const valueToModify:any of [].concat(
@@ -1961,7 +1960,9 @@ export default class Tools {
                         if (parentSource && parentKey)
                             delete parentSource[parentKey]
                     } else if (target !== null && target.hasOwnProperty(key))
+                        // IgnoreTypeCheck
                         target[key] = Tools.modifyObject(
+                            // IgnoreTypeCheck
                             target[key], source[key], removeIndicatorKey,
                             prependIndicatorKey, appendIndicatorKey, source,
                             key)
@@ -3687,7 +3688,7 @@ export default class Tools {
                         const response:Object = await fetch(url)
                         if (timedOut)
                             return response
-                        const result:Error = check(result)
+                        const result:Error = check(response)
                         if (result) {
                             clearTimeout(timeoutID)
                             resolve(result)
