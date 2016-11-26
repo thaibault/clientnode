@@ -221,9 +221,9 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual($.Tools.class.show(test[0]), test[1])
         assert.ok((new RegExp(
             /* eslint-disable no-control-regex */
-            '^(.|\n|\r|\u2028|\u2029)+\\(Type: "function"\\)$'
+            '^(.|\n|\r|\\u2028|\\u2029)+\\(Type: "function"\\)$'
+            /* eslint-enable no-control-regex */
         )).test($.Tools.class.show($.Tools)))
-        /* eslint-enable no-control-regex */
     })
     // // endregion
     // // region dom node handling
