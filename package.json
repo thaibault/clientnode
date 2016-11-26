@@ -51,17 +51,8 @@
       "optimizer": {
         "uglifyJS": null
       },
-      "preprocessor": {
-        "javaScript": {
-          "configuration": {
-            "presets": {
-              "__evaluate__": "(self.target === 'node' ? ['es2017-node7'] : [['modern-browsers', {loose: true}], 'es2017']).concat('stage-0')"
-            }
-          }
-        }
-      },
       "skipParseRegularExpressions": {
-        "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
+        "__evaluate__": "/\\/(?:(?:jquery\\/dist\\/jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
     }
   },
