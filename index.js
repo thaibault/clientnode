@@ -1146,9 +1146,9 @@ export default class Tools {
         return scope
     }
     /**
-     * Generates a unique name in given scope (usefull for jsonp requests).
-     * @param prefix - A prefix which will be preprended to uniqe name.
-     * @param suffix - A suffix which will be preprended to uniqe name.
+     * Generates a unique name in given scope (useful for jsonp requests).
+     * @param prefix - A prefix which will be prepended to unique name.
+     * @param suffix - A suffix which will be prepended to unique name.
      * @param scope - A scope where the name should be unique.
      * @param initialUniqueName - An initial scope name to use if not exists.
      * @returns The function name.
@@ -1161,9 +1161,9 @@ export default class Tools {
             return initialUniqueName
         let uniqueName:string = prefix + suffix
         while (true) {
-            uniqueName = prefix + parseInt(
-                Math.random() * Math.pow(10, 10), 10
-            ) + suffix
+            uniqueName = prefix + parseInt(Math.random() * Math.pow(
+                10, 10
+            ), 10) + suffix
             if (!(uniqueName in scope))
                 break
         }
@@ -2196,12 +2196,8 @@ export default class Tools {
      * @returns Target array with merged given source one.
      */
     static arrayMerge(target:Array<any>, source:Array<any>):Array<any> {
-        const length:number = Number(source.length)
-        let sourceIndex:number = 0
-        let targetIndex:number = target.length
-        for (;sourceIndex < length; sourceIndex++)
-            target[targetIndex++] = source[sourceIndex]
-        target.length = targetIndex
+        for (const value:any of source)
+            target.push(value)
         return target
     }
     /**
