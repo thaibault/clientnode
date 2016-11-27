@@ -48,6 +48,9 @@
         "clientnode$": "./index",
         "jquery$": "jquery/dist/jquery.min"
       },
+      "optimizer": {
+        "babili": null
+      },
       "preprocessor": {
         "javaScript": {
           "configuration": {
@@ -64,7 +67,7 @@
   },
   "scripts": {
     "buildTest": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0,babili --source-maps inline --out-file test.compiled.js test.js",
-    "buildAlternatively": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0 --source-maps inline --out-file index.compiled.js index.js",
+    "buildAlternatively": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0 --source-maps inline --out-file index.compiled.js index.js && npm run buildTest",
     "build": "webOptimizer build && npm run buildTest",
     "buildDLL": "webOptimizer buildDLL",
     "clear": "webOptimizer clear",
