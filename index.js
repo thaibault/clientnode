@@ -1683,7 +1683,7 @@ export default class Tools {
      */
     static equals(
         firstValue:any, secondValue:any, properties:?Array<any> = null,
-        deep:number = -1, exceptionPrefixes:Array<string> = ['$', '_'],
+        deep:number = -1, exceptionPrefixes:Array<string> = [],
         ignoreFunctions:boolean = true
     ):boolean {
         if (
