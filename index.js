@@ -1131,9 +1131,9 @@ export default class Tools {
      * in given scope.
      * @returns The isolated scope.
      */
-    static isolateScope(scope:Object, prefixesToIgnore:Array<string> = [
-        '$', '_'
-    ]):Object {
+    static isolateScope(
+        scope:Object, prefixesToIgnore:Array<string> = []
+    ):Object {
         for (const name:string in scope)
             if (!(prefixesToIgnore.includes(name.charAt(0)) || [
                 'this', 'constructor'

@@ -528,17 +528,17 @@ let tests:Array<Test> = [{callback: function(
         }
         scope.prototype = {b: 2, _a: 5}
         scope = new scope()
-        assert.deepEqual($.Tools.class.isolateScope(scope), {
+        assert.deepEqual($.Tools.class.isolateScope(scope, ['_']), {
             _a: 5, a: 2, b: undefined
         })
         scope.b = 3
         assert.deepEqual(
-            $.Tools.class.isolateScope(scope), {_a: 5, a: 2, b: 3})
-        assert.deepEqual($.Tools.class.isolateScope(scope, []), {
+            $.Tools.class.isolateScope(scope, ['_']), {_a: 5, a: 2, b: 3})
+        assert.deepEqual($.Tools.class.isolateScope(scope), {
             _a: undefined, a: 2, b: 3})
         scope._a = 6
         assert.deepEqual(
-            $.Tools.class.isolateScope(scope), {_a: 6, a: 2, b: 3})
+            $.Tools.class.isolateScope(scope, ['_']), {_a: 6, a: 2, b: 3})
         scope = function():void {
             this.a = 2
         }
