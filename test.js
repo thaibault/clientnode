@@ -1466,7 +1466,7 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region string
-    this.test('stringConvertToValidRegularExpression', (
+    this.test('stringEscapeRegularExpressions', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -1483,8 +1483,7 @@ let tests:Array<Test> = [{callback: function(
             [['-', '\\'], '\\-']
         ])
             assert.strictEqual(
-                $.Tools.class.stringConvertToValidRegularExpression(
-                    ...test[0]),
+                $.Tools.class.stringEscapeRegularExpressions(...test[0]),
                 test[1])
     })
     this.test('stringConvertToValidVariableName', (assert:Object):void => {
