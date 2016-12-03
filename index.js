@@ -2621,7 +2621,7 @@ export default class Tools {
      * @param excludeSymbols - Symbols not to escape.
      * @returns Converted string.
      */
-    static stringConvertToValidRegularExpression(
+    static stringEscapeRegularExpressions(
         value:string, excludeSymbols:Array<string> = []
     ):string {
         // NOTE: This is only for performance improvements.
