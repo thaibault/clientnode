@@ -1,7 +1,9 @@
 {
   "name": "clientnode",
   "version": "1.0.135",
+  "license": "CC-BY-3.0",
   "description": "upgrade to object orientated rock solid plugins",
+  "homepage": "http://torben.website/clientNode",
   "documentationWebsite": {
     "name": "clientNode",
     "tagline": "upgrade to object orientated rock solid plugins<!--deDE:Schreibe Objekt orientierte solide Plugins-->",
@@ -23,12 +25,45 @@
     "test.js",
     "test.compiled.js"
   ],
+  "main": "index.compiled.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/thaibault/clientNode"
   },
-  "homepage": "http://torben.website/clientNode",
-  "main": "index.compiled.js",
+  "scripts": {
+    "buildTest": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0,babili --source-maps inline --out-file test.compiled.js test.js",
+    "buildAlternatively": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0 --source-maps inline --out-file index.compiled.js index.js && npm run buildTest",
+    "build": "webOptimizer build && npm run buildTest",
+    "buildDLL": "webOptimizer buildDLL",
+    "clear": "webOptimizer clear",
+    "document": "webOptimizer document",
+    "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{configuration:{plugins:{__remove__:\"transform-runtime\"}}}}}}' && npm run buildTest",
+    "exportIE10Compatible": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{configuration:{plugins:{__remove__:\"transform-runtime\",__append__:\"transform-proto-to-assign\"}}}}}}' && npm run buildTest",
+    "lint": "webOptimizer typeCheck && webOptimizer lint",
+    "prepublish": "if ! npm run build; then echo You should rerun install procedure to resolve dependency cycle. && npm run buildAlternatively; fi",
+    "serve": "webOptimizer serve",
+    "start": "npm run serve",
+    "test": "webOptimizer test",
+    "testInBrowser": "webOptimizer testInBrowser",
+    "update": "npm version patch && npm publish",
+    "updateDocumentation": "documentationWebsite --log-level info",
+    "watch": "webOptimizer build --watch",
+    "watchDLL": "webOptimizer buildDLL --watch"
+  },
+  "peerDependencies": {
+    "jquery": "*"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-proto-to-assign": "latest",
+    "documentation-website": "latest",
+    "rimraf": "latest",
+    "jsdom": "latest",
+    "jquery": "latest",
+    "qunitjs": "latest",
+    "qunit-cli": "latest",
+    "source-map-support": "latest",
+    "weboptimizer": "latest"
+  },
   "webOptimizer": {
     "injection": {
       "external": {
@@ -64,40 +99,5 @@
         "__evaluate__": "/\\/(?:(?:jquery\\/dist\\/jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
     }
-  },
-  "scripts": {
-    "buildTest": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0,babili --source-maps inline --out-file test.compiled.js test.js",
-    "buildAlternatively": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0 --source-maps inline --out-file index.compiled.js index.js && npm run buildTest",
-    "build": "webOptimizer build && npm run buildTest",
-    "buildDLL": "webOptimizer buildDLL",
-    "clear": "webOptimizer clear",
-    "document": "webOptimizer document",
-    "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{configuration:{plugins:{__remove__:\"transform-runtime\"}}}}}}' && npm run buildTest",
-    "exportIE10Compatible": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{configuration:{plugins:{__remove__:\"transform-runtime\",__append__:\"transform-proto-to-assign\"}}}}}}' && npm run buildTest",
-    "lint": "webOptimizer typeCheck && webOptimizer lint",
-    "prepublish": "if ! npm run build; then echo You should rerun install procedure to resolve dependency cycle. && npm run buildAlternatively; fi",
-    "serve": "webOptimizer serve",
-    "start": "npm run serve",
-    "test": "webOptimizer test",
-    "testInBrowser": "webOptimizer testInBrowser",
-    "update": "npm version patch && npm publish",
-    "updateDocumentation": "documentationWebsite --log-level info",
-    "watch": "webOptimizer build --watch",
-    "watchDLL": "webOptimizer buildDLL --watch"
-  },
-  "license": "CC-BY-3.0",
-  "devDependencies": {
-    "babel-plugin-transform-proto-to-assign": "latest",
-    "documentation-website": "latest",
-    "rimraf": "latest",
-    "jsdom": "latest",
-    "jquery": "latest",
-    "qunitjs": "latest",
-    "qunit-cli": "latest",
-    "source-map-support": "latest",
-    "weboptimizer": "latest"
-  },
-  "peerDependencies": {
-    "jquery": "*"
   }
 }
