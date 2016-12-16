@@ -3491,7 +3491,7 @@ export default class Tools {
             serializedObject = fileSystem.readFileSync(serializedObject, {
                 encoding: 'utf-8'})
         if (!serializedObject.startsWith('{'))
-            serializedObject = Buffer.from(
+            serializedObject = eval('Buffer').from(
                 serializedObject, 'base64'
             ).toString('utf8')
         let result:any
