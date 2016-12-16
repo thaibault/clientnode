@@ -87,9 +87,6 @@
       "preprocessor": {
         "javaScript": {
           "configuration": {
-            "plugins": {
-              "__append__": "minify-dead-code-elimination"
-            },
             "presets": {
               "__evaluate__": "(self.target === 'node' ? ['es2017-node7'] : [['modern-browsers', {loose: true}], 'es2017']).concat('stage-0')"
             }
