@@ -3994,7 +3994,7 @@ export default class Tools {
         }
     }
     /**
-     * Checks if given path points to a valid directory.
+     * Checks if given path points to a valid file.
      * @param filePath - Path to directory.
      * @returns A promise holding a boolean which indicates directory
      * existents.
