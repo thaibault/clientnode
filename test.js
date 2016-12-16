@@ -16,6 +16,10 @@
 */
 // region imports
 import type {File, PlainObject, $DomNode} from 'clientnode'
+let ChildProcess:ChildProcess
+try {
+    ChildProcess = eval('require')('child_process').ChildProcess
+} catch (error) {}
 import browserAPI from 'weboptimizer/browserAPI'
 import type {BrowserAPI} from 'weboptimizer/type'
 // endregion
@@ -2351,9 +2355,6 @@ let tests:Array<Test> = [{callback: function(
         this.test(`handleChildProcess (${roundType})`, (
             assert:Object
         ):void => {
-            const ChildProcess:ChildProcess = require(
-                'child_process'
-            ).ChildProcess
             /**
              * A mockup duplex stream for mocking "stdout" and "strderr"
              * process connections.
