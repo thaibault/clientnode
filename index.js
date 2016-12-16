@@ -3969,7 +3969,7 @@ export default class Tools {
                     if (error.hasOwnProperty(
                         'code'
                     // IgnoreTypeCheck
-                    ) && error.code === 'ENOENT')
+                    ) && ['ENOENT', 'ENOTDIR'].includes(error.code))
                         resolve(false)
                     else
                         reject(error)
@@ -3988,7 +3988,7 @@ export default class Tools {
         } catch (error) {
             if (error.hasOwnProperty(
                 'code'
-            ) && error.code === 'ENOENT')
+            ) && ['ENOENT', 'ENOTDIR'].includes(error.code))
                 return false
             throw error
         }
@@ -4006,7 +4006,7 @@ export default class Tools {
                     if (error.hasOwnProperty(
                         'code'
                     // IgnoreTypeCheck
-                    ) && error.code === 'ENOENT')
+                    ) && ['ENOENT', 'ENOTDIR'].includes(error.code))
                         resolve(false)
                     else
                         reject(error)
@@ -4025,7 +4025,7 @@ export default class Tools {
         } catch (error) {
             if (error.hasOwnProperty(
                 'code'
-            ) && error.code === 'ENOENT')
+            ) && ['ENOENT', 'ENOTDIR'].includes(error.code))
                 return false
             throw error
         }
