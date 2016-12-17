@@ -1238,7 +1238,37 @@ let tests:Array<Test> = [{callback: function(
                 b: {__evaluate__: `'a'`}
             }, ['toString'], [(value:any):string => value.toString()]], {
                 a: 'a', b: 'a'
-            }]
+            }],
+            [[{
+                a: {__evaluate__: 'Object.getOwnPropertyNames(self.b)'},
+                b: {__evaluate__: '{a: 2}'}
+            }, [], []], {a: ['a'], b: {a: 2}}],
+            [[{
+                a: {__evaluate__: 'Reflect.ownKeys(self.b)'},
+                b: {__evaluate__: '{a: 2}'}
+            }, [], []], {a: ['a'], b: {a: 2}}],
+            [[{
+                a: {__evaluate__: 'Object.getOwnPropertyNames(self.b)'},
+                b: {__evaluate__: 'self.c'},
+                c: {__execute__: 'return {a: 1, b: 2}'}
+            }, [], []], {a: ['a', 'b'], b: {a: 1, b: 2}, c: {a: 1, b: 2}}],
+            /*
+                NOTE: This describes a workaround until the "ownKeys" proxy
+                trap works for this use cases.
+            */
+            [[{
+                a: {__evaluate__: 'Object.keys(resolve(self.b))'},
+                b: {__evaluate__: '{a: 2}'}
+            }, [], []], {a: ['a'], b: {a: 2}}],
+            [[{
+                a: {__evaluate__: `(() => {
+                    const result = []
+                    for (const key in resolve(self.b))
+                        result.push(key)
+                    return result
+                })()`},
+                b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
+            }, [], []], {a: ['a', 'b', 'c'], b: {a: 1, b: 2, c: 3}}]
         ])
             assert.deepEqual($.Tools.class.copyLimitedRecursively(
                 $.Tools.class.resolveDynamicDataStructure(...test[0]), -1, true
