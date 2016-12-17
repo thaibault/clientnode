@@ -2058,56 +2058,78 @@ export default class Tools {
                         data[key].hasOwnProperty(expressionIndicatorKey) ||
                         data[key].hasOwnProperty(executionIndicatorKey)
                     )
-                        data[key] = new Proxy(data[key], {get: (
-                            target:any, key:any
-                        ):any => {
-                            if (key === '__target__')
-                                return target
-                            if (key === 'hasOwnProperty')
-                                return target[key]
-                            /*
-                                NOTE: Very complicated stuff section, only
-                                change while doing a lot of tests.
-                            */
-                            for (const type:string of [
-                                expressionIndicatorKey, executionIndicatorKey
-                            ])
-                                if (key === type)
-                                    return resolve(evaluate(target[key], type))
-                            let resolvedTarget:any = resolve(target)
-                            if (key === 'toString') {
-                                const result:any = evaluate(resolvedTarget)
-                                return result[key].bind(result)
-                            }
-                            if (typeof key !== 'string') {
-                                const result:any = evaluate(resolvedTarget)
-                                if (result[key] && result[key].call)
+                        data[key] = new Proxy(data[key], {
+                            get: (target:any, key:any):any => {
+                                if (key === '__target__')
+                                    return target
+                                if (key === 'hasOwnProperty')
+                                    return target[key]
+                                /*
+                                    NOTE: Very complicated stuff section, only
+                                    change while doing a lot of tests.
+                                */
+                                for (const type:string of [
+                                    expressionIndicatorKey, executionIndicatorKey
+                                ])
+                                    if (key === type)
+                                        return resolve(evaluate(target[key], type))
+                                let resolvedTarget:any = resolve(target)
+                                if (key === 'toString') {
+                                    const result:any = evaluate(resolvedTarget)
                                     return result[key].bind(result)
-                                return result[key]
+                                }
+                                if (typeof key !== 'string') {
+                                    const result:any = evaluate(resolvedTarget)
+                                    if (result[key] && result[key].call)
+                                        return result[key].bind(result)
+                                    return result[key]
+                                }
+                                for (const type:string of [
+                                    expressionIndicatorKey, executionIndicatorKey
+                                ])
+                                    if (target.hasOwnProperty(type))
+                                        return evaluate(resolvedTarget, type)[key]
+                                return resolvedTarget[key]
+                                // End of complicated stuff.
+                            },
+                            ownKeys: (target:any):Array<string> => {
+                                for (const type:string of [
+                                    expressionIndicatorKey, executionIndicatorKey
+                                ])
+                                    if (target.hasOwnProperty(type))
+                                        return Object.getOwnPropertyNames(
+                                            resolve(evaluate(
+                                                target[type], type)))
+                                return Object.getOwnPropertyNames(target)
                             }
-                            for (const type:string of [
-                                expressionIndicatorKey, executionIndicatorKey
-                            ])
-                                if (target.hasOwnProperty(type))
-                                    return evaluate(resolvedTarget, type)[key]
-                            return resolvedTarget[key]
-                            // End of complicated stuff.
-                        }})
+                        })
                 }
             return data
         }
         const resolve:Function = (data:any):any => {
-            if (typeof data === 'object' && data !== null)
+            if (typeof data === 'object' && data !== null) {
+                if (data.__target__) {
+                    // NOTE: We have to skip "ownKeys" proxy trap here.
+                    for (const type:string of [
+                        expressionIndicatorKey, executionIndicatorKey
+                    ])
+                        if (data.hasOwnProperty(type))
+                            return data[type]
+                    data = data.__target__
+                }
                 for (const key:string in data)
-                    if (data.hasOwnProperty(key) && key !== '__target__')
+                    if (data.hasOwnProperty(key))
                         if ([
                             expressionIndicatorKey, executionIndicatorKey
                         ].includes(key))
                             return data[key]
                         else
                             data[key] = resolve(data[key])
+            }
             return data
         }
+        parameterDescription.push('resolve')
+        parameter.push(resolve)
         const removeProxyRecursively:Function = (data:any):any => {
             if (typeof data === 'object' && data !== null)
                 for (const key:string in data)

@@ -96,7 +96,6 @@
       "skipParseRegularExpressions": {
         "__evaluate__": "/\\/(?:(?:jquery\\/dist\\/jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
-    },
-    "showConfiguration": true
+    }
   }
 }
