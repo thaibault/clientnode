@@ -2069,10 +2069,12 @@ export default class Tools {
                                     change while doing a lot of tests.
                                 */
                                 for (const type:string of [
-                                    expressionIndicatorKey, executionIndicatorKey
+                                    expressionIndicatorKey,
+                                    executionIndicatorKey
                                 ])
                                     if (key === type)
-                                        return resolve(evaluate(target[key], type))
+                                        return resolve(evaluate(
+                                            target[key], type))
                                 let resolvedTarget:any = resolve(target)
                                 if (key === 'toString') {
                                     const result:any = evaluate(resolvedTarget)
@@ -2085,16 +2087,20 @@ export default class Tools {
                                     return result[key]
                                 }
                                 for (const type:string of [
-                                    expressionIndicatorKey, executionIndicatorKey
+                                    expressionIndicatorKey,
+                                    executionIndicatorKey
                                 ])
                                     if (target.hasOwnProperty(type))
-                                        return evaluate(resolvedTarget, type)[key]
+                                        return evaluate(
+                                            resolvedTarget, type
+                                        )[key]
                                 return resolvedTarget[key]
                                 // End of complicated stuff.
                             },
                             ownKeys: (target:any):Array<string> => {
                                 for (const type:string of [
-                                    expressionIndicatorKey, executionIndicatorKey
+                                    expressionIndicatorKey,
+                                    executionIndicatorKey
                                 ])
                                     if (target.hasOwnProperty(type))
                                         return Object.getOwnPropertyNames(
@@ -3789,14 +3795,15 @@ export default class Tools {
     sendToExternalURL(
         url:string, data:{[key:string]:any}, requestType:string = 'post',
         removeAfterLoad:boolean = true
-    ):string {
+    ):$DomNode {
         const $iFrameDomNode:$DomNode = $('<iframe>').attr(
             'name', this.constructor._name.charAt(0).toLowerCase() +
             this.constructor._name.substring(1) + (new Date()).getTime()
         ).hide()
         this.$domNode.after($iFrameDomNode)
-        return this.constructor.sendToIFrame(
+        this.constructor.sendToIFrame(
             $iFrameDomNode, url, data, requestType, removeAfterLoad)
+        return $iFrameDomNode
     }
     // / endregion
     // / region file
