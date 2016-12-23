@@ -537,19 +537,18 @@ export default class Tools {
     getSemaphore(numberOfResources:number = 2):Object {
         return new class {
             queue:Array<Function> = []
-            numberOfResources:number = numberOfResources
+            numberOfAquiredResources:number = 0
             /**
              * Acquires a new resource and runs given callback if available.
-             * @returns A promise which will be resolved if requested a
-             * resource is available.
+             * @returns Nothing.
              */
             acquire():Promise<void> {
                 return new Promise((resolve:Function):void => {
-                    if (this.numberOfResources <= 0)
+                    if (this.numberOfAquiredResources >= numberOfResources)
                         this.queue.push(resolve)
                     else {
-                        this.numberOfResources -= 1
-                        resolve(this.numberOfResources)
+                        this.numberOfAquiredResources += 1
+                        resolve(this.numberOfAquiredResources)
                     }
                 })
             }
@@ -559,10 +558,11 @@ export default class Tools {
              * @returns Nothing.
              */
             release():void {
-                if (this.queue.length === 0)
-                    this.numberOfResources += 1
-                else
-                    this.queue.pop()(this.numberOfResources)
+                if (this.queue.length === 0) {
+                    if (this.numberOfAquiredResources >= 0)
+                        this.numberOfAquiredResources -= 1
+                } else
+                    this.queue.pop()(this.numberOfAquiredResources)
             }
         }
     }
