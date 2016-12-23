@@ -529,6 +529,43 @@ export default class Tools {
         }
         return result
     }
+    /**
+     * Generate a semaphore object with given number of resources.
+     * @param numberOfResources - Number of allowed concurrent resource uses.
+     * @returns The requested semaphore instance.
+     */
+    getSemaphore(numberOfResources:number = 2):Object {
+        return new class {
+            queue:Array<Function> = []
+            numberOfResources:number = numberOfResources
+            /**
+             * Acquires a new resource and runs given callback if available.
+             * @returns A promise which will be resolved if requested a
+             * resource is available.
+             */
+            acquire():Promise<void> {
+                return new Promise((resolve:Function):void => {
+                    if (this.numberOfResources <= 0)
+                        this.queue.push(resolve)
+                    else {
+                        this.numberOfResources -= 1
+                        resolve(this.numberOfResources)
+                    }
+                })
+            }
+            /**
+             * Releases a resource and runs a waiting resolver if there exists
+             * some.
+             * @returns Nothing.
+             */
+            release():void {
+                if (this.queue.length === 0)
+                    this.numberOfResources += 1
+                else
+                    this.queue.pop()(this.numberOfResources)
+            }
+        }
+    }
     // / endregion
     // / region boolean
     /**
