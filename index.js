@@ -534,7 +534,7 @@ export default class Tools {
      * @param numberOfResources - Number of allowed concurrent resource uses.
      * @returns The requested semaphore instance.
      */
-    getSemaphore(numberOfResources:number = 2):Object {
+    static getSemaphore(numberOfResources:number = 2):Object {
         return new class {
             queue:Array<Function> = []
             numberOfResources:number = numberOfResources

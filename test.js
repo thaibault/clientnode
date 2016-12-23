@@ -133,7 +133,7 @@ let tests:Array<Test> = [{callback: function(
     this.test(`getSemaphore (${roundType})`, async (
         assert:Object
     ):Promise<void> => {
-        const semaphore:Object = tools.getSemaphore(2)
+        const semaphore:Object = tools.constructor.getSemaphore(2)
         assert.strictEqual(semaphore.queue.length, 0)
         assert.strictEqual(semaphore.numberOfResources, 2)
         await semaphore.acquire()
