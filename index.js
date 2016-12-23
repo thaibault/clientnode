@@ -529,6 +529,35 @@ export default class Tools {
         }
         return result
     }
+    // TODO test
+    /**
+     * Generate a semaphore object with given number of resources.
+     * @param numberOfRessources - Number of allowed concurrent resource uses.
+     * @returns Th requested semaphore instance.
+     */
+    getSemaphore(numberOfResources:number = 10):Object {
+        const queue:Array<Function> = []
+        let numberOfAquiredResources:number = 0
+        return {
+            acquire: (callback:Function):number => {
+                if (queue.length >= numberOfResources)
+                    return queue.push(callback)
+                this.lock(callback)
+            },
+            release: ():void => {
+                if (queue.length !== 0) {
+                    numberOfAquiredResources -= 1
+                    this.lock(queue.pop())
+                }
+            },
+            lock: (callback:Function) => {
+                if (callback) {
+                    numberOfAquiredResources += 1
+                    callback()
+                }
+            }
+        }
+    }
     // / endregion
     // / region boolean
     /**
