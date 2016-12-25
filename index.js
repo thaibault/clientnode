@@ -1312,6 +1312,41 @@ export default class Tools {
             return data
         }
     }
+    // TODO
+    static timeout(callback:Function, delayInMilliseconds:number):Object {
+        if (typeof callback !== 'function')
+            throw new Error('Given callback must be a function.')
+        delayInMilliseconds = parseFloat(delayInMilliseconds)
+        if (Number.isNaN(delayInMilliseconds))
+            throw new Error('Given delay must be a number.')
+
+        var args = Array.prototype.slice.call(arguments, 2)
+        var callback = callback.bind.apply(callback, [this].concat(args))
+
+        var longTimeout = {
+            timer: null,
+            clear: function() {
+                if (this.timer)
+                    clearTimeout(this.timer)
+            }
+        }
+
+        var max = 2147483647
+        if (delayInMilliseconds <= max)
+            longTimeout.timer = setTimeout(callback, delayInMilliseconds)
+        else {
+            var count = Math.floor(delayInMilliseconds / max) // the number of times we need to delay by max
+            var rem = delayInMilliseconds % max // the length of the final delay
+            (function delay() {
+                if (count > 0) {
+                    count--;
+                    longTimeout.timer = setTimeout(delay, max)
+                } else
+                    longTimeout.timer = setTimeout(callback, rem)
+            })()
+        }
+        return longTimeout
+    }
     // / endregion
     // / region event
     /**
