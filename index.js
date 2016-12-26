@@ -1379,7 +1379,6 @@ export default class Tools {
                 rejectCallback(callback)
             }
         }
-        console.log('A', result, result.clear)
         return result
     }
     // / endregion

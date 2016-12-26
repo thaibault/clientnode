@@ -677,16 +677,16 @@ let tests:Array<Test> = [{callback: function(
         assert.ok(await $.Tools.class.timeout(1))
         assert.ok($.Tools.class.timeout() instanceof Promise)
         assert.ok($.Tools.class.timeout().hasOwnProperty('clear'))
-        let test:boolean = true
-        const result:Promise<Function> = $.Tools.class.timeout(0, ():void => {
-            test = false
-        }).catch(():void => {
-            assert.ok(test)
-            done()
+        let test:boolean
+        const result:Promise<Function> = $.Tools.class.timeout(10 ** 20)
+        result.catch(():void => {
+            test = true
         })
-        console.log('B', result, result.clear)
         // IgnoreTypeCheck
         result.clear()
+        assert.ok(await $.Tools.class.timeout(0))
+        assert.ok(test)
+        done()
     })
     // // endregion
     // // region event
