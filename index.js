@@ -1312,40 +1312,60 @@ export default class Tools {
             return data
         }
     }
-    // TODO
-    static timeout(callback:Function, delayInMilliseconds:number):Object {
+    /**
+     * Triggers given callback after given duration. Supports unlimited
+     * duration length and returns a promise which will be resolved after given
+     * duration has been passed.
+     * @param delayInMilliseconds - Delay to trigger given callback and
+     * resolve returning promise.
+     * @param callback - Optionally a function to trigger after given delay.
+     * @param parameter - Additional parameter will be forwarded to given
+     * callback.
+     * @returns A promise resolving after given delay.
+     */
+    static timeout(
+        delayInMilliseconds:number, callback:?Function, ...parameter:Array<any>
+    ):Promise<Object> {
         if (typeof callback !== 'function')
             throw new Error('Given callback must be a function.')
         delayInMilliseconds = parseFloat(delayInMilliseconds)
         if (Number.isNaN(delayInMilliseconds))
-            throw new Error('Given delay must be a number.')
-
-        var args = Array.prototype.slice.call(arguments, 2)
-        var callback = callback.bind.apply(callback, [this].concat(args))
-
-        var longTimeout = {
-            timer: null,
+            throw new Error('Given delay have to be a number.')
+        const result:{
+            clear:Function;
+            timeoutID:?number;
+        } = {
+            timeoutID: null,
             clear: function() {
-                if (this.timer)
-                    clearTimeout(this.timer)
+                if (this.timeoutID)
+                    clearTimeout(this.timeoutID)
             }
         }
-
-        var max = 2147483647
-        if (delayInMilliseconds <= max)
-            longTimeout.timer = setTimeout(callback, delayInMilliseconds)
+        const callback:Function = callback.bind.call(
+            callback, result, ...parameter)
+        const:maximumTimeoutDelayInMilliseconds:number = 2147483647
+        if (delayInMilliseconds <= maximumTimeoutDelayInMilliseconds)
+            result.timeoutID = setTimeout(callback, delayInMilliseconds)
         else {
-            var count = Math.floor(delayInMilliseconds / max) // the number of times we need to delay by max
-            var rem = delayInMilliseconds % max // the length of the final delay
-            (function delay() {
-                if (count > 0) {
-                    count--;
-                    longTimeout.timer = setTimeout(delay, max)
+            /*
+                Determine the number of times we need to delay by maximum
+                possible timeout duration.
+            */
+            const numberOfTimeouts:number = Math.floor(
+                delayInMilliseconds / maximumTimeoutDelayInMilliseconds)
+            const finalTimeoutDuration:number = delayInMilliseconds %
+                maximumTimeoutDelayInMilliseconds
+            (delay():void => {
+                if (numberOfTimeouts > 0) {
+                    numberOfSpaces -= 1
+                    longTimeout.timeoutID = setTimeout(
+                        delay, maximumTimeoutDelayInMilliseconds)
                 } else
-                    longTimeout.timer = setTimeout(callback, rem)
+                    longTimeout.timeoutID = setTimeout(
+                        callback, finalTimeoutDuration)
             })()
         }
-        return longTimeout
+        return result
     }
     // / endregion
     // / region event
