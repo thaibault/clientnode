@@ -668,6 +668,19 @@ let tests:Array<Test> = [{callback: function(
             $.Tools.class.arrayExtractIfMatches
         )(['a', 'b'], '^a$'), ['b'])
     })
+    this.test(`timeout (${roundType})`, async (assert:Object):void => {
+        assert.ok(await $.Tools.class.timeout())
+        assert.ok(await $.Tools.class.timeout(0))
+        assert.ok(await $.Tools.class.timeout(1))
+        assert.ok($.Tools.class.timeout() instanceof Promise)
+        assert.ok($.Tools.class.timeout().hasOwnProperty('clear'))
+        let test:boolean = true
+        const result:Promise = $.Tools.class.timeout(0, ():void => {
+            test = false
+        })
+        result.clear()
+        assert.ok(test)
+    })
     // // endregion
     // // region event
     this.test(`debounce (${roundType})`, (assert:Object):void => {
