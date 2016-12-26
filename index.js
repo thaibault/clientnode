@@ -1312,20 +1312,23 @@ export default class Tools {
             return data
         }
     }
+    // TODO port each existing timeout call.
     /**
      * Triggers given callback after given duration. Supports unlimited
      * duration length and returns a promise which will be resolved after given
      * duration has been passed.
      * @param delayInMilliseconds - Delay to trigger given callback and
-     * resolve returning promise.
+     * resolve returning promise. If nothing given the current timeout will be
+     * resolved after current stack has been processed.
      * @param callback - Optionally a function to trigger after given delay.
      * @param parameter - Additional parameter will be forwarded to given
      * callback.
      * @returns A promise resolving after given delay.
      */
     static timeout(
-        delayInMilliseconds:number, callback:?Function, ...parameter:Array<any>
-    ):Promise<?Function> {
+        delayInMilliseconds:number = 0, callback:Function = Tools.noop,
+        ...parameter:Array<any>
+    ):Promise<Function> {
         if (typeof callback !== 'function')
             throw new Error('Given callback must be a function.')
         delayInMilliseconds = parseFloat(delayInMilliseconds)
@@ -1333,15 +1336,14 @@ export default class Tools {
             throw new Error('Given delay have to be a number.')
         let rejectCallback:Function
         let resolveCallback:Function
-        const result:Promise<?Function> = new Promise((
+        const result:Promise<Function> = new Promise((
             resolve:Function, reject:Function
         ):void => {
             rejectCallback = reject
             resolveCallback = resolve
         })
         const wrappedCallback:Function = ():void => {
-            if (callback)
-                callback.call(result, ...parameter)
+            callback.call(result, ...parameter)
             resolveCallback(callback)
         }
         const maximumTimeoutDelayInMilliseconds:number = 2147483647
@@ -1372,10 +1374,12 @@ export default class Tools {
         }
         // IgnoreTypeCheck
         result.clear = ():void => {
-            if (result.timeoutID)
+            if (result.timeoutID) {
                 clearTimeout(result.timeoutID)
-            rejectCallback(callback)
+                rejectCallback(callback)
+            }
         }
+        console.log('A', result, result.clear)
         return result
     }
     // / endregion

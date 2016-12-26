@@ -678,12 +678,13 @@ let tests:Array<Test> = [{callback: function(
         assert.ok($.Tools.class.timeout() instanceof Promise)
         assert.ok($.Tools.class.timeout().hasOwnProperty('clear'))
         let test:boolean = true
-        const result:Promise<?Function> = $.Tools.class.timeout(0, ():void => {
+        const result:Promise<Function> = $.Tools.class.timeout(0, ():void => {
             test = false
         }).catch(():void => {
             assert.ok(test)
             done()
         })
+        console.log('B', result, result.clear)
         // IgnoreTypeCheck
         result.clear()
     })
