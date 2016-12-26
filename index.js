@@ -1325,45 +1325,56 @@ export default class Tools {
      */
     static timeout(
         delayInMilliseconds:number, callback:?Function, ...parameter:Array<any>
-    ):Promise<Object> {
+    ):Promise<?Function> {
         if (typeof callback !== 'function')
             throw new Error('Given callback must be a function.')
         delayInMilliseconds = parseFloat(delayInMilliseconds)
         if (Number.isNaN(delayInMilliseconds))
             throw new Error('Given delay have to be a number.')
-        const result:{
-            clear:Function;
-            timeoutID:?number;
-        } = {
-            timeoutID: null,
-            clear: function() {
-                if (this.timeoutID)
-                    clearTimeout(this.timeoutID)
-            }
+        let rejectCallback:Function
+        let resolveCallback:Function
+        const result:Promise<?Function> = new Promise((
+            resolve:Function, reject:Function
+        ):void => {
+            rejectCallback = reject
+            resolveCallback = resolve
+        })
+        const wrappedCallback:Function = ():void => {
+            if (callback)
+                callback.call(result, ...parameter)
+            resolveCallback(callback)
         }
-        const callback:Function = callback.bind.call(
-            callback, result, ...parameter)
-        const:maximumTimeoutDelayInMilliseconds:number = 2147483647
+        const maximumTimeoutDelayInMilliseconds:number = 2147483647
         if (delayInMilliseconds <= maximumTimeoutDelayInMilliseconds)
-            result.timeoutID = setTimeout(callback, delayInMilliseconds)
+            // IgnoreTypeCheck
+            result.timeoutID = setTimeout(wrappedCallback, delayInMilliseconds)
         else {
             /*
                 Determine the number of times we need to delay by maximum
                 possible timeout duration.
             */
-            const numberOfTimeouts:number = Math.floor(
+            let numberOfRemainingTimeouts:number = Math.floor(
                 delayInMilliseconds / maximumTimeoutDelayInMilliseconds)
             const finalTimeoutDuration:number = delayInMilliseconds %
                 maximumTimeoutDelayInMilliseconds
-            (delay():void => {
-                if (numberOfTimeouts > 0) {
-                    numberOfSpaces -= 1
-                    longTimeout.timeoutID = setTimeout(
+            const delay:Function = ():void => {
+                if (numberOfRemainingTimeouts > 0) {
+                    numberOfRemainingTimeouts -= 1
+                    // IgnoreTypeCheck
+                    result.timeoutID = setTimeout(
                         delay, maximumTimeoutDelayInMilliseconds)
                 } else
-                    longTimeout.timeoutID = setTimeout(
-                        callback, finalTimeoutDuration)
-            })()
+                    // IgnoreTypeCheck
+                    result.timeoutID = setTimeout(
+                        wrappedCallback, finalTimeoutDuration)
+            }
+            delay()
+        }
+        // IgnoreTypeCheck
+        result.clear = ():void => {
+            if (result.timeoutID)
+                clearTimeout(result.timeoutID)
+            rejectCallback(callback)
         }
         return result
     }
