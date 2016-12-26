@@ -1312,6 +1312,75 @@ export default class Tools {
             return data
         }
     }
+    // TODO port each existing timeout call.
+    /**
+     * Triggers given callback after given duration. Supports unlimited
+     * duration length and returns a promise which will be resolved after given
+     * duration has been passed.
+     * @param delayInMilliseconds - Delay to trigger given callback and
+     * resolve returning promise. If nothing given the current timeout will be
+     * resolved after current stack has been processed.
+     * @param callback - Optionally a function to trigger after given delay.
+     * @param parameter - Additional parameter will be forwarded to given
+     * callback.
+     * @returns A promise resolving after given delay.
+     */
+    static timeout(
+        delayInMilliseconds:number = 0, callback:Function = Tools.noop,
+        ...parameter:Array<any>
+    ):Promise<Function> {
+        if (typeof callback !== 'function')
+            throw new Error('Given callback must be a function.')
+        delayInMilliseconds = parseFloat(delayInMilliseconds)
+        if (Number.isNaN(delayInMilliseconds))
+            throw new Error('Given delay have to be a number.')
+        let rejectCallback:Function
+        let resolveCallback:Function
+        const result:Promise<Function> = new Promise((
+            resolve:Function, reject:Function
+        ):void => {
+            rejectCallback = reject
+            resolveCallback = resolve
+        })
+        const wrappedCallback:Function = ():void => {
+            callback.call(result, ...parameter)
+            resolveCallback(callback)
+        }
+        const maximumTimeoutDelayInMilliseconds:number = 2147483647
+        if (delayInMilliseconds <= maximumTimeoutDelayInMilliseconds)
+            // IgnoreTypeCheck
+            result.timeoutID = setTimeout(wrappedCallback, delayInMilliseconds)
+        else {
+            /*
+                Determine the number of times we need to delay by maximum
+                possible timeout duration.
+            */
+            let numberOfRemainingTimeouts:number = Math.floor(
+                delayInMilliseconds / maximumTimeoutDelayInMilliseconds)
+            const finalTimeoutDuration:number = delayInMilliseconds %
+                maximumTimeoutDelayInMilliseconds
+            const delay:Function = ():void => {
+                if (numberOfRemainingTimeouts > 0) {
+                    numberOfRemainingTimeouts -= 1
+                    // IgnoreTypeCheck
+                    result.timeoutID = setTimeout(
+                        delay, maximumTimeoutDelayInMilliseconds)
+                } else
+                    // IgnoreTypeCheck
+                    result.timeoutID = setTimeout(
+                        wrappedCallback, finalTimeoutDuration)
+            }
+            delay()
+        }
+        // IgnoreTypeCheck
+        result.clear = ():void => {
+            if (result.timeoutID) {
+                clearTimeout(result.timeoutID)
+                rejectCallback(callback)
+            }
+        }
+        return result
+    }
     // / endregion
     // / region event
     /**
