@@ -76,7 +76,7 @@ let tests:Array<Test> = [{callback: function(
         assert.strictEqual(tools.controller(tools, []), tools)
         assert.strictEqual(tools.controller($.Tools.class, [], $(
             'body'
-        )).constructor.name, tools.constructor.name)
+        )).constructor.name, $.Tools.class.name)
     })
     // // endregion
     // // region mutual exclusion
@@ -114,16 +114,18 @@ let tests:Array<Test> = [{callback: function(
         const done:Function = assert.async()
         tools.acquireLock('test').then(async (result:string):Promise<any> => {
             assert.strictEqual(result, 'test')
-            setTimeout(():tools.constructor => tools.releaseLock('test'), 0)
+            $.Tools.class.timeout(():tools.constructor => tools.releaseLock(
+                'test'))
             result = await tools.acquireLock('test')
             assert.strictEqual(result, 'test')
-            setTimeout(():tools.constructor => tools.releaseLock('test'), 0)
+            $.Tools.class.timeout(():tools.constructor => tools.releaseLock(
+                'test'))
             result = await tools.acquireLock('test', ():Promise<boolean> => {
-                return new Promise((resolve:Function):number => setTimeout((
-                ):void => {
+                return new Promise(async (resolve:Function):Promise<void> => {
+                    await $.Tools.class.timeout()
                     testValue = false
                     resolve(testValue)
-                }, 0))
+                })
             })
             assert.notOk(testValue)
             done()
@@ -133,7 +135,7 @@ let tests:Array<Test> = [{callback: function(
     this.test(`getSemaphore (${roundType})`, async (
         assert:Object
     ):Promise<void> => {
-        const semaphore:Object = tools.constructor.getSemaphore(2)
+        const semaphore:Object = $.Tools.class.getSemaphore(2)
         assert.strictEqual(semaphore.queue.length, 0)
         assert.strictEqual(semaphore.numberOfResources, 2)
         await semaphore.acquire()
@@ -672,20 +674,24 @@ let tests:Array<Test> = [{callback: function(
         assert:Object
     ):Promise<void> => {
         const done:Function = assert.async()
-        assert.ok(await $.Tools.class.timeout())
-        assert.ok(await $.Tools.class.timeout(0))
-        assert.ok(await $.Tools.class.timeout(1))
+        assert.notOk(await $.Tools.class.timeout())
+        assert.notOk(await $.Tools.class.timeout(0))
+        assert.notOk(await $.Tools.class.timeout(1))
         assert.ok($.Tools.class.timeout() instanceof Promise)
         assert.ok($.Tools.class.timeout().hasOwnProperty('clear'))
-        let test:boolean
-        const result:Promise<Function> = $.Tools.class.timeout(10 ** 20)
+        let test:boolean = false
+        const result:Promise<boolean> = $.Tools.class.timeout(10 ** 20, true)
         result.catch(():void => {
             test = true
         })
         // IgnoreTypeCheck
         result.clear()
-        assert.ok(await $.Tools.class.timeout(0))
+        let test2:boolean = false
+        assert.notOk(await $.Tools.class.timeout(():void => {
+            test2 = true
+        }))
         assert.ok(test)
+        assert.ok(test2)
         done()
     })
     // // endregion
