@@ -1402,23 +1402,23 @@ export default class Tools {
     ):Function {
         let lock:boolean = false
         let waitingCallArguments:?Array<any> = null
-        let timeoutID:?number = null
-        return function(...parameter:Array<any>):?number {
+        let timer:?Promise<Function> = null
+        return (...parameter:Array<any>):?Promise<Function> => {
             parameter = parameter.concat(additionalArguments || [])
             if (lock)
                 waitingCallArguments = parameter
             else {
                 lock = true
                 eventFunction.call(this, ...parameter)
-                timeoutID = setTimeout(():void => {
+                timer = Tools.timeout(thresholdInMilliseconds, ():void => {
                     lock = false
                     if (waitingCallArguments) {
-                        eventFunction.call(this, ...waitingCallArguments)
+                        eventFunction(...waitingCallArguments)
                         waitingCallArguments = null
                     }
-                }, thresholdInMilliseconds)
+                })
             }
-            return timeoutID
+            return timer
         }
     }
     /**
@@ -3745,7 +3745,9 @@ export default class Tools {
             return response
         }
         if (wait)
-            return new Promise((resolve:Function, reject:Function):void => {
+            return new Promise(async (
+                resolve:Function, reject:Function
+            ):Promise<void> => {
                 let timedOut:boolean = false
                 const wrapper:Function = async ():Promise<?Object> => {
                     let response:Object
@@ -3754,8 +3756,8 @@ export default class Tools {
                     } catch (error) {
                         if (!timedOut)
                             /* eslint-disable no-use-before-define */
-                            currentlyRunningTimeout = setTimeout(
-                                wrapper, pollIntervallInSeconds * 1000)
+                            currentlyRunningTimer = Tools.timeout(
+                                pollIntervallInSeconds * 1000, wrapper)
                             /* eslint-enable no-use-before-define */
                         return error
                     }
@@ -3765,17 +3767,22 @@ export default class Tools {
                         reject(error)
                     } finally {
                         /* eslint-disable no-use-before-define */
-                        clearTimeout(timeoutID)
+                        // IgnoreTypeCheck
+                        timer.clear()
                         /* eslint-enable no-use-before-define */
                     }
                     return response
                 }
-                let currentlyRunningTimeout = setTimeout(wrapper, 0)
-                const timeoutID:number = setTimeout(():void => {
-                    timedOut = true
-                    clearTimeout(currentlyRunningTimeout)
-                    reject(`Timeout of ${timeoutInSeconds} seconds reached.`)
-                }, timeoutInSeconds * 1000)
+                let currentlyRunningTimer = Tools.timeout(0, wrapper)
+                const timer:Promise<Function> = Tools.timeout(
+                    timeoutInSeconds * 1000)
+                try {
+                    await timer
+                } catch (error) {}
+                timedOut = true
+                // IgnoreTypeCheck
+                currentlyRunningTimer.clear()
+                reject(`Timeout of ${timeoutInSeconds} seconds reached.`)
             })
         return check(await fetch(url))
     }
@@ -3811,7 +3818,9 @@ export default class Tools {
             }
         }
         if (wait)
-            return new Promise((resolve:Function, reject:Function):void => {
+            return new Promise(async (
+                resolve:Function, reject:Function
+            ):Promise<void> => {
                 let timedOut:boolean = false
                 const wrapper:Function = async ():Promise<?Object> => {
                     try {
@@ -3820,28 +3829,34 @@ export default class Tools {
                             return response
                         const result:Error = check(response)
                         if (result) {
-                            clearTimeout(timeoutID)
+                            // IgnoreTypeCheck
+                            timer.clear()
                             resolve(result)
                             return result
                         }
                         /* eslint-disable no-use-before-define */
-                        currentlyRunningTimeout = setTimeout(
-                            wrapper, pollIntervallInSeconds * 1000)
+                        currentlyRunningTimer = Tools.timeout(
+                            pollIntervallInSeconds * 1000, wrapper)
                         /* eslint-enable no-use-before-define */
                     } catch (error) {
                         /* eslint-disable no-use-before-define */
-                        clearTimeout(timeoutID)
+                        // IgnoreTypeCheck
+                        timer.clear()
                         /* eslint-enable no-use-before-define */
                         resolve(error)
                         return error
                     }
                 }
-                let currentlyRunningTimeout = setTimeout(wrapper, 0)
-                const timeoutID:number = setTimeout(():void => {
-                    timedOut = true
-                    clearTimeout(currentlyRunningTimeout)
-                    reject('timeout')
-                }, timeoutInSeconds * 1000)
+                let currentlyRunningTimer = Tools.timeout(0, wrapper)
+                const timer:Promise<Function> = Tools.timeout(
+                    timeoutInSeconds * 1000)
+                try {
+                    await timer
+                } catch (error) {}
+                timedOut = true
+                // IgnoreTypeCheck
+                currentlyRunningTimer.clear()
+                reject(`Timeout of ${timeoutInSeconds} seconds reached.`)
             })
         try {
             const result:Error = check(await fetch(url))
