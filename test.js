@@ -2612,8 +2612,8 @@ export default function(
 ):Array<Test> {
     if (testRan)
         throw new Error(
-            'You have to register your tests immediately after importing ' +
-            'the client node library.')
+            'You have to register your tests immediately after importing the' +
+            ' client node library.')
     if (!testRegistered) {
         testRegistered = true
         tests = []
