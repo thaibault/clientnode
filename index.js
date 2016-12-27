@@ -1317,26 +1317,32 @@ export default class Tools {
      * Triggers given callback after given duration. Supports unlimited
      * duration length and returns a promise which will be resolved after given
      * duration has been passed.
-     * @param delayInMilliseconds - Delay to trigger given callback and
-     * resolve returning promise. If nothing given the current timeout will be
-     * resolved after current stack has been processed.
-     * @param callback - Optionally a function to trigger after given delay.
-     * @param parameter - Additional parameter will be forwarded to given
-     * callback.
-     * @returns A promise resolving after given delay.
+     * @param parameter - Observes the first three existing parameter. If one
+     * is a number it will be interpret as delay in milliseconds until given
+     * callback will be triggered. If one is of type function it will be used
+     * as callback and if one is of type boolean it will indicate if returning
+     * promise should be rejected or resolved if given internally created
+     * timeout should be canceled. Additional parameter will be forwarded to
+     * given callback.
+     * @returns A promise resolving after given delay or being rejected if
+     * value "true" is within one of the first three parameter. The promise
+     * holds a boolean indicating weather timeout has been canceled or
+     * resolved.
      */
-    static timeout(
-        delayInMilliseconds:number = 0, callback:Function = Tools.noop,
-        ...parameter:Array<any>
-    ):Promise<Function> {
-        if (typeof callback !== 'function')
-            throw new Error('Given callback must be a function.')
-        delayInMilliseconds = parseFloat(delayInMilliseconds)
-        if (Number.isNaN(delayInMilliseconds))
-            throw new Error('Given delay have to be a number.')
+    static timeout(...parameter:Array<any>):Promise<boolean> {
+        let callback:Function = Tools.noop
+        let delayInMilliseconds:number = 0
+        let throwOnTimeoutClear:boolean = false
+        for (const value:any of parameter)
+            if (typeof value === 'number' && !Number.isNaN(value))
+                delayInMilliseconds = value
+            else if (typeof value === 'boolean')
+                throwOnTimeoutClear = value
+            else if (Tools.isFunction(value))
+                callback = value
         let rejectCallback:Function
         let resolveCallback:Function
-        const result:Promise<Function> = new Promise((
+        const result:Promise<boolean> = new Promise((
             resolve:Function, reject:Function
         ):void => {
             rejectCallback = reject
@@ -1344,7 +1350,7 @@ export default class Tools {
         })
         const wrappedCallback:Function = ():void => {
             callback.call(result, ...parameter)
-            resolveCallback(callback)
+            resolveCallback(false)
         }
         const maximumTimeoutDelayInMilliseconds:number = 2147483647
         if (delayInMilliseconds <= maximumTimeoutDelayInMilliseconds)
@@ -1375,8 +1381,8 @@ export default class Tools {
         // IgnoreTypeCheck
         result.clear = ():void => {
             if (result.timeoutID) {
-                clearTimeout(result.timeoutID)
-                rejectCallback(callback)
+                clearTimeout(result.timeoutID);
+                (throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)
             }
         }
         return result
@@ -1402,8 +1408,8 @@ export default class Tools {
     ):Function {
         let lock:boolean = false
         let waitingCallArguments:?Array<any> = null
-        let timer:?Promise<Function> = null
-        return (...parameter:Array<any>):?Promise<Function> => {
+        let timer:?Promise<boolean> = null
+        return (...parameter:Array<any>):?Promise<boolean> => {
             parameter = parameter.concat(additionalArguments || [])
             if (lock)
                 waitingCallArguments = parameter
@@ -3781,7 +3787,7 @@ export default class Tools {
                     return response
                 }
                 let currentlyRunningTimer = Tools.timeout(0, wrapper)
-                const timer:Promise<Function> = Tools.timeout(
+                const timer:Promise<boolean> = Tools.timeout(
                     timeoutInSeconds * 1000)
                 try {
                     await timer
@@ -3860,7 +3866,7 @@ export default class Tools {
                     }
                 }
                 let currentlyRunningTimer = Tools.timeout(0, wrapper)
-                const timer:Promise<Function> = Tools.timeout(
+                const timer:Promise<boolean> = Tools.timeout(
                     timeoutInSeconds * 1000)
                 try {
                     await timer
