@@ -3754,11 +3754,18 @@ export default class Tools {
                     try {
                         response = await fetch(url)
                     } catch (error) {
-                        if (!timedOut)
+                        if (!timedOut) {
                             /* eslint-disable no-use-before-define */
                             currentlyRunningTimer = Tools.timeout(
                                 pollIntervallInSeconds * 1000, wrapper)
                             /* eslint-enable no-use-before-define */
+                            /*
+                                NOTE: A timer rejection is expected. Avoid
+                                throwing errors about unhandled promise
+                                rejections.
+                            */
+                            currentlyRunningTimer.catch(Tools.noop)
+                        }
                         return error
                     }
                     try {
@@ -3838,6 +3845,11 @@ export default class Tools {
                         currentlyRunningTimer = Tools.timeout(
                             pollIntervallInSeconds * 1000, wrapper)
                         /* eslint-enable no-use-before-define */
+                        /*
+                            NOTE: A timer rejection is expected. Avoid throwing
+                            errors about unhandled promise rejections.
+                        */
+                        currentlyRunningTimer.catch(Tools.noop)
                     } catch (error) {
                         /* eslint-disable no-use-before-define */
                         // IgnoreTypeCheck
