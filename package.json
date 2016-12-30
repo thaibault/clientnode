@@ -1,11 +1,14 @@
 {
   "name": "clientnode",
-  "version": "1.0.151",
+  "version": "1.0.152",
   "license": "CC-BY-3.0",
   "description": "upgrade to object orientated rock solid plugins",
   "homepage": "http://torben.website/clientNode",
   "documentationWebsite": {
-    "languages": ["deDE", "enUS"],
+    "languages": [
+      "deDE",
+      "enUS"
+    ],
     "name": "clientNode",
     "tagline": "upgrade to object orientated rock solid plugins<!--deDE:Schreibe Objekt orientierte solide Plugins-->",
     "trackingCode": "UA-40192634-7"
