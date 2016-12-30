@@ -267,7 +267,7 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region dom node handling
-    if (roundType === 'withJQuery') {
+    if (roundType === 'full') {
         this.test(`getStyle (${roundType})`, (assert:Object):void => {
             for (const test:Array<any> of [
                 ['<span>', {}],
@@ -427,7 +427,7 @@ let tests:Array<Test> = [{callback: function(
                 assert.notOk($.Tools.class.isEquivalentDom(...test))
         })
     }
-    if (roundType === 'withJQuery')
+    if (roundType === 'full')
         this.test(`getPositionRelativeToViewport (${roundType})`, (
             assert:Object
         ):void => assert.ok([
@@ -462,7 +462,7 @@ let tests:Array<Test> = [{callback: function(
                 test[0]
             ), test[1])
     })
-    if (roundType === 'withJQuery')
+    if (roundType === 'full')
         this.test(`removeDirective (${roundType})`, (assert:Object):void => {
             const $localBodyDomNode = $bodyDomNode.Tools(
                 'removeDirective', 'a')
@@ -482,7 +482,7 @@ let tests:Array<Test> = [{callback: function(
             assert.equal(
                 $.Tools.class.getNormalizedDirectiveName(test[0]), test[1])
     })
-    if (roundType === 'withJQuery')
+    if (roundType === 'full')
         this.test(`getDirectiveValue (${roundType})`, (assert:Object):void =>
             assert.equal($('body').Tools('getDirectiveValue', 'a'), null))
     this.test(`sliceDomNodeSelectorPrefix (${roundType})`, (
@@ -509,7 +509,7 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.strictEqual($.Tools.class.getDomNodeName(test[0]), test[1])
     })
-    if (roundType === 'withJQuery')
+    if (roundType === 'full')
         this.test(`grabDomNode (${roundType})`, (assert:Object):void => {
             for (const test:Array<any> of [
                 [
@@ -718,7 +718,7 @@ let tests:Array<Test> = [{callback: function(
         assert.strictEqual(tools.fireEvent('click'), true)
         assert.strictEqual(tools.fireEvent('click', true), true)
     })
-    if (roundType === 'withJQuery') {
+    if (roundType === 'full') {
         this.test(`on (${roundType})`, (assert:Object):void => {
             let testValue = false
             assert.strictEqual(tools.on('body', 'click', ():void => {
@@ -2265,7 +2265,7 @@ let tests:Array<Test> = [{callback: function(
     })
     if (
         typeof targetTechnology !== 'undefined' &&
-        targetTechnology === 'web' && roundType === 'withJQuery'
+        targetTechnology === 'web' && roundType === 'full'
     ) {
         this.test(`sendToIFrame (${roundType})`, (assert:Object):void => {
             const iFrame = $('<iframe>').hide().attr('name', 'test')
@@ -2490,7 +2490,7 @@ let tests:Array<Test> = [{callback: function(
     // // endregion
     // / endregion
     // / region protected
-    if (roundType === 'withJQuery')
+    if (roundType === 'full')
         this.test(`_bindEventHelper (${roundType})`, (
             assert:Object
         ):void => {
@@ -2532,7 +2532,7 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
     for (const test:Test of tests) {
         if (test.closeWindow)
             closeWindow = true
-        for (const roundType:string of ['plain', 'withDocument', 'withJQuery'])
+        for (const roundType:string of ['plain', 'document', 'full'])
             if (test.roundTypes.length === 0 || test.roundTypes.includes(
                 roundType
             )) {
@@ -2544,7 +2544,7 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
                     window.$ = null
                     $ = require('clientnode').$
                 } else {
-                    if (roundType === 'withJQuery') {
+                    if (roundType === 'full') {
                         $ = require('jquery')
                         window.$ = $
                     }
