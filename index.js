@@ -170,7 +170,7 @@ export const $:any = (():any => {
 if (!('global' in $))
     $.global = globalContext
 if (!('context' in $) && 'document' in $.global)
-    $.contest = $.global.document
+    $.context = $.global.document
 // endregion
 // region plugins/classes
 /**
