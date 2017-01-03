@@ -2566,16 +2566,15 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
                     testPromises.push(testPromise)
             }
     }
-    Promise.all(testPromises).then(():void => {
-        if (
-            typeof TARGET_TECHNOLOGY === 'undefined' ||
-            TARGET_TECHNOLOGY === 'node'
-        ) {
+    if (
+        typeof TARGET_TECHNOLOGY === 'undefined' ||
+        TARGET_TECHNOLOGY === 'node'
+    )
+        Promise.all(testPromises).then(():void => {
             if (closeWindow)
                 browserAPI.window.close()
             QUnit.load()
-        }
-    })
+        })
     // region hot module replacement handler
     /*
         NOTE: hot module replacement doesn't work with async tests yet since
