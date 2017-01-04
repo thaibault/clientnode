@@ -49,8 +49,11 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     QUnit = require('qunitjs')
     removeDirectoryRecursivelySync = require('rimraf').sync
     const errors:Array<PlainObject> = []
-    QUnit.moduleStart((module:PlainObject):void => console.info(
-        module.name.bold.blue))
+    let indention:string = ''
+    QUnit.moduleStart((module:PlainObject):void => {
+        indention = '    '
+        console.info(module.name.bold.blue)
+    })
     QUnit.log((details:PlainObject):void => {
         if (!details.result)
             errors.push(details)
@@ -58,19 +61,19 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     QUnit.testDone((details:PlainObject):void => {
         if (details.failed) {
             // IgnoreTypeCheck
-            console.info(`    ✖ ${details.name}`.red)
+            console.info(`${indention}✖ ${details.name}`.red)
             for (const error:PlainObject of errors) {
                 if (error.message)
-                    console.warn(`    ${error.message.red}`)
+                    console.warn(`${indention}${error.message.red}`)
                 if (typeof error.actual !== 'undefined')
                     console.warn(
                         // IgnoreTypeCheck
-                        `    ${error.actual} != ${error.expected}`.red)
+                        `${indention}${error.actual} != ${error.expected}`.red)
             }
             errors.length = 0
         } else
             // IgnoreTypeCheck
-            console.info(`    ✔ ${details.name}`.green)
+            console.info(`${indention}✔ ${details.name}`.green)
     })
     QUnit.done((details:PlainObject):void => {
         console.info(
