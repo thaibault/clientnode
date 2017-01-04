@@ -51,8 +51,10 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     const errors:Array<PlainObject> = []
     let indention:string = ''
     QUnit.moduleStart((module:PlainObject):void => {
-        indention = '    '
-        console.info(module.name.bold.blue)
+        if (module.name) {
+            indention = '    '
+            console.info(module.name.bold.blue)
+        }
     })
     QUnit.log((details:PlainObject):void => {
         if (!details.result)
