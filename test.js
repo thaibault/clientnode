@@ -24,7 +24,7 @@ try {
 try {
     module.require('source-map-support/register')
 } catch (error) {}
-import browserAPI from 'weboptimizer/browserAPI'
+import browserAPI from 'weboptimizer/browserAPI.compiled'
 import type {BrowserAPI} from 'weboptimizer/type'
 // endregion
 // region types
