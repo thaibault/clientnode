@@ -41,8 +41,40 @@ let removeDirectoryRecursivelySync:Function
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     fileSystem = require('fs')
     path = require('path')
-    QUnit = require('qunit-cli')
+    QUnit = require('qunitjs')
+    let colors = require('colors')
     removeDirectoryRecursivelySync = require('rimraf').sync
+    const errors:PlainObject = []
+    QUnit.moduleStart((module):void => console.info(module.name.bold.blue))
+    QUnit.log((details:PlainObject):void => {
+        if (!details.result)
+            errors.push(details)
+    })
+    QUnit.testDone((details:PlainObject):void => {
+        if (details.failed) {
+            console.info(`    ✖ ${details.name}`.red)
+            for (const error:PlainObject of errors) {
+                if (error.message)
+                    console.warn(`    ${error.message.red}`)
+                if (typeof error.actual !== 'undefined')
+                    console.warn(
+                        `    ${Tools.error.actual} != ${error.expected}`.red)
+            }
+            errors.length = 0
+        } else
+            console.info(`    ✔ ${details.name}`.green)
+    })
+    QUnit.done((details:PlainObject):void => {
+        console.info(
+            `Tests completed in ${details.runtime / 1000} seconds.`.grey)
+        const message:string =
+            `${details.passed} tests of ${details.total} passed.`
+        if (details.failed > 0)
+            console.warn(`${message}, ${details.failed} failed.`.red.bold)
+        else
+            console.info(`${message}`.green.bold)
+        process.once('exit', ():void => process.exit(details.failed))
+    })
 } else
     QUnit = require('script!qunitjs') && window.QUnit
 // endregion
