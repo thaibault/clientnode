@@ -11,10 +11,12 @@
 .*/internationalisation/.*
 .*/website-utilities/.*
 .+/systemjs-builder/test/fixtures/sourcemaps-expectations/.+\.json
+.*/stylelint/.*
 
 [options]
 module.name_mapper='^clientnode$' -> './index'
 module.name_mapper='^script!qunitjs$' -> 'qunitjs'
+module.name_mapper='^weboptimizer/browserAPI.compiled$' -> 'weboptimizer/browserAPI'
 
 module.file_ext=.js
 module.file_ext=.compiled.js

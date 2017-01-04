@@ -43,12 +43,12 @@ let path:Object
 let QUnit:Object
 let removeDirectoryRecursivelySync:Function
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
+    require('colors')
     fileSystem = require('fs')
     path = require('path')
     QUnit = require('qunitjs')
-    let colors = require('colors')
     removeDirectoryRecursivelySync = require('rimraf').sync
-    const errors:PlainObject = []
+    const errors:Array<PlainObject> = []
     QUnit.moduleStart((module):void => console.info(module.name.bold.blue))
     QUnit.log((details:PlainObject):void => {
         if (!details.result)
@@ -56,26 +56,32 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     })
     QUnit.testDone((details:PlainObject):void => {
         if (details.failed) {
+            // IgnoreTypeCheck
             console.info(`    ✖ ${details.name}`.red)
             for (const error:PlainObject of errors) {
                 if (error.message)
                     console.warn(`    ${error.message.red}`)
                 if (typeof error.actual !== 'undefined')
                     console.warn(
-                        `    ${Tools.error.actual} != ${error.expected}`.red)
+                        // IgnoreTypeCheck
+                        `    ${error.actual} != ${error.expected}`.red)
             }
             errors.length = 0
         } else
+            // IgnoreTypeCheck
             console.info(`    ✔ ${details.name}`.green)
     })
     QUnit.done((details:PlainObject):void => {
         console.info(
+            // IgnoreTypeCheck
             `Tests completed in ${details.runtime / 1000} seconds.`.grey)
         const message:string =
             `${details.passed} tests of ${details.total} passed.`
         if (details.failed > 0)
+            // IgnoreTypeCheck
             console.warn(`${message}, ${details.failed} failed.`.red.bold)
         else
+            // IgnoreTypeCheck
             console.info(`${message}`.green.bold)
         process.once('exit', ():void => process.exit(details.failed))
     })
