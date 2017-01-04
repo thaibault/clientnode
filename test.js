@@ -50,6 +50,7 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     removeDirectoryRecursivelySync = require('rimraf').sync
     const errors:Array<PlainObject> = []
     let indention:string = ''
+    const seenTests:Set<string> = new Set()
     QUnit.moduleStart((module:PlainObject):void => {
         if (module.name) {
             indention = '    '
@@ -61,6 +62,9 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
             errors.push(details)
     })
     QUnit.testDone((details:PlainObject):void => {
+        if (seenTests.has(details.name))
+            return
+        seenTests.add(details.name)
         if (details.failed) {
             // IgnoreTypeCheck
             console.info(`${indention}✖ ${details.name}`.red)
@@ -77,7 +81,7 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
             // IgnoreTypeCheck
             console.info(`${indention}✔ ${details.name}`.green)
     })
-    QUnit.done((details:PlainObject):void => {
+    const done:Function = (details:PlainObject):void => {
         console.info(
             // IgnoreTypeCheck
             `Tests completed in ${details.runtime / 1000} seconds.`.grey)
@@ -90,6 +94,19 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
             // IgnoreTypeCheck
             console.info(`${message}`.green.bold)
         process.once('exit', ():void => process.exit(details.failed))
+    }
+    // NOTE: Fixes qunit's ugly multi "done()" calls.
+    let finalDoneTimeoutID:?number = null
+    QUnit.done((...parameter:Array<any>):void => {
+        if (finalDoneTimeoutID) {
+            clearTimeout(finalDoneTimeoutID)
+            finalDoneTimeoutID = null
+        }
+        finalDoneTimeoutID = setTimeout(():void => {
+            finalDoneTimeoutID = setTimeout(():void => {
+                done(...parameter)
+            })
+        })
     })
 } else
     QUnit = require('script!qunitjs') && window.QUnit
