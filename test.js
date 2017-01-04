@@ -2548,13 +2548,6 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
         notrycatch: true,
         noglobals: true,
         */
-        altertitle: true,
-        autostart: true,
-        fixture: '',
-        hidepassed: false,
-        maxDepth: 3,
-        reorder: false,
-        requireExpects: false,
         testTimeout: 30 * 1000,
         scrolltop: false
     })
