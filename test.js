@@ -20,6 +20,10 @@ let ChildProcess:ChildProcess
 try {
     ChildProcess = eval('require')('child_process').ChildProcess
 } catch (error) {}
+// NOTE: Only needed for debugging this file.
+try {
+    module.require('source-map-support/register')
+} catch (error) {}
 import browserAPI from 'weboptimizer/browserAPI'
 import type {BrowserAPI} from 'weboptimizer/type'
 // endregion
