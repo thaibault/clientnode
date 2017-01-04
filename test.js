@@ -49,7 +49,8 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     QUnit = require('qunitjs')
     removeDirectoryRecursivelySync = require('rimraf').sync
     const errors:Array<PlainObject> = []
-    QUnit.moduleStart((module):void => console.info(module.name.bold.blue))
+    QUnit.moduleStart((module:PlainObject):void => console.info(
+        module.name.bold.blue))
     QUnit.log((details:PlainObject):void => {
         if (!details.result)
             errors.push(details)
