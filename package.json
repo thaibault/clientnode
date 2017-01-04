@@ -59,7 +59,6 @@
     "rimraf": "latest",
     "jquery": "latest",
     "qunitjs": "latest",
-    "qunit-cli": "latest",
     "source-map-support": "latest",
     "weboptimizer": "latest"
   },
