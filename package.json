@@ -50,6 +50,10 @@
     "watch": "webOptimizer build --watch",
     "watchDLL": "webOptimizer buildDLL --watch"
   },
+  "dependencies": {
+    "qunitjs": "latest",
+    "weboptimizer": "latest"
+  },
   "peerDependencies": {
     "jquery": "*"
   },
@@ -58,9 +62,7 @@
     "documentation-website": "latest",
     "rimraf": "latest",
     "jquery": "latest",
-    "qunitjs": "latest",
-    "source-map-support": "latest",
-    "weboptimizer": "latest"
+    "source-map-support": "latest"
   },
   "webOptimizer": {
     "injection": {
