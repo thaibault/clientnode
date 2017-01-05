@@ -2670,7 +2670,7 @@ export default function(
     if (testRan)
         throw new Error(
             'You have to register your tests immediately after importing the' +
-            ' client node library.')
+            ' library.')
     if (!testRegistered) {
         testRegistered = true
         tests = []
