@@ -72,9 +72,12 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
                 if (error.message)
                     console.warn(`${indention}${error.message.red}`)
                 if (typeof error.actual !== 'undefined')
-                    console.warn(
+                    console.warn((
                         // IgnoreTypeCheck
-                        `${indention}${error.actual} != ${error.expected}`.red)
+                        `${indention}${error.actual} (` +
+                        `${typeof error.actual}) != ${error.expected} (` +
+                        `${typeof error.expected})`
+                    ).red)
             }
             errors.length = 0
         } else
