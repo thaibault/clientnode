@@ -828,6 +828,50 @@ export default class Tools {
     // / endregion
     // / region dom node
     /**
+     * Normalizes class name order of current dom node.
+     * @returns Current instance.
+     */
+    get normalizedClassNames():Tools {
+        this.$domNode.find('*').addBack().each(function():void {
+            const $thisDomNode:$DomNode = $(this)
+            if ($thisDomNode.attr('class')) {
+                const sortedClassNames:Array<string> = $thisDomNode.attr(
+                    'class'
+                ).split(' ').sort() || []
+                $thisDomNode.attr('class', '')
+                for (const className:string of sortedClassNames)
+                    $thisDomNode.addClass(className)
+            } else if ($thisDomNode.is('[class]'))
+                $thisDomNode.removeAttr('class')
+        })
+        return this
+    }
+    /**
+     * Normalizes style attributes order of current dom node.
+     * @returns Returns current instance.
+     */
+    get normalizedStyles():Tools {
+        const self:Tools = this
+        this.$domNode.find('*').addBack().each(function():void {
+            const $thisDomNode:$DomNode = $(this)
+            let serializedStyles:?string = $thisDomNode.attr('style')
+            if (serializedStyles) {
+                const sortedStyles:Array<string> =
+                    self.constructor.stringCompressStyleValue(
+                        serializedStyles
+                    ).split(';').sort() || []
+                $thisDomNode.attr('style', '')
+                for (const style:string of sortedStyles)
+                    $thisDomNode.css(...style.trim().split(':'))
+                $thisDomNode.attr(
+                    'style', self.constructor.stringCompressStyleValue(
+                        $thisDomNode.attr('style')))
+            } else if ($thisDomNode.is('[style]'))
+                $thisDomNode.removeAttr('style')
+        })
+        return this
+    }
+    /**
      * Retrieves a mapping of computed style attributes to their corresponding
      * values.
      * @returns The computed style mapping.
@@ -879,50 +923,6 @@ export default class Tools {
      */
     get text():string {
         return this.$domNode.clone().children().remove().end().text()
-    }
-    /**
-     * Normalizes class name order of current dom node.
-     * @returns Current instance.
-     */
-    get normalizedClassNames():Tools {
-        this.$domNode.find('*').addBack().each(function():void {
-            const $thisDomNode:$DomNode = $(this)
-            if ($thisDomNode.attr('class')) {
-                const sortedClassNames:Array<string> = $thisDomNode.attr(
-                    'class'
-                ).split(' ').sort() || []
-                $thisDomNode.attr('class', '')
-                for (const className:string of sortedClassNames)
-                    $thisDomNode.addClass(className)
-            } else if ($thisDomNode.is('[class]'))
-                $thisDomNode.removeAttr('class')
-        })
-        return this
-    }
-    /**
-     * Normalizes style attributes order of current dom node.
-     * @returns Returns current instance.
-     */
-    get normalizedStyles():Tools {
-        const self:Tools = this
-        this.$domNode.find('*').addBack().each(function():void {
-            const $thisDomNode:$DomNode = $(this)
-            let serializedStyles:?string = $thisDomNode.attr('style')
-            if (serializedStyles) {
-                const sortedStyles:Array<string> =
-                    self.constructor.stringCompressStyleValue(
-                        serializedStyles
-                    ).split(';').sort() || []
-                $thisDomNode.attr('style', '')
-                for (const style:string of sortedStyles)
-                    $thisDomNode.css(...style.trim().split(':'))
-                $thisDomNode.attr(
-                    'style', self.constructor.stringCompressStyleValue(
-                        $thisDomNode.attr('style')))
-            } else if ($thisDomNode.is('[style]'))
-                $thisDomNode.removeAttr('style')
-        })
-        return this
     }
     /**
      * Checks whether given html or text strings are equal.
