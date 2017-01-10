@@ -74,8 +74,8 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
                 if (typeof error.actual !== 'undefined')
                     console.warn((
                         // IgnoreTypeCheck
-                        `${indention}${error.actual} (` +
-                        `${typeof JSON.stringify(error.actual)}) != ` +
+                        `${indention}${JSON.stringify(error.actual)} (` +
+                        `${typeof error.actual}) != ` +
                         `${JSON.stringify(error.expected)} (` +
                         `${typeof error.expected})`
                     ).red)
