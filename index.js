@@ -459,8 +459,7 @@ export default class Tools {
             if (Tools.isFunction(object[parameter[0]]))
                 return object[parameter[0]](...parameter.slice(1))
             return object[parameter[0]]
-        }
-        else if (parameter.length === 0 || typeof parameter[0] === 'object')
+        } else if (parameter.length === 0 || typeof parameter[0] === 'object')
             /*
                 If an options object or no method name is given the initializer
                 will be called.
