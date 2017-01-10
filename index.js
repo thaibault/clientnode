@@ -455,8 +455,11 @@ export default class Tools {
         ))
             // Attach extended object to the associated dom node.
             $domNode.data(object.constructor._name, object)
-        if (parameter[0] in object)
-            return object[parameter[0]](...parameter.slice(1))
+        if (parameter[0] in object) {
+            if (Tools.isFunction(object[parameter[0]]))
+                return object[parameter[0]](...parameter.slice(1))
+            return object[parameter[0]]
+        }
         else if (parameter.length === 0 || typeof parameter[0] === 'object')
             /*
                 If an options object or no method name is given the initializer
@@ -829,7 +832,7 @@ export default class Tools {
      * values.
      * @returns The computed style mapping.
      */
-    getStyle():PlainObject {
+    get style():PlainObject {
         const result:PlainObject = {}
         if ('window' in $.global && $.global.window.getComputedStyle) {
             const styleProperties:?any = $.global.window.getComputedStyle(
@@ -874,14 +877,14 @@ export default class Tools {
      * Get text content of current element without it children's text contents.
      * @returns The text string.
      */
-    getText():string {
+    get text():string {
         return this.$domNode.clone().children().remove().end().text()
     }
     /**
      * Normalizes class name order of current dom node.
      * @returns Current instance.
      */
-    normalizeClassNames():Tools {
+    get normalizedClassNames():Tools {
         this.$domNode.find('*').addBack().each(function():void {
             const $thisDomNode:$DomNode = $(this)
             if ($thisDomNode.attr('class')) {
@@ -900,7 +903,7 @@ export default class Tools {
      * Normalizes style attributes order of current dom node.
      * @returns Returns current instance.
      */
-    normalizeStyles():Tools {
+    get normalizedStyles():Tools {
         const self:Tools = this
         this.$domNode.find('*').addBack().each(function():void {
             const $thisDomNode:$DomNode = $(this)
@@ -969,11 +972,11 @@ export default class Tools {
                 $domNodes.first.length === $domNodes.second.length
             ) {
                 $domNodes.first = $domNodes.first.Tools(
-                    'normalizeClassNames'
-                ).$domNode.Tools('normalizeStyles').$domNode
+                    'normalizedClassNames'
+                ).$domNode.Tools('normalizedStyles').$domNode
                 $domNodes.second = $domNodes.second.Tools(
-                    'normalizeClassNames'
-                ).$domNode.Tools('normalizeStyles').$domNode
+                    'normalizedClassNames'
+                ).$domNode.Tools('normalizedStyles').$domNode
                 let index:number = 0
                 for (const domNode:DomNode of $domNodes.first)
                     if (!domNode.isEqualNode($domNodes.second[index]))

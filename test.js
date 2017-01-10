@@ -337,7 +337,7 @@ let tests:Array<Test> = [{callback: function(
     // // endregion
     // // region dom node handling
     if (roundType === 'full') {
-        this.test(`getStyle (${roundType})`, (assert:Object):void => {
+        this.test(`get style (${roundType})`, (assert:Object):void => {
             for (const test:Array<any> of [
                 ['<span>', {}],
                 ['<span>hans</span>', {}],
@@ -348,7 +348,7 @@ let tests:Array<Test> = [{callback: function(
             ]) {
                 const $domNode:$DomNode = $(test[0])
                 $bodyDomNode.append($domNode)
-                const styles:PlainObject = $domNode.Tools('getStyle')
+                const styles:PlainObject = $domNode.Tools('style')
                 for (const propertyName:string in test[1])
                     if (test[1].hasOwnProperty(propertyName)) {
                         assert.ok(styles.hasOwnProperty(propertyName))
@@ -358,64 +358,66 @@ let tests:Array<Test> = [{callback: function(
                 $domNode.remove()
             }
         })
-        this.test(`getText (${roundType})`, (assert:Object):void => {
+        this.test(`get text (${roundType})`, (assert:Object):void => {
             for (const test:Array<string> of [
                 ['<div>', ''],
                 ['<div>hans</div>', 'hans'],
                 ['<div><div>hans</div</div>', ''],
                 ['<div>hans<div>peter</div></div>', 'hans']
             ])
-                assert.strictEqual($(test[0]).Tools('getText'), test[1])
+                assert.strictEqual($(test[0]).Tools('text'), test[1])
         })
-        this.test(`normalizeClassNames (${roundType})`, (
+        this.test(`get normalizedClassNames (${roundType})`, (
             assert:Object
         ):void => {
             assert.strictEqual($('<div>').Tools(
-                'normalizeClassNames'
+                'normalizedClassNames'
             ).$domNode.prop('outerHTML'), $('<div>').prop('outerHTML'))
             assert.strictEqual($('<div class>').Tools(
-                'normalizeClassNames'
+                'normalizedClassNames'
             ).$domNode.html(), $('<div>').html())
             assert.strictEqual($('<div class="">').Tools(
-                'normalizeClassNames'
+                'normalizedClassNames'
             ).$domNode.html(), $('<div>').html())
             assert.strictEqual($('<div class="a">').Tools(
-                'normalizeClassNames'
+                'normalizedClassNames'
             ).$domNode.prop('outerHTML'), $('<div class="a">').prop(
                 'outerHTML'))
             assert.strictEqual($('<div class="b a">').Tools(
-                'normalizeClassNames'
+                'normalizedClassNames'
             ).$domNode.prop('outerHTML'), $('<div class="a b">').prop(
                 'outerHTML'))
             assert.strictEqual($(
                 '<div class="b a"><pre class="c b a"></pre></div>'
-            ).Tools('normalizeClassNames').$domNode.prop('outerHTML'),
+            ).Tools('normalizedClassNames').$domNode.prop('outerHTML'),
             $('<div class="a b"><pre class="a b c"></pre></div>').prop(
                 'outerHTML'))
         })
-        this.test(`normalizeStyles (${roundType})`, (assert:Object):void => {
+        this.test(`get normalizedStyles (${roundType})`, (
+            assert:Object
+        ):void => {
             assert.strictEqual($('<div>').Tools(
-                'normalizeStyles'
+                'normalizedStyles'
             ).$domNode.prop('outerHTML'), $('<div>').prop('outerHTML'))
             assert.strictEqual($('<div style>').Tools(
-                'normalizeStyles'
+                'normalizedStyles'
             ).$domNode.html(), $('<div>').html())
             assert.strictEqual($('<div style="">').Tools(
-                'normalizeStyles'
+                'normalizedStyles'
             ).$domNode.html(), $('<div>').html())
             assert.strictEqual($(
                 '<div style="border: 1px solid  red ;">'
-            ).Tools('normalizeStyles').$domNode.prop('outerHTML'), $(
+            ).Tools('normalizedStyles').$domNode.prop('outerHTML'), $(
                 '<div style="border:1px solid red">'
             ).prop('outerHTML'))
             assert.strictEqual($(
                 '<div style="width: 50px;height: 100px;">'
-            ).Tools('normalizeStyles').$domNode.prop('outerHTML'), $(
+            ).Tools('normalizedStyles').$domNode.prop('outerHTML'), $(
                 '<div style="height:100px;width:50px">'
             ).prop('outerHTML'))
             assert.strictEqual($(
                 '<div style=";width: 50px ; height:100px">'
-            ).Tools('normalizeStyles').$domNode.prop('outerHTML'), $(
+            ).Tools('normalizedStyles').$domNode.prop('outerHTML'), $(
                 '<div style="height:100px;width:50px">'
             ).prop('outerHTML'))
             assert.strictEqual($(
@@ -423,7 +425,7 @@ let tests:Array<Test> = [{callback: function(
                 '    <pre style=";;width:2px;height:1px; color: red; ">' +
                     '</pre>' +
                 '</div>'
-            ).Tools('normalizeStyles').$domNode.prop('outerHTML'),
+            ).Tools('normalizedStyles').$domNode.prop('outerHTML'),
             $(
                 '<div style="height:50px;width:10px">' +
                 '    <pre style="color:red;height:1px;width:2px"></pre>' +
