@@ -337,36 +337,7 @@ let tests:Array<Test> = [{callback: function(
     // // endregion
     // // region dom node handling
     if (roundType === 'full') {
-        this.test(`get style (${roundType})`, (assert:Object):void => {
-            for (const test:Array<any> of [
-                ['<span>', {}],
-                ['<span>hans</span>', {}],
-                ['<span style="display:block"></span>', {display: 'block'}],
-                ['<span style="display:block;float:left"></span>', {
-                    display: 'block', float: 'left'
-                }]
-            ]) {
-                const $domNode:$DomNode = $(test[0])
-                $bodyDomNode.append($domNode)
-                const styles:PlainObject = $domNode.Tools('style')
-                for (const propertyName:string in test[1])
-                    if (test[1].hasOwnProperty(propertyName)) {
-                        assert.ok(styles.hasOwnProperty(propertyName))
-                        assert.strictEqual(
-                            styles[propertyName], test[1][propertyName])
-                    }
-                $domNode.remove()
-            }
-        })
-        this.test(`get text (${roundType})`, (assert:Object):void => {
-            for (const test:Array<string> of [
-                ['<div>', ''],
-                ['<div>hans</div>', 'hans'],
-                ['<div><div>hans</div</div>', ''],
-                ['<div>hans<div>peter</div></div>', 'hans']
-            ])
-                assert.strictEqual($(test[0]).Tools('text'), test[1])
-        })
+        // region getter
         this.test(`get normalizedClassNames (${roundType})`, (
             assert:Object
         ):void => {
@@ -432,6 +403,37 @@ let tests:Array<Test> = [{callback: function(
                 '</div>'
             ).prop('outerHTML'))
         })
+        this.test(`get style (${roundType})`, (assert:Object):void => {
+            for (const test:Array<any> of [
+                ['<span>', {}],
+                ['<span>hans</span>', {}],
+                ['<span style="display:block"></span>', {display: 'block'}],
+                ['<span style="display:block;float:left"></span>', {
+                    display: 'block', float: 'left'
+                }]
+            ]) {
+                const $domNode:$DomNode = $(test[0])
+                $bodyDomNode.append($domNode)
+                const styles:PlainObject = $domNode.Tools('style')
+                for (const propertyName:string in test[1])
+                    if (test[1].hasOwnProperty(propertyName)) {
+                        assert.ok(styles.hasOwnProperty(propertyName))
+                        assert.strictEqual(
+                            styles[propertyName], test[1][propertyName])
+                    }
+                $domNode.remove()
+            }
+        })
+        this.test(`get text (${roundType})`, (assert:Object):void => {
+            for (const test:Array<string> of [
+                ['<div>', ''],
+                ['<div>hans</div>', 'hans'],
+                ['<div><div>hans</div</div>', ''],
+                ['<div>hans<div>peter</div></div>', 'hans']
+            ])
+                assert.strictEqual($(test[0]).Tools('text'), test[1])
+        })
+        // endregion
         this.test(`isEquivalentDom (${roundType})`, (assert:Object):void => {
             for (const test:Array<any> of [
                 ['test', 'test'],
