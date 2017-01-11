@@ -2342,6 +2342,8 @@ export default class Tools {
      * @returns Target array with merged given source one.
      */
     static arrayMerge(target:Array<any>, source:Array<any>):Array<any> {
+        if (!Array.isArray(source))
+            source = Tools.arrayMake(source)
         for (const value:any of source)
             target.push(value)
         return target
@@ -2369,7 +2371,7 @@ export default class Tools {
      */
     static arrayUnique(data:Array<any>):Array<any> {
         const result:Array<any> = []
-        for (const value:any of data)
+        for (const value:any of Tools.arrayMake(data))
             if (!result.includes(value))
                 result.push(value)
         return result
@@ -2387,7 +2389,7 @@ export default class Tools {
         let result:any = defaultValue
         if (data && data.length && data[0].hasOwnProperty(propertyName)) {
             result = data[0][propertyName]
-            for (const item of data)
+            for (const item of Tools.arrayMake(data))
                 if (item[propertyName] !== result)
                     return defaultValue
         }
@@ -2408,15 +2410,15 @@ export default class Tools {
         if (!data)
             return data
         const result:Array<any> = []
-        for (const item:any of data) {
+        for (const item:any of Tools.arrayMake(data)) {
             let empty:boolean = true
             for (const propertyName:string in item)
                 if (item.hasOwnProperty(propertyName))
                     if (!['', null, undefined].includes(item[
                         propertyName
-                    ]) && (!propertyNames.length || propertyNames.includes(
-                        propertyName
-                    ))) {
+                    ]) && (!propertyNames.length || Tools.arrayMake(
+                        propertyNames
+                    ).includes(propertyName))) {
                         empty = false
                         break
                     }
@@ -2436,9 +2438,9 @@ export default class Tools {
         data:Array<Object>, propertyNames:Array<string>
     ):Array<Object> {
         const result:Array<Object> = []
-        for (const item:Object of data) {
+        for (const item:Object of Tools.arrayMake(data)) {
             const newItem:Object = {}
-            for (const propertyName:string of propertyNames)
+            for (const propertyName:string of Tools.arrayMake(propertyNames))
                 if (item.hasOwnProperty(propertyName))
                     newItem[propertyName] = item[propertyName]
             result.push(newItem)
@@ -2455,7 +2457,7 @@ export default class Tools {
         data:Array<string>, regularExpression:string|RegExp
     ):Array<string> {
         const result:Array<string> = []
-        for (const value:string of data)
+        for (const value:string of Tools.arrayMake(data))
             if (((typeof regularExpression === 'string') ? new RegExp(
                 regularExpression
             ) : regularExpression).test(value))
@@ -2474,7 +2476,7 @@ export default class Tools {
     ):?Array<Object> {
         if (data && propertyName) {
             const result:Array<Object> = []
-            for (const item:Object of data) {
+            for (const item:Object of Tools.arrayMake(data)) {
                 let exists:boolean = false
                 for (const key:string in item)
                     if (key === propertyName && item.hasOwnProperty(key) && ![
@@ -2502,7 +2504,7 @@ export default class Tools {
     ):?Array<Object> {
         if (data && propertyPattern) {
             const result:Array<Object> = []
-            for (const item:Object of data) {
+            for (const item:Object of Tools.arrayMake(data)) {
                 let matches:boolean = true
                 for (const propertyName:string in propertyPattern)
                     if (!((
@@ -2521,12 +2523,12 @@ export default class Tools {
         return data
     }
     /**
-     * Determines all objects which exists in "firstSet" and in "secondSet".
+     * Determines all objects which exists in "first" and in "second".
      * Object key which will be compared are given by "keys". If an empty array
      * is given each key will be compared. If an object is given corresponding
      * initial data key will be mapped to referenced new data key.
-     * @param firstSet - Referenced data to check for.
-     * @param secondSet - Data to check for existence.
+     * @param first - Referenced data to check for.
+     * @param second - Data to check for existence.
      * @param keys - Keys to define equality.
      * @param strict - The strict parameter indicates whether "null" and
      * "undefined" should be interpreted as equal (takes only effect if given
@@ -2534,13 +2536,14 @@ export default class Tools {
      * @returns Data which does exit in given initial data.
      */
     static arrayIntersect(
-        firstSet:Array<any>, secondSet:Array<any>,
-        keys:Object|Array<string> = [], strict:boolean = true
+        first:Array<any>, second:Array<any>, keys:Object|Array<string> = [],
+        strict:boolean = true
     ):Array<any> {
         const containingData:Array<any> = []
-        for (const initialItem:any of firstSet)
+        second = Tools.arrayMake(second)
+        for (const initialItem:any of Tools.arrayMake(first))
             if (Tools.isPlainObject(initialItem))
-                for (const newItem:any of secondSet) {
+                for (const newItem:any of second) {
                     let exists:boolean = true
                     let iterateGivenKeys:boolean
                     const keysAreAnArray:boolean = Array.isArray(keys)
@@ -2553,19 +2556,17 @@ export default class Tools {
                         keys = initialItem
                     }
                     const handle:Function = (
-                        firstSetKey:string|number, secondSetKey:string|number
+                        firstKey:string|number, secondKey:string|number
                     ):?false => {
                         if (keysAreAnArray && iterateGivenKeys)
-                            firstSetKey = secondSetKey
+                            firstKey = secondKey
                         else if (!iterateGivenKeys)
-                            secondSetKey = firstSetKey
-                        if (newItem[secondSetKey] !== initialItem[
-                            firstSetKey
-                        ] && (strict || !(
-                            [null, undefined].includes(
-                                newItem[secondSetKey]
+                            secondKey = firstKey
+                        if (newItem[secondKey] !== initialItem[firstKey] && (
+                            strict || !([null, undefined].includes(
+                                newItem[secondKey]
                             ) && [null, undefined].includes(
-                                initialItem[firstSetKey])
+                                initialItem[firstKey])
                         ))) {
                             exists = false
                             return false
@@ -2588,7 +2589,7 @@ export default class Tools {
                         break
                     }
                 }
-            else if (secondSet.includes(initialItem))
+            else if (second.includes(initialItem))
                 containingData.push(initialItem)
         return containingData
     }
@@ -2692,7 +2693,9 @@ export default class Tools {
                 if (!Array.isArray(items[name]))
                     items[name] = [items[name]]
                 if (items[name].length > 0)
-                    for (const dependencyName:string of items[name])
+                    for (const dependencyName:string of Tools.arrayMake(
+                        items[name]
+                    ))
                         edges.push([name, dependencyName])
                 else
                     edges.push([name])
