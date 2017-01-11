@@ -2343,7 +2343,7 @@ export default class Tools {
      */
     static arrayMerge(target:Array<any>, source:Array<any>):Array<any> {
         if (!Array.isArray(source))
-            source = Tools.arrayMake(source)
+            source = Array.prototype.slice.call(source)
         for (const value:any of source)
             target.push(value)
         return target
