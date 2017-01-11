@@ -2640,6 +2640,8 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
             if (closeWindow)
                 browserAPI.window.close()
             QUnit.load()
+        }).catch((error:Error):void => {
+            throw error
         })
     // region hot module replacement handler
     /*
