@@ -141,7 +141,7 @@ export const $:any = (():any => {
     if ('$' in globalContext && globalContext.$ !== null)
         $ = globalContext.$
     else {
-        if (!('$' in globalContext))
+        if (!('$' in globalContext) && 'document' in globalContext)
             try {
                 return require('jquery')
             } catch (error) {}

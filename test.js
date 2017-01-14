@@ -15,6 +15,7 @@
     endregion
 */
 // region imports
+import Tools from 'clientnode'
 import type {File, PlainObject, $DomNode} from 'clientnode'
 let ChildProcess:ChildProcess
 try {
@@ -74,9 +75,9 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
                 if (typeof error.actual !== 'undefined')
                     console.warn((
                         // IgnoreTypeCheck
-                        `${indention}${JSON.stringify(error.actual)} (` +
-                        `${typeof error.actual}) != ` +
-                        `${JSON.stringify(error.expected)} (` +
+                        `${indention}${Tools.representObject(error.actual)} ` +
+                        `(${typeof error.actual}) != ` +
+                        `${Tools.representObject(error.expected)} (` +
                         `${typeof error.expected})`
                     ).red)
             }
@@ -2583,7 +2584,7 @@ let testRan:boolean = false
 browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
     testRan = true
     // region configuration
-    QUnit.config = require('clientnode').default.extendObject(QUnit.config || {
+    QUnit.config = Tools.extendObject(QUnit.config || {
     }, {
         /*
         notrycatch: true,
