@@ -2624,11 +2624,11 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
                     $ = require('clientnode').$
                 } else {
                     if (roundType === 'full') {
-                        global.document = window.document
                         for (const name:string of [
                             'document', 'Element', 'HTMLElement', 'Node'
                         ])
-                            global[name] = window[name]
+                            if (!(name in global))
+                                global[name] = window[name]
                         $ = require('jquery')
                         window.$ = $
                     }
