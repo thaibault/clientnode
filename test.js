@@ -2605,6 +2605,18 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
             )) {
                 // NOTE: Enforce to reload module to rebind "$".
                 delete require.cache[require.resolve('clientnode')]
+                delete require.cache[require.resolve('jquery')]
+                /*
+                    NOTE: Module bundler like webpack wraps a commonjs
+                    environment. So we have to try to clear the underling
+                    cache.
+                */
+                try {
+                    eval(`delete require.cache[require.resolve('clientnode')]`)
+                } catch (error) {}
+                try {
+                    eval(`delete require.cache[require.resolve('jquery')]`)
+                } catch (error) {}
                 let $bodyDomNode:$DomNode
                 let $:any
                 if (roundType === 'plain') {
@@ -2612,6 +2624,11 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
                     $ = require('clientnode').$
                 } else {
                     if (roundType === 'full') {
+                        global.document = window.document
+                        for (const name:string of [
+                            'document', 'Element', 'HTMLElement', 'Node'
+                        ])
+                            global[name] = window[name]
                         $ = require('jquery')
                         window.$ = $
                     }

@@ -148,11 +148,13 @@ export const $:any = (():any => {
         const selector:any = (
             'document' in globalContext &&
             'querySelectorAll' in globalContext.document
-        ) ? globalContext.document.querySelectorAll : ():null => null
+        ) ? globalContext.document.querySelectorAll.bind(
+            globalContext.document
+        ) : ():null => null
         $ = (parameter:any, ...additionalArguments:Array<any>):any => {
             if (typeof parameter === 'string') {
-                const $domNodes:Array<any> = selector.call(
-                    globalContext.document, parameter, ...additionalArguments)
+                const $domNodes:Array<any> = selector(
+                    parameter, ...additionalArguments)
                 if ('fn' in $)
                     for (const key:string in $.fn)
                         if ($.fn.hasOwnProperty(key))
