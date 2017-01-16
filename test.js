@@ -80,7 +80,7 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
                         ) + ` (${typeof error.actual}) != ` +
                         `expected: ` + Tools.representObject(
                             error.expected, '    ', null, indention
-                        ) + ` ${typeof error.expected})`
+                        ) + ` (${typeof error.expected})`
                     ).red)
             }
             errors.length = 0
@@ -1243,6 +1243,7 @@ let tests:Array<Test> = [{callback: function(
         }
     })
     QUnit.test('representObject', (assert:Object):void => {
+        const error:Error = new Error('A')
         for (const test:Array<any> of [
             [{}, '{}'],
             [5, '5'],
@@ -1265,7 +1266,11 @@ let tests:Array<Test> = [{callback: function(
                 {a: {a: {a: null, b: {}}}},
                 '{\n a: {\n  a: {\n   a: null,\n   b: {}\n  }\n }\n}'
             ],
-            [{a: {a: new Error('A')}}, '{\n a: {\n  a: {}\n }\n}']
+            [
+                {a: {a: error}},
+                '{\n a: {\n  a: {\n   message: "A",\n   stack: "' +
+                `${error.stack.replace(/\n/g, '\n   ')}"\n  }\n }\n}`
+            ]
         ])
             assert.strictEqual(
                 $.Tools.class.representObject(test[0], ' '), test[1])
