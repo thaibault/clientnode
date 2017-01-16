@@ -2091,28 +2091,53 @@ export default class Tools {
     /**
      * Represents given object as formatted string.
      * @param object - Object to Represents.
-     * @param indention - String of number of whitespaces to use as indention.
+     * @param indention - String (usually whitespaces) to use as indention.
      * @param stringifier - Optional serialisation function to use.
+     * @param initialIndention - String (usually whitespaces) to use as
+     * additional indention for the first object traversing level.
      * @returns Representation string.
      */
     static representObject(
-        object:any, indention:string|number = 4, stringifier:?Function = (
-            key:string, value:any
-        ):any => {
-            if (typeof value === 'object' && !Array.isArray(
-                value
-            ) || value instanceof Set) {
-                const result:Object = {}
-                for (const key:string of Tools.sort(Object.getOwnPropertyNames(
-                    value
-                )))
-                    result[key] = value[key]
-                return result
-            }
-            return value
-        }
+        object:any, indention:string = '    ', stringifier:?Function = null,
+        initialIndention:string = ''
     ):string {
-        return JSON.stringify(object, stringifier, indention)
+        if (object === null)
+            return 'null'
+        if (object === undefined)
+            return 'undefined'
+        if (Tools.isNumeric(object) || typeof object === 'boolean')
+            return `${object}`
+        if (typeof object === 'string')
+            return `"${object.replace(/\n/g, `\n${initialIndention}`)}"`
+        if (Array.isArray(object))
+            return JSON.stringify(object, (key:?string, value:any):any => {
+                /*
+                    NOTE: If given key is an empty string the entire object
+                    should be given as value. We should avoid an endless loop
+                    here.
+                */
+                if (key === '')
+                    return value
+                return Tools.representObject(
+                    value, indention, stringifier, initialIndention
+                ), `${initialIndention}${indention}`
+            })
+        let result:string = `{`
+        const keys:Array<string> = Object.getOwnPropertyNames(object).sort()
+        let index:number = 0
+        for (const key:string of keys) {
+            if (index)
+                result += ','
+            result += `\n${initialIndention}${indention}${key}: ` +
+                Tools.representObject(
+                    object[key], indention, stringifier,
+                    `${initialIndention}${indention}`)
+            index += 1
+        }
+        if (index)
+            result += `\n${initialIndention}`
+        result += '}'
+        return result
     }
     /**
      * Searches for nested mappings with given indicator key and resolves

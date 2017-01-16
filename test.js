@@ -75,10 +75,12 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
                 if (typeof error.actual !== 'undefined')
                     console.warn((
                         // IgnoreTypeCheck
-                        `${indention}${Tools.representObject(error.actual)} ` +
-                        `(${typeof error.actual}) != ` +
-                        `${Tools.representObject(error.expected)} (` +
-                        `${typeof error.expected})`
+                        `${indention}actual: ` + Tools.representObject(
+                            error.actual, '    ', null, indention
+                        ) + ` (${typeof error.actual}) != ` +
+                        `expected: ` + Tools.representObject(
+                            error.expected, '    ', null, indention
+                        ) + ` ${typeof error.expected})`
                     ).red)
             }
             errors.length = 0
@@ -1244,10 +1246,29 @@ let tests:Array<Test> = [{callback: function(
         for (const test:Array<any> of [
             [{}, '{}'],
             [5, '5'],
+            ['a', '"a"'],
             [[], '[]'],
-            [{a: 2, b: 3}, '{\n    "a": 2,\n    "b": 3\n}']
+            [{a: 2, b: 3}, '{\n a: 2,\n b: 3\n}'],
+            [
+                {a: null, b: 3, c: 'a', d: true},
+                '{\n a: null,\n b: 3,\n c: "a",\n d: true\n}'
+            ],
+            [
+                {a: {a: null, b: 3, c: 'a', d: true}},
+                '{\n a: {\n  a: null,\n  b: 3,\n  c: "a",\n  d: true\n }\n}'
+            ],
+            [
+                {a: {a: null, b: 3, c: 'a', d: {}}},
+                '{\n a: {\n  a: null,\n  b: 3,\n  c: "a",\n  d: {}\n }\n}'
+            ],
+            [
+                {a: {a: {a: null, b: {}}}},
+                '{\n a: {\n  a: {\n   a: null,\n   b: {}\n  }\n }\n}'
+            ],
+            [{a: {a: new Error('A')}}, '{\n a: {\n  a: {}\n }\n}']
         ])
-            assert.strictEqual($.Tools.class.representObject(test[0]), test[1])
+            assert.strictEqual(
+                $.Tools.class.representObject(test[0], ' '), test[1])
     })
     this.test(`resolveDynamicDataStructure (${roundType})`, (
         assert:Object
