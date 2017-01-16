@@ -2099,7 +2099,9 @@ export default class Tools {
         object:any, indention:string|number = 4, stringifier:?Function = (
             key:string, value:any
         ):any => {
-            if (value instanceof Error) {
+            if (typeof value === 'object' && !Array.isArray(
+                value
+            ) || value instanceof Set) {
                 const result:Object = {}
                 for (const key:string of Tools.sort(Object.getOwnPropertyNames(
                     value
