@@ -2101,7 +2101,9 @@ export default class Tools {
         ):any => {
             if (value instanceof Error) {
                 const result:Object = {}
-                for (const key:string of Object.getOwnPropertyNames(value))
+                for (const key:string of Tools.sort(Object.getOwnPropertyNames(
+                    value
+                )))
                     result[key] = value[key]
                 return result
             }
