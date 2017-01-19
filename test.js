@@ -2651,7 +2651,8 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
                 } else {
                     if (roundType === 'full') {
                         for (const name:string of [
-                            'document', 'Element', 'HTMLElement', 'Node'
+                            'document', 'Element', 'HTMLElement', 'matchMedia',
+                            'Node'
                         ])
                             if (!(name in global))
                                 global[name] = window[name]
