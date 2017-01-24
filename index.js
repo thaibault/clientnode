@@ -2109,32 +2109,36 @@ export default class Tools {
             return `${object}`
         if (typeof object === 'string')
             return `"${object.replace(/\n/g, `\n${initialIndention}`)}"`
-        if (Array.isArray(object))
-            return JSON.stringify(object, (key:?string, value:any):any => {
-                /*
-                    NOTE: If given key is an empty string the entire object
-                    should be given as value. We should avoid an endless loop
-                    here.
-                */
-                if (key === '')
-                    return value
-                return Tools.representObject(
-                    value, indention, stringifier, initialIndention
-                ), `${initialIndention}${indention}`
-            })
-        let result:string = `{`
+        if (Array.isArray(object)) {
+            let result:string = '['
+            let firstSeen:boolean = false
+            for (const item:any of object) {
+                if (firstSeen)
+                    result += ','
+                result += `\n${initialIndention}${indention}` +
+                    Tools.representObject(
+                        item, indention, stringifier,
+                        `${initialIndention}${indention}`)
+                firstSeen = true
+            }
+            if (firstSeen)
+                result += `\n${initialIndention}`
+            result += ']'
+            return result
+        }
+        let result:string = '{'
         const keys:Array<string> = Object.getOwnPropertyNames(object).sort()
-        let index:number = 0
+        let firstSeen:boolean = false
         for (const key:string of keys) {
-            if (index)
+            if (firstSeen)
                 result += ','
             result += `\n${initialIndention}${indention}${key}: ` +
                 Tools.representObject(
                     object[key], indention, stringifier,
                     `${initialIndention}${indention}`)
-            index += 1
+            firstSeen = true
         }
-        if (index)
+        if (firstSeen)
             result += `\n${initialIndention}`
         result += '}'
         return result
@@ -3637,7 +3641,6 @@ export default class Tools {
                 const msw = (first >> 16) + (second >> 16) + (lsw >> 16)
                 return (msw << 16) | (lsw & 0xFFFF)
             }
-        // IgnoreTypeCheck
         return convertToHexCode(main((onlyAscii) ? value : unescape(
             encodeURIComponent(value))))
         // endregion
