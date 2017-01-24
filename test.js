@@ -1270,7 +1270,8 @@ let tests:Array<Test> = [{callback: function(
                 {a: {a: error}},
                 '{\n a: {\n  a: {\n   message: "A",\n   stack: "' +
                 `${error.stack.replace(/\n/g, '\n   ')}"\n  }\n }\n}`
-            ]
+            ],
+            [[{a: 2}], '[\n {\n  a: 2\n }\n]']
         ])
             assert.strictEqual(
                 $.Tools.class.representObject(test[0], ' '), test[1])
