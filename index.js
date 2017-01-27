@@ -1320,7 +1320,6 @@ export default class Tools {
             return data
         }
     }
-    // TODO port each existing timeout call.
     /**
      * Triggers given callback after given duration. Supports unlimited
      * duration length and returns a promise which will be resolved after given

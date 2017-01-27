@@ -2638,12 +2638,16 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
                     environment. So we have to try to clear the underling
                     cache.
                 */
-                try {
-                    eval(`delete require.cache[require.resolve('clientnode')]`)
-                } catch (error) {}
-                try {
-                    eval(`delete require.cache[require.resolve('jquery')]`)
-                } catch (error) {}
+                for (const request:string of [
+                    'clientnode', 'jquery', 'jquery/dist/jquery',
+                    'jquery/dist/jquery.js', 'jquery/dist/jquery.min',
+                    'jquery/dist/jquery.min.js', 'jquery/dist/jquery.min'
+                ])
+                    try {
+                        eval(
+                            `delete require.cache[require.resolve('` +
+                            `${request}')]`)
+                    } catch (error) {}
                 let $bodyDomNode:$DomNode
                 let $:any
                 if (roundType === 'plain') {
