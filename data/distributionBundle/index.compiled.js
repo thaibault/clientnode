@@ -1,3 +1,1656 @@
 'use strict';
-!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t(function(){try{return require('jquery')}catch(e){}}(),require("webpack/buildin/global.js")):"function"==typeof define&&define.amd?define("clientnode",["jQuery","webpack/buildin/global.js"],t):"object"==typeof exports?exports.clientnode=t(function(){try{return require('jquery')}catch(e){}}(),require("webpack/buildin/global.js")):e.clientnode=t(e.jQuery,e["webpack/buildin/global.js"])}(this,function(e,t){return function(e){function t(n){if(r[n])return r[n].exports;var o=r[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var r={};return t.m=e,t.c=r,t.i=function(e){return e},t.d=function(e,t,r){Object.defineProperty(e,t,{configurable:!1,enumerable:!0,get:r})},t.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(r,"a",r),r},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=4)}([function(e,t,r){"use strict";(function(e,n){function o(e){return function(){var t=e.apply(this,arguments);return new Promise(function(e,r){function n(o,i){try{var a=t[o](i),l=a.value}catch(e){return void r(e)}return a.done?void e(l):Promise.resolve(l).then(function(e){return n("next",e)},function(e){return n("throw",e)})}return n("next")})}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var a=function(){function e(e,t){var r=[],n=!0,o=!1,i=void 0;try{for(var a,l=e[Symbol.iterator]();!(n=(a=l.next()).done)&&(r.push(a.value),!t||r.length!==t);n=!0);}catch(e){o=!0,i=e}finally{try{!n&&l.return&&l.return()}finally{if(o)throw i}}return r}return function(t,r){if(Array.isArray(t))return t;if(Symbol.iterator in Object(t))return e(t,r);throw new TypeError("Invalid attempt to destructure non-iterable instance")}}(),l=function(){function e(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(t,r,n){return r&&e(t.prototype,r),n&&e(t,n),t}}(),u="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol?"symbol":typeof e},c=t.globalContext=function(){return"undefined"==typeof window?"undefined"==typeof e?n:"window"in e?e.window:e:window}(),f=t.$=function(){var e=void 0;if("$"in c&&null!==c.$)e=c.$;else{var t=function(){if(!("$"in c))try{return{v:r(2)}}catch(e){}var t="document"in c&&"querySelectorAll"in c.document?c.document.querySelectorAll:function(){return null};e=function(r){if("string"==typeof r){var n=t.apply(c.document,arguments);if("fn"in e)for(var o in e.fn)e.fn.hasOwnProperty(o)&&(n[o]=e.fn[o].bind(n));return n}return s.isFunction(r)&&"document"in c&&c.document.addEventListener("DOMContentLoaded",r),r},e.fn={}}();if("object"===("undefined"==typeof t?"undefined":u(t)))return t.v}return e}();"global"in f||(f.global=c),!("context"in f)&&"document"in f.global&&(f.contest=f.global.document);var s=function(){function e(){var t=arguments.length<=0||void 0===arguments[0]?null:arguments[0],r=arguments.length<=1||void 0===arguments[1]?{}:arguments[1],n=arguments.length<=2||void 0===arguments[2]?{logging:!1,domNodeSelectorPrefix:"body",domNode:{hideJavaScriptEnabled:".tools-hidden-on-javascript-enabled",showJavaScriptEnabled:".tools-visible-on-javascript-enabled"}}:arguments[2],o=arguments.length<=3||void 0===arguments[3]?{}:arguments[3];i(this,e),t&&(this.$domNode=t),this._options=r,this._defaultOptions=n,this._locks=o,"console"in f.global||(f.global.console={});var a=!0,l=!1,u=void 0;try{for(var c,s=this.constructor.consoleMethodNames[Symbol.iterator]();!(a=(c=s.next()).done);a=!0){var d=c.value;d in f.global.console||(f.global.console[d]=this.constructor.noop)}}catch(e){l=!0,u=e}finally{try{!a&&s.return&&s.return()}finally{if(l)throw u}}!this.constructor._javaScriptDependentContentHandled&&"document"in f.global&&"filter"in f&&"hide"in f&&"show"in f&&(this.constructor._javaScriptDependentContentHandled=!0,f(this._defaultOptions.domNodeSelectorPrefix+" "+this._defaultOptions.domNode.hideJavaScriptEnabled).filter(function(){return!f(this).data("javaScriptDependentContentHide")}).data("javaScriptDependentContentHide",!0).hide(),f(this._defaultOptions.domNodeSelectorPrefix+" "+this._defaultOptions.domNode.showJavaScriptEnabled).filter(function(){return!f(this).data("javaScriptDependentContentShow")}).data("javaScriptDependentContentShow",!0).show())}return l(e,[{key:"destructor",value:function(){return"off"in f.fn&&this.off("*"),this}},{key:"initialize",value:function(){var e=arguments.length<=0||void 0===arguments[0]?{}:arguments[0];return this._options=this.constructor.extendObject(!0,{},this._defaultOptions,this._options,e),this._options.domNodeSelectorPrefix=this.constructor.stringFormat(this._options.domNodeSelectorPrefix,this.constructor.stringCamelCaseToDelimited(this.constructor._name)),this}},{key:"controller",value:function(t,r){var n=arguments.length<=2||void 0===arguments[2]?null:arguments[2];if("function"==typeof t&&(t=new t(n),!t instanceof e&&(t=this.constructor.extendObject(!0,new e,t))),r=this.constructor.arrayMake(r),n&&"data"in n&&!n.data(t.constructor._name)&&n.data(t.constructor._name,t),r[0]in t)return t[r[0]].apply(t,r.slice(1));if(0===r.length||"object"===u(r[0]))return t.initialize.apply(t,r);throw new Error('Method "'+r[0]+'" does not exist on $-extended dom node '+('"'+t.constructor._name+'".'))}},{key:"acquireLock",value:function(){function t(e,t,n){return r.apply(this,arguments)}var r=o(regeneratorRuntime.mark(function t(r){var n=this,i=arguments.length<=1||void 0===arguments[1]?e.noop:arguments[1],a=!(arguments.length<=2||void 0===arguments[2])&&arguments[2];return regeneratorRuntime.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.abrupt("return",new Promise(function(e){var t=function(){var t=o(regeneratorRuntime.mark(function t(r){var o,l;return regeneratorRuntime.wrap(function(t){for(;;)switch(t.prev=t.next){case 0:if(o=i(r),l=function(t){a&&n.releaseLock(r),e(t)},!(null!==o&&"object"===("undefined"==typeof o?"undefined":u(o))&&"then"in o)){t.next=4;break}return t.abrupt("return",o.then(l));case 4:l(r);case 5:case"end":return t.stop()}},t,n)}));return function(e){return t.apply(this,arguments)}}();n._locks.hasOwnProperty(r)?n._locks[r].push(t):(n._locks[r]=[],t(r))}));case 1:case"end":return e.stop()}},t,this)}));return t}()},{key:"releaseLock",value:function(){function e(e){return t.apply(this,arguments)}var t=o(regeneratorRuntime.mark(function e(t){var r;return regeneratorRuntime.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=void 0,!this._locks.hasOwnProperty(t)){e.next=8;break}if(!this._locks[t].length){e.next=7;break}if(r=this._locks[t].shift()(t),!(null!==r&&"object"===("undefined"==typeof r?"undefined":u(r))&&"then"in r)){e.next=7;break}return e.next=7,r;case 7:delete this._locks[t];case 8:return e.abrupt("return",r);case 9:case"end":return e.stop()}},e,this)}));return e}()},{key:"log",value:function(e){var t=!(arguments.length<=1||void 0===arguments[1])&&arguments[1],r=!(arguments.length<=2||void 0===arguments[2])&&arguments[2],n=arguments.length<=3||void 0===arguments[3]?"info":arguments[3];if(this._options.logging||t||["error","critical"].includes(n)){var o=void 0;if(r)o=e;else if("string"==typeof e){for(var i=arguments.length,a=Array(i>4?i-4:0),l=4;l<i;l++)a[l-4]=arguments[l];a.unshift(e),o=this.constructor._name+" ("+n+"): "+this.constructor.stringFormat.apply(this,a)}else this.constructor.isNumeric(e)||"boolean"==typeof e?o=this.constructor._name+" ("+n+"): "+e.toString():(this.log(",--------------------------------------------,"),this.log(e,t,!0),this.log("'--------------------------------------------'"));o&&("console"in f.global&&n in f.global.console&&f.global.console[n]!==this.constructor.noop?f.global.console[n](o):"alert"in f.global&&f.global.alert(o))}return this}},{key:"info",value:function(e){for(var t=arguments.length,r=Array(t>1?t-1:0),n=1;n<t;n++)r[n-1]=arguments[n];return this.log.apply(this,[e,!1,!1,"info"].concat(r))}},{key:"debug",value:function(e){for(var t=arguments.length,r=Array(t>1?t-1:0),n=1;n<t;n++)r[n-1]=arguments[n];return this.log.apply(this,[e,!1,!1,"debug"].concat(r))}},{key:"error",value:function(e){for(var t=arguments.length,r=Array(t>1?t-1:0),n=1;n<t;n++)r[n-1]=arguments[n];return this.log.apply(this,[e,!0,!1,"error"].concat(r))}},{key:"critical",value:function(e){for(var t=arguments.length,r=Array(t>1?t-1:0),n=1;n<t;n++)r[n-1]=arguments[n];return this.log.apply(this,[e,!0,!1,"warn"].concat(r))}},{key:"warn",value:function(e){for(var t=arguments.length,r=Array(t>1?t-1:0),n=1;n<t;n++)r[n-1]=arguments[n];return this.log.apply(this,[e,!1,!1,"warn"].concat(r))}},{key:"getStyle",value:function(){var e={};if("window"in f.global&&f.global.window.getComputedStyle){var t=f.global.window.getComputedStyle(this.$domNode[0],null);if(t){if("length"in t)for(var r=0;r<t.length;r+=1)e[this.constructor.stringDelimitedToCamelCase(t[r])]=t.getPropertyValue(t[r]);else for(var n in t)t.hasOwnProperty(n)&&(e[this.constructor.stringDelimitedToCamelCase(n)]=n in t&&t[n]||t.getPropertyValue(n));return e}}var o=this.$domNode[0].currentStyle;if(o){for(var i in o)o.hasOwnProperty(i)&&(e[i]=o[i]);return e}if(o=this.$domNode[0].style)for(var a in o)"function"!=typeof o[a]&&(e[a]=o[a]);return e}},{key:"getText",value:function(){return this.$domNode.clone().children().remove().end().text()}},{key:"normalizeClassNames",value:function(){return this.$domNode.find("*").addBack().each(function(){var e=f(this);if(e.attr("class")){var t=e.attr("class").split(" ").sort()||[];e.attr("class","");var r=!0,n=!1,o=void 0;try{for(var i,a=t[Symbol.iterator]();!(r=(i=a.next()).done);r=!0){var l=i.value;e.addClass(l)}}catch(e){n=!0,o=e}finally{try{!r&&a.return&&a.return()}finally{if(n)throw o}}}else e.is("[class]")&&e.removeAttr("class")}),this}},{key:"normalizeStyles",value:function(){var e=this;return this.$domNode.find("*").addBack().each(function(){var t=f(this),r=t.attr("style");if(r){var n=e.constructor.stringCompressStyleValue(r).split(";").sort()||[];t.attr("style","");var o=!0,i=!1,a=void 0;try{for(var l,u=n[Symbol.iterator]();!(o=(l=u.next()).done);o=!0){var c=l.value;t.css.apply(t,c.trim().split(":"))}}catch(e){i=!0,a=e}finally{try{!o&&u.return&&u.return()}finally{if(i)throw a}}t.attr("style",e.constructor.stringCompressStyleValue(t.attr("style")))}else t.is("[style]")&&t.removeAttr("style")}),this}},{key:"getPositionRelativeToViewport",value:function(){var e=arguments.length<=0||void 0===arguments[0]?{}:arguments[0];if(e=this.constructor.extendObject({top:0,left:0,bottom:0,right:0},e),"window"in f.global&&this.$domNode&&this.$domNode.length&&this.$domNode[0]){var t=f(f.global.window),r=this.$domNode[0].getBoundingClientRect();if(r.top+e.top<0)return"above";if(r.left+e.left<0)return"left";if(t.height()<r.bottom+e.bottom)return"below";if(t.width()<r.right+e.right)return"right"}return"in"}},{key:"removeDirective",value:function(e){var t=this.constructor.stringCamelCaseToDelimited(e);return this.$domNode.removeClass(t).removeAttr(t).removeAttr("data-"+t).removeAttr("x-"+t).removeAttr(t.replace("-",":")).removeAttr(t.replace("-","_"))}},{key:"getDirectiveValue",value:function(e){for(var t=this.constructor.stringCamelCaseToDelimited(e),r=[t,"data-"+t,"x-"+t,t.replace("-","\\:")],n=0;n<r.length;n++){var o=r[n],i=this.$domNode.attr(o);if(void 0!==i)return i}return null}},{key:"sliceDomNodeSelectorPrefix",value:function(e){return"domNodeSelectorPrefix"in this._options&&e.startsWith(this._options.domNodeSelectorPrefix)?e.substring(this._options.domNodeSelectorPrefix.length).trim():e}},{key:"grabDomNode",value:function(e,t){var r={};if(e)if(t){var n=f(t);for(var o in e)e.hasOwnProperty(o)&&(r[o]=n.find(e[o]))}else for(var i in e)if(e.hasOwnProperty(i)){var a=e[i].match(", *");if(a){var l=!0,u=!1,c=void 0;try{for(var s,d=e[i].split(a[0])[Symbol.iterator]();!(l=(s=d.next()).done);l=!0){var v=s.value;e[i]+=", "+this.normalizeDomNodeSelector(v)}}catch(e){u=!0,c=e}finally{try{!l&&d.return&&d.return()}finally{if(u)throw c}}}r[i]=f(this.normalizeDomNodeSelector(e[i]))}return this._options.domNodeSelectorPrefix&&(r.parent=f(this._options.domNodeSelectorPrefix)),"window"in f.global&&(r.window=f(f.global.window)),"document"in f.global&&(r.document=f(f.global.document)),r}},{key:"getMethod",value:function(e){for(var t=arguments.length,r=Array(t>2?t-2:0),n=2;n<t;n++)r[n-2]=arguments[n];var o=arguments.length<=1||void 0===arguments[1]?null:arguments[1];o||(o=this);var i=this;return"string"==typeof e&&"object"===("undefined"==typeof o?"undefined":u(o))?function(){if(!o[e]&&"string"==typeof e)throw new Error('Method "'+e+'" doesn\'t exists in "'+o+'".');return o[e].apply(o,i.constructor.arrayMake(arguments).concat(r))}:function(){return e.apply(o,i.constructor.arrayMake(arguments).concat(r))}}},{key:"fireEvent",value:function(e){for(var t=!(arguments.length<=1||void 0===arguments[1])&&arguments[1],r=arguments.length<=2||void 0===arguments[2]?this:arguments[2],n="on"+this.constructor.stringCapitalize(e),o=arguments.length,i=Array(o>3?o-3:0),a=3;a<o;a++)i[a-3]=arguments[a];return t||(n in r?r[n].apply(r,i):"_"+n in r&&r["_"+n].apply(r,i)),!(r._options&&n in r._options&&r._options[n]!==this.constructor.noop)||r._options[n].apply(r,i)}},{key:"on",value:function(){return this._bindEventHelper(arguments,!1)}},{key:"off",value:function(){return this._bindEventHelper(arguments,!0,"off")}},{key:"normalizeDomNodeSelector",value:function(e){var t="";return this._options.domNodeSelectorPrefix&&(t=this._options.domNodeSelectorPrefix+" "),e.startsWith(t)||e.trim().startsWith("<")||(e=t+e),e.trim()}},{key:"sendToExternalURL",value:function(e,t){var r=arguments.length<=2||void 0===arguments[2]?"post":arguments[2],n=arguments.length<=3||void 0===arguments[3]||arguments[3],o=f("<iframe>").attr("name",this.constructor._name.charAt(0).toLowerCase()+this.constructor._name.substring(1)+(new Date).getTime()).hide();return this.$domNode.after(o),this.constructor.sendToIFrame(o,e,t,r,n)}},{key:"_bindEventHelper",value:function(e){var t=!(arguments.length<=1||void 0===arguments[1])&&arguments[1],r=arguments.length<=2||void 0===arguments[2]?"on":arguments[2],n=f(e[0]);if("object"===this.constructor.determineType(e[1])&&!t){for(var o in e[1])e[1].hasOwnProperty(o)&&this[r](n,o,e[1][o]);return n}return e=this.constructor.arrayMake(e).slice(1),0===e.length&&e.push(""),e[0].includes(".")||(e[0]+="."+this.constructor._name),t?n[r].apply(n,e):n[r].apply(n,e)}}],[{key:"isNumeric",value:function(t){var r=e.determineType(t);return["number","string"].includes(r)&&!isNaN(t-parseFloat(t))}},{key:"isWindow",value:function(e){return![void 0,null].includes(e)&&"object"===("undefined"==typeof e?"undefined":u(e))&&"window"in e&&e===e.window}},{key:"isArrayLike",value:function(t){var r=void 0;try{r=Boolean(t)&&"length"in t&&t.length}catch(e){return!1}var n=e.determineType(t);if("function"===n||e.isWindow(t))return!1;if("array"===n||0===r)return!0;if("number"==typeof r&&r>0)try{return t[r-1],!0}catch(e){}return!1}},{key:"isAnyMatching",value:function(e,t){var r=!0,n=!1,o=void 0;try{for(var i,a=t[Symbol.iterator]();!(r=(i=a.next()).done);r=!0){var l=i.value;if("string"==typeof l){if(l===e)return!0}else if(l.test(e))return!0}}catch(e){n=!0,o=e}finally{try{!r&&a.return&&a.return()}finally{if(n)throw o}}return!1}},{key:"isPlainObject",value:function(e){return"object"===("undefined"==typeof e?"undefined":u(e))&&null!==e&&Object.getPrototypeOf(e)===Object.prototype}},{key:"isFunction",value:function(e){return Boolean(e)&&"[object Function]"==={}.toString.call(e)}},{key:"mouseOutEventHandlerFix",value:function(e){var t=this;return function(r){var n=r.toElement;"relatedTarget"in r&&(n=r.relatedTarget);for(;n&&"BODY"!==n.tagName;){if(n===this)return;n=n.parentNode}return e.apply(t,arguments)}}},{key:"show",value:function(t){var r=arguments.length<=1||void 0===arguments[1]?3:arguments[1],n=arguments.length<=2||void 0===arguments[2]?0:arguments[2],o="";if("object"===e.determineType(t)){for(var i in t)t.hasOwnProperty(i)&&(o+=i.toString()+": ",o+=n<=r?e.show(t[i],r,n+1):""+t[i],o+="\n");return o.trim()}return o=(""+t).trim(),o+' (Type: "'+e.determineType(t)+'")'}},{key:"isEquivalentDom",value:function(e,t){var r=!(arguments.length<=2||void 0===arguments[2])&&arguments[2];if(e===t)return!0;if(e&&t){for(var n=/^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/,o={first:e,second:t},i={first:f("<dummy>"),second:f("<dummy>")},a=["first","second"],l=0;l<a.length;l++){var u=a[l];if("string"==typeof o[u]&&(r||o[u].startsWith("<")&&o[u].endsWith(">")&&o[u].length>=3||n.test(o[u])))i[u]=f("<div>"+o[u]+"</div>");else try{var c=f(o[u]);if(!c.length)return!1;i[u]=f("<div>").append(c.clone())}catch(e){return!1}}if(i.first.length&&i.first.length===i.second.length){i.first=i.first.Tools("normalizeClassNames").$domNode.Tools("normalizeStyles").$domNode,i.second=i.second.Tools("normalizeClassNames").$domNode.Tools("normalizeStyles").$domNode;var s=0,d=!0,v=!1,y=void 0;try{for(var h,p=i.first[Symbol.iterator]();!(d=(h=p.next()).done);d=!0){var g=h.value;if(!g.isEqualNode(i.second[s]))return!1}}catch(e){v=!0,y=e}finally{try{!d&&p.return&&p.return()}finally{if(v)throw y}}return!0}}return!1}},{key:"generateDirectiveSelector",value:function(t){var r=e.stringCamelCaseToDelimited(t);return r+", ."+r+", ["+r+"], "+("[data-"+r+"], [x-"+r+"]")+(r.includes("-")?", ["+r.replace(/-/g,"\\:")+"], "+("["+r.replace(/-/g,"_")+"]"):"")}},{key:"getNormalizedDirectiveName",value:function(t){for(var r=["-",":","_"],n=0;n<r.length;n++){for(var o=r[n],i=!1,a=["data"+o,"x"+o],l=0;l<a.length;l++){var u=a[l];if(t.startsWith(u)){t=t.substring(u.length),i=!0;break}}if(i)break}for(var c=["-",":","_"],f=0;f<c.length;f++){var s=c[f];t=e.stringDelimitedToCamelCase(t,s)}return t}},{key:"getDomNodeName",value:function(e){var t=e.match(new RegExp("^<?([a-zA-Z]+).*>?.*"));return t?t[1]:null}},{key:"isolateScope",value:function(e){var t=arguments.length<=1||void 0===arguments[1]?["$","_"]:arguments[1];for(var r in e)t.includes(r.charAt(0))||["this","constructor"].includes(r)||e.hasOwnProperty(r)||(e[r]=void 0);return e}},{key:"determineUniqueScopeName",value:function(){var e=arguments.length<=0||void 0===arguments[0]?"callback":arguments[0],t=arguments.length<=1||void 0===arguments[1]?"":arguments[1],r=arguments.length<=2||void 0===arguments[2]?f.global:arguments[2],n=arguments.length<=3||void 0===arguments[3]?"":arguments[3];if(n.length&&!(n in r))return n;for(var o=e+t;;)if(o=e+parseInt(Math.random()*Math.pow(10,10),10)+t,!(o in r))break;return o}},{key:"identity",value:function(e){return e}},{key:"invertArrayFilter",value:function(e){return function(t){if(t){var r=e.apply(this,arguments),n=[];if(r.length){var o=!0,i=!1,a=void 0;try{for(var l,u=t[Symbol.iterator]();!(o=(l=u.next()).done);o=!0){var c=l.value;r.includes(c)||n.push(c)}}catch(e){i=!0,a=e}finally{try{!o&&u.return&&u.return()}finally{if(i)throw a}}}else n=t;return n}return t}}},{key:"debounce",value:function(t){for(var r=arguments.length,n=Array(r>2?r-2:0),o=2;o<r;o++)n[o-2]=arguments[o];var i=arguments.length<=1||void 0===arguments[1]?600:arguments[1],a=!1,l=null,u=null;return function(){var r=this,o=e.arrayMake(arguments);return a?l=o.concat(n||[]):(a=!0,u=setTimeout(function(){a=!1,l&&(t.apply(r,l),l=null)},i),t.apply(this,o.concat(n||[]))),u}}},{key:"determineType",value:function(){var t=arguments.length<=0||void 0===arguments[0]?void 0:arguments[0];if([void 0,null].includes(t))return""+t;if(["object","function"].includes("undefined"==typeof t?"undefined":u(t))&&"toString"in t){var r=e.classToTypeMapping.toString.call(t);if(e.classToTypeMapping.hasOwnProperty(r))return e.classToTypeMapping[r]}return"undefined"==typeof t?"undefined":u(t)}},{key:"convertSubstringInPlainObject",value:function(t,r,n){for(var o in t)t.hasOwnProperty(o)&&(e.isPlainObject(t[o])?t[o]=e.convertSubstringInPlainObject(t[o],r,n):"string"==typeof t[o]&&(t[o]=t[o].replace(r,n)));return t}},{key:"modifyObject",value:function(t,r){var n=arguments.length<=2||void 0===arguments[2]?"__remove__":arguments[2],o=arguments.length<=3||void 0===arguments[3]?"__prepend__":arguments[3],i=arguments.length<=4||void 0===arguments[4]?"__append__":arguments[4],l=arguments.length<=5||void 0===arguments[5]?null:arguments[5],c=arguments.length<=6||void 0===arguments[6]?null:arguments[6];if(r instanceof Map&&t instanceof Map){var f=!0,s=!1,d=void 0;try{for(var v,y=r[Symbol.iterator]();!(f=(v=y.next()).done);f=!0){var h=a(v.value,2),p=h[0],g=h[1];t.has(p)&&e.modifyObject(t.get(p),g,n,o,i,r,p)}}catch(e){s=!0,d=e}finally{try{!f&&y.return&&y.return()}finally{if(s)throw d}}}else if(null!==r&&"object"===("undefined"==typeof r?"undefined":u(r))&&null!==t&&"object"===("undefined"==typeof t?"undefined":u(t)))for(var m in r)if(r.hasOwnProperty(m))if([n,o,i].includes(m)){var b=!0,w=!1,k=void 0;try{for(var x,S=[].concat(r[m])[Symbol.iterator]();!(b=(x=S.next()).done);b=!0){var A=x.value;Array.isArray(t)?m===n?t.includes(A)&&t.splice(t.indexOf(A),1):m===o?t.unshift(A):t.push(A):m===n&&t.hasOwnProperty(A)&&delete t[A]}}catch(e){w=!0,k=e}finally{try{!b&&S.return&&S.return()}finally{if(w)throw k}}delete r[m],l&&c&&delete l[c]}else null!==t&&t.hasOwnProperty(m)&&e.modifyObject(t[m],r[m],n,o,i,r,m);return t}},{key:"extendObject",value:function(t){for(var r=arguments.length,n=Array(r>1?r-1:0),o=1;o<r;o++)n[o-1]=arguments[o];var i=1,l=!1,c=void 0;"boolean"==typeof t?(l=t,c=arguments[i],i=2):c=t;for(var f=function(t,r,n){if(r===n)return n;if(l&&r&&(e.isPlainObject(r)||r instanceof Map)){var o=void 0;return o=r instanceof Map?n&&n instanceof Map?n:new Map:n&&e.isPlainObject(n)?n:{},e.extendObject(l,o,r)}return r};i<arguments.length;){var s=arguments[i],d="undefined"==typeof c?"undefined":u(c),v="undefined"==typeof s?"undefined":u(s);if(c instanceof Map&&(d+=" Map"),s instanceof Map&&(v+=" Map"),d===v&&c!==s)if(c instanceof Map&&s instanceof Map){var y=!0,h=!1,p=void 0;try{for(var g,m=s[Symbol.iterator]();!(y=(g=m.next()).done);y=!0){var b=a(g.value,2),w=b[0],k=b[1];c.set(w,f(w,k,c.get(w)))}}catch(e){h=!0,p=e}finally{try{!y&&m.return&&m.return()}finally{if(h)throw p}}}else if(null===c||Array.isArray(c)||"object"!==("undefined"==typeof c?"undefined":u(c))||null===s||Array.isArray(s)||"object"!==("undefined"==typeof s?"undefined":u(s)))c=s;else for(var x in s)s.hasOwnProperty(x)&&(c[x]=f(x,s[x],c[x]));else c=s;i+=1}return c}},{key:"unwrapProxy",value:function(t){var r=arguments.length<=1||void 0===arguments[1]?[]:arguments[1];if(null!==t&&"object"===("undefined"==typeof t?"undefined":u(t))){for(;t.__target__;)t=t.__target__;var n=r.indexOf(t);if(n!==-1)return r[n];if(r.push(t),Array.isArray(t)){var o=0,i=!0,l=!1,c=void 0;try{for(var f,s=t[Symbol.iterator]();!(i=(f=s.next()).done);i=!0){var d=f.value;t[o]=e.unwrapProxy(d,r),o+=1}}catch(e){l=!0,c=e}finally{try{!i&&s.return&&s.return()}finally{if(l)throw c}}}else if(t instanceof Map){var v=!0,y=!1,h=void 0;try{for(var p,g=t[Symbol.iterator]();!(v=(p=g.next()).done);v=!0){var m=a(p.value,2),b=m[0],w=m[1];t.set(b,e.unwrapProxy(w,r))}}catch(e){y=!0,h=e}finally{try{!v&&g.return&&g.return()}finally{if(y)throw h}}}else for(var k in t)t.hasOwnProperty(k)&&(t[k]=e.unwrapProxy(t[k],r))}return t}},{key:"addDynamicGetterAndSetter",value:function(t){var r=arguments.length<=1||void 0===arguments[1]?function(e){return e}:arguments[1],n=arguments.length<=2||void 0===arguments[2]?function(e,t){return t}:arguments[2],o=arguments.length<=3||void 0===arguments[3]?"[]":arguments[3],i=arguments.length<=4||void 0===arguments[4]?"[]":arguments[4],l=arguments.length<=5||void 0===arguments[5]?"hasOwnProperty":arguments[5],c=arguments.length<=6||void 0===arguments[6]||arguments[6],f=arguments.length<=7||void 0===arguments[7]?[Object]:arguments[7];if(c)if(t instanceof Map){var s=!0,d=!1,v=void 0;try{for(var y,h=t[Symbol.iterator]();!(s=(y=h.next()).done);s=!0){var p=a(y.value,2),g=p[0],m=p[1];t.set(g,e.addDynamicGetterAndSetter(m,r,n,o,i,l,c,f))}}catch(e){d=!0,v=e}finally{try{!s&&h.return&&h.return()}finally{if(d)throw v}}}else if("object"===("undefined"==typeof t?"undefined":u(t))&&null!==t)for(var b in t)t.hasOwnProperty(b)&&(t[b]=e.addDynamicGetterAndSetter(t[b],r,n,o,i,l,c,f));else if(Array.isArray(t)){var w=0,k=!0,x=!1,S=void 0;try{for(var A,P=t[Symbol.iterator]();!(k=(A=P.next()).done);k=!0){var _=A.value;t[w]=e.addDynamicGetterAndSetter(_,r,n,o,i,l,c,f),w+=1}}catch(e){x=!0,S=e}finally{try{!k&&P.return&&P.return()}finally{if(x)throw S}}}var N=!0,O=!1,j=void 0;try{for(var E,T=f[Symbol.iterator]();!(N=(E=T.next()).done);N=!0){var M=E.value;if(t instanceof M){if(t.__target__)return t;var C={};return l&&(C.has=function(e,t){return"[]"===l?t in e:e[l](t)}),l&&o&&(C.get=function(e,t){return"__target__"===t?e:"function"==typeof e[t]?e[t].bind(e):e[l](t)?r("[]"===o?e[t]:e[o](t)):e[t]}),i&&(C.set=function(e,t,r){"[]"===i?e[t]=n(t,r):e[i](t,n(t,r))}),new Proxy(t,C)}}}catch(e){O=!0,j=e}finally{try{!N&&T.return&&T.return()}finally{if(O)throw j}}return t}},{key:"resolveDynamicDataStructure",value:function(t){var r=arguments.length<=1||void 0===arguments[1]?[]:arguments[1],n=arguments.length<=2||void 0===arguments[2]?[]:arguments[2],o=arguments.length<=3||void 0===arguments[3]||arguments[3],i=arguments.length<=4||void 0===arguments[4]?"__evaluate__":arguments[4],a=arguments.length<=5||void 0===arguments[5]?"__execute__":arguments[5];if(null===t||"object"!==("undefined"==typeof t?"undefined":u(t)))return t;var l=t;if(o&&l&&!l.__target__&&(l=e.addDynamicGetterAndSetter(e.copyLimitedRecursively(t),function(t){return e.resolveDynamicDataStructure(t,r,n,!1,i,a)},function(e,t){return t},"[]","")),r.length>n.length&&n.push(l),Array.isArray(t)&&o){var c=0,f=!0,s=!1,d=void 0;try{for(var v,y=t[Symbol.iterator]();!(f=(v=y.next()).done);f=!0){var h=v.value;t[c]=e.resolveDynamicDataStructure(h,r,n,o,i,a),c+=1}}catch(e){s=!0,d=e}finally{try{!f&&y.return&&y.return()}finally{if(s)throw d}}}else for(var p in t)if(t.hasOwnProperty(p))if([i,a].includes(p))try{return e.resolveDynamicDataStructure((new(Function.prototype.bind.apply(Function,[null].concat(r).concat((p===i?"return ":"")+t[p])))).apply(null,n),r,n,!1,i,a)}catch(e){throw new Error("Error during "+(p===i?"executing":"evaluating")+(' "'+t[p]+'": '+e))}else o&&(t[p]=e.resolveDynamicDataStructure(t[p],r,n,o,i,a));return t}},{key:"convertCircularObjectToJSON",value:function(e){var t=arguments.length<=1||void 0===arguments[1]?function(){return"__circularReference__"}:arguments[1],r=arguments.length<=2||void 0===arguments[2]?0:arguments[2],n=[];return JSON.stringify(e,function(e,r){return"object"===("undefined"==typeof r?"undefined":u(r))&&null!==r?n.includes(r)?t(e,r,n):(n.push(r),r):r},r)}},{key:"convertPlainObjectToMap",value:function(t){var r=arguments.length<=1||void 0===arguments[1]||arguments[1];if("object"===("undefined"==typeof t?"undefined":u(t))&&e.isPlainObject(t)){var n=new Map;for(var o in t)t.hasOwnProperty(o)&&(r&&(t[o]=e.convertPlainObjectToMap(t[o],r)),n.set(o,t[o]));return n}if(r)if(Array.isArray(t)){var i=0,l=!0,c=!1,f=void 0;try{for(var s,d=t[Symbol.iterator]();!(l=(s=d.next()).done);l=!0){var v=s.value;t[i]=e.convertPlainObjectToMap(v,r),i+=1}}catch(e){c=!0,f=e}finally{try{!l&&d.return&&d.return()}finally{if(c)throw f}}}else if(t instanceof Map){var y=!0,h=!1,p=void 0;try{for(var g,m=t[Symbol.iterator]();!(y=(g=m.next()).done);y=!0){var b=a(g.value,2),w=b[0],k=b[1];t.set(w,e.convertPlainObjectToMap(k,r))}}catch(e){h=!0,p=e}finally{try{!y&&m.return&&m.return()}finally{if(h)throw p}}}return t}},{key:"convertMapToPlainObject",value:function(t){var r=arguments.length<=1||void 0===arguments[1]||arguments[1];if(t instanceof Map){var n={},o=!0,i=!1,l=void 0;try{for(var c,f=t[Symbol.iterator]();!(o=(c=f.next()).done);o=!0){var s=a(c.value,2),d=s[0],v=s[1];r&&(v=e.convertMapToPlainObject(v,r)),n[""+d]=v}}catch(e){i=!0,l=e}finally{try{!o&&f.return&&f.return()}finally{if(i)throw l}}return n}if(r)if("object"===("undefined"==typeof t?"undefined":u(t))&&e.isPlainObject(t))for(var y in t)t.hasOwnProperty(y)&&(t[y]=e.convertMapToPlainObject(t[y],r));else if(Array.isArray(t)){var h=0,p=!0,g=!1,m=void 0;try{for(var b,w=t[Symbol.iterator]();!(p=(b=w.next()).done);p=!0){var k=b.value;t[h]=e.convertMapToPlainObject(k,r),h+=1}}catch(e){g=!0,m=e}finally{try{!p&&w.return&&w.return()}finally{if(g)throw m}}}return t}},{key:"forEachSorted",value:function(t,r,n){var o=e.sort(t),i=!0,a=!1,l=void 0;try{for(var u,c=o[Symbol.iterator]();!(i=(u=c.next()).done);i=!0){var f=u.value;t instanceof Map?r.call(n,t.get(f),f):(Array.isArray(t)||t instanceof Object)&&r.call(n,t[f],f)}}catch(e){a=!0,l=e}finally{try{!i&&c.return&&c.return()}finally{if(a)throw l}}return o}},{key:"sort",value:function(e){var t=[];if(Array.isArray(e))for(var r=0;r<e.length;r++)t.push(r);else if(e instanceof Map){var n=!0,o=!1,i=void 0;try{for(var a,l=e[Symbol.iterator]();!(n=(a=l.next()).done);n=!0){var u=a.value;t.push(u[0])}}catch(e){o=!0,i=e}finally{try{!n&&l.return&&l.return()}finally{if(o)throw i}}}else if(e instanceof Object)for(var c in e)e.hasOwnProperty(c)&&t.push(c);return t.sort()}},{key:"equals",value:function(t,r){var n=arguments.length<=2||void 0===arguments[2]?null:arguments[2],o=arguments.length<=3||void 0===arguments[3]?-1:arguments[3],i=arguments.length<=4||void 0===arguments[4]?["$","_"]:arguments[4],l=arguments.length<=5||void 0===arguments[5]||arguments[5];if(l&&e.isFunction(t)&&e.isFunction(r)||t===r||e.numberIsNotANumber(t)&&e.numberIsNotANumber(r)||t instanceof RegExp&&r instanceof RegExp&&t.toString()===r.toString()||t instanceof Date&&r instanceof Date&&(isNaN(t.getTime())&&isNaN(r.getTime())||!isNaN(t.getTime())&&!isNaN(r.getTime())&&t.getTime()===r.getTime()))return!0;if(e.isPlainObject(t)&&e.isPlainObject(r)&&!(t instanceof RegExp||r instanceof RegExp)||Array.isArray(t)&&Array.isArray(r)&&t.length===r.length){for(var u=[[t,r],[r,t]],c=0;c<u.length;c++){var f=a(u[c],2),s=f[0],d=f[1],v=Array.isArray(s);if(v&&!Array.isArray(d)||s.length!==d.length)return!1;var y=!0;if(v){var h=0,p=!0,g=!1,m=void 0;try{for(var b,w=s[Symbol.iterator]();!(p=(b=w.next()).done);p=!0){var k=b.value;0===o||e.equals(k,d[h],n,o-1,i)||(y=!1),h+=1}}catch(e){g=!0,m=e}finally{try{!p&&w.return&&w.return()}finally{if(g)throw m}}}else for(var x in s)if(s.hasOwnProperty(x)){if(!y||n&&!n.includes(x))break;var S=!1,A=!0,P=!1,_=void 0;try{for(var N,O=i[Symbol.iterator]();!(A=(N=O.next()).done);A=!0){var j=N.value;if(x.toString().startsWith(j)){S=!0;break}}}catch(e){P=!0,_=e}finally{try{!A&&O.return&&O.return()}finally{if(P)throw _}}if(S)break;0===o||e.equals(s[x],d[x],n,o-1,i)||(y=!1)}if(!y)return!1}return!0}return!1}},{key:"copyLimitedRecursively",value:function(t){var r=arguments.length<=1||void 0===arguments[1]?-1:arguments[1],n=arguments.length<=2||void 0===arguments[2]?null:arguments[2],o=arguments.length<=3||void 0===arguments[3]?[]:arguments[3],i=arguments.length<=4||void 0===arguments[4]?[]:arguments[4],l=arguments.length<=5||void 0===arguments[5]?0:arguments[5];if(n){if(t===n)throw new Error("Can't copy because source and destination are identical.");if(r!==-1&&r<l)return null;if(![void 0,null].includes(t)&&"object"===("undefined"==typeof t?"undefined":u(t))){var c=o.indexOf(t);if(c!==-1)return i[c];o.push(t),i.push(n)}var f=function(t){var n=e.copyLimitedRecursively(t,r,null,o,i,l+1);return[void 0,null].includes(t)||"object"!==("undefined"==typeof t?"undefined":u(t))||(o.push(t),i.push(n)),n};if(Array.isArray(t)){var s=!0,d=!1,v=void 0;try{for(var y,h=t[Symbol.iterator]();!(s=(y=h.next()).done);s=!0){var p=y.value;n.push(f(p))}}catch(e){d=!0,v=e}finally{try{!s&&h.return&&h.return()}finally{if(d)throw v}}}if(t instanceof Map){var g=!0,m=!1,b=void 0;try{for(var w,k=t[Symbol.iterator]();!(g=(w=k.next()).done);g=!0){var x=a(w.value,2),S=x[0],A=x[1];
-n.set(S,f(A))}}catch(e){m=!0,b=e}finally{try{!g&&k.return&&k.return()}finally{if(m)throw b}}}else for(var P in t)t.hasOwnProperty(P)&&(n[P]=f(t[P]))}else if(t){if(Array.isArray(t))return e.copyLimitedRecursively(t,r,[],o,i,l);if(t instanceof Map)return e.copyLimitedRecursively(t,r,new Map,o,i,l);if("date"===e.determineType(t))return new Date(t.getTime());if("regexp"===e.determineType(t))return n=new RegExp(t.source,t.toString().match(/[^\/]*$/)[0]),n.lastIndex=t.lastIndex,n;if(![void 0,null].includes(t)&&"object"===("undefined"==typeof t?"undefined":u(t)))return e.copyLimitedRecursively(t,r,{},o,i,l)}return n||t}},{key:"arrayMerge",value:function(e,t){for(var r=Number(t.length),n=0,o=e.length;n<r;n++)e[o++]=t[n];return e.length=o,e}},{key:"arrayMake",value:function(t){var r=[];return[null,void 0].includes(r)||(e.isArrayLike(Object(t))?e.arrayMerge(r,"string"==typeof t?[t]:t):r.push(t)),r}},{key:"arrayUnique",value:function(e){var t=[],r=!0,n=!1,o=void 0;try{for(var i,a=e[Symbol.iterator]();!(r=(i=a.next()).done);r=!0){var l=i.value;t.includes(l)||t.push(l)}}catch(e){n=!0,o=e}finally{try{!r&&a.return&&a.return()}finally{if(n)throw o}}return t}},{key:"arrayAggregatePropertyIfEqual",value:function(e,t){var r=arguments.length<=2||void 0===arguments[2]?"":arguments[2],n=r;if(e&&e.length&&e[0].hasOwnProperty(t)){n=e[0][t];var o=!0,i=!1,a=void 0;try{for(var l,u=e[Symbol.iterator]();!(o=(l=u.next()).done);o=!0){var c=l.value;if(c[t]!==n)return r}}catch(e){i=!0,a=e}finally{try{!o&&u.return&&u.return()}finally{if(i)throw a}}}return n}},{key:"arrayDeleteEmptyItems",value:function(e){var t=arguments.length<=1||void 0===arguments[1]?[]:arguments[1];if(!e)return e;var r=[],n=!0,o=!1,i=void 0;try{for(var a,l=e[Symbol.iterator]();!(n=(a=l.next()).done);n=!0){var u=a.value,c=!0;for(var f in u)if(u.hasOwnProperty(f)&&!["",null,void 0].includes(u[f])&&(!t.length||t.includes(f))){c=!1;break}c||r.push(u)}}catch(e){o=!0,i=e}finally{try{!n&&l.return&&l.return()}finally{if(o)throw i}}return r}},{key:"arrayExtract",value:function(e,t){var r=[],n=!0,o=!1,i=void 0;try{for(var a,l=e[Symbol.iterator]();!(n=(a=l.next()).done);n=!0){var u=a.value,c={},f=!0,s=!1,d=void 0;try{for(var v,y=t[Symbol.iterator]();!(f=(v=y.next()).done);f=!0){var h=v.value;u.hasOwnProperty(h)&&(c[h]=u[h])}}catch(e){s=!0,d=e}finally{try{!f&&y.return&&y.return()}finally{if(s)throw d}}r.push(c)}}catch(e){o=!0,i=e}finally{try{!n&&l.return&&l.return()}finally{if(o)throw i}}return r}},{key:"arrayExtractIfMatches",value:function(e,t){var r=[],n=!0,o=!1,i=void 0;try{for(var a,l=e[Symbol.iterator]();!(n=(a=l.next()).done);n=!0){var u=a.value;("string"==typeof t?new RegExp(t):t).test(u)&&r.push(u)}}catch(e){o=!0,i=e}finally{try{!n&&l.return&&l.return()}finally{if(o)throw i}}return r}},{key:"arrayExtractIfPropertyExists",value:function(e,t){if(e&&t){var r=[],n=!0,o=!1,i=void 0;try{for(var a,l=e[Symbol.iterator]();!(n=(a=l.next()).done);n=!0){var u=a.value,c=!1;for(var f in u)if(f===t&&u.hasOwnProperty(f)&&![void 0,null].includes(u[f])){c=!0;break}c&&r.push(u)}}catch(e){o=!0,i=e}finally{try{!n&&l.return&&l.return()}finally{if(o)throw i}}return r}return e}},{key:"arrayExtractIfPropertyMatches",value:function(e,t){if(e&&t){var r=[],n=!0,o=!1,i=void 0;try{for(var a,l=e[Symbol.iterator]();!(n=(a=l.next()).done);n=!0){var u=a.value,c=!0;for(var f in t)if(!(t[f]instanceof RegExp?t[f]:new RegExp(t[f])).test(u[f])){c=!1;break}c&&r.push(u)}}catch(e){o=!0,i=e}finally{try{!n&&l.return&&l.return()}finally{if(o)throw i}}return r}return e}},{key:"arrayIntersect",value:function(t,r){var n=arguments.length<=2||void 0===arguments[2]?[]:arguments[2],o=arguments.length<=3||void 0===arguments[3]||arguments[3],i=[],a=!0,l=!1,u=void 0;try{for(var c,f=function(){var t=c.value;if(e.isPlainObject(t)){var a=!0,l=!1,u=void 0;try{for(var f,s=function(){var r=f.value,a=!0,l=void 0,u=Array.isArray(n);e.isPlainObject(n)||u&&n.length?l=!0:(l=!1,n=t);var c=function(e,n){if(u&&l?e=n:l||(n=e),r[n]!==t[e]&&(o||![null,void 0].includes(r[n])||![null,void 0].includes(t[e])))return a=!1,!1};if(Array.isArray(n)){var s=0,d=!0,v=!1,y=void 0;try{for(var h,p=n[Symbol.iterator]();!(d=(h=p.next()).done);d=!0){var g=h.value;if(c(s,g)===!1)break;s+=1}}catch(e){v=!0,y=e}finally{try{!d&&p.return&&p.return()}finally{if(v)throw y}}}else for(var m in n)if(n.hasOwnProperty(m)&&c(m,n[m])===!1)break;if(a)return i.push(t),"break"},d=r[Symbol.iterator]();!(a=(f=d.next()).done);a=!0){var v=s();if("break"===v)break}}catch(e){l=!0,u=e}finally{try{!a&&d.return&&d.return()}finally{if(l)throw u}}}else r.includes(t)&&i.push(t)},s=t[Symbol.iterator]();!(a=(c=s.next()).done);a=!0)f()}catch(e){l=!0,u=e}finally{try{!a&&s.return&&s.return()}finally{if(l)throw u}}return i}},{key:"arrayMakeRange",value:function(e){var t=arguments.length<=1||void 0===arguments[1]?1:arguments[1],r=void 0,n=void 0;if(1===e.length)r=0,n=parseInt(e[0],10);else{if(2!==e.length)return e;r=parseInt(e[0],10),n=parseInt(e[1],10)}for(var o=[r];r<=n-t;)r+=t,o.push(r);return o}},{key:"arraySumUpProperty",value:function(e,t){var r=0;if(Array.isArray(e)&&e.length){var n=!0,o=!1,i=void 0;try{for(var a,l=e[Symbol.iterator]();!(n=(a=l.next()).done);n=!0){var u=a.value;u.hasOwnProperty(t)&&(r+=parseFloat(u[t]||0))}}catch(e){o=!0,i=e}finally{try{!n&&l.return&&l.return()}finally{if(o)throw i}}}return r}},{key:"arrayAppendAdd",value:function(e,t,r){var n=arguments.length<=3||void 0===arguments[3]||arguments[3];return e.hasOwnProperty(r)?n&&e[r].includes(t)||e[r].push(t):e[r]=[t],e}},{key:"arrayRemove",value:function(e,t){var r=!(arguments.length<=2||void 0===arguments[2])&&arguments[2];if(Array.isArray(e)){var n=e.indexOf(t);if(n===-1){if(r)throw new Error("Given target doesn't exists in given list.")}else e.splice(n,1)}else if(r)throw new Error("Given target isn't an array.");return e}},{key:"stringConvertToValidRegularExpression",value:function(t){var r=arguments.length<=1||void 0===arguments[1]?[]:arguments[1];if(1===t.length&&!e.specialRegexSequences.includes(t))return t;r.includes("\\")||t.replace(/\\/g,"\\\\");var n=!0,o=!1,i=void 0;try{for(var a,l=e.specialRegexSequences[Symbol.iterator]();!(n=(a=l.next()).done);n=!0){var u=a.value;r.includes(u)||(t=t.replace(new RegExp("\\"+u,"g"),"\\"+u))}}catch(e){o=!0,i=e}finally{try{!n&&l.return&&l.return()}finally{if(o)throw i}}return t}},{key:"stringConvertToValidVariableName",value:function(e){var t=arguments.length<=1||void 0===arguments[1]?"0-9a-zA-Z_$":arguments[1];return e.toString().replace(/^[^a-zA-Z_$]+/,"").replace(new RegExp("[^"+t+"]+([a-zA-Z0-9])","g"),function(e,t){return t.toUpperCase()})}},{key:"stringEncodeURIComponent",value:function(e,t){return encodeURIComponent(e).replace(/%40/gi,"@").replace(/%3A/gi,":").replace(/%24/g,"$").replace(/%2C/gi,",").replace(/%20/g,t?"%20":"+")}},{key:"stringAddSeparatorToPath",value:function(e){var t=arguments.length<=1||void 0===arguments[1]?"/":arguments[1];return e=e.trim(),e.substr(-1)!==t&&e.length?e+t:e}},{key:"stringHasPathPrefix",value:function(){var e=arguments.length<=0||void 0===arguments[0]?"/admin":arguments[0],t=arguments.length<=1||void 0===arguments[1]?"location"in f.global&&f.global.location.pathname||"":arguments[1],r=arguments.length<=2||void 0===arguments[2]?"/":arguments[2];return"string"==typeof e&&(e.endsWith(r)||(e+=r),t===e.substring(0,e.length-r.length)||t.startsWith(e))}},{key:"stringGetDomainName",value:function(){var e=arguments.length<=0||void 0===arguments[0]?"location"in f.global&&f.global.location.href||"":arguments[0],t=arguments.length<=1||void 0===arguments[1]?"location"in f.global&&f.global.location.hostname||"":arguments[1],r=/^([a-z]*:?\/\/)?([^\/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(e);return r&&r.length>2&&r[1]&&r[2]?r[2]:t}},{key:"stringGetPortNumber",value:function(){var t=arguments.length<=0||void 0===arguments[0]?"location"in f.global&&f.global.location.href||"":arguments[0],r=arguments.length<=1||void 0===arguments[1]?null:arguments[1],n=arguments.length<=2||void 0===arguments[2]?[]:arguments[2],o=/^(?:[a-z]*:?\/\/[^\/]+?)?(?:[^\/]+?):([0-9]+)/i.exec(t);return o&&o.length>1?parseInt(o[1],10):null!==r?r:e.stringIsInternalURL.apply(this,[t].concat(n))&&"location"in f.global&&f.global.location.port&&parseInt(f.global.location.port,10)?parseInt(f.global.location.port,10):"https"===e.stringGetProtocolName(t)?443:80}},{key:"stringGetProtocolName",value:function(){var e=arguments.length<=0||void 0===arguments[0]?"location"in f.global&&f.global.location.href||"":arguments[0],t=arguments.length<=1||void 0===arguments[1]?"location"in f.global&&f.global.location.protocol.substring(0,f.global.location.protocol.length-1)||"":arguments[1],r=/^([a-z]+):\/\//i.exec(e);return r&&r.length>1&&r[1]?r[1]:t}},{key:"stringGetURLVariable",value:function(e,t){var r=arguments.length<=2||void 0===arguments[2]?"$":arguments[2],n=arguments.length<=3||void 0===arguments[3]?"!":arguments[3],o=arguments[4],i=arguments.length<=5||void 0===arguments[5]?"location"in f.global&&f.global.location.hash||"":arguments[5],a=i?i:"#",l="";if(o)l=o;else if(n&&a.startsWith(n)){var u=a.indexOf("#"),c=void 0;u===-1?(c=a.substring(n.length),a=""):(c=a.substring(n.length,u),a=a.substring(u));var s=c.indexOf("?");s!==-1&&(l=c.substring(s))}else"location"in f.global&&(l=f.global.location.search||"");var d=t?t:l,v="&"===d;if(v||"#"===d){var y="";try{y=decodeURIComponent(a)}catch(e){}var h=y.indexOf(r);h===-1?d="":(d=y.substring(h),d.startsWith(r)&&(d=d.substring(r.length)))}else d.startsWith("?")&&(d=d.substring("?".length));var p=d?d.split("&"):[];l=l.substring("?".length),v&&l&&(p=p.concat(l.split("&")));var g=[],m=!0,b=!1,w=void 0;try{for(var k,x=p[Symbol.iterator]();!(m=(k=x.next()).done);m=!0){var S=k.value,A=S.split("="),P=void 0;try{P=decodeURIComponent(A[0])}catch(e){P=""}try{S=decodeURIComponent(A[1])}catch(e){S=""}g.push(P),g[P]=S}}catch(e){b=!0,w=e}finally{try{!m&&x.return&&x.return()}finally{if(b)throw w}}return e?g[e]:g}},{key:"stringIsInternalURL",value:function(t){var r=arguments.length<=1||void 0===arguments[1]?"location"in f.global&&f.global.location.href||"":arguments[1],n=e.stringGetDomainName(t,!1),o=e.stringGetProtocolName(t,!1),i=e.stringGetPortNumber(t,!1);return!(n&&n!==e.stringGetDomainName(r)||o&&o!==e.stringGetProtocolName(r)||i&&i!==e.stringGetPortNumber(r))}},{key:"stringNormalizeURL",value:function(e){return e?(e=e.replace(/^:?\/+/,"").replace(/\/+$/,"").trim(),e.startsWith("http")?e:"http://"+e):""}},{key:"stringRepresentURL",value:function(e){return"string"==typeof e?e.replace(/^(https?)?:?\/+/,"").replace(/\/+$/,"").trim():""}},{key:"stringCompressStyleValue",value:function(e){return e.replace(/ *([:;]) */g,"$1").replace(/ +/g," ").replace(/^;+/,"").replace(/;+$/,"").trim()}},{key:"stringCamelCaseToDelimited",value:function(t){var r=arguments.length<=1||void 0===arguments[1]?"-":arguments[1],n=arguments.length<=2||void 0===arguments[2]?null:arguments[2];n||(n=e.abbreviations);var o=e.stringGetRegularExpressionValidated(r);if(n.length){var i="",a=!0,l=!1,u=void 0;try{for(var c,f=n[Symbol.iterator]();!(a=(c=f.next()).done);a=!0){var s=c.value;i&&(i+="|"),i+=s.toUpperCase()}}catch(e){l=!0,u=e}finally{try{!a&&f.return&&f.return()}finally{if(l)throw u}}t=t.replace(new RegExp("("+i+")("+i+")","g"),"$1"+r+"$2")}return t=t.replace(new RegExp("([^"+o+"])([A-Z][a-z]+)","g"),"$1"+r+"$2"),t.replace(new RegExp("([a-z0-9])([A-Z])","g"),"$1"+r+"$2").toLowerCase()}},{key:"stringCapitalize",value:function(e){return e.charAt(0).toUpperCase()+e.substring(1)}},{key:"stringDelimitedToCamelCase",value:function(t){var r=arguments.length<=1||void 0===arguments[1]?"-":arguments[1],n=arguments.length<=2||void 0===arguments[2]?null:arguments[2],o=!(arguments.length<=3||void 0===arguments[3])&&arguments[3],i=!(arguments.length<=4||void 0===arguments[4])&&arguments[4],a=e.stringGetRegularExpressionValidated(r);n||(n=e.abbreviations);var l=void 0;if(o)l=n.join("|");else{l="";var u=!0,c=!1,f=void 0;try{for(var s,d=n[Symbol.iterator]();!(u=(s=d.next()).done);u=!0){var v=s.value;l&&(l+="|"),l+=e.stringCapitalize(v)+"|"+v}}catch(e){c=!0,f=e}finally{try{!u&&d.return&&d.return()}finally{if(c)throw f}}}var y=!1;return t.startsWith(r)&&(t=t.substring(r.length),y=!0),t=t.replace(new RegExp("("+a+")("+l+")"+("("+a+"|$)"),"g"),function(e,t,r,n){return t+r.toUpperCase()+n}),i&&(a="(?:"+a+")+"),t=t.replace(new RegExp(a+"([a-zA-Z0-9])","g"),function(e,t){return t.toUpperCase()}),y&&(t=r+t),t}},{key:"stringFormat",value:function(e){for(var t=arguments.length,r=Array(t>1?t-1:0),n=1;n<t;n++)r[n-1]=arguments[n];r.unshift(e);var o=0,i=!0,a=!1,l=void 0;try{for(var u,c=r[Symbol.iterator]();!(i=(u=c.next()).done);i=!0){var f=u.value;e=e.replace(new RegExp("\\{"+o+"\\}","gm"),""+f),o+=1}}catch(e){a=!0,l=e}finally{try{!i&&c.return&&c.return()}finally{if(a)throw l}}return e}},{key:"stringGetRegularExpressionValidated",value:function(e){return e.replace(/([\\|.*$^+[\]()?\-{}])/g,"\\$1")}},{key:"stringLowerCase",value:function(e){return e.charAt(0).toLowerCase()+e.substring(1)}},{key:"stringFindNormalizedMatchRange",value:function(e,t){var r=arguments.length<=2||void 0===arguments[2]?function(e){return(""+e).toLowerCase()}:arguments[2];if(t=r(t),r(e)&&t)for(var n=0;n<e.length;n+=1)if(r(e.substring(n)).startsWith(t)){if(1===t.length)return[n,n+1];for(var o=e.length;o>n;o-=1)if(!r(e.substring(n,o)).startsWith(t))return[n,o+1]}return null}},{key:"stringMark",value:function(t,r){var n=arguments.length<=2||void 0===arguments[2]?'<span class="tools-mark">{1}</span>':arguments[2],o=arguments.length<=3||void 0===arguments[3]?function(e){return(""+e).toLowerCase()}:arguments[3];if(t&&r&&r.length){t=t.trim(),Array.isArray(r)||(r=[r]);var i=0,a=!0,l=!1,u=void 0;try{for(var c,f=r[Symbol.iterator]();!(a=(c=f.next()).done);a=!0){var s=c.value;r[i]=o(s).trim(),i+=1}}catch(e){l=!0,u=e}finally{try{!a&&f.return&&f.return()}finally{if(l)throw u}}for(var d=t,v=0;;){var y=void 0,h=void 0,p=!0,g=!1,m=void 0;try{for(var b,w=r[Symbol.iterator]();!(p=(b=w.next()).done);p=!0){var k=b.value;h=e.stringFindNormalizedMatchRange(d,k,o),h&&(!y||h[0]<y[0])&&(y=h)}}catch(e){g=!0,m=e}finally{try{!p&&w.return&&w.return()}finally{if(g)throw m}}if(!y)break;if(t=t.substring(0,v+y[0])+e.stringFormat(n,t.substring(v+y[0],v+y[1]))+t.substring(v+y[1]),v+=y[1]+(n.length-"{1}".length),t.length<=v)break;d=t.substring(v)}}return t}},{key:"stringMD5",value:function(e){var t=!(arguments.length<=1||void 0===arguments[1])&&arguments[1],r="0123456789abcdef".split(""),n=function(e,t){return e+t&4294967295},o=function(e,t,r,o,i,a){return t=n(n(t,e),n(o,a)),n(t<<i|t>>>32-i,r)},i=function(e,t,r,n,i,a,l){return o(t&r|~t&n,e,t,i,a,l)},a=function(e,t,r,n,i,a,l){return o(t&n|r&~n,e,t,i,a,l)},l=function(e,t,r,n,i,a,l){return o(t^r^n,e,t,i,a,l)},u=function(e,t,r,n,i,a,l){return o(r^(t|~n),e,t,i,a,l)},c=function(e,t){var r=e[0],o=e[1],c=e[2],f=e[3];return r=i(r,o,c,f,t[0],7,-680876936),f=i(f,r,o,c,t[1],12,-389564586),c=i(c,f,r,o,t[2],17,606105819),o=i(o,c,f,r,t[3],22,-1044525330),r=i(r,o,c,f,t[4],7,-176418897),f=i(f,r,o,c,t[5],12,1200080426),c=i(c,f,r,o,t[6],17,-1473231341),o=i(o,c,f,r,t[7],22,-45705983),r=i(r,o,c,f,t[8],7,1770035416),f=i(f,r,o,c,t[9],12,-1958414417),c=i(c,f,r,o,t[10],17,-42063),o=i(o,c,f,r,t[11],22,-1990404162),r=i(r,o,c,f,t[12],7,1804603682),f=i(f,r,o,c,t[13],12,-40341101),c=i(c,f,r,o,t[14],17,-1502002290),o=i(o,c,f,r,t[15],22,1236535329),r=a(r,o,c,f,t[1],5,-165796510),f=a(f,r,o,c,t[6],9,-1069501632),c=a(c,f,r,o,t[11],14,643717713),o=a(o,c,f,r,t[0],20,-373897302),r=a(r,o,c,f,t[5],5,-701558691),f=a(f,r,o,c,t[10],9,38016083),c=a(c,f,r,o,t[15],14,-660478335),o=a(o,c,f,r,t[4],20,-405537848),r=a(r,o,c,f,t[9],5,568446438),f=a(f,r,o,c,t[14],9,-1019803690),c=a(c,f,r,o,t[3],14,-187363961),o=a(o,c,f,r,t[8],20,1163531501),r=a(r,o,c,f,t[13],5,-1444681467),f=a(f,r,o,c,t[2],9,-51403784),c=a(c,f,r,o,t[7],14,1735328473),o=a(o,c,f,r,t[12],20,-1926607734),r=l(r,o,c,f,t[5],4,-378558),f=l(f,r,o,c,t[8],11,-2022574463),c=l(c,f,r,o,t[11],16,1839030562),o=l(o,c,f,r,t[14],23,-35309556),r=l(r,o,c,f,t[1],4,-1530992060),f=l(f,r,o,c,t[4],11,1272893353),c=l(c,f,r,o,t[7],16,-155497632),o=l(o,c,f,r,t[10],23,-1094730640),r=l(r,o,c,f,t[13],4,681279174),f=l(f,r,o,c,t[0],11,-358537222),c=l(c,f,r,o,t[3],16,-722521979),o=l(o,c,f,r,t[6],23,76029189),r=l(r,o,c,f,t[9],4,-640364487),f=l(f,r,o,c,t[12],11,-421815835),c=l(c,f,r,o,t[15],16,530742520),o=l(o,c,f,r,t[2],23,-995338651),r=u(r,o,c,f,t[0],6,-198630844),f=u(f,r,o,c,t[7],10,1126891415),c=u(c,f,r,o,t[14],15,-1416354905),o=u(o,c,f,r,t[5],21,-57434055),r=u(r,o,c,f,t[12],6,1700485571),f=u(f,r,o,c,t[3],10,-1894986606),c=u(c,f,r,o,t[10],15,-1051523),o=u(o,c,f,r,t[1],21,-2054922799),r=u(r,o,c,f,t[8],6,1873313359),f=u(f,r,o,c,t[15],10,-30611744),c=u(c,f,r,o,t[6],15,-1560198380),o=u(o,c,f,r,t[13],21,1309151649),r=u(r,o,c,f,t[4],6,-145523070),f=u(f,r,o,c,t[11],10,-1120210379),c=u(c,f,r,o,t[2],15,718787259),o=u(o,c,f,r,t[9],21,-343485551),e[0]=n(r,e[0]),e[1]=n(o,e[1]),e[2]=n(c,e[2]),e[3]=n(f,e[3]),e},f=function(e){for(var t="",n=0;n<4;n++)t+=r[e>>8*n+4&15]+r[e>>8*n&15];return t},s=function(e){for(var t=0;t<e.length;t++)e[t]=f(e[t]);return e.join("")},d=function(e){for(var t=[],r=0;r<64;r+=4)t[r>>2]=e.charCodeAt(r)+(e.charCodeAt(r+1)<<8)+(e.charCodeAt(r+2)<<16)+(e.charCodeAt(r+3)<<24);return t},v=function(e){var t=e.length,r=[1732584193,-271733879,-1732584194,271733878],n=void 0;for(n=64;n<=e.length;n+=64)c(r,d(e.substring(n-64,n)));e=e.substring(n-64);var o=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];for(n=0;n<e.length;n++)o[n>>2]|=e.charCodeAt(n)<<(n%4<<3);if(o[n>>2]|=128<<(n%4<<3),n>55){c(r,o);for(var i=0;i<16;i++)o[i]=0}return o[14]=8*t,c(r,o),r};return"5d41402abc4b2a76b9719d911017c592"!==s(v("hello"))&&(n=function(e,t){var r=(65535&e)+(65535&t),n=(e>>16)+(t>>16)+(r>>16);return n<<16|65535&r}),s(v(t?e:unescape(encodeURIComponent(e))))}},{key:"stringNormalizePhoneNumber",value:function(e){return"string"==typeof e||"number"==typeof e?(""+e).replace(/[^0-9]*\+/,"00").replace(/[^0-9]+/g,""):""}},{key:"stringRepresentPhoneNumber",value:function(t){return["number","string"].includes(e.determineType(t))&&t?(t=(""+t).replace(/^(00|\+)([0-9]+)-([0-9-]+)$/,"+$2 (0) $3"),t=t.replace(/^0([1-9][0-9-]+)$/,"+49 (0) $1"),t=t.replace(/^([^-]+)-([0-9-]+)$/,"$1 / $2"),t.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/,function(e,t,r,n){return t+(r.length%2===0?r.replace(/([0-9]{2})/g,"$1 "):r.replace(/^([0-9]{3})([0-9]+)$/,function(e,t,r){return t+" "+r.replace(/([0-9]{2})/g,"$1 ").trim()})+n).trim()}).trim()):""}},{key:"stringDecodeHTMLEntities",value:function(e){if("document"in f.global){var t=f.global.document.createElement("textarea");return t.innerHTML=e,t.value}return null}},{key:"numberIsNotANumber",value:function(t){return"number"===e.determineType(t)&&isNaN(t)}},{key:"numberRound",value:function(e){var t=arguments.length<=1||void 0===arguments[1]?0:arguments[1];return Math.round(e*Math.pow(10,t))/Math.pow(10,t)}},{key:"sendToIFrame",value:function(e,t,r){var n=arguments.length<=3||void 0===arguments[3]?"post":arguments[3],o=!(arguments.length<=4||void 0===arguments[4])&&arguments[4],i="string"==typeof e?e:e.attr("name"),a=f("<form>").attr({action:t,method:n,target:i});for(var l in r)r.hasOwnProperty(l)&&a.append(f("<input>").attr({type:"hidden",name:l,value:r[l]}));return a.submit().remove(),o&&"object"===("undefined"==typeof e?"undefined":u(e))&&"on"in e&&e.on("load",function(){return e.remove()}),i}}]),e}();s.abbreviations=["html","id","url","us","de","api","href"],s.animationEndEventNames="animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd",s.classToTypeMapping={"[object Array]":"array","[object Boolean]":"boolean","[object Date]":"date","[object Error]":"error","[object Function]":"function","[object Number]":"number","[object Object]":"object","[object RegExp]":"regexp","[object String]":"string"},s.keyCode={BACKSPACE:8,COMMA:188,DELETE:46,DOWN:40,END:35,ENTER:13,ESCAPE:27,HOME:36,LEFT:37,NUMPAD_ADD:107,NUMPAD_DECIMAL:110,NUMPAD_DIVIDE:111,NUMPAD_ENTER:108,NUMPAD_MULTIPLY:106,NUMPAD_SUBTRACT:109,PAGE_DOWN:34,PAGE_UP:33,PERIOD:190,RIGHT:39,SPACE:32,TAB:9,UP:38},s.maximalSupportedInternetExplorerVersion=function(){if(!("document"in f.global))return 0;var e=f.global.document.createElement("div"),t=void 0;for(t=0;t<10&&(e.innerHTML="<!"+("--[if gt IE "+t+"]><i></i><![e")+"ndif]-->",0!==e.getElementsByTagName("i").length);t++);if(0===t&&"navigator"in f.global){if(f.global.navigator.appVersion.includes("MSIE 10"))return 10;if(f.global.navigator.userAgent.includes("Trident")&&f.global.navigator.userAgent.includes("rv:11"))return 11}return t}(),s.noop="noop"in f?f.noop:function(){},s.specialRegexSequences=["-","[","]","(",")","^","$","*","+",".","{","}"],s.transitionEndEventNames="transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd",s.consoleMethodNames=["assert","clear","count","debug","dir","dirxml","error","exception","group","groupCollapsed","groupEnd","info","log","markTimeline","profile","profileEnd","table","time","timeEnd","timeStamp","trace","warn"],s._javaScriptDependentContentHandled=!1,s._name="Tools",t.default=s,"fn"in f&&(f.fn.Tools=function(){return(new s).controller(s,arguments,this)}),f.Tools=function(){return(new s).controller(s,arguments)},f.Tools.class=s,"fn"in f&&!function(){var e=f.fn.prop;f.fn.prop=function(t,r){if(arguments.length<3&&this.length&&["#text","#comment"].includes(this[0].nodeName)&&t in this[0]){if(1===arguments.length)return this[0][t];if(2===arguments.length)return this[0][t]=r,this}return e.apply(this,arguments)}}()}).call(t,r(3),r(1)(e))},function(e,t){e.exports=function(e){return e.webpackPolyfill||(e.deprecate=function(){},e.paths=[],e.children||(e.children=[]),Object.defineProperty(e,"loaded",{enumerable:!0,configurable:!1,get:function(){return e.l}}),Object.defineProperty(e,"id",{enumerable:!0,configurable:!1,get:function(){return e.i}}),e.webpackPolyfill=1),e}},function(t,r){if("undefined"==typeof e){var n=new Error('Cannot find module "jQuery"');throw n.code="MODULE_NOT_FOUND",n}t.exports=e},function(e,r){e.exports=t},function(e,t,r){e.exports=r(0)}])});
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory(require("babel-runtime/core-js/json/stringify"), require("babel-runtime/core-js/map"), require("babel-runtime/core-js/number/is-nan"), require("babel-runtime/core-js/object/get-own-property-names"), require("babel-runtime/core-js/object/get-prototype-of"), require("babel-runtime/core-js/promise"), require("babel-runtime/core-js/set"), require("babel-runtime/helpers/asyncToGenerator"), (function webpackLoadOptionalExternalModule() { try { return require('jquery'); } catch(e) {} }()));
+	else if(typeof define === 'function' && define.amd)
+		define("clientnode", ["babel-runtime/core-js/json/stringify", "babel-runtime/core-js/map", "babel-runtime/core-js/number/is-nan", "babel-runtime/core-js/object/get-own-property-names", "babel-runtime/core-js/object/get-prototype-of", "babel-runtime/core-js/promise", "babel-runtime/core-js/set", "babel-runtime/helpers/asyncToGenerator", 'jquery'], factory);
+	else if(typeof exports === 'object')
+		exports["clientnode"] = factory(require("babel-runtime/core-js/json/stringify"), require("babel-runtime/core-js/map"), require("babel-runtime/core-js/number/is-nan"), require("babel-runtime/core-js/object/get-own-property-names"), require("babel-runtime/core-js/object/get-prototype-of"), require("babel-runtime/core-js/promise"), require("babel-runtime/core-js/set"), require("babel-runtime/helpers/asyncToGenerator"), (function webpackLoadOptionalExternalModule() { try { return require('jquery'); } catch(e) {} }()));
+	else
+		root['clientnode'] = factory(root["babel-runtime/core-js/json/stringify"], root["babel-runtime/core-js/map"], root["babel-runtime/core-js/number/is-nan"], root["babel-runtime/core-js/object/get-own-property-names"], root["babel-runtime/core-js/object/get-prototype-of"], root["babel-runtime/core-js/promise"], root["babel-runtime/core-js/set"], root["babel-runtime/helpers/asyncToGenerator"], root["jQuery"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_5__, __WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_7__, __WEBPACK_EXTERNAL_MODULE_8__, __WEBPACK_EXTERNAL_MODULE_9__, __WEBPACK_EXTERNAL_MODULE_10__, __WEBPACK_EXTERNAL_MODULE_11__, __WEBPACK_EXTERNAL_MODULE_12__) {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+
+
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 14);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(module, global, process) {// #!/usr/bin/env node
+// -*- coding: utf-8 -*-
+/** @module clientnode *//* !
+    region header
+    [Project page](http://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stand under a creative commons
+    naming 3.0 unported license.
+    See http://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/// region imports
+exports.__esModule=true;exports.$=exports.globalContext=undefined;var _set=__webpack_require__(10);var _set2=_interopRequireDefault(_set);var _getOwnPropertyNames=__webpack_require__(7);var _getOwnPropertyNames2=_interopRequireDefault(_getOwnPropertyNames);var _stringify=__webpack_require__(4);var _stringify2=_interopRequireDefault(_stringify);var _map=__webpack_require__(5);var _map2=_interopRequireDefault(_map);var _isNan=__webpack_require__(6);var _isNan2=_interopRequireDefault(_isNan);var _getPrototypeOf=__webpack_require__(8);var _getPrototypeOf2=_interopRequireDefault(_getPrototypeOf);var _promise=__webpack_require__(9);var _promise2=_interopRequireDefault(_promise);var _asyncToGenerator2=__webpack_require__(11);var _asyncToGenerator3=_interopRequireDefault(_asyncToGenerator2);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj}}let fileSystem={};try{fileSystem=eval('require')('fs')}catch(error){}let path={};try{path=eval('require')('path')}catch(error){}// NOTE: Only needed for debugging this file.
+try{module.require('source-map-support/register')}catch(error){}// endregion
+// region types
+// / region browser
+// / endregion
+// endregion
+// region determine context
+const globalContext=exports.globalContext=function(){if(typeof window==='undefined'){if(typeof global==='undefined')return  false?{}:module;if('window'in global)return global.window;return global}return window}();/* eslint-disable no-use-before-define */const $=exports.$=function(){/* eslint-enable no-use-before-define */let _$;if('$'in globalContext&&globalContext.$!==null)_$=globalContext.$;else{if(!('$'in globalContext)&&'document'in globalContext)try{return __webpack_require__(12)}catch(error){}const selector='document'in globalContext&&'querySelectorAll'in globalContext.document?globalContext.document.querySelectorAll.bind(globalContext.document):function(){return null};_$=function $(parameter,...additionalArguments){if(typeof parameter==='string'){const $domNodes=selector(parameter,...additionalArguments);if('fn'in _$)for(const key in _$.fn)if(_$.fn.hasOwnProperty(key))// IgnoreTypeCheck
+$domNodes[key]=_$.fn[key].bind($domNodes);return $domNodes}/* eslint-disable no-use-before-define */if(Tools.isFunction(parameter)&&'document'in globalContext)/* eslint-enable no-use-before-define */globalContext.document.addEventListener('DOMContentLoaded',parameter);return parameter};_$.fn={}}return _$}();if(!('global'in $))$.global=globalContext;if(!('context'in $)&&'document'in $.global)$.context=$.global.document;// endregion
+// region plugins/classes
+/**
+ * This plugin provides such interface logic like generic controller logic for
+ * integrating plugins into $, mutual exclusion for depending gui elements,
+ * logging additional string, array or function handling. A set of helper
+ * functions to parse option objects dom trees or handle events is also
+ * provided.
+ * @property static:abbreviations - Lists all known abbreviation for proper
+ * camel case to delimited and back conversion.
+ * @property static:animationEndEventNames - Saves a string with all css3
+ * browser specific animation end event names.
+ * @property static:classToTypeMapping - String representation to object type
+ * name mapping.
+ * @property static:closeEventNames - Process event names which indicates that
+ * a process has finished.
+ * @property static:consoleMethodNames - This variable contains a collection of
+ * methods usually binded to the console object.
+ * @property static:keyCode - Saves a mapping from key codes to their
+ * corresponding name.
+ * @property static:maximalSupportedInternetExplorerVersion - Saves currently
+ * minimal supported internet explorer version. Saves zero if no internet
+ * explorer present.
+ * @property static:noop - A no-op dummy function.
+ * @property static:specialRegexSequences - A list of special regular
+ * expression symbols.
+ * @property static:transitionEndEventNames - Saves a string with all css3
+ * browser specific transition end event names.
+ * @property static:_javaScriptDependentContentHandled - Indicates whether
+ * javaScript dependent content where hide or shown.
+ * @property static:_name - Defines this class name to allow retrieving them
+ * after name mangling.
+ * @property $domNode - $-extended dom node if one was given to the constructor
+ * method.
+ * @property _options - Options given to the constructor.
+ * @property _defaultOptions - Fallback options if not overwritten by the
+ * options given to the constructor method.
+ * @property _defaultOptions.logging {boolean} - Indicates whether logging
+ * should be active.
+ * @property _defaultOptions.domNodeSelectorPrefix {string} - Selector prefix
+ * for all needed dom nodes.
+ * @property _defaultOptions.domNode {Object.<string, string>} - Mapping of
+ * names to needed dom nodes referenced by there selector.
+ * @property _defaultOptions.domNode.hideJavaScriptEnabled {string} - Selector
+ * to dom nodes which should be hidden if javaScript is available.
+ * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
+ * to dom nodes which should be visible if javaScript is available.
+ * @property _locks - Mapping of lock descriptions to there corresponding
+ * callbacks.
+ */class Tools{// endregion
+// region public methods
+// / region special
+/**
+     * This method should be overwritten normally. It is triggered if current
+     * object is created via the "new" keyword. The dom node selector prefix
+     * enforces to not globally select any dom nodes which aren't in the
+     * expected scope of this plugin. "{1}" will be automatically replaced with
+     * this plugin name suffix ("tools"). You don't have to use "{1}" but it
+     * can help you to write code which is more reconcilable with the dry
+     * concept.
+     * @param $domNode - $-extended dom node to use as reference in various
+     * methods.
+     * @param options - Options to change runtime behavior.
+     * @param defaultOptions - Default options to ensure to be present in any
+     * options instance.
+     * @param locks - Mapping of a lock description to callbacks for calling
+     * when given lock should be released.
+     * @returns Returns nothing but if invoked with "new" an instance of this
+     * class will be given back.
+     */// endregion
+// region dynamic properties
+// region static properties
+constructor($domNode=null,options={},defaultOptions={logging:false,domNodeSelectorPrefix:'body',domNode:{hideJavaScriptEnabled:'.tools-hidden-on-javascript-enabled',showJavaScriptEnabled:'.tools-visible-on-javascript-enabled'}},locks={}){if($domNode)this.$domNode=$domNode;this._options=options;this._defaultOptions=defaultOptions;this._locks=locks;// Avoid errors in browsers that lack a console.
+if(!('console'in $.global))$.global.console={};for(const methodName of this.constructor.consoleMethodNames)if(!(methodName in $.global.console))$.global.console[methodName]=this.constructor.noop;if(!this.constructor._javaScriptDependentContentHandled&&'document'in $.global&&'filter'in $&&'hide'in $&&'show'in $){this.constructor._javaScriptDependentContentHandled=true;$(`${this._defaultOptions.domNodeSelectorPrefix} `+this._defaultOptions.domNode.hideJavaScriptEnabled).filter(function(){return!$(this).data('javaScriptDependentContentHide')}).data('javaScriptDependentContentHide',true).hide();$(`${this._defaultOptions.domNodeSelectorPrefix} `+this._defaultOptions.domNode.showJavaScriptEnabled).filter(function(){return!$(this).data('javaScriptDependentContentShow')}).data('javaScriptDependentContentShow',true).show()}}/**
+     * This method could be overwritten normally. It acts like a destructor.
+     * @returns Returns the current instance.
+     */destructor(){if('off'in $.fn)this.off('*');return this}/**
+     * This method should be overwritten normally. It is triggered if current
+     * object was created via the "new" keyword and is called now.
+     * @param options - An options object.
+     * @returns Returns the current instance.
+     */initialize(options={}){/*
+            NOTE: We have to create a new options object instance to avoid
+            changing a static options object.
+        */this._options=this.constructor.extendObject(true,{},this._defaultOptions,this._options,options);/*
+            The selector prefix should be parsed after extending options
+            because the selector would be overwritten otherwise.
+        */this._options.domNodeSelectorPrefix=this.constructor.stringFormat(this._options.domNodeSelectorPrefix,this.constructor.stringCamelCaseToDelimited(this.constructor._name));return this}// / endregion
+// / region object orientation
+/* eslint-disable jsdoc/require-description-complete-sentence *//**
+     * Defines a generic controller for dom node aware plugins.
+     * @param object - The object or class to control. If "object" is a class
+     * an instance will be generated.
+     * @param parameter - The initially given arguments object.
+     * @param $domNode - Optionally a $-extended dom node to use as reference.
+     * @returns Returns whatever the initializer method returns.
+     */controller(object,parameter,$domNode=null){/* eslint-enable jsdoc/require-description-complete-sentence */if(typeof object==='function'){object=new object($domNode);if(!object instanceof Tools)object=this.constructor.extendObject(true,new Tools,object)}parameter=this.constructor.arrayMake(parameter);if($domNode&&'data'in $domNode&&!$domNode.data(object.constructor._name))// Attach extended object to the associated dom node.
+$domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tools.isFunction(object[parameter[0]]))return object[parameter[0]](...parameter.slice(1));return object[parameter[0]]}else if(parameter.length===0||typeof parameter[0]==='object')/*
+                If an options object or no method name is given the initializer
+                will be called.
+            */return object.initialize(...parameter);throw new Error(`Method "${parameter[0]}" does not exist on $-extended dom node `+`"${object.constructor._name}".`)}// / endregion
+// / region mutual exclusion
+/**
+     * Calling this method introduces a starting point for a critical area with
+     * potential race conditions. The area will be binded to given description
+     * string. So don't use same names for different areas.
+     * @param description - A short string describing the critical areas
+     * properties.
+     * @param callbackFunction - A procedure which should only be executed if
+     * the interpreter isn't in the given critical area. The lock description
+     * string will be given to the callback function.
+     * @param autoRelease - Release the lock after execution of given callback.
+     * @returns Returns a promise which will be resolved after releasing lock.
+     */acquireLock(description,callbackFunction=Tools.noop,autoRelease=false){var _this=this;return(0,_asyncToGenerator3.default)(function*(){return new _promise2.default(function(resolve){const wrappedCallbackFunction=function(){var _ref=(0,_asyncToGenerator3.default)(function*(description){const result=callbackFunction(description);const finish=function finish(value){if(autoRelease)_this.releaseLock(description);resolve(value)};if(result!==null&&typeof result==='object'&&'then'in result)return result.then(finish);finish(description)});return function wrappedCallbackFunction(_x){return _ref.apply(this,arguments)}}();if(_this._locks.hasOwnProperty(description))_this._locks[description].push(wrappedCallbackFunction);else{_this._locks[description]=[];wrappedCallbackFunction(description)}})})()}/**
+     * Calling this method  causes the given critical area to be finished and
+     * all functions given to "acquireLock()" will be executed in right order.
+     * @param description - A short string describing the critical areas
+     * properties.
+     * @returns Returns the return value of the callback given to the
+     * "acquireLock" method.
+     */releaseLock(description){var _this2=this;return(0,_asyncToGenerator3.default)(function*(){let result;if(_this2._locks.hasOwnProperty(description)){if(_this2._locks[description].length){result=_this2._locks[description].shift()(description);if(result!==null&&typeof result==='object'&&'then'in result)yield result}delete _this2._locks[description]}return result})()}/**
+     * Generate a semaphore object with given number of resources.
+     * @param numberOfResources - Number of allowed concurrent resource uses.
+     * @returns The requested semaphore instance.
+     */static getSemaphore(numberOfResources=2){return new class{constructor(){this.queue=[];this.numberOfResources=numberOfResources}/**
+             * Acquires a new resource and runs given callback if available.
+             * @returns A promise which will be resolved if requested a
+             * resource is available.
+             */acquire(){var _this3=this;return new _promise2.default(function(resolve){if(_this3.numberOfResources<=0)_this3.queue.push(resolve);else{_this3.numberOfResources-=1;resolve(_this3.numberOfResources)}})}/**
+             * Releases a resource and runs a waiting resolver if there exists
+             * some.
+             * @returns Nothing.
+             */release(){if(this.queue.length===0)this.numberOfResources+=1;else this.queue.pop()(this.numberOfResources)}}}// / endregion
+// / region boolean
+/**
+     * Determines whether its argument represents a JavaScript number.
+     * @param object - Object to analyze.
+     * @returns A boolean value indicating whether given object is numeric
+     * like.
+     */static isNumeric(object){const type=Tools.determineType(object);/*
+            NOTE: "parseFloat" "NaNs" numeric-cast false positives ("") but
+            misinterprets leading-number strings, particularly hex literals
+            ("0x...") subtraction forces infinities to NaN.
+        */return['number','string'].includes(type)&&!isNaN(object-parseFloat(object))}/**
+     * Determine whether the argument is a window.
+     * @param object - Object to check for.
+     * @returns Boolean value indicating the result.
+     */static isWindow(object){return![undefined,null].includes(object)&&typeof object==='object'&&'window'in object&&object===object.window}/**
+     * Checks if given object is similar to an array and can be handled like an
+     * array.
+     * @param object - Object to check behavior for.
+     * @returns A boolean value indicating whether given object is array like.
+     */static isArrayLike(object){let length;try{length=Boolean(object)&&'length'in object&&object.length}catch(error){return false}const type=Tools.determineType(object);if(type==='function'||Tools.isWindow(object))return false;if(type==='array'||length===0)return true;if(typeof length==='number'&&length>0)try{/* eslint-disable no-unused-expressions */object[length-1];/* eslint-enable no-unused-expressions */return true}catch(error){}return false}/**
+     * Checks whether one of the given pattern matches given string.
+     * @param target - Target to check in pattern for.
+     * @param pattern - List of pattern to check for.
+     * @returns Value "true" if given object is matches by at leas one of the
+     * given pattern and "false" otherwise.
+     */static isAnyMatching(target,pattern){for(const currentPattern of pattern)if(typeof currentPattern==='string'){if(currentPattern===target)return true}else if(currentPattern.test(target))return true;return false}/**
+     * Checks whether given object is a plain native object.
+     * @param object - Object to check.
+     * @returns Value "true" if given object is a plain javaScript object and
+     * "false" otherwise.
+     */static isPlainObject(object){return typeof object==='object'&&object!==null&&(0,_getPrototypeOf2.default)(object)===Object.prototype}/**
+     * Checks whether given object is a function.
+     * @param object - Object to check.
+     * @returns Value "true" if given object is a function and "false"
+     * otherwise.
+     */static isFunction(object){return Boolean(object)&&{}.toString.call(object)==='[object Function]'}// / endregion
+// / region language fixes
+/**
+     * This method fixes an ugly javaScript bug. If you add a mouseout event
+     * listener to a dom node the given handler will be called each time any
+     * dom node inside the observed dom node triggers a mouseout event. This
+     * methods guarantees that the given event handler is only called if the
+     * observed dom node was leaved.
+     * @param eventHandler - The mouse out event handler.
+     * @returns Returns the given function wrapped by the workaround logic.
+     */static mouseOutEventHandlerFix(eventHandler){var _this4=this;return function(event,...additionalParameter){let relatedTarget=event.toElement;if('relatedTarget'in event)relatedTarget=event.relatedTarget;while(relatedTarget&&relatedTarget.tagName!=='BODY'){if(relatedTarget===_this4)return;relatedTarget=relatedTarget.parentNode}return eventHandler.call(_this4,...additionalParameter)}}// / endregion
+// / region logging
+/**
+     * Shows the given object's representation in the browsers console if
+     * possible or in a standalone alert-window as fallback.
+     * @param object - Any object to print.
+     * @param force - If set to "true" given input will be shown independently
+     * from current logging configuration or interpreter's console
+     * implementation.
+     * @param avoidAnnotation - If set to "true" given input has no module or
+     * log level specific annotations.
+     * @param level - Description of log messages importance.
+     * @param additionalArguments - Additional arguments are used for string
+     * formating.
+     * @returns Returns the current instance.
+     */log(object,force=false,avoidAnnotation=false,level='info',...additionalArguments){if(this._options.logging||force||['error','critical'].includes(level)){let message;if(avoidAnnotation)message=object;else if(typeof object==='string'){additionalArguments.unshift(object);message=`${this.constructor._name} (${level}): `+this.constructor.stringFormat(...additionalArguments)}else if(this.constructor.isNumeric(object)||typeof object==='boolean')message=`${this.constructor._name} (${level}): `+object.toString();else{this.log(',--------------------------------------------,');this.log(object,force,true);this.log(`'--------------------------------------------'`)}if(message)if(!('console'in $.global&&level in $.global.console)||$.global.console[level]===this.constructor.noop){if('alert'in $.global)$.global.alert(message)}else $.global.console[level](message)}return this}/**
+     * Wrapper method for the native console method usually provided by
+     * interpreter.
+     * @param object - Any object to print.
+     * @param additionalArguments - Additional arguments are used for string
+     * formating.
+     * @returns Returns the current instance.
+     */info(object,...additionalArguments){return this.log(object,false,false,'info',...additionalArguments)}/**
+     * Wrapper method for the native console method usually provided by
+     * interpreter.
+     * @param object - Any object to print.
+     * @param additionalArguments - Additional arguments are used for string
+     * formating.
+     * @returns Returns the current instance.
+     */debug(object,...additionalArguments){return this.log(object,false,false,'debug',...additionalArguments)}/**
+     * Wrapper method for the native console method usually provided by
+     * interpreter.
+     * @param object - Any object to print.
+     * @param additionalArguments - Additional arguments are used for string
+     * formating.
+     * @returns Returns the current instance.
+     */error(object,...additionalArguments){return this.log(object,true,false,'error',...additionalArguments)}/**
+     * Wrapper method for the native console method usually provided by
+     * interpreter.
+     * @param object - Any object to print.
+     * @param additionalArguments - Additional arguments are used for string
+     * formating.
+     * @returns Returns the current instance.
+     */critical(object,...additionalArguments){return this.log(object,true,false,'warn',...additionalArguments)}/**
+     * Wrapper method for the native console method usually provided by
+     * interpreter.
+     * @param object - Any object to print.
+     * @param additionalArguments - Additional arguments are used for string
+     * formating.
+     * @returns Returns the current instance.
+     */warn(object,...additionalArguments){return this.log(object,false,false,'warn',...additionalArguments)}/**
+     * Dumps a given object in a human readable format.
+     * @param object - Any object to show.
+     * @param level - Number of levels to dig into given object recursively.
+     * @param currentLevel - Maximal number of recursive function calls to
+     * represent given object.
+     * @returns Returns the serialized version of given object.
+     */static show(object,level=3,currentLevel=0){let output='';if(Tools.determineType(object)==='object'){for(const key in object)if(object.hasOwnProperty(key)){output+=`${key.toString()}: `;if(currentLevel<=level)output+=Tools.show(object[key],level,currentLevel+1);else output+=`${object[key]}`;output+='\n'}return output.trim()}output=`${object}`.trim();return`${output} (Type: "${Tools.determineType(object)}")`}// / endregion
+// / region dom node
+/**
+     * Normalizes class name order of current dom node.
+     * @returns Current instance.
+     */get normalizedClassNames(){this.$domNode.find('*').addBack().each(function(){const $thisDomNode=$(this);if($thisDomNode.attr('class')){const sortedClassNames=$thisDomNode.attr('class').split(' ').sort()||[];$thisDomNode.attr('class','');for(const className of sortedClassNames)$thisDomNode.addClass(className)}else if($thisDomNode.is('[class]'))$thisDomNode.removeAttr('class')});return this}/**
+     * Normalizes style attributes order of current dom node.
+     * @returns Returns current instance.
+     */get normalizedStyles(){const self=this;this.$domNode.find('*').addBack().each(function(){const $thisDomNode=$(this);let serializedStyles=$thisDomNode.attr('style');if(serializedStyles){const sortedStyles=self.constructor.stringCompressStyleValue(serializedStyles).split(';').sort()||[];$thisDomNode.attr('style','');for(const style of sortedStyles)$thisDomNode.css(...style.trim().split(':'));$thisDomNode.attr('style',self.constructor.stringCompressStyleValue($thisDomNode.attr('style')))}else if($thisDomNode.is('[style]'))$thisDomNode.removeAttr('style')});return this}/**
+     * Retrieves a mapping of computed style attributes to their corresponding
+     * values.
+     * @returns The computed style mapping.
+     */get style(){const result={};if('window'in $.global&&$.global.window.getComputedStyle){const styleProperties=$.global.window.getComputedStyle(this.$domNode[0],null);if(styleProperties){if('length'in styleProperties)for(let index=0;index<styleProperties.length;index+=1)result[this.constructor.stringDelimitedToCamelCase(styleProperties[index])]=styleProperties.getPropertyValue(styleProperties[index]);else for(const propertyName in styleProperties)if(styleProperties.hasOwnProperty(propertyName))result[this.constructor.stringDelimitedToCamelCase(propertyName)]=propertyName in styleProperties&&styleProperties[propertyName]||styleProperties.getPropertyValue(propertyName);return result}}let styleProperties=this.$domNode[0].currentStyle;if(styleProperties){for(const propertyName in styleProperties)if(styleProperties.hasOwnProperty(propertyName))result[propertyName]=styleProperties[propertyName];return result}styleProperties=this.$domNode[0].style;if(styleProperties)for(const propertyName in styleProperties)if(typeof styleProperties[propertyName]!=='function')result[propertyName]=styleProperties[propertyName];return result}/**
+     * Get text content of current element without it children's text contents.
+     * @returns The text string.
+     */get text(){return this.$domNode.clone().children().remove().end().text()}/**
+     * Checks whether given html or text strings are equal.
+     * @param first - First html, selector to dom node or text to compare.
+     * @param second - Second html, selector to dom node  or text to compare.
+     * @param forceHTMLString - Indicates whether given contents are
+     * interpreted as html string (otherwise an automatic detection will be
+     * triggered).
+     * @returns Returns true if both dom representations are equivalent.
+     */static isEquivalentDom(first,second,forceHTMLString=false){if(first===second)return true;if(first&&second){const detemermineHTMLPattern=/^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/;const inputs={first,second};const $domNodes={first:$('<dummy>'),second:$('<dummy>')};/*
+                NOTE: Assume that strings that start "<" and end with ">" are
+                markup and skip the more expensive regular expression check.
+            */for(const type of['first','second'])if(typeof inputs[type]==='string'&&(forceHTMLString||inputs[type].startsWith('<')&&inputs[type].endsWith('>')&&inputs[type].length>=3||detemermineHTMLPattern.test(inputs[type])))$domNodes[type]=$(`<div>${inputs[type]}</div>`);else try{let $selectedDomNode=$(inputs[type]);if($selectedDomNode.length)$domNodes[type]=$('<div>').append($selectedDomNode.clone());else return false}catch(error){return false}if($domNodes.first.length&&$domNodes.first.length===$domNodes.second.length){$domNodes.first=$domNodes.first.Tools('normalizedClassNames').$domNode.Tools('normalizedStyles').$domNode;$domNodes.second=$domNodes.second.Tools('normalizedClassNames').$domNode.Tools('normalizedStyles').$domNode;let index=0;for(const domNode of $domNodes.first)if(!domNode.isEqualNode($domNodes.second[index]))return false;return true}}return false}/**
+     * Determines where current dom node is relative to current view port
+     * position.
+     * @param delta - Allows deltas for "top", "left", "bottom" and "right" for
+     * determining positions.
+     * @returns Returns one of "above", "left", "below", "right" or "in".
+     */getPositionRelativeToViewport(delta={}){delta=this.constructor.extendObject({top:0,left:0,bottom:0,right:0},delta);if('window'in $.global&&this.$domNode&&this.$domNode.length&&this.$domNode[0]){const $window=$($.global.window);const rectangle=this.$domNode[0].getBoundingClientRect();if(rectangle.top+delta.top<0)return'above';if(rectangle.left+delta.left<0)return'left';if($window.height()<rectangle.bottom+delta.bottom)return'below';if($window.width()<rectangle.right+delta.right)return'right'}return'in'}/**
+     * Generates a directive name corresponding selector string.
+     * @param directiveName - The directive name.
+     * @returns Returns generated selector.
+     */static generateDirectiveSelector(directiveName){const delimitedName=Tools.stringCamelCaseToDelimited(directiveName);return`${delimitedName}, .${delimitedName}, [${delimitedName}], `+`[data-${delimitedName}], [x-${delimitedName}]`+(delimitedName.includes('-')?`, [${delimitedName.replace(/-/g,'\\:')}], `+`[${delimitedName.replace(/-/g,'_')}]`:'')}/**
+     * Removes a directive name corresponding class or attribute.
+     * @param directiveName - The directive name.
+     * @returns Returns current dom node.
+     */removeDirective(directiveName){const delimitedName=this.constructor.stringCamelCaseToDelimited(directiveName);return this.$domNode.removeClass(delimitedName).removeAttr(delimitedName).removeAttr(`data-${delimitedName}`).removeAttr(`x-${delimitedName}`).removeAttr(delimitedName.replace('-',':')).removeAttr(delimitedName.replace('-','_'))}/**
+     * Determines a normalized camel case directive name representation.
+     * @param directiveName - The directive name.
+     * @returns Returns the corresponding name.
+     */static getNormalizedDirectiveName(directiveName){for(const delimiter of['-',':','_']){let prefixFound=false;for(const prefix of[`data${delimiter}`,`x${delimiter}`])if(directiveName.startsWith(prefix)){directiveName=directiveName.substring(prefix.length);prefixFound=true;break}if(prefixFound)break}for(const delimiter of['-',':','_'])directiveName=Tools.stringDelimitedToCamelCase(directiveName,delimiter);return directiveName}/**
+     * Determines a directive attribute value.
+     * @param directiveName - The directive name.
+     * @returns Returns the corresponding attribute value or "null" if no
+     * attribute value exists.
+     */getDirectiveValue(directiveName){const delimitedName=this.constructor.stringCamelCaseToDelimited(directiveName);for(const attributeName of[delimitedName,`data-${delimitedName}`,`x-${delimitedName}`,delimitedName.replace('-','\\:')]){const value=this.$domNode.attr(attributeName);if(value!==undefined)return value}return null}/**
+     * Removes a selector prefix from a given selector. This methods searches
+     * in the options object for a given "domNodeSelectorPrefix".
+     * @param domNodeSelector - The dom node selector to slice.
+     * @returns Returns the sliced selector.
+     */sliceDomNodeSelectorPrefix(domNodeSelector){if('domNodeSelectorPrefix'in this._options&&domNodeSelector.startsWith(this._options.domNodeSelectorPrefix))return domNodeSelector.substring(this._options.domNodeSelectorPrefix.length).trim();return domNodeSelector}/**
+     * Determines the dom node name of a given dom node string.
+     * @param domNodeSelector - A given to dom node selector to determine its
+     * name.
+     * @returns Returns The dom node name.
+     * @example
+     * // returns 'div'
+     * $.Tools.getDomNodeName('&lt;div&gt;')
+     * @example
+     * // returns 'div'
+     * $.Tools.getDomNodeName('&lt;div&gt;&lt;/div&gt;')
+     * @example
+     * // returns 'br'
+     * $.Tools.getDomNodeName('&lt;br/&gt;')
+     */static getDomNodeName(domNodeSelector){const match=domNodeSelector.match(new RegExp('^<?([a-zA-Z]+).*>?.*'));if(match)return match[1];return null}/* eslint-disable jsdoc/require-description-complete-sentence *//**
+     * Converts an object of dom selectors to an array of $ wrapped dom nodes.
+     * Note if selector description as one of "class" or "id" as suffix element
+     * will be ignored.
+     * @param domNodeSelectors - An object with dom node selectors.
+     * @param wrapperDomNode - A dom node to be the parent or wrapper of all
+     * retrieved dom nodes.
+     * @returns Returns All $ wrapped dom nodes corresponding to given
+     * selectors.
+     */grabDomNode(domNodeSelectors,wrapperDomNode){/* eslint-enable jsdoc/require-description-complete-sentence */const domNodes={};if(domNodeSelectors)if(wrapperDomNode){const $wrapperDomNode=$(wrapperDomNode);for(const name in domNodeSelectors)if(domNodeSelectors.hasOwnProperty(name))domNodes[name]=$wrapperDomNode.find(domNodeSelectors[name])}else for(const name in domNodeSelectors)if(domNodeSelectors.hasOwnProperty(name)){const match=domNodeSelectors[name].match(', *');if(match)for(const selectorPart of domNodeSelectors[name].split(match[0]))domNodeSelectors[name]+=', '+this.normalizeDomNodeSelector(selectorPart);domNodes[name]=$(this.normalizeDomNodeSelector(domNodeSelectors[name]))}if(this._options.domNodeSelectorPrefix)domNodes.parent=$(this._options.domNodeSelectorPrefix);if('window'in $.global)domNodes.window=$($.global.window);if('document'in $.global)domNodes.document=$($.global.document);return domNodes}// / endregion
+// / region scope
+/**
+     * Overwrites all inherited variables from parent scope with "undefined".
+     * @param scope - A scope where inherited names will be removed.
+     * @param prefixesToIgnore - Name prefixes to ignore during deleting names
+     * in given scope.
+     * @returns The isolated scope.
+     */static isolateScope(scope,prefixesToIgnore=[]){for(const name in scope)if(!(prefixesToIgnore.includes(name.charAt(0))||['this','constructor'].includes(name)||scope.hasOwnProperty(name)))/*
+                    NOTE: Delete ("delete $scope[name]") doesn't destroy the
+                    automatic lookup to parent scope.
+                */scope[name]=undefined;return scope}/**
+     * Generates a unique name in given scope (useful for jsonp requests).
+     * @param prefix - A prefix which will be prepended to unique name.
+     * @param suffix - A suffix which will be prepended to unique name.
+     * @param scope - A scope where the name should be unique.
+     * @param initialUniqueName - An initial scope name to use if not exists.
+     * @returns The function name.
+     */static determineUniqueScopeName(prefix='callback',suffix='',scope=$.global,initialUniqueName=''){if(initialUniqueName.length&&!(initialUniqueName in scope))return initialUniqueName;let uniqueName=prefix+suffix;while(true){uniqueName=prefix+parseInt(Math.random()*Math.pow(10,10),10)+suffix;if(!(uniqueName in scope))break}return uniqueName}// / endregion
+// / region function
+/**
+     * Methods given by this method has the plugin scope referenced with
+     * "this". Otherwise "this" usually points to the object the given method
+     * was attached to. If "method" doesn't match string arguments are passed
+     * through a wrapper function with "context" setted as "scope" or "this" if
+     * nothing is provided.
+     * @param method - A method name of given scope.
+     * @param scope - A given scope.
+     * @param additionalArguments - A list of additional arguments to forward
+     * to given function, when it should be called.
+     * @returns Returns the given methods return value.
+     */getMethod(method,scope=null,...additionalArguments){/*
+            This following outcomment line would be responsible for a bug in
+            yuicompressor. Because of declaration of arguments the parser
+            things that arguments is a local variable and could be renamed. It
+            doesn't care about that the magic arguments object is necessary to
+            generate the arguments array in this context.
+
+            var arguments = this.constructor.arrayMake(arguments)
+        */if(!scope)scope=this;if(typeof method==='string'&&typeof scope==='object')return function(...parameter){if(!scope[method]&&typeof method==='string')throw new Error(`Method "${method}" doesn't exists in "${scope}".`);return scope[method](...parameter.concat(additionalArguments))};return function(...parameter){// IgnoreTypeCheck
+return method.call(scope,...parameter.concat(additionalArguments))}}/**
+     * Determines all parameter names from given callable (function or class,
+     * ...).
+     * @param callable - Function or function code to inspect.
+     * @returns List of parameter names.
+     */static getParameterNames(callable){const functionCode=(typeof callable==='string'?callable:callable.toString()).replace(// Strip comments.
+/((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg,'');if(functionCode.startsWith('class'))return Tools.getParameterNames('function '+functionCode.replace(/.*(constructor\([^)]+\))/m,'$1'));// Try classic function declaration.
+let parameter=functionCode.match(/^function\s*[^\(]*\(\s*([^\)]*)\)/m);if(parameter===null)// Try arrow function declaration.
+parameter=functionCode.match(/^[^\(]*\(\s*([^\)]*)\) *=>.*/m);if(parameter===null)// Try one argument and without brackets arrow function declaration.
+parameter=functionCode.match(/([^= ]+) *=>.*/m);const names=[];if(parameter&&parameter.length>1&&parameter[1].trim().length){for(const name of parameter[1].split(','))// Remove default parameter values.
+names.push(name.replace(/=.+$/g,'').trim());return names}return names}/**
+     * Implements the identity function.
+     * @param value - A value to return.
+     * @returns Returns the given value.
+     */static identity(value){return value}/**
+     * Inverted filter helper to inverse each given filter.
+     * @param filter - A function that filters an array.
+     * @returns The inverted filter.
+     */static invertArrayFilter(filter){return function(data,...additionalParameter){if(data){const filteredData=filter.call(this,data,...additionalParameter);let result=[];/* eslint-disable curly */if(filteredData.length){for(const date of data)if(!filteredData.includes(date))result.push(date)}else/* eslint-enable curly */result=data;return result}return data}}/**
+     * Triggers given callback after given duration. Supports unlimited
+     * duration length and returns a promise which will be resolved after given
+     * duration has been passed.
+     * @param parameter - Observes the first three existing parameter. If one
+     * is a number it will be interpret as delay in milliseconds until given
+     * callback will be triggered. If one is of type function it will be used
+     * as callback and if one is of type boolean it will indicate if returning
+     * promise should be rejected or resolved if given internally created
+     * timeout should be canceled. Additional parameter will be forwarded to
+     * given callback.
+     * @returns A promise resolving after given delay or being rejected if
+     * value "true" is within one of the first three parameter. The promise
+     * holds a boolean indicating weather timeout has been canceled or
+     * resolved.
+     */static timeout(...parameter){let callback=Tools.noop;let delayInMilliseconds=0;let throwOnTimeoutClear=false;for(const value of parameter)if(typeof value==='number'&&!(0,_isNan2.default)(value))delayInMilliseconds=value;else if(typeof value==='boolean')throwOnTimeoutClear=value;else if(Tools.isFunction(value))callback=value;let rejectCallback;let resolveCallback;const result=new _promise2.default(function(resolve,reject){rejectCallback=reject;resolveCallback=resolve});const wrappedCallback=function wrappedCallback(){callback.call(result,...parameter);resolveCallback(false)};const maximumTimeoutDelayInMilliseconds=2147483647;if(delayInMilliseconds<=maximumTimeoutDelayInMilliseconds)// IgnoreTypeCheck
+result.timeoutID=setTimeout(wrappedCallback,delayInMilliseconds);else{/*
+                Determine the number of times we need to delay by maximum
+                possible timeout duration.
+            */let numberOfRemainingTimeouts=Math.floor(delayInMilliseconds/maximumTimeoutDelayInMilliseconds);const finalTimeoutDuration=delayInMilliseconds%maximumTimeoutDelayInMilliseconds;const delay=function delay(){if(numberOfRemainingTimeouts>0){numberOfRemainingTimeouts-=1;// IgnoreTypeCheck
+result.timeoutID=setTimeout(delay,maximumTimeoutDelayInMilliseconds)}else// IgnoreTypeCheck
+result.timeoutID=setTimeout(wrappedCallback,finalTimeoutDuration)};delay()}// IgnoreTypeCheck
+result.clear=function(){if(result.timeoutID){clearTimeout(result.timeoutID);(throwOnTimeoutClear?rejectCallback:resolveCallback)(true)}};return result}// / endregion
+// / region event
+/**
+     * Prevents event functions from triggering to often by defining a minimal
+     * span between each function call. Additional arguments given to this
+     * function will be forwarded to given event function call. The function
+     * wrapper returns null if current function will be omitted due to
+     * debounceing.
+     * @param eventFunction - The function to call debounced.
+     * @param thresholdInMilliseconds - The minimum time span between each
+     * function call.
+     * @param additionalArguments - Additional arguments to forward to given
+     * function.
+     * @returns Returns the wrapped method.
+     */static debounce(eventFunction,thresholdInMilliseconds=600,...additionalArguments){var _this5=this;let lock=false;let waitingCallArguments=null;let timer=null;return function(...parameter){parameter=parameter.concat(additionalArguments||[]);if(lock)waitingCallArguments=parameter;else{lock=true;eventFunction.call(_this5,...parameter);timer=Tools.timeout(thresholdInMilliseconds,function(){lock=false;if(waitingCallArguments){eventFunction(...waitingCallArguments);waitingCallArguments=null}})}return timer}}/**
+     * Searches for internal event handler methods and runs them by default. In
+     * addition this method searches for a given event method by the options
+     * object. Additional arguments are forwarded to respective event
+     * functions.
+     * @param eventName - An event name.
+     * @param callOnlyOptionsMethod - Prevents from trying to call an internal
+     * event handler.
+     * @param scope - The scope from where the given event handler should be
+     * called.
+     * @param additionalArguments - Additional arguments to forward to
+     * corresponding event handlers.
+     * @returns - Returns "true" if an options event handler was called and
+     * "false" otherwise.
+     */fireEvent(eventName,callOnlyOptionsMethod=false,scope=this,...additionalArguments){const eventHandlerName=`on${this.constructor.stringCapitalize(eventName)}`;if(!callOnlyOptionsMethod)if(eventHandlerName in scope)scope[eventHandlerName](...additionalArguments);else if(`_${eventHandlerName}`in scope)scope[`_${eventHandlerName}`](...additionalArguments);if(scope._options&&eventHandlerName in scope._options&&scope._options[eventHandlerName]!==this.constructor.noop)return scope._options[eventHandlerName].call(this,...additionalArguments);return true}/* eslint-disable jsdoc/require-description-complete-sentence *//**
+     * A wrapper method for "$.on()". It sets current plugin name as event
+     * scope if no scope is given. Given arguments are modified and passed
+     * through "$.on()".
+     * @param parameter - Parameter to forward.
+     * @returns Returns $'s grabbed dom node.
+     */on(...parameter){/* eslint-enable jsdoc/require-description-complete-sentence */return this._bindEventHelper(parameter,false)}/* eslint-disable jsdoc/require-description-complete-sentence *//**
+     * A wrapper method fo "$.off()". It sets current plugin name as event
+     * scope if no scope is given. Given arguments are modified and passed
+     * through "$.off()".
+     * @param parameter - Parameter to forward.
+     * @returns Returns $'s grabbed dom node.
+     */off(...parameter){/* eslint-enable jsdoc/require-description-complete-sentence */return this._bindEventHelper(parameter,true,'off')}// / endregion
+// / region object
+/**
+     * Adds dynamic getter and setter to any given data structure such as maps.
+     * @param object - Object to proxy.
+     * @param getterWrapper - Function to wrap each property get.
+     * @param setterWrapper - Function to wrap each property set.
+     * @param methodNames - Method names to perform actions on the given
+     * object.
+     * @param deep - Indicates to perform a deep wrapping of specified types.
+     * performed via "value instanceof type".).
+     * @param typesToExtend - Types which should be extended (Checks are
+     * performed via "value instanceof type".).
+     * @returns Returns given object wrapped with a dynamic getter proxy.
+     */static addDynamicGetterAndSetter(object,getterWrapper=null,setterWrapper=null,methodNames={},deep=true,typesToExtend=[Object]){if(deep)if(object instanceof _map2.default)for(const[key,value]of object)object.set(key,Tools.addDynamicGetterAndSetter(value,getterWrapper,setterWrapper,methodNames,deep));else if(typeof object==='object'&&object!==null){for(const key in object)if(object.hasOwnProperty(key))object[key]=Tools.addDynamicGetterAndSetter(object[key],getterWrapper,setterWrapper,methodNames,deep)}else if(Array.isArray(object)){let index=0;for(const value of object){object[index]=Tools.addDynamicGetterAndSetter(value,getterWrapper,setterWrapper,methodNames,deep);index+=1}}if(getterWrapper||setterWrapper)for(const type of typesToExtend)if(object instanceof type&&object!==null){const defaultHandler=Tools.getProxyHandler(object,methodNames);const handler=Tools.getProxyHandler(object,methodNames);if(getterWrapper)handler.get=function(proxy,name){if(name==='__target__')return object;if(name==='__revoke__')return function(){revoke();return object};if(typeof object[name]==='function')return object[name];// IgnoreTypeCheck
+return getterWrapper(defaultHandler.get(proxy,name),name,object)};if(setterWrapper)handler.set=function(proxy,name,value){return defaultHandler.set(proxy,name,setterWrapper(name,value,object))};const{proxy,revoke}=Proxy.revocable({},handler);return proxy}return object}/**
+     * Converts given object into its serialized json representation by
+     * replacing circular references with a given provided value.
+     * @param object - Object to serialize.
+     * @param determineCicularReferenceValue - Callback to create a fallback
+     * value depending on given redundant value.
+     * @param numberOfSpaces - Number of spaces to use for string formatting.
+     * @returns The formatted json string.
+     */static convertCircularObjectToJSON(object,determineCicularReferenceValue=function(){return'__circularReference__'},numberOfSpaces=0){const seenObjects=[];return(0,_stringify2.default)(object,function(key,value){if(typeof value==='object'&&value!==null){if(seenObjects.includes(value))return determineCicularReferenceValue(key,value,seenObjects);seenObjects.push(value);return value}return value},numberOfSpaces)}/**
+     * Converts given map and all nested found maps objects to corresponding
+     * object.
+     * @param object - Map to convert to.
+     * @param deep - Indicates whether to perform a recursive conversion.
+     * @returns Given map as object.
+     */static convertMapToPlainObject(object,deep=true){if(object instanceof _map2.default){const newObject={};for(let[key,value]of object){if(deep)value=Tools.convertMapToPlainObject(value,deep);newObject[`${key}`]=value}return newObject}if(deep)if(typeof object==='object'&&Tools.isPlainObject(object)){for(const key in object)if(object.hasOwnProperty(key))object[key]=Tools.convertMapToPlainObject(object[key],deep)}else if(Array.isArray(object)){let index=0;for(const value of object){object[index]=Tools.convertMapToPlainObject(value,deep);index+=1}}return object}/**
+     * Converts given plain object and all nested found objects to
+     * corresponding map.
+     * @param object - Object to convert to.
+     * @param deep - Indicates whether to perform a recursive conversion.
+     * @returns Given object as map.
+     */static convertPlainObjectToMap(object,deep=true){if(typeof object==='object'&&Tools.isPlainObject(object)){const newObject=new _map2.default;for(const key in object)if(object.hasOwnProperty(key)){if(deep)object[key]=Tools.convertPlainObjectToMap(object[key],deep);newObject.set(key,object[key])}return newObject}if(deep)if(Array.isArray(object)){let index=0;for(const value of object){object[index]=Tools.convertPlainObjectToMap(value,deep);index+=1}}else if(object instanceof _map2.default){for(const[key,value]of object)object.set(key,Tools.convertPlainObjectToMap(value,deep))}return object}/**
+     * Replaces given pattern in each value in given object recursively with
+     * given string replacement.
+     * @param object - Object to convert substrings in.
+     * @param pattern - Regular expression to replace.
+     * @param replacement - String to use as replacement for found patterns.
+     * @returns Converted object with replaced patterns.
+     */static convertSubstringInPlainObject(object,pattern,replacement){for(const key in object)if(object.hasOwnProperty(key))if(Tools.isPlainObject(object[key]))object[key]=Tools.convertSubstringInPlainObject(object[key],pattern,replacement);else if(typeof object[key]==='string')object[key]=object[key].replace(pattern,replacement);return object}/**
+     * Copies given object (of any type) into optionally given destination.
+     * @param source - Object to copy.
+     * @param recursionLimit - Specifies how deep we should traverse into given
+     * object recursively.
+     * @param cyclic - Indicates weather known sub structures should be copied
+     * or referenced (if "true" endless loops can occur of source has cyclic
+     * structures).
+     * @param destination - Target to copy source to.
+     * @param stackSource - Internally used to avoid traversing loops.
+     * @param stackDestination - Internally used to avoid traversing loops and
+     * referencing them correctly.
+     * @param recursionLevel - Internally used to track current recursion
+     * level in given source data structure.
+     * @returns Value "true" if both objects are equal and "false" otherwise.
+     */static copyLimitedRecursively(source,recursionLimit=-1,cyclic=false,destination=null,stackSource=[],stackDestination=[],recursionLevel=0){if(destination){if(source===destination)throw new Error(`Can't copy because source and destination are identical.`);if(recursionLimit!==-1&&recursionLimit<recursionLevel)return null;if(!cyclic&&![undefined,null].includes(source)&&typeof source==='object'){const index=stackSource.indexOf(source);if(index!==-1)return stackDestination[index];stackSource.push(source);stackDestination.push(destination)}const copyValue=function copyValue(value){const result=Tools.copyLimitedRecursively(value,recursionLimit,cyclic,null,stackSource,stackDestination,recursionLevel+1);if(!cyclic&&![undefined,null].includes(value)&&typeof value==='object'){stackSource.push(value);stackDestination.push(result)}return result};if(Array.isArray(source))for(const item of source)destination.push(copyValue(item));if(source instanceof _map2.default)for(const[key,value]of source)destination.set(key,copyValue(value));else for(const key in source)if(source.hasOwnProperty(key))destination[key]=copyValue(source[key])}else if(source){if(Array.isArray(source))return Tools.copyLimitedRecursively(source,recursionLimit,cyclic,[],stackSource,stackDestination,recursionLevel);if(source instanceof _map2.default)return Tools.copyLimitedRecursively(source,recursionLimit,cyclic,new _map2.default,stackSource,stackDestination,recursionLevel);if(Tools.determineType(source)==='date')return new Date(source.getTime());if(Tools.determineType(source)==='regexp'){destination=new RegExp(source.source,source.toString().match(/[^\/]*$/)[0]);destination.lastIndex=source.lastIndex;return destination}if(![undefined,null].includes(source)&&typeof source==='object')return Tools.copyLimitedRecursively(source,recursionLimit,cyclic,{},stackSource,stackDestination,recursionLevel)}return destination||source}/**
+     * Determine the internal JavaScript [[Class]] of an object.
+     * @param object - Object to analyze.
+     * @returns Name of determined class.
+     */static determineType(object=undefined){if([undefined,null].includes(object))return`${object}`;if(['object','function'].includes(typeof object)&&'toString'in object){const stringRepresentation=Tools.classToTypeMapping.toString.call(object);if(Tools.classToTypeMapping.hasOwnProperty(stringRepresentation))return Tools.classToTypeMapping[stringRepresentation]}return typeof object}/**
+     * Returns true if given items are equal for given property list. If
+     * property list isn't set all properties will be checked. All keys which
+     * starts with one of the exception prefixes will be omitted.
+     * @param firstValue - First object to compare.
+     * @param secondValue - Second object to compare.
+     * @param properties - Property names to check. Check all if "null" is
+     * selected (default).
+     * @param deep - Recursion depth negative values means infinitely deep
+     * (default).
+     * @param exceptionPrefixes - Property prefixes which indicates properties
+     * to ignore.
+     * @param ignoreFunctions - Indicates whether functions have to be
+     * identical to interpret is as equal. If set to "true" two functions will
+     * be assumed to be equal (default).
+     * @returns Value "true" if both objects are equal and "false" otherwise.
+     */static equals(firstValue,secondValue,properties=null,deep=-1,exceptionPrefixes=[],ignoreFunctions=true){if(ignoreFunctions&&Tools.isFunction(firstValue)&&Tools.isFunction(secondValue)||firstValue===secondValue||Tools.numberIsNotANumber(firstValue)&&Tools.numberIsNotANumber(secondValue)||firstValue instanceof RegExp&&secondValue instanceof RegExp&&firstValue.toString()===secondValue.toString()||firstValue instanceof Date&&secondValue instanceof Date&&(isNaN(firstValue.getTime())&&isNaN(secondValue.getTime())||!isNaN(firstValue.getTime())&&!isNaN(secondValue.getTime())&&firstValue.getTime()===secondValue.getTime()))return true;if(Tools.isPlainObject(firstValue)&&Tools.isPlainObject(secondValue)&&!(firstValue instanceof RegExp||secondValue instanceof RegExp)||Array.isArray(firstValue)&&Array.isArray(secondValue)&&firstValue.length===secondValue.length){for(const[first,second]of[[firstValue,secondValue],[secondValue,firstValue]]){const firstIsArray=Array.isArray(first);if(firstIsArray&&!Array.isArray(second)||first.length!==second.length)return false;let equal=true;if(firstIsArray){let index=0;for(const value of first){if(deep!==0&&!Tools.equals(value,second[index],properties,deep-1,exceptionPrefixes))equal=false;index+=1}}else for(const key in first)if(first.hasOwnProperty(key)){if(!equal||properties&&!properties.includes(key))break;let doBreak=false;for(const exceptionPrefix of exceptionPrefixes)if(key.toString().startsWith(exceptionPrefix)){doBreak=true;break}if(doBreak)break;if(deep!==0&&!Tools.equals(first[key],second[key],properties,deep-1,exceptionPrefixes))equal=false}if(!equal)return false}return true}return false}/**
+     * Extends given target object with given sources object. As target and
+     * sources many expandable types are allowed but target and sources have to
+     * to come from the same type.
+     * @param targetOrDeepIndicator - Maybe the target or deep indicator.
+     * @param targetAndOrSources - Target and at least one source object.
+     * @returns Returns given target extended with all given sources.
+     */static extendObject(targetOrDeepIndicator,...targetAndOrSources){let index=0;let deep=false;let target;if(typeof targetOrDeepIndicator==='boolean'){// Handle a deep copy situation and skip deep indicator and target.
+deep=targetOrDeepIndicator;target=targetAndOrSources[index];index=1}else target=targetOrDeepIndicator;const mergeValue=function mergeValue(key,value,targetValue){if(value===targetValue)return targetValue;// Recurse if we're merging plain objects or maps.
+if(deep&&value&&(Tools.isPlainObject(value)||value instanceof _map2.default)){let clone;if(value instanceof _map2.default)clone=targetValue&&targetValue instanceof _map2.default?targetValue:new _map2.default;else clone=targetValue&&Tools.isPlainObject(targetValue)?targetValue:{};return Tools.extendObject(deep,clone,value)}return value};while(index<targetAndOrSources.length){const source=targetAndOrSources[index];let targetType=typeof target;let sourceType=typeof source;if(target instanceof _map2.default)targetType+=' Map';if(source instanceof _map2.default)sourceType+=' Map';if(targetType===sourceType&&target!==source){if(target instanceof _map2.default&&source instanceof _map2.default)for(const[key,value]of source)target.set(key,mergeValue(key,value,target.get(key)));else if(target!==null&&!Array.isArray(target)&&typeof target==='object'&&source!==null&&!Array.isArray(source)&&typeof source==='object'){for(const key in source)if(source.hasOwnProperty(key))target[key]=mergeValue(key,source[key],target[key])}else target=source;}else target=source;index+=1}return target}/**
+     * Iterates given objects own properties in sorted fashion. For
+     * each key value pair given iterator function will be called with
+     * value and key as arguments.
+     * @param object - Object to iterate.
+     * @param iterator - Function to execute for each key value pair. Value
+     * will be the first and key will be the second argument.
+     * @param context - The "this" binding for given iterator function.
+     * @returns List of given sorted keys.
+     */static forEachSorted(object,iterator,context){const keys=Tools.sort(object);for(const key of keys)if(object instanceof _map2.default)iterator.call(context,object.get(key),key);else if(Array.isArray(object)||object instanceof Object)iterator.call(context,object[key],key);return keys}/**
+     * Generates a proxy handler which forwards all operations to given object
+     * as there wouldn't be a proxy.
+     * @param target - Object to proxy.
+     * @param methodNames - Mapping of operand name to object specific method
+     * name.
+     * @returns Determined proxy handler.
+     */static getProxyHandler(target,methodNames={}){methodNames=Tools.extendObject({delete:'[]',get:'[]',has:'[]',set:'[]'},methodNames);return{deleteProperty:function deleteProperty(proxy,key){if(methodNames.delete==='[]')delete target[key];else return target[methodNames.delete](key)},get:function get(proxy,key){if(methodNames.get==='[]')return target[key];return target[methodNames.get](key)},has:function has(proxy,key){if(methodNames.has==='[]')return key in target;return target[methodNames.has](key)},set:function set(proxy,key,value){if(methodNames.set==='[]')target[key]=value;else return target[methodNames.set](value)}}}/**
+     * Modifies given target corresponding to given source and removes source
+     * modification infos.
+     * @param target - Object to modify.
+     * @param source - Source object to load modifications from.
+     * @param removeIndicatorKey - Indicator property name or value to mark a
+     * value to remove from object or list.
+     * @param prependIndicatorKey - Indicator property name to mark a value to
+     * prepend to target list.
+     * @param appendIndicatorKey - Indicator property name to mark a value to
+     * append to target list.
+     * @param parentSource - Source context to remove modification info from
+     * (usually only needed internally).
+     * @param parentKey - Source key in given source context to remove
+     * modification info from (usually only needed internally).
+     * @returns Given target modified with given source.
+     */static modifyObject(target,source,removeIndicatorKey='__remove__',prependIndicatorKey='__prepend__',appendIndicatorKey='__append__',parentSource=null,parentKey=null){/* eslint-disable curly */if(source instanceof _map2.default&&target instanceof _map2.default){for(const[key,value]of source)if(target.has(key))Tools.modifyObject(target.get(key),value,removeIndicatorKey,prependIndicatorKey,appendIndicatorKey,source,key)}else if(/* eslint-enable curly */source!==null&&typeof source==='object'&&target!==null&&typeof target==='object')for(const key in source)if(source.hasOwnProperty(key))if([removeIndicatorKey,prependIndicatorKey,appendIndicatorKey].includes(key)){if(Array.isArray(target)){if(key===removeIndicatorKey){for(const valueToModify of[].concat(source[key]))if(target.includes(valueToModify))target.splice(target.indexOf(valueToModify),1)}else if(key===prependIndicatorKey)target=[].concat(source[key]).concat(target);else target=target.concat(source[key]);}else if(key===removeIndicatorKey)for(const valueToModify of[].concat(source[key]))if(target.hasOwnProperty(valueToModify))delete target[valueToModify];delete source[key];if(parentSource&&parentKey)delete parentSource[parentKey]}else if(target!==null&&target.hasOwnProperty(key))// IgnoreTypeCheck
+target[key]=Tools.modifyObject(// IgnoreTypeCheck
+target[key],source[key],removeIndicatorKey,prependIndicatorKey,appendIndicatorKey,source,key);return target}/**
+     * Represents given object as formatted string.
+     * @param object - Object to Represents.
+     * @param indention - String (usually whitespaces) to use as indention.
+     * @param stringifier - Optional serialisation function to use.
+     * @param initialIndention - String (usually whitespaces) to use as
+     * additional indention for the first object traversing level.
+     * @returns Representation string.
+     */static representObject(object,indention='    ',stringifier=null,initialIndention=''){if(object===null)return'null';if(object===undefined)return'undefined';if(Tools.isNumeric(object)||typeof object==='boolean')return`${object}`;if(typeof object==='string')return`"${object.replace(/\n/g,`\n${initialIndention}`)}"`;if(Array.isArray(object)){let result='[';let firstSeen=false;for(const item of object){if(firstSeen)result+=',';result+=`\n${initialIndention}${indention}`+Tools.representObject(item,indention,stringifier,`${initialIndention}${indention}`);firstSeen=true}if(firstSeen)result+=`\n${initialIndention}`;result+=']';return result}let result='{';const keys=(0,_getOwnPropertyNames2.default)(object).sort();let firstSeen=false;for(const key of keys){if(firstSeen)result+=',';result+=`\n${initialIndention}${indention}${key}: `+Tools.representObject(object[key],indention,stringifier,`${initialIndention}${indention}`);firstSeen=true}if(firstSeen)result+=`\n${initialIndention}`;result+='}';return result}/**
+     * Searches for nested mappings with given indicator key and resolves
+     * marked values. Additionally all objects are wrapped with a proxy to
+     * dynamically resolve nested properties.
+     * @param object - Given mapping to resolve.
+     * @param parameterDescription - Array of scope names.
+     * @param parameter - Array of values for given scope names. If there is
+     * one missing given object will be added.
+     * @param expressionIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @param executionIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @returns Evaluated given mapping.
+     */static resolveDynamicDataStructure(object,parameterDescription=[],parameter=[],expressionIndicatorKey='__evaluate__',executionIndicatorKey='__execute__'){if(typeof object!=='object'||object===null)return object;parameter=parameter.slice();parameter.push(object);if(parameterDescription.length<parameter.length)parameterDescription.push('self');const evaluate=function evaluate(code,type=expressionIndicatorKey){code=type===expressionIndicatorKey?`return ${code}`:code;let compiledFunction;try{/* eslint-disable new-parens */// IgnoreTypeCheck
+compiledFunction=new(Function.prototype.bind.call(/* eslint-enable new-parens */Function,null,...parameterDescription.concat(code)))}catch(error){throw new Error(`Error during compiling code "${code}": "`+`${Tools.representObject(error)}".`)}try{return compiledFunction(...parameter)}catch(error){throw new Error(`Error running code "${code}" in scope with variables "`+`${parameterDescription.join('", "')}": "`+`${Tools.representObject(error)}".`)}};const addProxyRecursively=function addProxyRecursively(data){if(typeof data!=='object'||data===null)return data;for(const key in data)if(data.hasOwnProperty(key)&&key!=='__target__'&&typeof data[key]==='object'&&data[key]!==null){addProxyRecursively(data[key]);/*
+                        NOTE: We only wrap needed objects for performance
+                        reasons.
+                    */if(data[key].hasOwnProperty(expressionIndicatorKey)||data[key].hasOwnProperty(executionIndicatorKey))data[key]=new Proxy(data[key],{get:function get(target,key){if(key==='__target__')return target;if(key==='hasOwnProperty')return target[key];/*
+                                    NOTE: Very complicated stuff section, only
+                                    change while doing a lot of tests.
+                                */for(const type of[expressionIndicatorKey,executionIndicatorKey])if(key===type)return resolve(evaluate(target[key],type));let resolvedTarget=resolve(target);if(key==='toString'){const result=evaluate(resolvedTarget);return result[key].bind(result)}if(typeof key!=='string'){const result=evaluate(resolvedTarget);if(result[key]&&result[key].call)return result[key].bind(result);return result[key]}for(const type of[expressionIndicatorKey,executionIndicatorKey])if(target.hasOwnProperty(type))return evaluate(resolvedTarget,type)[key];return resolvedTarget[key];// End of complicated stuff.
+},ownKeys:function ownKeys(target){for(const type of[expressionIndicatorKey,executionIndicatorKey])if(target.hasOwnProperty(type))return(0,_getOwnPropertyNames2.default)(resolve(evaluate(target[type],type)));return(0,_getOwnPropertyNames2.default)(target)}})}return data};const resolve=function resolve(data){if(typeof data==='object'&&data!==null){if(data.__target__){// NOTE: We have to skip "ownKeys" proxy trap here.
+for(const type of[expressionIndicatorKey,executionIndicatorKey])if(data.hasOwnProperty(type))return data[type];data=data.__target__}for(const key in data)if(data.hasOwnProperty(key))if([expressionIndicatorKey,executionIndicatorKey].includes(key))return data[key];else data[key]=resolve(data[key])}return data};parameterDescription.push('resolve');parameter.push(resolve);const removeProxyRecursively=function removeProxyRecursively(data){if(typeof data==='object'&&data!==null)for(const key in data)if(data.hasOwnProperty(key)&&key!=='__target__'&&typeof data[key]==='object'&&data[key]!==null){const target=data[key].__target__;if(typeof target!=='undefined')data[key]=target;removeProxyRecursively(data[key])}return data};if(typeof object==='object'&&object!==null)if(object.hasOwnProperty(expressionIndicatorKey))return evaluate(object[expressionIndicatorKey]);else if(object.hasOwnProperty(executionIndicatorKey))return evaluate(object[executionIndicatorKey],executionIndicatorKey);return removeProxyRecursively(resolve(addProxyRecursively(object)))}/**
+     * Sort given objects keys.
+     * @param object - Object which keys should be sorted.
+     * @returns Sorted list of given keys.
+     */static sort(object){const keys=[];if(Array.isArray(object))for(let index=0;index<object.length;index++)keys.push(index);else if(object instanceof _map2.default)for(const keyValuePair of object)keys.push(keyValuePair[0]);else if(object instanceof Object)for(const key in object)if(object.hasOwnProperty(key))keys.push(key);return keys.sort()}/**
+     * Removes a proxy from given data structure recursively.
+     * @param object - Object to proxy.
+     * @param seenObjects - Tracks all already processed objects to avoid
+     * endless loops (usually only needed for internal purpose).
+     * @returns Returns given object unwrapped from a dynamic proxy.
+     */static unwrapProxy(object,seenObjects=new _set2.default){if(object!==null&&typeof object==='object'){if(seenObjects.has(object))return object;try{if(object.__revoke__){object=object.__target__;object.__revoke__()}}catch(error){return object}finally{seenObjects.add(object)}if(Array.isArray(object)){let index=0;for(const value of object){object[index]=Tools.unwrapProxy(value,seenObjects);index+=1}}else if(object instanceof _map2.default)for(const[key,value]of object)object.set(key,Tools.unwrapProxy(value,seenObjects));else for(const key in object)if(object.hasOwnProperty(key))object[key]=Tools.unwrapProxy(object[key],seenObjects)}return object}// / endregion
+// / region array
+/**
+     * Merge the contents of two arrays together into the first array.
+     * @param target - Target array.
+     * @param source - Source array.
+     * @returns Target array with merged given source one.
+     */static arrayMerge(target,source){if(!Array.isArray(source))source=Array.prototype.slice.call(source);for(const value of source)target.push(value);return target}/**
+     * Converts given object into an array.
+     * @param object - Target to convert.
+     * @returns Generated array.
+     */static arrayMake(object){const result=[];if(![null,undefined].includes(result))if(Tools.isArrayLike(Object(object)))Tools.arrayMerge(result,typeof object==='string'?[object]:object);else result.push(object);return result}/**
+     * Makes all values in given iterable unique by removing duplicates (The
+     * first occurrences will be left).
+     * @param data - Array like object.
+     * @returns Sliced version of given object.
+     */static arrayUnique(data){const result=[];for(const value of Tools.arrayMake(data))if(!result.includes(value))result.push(value);return result}/**
+     * Summarizes given property of given item list.
+     * @param data - Array of objects with given property name.
+     * @param propertyName - Property name to summarize.
+     * @param defaultValue - Value to return if property values doesn't match.
+     * @returns Summarized array.
+     */static arrayAggregatePropertyIfEqual(data,propertyName,defaultValue=''){let result=defaultValue;if(data&&data.length&&data[0].hasOwnProperty(propertyName)){result=data[0][propertyName];for(const item of Tools.arrayMake(data))if(item[propertyName]!==result)return defaultValue}return result}/**
+     * Deletes every item witch has only empty attributes for given property
+     * names. If given property names are empty each attribute will be
+     * considered. The empty string, "null" and "undefined" will be interpreted
+     * as empty.
+     * @param data - Data to filter.
+     * @param propertyNames - Properties to consider.
+     * @returns Given data without empty items.
+     */static arrayDeleteEmptyItems(data,propertyNames=[]){if(!data)return data;const result=[];for(const item of Tools.arrayMake(data)){let empty=true;for(const propertyName in item)if(item.hasOwnProperty(propertyName))if(!['',null,undefined].includes(item[propertyName])&&(!propertyNames.length||Tools.arrayMake(propertyNames).includes(propertyName))){empty=false;break}if(!empty)result.push(item)}return result}/**
+     * Extracts all properties from all items wich occur in given property
+     * names.
+     * @param data - Data where each item should be sliced.
+     * @param propertyNames - Property names to extract.
+     * @returns Data with sliced items.
+     */static arrayExtract(data,propertyNames){const result=[];for(const item of Tools.arrayMake(data)){const newItem={};for(const propertyName of Tools.arrayMake(propertyNames))if(item.hasOwnProperty(propertyName))newItem[propertyName]=item[propertyName];result.push(newItem)}return result}/**
+     * Extracts all values which matches given regular expression.
+     * @param data - Data to filter.
+     * @param regularExpression - Pattern to match for.
+     * @returns Filtered data.
+     */static arrayExtractIfMatches(data,regularExpression){const result=[];for(const value of Tools.arrayMake(data))if((typeof regularExpression==='string'?new RegExp(regularExpression):regularExpression).test(value))result.push(value);return result}/**
+     * Filters given data if given property is set or not.
+     * @param data - Data to filter.
+     * @param propertyName - Property name to check for existence.
+     * @returns Given data without the items which doesn't have specified
+     * property.
+     */static arrayExtractIfPropertyExists(data,propertyName){if(data&&propertyName){const result=[];for(const item of Tools.arrayMake(data)){let exists=false;for(const key in item)if(key===propertyName&&item.hasOwnProperty(key)&&![undefined,null].includes(item[key])){exists=true;break}if(exists)result.push(item)}return result}return data}/**
+     * Extract given data where specified property value matches given
+     * patterns.
+     * @param data - Data to filter.
+     * @param propertyPattern - Mapping of property names to pattern.
+     * @returns Filtered data.
+     */static arrayExtractIfPropertyMatches(data,propertyPattern){if(data&&propertyPattern){const result=[];for(const item of Tools.arrayMake(data)){let matches=true;for(const propertyName in propertyPattern)if(!(propertyPattern[propertyName]instanceof RegExp?propertyPattern[propertyName]:new RegExp(propertyPattern[propertyName])).test(item[propertyName])){matches=false;break}if(matches)result.push(item)}return result}return data}/**
+     * Determines all objects which exists in "first" and in "second".
+     * Object key which will be compared are given by "keys". If an empty array
+     * is given each key will be compared. If an object is given corresponding
+     * initial data key will be mapped to referenced new data key.
+     * @param first - Referenced data to check for.
+     * @param second - Data to check for existence.
+     * @param keys - Keys to define equality.
+     * @param strict - The strict parameter indicates whether "null" and
+     * "undefined" should be interpreted as equal (takes only effect if given
+     * keys aren't empty).
+     * @returns Data which does exit in given initial data.
+     */static arrayIntersect(first,second,keys=[],strict=true){const containingData=[];second=Tools.arrayMake(second);for(const initialItem of Tools.arrayMake(first))if(Tools.isPlainObject(initialItem))for(const newItem of second){let exists=true;let iterateGivenKeys;const keysAreAnArray=Array.isArray(keys);if(Tools.isPlainObject(keys)||keysAreAnArray&&keys.length)iterateGivenKeys=true;else{iterateGivenKeys=false;keys=initialItem}const handle=function handle(firstKey,secondKey){if(keysAreAnArray&&iterateGivenKeys)firstKey=secondKey;else if(!iterateGivenKeys)secondKey=firstKey;if(newItem[secondKey]!==initialItem[firstKey]&&(strict||!([null,undefined].includes(newItem[secondKey])&&[null,undefined].includes(initialItem[firstKey])))){exists=false;return false}};if(Array.isArray(keys)){let index=0;for(const key of keys){if(handle(index,key)===false)break;index+=1}}else for(const key in keys)if(keys.hasOwnProperty(key))if(handle(key,keys[key])===false)break;if(exists){containingData.push(initialItem);break}}else if(second.includes(initialItem))containingData.push(initialItem);return containingData}/**
+     * Creates a list of items within given range.
+     * @param range - Array of lower and upper bounds. If only one value is
+     * given lower bound will be assumed to be zero. Both integers have to be
+     * positive and will be contained in the resulting array.
+     * @param step - Space between two consecutive values.
+     * @returns Produced array of integers.
+     */static arrayMakeRange(range,step=1){let index;let higherBound;if(range.length===1){index=0;higherBound=parseInt(range[0],10)}else if(range.length===2){index=parseInt(range[0],10);higherBound=parseInt(range[1],10)}else return range;const result=[index];while(index<=higherBound-step){index+=step;result.push(index)}return result}/**
+     * Sums up given property of given item list.
+     * @param data - The objects with specified property to sum up.
+     * @param propertyName - Property name to sum up its value.
+     * @returns The aggregated value.
+     */static arraySumUpProperty(data,propertyName){let result=0;if(Array.isArray(data)&&data.length)for(const item of data)if(item.hasOwnProperty(propertyName))result+=parseFloat(item[propertyName]||0);return result}/**
+     * Adds an item to another item as array connection (many to one).
+     * @param item - Item where the item should be appended to.
+     * @param target - Target to add to given item.
+     * @param name - Name of the target connection.
+     * @param checkIfExists - Indicates if duplicates are allowed in resulting
+     * list (will result in linear runtime instead of constant one).
+     * @returns Item with the appended target.
+     */static arrayAppendAdd(item,target,name,checkIfExists=true){if(item.hasOwnProperty(name)){if(!(checkIfExists&&item[name].includes(target)))item[name].push(target)}else item[name]=[target];return item}/**
+     * Removes given target on given list.
+     * @param list - Array to splice.
+     * @param target - Target to remove from given list.
+     * @param strict - Indicates whether to fire an exception if given target
+     * doesn't exists given list.
+     * @returns Item with the appended target.
+     */static arrayRemove(list,target,strict=false){if(Array.isArray(list)){const index=list.indexOf(target);if(index===-1){if(strict)throw new Error(`Given target doesn't exists in given list.`)}else/* eslint-disable max-statements-per-line */list.splice(index,1);/* eslint-enable max-statements-per-line */}else if(strict)throw new Error(`Given target isn't an array.`);return list}/**
+     * Sorts given object of dependencies in a topological order.
+     * @param items - Items to sort.
+     * @returns Sorted array of given items respecting their dependencies.
+     */static arraySortTopological(items){const edges=[];for(const name in items)if(items.hasOwnProperty(name)){if(!Array.isArray(items[name]))items[name]=[items[name]];if(items[name].length>0)for(const dependencyName of Tools.arrayMake(items[name]))edges.push([name,dependencyName]);else edges.push([name])}const nodes=[];// Accumulate unique nodes into a large list.
+for(const edge of edges)for(const node of edge)if(!nodes.includes(node))nodes.push(node);const sorted=[];// Define a visitor function that recursively traverses dependencies.
+const visit=function visit(node,predecessors){// Check if a node is dependent of itself.
+if(predecessors.length!==0&&predecessors.includes(node))throw new Error(`Cyclic dependency found. "${node}" is dependent of `+'itself.\n'+`Dependency chain: "${predecessors.join('" -> "')}" => "`+`${node}".`);let index=nodes.indexOf(node);// If the node still exists, traverse its dependencies.
+if(index!==-1){let copy;// Mark the node to exclude it from future iterations.
+nodes[index]=null;/*
+                    Loop through all edges and follow dependencies of the
+                    current node
+                */for(const edge of edges)if(edge[0]===node){/*
+                            Lazily create a copy of predecessors with the
+                            current node concatenated onto it.
+                        */copy=copy||predecessors.concat([node]);// Recurse to node dependencies.
+visit(edge[1],copy)}sorted.push(node)}};for(let index=0;index<nodes.length;index++){const node=nodes[index];// Ignore nodes that have been excluded.
+if(node){// Mark the node to exclude it from future iterations.
+nodes[index]=null;/*
+                    Loop through all edges and follow dependencies of the
+                    current node.
+                */for(const edge of edges)if(edge[0]===node)// Recurse to node dependencies.
+visit(edge[1],[node]);sorted.push(node)}}return sorted}// / endregion
+// / region string
+// // region url handling
+/**
+     * Translates given string into the regular expression validated
+     * representation.
+     * @param value - String to convert.
+     * @param excludeSymbols - Symbols not to escape.
+     * @returns Converted string.
+     */static stringEscapeRegularExpressions(value,excludeSymbols=[]){// NOTE: This is only for performance improvements.
+if(value.length===1&&!Tools.specialRegexSequences.includes(value))return value;// The escape sequence must also be escaped; but at first.
+if(!excludeSymbols.includes('\\'))value.replace(/\\/g,'\\\\');for(const replace of Tools.specialRegexSequences)if(!excludeSymbols.includes(replace))value=value.replace(new RegExp(`\\${replace}`,'g'),`\\${replace}`);return value}/**
+     * Translates given name into a valid javaScript one.
+     * @param name - Name to convert.
+     * @param allowedSymbols - String of symbols which should be allowed within
+     * a variable name (not the first character).
+     * @returns Converted name is returned.
+     */static stringConvertToValidVariableName(name,allowedSymbols='0-9a-zA-Z_$'){return name.toString().replace(/^[^a-zA-Z_$]+/,'').replace(new RegExp(`[^${allowedSymbols}]+([a-zA-Z0-9])`,'g'),function(fullMatch,firstLetter){return firstLetter.toUpperCase()})}/**
+     * This method is intended for encoding *key* or *value* parts of query
+     * component. We need a custom method because "encodeURIComponent()" is too
+     * aggressive and encodes stuff that doesn't have to be encoded per
+     * "http://tools.ietf.org/html/rfc3986:".
+     * @param url - URL to encode.
+     * @param encodeSpaces - Indicates whether given url should encode
+     * whitespaces as "+" or "%20".
+     * @returns Encoded given url.
+     */static stringEncodeURIComponent(url,encodeSpaces){return encodeURIComponent(url).replace(/%40/gi,'@').replace(/%3A/gi,':').replace(/%24/g,'$').replace(/%2C/gi,',').replace(/%20/g,encodeSpaces?'%20':'+')}/**
+     * Appends a path selector to the given path if there isn't one yet.
+     * @param path - The path for appending a selector.
+     * @param pathSeparator - The selector for appending to path.
+     * @returns The appended path.
+     */static stringAddSeparatorToPath(path,pathSeparator='/'){path=path.trim();if(path.substr(-1)!==pathSeparator&&path.length)return path+pathSeparator;return path}/**
+     * Checks if given path has given path prefix.
+     * @param prefix - Path prefix to search for.
+     * @param path - Path to search in.
+     * @param separator - Delimiter to use in path (default is the posix
+     * conform slash).
+     * @returns Value "true" if given prefix occur and "false" otherwise.
+     */static stringHasPathPrefix(prefix='/admin',path='location'in $.global&&$.global.location.pathname||'',separator='/'){if(typeof prefix==='string'){if(!prefix.endsWith(separator))prefix+=separator;return path===prefix.substring(0,prefix.length-separator.length)||path.startsWith(prefix)}return false}/**
+     * Extracts domain name from given url. If no explicit domain name given
+     * current domain name will be assumed. If no parameter given current
+     * domain name will be determined.
+     * @param url - The url to extract domain from.
+     * @param fallback - The fallback host name if no one exits in given url
+     * (default is current hostname).
+     * @returns Extracted domain.
+     */static stringGetDomainName(url='location'in $.global&&$.global.location.href||'',fallback='location'in $.global&&$.global.location.hostname||''){const result=/^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url);if(result&&result.length>2&&result[1]&&result[2])return result[2];return fallback}/**
+     * Extracts port number from given url. If no explicit port number given
+     * and no fallback is defined current port number will be assumed for local
+     * links. For external links 80 will be assumed for http protocol or 443
+     * for https.
+     * @param url - The url to extract port from.
+     * @param fallback - Fallback port number if no explicit one was found.
+     * Default is derived from current protocol name.
+     * @param parameter - Additional parameter for checking if given url is an
+     * internal url. Given url and this parameter will be forwarded to the
+     * "stringIsInternalURL()" method.
+     * @returns Extracted port number.
+     */static stringGetPortNumber(url='location'in $.global&&$.global.location.href||'',fallback=null,parameter=[]){const result=/^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec(url);if(result&&result.length>1)return parseInt(result[1],10);if(fallback!==null)return fallback;if(Tools.stringIsInternalURL(url,...parameter)&&'location'in $.global&&$.global.location.port&&parseInt($.global.location.port,10))return parseInt($.global.location.port,10);return Tools.stringGetProtocolName(url)==='https'?443:80}/**
+     * Extracts protocol name from given url. If no explicit url is given,
+     * current protocol will be assumed. If no parameter given current protocol
+     * number will be determined.
+     * @param url - The url to extract protocol from.
+     * @param fallback - Fallback port to use if no protocol exists in given
+     * url (default is current protocol).
+     * returns Extracted protocol.
+     */static stringGetProtocolName(url='location'in $.global&&$.global.location.href||'',fallback='location'in $.global&&$.global.location.protocol.substring(0,$.global.location.protocol.length-1)||''){const result=/^([a-z]+):\/\//i.exec(url);if(result&&result.length>1&&result[1])return result[1];return fallback}/**
+     * Read a page's GET URL variables and return them as an associative array
+     * and preserves ordering.
+     * @param keyToGet - If key given the corresponding value is returned and
+     * full object otherwise.
+     * @param givenInput - An alternative input to the url search parameter. If
+     * "#" is given the complete current hash tag will be interpreted as url
+     * and search parameter will be extracted from there. If "&" is given
+     * classical search parameter and hash parameter will be taken in account.
+     * If a search string is given this will be analyzed. The default is to
+     * take given search part into account.
+     * @param subDelimiter - Defines which sequence indicates the start of
+     * parameter in a hash part of the url.
+     * @param hashedPathIndicator - If defined and given hash starts with this
+     * indicator given hash will be interpreted as path containing search and
+     * hash parts.
+     * @param givenSearch - Search part to take into account defaults to
+     * current url search part.
+     * @param givenHash - Hash part to take into account defaults to current
+     * url hash part.
+     * @returns Returns the current get array or requested value. If requested
+     * key doesn't exist "undefined" is returned.
+     */static stringGetURLVariable(keyToGet,givenInput,subDelimiter='$',hashedPathIndicator='!',givenSearch,givenHash='location'in $.global&&$.global.location.hash||''){// region set search and hash
+let hash=givenHash?givenHash:'#';let search='';if(givenSearch)search=givenSearch;else if(hashedPathIndicator&&hash.startsWith(hashedPathIndicator)){const subHashStartIndex=hash.indexOf('#');let pathAndSearch;if(subHashStartIndex===-1){pathAndSearch=hash.substring(hashedPathIndicator.length);hash=''}else{pathAndSearch=hash.substring(hashedPathIndicator.length,subHashStartIndex);hash=hash.substring(subHashStartIndex)}const subSearchStartIndex=pathAndSearch.indexOf('?');if(subSearchStartIndex!==-1)search=pathAndSearch.substring(subSearchStartIndex)}else if('location'in $.global)search=$.global.location.search||'';let input=givenInput?givenInput:search;// endregion
+// region determine data from search and hash if specified
+const both=input==='&';if(both||input==='#'){let decodedHash='';try{decodedHash=decodeURIComponent(hash)}catch(error){}const subDelimiterIndex=decodedHash.indexOf(subDelimiter);if(subDelimiterIndex===-1)input='';else{input=decodedHash.substring(subDelimiterIndex);if(input.startsWith(subDelimiter))input=input.substring(subDelimiter.length)}}else if(input.startsWith('?'))input=input.substring('?'.length);let data=input?input.split('&'):[];search=search.substring('?'.length);if(both&&search)data=data.concat(search.split('&'));// endregion
+// region construct data structure
+const variables=[];for(let value of data){const keyValuePair=value.split('=');let key;try{key=decodeURIComponent(keyValuePair[0])}catch(error){key=''}try{value=decodeURIComponent(keyValuePair[1])}catch(error){value=''}variables.push(key);// IgnoreTypeCheck
+variables[key]=value}// endregion
+if(keyToGet)// IgnoreTypeCheck
+return variables[keyToGet];return variables}/**
+     * Checks if given url points to another domain than second given url. If
+     * no second given url provided current url will be assumed.
+     * @param firstURL - URL to check against second url.
+     * @param secondURL - URL to check against first url.
+     * @returns Returns "true" if given first url has same domain as given
+     * second (or current).
+     */static stringIsInternalURL(firstURL,secondURL='location'in $.global&&$.global.location.href||''){const explicitDomainName=Tools.stringGetDomainName(firstURL,false);const explicitProtocolName=Tools.stringGetProtocolName(firstURL,false);const explicitPortNumber=Tools.stringGetPortNumber(firstURL,false);return(!explicitDomainName||explicitDomainName===Tools.stringGetDomainName(secondURL))&&(!explicitProtocolName||explicitProtocolName===Tools.stringGetProtocolName(secondURL))&&(!explicitPortNumber||explicitPortNumber===Tools.stringGetPortNumber(secondURL))}/**
+     * Normalized given website url.
+     * @param url - Uniform resource locator to normalize.
+     * @returns Normalized result.
+     */static stringNormalizeURL(url){if(url){url=url.replace(/^:?\/+/,'').replace(/\/+$/,'').trim();if(url.startsWith('http'))return url;return`http://${url}`}return''}/**
+     * Represents given website url.
+     * @param url - Uniform resource locator to represent.
+     * @returns Represented result.
+     */static stringRepresentURL(url){if(typeof url==='string')return url.replace(/^(https?)?:?\/+/,'').replace(/\/+$/,'').trim();return''}// // endregion
+/**
+     * Compresses given style attribute value.
+     * @param styleValue - Style value to compress.
+     * @returns The compressed value.
+     */static stringCompressStyleValue(styleValue){return styleValue.replace(/ *([:;]) */g,'$1').replace(/ +/g,' ').replace(/^;+/,'').replace(/;+$/,'').trim()}/* eslint-disable jsdoc/require-description-complete-sentence *//**
+     * Converts a camel cased string to its delimited string version.
+     * @param string - The string to format.
+     * @param delimiter - Delimiter string
+     * @param abbreviations - Collection of shortcut words to represent upper
+     * cased.
+     * @returns The formatted string.
+     */static stringCamelCaseToDelimited(string,delimiter='-',abbreviations=null){/* eslint-enable jsdoc/require-description-complete-sentence */if(!abbreviations)abbreviations=Tools.abbreviations;const escapedDelimiter=Tools.stringGetRegularExpressionValidated(delimiter);if(abbreviations.length){let abbreviationPattern='';for(const abbreviation of abbreviations){if(abbreviationPattern)abbreviationPattern+='|';abbreviationPattern+=abbreviation.toUpperCase()}string=string.replace(new RegExp(`(${abbreviationPattern})(${abbreviationPattern})`,'g'),`$1${delimiter}$2`)}string=string.replace(new RegExp(`([^${escapedDelimiter}])([A-Z][a-z]+)`,'g'),`$1${delimiter}$2`);return string.replace(new RegExp('([a-z0-9])([A-Z])','g'),`$1${delimiter}$2`).toLowerCase()}/* eslint-disable jsdoc/require-description-complete-sentence *//**
+     * Converts a string to its capitalize representation.
+     * @param string - The string to format.
+     * @returns The formatted string.
+     */static stringCapitalize(string){/* eslint-enable jsdoc/require-description-complete-sentence */return string.charAt(0).toUpperCase()+string.substring(1)}/**
+     * Converts a delimited string to its camel case representation.
+     * @param string - The string to format.
+     * @param delimiter - Delimiter string to use.
+     * @param abbreviations - Collection of shortcut words to represent upper
+     * cased.
+     * @param preserveWrongFormattedAbbreviations - If set to "True" wrong
+     * formatted camel case abbreviations will be ignored.
+     * @param removeMultipleDelimiter - Indicates whether a series of delimiter
+     * should be consolidated.
+     * @returns The formatted string.
+     */static stringDelimitedToCamelCase(string,delimiter='-',abbreviations=null,preserveWrongFormattedAbbreviations=false,removeMultipleDelimiter=false){let escapedDelimiter=Tools.stringGetRegularExpressionValidated(delimiter);if(!abbreviations)abbreviations=Tools.abbreviations;let abbreviationPattern;if(preserveWrongFormattedAbbreviations)abbreviationPattern=abbreviations.join('|');else{abbreviationPattern='';for(const abbreviation of abbreviations){if(abbreviationPattern)abbreviationPattern+='|';abbreviationPattern+=`${Tools.stringCapitalize(abbreviation)}|${abbreviation}`}}let stringStartsWithDelimiter=false;if(string.startsWith(delimiter)){string=string.substring(delimiter.length);stringStartsWithDelimiter=true}string=string.replace(new RegExp(`(${escapedDelimiter})(${abbreviationPattern})`+`(${escapedDelimiter}|$)`,'g'),function(fullMatch,before,abbreviation,after){return before+abbreviation.toUpperCase()+after});if(removeMultipleDelimiter)escapedDelimiter=`(?:${escapedDelimiter})+`;string=string.replace(new RegExp(`${escapedDelimiter}([a-zA-Z0-9])`,'g'),function(fullMatch,firstLetter){return firstLetter.toUpperCase()});if(stringStartsWithDelimiter)string=delimiter+string;return string}/**
+     * Performs a string formation. Replaces every placeholder "{i}" with the
+     * i'th argument.
+     * @param string - The string to format.
+     * @param additionalArguments - Additional arguments are interpreted as
+     * replacements for string formating.
+     * @returns The formatted string.
+     */static stringFormat(string,...additionalArguments){additionalArguments.unshift(string);let index=0;for(const value of additionalArguments){string=string.replace(new RegExp(`\\{${index}\\}`,'gm'),`${value}`);index+=1}return string}/**
+     * Validates the current string for using in a regular expression pattern.
+     * Special regular expression chars will be escaped.
+     * @param string - The string to format.
+     * @returns The formatted string.
+     */static stringGetRegularExpressionValidated(string){return string.replace(/([\\|.*$^+[\]()?\-{}])/g,'\\$1')}/**
+     * Converts a string to its lower case representation.
+     * @param string - The string to format.
+     * @returns The formatted string.
+     */static stringLowerCase(string){return string.charAt(0).toLowerCase()+string.substring(1)}/**
+     * Finds the string match of given query in given target text by applying
+     * given normalisation function to target and query.
+     * @param target - Target to search in.
+     * @param query - Search string to search for.
+     * @param normalizer - Function to use as normalisation for queries and
+     * search targets.
+     */static stringFindNormalizedMatchRange(target,query,normalizer=function(value){return`${value}`.toLowerCase()}){query=normalizer(query);if(normalizer(target)&&query)for(let index=0;index<target.length;index+=1)if(normalizer(target.substring(index)).startsWith(query)){if(query.length===1)return[index,index+1];for(let subIndex=target.length;subIndex>index;subIndex-=1)if(!normalizer(target.substring(index,subIndex)).startsWith(query))return[index,subIndex+1]}return null}/**
+     * Wraps given mark strings in given target with given marker.
+     * @param target - String to search for marker.
+     * @param words - String or array of strings to search in target for.
+     * @param marker - HTML template string to mark.
+     * @param normalizer - Pure normalisation function to use before searching
+     * for matches.
+     * @returns Processed result.
+     */static stringMark(target,words,marker='<span class="tools-mark">{1}</span>',normalizer=function(value){return`${value}`.toLowerCase()}){if(target&&words&&words.length){target=target.trim();if(!Array.isArray(words))words=[words];let index=0;for(const word of words){words[index]=normalizer(word).trim();index+=1}let restTarget=target;let offset=0;while(true){let nearestRange;let currentRange;for(const word of words){currentRange=Tools.stringFindNormalizedMatchRange(restTarget,word,normalizer);if(currentRange&&(!nearestRange||currentRange[0]<nearestRange[0]))nearestRange=currentRange}if(nearestRange){target=target.substring(0,offset+nearestRange[0])+Tools.stringFormat(marker,target.substring(offset+nearestRange[0],offset+nearestRange[1]))+target.substring(offset+nearestRange[1]);offset+=nearestRange[1]+(marker.length-'{1}'.length);if(target.length<=offset)break;restTarget=target.substring(offset)}else break}}return target}/**
+     * Implements the md5 hash algorithm.
+     * @param value - Value to calculate md5 hash for.
+     * @param onlyAscii - Set to true if given input has ascii characters only
+     * to get more performance.
+     * @returns Calculated md5 hash value.
+     */static stringMD5(value,onlyAscii=false){const hexCharacters='0123456789abcdef'.split('');// region sub helper
+/**
+         * This function is much faster, so if possible we use it. Some IEs
+         * are the only ones I know of that need the idiotic second function,
+         * generated by an if clause in the end.
+         * @param first - First operand to add.
+         * @param second - Second operant to add.
+         * @returns The sum of both given operands.
+        */let unsignedModule2PowerOf32Addition=function unsignedModule2PowerOf32Addition(first,second){return first+second&4294967295};// / region primary functions needed for the algorithm
+/*
+         * Implements the basic operation for each round of the algorithm.
+         */const cmn=function cmn(q,a,b,x,s,t){a=unsignedModule2PowerOf32Addition(unsignedModule2PowerOf32Addition(a,q),unsignedModule2PowerOf32Addition(x,t));return unsignedModule2PowerOf32Addition(a<<s|a>>>32-s,b)};/**
+         * First algorithm part.
+         * @param a - Operand.
+         * @param b - Operand.
+         * @param c - Operand.
+         * @param d - Operand.
+         * @param x - Operand.
+         * @param s - Operand.
+         * @param t - Operand.
+         * @returns Result.
+         */const ff=function ff(a,b,c,d,x,s,t){return cmn(b&c|~b&d,a,b,x,s,t)};/**
+         * Second algorithm part.
+         * @param a - Operand.
+         * @param b - Operand.
+         * @param c - Operand.
+         * @param d - Operand.
+         * @param x - Operand.
+         * @param s - Operand.
+         * @param t - Operand.
+         * @returns Result.
+         */const gg=function gg(a,b,c,d,x,s,t){return cmn(b&d|c&~d,a,b,x,s,t)};/**
+         * Third algorithm part.
+         * @param a - Operand.
+         * @param b - Operand.
+         * @param c - Operand.
+         * @param d - Operand.
+         * @param x - Operand.
+         * @param s - Operand.
+         * @param t - Operand.
+         * @returns Result.
+         */const hh=function hh(a,b,c,d,x,s,t){return cmn(b^c^d,a,b,x,s,t)};/**
+         * Fourth algorithm part.
+         * @param a - Operand.
+         * @param b - Operand.
+         * @param c - Operand.
+         * @param d - Operand.
+         * @param x - Operand.
+         * @param s - Operand.
+         * @param t - Operand.
+         * @returns Result.
+         */const ii=function ii(a,b,c,d,x,s,t){return cmn(c^(b|~d),a,b,x,s,t)};/**
+         * Performs all 16 needed steps.
+         * @param state - Current state.
+         * @param blocks - Blocks to cycle through.
+         * @returns Returns given state.
+         */const cycle=function cycle(state,blocks){let a=state[0];let b=state[1];let c=state[2];let d=state[3];// region round 1
+a=ff(a,b,c,d,blocks[0],7,-680876936);d=ff(d,a,b,c,blocks[1],12,-389564586);c=ff(c,d,a,b,blocks[2],17,606105819);b=ff(b,c,d,a,blocks[3],22,-1044525330);a=ff(a,b,c,d,blocks[4],7,-176418897);d=ff(d,a,b,c,blocks[5],12,1200080426);c=ff(c,d,a,b,blocks[6],17,-1473231341);b=ff(b,c,d,a,blocks[7],22,-45705983);a=ff(a,b,c,d,blocks[8],7,1770035416);d=ff(d,a,b,c,blocks[9],12,-1958414417);c=ff(c,d,a,b,blocks[10],17,-42063);b=ff(b,c,d,a,blocks[11],22,-1990404162);a=ff(a,b,c,d,blocks[12],7,1804603682);d=ff(d,a,b,c,blocks[13],12,-40341101);c=ff(c,d,a,b,blocks[14],17,-1502002290);b=ff(b,c,d,a,blocks[15],22,1236535329);// endregion
+// region round 2
+a=gg(a,b,c,d,blocks[1],5,-165796510);d=gg(d,a,b,c,blocks[6],9,-1069501632);c=gg(c,d,a,b,blocks[11],14,643717713);b=gg(b,c,d,a,blocks[0],20,-373897302);a=gg(a,b,c,d,blocks[5],5,-701558691);d=gg(d,a,b,c,blocks[10],9,38016083);c=gg(c,d,a,b,blocks[15],14,-660478335);b=gg(b,c,d,a,blocks[4],20,-405537848);a=gg(a,b,c,d,blocks[9],5,568446438);d=gg(d,a,b,c,blocks[14],9,-1019803690);c=gg(c,d,a,b,blocks[3],14,-187363961);b=gg(b,c,d,a,blocks[8],20,1163531501);a=gg(a,b,c,d,blocks[13],5,-1444681467);d=gg(d,a,b,c,blocks[2],9,-51403784);c=gg(c,d,a,b,blocks[7],14,1735328473);b=gg(b,c,d,a,blocks[12],20,-1926607734);// endregion
+// region round 3
+a=hh(a,b,c,d,blocks[5],4,-378558);d=hh(d,a,b,c,blocks[8],11,-2022574463);c=hh(c,d,a,b,blocks[11],16,1839030562);b=hh(b,c,d,a,blocks[14],23,-35309556);a=hh(a,b,c,d,blocks[1],4,-1530992060);d=hh(d,a,b,c,blocks[4],11,1272893353);c=hh(c,d,a,b,blocks[7],16,-155497632);b=hh(b,c,d,a,blocks[10],23,-1094730640);a=hh(a,b,c,d,blocks[13],4,681279174);d=hh(d,a,b,c,blocks[0],11,-358537222);c=hh(c,d,a,b,blocks[3],16,-722521979);b=hh(b,c,d,a,blocks[6],23,76029189);a=hh(a,b,c,d,blocks[9],4,-640364487);d=hh(d,a,b,c,blocks[12],11,-421815835);c=hh(c,d,a,b,blocks[15],16,530742520);b=hh(b,c,d,a,blocks[2],23,-995338651);// endregion
+// region round 4
+a=ii(a,b,c,d,blocks[0],6,-198630844);d=ii(d,a,b,c,blocks[7],10,1126891415);c=ii(c,d,a,b,blocks[14],15,-1416354905);b=ii(b,c,d,a,blocks[5],21,-57434055);a=ii(a,b,c,d,blocks[12],6,1700485571);d=ii(d,a,b,c,blocks[3],10,-1894986606);c=ii(c,d,a,b,blocks[10],15,-1051523);b=ii(b,c,d,a,blocks[1],21,-2054922799);a=ii(a,b,c,d,blocks[8],6,1873313359);d=ii(d,a,b,c,blocks[15],10,-30611744);c=ii(c,d,a,b,blocks[6],15,-1560198380);b=ii(b,c,d,a,blocks[13],21,1309151649);a=ii(a,b,c,d,blocks[4],6,-145523070);d=ii(d,a,b,c,blocks[11],10,-1120210379);c=ii(c,d,a,b,blocks[2],15,718787259);b=ii(b,c,d,a,blocks[9],21,-343485551);// endregion
+state[0]=unsignedModule2PowerOf32Addition(a,state[0]);state[1]=unsignedModule2PowerOf32Addition(b,state[1]);state[2]=unsignedModule2PowerOf32Addition(c,state[2]);state[3]=unsignedModule2PowerOf32Addition(d,state[3]);return state};// / endregion
+/**
+         * Converts given character to its corresponding hex code
+         * representation.
+         * @param character - Character to convert.
+         * @returns Converted hex code string.
+         */const convertCharactorToHexCode=function convertCharactorToHexCode(character){let hexString='';for(let round=0;round<4;round++)hexString+=hexCharacters[character>>round*8+4&15]+hexCharacters[character>>round*8&15];return hexString};/**
+         * Converts given byte array to its corresponding hex code as string.
+         * @param value - Array of characters to convert.
+         * @returns Converted hex code.
+         */const convertToHexCode=function convertToHexCode(value){for(let index=0;index<value.length;index++)value[index]=convertCharactorToHexCode(value[index]);return value.join('')};/**
+         * There needs to be support for unicode here, unless we pretend that
+         * we can redefine the md5 algorithm for multi-byte characters
+         * (perhaps by adding every four 16-bit characters and shortening the
+         * sum to 32 bits). Otherwise I suggest performing md5 as if every
+         * character was two bytes--e.g., 0040 0025 = @%--but then how will an
+         * ordinary md5 sum be matched? There is no way to standardize text
+         * to something like utf-8 before transformation; speed cost is
+         * utterly prohibitive. The JavaScript standard itself needs to look
+         * at this: it should start providing access to strings as preformed
+         * utf-8 8-bit unsigned value arrays.
+         * @param value - Value to process with each block.
+         * @returns Converted byte array.
+         */const handleBlock=function handleBlock(value){const blocks=[];for(let blockNumber=0;blockNumber<64;blockNumber+=4)blocks[blockNumber>>2]=value.charCodeAt(blockNumber)+(value.charCodeAt(blockNumber+1)<<8)+(value.charCodeAt(blockNumber+2)<<16)+(value.charCodeAt(blockNumber+3)<<24);return blocks};// endregion
+/**
+         * Triggers the main algorithm to calculate the md5 representation of
+         * given value.
+         * @param value - String to convert to its md5 representation.
+         * @returns Array of blocks.
+         */const main=function main(value){const length=value.length;const state=[1732584193,-271733879,-1732584194,271733878];let blockNumber;for(blockNumber=64;blockNumber<=value.length;blockNumber+=64)cycle(state,handleBlock(value.substring(blockNumber-64,blockNumber)));value=value.substring(blockNumber-64);const tail=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];for(blockNumber=0;blockNumber<value.length;blockNumber++)tail[blockNumber>>2]|=value.charCodeAt(blockNumber)<<(blockNumber%4<<3);tail[blockNumber>>2]|=128<<(blockNumber%4<<3);if(blockNumber>55){cycle(state,tail);for(let index=0;index<16;index++)tail[index]=0}tail[14]=length*8;cycle(state,tail);return state};// region final call
+if(convertToHexCode(main('hello'))!=='5d41402abc4b2a76b9719d911017c592')/**
+             * This function is much faster, so if possible we use it. Some IEs
+             * are the only ones I know of that need the idiotic second
+             * function, generated by an if clause in the end.
+             * @private
+             * @param first - First operand to add.
+             * @param second - Second operant to add.
+             * @returns The sum of both given operands.
+            */unsignedModule2PowerOf32Addition=function unsignedModule2PowerOf32Addition(first,second){const lsw=(first&65535)+(second&65535);const msw=(first>>16)+(second>>16)+(lsw>>16);return msw<<16|lsw&65535};return convertToHexCode(main(onlyAscii?value:unescape(encodeURIComponent(value))));// endregion
+}/**
+     * Normalizes given phone number for automatic dialing mechanisms.
+     * @param phoneNumber - Number to normalize.
+     * @returns Normalized number.
+     */static stringNormalizePhoneNumber(phoneNumber){if(typeof phoneNumber==='string'||typeof phoneNumber==='number')return`${phoneNumber}`.replace(/[^0-9]*\+/,'00').replace(/[^0-9]+/g,'');return''}/**
+     * Converts given serialized, base64 encoded or file path given object into
+     * a native javaScript one if possible.
+     * @param serializedObject - Object as string.
+     * @param scope - An optional scope which will be used to evaluate given
+     * object in.
+     * @param name - The name under given scope will be available.
+     * @returns The parsed object if possible and null otherwise.
+     */static stringParseEncodedObject(serializedObject,scope={},name='scope'){if(serializedObject.endsWith('.json')&&Tools.isFileSync(serializedObject))serializedObject=fileSystem.readFileSync(serializedObject,{encoding:'utf-8'});if(!serializedObject.startsWith('{'))serializedObject=eval('Buffer').from(serializedObject,'base64').toString('utf8');let result;try{result=new Function(name,`return ${serializedObject}`)(scope)}catch(error){}if(typeof result==='object')return result;return null}/**
+     * Represents given phone number. NOTE: Currently only support german phone
+     * numbers.
+     * @param phoneNumber - Number to format.
+     * @returns Formatted number.
+     */static stringRepresentPhoneNumber(phoneNumber){if(['number','string'].includes(Tools.determineType(phoneNumber))&&phoneNumber){// Represent country code and leading area code zero.
+phoneNumber=`${phoneNumber}`.replace(/^(00|\+)([0-9]+)-([0-9-]+)$/,'+$2 (0) $3');// Add German country code if not exists.
+phoneNumber=phoneNumber.replace(/^0([1-9][0-9-]+)$/,'+49 (0) $1');// Separate area code from base number.
+phoneNumber=phoneNumber.replace(/^([^-]+)-([0-9-]+)$/,'$1 / $2');// Partition base number in one triple and tuples or tuples only.
+return phoneNumber.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/,function(match,prefix,number,suffix){return prefix+(number.length%2===0?number.replace(/([0-9]{2})/g,'$1 '):number.replace(/^([0-9]{3})([0-9]+)$/,function(match,triple,rest){return`${triple} `+rest.replace(/([0-9]{2})/g,'$1 ').trim()})+suffix).trim()}).trim()}return''}/**
+     * Decodes all html symbols in text nodes in given html string.
+     * @param htmlString - HTML string to decode.
+     * @returns Decoded html string.
+     */static stringDecodeHTMLEntities(htmlString){if('document'in $.global){const textareaDomNode=$.global.document.createElement('textarea');textareaDomNode.innerHTML=htmlString;return textareaDomNode.value}return null}/**
+     * Converts a dom selector to a prefixed dom selector string.
+     * @param selector - A dom node selector.
+     * @returns Returns given selector prefixed.
+     */normalizeDomNodeSelector(selector){let domNodeSelectorPrefix='';if(this._options.domNodeSelectorPrefix)domNodeSelectorPrefix=`${this._options.domNodeSelectorPrefix} `;if(!(selector.startsWith(domNodeSelectorPrefix)||selector.trim().startsWith('<')))selector=domNodeSelectorPrefix+selector;return selector.trim()}// / endregion
+// / region number
+/**
+     * Checks if given object is java scripts native "Number.NaN" object.
+     * @param object - Object to Check.
+     * @returns Returns whether given value is not a number or not.
+     */static numberIsNotANumber(object){return Tools.determineType(object)==='number'&&isNaN(object)}/**
+     * Rounds a given number accurate to given number of digits.
+     * @param number - The number to round.
+     * @param digits - The number of digits after comma.
+     * @returns Returns the rounded number.
+     */static numberRound(number,digits=0){return Math.round(number*Math.pow(10,digits))/Math.pow(10,digits)}// / endregion
+// / region data transfer
+/**
+     * Checks if given url response with given status code.
+     * @param url - Url to check reachability.
+     * @param wait - Boolean indicating if we should retry until a status code
+     * will be given.
+     * @param expectedStatusCode - Status code to check for.
+     * @param timeoutInSeconds - Delay after assuming given resource isn't
+     * available if no response is coming.
+     * @param pollIntervallInSeconds - Seconds between two tries to reach given
+     * url.
+     * @returns A promise which will be resolved if a request to given url has
+     * finished and resulting status code matches given expectedstatus code.
+     * Otherwise returned promise will be rejected.
+     */static checkReachability(url,wait=false,expectedStatusCode=200,timeoutInSeconds=10,pollIntervallInSeconds=0.1){return(0,_asyncToGenerator3.default)(function*(){const check=function check(response){if(response&&'status'in response&&response.status!==expectedStatusCode)throw new Error(`Given status code ${response.status} differs from `+`${expectedStatusCode}.`);return response};if(wait)return new _promise2.default(function(){var _ref2=(0,_asyncToGenerator3.default)(function*(resolve,reject){let timedOut=false;const wrapper=function(){var _ref3=(0,_asyncToGenerator3.default)(function*(){let response;try{response=yield fetch(url)}catch(error){if(!timedOut){/* eslint-disable no-use-before-define */currentlyRunningTimer=Tools.timeout(pollIntervallInSeconds*1000,wrapper);/* eslint-enable no-use-before-define *//*
+                                NOTE: A timer rejection is expected. Avoid
+                                throwing errors about unhandled promise
+                                rejections.
+                            */currentlyRunningTimer.catch(Tools.noop)}return error}try{resolve(check(response))}catch(error){reject(error)}finally{/* eslint-disable no-use-before-define */// IgnoreTypeCheck
+timer.clear();/* eslint-enable no-use-before-define */}return response});return function wrapper(){return _ref3.apply(this,arguments)}}();let currentlyRunningTimer=Tools.timeout(0,wrapper);const timer=Tools.timeout(timeoutInSeconds*1000);try{yield timer}catch(error){}timedOut=true;// IgnoreTypeCheck
+currentlyRunningTimer.clear();reject(`Timeout of ${timeoutInSeconds} seconds reached.`)});return function(_x2,_x3){return _ref2.apply(this,arguments)}}());return check((yield fetch(url)))})()}/**
+     * Checks if given url isn't reachable.
+     * @param url - Url to check reachability.
+     * @param wait - Boolean indicating if we should retry until a status code
+     * will be given.
+     * @param timeoutInSeconds - Delay after assuming given resource will stay
+     * available.
+     * @param pollIntervallInSeconds - Seconds between two tries to reach given
+     * url.
+     * @param unexpectedStatusCode - Status code to check for.
+     * @returns A promise which will be resolved if a request to given url
+     * couldn't finished. Otherwise returned promise will be rejected.
+     */static checkUnreachability(url,wait=false,timeoutInSeconds=10,pollIntervallInSeconds=0.1,unexpectedStatusCode=null){return(0,_asyncToGenerator3.default)(function*(){const check=function check(response){if(unexpectedStatusCode){if(response&&'status'in response&&response.status===unexpectedStatusCode)throw new Error(`Given url "${url}" is reachable ans responses with `+`unexpeced status code "${response.status}".`);return new Error(`Given status code is not "${unexpectedStatusCode}".`)}};if(wait)return new _promise2.default(function(){var _ref4=(0,_asyncToGenerator3.default)(function*(resolve,reject){let timedOut=false;const wrapper=function(){var _ref5=(0,_asyncToGenerator3.default)(function*(){try{const response=yield fetch(url);if(timedOut)return response;const result=check(response);if(result){// IgnoreTypeCheck
+timer.clear();resolve(result);return result}/* eslint-disable no-use-before-define */currentlyRunningTimer=Tools.timeout(pollIntervallInSeconds*1000,wrapper);/* eslint-enable no-use-before-define *//*
+                            NOTE: A timer rejection is expected. Avoid throwing
+                            errors about unhandled promise rejections.
+                        */currentlyRunningTimer.catch(Tools.noop)}catch(error){/* eslint-disable no-use-before-define */// IgnoreTypeCheck
+timer.clear();/* eslint-enable no-use-before-define */resolve(error);return error}});return function wrapper(){return _ref5.apply(this,arguments)}}();let currentlyRunningTimer=Tools.timeout(0,wrapper);const timer=Tools.timeout(timeoutInSeconds*1000);try{yield timer}catch(error){}timedOut=true;// IgnoreTypeCheck
+currentlyRunningTimer.clear();reject(`Timeout of ${timeoutInSeconds} seconds reached.`)});return function(_x4,_x5){return _ref4.apply(this,arguments)}}());try{const result=check((yield fetch(url)));if(result)return result}catch(error){return error}throw new Error(`Given url "${url}" is reachable.`)})()}/**
+     * Send given data to a given iframe.
+     * @param target - Name of the target iframe or the target iframe itself.
+     * @param url - URL to send to data to.
+     * @param data - Data holding object to send data to.
+     * @param requestType - The forms action attribute value. If nothing is
+     * provided "post" will be used as default.
+     * @param removeAfterLoad - Indicates if created iframe should be removed
+     * right after load event. Only works if an iframe object is given instead
+     * of a simple target name.
+     * @returns Returns the given target.
+     */static sendToIFrame(target,url,data,requestType='post',removeAfterLoad=false){const targetName=typeof target==='string'?target:target.attr('name');const $formDomNode=$('<form>').attr({action:url,method:requestType,target:targetName});for(const name in data)if(data.hasOwnProperty(name))$formDomNode.append($('<input>').attr({type:'hidden',name,value:data[name]}));$formDomNode.submit().remove();if(removeAfterLoad&&typeof target==='object'&&'on'in target)// IgnoreTypeCheck
+target.on('load',function(){return target.remove()});return targetName}/**
+     * Send given data to a temporary created iframe.
+     * @param url - URL to send to data to.
+     * @param data - Data holding object to send data to.
+     * @param requestType - The forms action attribute value. If nothing is
+     * provided "post" will be used as default.
+     * @param removeAfterLoad - Indicates if created iframe should be removed
+     * right after load event.
+     * @returns Returns the dynamically created iframe.
+     */sendToExternalURL(url,data,requestType='post',removeAfterLoad=true){const $iFrameDomNode=$('<iframe>').attr('name',this.constructor._name.charAt(0).toLowerCase()+this.constructor._name.substring(1)+new Date().getTime()).hide();this.$domNode.after($iFrameDomNode);this.constructor.sendToIFrame($iFrameDomNode,url,data,requestType,removeAfterLoad);return $iFrameDomNode}// / endregion
+// / region file
+/**
+     * Copies given source directory via path to given target directory
+     * location with same target name as source file has or copy to given
+     * complete target directory path.
+     * @param sourcePath - Path to directory to copy.
+     * @param targetPath - Target directory or complete directory location to
+     * copy in.
+     * @param callback - Function to invoke for each traversed file.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
+     * @returns Promise holding the determined target directory path.
+     */static copyDirectoryRecursive(sourcePath,targetPath,callback=Tools.noop,readOptions={encoding:null,flag:'r'},writeOptions={encoding:'utf8',flag:'w',mode:438}){return new _promise2.default(function(){var _ref6=(0,_asyncToGenerator3.default)(function*(resolve,reject){// NOTE: Check if folder needs to be created or integrated.
+let isDirectory;try{isDirectory=yield Tools.isDirectory(targetPath)}catch(error){return reject(error)}if(isDirectory)targetPath=path.resolve(targetPath,path.basename(sourcePath));sourcePath=path.resolve(sourcePath);fileSystem.mkdir(targetPath,function(){var _ref7=(0,_asyncToGenerator3.default)(function*(error){if(error)return reject(error);let files;try{files=yield Tools.walkDirectoryRecursively(sourcePath,callback)}catch(error){return reject(error)}for(const currentSourceFile of files){const currentTargetPath=path.join(targetPath,currentSourceFile.path.substring(sourcePath.length));if(currentSourceFile.stat.isDirectory())fileSystem.mkdirSync(currentTargetPath);else try{yield Tools.copyFile(currentSourceFile.path,currentTargetPath,readOptions,writeOptions)}catch(error){return reject(error)}}resolve(targetPath)});return function(_x8){return _ref7.apply(this,arguments)}}())});return function(_x6,_x7){return _ref6.apply(this,arguments)}}())}/**
+     * Copies given source directory via path to given target directory
+     * location with same target name as source file has or copy to given
+     * complete target directory path.
+     * @param sourcePath - Path to directory to copy.
+     * @param targetPath - Target directory or complete directory location to
+     * copy in.
+     * @param callback - Function to invoke for each traversed file.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
+     * @returns Determined target directory path.
+     */static copyDirectoryRecursiveSync(sourcePath,targetPath,callback=Tools.noop,readOptions={encoding:null,flag:'r'},writeOptions={encoding:'utf8',flag:'w',mode:438}){// Check if folder needs to be created or integrated.
+sourcePath=path.resolve(sourcePath);if(Tools.isDirectorySync(targetPath))targetPath=path.resolve(targetPath,path.basename(sourcePath));fileSystem.mkdirSync(targetPath);for(const currentSourceFile of Tools.walkDirectoryRecursivelySync(sourcePath,callback)){const currentTargetPath=path.join(targetPath,currentSourceFile.path.substring(sourcePath.length));if(currentSourceFile.stat.isDirectory())fileSystem.mkdirSync(currentTargetPath);else Tools.copyFileSync(currentSourceFile.path,currentTargetPath,readOptions,writeOptions)}return targetPath}/**
+     * Copies given source file via path to given target directory location
+     * with same target name as source file has or copy to given complete
+     * target file path.
+     * @param sourcePath - Path to file to copy.
+     * @param targetPath - Target directory or complete file location to copy
+     * to.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
+     * @returns Determined target file path.
+     */static copyFile(sourcePath,targetPath,readOptions={encoding:null,flag:'r'},writeOptions={encoding:'utf8',flag:'w',mode:438}){/*
+            NOTE: If target path references a directory a new file with the
+            same name will be created.
+        */return new _promise2.default(function(){var _ref8=(0,_asyncToGenerator3.default)(function*(resolve,reject){let isDirectory;try{isDirectory=yield Tools.isDirectory(targetPath)}catch(error){return reject(error)}if(isDirectory)targetPath=path.resolve(targetPath,path.basename(sourcePath));fileSystem.readFile(sourcePath,readOptions,function(error,data){if(error)reject(error);else fileSystem.writeFile(targetPath,data,writeOptions,function(error){if(error)reject(error);else resolve(targetPath)})})});return function(_x9,_x10){return _ref8.apply(this,arguments)}}())}/**
+     * Copies given source file via path to given target directory location
+     * with same target name as source file has or copy to given complete
+     * target file path.
+     * @param sourcePath - Path to file to copy.
+     * @param targetPath - Target directory or complete file location to copy
+     * to.
+     * @param readOptions - Options to use for reading source file.
+     * @param writeOptions - Options to use for writing to target file.
+     * @returns Determined target file path.
+     */static copyFileSync(sourcePath,targetPath,readOptions={encoding:null,flag:'r'},writeOptions={encoding:'utf8',flag:'w',mode:438}){/*
+            NOTE: If target path references a directory a new file with the
+            same name will be created.
+        */if(Tools.isDirectorySync(targetPath))targetPath=path.resolve(targetPath,path.basename(sourcePath));fileSystem.writeFileSync(targetPath,fileSystem.readFileSync(sourcePath,readOptions),writeOptions);return targetPath}/**
+     * Checks if given path points to a valid directory.
+     * @param filePath - Path to directory.
+     * @returns A promise holding a boolean which indicates directory
+     * existents.
+     */static isDirectory(filePath){return new _promise2.default(function(resolve,reject){return fileSystem.stat(filePath,function(error,stat){if(error){if(error.hasOwnProperty('code'// IgnoreTypeCheck
+)&&['ENOENT','ENOTDIR'].includes(error.code))resolve(false);else reject(error);}else resolve(stat.isDirectory())})})}/**
+     * Checks if given path points to a valid directory.
+     * @param filePath - Path to directory.
+     * @returns A boolean which indicates directory existents.
+     */static isDirectorySync(filePath){try{return fileSystem.statSync(filePath).isDirectory()}catch(error){if(error.hasOwnProperty('code')&&['ENOENT','ENOTDIR'].includes(error.code))return false;throw error}}/**
+     * Checks if given path points to a valid file.
+     * @param filePath - Path to directory.
+     * @returns A promise holding a boolean which indicates directory
+     * existents.
+     */static isFile(filePath){return new _promise2.default(function(resolve,reject){return fileSystem.stat(filePath,function(error,stat){if(error){if(error.hasOwnProperty('code'// IgnoreTypeCheck
+)&&['ENOENT','ENOTDIR'].includes(error.code))resolve(false);else reject(error);}else resolve(stat.isFile())})})}/**
+     * Checks if given path points to a valid file.
+     * @param filePath - Path to file.
+     * @returns A boolean which indicates file existents.
+     */static isFileSync(filePath){try{return fileSystem.statSync(filePath).isFile()}catch(error){if(error.hasOwnProperty('code')&&['ENOENT','ENOTDIR'].includes(error.code))return false;throw error}}/**
+     * Iterates through given directory structure recursively and calls given
+     * callback for each found file. Callback gets file path and corresponding
+     * stat object as argument.
+     * @param directoryPath - Path to directory structure to traverse.
+     * @param callback - Function to invoke for each traversed file and
+     * potentially manipulate further traversing.
+     * @param options - Options to use for nested "readdir" calls.
+     * @returns A promise holding the determined files.
+     */static walkDirectoryRecursively(directoryPath,callback=Tools.noop,options={encoding:'utf8'}){return new _promise2.default(function(resolve,reject){fileSystem.readdir(directoryPath,options,function(){var _ref9=(0,_asyncToGenerator3.default)(function*(error,fileNames){if(error)return reject(error);const files=[];const statPromises=[];for(const fileName of fileNames){const filePath=path.resolve(directoryPath,fileName);statPromises.push(new _promise2.default(function(resolve){return fileSystem.stat(filePath,function(error,stat){files.push({path:filePath,stat:error||stat});resolve()})}))}yield _promise2.default.all(statPromises);if(callback)/*
+                        NOTE: Directories have to be iterated first to
+                        potentially avoid deeper iterations.
+                    */files.sort(function(firstFile,secondFile){if(firstFile.stat.isDirectory()){if(secondFile.stat.isDirectory())return 0;return-1}if(secondFile.stat.isDirectory())return 1;return 0});let finalFiles=[];for(const file of files){finalFiles.push(file);const result=callback(file);if(result===null)break;if(result!==false&&file.stat.isDirectory())finalFiles=finalFiles.concat((yield Tools.walkDirectoryRecursively(file.path,callback)))}resolve(finalFiles)});return function(_x11,_x12){return _ref9.apply(this,arguments)}}())})}/**
+     * Iterates through given directory structure recursively and calls given
+     * callback for each found file. Callback gets file path and corresponding
+     * stat object as argument.
+     * @param directoryPath - Path to directory structure to traverse.
+     * @param callback - Function to invoke for each traversed file.
+     * @param options - Options to use for nested "readdir" calls.
+     * @returns Determined list if all files.
+     */static walkDirectoryRecursivelySync(directoryPath,callback=Tools.noop,options={encoding:'utf8'}){let files=[];for(const fileName of fileSystem.readdirSync(directoryPath,options)){const filePath=path.resolve(directoryPath,fileName);files.push({path:filePath,stat:fileSystem.statSync(filePath)})}if(callback)/*
+                NOTE: Directories have to be iterated first to potentially
+                avoid deeper iterations.
+            */files.sort(function(firstFile,secondFile){if(firstFile.stat.isDirectory()){if(secondFile.stat.isDirectory())return 0;return-1}if(secondFile.stat.isDirectory())return 1;return 0});let finalFiles=[];for(const file of files){finalFiles.push(file);const result=callback(file);if(result===null)break;if(result!==false&&file.stat.isDirectory())finalFiles=finalFiles.concat(Tools.walkDirectoryRecursivelySync(file.path,callback))}return finalFiles}// / endregion
+// / region process handler
+/**
+     * Generates a one shot close handler which triggers given promise methods.
+     * If a reason is provided it will be given as resolve target. An Error
+     * will be generated if return code is not zero. The generated Error has
+     * a property "returnCode" which provides corresponding process return
+     * code.
+     * @param resolve - Promise's resolve function.
+     * @param reject - Promise's reject function.
+     * @param reason - Promise target if process has a zero return code.
+     * @param callback - Optional function to call of process has successfully
+     * finished.
+     * @returns Process close handler function.
+     */static getProcessCloseHandler(resolve,reject,reason=null,callback=function(){}){let finished=false;return function(returnCode){if(!finished)if(typeof returnCode!=='number'||returnCode===0){callback();resolve(reason)}else{const error=new Error(`Task exited with error code ${returnCode}`);// IgnoreTypeCheck
+error.returnCode=returnCode;reject(error)}finished=true}}/**
+     * Forwards given child process communication channels to corresponding
+     * current process communication channels.
+     * @param childProcess - Child process meta data.
+     * @returns Given child process meta data.
+     */static handleChildProcess(childProcess){childProcess.stdout.pipe(process.stdout);childProcess.stderr.pipe(process.stderr);childProcess.on('close',function(returnCode){if(returnCode!==0)console.error(`Task exited with error code ${returnCode}`)});return childProcess}// / endregion
+// endregion
+// region protected methods
+/* eslint-disable jsdoc/require-description-complete-sentence *//**
+     * Helper method for attach event handler methods and their event handler
+     * remove pendants.
+     * @param parameter - Arguments object given to methods like "bind()" or
+     * "unbind()".
+     * @param removeEvent - Indicates if "unbind()" or "bind()" was given.
+     * @param eventFunctionName - Name of function to wrap.
+     * @returns Returns $'s wrapped dom node.
+     */_bindEventHelper(parameter,removeEvent=false,eventFunctionName='on'){/* eslint-enable jsdoc/require-description-complete-sentence */const $domNode=$(parameter[0]);if(this.constructor.determineType(parameter[1])==='object'&&!removeEvent){for(const eventType in parameter[1])if(parameter[1].hasOwnProperty(eventType))// IgnoreTypeCheck
+this[eventFunctionName]($domNode,eventType,parameter[1][eventType]);return $domNode}parameter=this.constructor.arrayMake(parameter).slice(1);if(parameter.length===0)parameter.push('');if(!parameter[0].includes('.'))parameter[0]+=`.${this.constructor._name}`;if(removeEvent)return $domNode[eventFunctionName](...parameter);return $domNode[eventFunctionName](...parameter)}// endregion
+}exports.default=Tools;// endregion
+// region handle $ extending
+Tools.abbreviations=['html','id','url','us','de','api','href'];Tools.animationEndEventNames='animationend webkitAnimationEnd '+'oAnimationEnd MSAnimationEnd';Tools.classToTypeMapping={'[object Array]':'array','[object Boolean]':'boolean','[object Date]':'date','[object Error]':'error','[object Function]':'function','[object Number]':'number','[object Object]':'object','[object RegExp]':'regexp','[object String]':'string'};Tools.closeEventNames=['exit','close','uncaughtException','SIGINT','SIGTERM','SIGQUIT'];Tools.consoleMethodNames=['assert','clear','count','debug','dir','dirxml','error','exception','group','groupCollapsed','groupEnd','info','log','markTimeline','profile','profileEnd','table','time','timeEnd','timeStamp','trace','warn'];Tools.keyCode={BACKSPACE:8,COMMA:188,DELETE:46,DOWN:40,END:35,ENTER:13,ESCAPE:27,HOME:36,LEFT:37,NUMPAD_ADD:107,NUMPAD_DECIMAL:110,NUMPAD_DIVIDE:111,NUMPAD_ENTER:108,NUMPAD_MULTIPLY:106,NUMPAD_SUBTRACT:109,PAGE_DOWN:34,PAGE_UP:33,PERIOD:190,RIGHT:39,SPACE:32,TAB:9,UP:38};Tools.maximalSupportedInternetExplorerVersion=function(){if(!('document'in $.global))return 0;const div=$.global.document.createElement('div');let version;for(version=0;version<10;version++){/*
+                NOTE: We split html comment sequences to avoid wrong
+                interpretation if this code is embedded in markup.
+                NOTE: Internet Explorer 9 and lower sometimes doesn't
+                understand conditional comments wich doesn't starts with a
+                whitespace. If the conditional markup isn't in a commend.
+                Otherwise there shouldn't be any whitespace!
+            *//* eslint-disable no-useless-concat */div.innerHTML='<!'+`--[if gt IE ${version}]><i></i><![e`+'ndif]-'+'->';/* eslint-enable no-useless-concat */if(div.getElementsByTagName('i').length===0)break}// Try special detection for internet explorer 10 and 11.
+if(version===0&&'navigator'in $.global)if($.global.navigator.appVersion.includes('MSIE 10'))return 10;else if($.global.navigator.userAgent.includes('Trident')&&$.global.navigator.userAgent.includes('rv:11'))return 11;return version}();Tools.noop='noop'in $?$.noop:function(){};Tools.specialRegexSequences=['-','[',']','(',')','^','$','*','+','.','{','}'];Tools.transitionEndEventNames='transitionend '+'webkitTransitionEnd oTransitionEnd MSTransitionEnd';Tools._javaScriptDependentContentHandled=false;Tools._name='Tools';if('fn'in $)$.fn.Tools=function(...parameter){return new Tools().controller(Tools,parameter,this)};$.Tools=function(...parameter){return new Tools().controller(Tools,parameter)};$.Tools.class=Tools;if('fn'in $){// region prop fix for comments and text nodes
+const nativePropFunction=$.fn.prop;/**
+     * JQuery's native prop implementation ignores properties for text nodes,
+     * comments and attribute nodes.
+     * @param key - Name of property to retrieve from current dom node.
+     * @param additionalParameter - Additional parameter will be forwarded to
+     * native prop function also.
+     * @returns Returns value if used as getter or current dom node if used as
+     * setter.
+     */$.fn.prop=function(key,...additionalParameter){if(additionalParameter.length<2&&this.length&&['#text','#comment'].includes(this[0].nodeName)&&key in this[0]){if(additionalParameter.length===0)return this[0][key];if(additionalParameter.length===1){this[0][key]=additionalParameter[0];return this}}return nativePropFunction.call(this,key,...additionalParameter)};// endregion
+// region fix script loading errors with canceling requests after dom ready
+$.readyException=function(error){if(!(typeof error==='string'&&error==='canceled'))throw error};// endregion
+}// endregion
+// region vim modline
+// vim: set tabstop=4 shiftwidth=4 expandtab:
+// vim: foldmethod=marker foldmarker=region,endregion:
+// endregion
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)(module), __webpack_require__(1), __webpack_require__(3)))
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_6__;
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_9__;
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_10__;
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_11__;
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+if(typeof __WEBPACK_EXTERNAL_MODULE_12__ === 'undefined') {var e = new Error("Cannot find module \"jQuery\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+module.exports = __WEBPACK_EXTERNAL_MODULE_12__;
+
+/***/ }),
+/* 13 */,
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(0);
+
+
+/***/ })
+/******/ ]);
+});
