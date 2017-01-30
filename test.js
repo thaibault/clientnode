@@ -2661,8 +2661,7 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
                         ])
                             if (!(name in global))
                                 global[name] = window[name]
-                        $ = require('jquery')
-                        window.$ = $
+                        window.$ = require('jquery')
                     }
                     $ = require('clientnode').$
                     $.context = window.document
