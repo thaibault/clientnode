@@ -447,7 +447,7 @@ export default class Tools {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
             object = new object($domNode)
-            if (!object instanceof Tools)
+            if (!(object instanceof Tools))
                 object = this.constructor.extendObject(
                     true, new Tools(), object)
         }
@@ -1512,13 +1512,13 @@ export default class Tools {
         setterWrapper:?SetterFunction = null, methodNames:PlainObject = {},
         deep:boolean = true, typesToExtend:Array<mixed> = [Object]
     ):any {
-        if (deep)
+        if (deep && typeof object === 'object')
             if (object instanceof Map)
                 for (const [key:mixed, value:mixed] of object)
                     object.set(key, Tools.addDynamicGetterAndSetter(
                         value, getterWrapper, setterWrapper, methodNames, deep)
                     )
-            else if (typeof object === 'object' && object !== null) {
+            else if (object !== null) {
                 for (const key:string in object)
                     if (object.hasOwnProperty(key))
                         object[key] = Tools.addDynamicGetterAndSetter(
@@ -1534,7 +1534,10 @@ export default class Tools {
             }
         if (getterWrapper || setterWrapper)
             for (const type:mixed of typesToExtend)
-                if (object instanceof type && object !== null) {
+                if (
+                    typeof object === 'object' && object instanceof type &&
+                    object !== null
+                ) {
                     const defaultHandler = Tools.getProxyHandler(
                         object, methodNames)
                     const handler:Object = Tools.getProxyHandler(
@@ -1602,28 +1605,30 @@ export default class Tools {
     static convertMapToPlainObject<Value>(
         object:Value, deep:boolean = true
     ):Value|PlainObject {
-        if (object instanceof Map) {
-            const newObject:PlainObject = {}
-            for (let [key:any, value:mixed] of object) {
-                if (deep)
-                    value = Tools.convertMapToPlainObject(value, deep)
-                newObject[`${key}`] = value
-            }
-            return newObject
-        }
-        if (deep)
-            if (typeof object === 'object' && Tools.isPlainObject(object)) {
-                for (const key:string in object)
-                    if (object.hasOwnProperty(key))
-                        object[key] = Tools.convertMapToPlainObject(
-                            object[key], deep)
-            } else if (Array.isArray(object)) {
-                let index:number = 0
-                for (const value:mixed of object) {
-                    object[index] = Tools.convertMapToPlainObject(value, deep)
-                    index += 1
+        if (typeof object === 'object') {
+            if (object instanceof Map) {
+                const newObject:PlainObject = {}
+                for (let [key:any, value:mixed] of object) {
+                    if (deep)
+                        value = Tools.convertMapToPlainObject(value, deep)
+                    newObject[`${key}`] = value
                 }
+                return newObject
             }
+            if (deep)
+                if (Tools.isPlainObject(object)) {
+                    for (const key:string in object)
+                        if (object.hasOwnProperty(key))
+                            object[key] = Tools.convertMapToPlainObject(
+                                object[key], deep)
+                } else if (Array.isArray(object)) {
+                    let index:number = 0
+                    for (const value:mixed of object) {
+                        object[index] = Tools.convertMapToPlainObject(value, deep)
+                        index += 1
+                    }
+                }
+        }
         return object
     }
     /**
@@ -1636,29 +1641,32 @@ export default class Tools {
     static convertPlainObjectToMap<Value>(
         object:Value, deep:boolean = true
     ):Value|Map<any, any> {
-        if (typeof object === 'object' && Tools.isPlainObject(object)) {
-            const newObject:Map<any, any> = new Map()
-            for (const key:string in object)
-                if (object.hasOwnProperty(key)) {
-                    if (deep)
-                        object[key] = Tools.convertPlainObjectToMap(
-                            object[key], deep)
-                    newObject.set(key, object[key])
-                }
-            return newObject
-        }
-        if (deep)
-            if (Array.isArray(object)) {
-                let index:number = 0
-                for (const value:any of object) {
-                    object[index] = Tools.convertPlainObjectToMap(value, deep)
-                    index += 1
-                }
-            } else if (object instanceof Map) {
-                for (const [key:mixed, value:mixed] of object)
-                    object.set(key, Tools.convertPlainObjectToMap(
-                        value, deep))
+        if (typeof object === 'object') {
+            if (Tools.isPlainObject(object)) {
+                const newObject:Map<any, any> = new Map()
+                for (const key:string in object)
+                    if (object.hasOwnProperty(key)) {
+                        if (deep)
+                            object[key] = Tools.convertPlainObjectToMap(
+                                object[key], deep)
+                        newObject.set(key, object[key])
+                    }
+                return newObject
             }
+            if (deep)
+                if (Array.isArray(object)) {
+                    let index:number = 0
+                    for (const value:any of object) {
+                        object[index] = Tools.convertPlainObjectToMap(
+                            value, deep)
+                        index += 1
+                    }
+                } else if (object instanceof Map) {
+                    for (const [key:mixed, value:mixed] of object)
+                        object.set(key, Tools.convertPlainObjectToMap(
+                            value, deep))
+                }
+        }
         return object
     }
     /**
@@ -1702,67 +1710,65 @@ export default class Tools {
         destination:any = null, stackSource:Array<any> = [],
         stackDestination:Array<any> = [], recursionLevel:number = 0
     ):any {
-        if (destination) {
-            if (source === destination)
-                throw new Error(
-                    `Can't copy because source and destination are identical.`)
-            if (recursionLimit !== -1 && recursionLimit < recursionLevel)
-                return null
-            if (!cyclic && ![undefined, null].includes(
-                source
-            ) && typeof source === 'object') {
-                const index:number = stackSource.indexOf(source)
-                if (index !== -1)
-                    return stackDestination[index]
-                stackSource.push(source)
-                stackDestination.push(destination)
-            }
-            const copyValue:Function = (value:any):any => {
-                const result:any = Tools.copyLimitedRecursively(
-                    value, recursionLimit, cyclic, null, stackSource,
-                    stackDestination, recursionLevel + 1)
-                if (!cyclic && ![undefined, null].includes(
-                    value
-                ) && typeof value === 'object') {
-                    stackSource.push(value)
-                    stackDestination.push(result)
+        if (typeof source === 'object')
+            if (destination) {
+                if (source === destination)
+                    throw new Error(
+                        `Can't copy because source and destination are ` +
+                        `identical.`)
+                if (recursionLimit !== -1 && recursionLimit < recursionLevel)
+                    return null
+                if (!cyclic && ![undefined, null].includes(source)) {
+                    const index:number = stackSource.indexOf(source)
+                    if (index !== -1)
+                        return stackDestination[index]
+                    stackSource.push(source)
+                    stackDestination.push(destination)
                 }
-                return result
+                const copyValue:Function = (value:any):any => {
+                    const result:any = Tools.copyLimitedRecursively(
+                        value, recursionLimit, cyclic, null, stackSource,
+                        stackDestination, recursionLevel + 1)
+                    if (!cyclic && ![undefined, null].includes(
+                        value
+                    ) && typeof value === 'object') {
+                        stackSource.push(value)
+                        stackDestination.push(result)
+                    }
+                    return result
+                }
+                if (Array.isArray(source))
+                    for (const item:any of source)
+                        destination.push(copyValue(item))
+                if (source instanceof Map)
+                    for (const [key:mixed, value:mixed] of source)
+                        destination.set(key, copyValue(value))
+                else
+                    for (const key:string in source)
+                        if (source.hasOwnProperty(key))
+                            destination[key] = copyValue(source[key])
+            } else if (source) {
+                if (Array.isArray(source))
+                    return Tools.copyLimitedRecursively(
+                        source, recursionLimit, cyclic, [], stackSource,
+                        stackDestination, recursionLevel)
+                if (source instanceof Map)
+                    return Tools.copyLimitedRecursively(
+                        source, recursionLimit, cyclic, new Map(), stackSource,
+                        stackDestination, recursionLevel)
+                if (Tools.determineType(source) === 'date')
+                    return new Date(source.getTime())
+                if (Tools.determineType(source) === 'regexp') {
+                    destination = new RegExp(
+                        source.source, source.toString().match(/[^\/]*$/)[0])
+                    destination.lastIndex = source.lastIndex
+                    return destination
+                }
+                if (![undefined, null].includes(source))
+                    return Tools.copyLimitedRecursively(
+                        source, recursionLimit, cyclic, {}, stackSource,
+                        stackDestination, recursionLevel)
             }
-            if (Array.isArray(source))
-                for (const item:any of source)
-                    destination.push(copyValue(item))
-            if (source instanceof Map)
-                for (const [key:mixed, value:mixed] of source)
-                    destination.set(key, copyValue(value))
-            else
-                for (const key:string in source)
-                    if (source.hasOwnProperty(key))
-                        destination[key] = copyValue(source[key])
-        } else if (source) {
-            if (Array.isArray(source))
-                return Tools.copyLimitedRecursively(
-                    source, recursionLimit, cyclic, [], stackSource,
-                    stackDestination, recursionLevel)
-            if (source instanceof Map)
-                return Tools.copyLimitedRecursively(
-                    source, recursionLimit, cyclic, new Map(), stackSource,
-                    stackDestination, recursionLevel)
-            if (Tools.determineType(source) === 'date')
-                return new Date(source.getTime())
-            if (Tools.determineType(source) === 'regexp') {
-                destination = new RegExp(
-                    source.source, source.toString().match(/[^\/]*$/)[0])
-                destination.lastIndex = source.lastIndex
-                return destination
-            }
-            if (![undefined, null].includes(
-                source
-            ) && typeof source === 'object')
-                return Tools.copyLimitedRecursively(
-                    source, recursionLimit, cyclic, {}, stackSource,
-                    stackDestination, recursionLevel)
-        }
         return destination || source
     }
     /**
@@ -1971,10 +1977,11 @@ export default class Tools {
     ):Array<any> {
         const keys:Array<any> = Tools.sort(object)
         for (const key:any of keys)
-            if (object instanceof Map)
-                iterator.call(context, object.get(key), key)
-            else if (Array.isArray(object) || object instanceof Object)
-                iterator.call(context, object[key], key)
+            if (typeof object === 'object')
+                if (object instanceof Map)
+                    iterator.call(context, object.get(key), key)
+                else if (Array.isArray(object) || object instanceof Object)
+                    iterator.call(context, object[key], key)
         return keys
     }
     /**
@@ -2320,13 +2327,14 @@ export default class Tools {
         if (Array.isArray(object))
             for (let index:number = 0; index < object.length; index++)
                 keys.push(index)
-        else if (object instanceof Map)
-            for (const keyValuePair:Array<any> of object)
-                keys.push(keyValuePair[0])
-        else if (object instanceof Object)
-            for (const key:string in object)
-                if (object.hasOwnProperty(key))
-                    keys.push(key)
+        else if (typeof object === 'object')
+            if (object instanceof Map)
+                for (const keyValuePair:Array<any> of object)
+                    keys.push(keyValuePair[0])
+            else if (object instanceof Object)
+                for (const key:string in object)
+                    if (object.hasOwnProperty(key))
+                        keys.push(key)
         return keys.sort()
     }
     /**
