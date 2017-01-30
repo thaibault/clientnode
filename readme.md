@@ -89,7 +89,7 @@ after needed dependencies:
 
     #!HTML
 
-    <script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <!--Inject downloaded file:-->
     <script src="index.compiled.js"></script>
     <!--Or integrate via cdn:
