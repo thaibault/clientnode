@@ -1936,15 +1936,12 @@ export default class Tools {
             const source:any = targetAndOrSources[index]
             let targetType:string = typeof target
             let sourceType:string = typeof source
-            if (typeof target === 'object' && target instanceof Map)
+            if (target instanceof Map)
                 targetType += ' Map'
-            if (typeof source === 'object' && source instanceof Map)
+            if (source instanceof Map)
                 sourceType += ' Map'
             if (targetType === sourceType && target !== source)
-                if (
-                    typeof target === 'object' && target instanceof Map &&
-                    typeof source === 'object' && source instanceof Map
-                )
+                if (target instanceof Map && source instanceof Map)
                     for (const [key:string, value:any] of source)
                         target.set(key, mergeValue(key, value, target.get(
                             key)))
@@ -2367,7 +2364,7 @@ export default class Tools {
                     object[index] = Tools.unwrapProxy(value, seenObjects)
                     index += 1
                 }
-            } else if (typeof object === 'object' && object instanceof Map)
+            } else if (object instanceof Map)
                 for (const [key:mixed, value:mixed] of object)
                     object.set(key, Tools.unwrapProxy(value, seenObjects))
             else
@@ -2553,7 +2550,6 @@ export default class Tools {
                 let matches:boolean = true
                 for (const propertyName:string in propertyPattern)
                     if (!((
-                        typeof propertyPattern[propertyName] === 'object' &&
                         propertyPattern[propertyName] instanceof RegExp
                     ) ? propertyPattern[propertyName] : new RegExp(
                         propertyPattern[propertyName]
