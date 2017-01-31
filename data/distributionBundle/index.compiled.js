@@ -1,14 +1,14 @@
 'use strict';
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("babel-runtime/core-js/json/stringify"), require("babel-runtime/core-js/map"), require("babel-runtime/core-js/number/is-nan"), require("babel-runtime/core-js/object/get-own-property-names"), require("babel-runtime/core-js/object/get-prototype-of"), require("babel-runtime/core-js/promise"), require("babel-runtime/core-js/set"), require("babel-runtime/helpers/asyncToGenerator"), (function webpackLoadOptionalExternalModule() { try { return require('jquery'); } catch(e) {} }()));
+		module.exports = factory((function webpackLoadOptionalExternalModule() { try { return require('jquery'); } catch(e) {} }()));
 	else if(typeof define === 'function' && define.amd)
-		define("clientnode", ["babel-runtime/core-js/json/stringify", "babel-runtime/core-js/map", "babel-runtime/core-js/number/is-nan", "babel-runtime/core-js/object/get-own-property-names", "babel-runtime/core-js/object/get-prototype-of", "babel-runtime/core-js/promise", "babel-runtime/core-js/set", "babel-runtime/helpers/asyncToGenerator", 'jquery'], factory);
+		define("clientnode", ['jquery'], factory);
 	else if(typeof exports === 'object')
-		exports["clientnode"] = factory(require("babel-runtime/core-js/json/stringify"), require("babel-runtime/core-js/map"), require("babel-runtime/core-js/number/is-nan"), require("babel-runtime/core-js/object/get-own-property-names"), require("babel-runtime/core-js/object/get-prototype-of"), require("babel-runtime/core-js/promise"), require("babel-runtime/core-js/set"), require("babel-runtime/helpers/asyncToGenerator"), (function webpackLoadOptionalExternalModule() { try { return require('jquery'); } catch(e) {} }()));
+		exports["clientnode"] = factory((function webpackLoadOptionalExternalModule() { try { return require('jquery'); } catch(e) {} }()));
 	else
-		root['clientnode'] = factory(root["babel-runtime/core-js/json/stringify"], root["babel-runtime/core-js/map"], root["babel-runtime/core-js/number/is-nan"], root["babel-runtime/core-js/object/get-own-property-names"], root["babel-runtime/core-js/object/get-prototype-of"], root["babel-runtime/core-js/promise"], root["babel-runtime/core-js/set"], root["babel-runtime/helpers/asyncToGenerator"], root["jQuery"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_5__, __WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_7__, __WEBPACK_EXTERNAL_MODULE_8__, __WEBPACK_EXTERNAL_MODULE_9__, __WEBPACK_EXTERNAL_MODULE_10__, __WEBPACK_EXTERNAL_MODULE_11__, __WEBPACK_EXTERNAL_MODULE_12__) {
+		root['clientnode'] = factory(root["jQuery"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_4__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -74,7 +74,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 14);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -98,14 +98,14 @@ return /******/ (function(modules) { // webpackBootstrap
     See http://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */// region imports
-exports.__esModule=true;exports.$=exports.globalContext=undefined;var _getOwnPropertyNames=__webpack_require__(7);var _getOwnPropertyNames2=_interopRequireDefault(_getOwnPropertyNames);var _set=__webpack_require__(10);var _set2=_interopRequireDefault(_set);var _map=__webpack_require__(5);var _map2=_interopRequireDefault(_map);var _stringify=__webpack_require__(4);var _stringify2=_interopRequireDefault(_stringify);var _isNan=__webpack_require__(6);var _isNan2=_interopRequireDefault(_isNan);var _getPrototypeOf=__webpack_require__(8);var _getPrototypeOf2=_interopRequireDefault(_getPrototypeOf);var _promise=__webpack_require__(9);var _promise2=_interopRequireDefault(_promise);var _asyncToGenerator2=__webpack_require__(11);var _asyncToGenerator3=_interopRequireDefault(_asyncToGenerator2);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj}}let fileSystem={};try{fileSystem=eval('require')('fs')}catch(error){}let path={};try{path=eval('require')('path')}catch(error){}// NOTE: Only needed for debugging this file.
+exports.__esModule=true;function _asyncToGenerator(fn){return function(){var gen=fn.apply(this,arguments);return new Promise(function(resolve,reject){function step(key,arg){try{var info=gen[key](arg);var value=info.value}catch(error){reject(error);return}if(info.done){resolve(value)}else{return Promise.resolve(value).then(function(value){step('next',value)},function(err){step('throw',err)})}}return step('next')})}}let fileSystem={};try{fileSystem=eval('require')('fs')}catch(error){}let path={};try{path=eval('require')('path')}catch(error){}// NOTE: Only needed for debugging this file.
 try{module.require('source-map-support/register')}catch(error){}// endregion
 // region types
 // / region browser
 // / endregion
 // endregion
 // region determine context
-const globalContext=exports.globalContext=function(){if(typeof window==='undefined'){if(typeof global==='undefined')return  false?{}:module;if('window'in global)return global.window;return global}return window}();/* eslint-disable no-use-before-define */const $=exports.$=function(){/* eslint-enable no-use-before-define */let _$;if('$'in globalContext&&globalContext.$!==null)_$=globalContext.$;else{if(!('$'in globalContext)&&'document'in globalContext)try{return __webpack_require__(12)}catch(error){}const selector='document'in globalContext&&'querySelectorAll'in globalContext.document?globalContext.document.querySelectorAll.bind(globalContext.document):function(){return null};_$=function $(parameter,...additionalArguments){if(typeof parameter==='string'){const $domNodes=selector(parameter,...additionalArguments);if('fn'in _$)for(const key in _$.fn)if(_$.fn.hasOwnProperty(key))// IgnoreTypeCheck
+const globalContext=exports.globalContext=function(){if(typeof window==='undefined'){if(typeof global==='undefined')return  false?{}:module;if('window'in global)return global.window;return global}return window}();/* eslint-disable no-use-before-define */const $=exports.$=function(){/* eslint-enable no-use-before-define */let _$;if('$'in globalContext&&globalContext.$!==null)_$=globalContext.$;else{if(!('$'in globalContext)&&'document'in globalContext)try{return __webpack_require__(4)}catch(error){}const selector='document'in globalContext&&'querySelectorAll'in globalContext.document?globalContext.document.querySelectorAll.bind(globalContext.document):function(){return null};_$=function $(parameter,...additionalArguments){if(typeof parameter==='string'){const $domNodes=selector(parameter,...additionalArguments);if('fn'in _$)for(const key in _$.fn)if(_$.fn.hasOwnProperty(key))// IgnoreTypeCheck
 $domNodes[key]=_$.fn[key].bind($domNodes);return $domNodes}/* eslint-disable no-use-before-define */if(Tools.isFunction(parameter)&&'document'in globalContext)/* eslint-enable no-use-before-define */globalContext.document.addEventListener('DOMContentLoaded',parameter);return parameter};_$.fn={}}return _$}();if(!('global'in $))$.global=globalContext;if(!('context'in $)&&'document'in $.global)$.context=$.global.document;// endregion
 // region plugins/classes
 /**
@@ -219,14 +219,14 @@ $domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tool
      * string will be given to the callback function.
      * @param autoRelease - Release the lock after execution of given callback.
      * @returns Returns a promise which will be resolved after releasing lock.
-     */acquireLock(description,callbackFunction=Tools.noop,autoRelease=false){var _this=this;return(0,_asyncToGenerator3.default)(function*(){return new _promise2.default(function(resolve){const wrappedCallbackFunction=function(){var _ref=(0,_asyncToGenerator3.default)(function*(description){const result=callbackFunction(description);const finish=function finish(value){if(autoRelease)_this.releaseLock(description);resolve(value)};if(result!==null&&typeof result==='object'&&'then'in result)return result.then(finish);finish(description)});return function wrappedCallbackFunction(_x){return _ref.apply(this,arguments)}}();if(_this._locks.hasOwnProperty(description))_this._locks[description].push(wrappedCallbackFunction);else{_this._locks[description]=[];wrappedCallbackFunction(description)}})})()}/**
+     */acquireLock(description,callbackFunction=Tools.noop,autoRelease=false){var _this=this;return _asyncToGenerator(function*(){return new Promise(function(resolve){const wrappedCallbackFunction=function(){var _ref=_asyncToGenerator(function*(description){const result=callbackFunction(description);const finish=function finish(value){if(autoRelease)_this.releaseLock(description);resolve(value)};if(result!==null&&typeof result==='object'&&'then'in result)return result.then(finish);finish(description)});return function wrappedCallbackFunction(_x){return _ref.apply(this,arguments)}}();if(_this._locks.hasOwnProperty(description))_this._locks[description].push(wrappedCallbackFunction);else{_this._locks[description]=[];wrappedCallbackFunction(description)}})})()}/**
      * Calling this method  causes the given critical area to be finished and
      * all functions given to "acquireLock()" will be executed in right order.
      * @param description - A short string describing the critical areas
      * properties.
      * @returns Returns the return value of the callback given to the
      * "acquireLock" method.
-     */releaseLock(description){var _this2=this;return(0,_asyncToGenerator3.default)(function*(){let result;if(_this2._locks.hasOwnProperty(description)){if(_this2._locks[description].length){result=_this2._locks[description].shift()(description);if(result!==null&&typeof result==='object'&&'then'in result)yield result}delete _this2._locks[description]}return result})()}/**
+     */releaseLock(description){var _this2=this;return _asyncToGenerator(function*(){let result;if(_this2._locks.hasOwnProperty(description)){if(_this2._locks[description].length){result=_this2._locks[description].shift()(description);if(result!==null&&typeof result==='object'&&'then'in result)yield result}delete _this2._locks[description]}return result})()}/**
      * Generate a semaphore object with given number of resources.
      * @param numberOfResources - Number of allowed concurrent resource uses.
      * @returns The requested semaphore instance.
@@ -234,7 +234,7 @@ $domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tool
              * Acquires a new resource and runs given callback if available.
              * @returns A promise which will be resolved if requested a
              * resource is available.
-             */acquire(){var _this3=this;return new _promise2.default(function(resolve){if(_this3.numberOfResources<=0)_this3.queue.push(resolve);else{_this3.numberOfResources-=1;resolve(_this3.numberOfResources)}})}/**
+             */acquire(){var _this3=this;return new Promise(function(resolve){if(_this3.numberOfResources<=0)_this3.queue.push(resolve);else{_this3.numberOfResources-=1;resolve(_this3.numberOfResources)}})}/**
              * Releases a resource and runs a waiting resolver if there exists
              * some.
              * @returns Nothing.
@@ -269,7 +269,7 @@ $domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tool
      * @param object - Object to check.
      * @returns Value "true" if given object is a plain javaScript object and
      * "false" otherwise.
-     */static isPlainObject(object){return typeof object==='object'&&object!==null&&(0,_getPrototypeOf2.default)(object)===Object.prototype}/**
+     */static isPlainObject(object){return typeof object==='object'&&object!==null&&Object.getPrototypeOf(object)===Object.prototype}/**
      * Checks whether given object is a function.
      * @param object - Object to check.
      * @returns Value "true" if given object is a function and "false"
@@ -491,7 +491,7 @@ names.push(name.replace(/=.+$/g,'').trim());return names}return names}/**
      * value "true" is within one of the first three parameter. The promise
      * holds a boolean indicating weather timeout has been canceled or
      * resolved.
-     */static timeout(...parameter){let callback=Tools.noop;let delayInMilliseconds=0;let throwOnTimeoutClear=false;for(const value of parameter)if(typeof value==='number'&&!(0,_isNan2.default)(value))delayInMilliseconds=value;else if(typeof value==='boolean')throwOnTimeoutClear=value;else if(Tools.isFunction(value))callback=value;let rejectCallback;let resolveCallback;const result=new _promise2.default(function(resolve,reject){rejectCallback=reject;resolveCallback=resolve});const wrappedCallback=function wrappedCallback(){callback.call(result,...parameter);resolveCallback(false)};const maximumTimeoutDelayInMilliseconds=2147483647;if(delayInMilliseconds<=maximumTimeoutDelayInMilliseconds)// IgnoreTypeCheck
+     */static timeout(...parameter){let callback=Tools.noop;let delayInMilliseconds=0;let throwOnTimeoutClear=false;for(const value of parameter)if(typeof value==='number'&&!Number.isNaN(value))delayInMilliseconds=value;else if(typeof value==='boolean')throwOnTimeoutClear=value;else if(Tools.isFunction(value))callback=value;let rejectCallback;let resolveCallback;const result=new Promise(function(resolve,reject){rejectCallback=reject;resolveCallback=resolve});const wrappedCallback=function wrappedCallback(){callback.call(result,...parameter);resolveCallback(false)};const maximumTimeoutDelayInMilliseconds=2147483647;if(delayInMilliseconds<=maximumTimeoutDelayInMilliseconds)// IgnoreTypeCheck
 result.timeoutID=setTimeout(wrappedCallback,delayInMilliseconds);else{/*
                 Determine the number of times we need to delay by maximum
                 possible timeout duration.
@@ -560,7 +560,7 @@ return getterWrapper(defaultHandler.get(proxy,name),name,object)};if(setterWrapp
      * value depending on given redundant value.
      * @param numberOfSpaces - Number of spaces to use for string formatting.
      * @returns The formatted json string.
-     */static convertCircularObjectToJSON(object,determineCicularReferenceValue=function(){return'__circularReference__'},numberOfSpaces=0){const seenObjects=[];return(0,_stringify2.default)(object,function(key,value){if(typeof value==='object'&&value!==null){if(seenObjects.includes(value))return determineCicularReferenceValue(key,value,seenObjects);seenObjects.push(value);return value}return value},numberOfSpaces)}/**
+     */static convertCircularObjectToJSON(object,determineCicularReferenceValue=function(){return'__circularReference__'},numberOfSpaces=0){const seenObjects=[];return JSON.stringify(object,function(key,value){if(typeof value==='object'&&value!==null){if(seenObjects.includes(value))return determineCicularReferenceValue(key,value,seenObjects);seenObjects.push(value);return value}return value},numberOfSpaces)}/**
      * Converts given map and all nested found maps objects to corresponding
      * object.
      * @param object - Map to convert to.
@@ -577,7 +577,7 @@ object.add(value)}}return object}/**
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given object as map.
      */// IgnoreTypeCheck
-static convertPlainObjectToMap(object,deep=true){if(typeof object==='object'){if(Tools.isPlainObject(object)){const newObject=new _map2.default;for(const key in object)if(object.hasOwnProperty(key)){if(deep)object[key]=Tools.convertPlainObjectToMap(object[key],deep);newObject.set(key,object[key])}return newObject}if(deep)if(Array.isArray(object)){let index=0;for(const value of object){object[index]=Tools.convertPlainObjectToMap(value,deep);index+=1}}else if(Tools.determineType(object)==='map')// IgnoreTypeCheck
+static convertPlainObjectToMap(object,deep=true){if(typeof object==='object'){if(Tools.isPlainObject(object)){const newObject=new Map;for(const key in object)if(object.hasOwnProperty(key)){if(deep)object[key]=Tools.convertPlainObjectToMap(object[key],deep);newObject.set(key,object[key])}return newObject}if(deep)if(Array.isArray(object)){let index=0;for(const value of object){object[index]=Tools.convertPlainObjectToMap(value,deep);index+=1}}else if(Tools.determineType(object)==='map')// IgnoreTypeCheck
 for(const[key,value]of object)object.set(key,Tools.convertPlainObjectToMap(value,deep));else if(Tools.determineType(object)==='set'){const cache=[];// IgnoreTypeCheck
 for(const value of object){object.delete(value);cache.push(Tools.convertPlainObjectToMap(value,deep))}for(const value of cache)// IgnoreTypeCheck
 object.add(value)}}return object}/**
@@ -602,7 +602,7 @@ object.add(value)}}return object}/**
      * @param recursionLevel - Internally used to track current recursion
      * level in given source data structure.
      * @returns Value "true" if both objects are equal and "false" otherwise.
-     */static copyLimitedRecursively(source,recursionLimit=-1,cyclic=false,destination=null,stackSource=[],stackDestination=[],recursionLevel=0){if(typeof source==='object')if(destination){if(source===destination)throw new Error(`Can't copy because source and destination are `+`identical.`);if(recursionLimit!==-1&&recursionLimit<recursionLevel)return null;if(!cyclic&&![undefined,null].includes(source)){const index=stackSource.indexOf(source);if(index!==-1)return stackDestination[index];stackSource.push(source);stackDestination.push(destination)}const copyValue=function copyValue(value){const result=Tools.copyLimitedRecursively(value,recursionLimit,cyclic,null,stackSource,stackDestination,recursionLevel+1);if(!cyclic&&![undefined,null].includes(value)&&typeof value==='object'){stackSource.push(value);stackDestination.push(result)}return result};if(Array.isArray(source))for(const item of source)destination.push(copyValue(item));else if(Tools.determineType(source)==='map')for(const[key,value]of source)destination.set(key,copyValue(value));else if(Tools.determineType(source)==='set')for(const value of source)destination.add(copyValue(value));else if(source!==null)for(const key in source)if(source.hasOwnProperty(key))destination[key]=copyValue(source[key])}else if(source){if(Array.isArray(source))return Tools.copyLimitedRecursively(source,recursionLimit,cyclic,[],stackSource,stackDestination,recursionLevel);if(Tools.determineType(source)==='map')return Tools.copyLimitedRecursively(source,recursionLimit,cyclic,new _map2.default,stackSource,stackDestination,recursionLevel);if(Tools.determineType(source)==='set')return Tools.copyLimitedRecursively(source,recursionLimit,cyclic,new _set2.default,stackSource,stackDestination,recursionLevel);if(Tools.determineType(source)==='date')return new Date(source.getTime());if(Tools.determineType(source)==='regexp'){destination=new RegExp(source.source,source.toString().match(/[^\/]*$/)[0]);destination.lastIndex=source.lastIndex;return destination}return Tools.copyLimitedRecursively(source,recursionLimit,cyclic,{},stackSource,stackDestination,recursionLevel)}return destination||source}/**
+     */static copyLimitedRecursively(source,recursionLimit=-1,cyclic=false,destination=null,stackSource=[],stackDestination=[],recursionLevel=0){if(typeof source==='object')if(destination){if(source===destination)throw new Error(`Can't copy because source and destination are `+`identical.`);if(recursionLimit!==-1&&recursionLimit<recursionLevel)return null;if(!cyclic&&![undefined,null].includes(source)){const index=stackSource.indexOf(source);if(index!==-1)return stackDestination[index];stackSource.push(source);stackDestination.push(destination)}const copyValue=function copyValue(value){const result=Tools.copyLimitedRecursively(value,recursionLimit,cyclic,null,stackSource,stackDestination,recursionLevel+1);if(!cyclic&&![undefined,null].includes(value)&&typeof value==='object'){stackSource.push(value);stackDestination.push(result)}return result};if(Array.isArray(source))for(const item of source)destination.push(copyValue(item));else if(Tools.determineType(source)==='map')for(const[key,value]of source)destination.set(key,copyValue(value));else if(Tools.determineType(source)==='set')for(const value of source)destination.add(copyValue(value));else if(source!==null)for(const key in source)if(source.hasOwnProperty(key))destination[key]=copyValue(source[key])}else if(source){if(Array.isArray(source))return Tools.copyLimitedRecursively(source,recursionLimit,cyclic,[],stackSource,stackDestination,recursionLevel);if(Tools.determineType(source)==='map')return Tools.copyLimitedRecursively(source,recursionLimit,cyclic,new Map,stackSource,stackDestination,recursionLevel);if(Tools.determineType(source)==='set')return Tools.copyLimitedRecursively(source,recursionLimit,cyclic,new Set,stackSource,stackDestination,recursionLevel);if(Tools.determineType(source)==='date')return new Date(source.getTime());if(Tools.determineType(source)==='regexp'){destination=new RegExp(source.source,source.toString().match(/[^\/]*$/)[0]);destination.lastIndex=source.lastIndex;return destination}return Tools.copyLimitedRecursively(source,recursionLimit,cyclic,{},stackSource,stackDestination,recursionLevel)}return destination||source}/**
      * Determine the internal JavaScript [[Class]] of an object.
      * @param object - Object to analyze.
      * @returns Name of determined class.
@@ -631,7 +631,7 @@ object.add(value)}}return object}/**
      * @returns Returns given target extended with all given sources.
      */static extendObject(targetOrDeepIndicator,...targetAndOrSources){let index=0;let deep=false;let target;if(typeof targetOrDeepIndicator==='boolean'){// Handle a deep copy situation and skip deep indicator and target.
 deep=targetOrDeepIndicator;target=targetAndOrSources[index];index=1}else target=targetOrDeepIndicator;const mergeValue=function mergeValue(key,value,targetValue){if(value===targetValue)return targetValue;// Recurse if we're merging plain objects or maps.
-if(deep&&value&&(Tools.isPlainObject(value)||Tools.determineType(value)==='map')){let clone;if(Tools.determineType(value)==='map')clone=targetValue&&Tools.determineType(targetValue)==='map'?targetValue:new _map2.default;else clone=targetValue&&Tools.isPlainObject(targetValue)?targetValue:{};return Tools.extendObject(deep,clone,value)}return value};while(index<targetAndOrSources.length){const source=targetAndOrSources[index];let targetType=typeof target;let sourceType=typeof source;if(Tools.determineType(target)==='map')targetType+=' Map';if(Tools.determineType(source)==='map')sourceType+=' Map';if(targetType===sourceType&&target!==source){if(Tools.determineType(target)==='map'&&Tools.determineType(source)==='map')for(const[key,value]of source)target.set(key,mergeValue(key,value,target.get(key)));else if(target!==null&&!Array.isArray(target)&&typeof target==='object'&&source!==null&&!Array.isArray(source)&&typeof source==='object'){for(const key in source)if(source.hasOwnProperty(key))target[key]=mergeValue(key,source[key],target[key])}else target=source;}else target=source;index+=1}return target}/**
+if(deep&&value&&(Tools.isPlainObject(value)||Tools.determineType(value)==='map')){let clone;if(Tools.determineType(value)==='map')clone=targetValue&&Tools.determineType(targetValue)==='map'?targetValue:new Map;else clone=targetValue&&Tools.isPlainObject(targetValue)?targetValue:{};return Tools.extendObject(deep,clone,value)}return value};while(index<targetAndOrSources.length){const source=targetAndOrSources[index];let targetType=typeof target;let sourceType=typeof source;if(Tools.determineType(target)==='map')targetType+=' Map';if(Tools.determineType(source)==='map')sourceType+=' Map';if(targetType===sourceType&&target!==source){if(Tools.determineType(target)==='map'&&Tools.determineType(source)==='map')for(const[key,value]of source)target.set(key,mergeValue(key,value,target.get(key)));else if(target!==null&&!Array.isArray(target)&&typeof target==='object'&&source!==null&&!Array.isArray(source)&&typeof source==='object'){for(const key in source)if(source.hasOwnProperty(key))target[key]=mergeValue(key,source[key],target[key])}else target=source;}else target=source;index+=1}return target}/**
      * Iterates given objects own properties in sorted fashion. For
      * each key value pair given iterator function will be called with
      * value and key as arguments.
@@ -673,7 +673,7 @@ target[key],source[key],removeIndicatorKey,prependIndicatorKey,appendIndicatorKe
      * @param initialIndention - String (usually whitespaces) to use as
      * additional indention for the first object traversing level.
      * @returns Representation string.
-     */static representObject(object,indention='    ',initialIndention=''){if(object===null)return'null';if(object===undefined)return'undefined';if(typeof object==='string')return`"${object.replace(/\n/g,`\n${initialIndention}`)}"`;if(Tools.isNumeric(object)||typeof object==='boolean')return`${object}`;if(Array.isArray(object)){let result='[';let firstSeen=false;for(const item of object){if(firstSeen)result+=',';result+=`\n${initialIndention}${indention}`+Tools.representObject(item,indention,`${initialIndention}${indention}`);firstSeen=true}if(firstSeen)result+=`\n${initialIndention}`;result+=']';return result}if(Tools.determineType(object)==='map'){let result='';let firstSeen=false;for(const[key,item]of object){if(firstSeen)result+=`,\n${initialIndention}${indention}`;result+=Tools.representObject(key,indention,`${initialIndention}${indention}`)+' -> '+Tools.representObject(item,indention,`${initialIndention}${indention}`);firstSeen=true}if(!firstSeen)result='EmptyMap';return result}if(Tools.determineType(object)==='set'){let result='{';let firstSeen=false;for(const item of object){if(firstSeen)result+=',';result+=`\n${initialIndention}${indention}`+Tools.representObject(item,indention,`${initialIndention}${indention}`);firstSeen=true}if(firstSeen)result+=`\n${initialIndention}}`;else result='EmptySet';return result}let result='{';const keys=(0,_getOwnPropertyNames2.default)(object).sort();let firstSeen=false;for(const key of keys){if(firstSeen)result+=',';result+=`\n${initialIndention}${indention}${key}: `+Tools.representObject(object[key],indention,`${initialIndention}${indention}`);firstSeen=true}if(firstSeen)result+=`\n${initialIndention}`;result+='}';return result}/**
+     */static representObject(object,indention='    ',initialIndention=''){if(object===null)return'null';if(object===undefined)return'undefined';if(typeof object==='string')return`"${object.replace(/\n/g,`\n${initialIndention}`)}"`;if(Tools.isNumeric(object)||typeof object==='boolean')return`${object}`;if(Array.isArray(object)){let result='[';let firstSeen=false;for(const item of object){if(firstSeen)result+=',';result+=`\n${initialIndention}${indention}`+Tools.representObject(item,indention,`${initialIndention}${indention}`);firstSeen=true}if(firstSeen)result+=`\n${initialIndention}`;result+=']';return result}if(Tools.determineType(object)==='map'){let result='';let firstSeen=false;for(const[key,item]of object){if(firstSeen)result+=`,\n${initialIndention}${indention}`;result+=Tools.representObject(key,indention,`${initialIndention}${indention}`)+' -> '+Tools.representObject(item,indention,`${initialIndention}${indention}`);firstSeen=true}if(!firstSeen)result='EmptyMap';return result}if(Tools.determineType(object)==='set'){let result='{';let firstSeen=false;for(const item of object){if(firstSeen)result+=',';result+=`\n${initialIndention}${indention}`+Tools.representObject(item,indention,`${initialIndention}${indention}`);firstSeen=true}if(firstSeen)result+=`\n${initialIndention}}`;else result='EmptySet';return result}let result='{';const keys=Object.getOwnPropertyNames(object).sort();let firstSeen=false;for(const key of keys){if(firstSeen)result+=',';result+=`\n${initialIndention}${indention}${key}: `+Tools.representObject(object[key],indention,`${initialIndention}${indention}`);firstSeen=true}if(firstSeen)result+=`\n${initialIndention}`;result+='}';return result}/**
      * Searches for nested mappings with given indicator key and resolves
      * marked values. Additionally all objects are wrapped with a proxy to
      * dynamically resolve nested properties.
@@ -694,7 +694,7 @@ compiledFunction=new(Function.prototype.bind.call(/* eslint-enable new-parens */
                                     NOTE: Very complicated stuff section, only
                                     change while doing a lot of tests.
                                 */for(const type of[expressionIndicatorKey,executionIndicatorKey])if(key===type)return resolve(evaluate(target[key],type));let resolvedTarget=resolve(target);if(key==='toString'){const result=evaluate(resolvedTarget);return result[key].bind(result)}if(typeof key!=='string'){const result=evaluate(resolvedTarget);if(result[key]&&result[key].call)return result[key].bind(result);return result[key]}for(const type of[expressionIndicatorKey,executionIndicatorKey])if(target.hasOwnProperty(type))return evaluate(resolvedTarget,type)[key];return resolvedTarget[key];// End of complicated stuff.
-},ownKeys:function ownKeys(target){for(const type of[expressionIndicatorKey,executionIndicatorKey])if(target.hasOwnProperty(type))return(0,_getOwnPropertyNames2.default)(resolve(evaluate(target[type],type)));return(0,_getOwnPropertyNames2.default)(target)}})}return data};const resolve=function resolve(data){if(typeof data==='object'&&data!==null){if(data.__target__){// NOTE: We have to skip "ownKeys" proxy trap here.
+},ownKeys:function ownKeys(target){for(const type of[expressionIndicatorKey,executionIndicatorKey])if(target.hasOwnProperty(type))return Object.getOwnPropertyNames(resolve(evaluate(target[type],type)));return Object.getOwnPropertyNames(target)}})}return data};const resolve=function resolve(data){if(typeof data==='object'&&data!==null){if(data.__target__){// NOTE: We have to skip "ownKeys" proxy trap here.
 for(const type of[expressionIndicatorKey,executionIndicatorKey])if(data.hasOwnProperty(type))return data[type];data=data.__target__}for(const key in data)if(data.hasOwnProperty(key))if([expressionIndicatorKey,executionIndicatorKey].includes(key))return data[key];else data[key]=resolve(data[key])}return data};parameterDescription.push('resolve');parameter.push(resolve);const removeProxyRecursively=function removeProxyRecursively(data){if(typeof data==='object'&&data!==null)for(const key in data)if(data.hasOwnProperty(key)&&key!=='__target__'&&typeof data[key]==='object'&&data[key]!==null){const target=data[key].__target__;if(typeof target!=='undefined')data[key]=target;removeProxyRecursively(data[key])}return data};if(typeof object==='object'&&object!==null)if(object.hasOwnProperty(expressionIndicatorKey))return evaluate(object[expressionIndicatorKey]);else if(object.hasOwnProperty(executionIndicatorKey))return evaluate(object[executionIndicatorKey],executionIndicatorKey);return removeProxyRecursively(resolve(addProxyRecursively(object)))}/**
      * Sort given objects keys.
      * @param object - Object which keys should be sorted.
@@ -705,7 +705,7 @@ for(const type of[expressionIndicatorKey,executionIndicatorKey])if(data.hasOwnPr
      * @param seenObjects - Tracks all already processed objects to avoid
      * endless loops (usually only needed for internal purpose).
      * @returns Returns given object unwrapped from a dynamic proxy.
-     */static unwrapProxy(object,seenObjects=new _set2.default){if(object!==null&&typeof object==='object'){if(seenObjects.has(object))return object;try{if(object.__revoke__){object=object.__target__;object.__revoke__()}}catch(error){return object}finally{seenObjects.add(object)}if(Array.isArray(object)){let index=0;for(const value of object){object[index]=Tools.unwrapProxy(value,seenObjects);index+=1}}else if(Tools.determineType(object)==='map')for(const[key,value]of object)object.set(key,Tools.unwrapProxy(value,seenObjects));else if(Tools.determineType(object)==='set'){const cache=[];for(const value of object){object.delete(value);cache.push(Tools.unwrapProxy(value,seenObjects))}for(const value of cache)object.add(value)}else for(const key in object)if(object.hasOwnProperty(key))object[key]=Tools.unwrapProxy(object[key],seenObjects)}return object}// / endregion
+     */static unwrapProxy(object,seenObjects=new Set){if(object!==null&&typeof object==='object'){if(seenObjects.has(object))return object;try{if(object.__revoke__){object=object.__target__;object.__revoke__()}}catch(error){return object}finally{seenObjects.add(object)}if(Array.isArray(object)){let index=0;for(const value of object){object[index]=Tools.unwrapProxy(value,seenObjects);index+=1}}else if(Tools.determineType(object)==='map')for(const[key,value]of object)object.set(key,Tools.unwrapProxy(value,seenObjects));else if(Tools.determineType(object)==='set'){const cache=[];for(const value of object){object.delete(value);cache.push(Tools.unwrapProxy(value,seenObjects))}for(const value of cache)object.add(value)}else for(const key in object)if(object.hasOwnProperty(key))object[key]=Tools.unwrapProxy(object[key],seenObjects)}return object}// / endregion
 // / region array
 /**
      * Merge the contents of two arrays together into the first array.
@@ -1152,7 +1152,7 @@ return phoneNumber.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/,function(match,prefix,num
      * @returns A promise which will be resolved if a request to given url has
      * finished and resulting status code matches given expectedstatus code.
      * Otherwise returned promise will be rejected.
-     */static checkReachability(url,wait=false,expectedStatusCode=200,timeoutInSeconds=10,pollIntervallInSeconds=0.1){return(0,_asyncToGenerator3.default)(function*(){const check=function check(response){if(response&&'status'in response&&response.status!==expectedStatusCode)throw new Error(`Given status code ${response.status} differs from `+`${expectedStatusCode}.`);return response};if(wait)return new _promise2.default(function(){var _ref2=(0,_asyncToGenerator3.default)(function*(resolve,reject){let timedOut=false;const wrapper=function(){var _ref3=(0,_asyncToGenerator3.default)(function*(){let response;try{response=yield fetch(url)}catch(error){if(!timedOut){/* eslint-disable no-use-before-define */currentlyRunningTimer=Tools.timeout(pollIntervallInSeconds*1000,wrapper);/* eslint-enable no-use-before-define *//*
+     */static checkReachability(url,wait=false,expectedStatusCode=200,timeoutInSeconds=10,pollIntervallInSeconds=0.1){return _asyncToGenerator(function*(){const check=function check(response){if(response&&'status'in response&&response.status!==expectedStatusCode)throw new Error(`Given status code ${response.status} differs from `+`${expectedStatusCode}.`);return response};if(wait)return new Promise(function(){var _ref2=_asyncToGenerator(function*(resolve,reject){let timedOut=false;const wrapper=function(){var _ref3=_asyncToGenerator(function*(){let response;try{response=yield fetch(url)}catch(error){if(!timedOut){/* eslint-disable no-use-before-define */currentlyRunningTimer=Tools.timeout(pollIntervallInSeconds*1000,wrapper);/* eslint-enable no-use-before-define *//*
                                 NOTE: A timer rejection is expected. Avoid
                                 throwing errors about unhandled promise
                                 rejections.
@@ -1170,7 +1170,7 @@ currentlyRunningTimer.clear();reject(`Timeout of ${timeoutInSeconds} seconds rea
      * @param unexpectedStatusCode - Status code to check for.
      * @returns A promise which will be resolved if a request to given url
      * couldn't finished. Otherwise returned promise will be rejected.
-     */static checkUnreachability(url,wait=false,timeoutInSeconds=10,pollIntervallInSeconds=0.1,unexpectedStatusCode=null){return(0,_asyncToGenerator3.default)(function*(){const check=function check(response){if(unexpectedStatusCode){if(response&&'status'in response&&response.status===unexpectedStatusCode)throw new Error(`Given url "${url}" is reachable ans responses with `+`unexpeced status code "${response.status}".`);return new Error(`Given status code is not "${unexpectedStatusCode}".`)}};if(wait)return new _promise2.default(function(){var _ref4=(0,_asyncToGenerator3.default)(function*(resolve,reject){let timedOut=false;const wrapper=function(){var _ref5=(0,_asyncToGenerator3.default)(function*(){try{const response=yield fetch(url);if(timedOut)return response;const result=check(response);if(result){// IgnoreTypeCheck
+     */static checkUnreachability(url,wait=false,timeoutInSeconds=10,pollIntervallInSeconds=0.1,unexpectedStatusCode=null){return _asyncToGenerator(function*(){const check=function check(response){if(unexpectedStatusCode){if(response&&'status'in response&&response.status===unexpectedStatusCode)throw new Error(`Given url "${url}" is reachable ans responses with `+`unexpeced status code "${response.status}".`);return new Error(`Given status code is not "${unexpectedStatusCode}".`)}};if(wait)return new Promise(function(){var _ref4=_asyncToGenerator(function*(resolve,reject){let timedOut=false;const wrapper=function(){var _ref5=_asyncToGenerator(function*(){try{const response=yield fetch(url);if(timedOut)return response;const result=check(response);if(result){// IgnoreTypeCheck
 timer.clear();resolve(result);return result}/* eslint-disable no-use-before-define */currentlyRunningTimer=Tools.timeout(pollIntervallInSeconds*1000,wrapper);/* eslint-enable no-use-before-define *//*
                             NOTE: A timer rejection is expected. Avoid throwing
                             errors about unhandled promise rejections.
@@ -1210,8 +1210,8 @@ target.on('load',function(){return target.remove()});return targetName}/**
      * @param readOptions - Options to use for reading source file.
      * @param writeOptions - Options to use for writing to target file.
      * @returns Promise holding the determined target directory path.
-     */static copyDirectoryRecursive(sourcePath,targetPath,callback=Tools.noop,readOptions={encoding:null,flag:'r'},writeOptions={encoding:'utf8',flag:'w',mode:438}){return new _promise2.default(function(){var _ref6=(0,_asyncToGenerator3.default)(function*(resolve,reject){// NOTE: Check if folder needs to be created or integrated.
-let isDirectory;try{isDirectory=yield Tools.isDirectory(targetPath)}catch(error){return reject(error)}if(isDirectory)targetPath=path.resolve(targetPath,path.basename(sourcePath));sourcePath=path.resolve(sourcePath);fileSystem.mkdir(targetPath,function(){var _ref7=(0,_asyncToGenerator3.default)(function*(error){if(error)return reject(error);let files;try{files=yield Tools.walkDirectoryRecursively(sourcePath,callback)}catch(error){return reject(error)}for(const currentSourceFile of files){const currentTargetPath=path.join(targetPath,currentSourceFile.path.substring(sourcePath.length));if(currentSourceFile.stat.isDirectory())fileSystem.mkdirSync(currentTargetPath);else try{yield Tools.copyFile(currentSourceFile.path,currentTargetPath,readOptions,writeOptions)}catch(error){return reject(error)}}resolve(targetPath)});return function(_x8){return _ref7.apply(this,arguments)}}())});return function(_x6,_x7){return _ref6.apply(this,arguments)}}())}/**
+     */static copyDirectoryRecursive(sourcePath,targetPath,callback=Tools.noop,readOptions={encoding:null,flag:'r'},writeOptions={encoding:'utf8',flag:'w',mode:438}){return new Promise(function(){var _ref6=_asyncToGenerator(function*(resolve,reject){// NOTE: Check if folder needs to be created or integrated.
+let isDirectory;try{isDirectory=yield Tools.isDirectory(targetPath)}catch(error){return reject(error)}if(isDirectory)targetPath=path.resolve(targetPath,path.basename(sourcePath));sourcePath=path.resolve(sourcePath);fileSystem.mkdir(targetPath,function(){var _ref7=_asyncToGenerator(function*(error){if(error)return reject(error);let files;try{files=yield Tools.walkDirectoryRecursively(sourcePath,callback)}catch(error){return reject(error)}for(const currentSourceFile of files){const currentTargetPath=path.join(targetPath,currentSourceFile.path.substring(sourcePath.length));if(currentSourceFile.stat.isDirectory())fileSystem.mkdirSync(currentTargetPath);else try{yield Tools.copyFile(currentSourceFile.path,currentTargetPath,readOptions,writeOptions)}catch(error){return reject(error)}}resolve(targetPath)});return function(_x8){return _ref7.apply(this,arguments)}}())});return function(_x6,_x7){return _ref6.apply(this,arguments)}}())}/**
      * Copies given source directory via path to given target directory
      * location with same target name as source file has or copy to given
      * complete target directory path.
@@ -1236,7 +1236,7 @@ sourcePath=path.resolve(sourcePath);if(Tools.isDirectorySync(targetPath))targetP
      */static copyFile(sourcePath,targetPath,readOptions={encoding:null,flag:'r'},writeOptions={encoding:'utf8',flag:'w',mode:438}){/*
             NOTE: If target path references a directory a new file with the
             same name will be created.
-        */return new _promise2.default(function(){var _ref8=(0,_asyncToGenerator3.default)(function*(resolve,reject){let isDirectory;try{isDirectory=yield Tools.isDirectory(targetPath)}catch(error){return reject(error)}if(isDirectory)targetPath=path.resolve(targetPath,path.basename(sourcePath));fileSystem.readFile(sourcePath,readOptions,function(error,data){if(error)reject(error);else fileSystem.writeFile(targetPath,data,writeOptions,function(error){if(error)reject(error);else resolve(targetPath)})})});return function(_x9,_x10){return _ref8.apply(this,arguments)}}())}/**
+        */return new Promise(function(){var _ref8=_asyncToGenerator(function*(resolve,reject){let isDirectory;try{isDirectory=yield Tools.isDirectory(targetPath)}catch(error){return reject(error)}if(isDirectory)targetPath=path.resolve(targetPath,path.basename(sourcePath));fileSystem.readFile(sourcePath,readOptions,function(error,data){if(error)reject(error);else fileSystem.writeFile(targetPath,data,writeOptions,function(error){if(error)reject(error);else resolve(targetPath)})})});return function(_x9,_x10){return _ref8.apply(this,arguments)}}())}/**
      * Copies given source file via path to given target directory location
      * with same target name as source file has or copy to given complete
      * target file path.
@@ -1254,7 +1254,7 @@ sourcePath=path.resolve(sourcePath);if(Tools.isDirectorySync(targetPath))targetP
      * @param filePath - Path to directory.
      * @returns A promise holding a boolean which indicates directory
      * existents.
-     */static isDirectory(filePath){return new _promise2.default(function(resolve,reject){return fileSystem.stat(filePath,function(error,stat){if(error){if(error.hasOwnProperty('code'// IgnoreTypeCheck
+     */static isDirectory(filePath){return new Promise(function(resolve,reject){return fileSystem.stat(filePath,function(error,stat){if(error){if(error.hasOwnProperty('code'// IgnoreTypeCheck
 )&&['ENOENT','ENOTDIR'].includes(error.code))resolve(false);else reject(error);}else resolve(stat.isDirectory())})})}/**
      * Checks if given path points to a valid directory.
      * @param filePath - Path to directory.
@@ -1264,7 +1264,7 @@ sourcePath=path.resolve(sourcePath);if(Tools.isDirectorySync(targetPath))targetP
      * @param filePath - Path to directory.
      * @returns A promise holding a boolean which indicates directory
      * existents.
-     */static isFile(filePath){return new _promise2.default(function(resolve,reject){return fileSystem.stat(filePath,function(error,stat){if(error){if(error.hasOwnProperty('code'// IgnoreTypeCheck
+     */static isFile(filePath){return new Promise(function(resolve,reject){return fileSystem.stat(filePath,function(error,stat){if(error){if(error.hasOwnProperty('code'// IgnoreTypeCheck
 )&&['ENOENT','ENOTDIR'].includes(error.code))resolve(false);else reject(error);}else resolve(stat.isFile())})})}/**
      * Checks if given path points to a valid file.
      * @param filePath - Path to file.
@@ -1278,7 +1278,7 @@ sourcePath=path.resolve(sourcePath);if(Tools.isDirectorySync(targetPath))targetP
      * potentially manipulate further traversing.
      * @param options - Options to use for nested "readdir" calls.
      * @returns A promise holding the determined files.
-     */static walkDirectoryRecursively(directoryPath,callback=Tools.noop,options={encoding:'utf8'}){return new _promise2.default(function(resolve,reject){fileSystem.readdir(directoryPath,options,function(){var _ref9=(0,_asyncToGenerator3.default)(function*(error,fileNames){if(error)return reject(error);const files=[];const statPromises=[];for(const fileName of fileNames){const filePath=path.resolve(directoryPath,fileName);statPromises.push(new _promise2.default(function(resolve){return fileSystem.stat(filePath,function(error,stat){files.push({path:filePath,stat:error||stat});resolve()})}))}yield _promise2.default.all(statPromises);if(callback)/*
+     */static walkDirectoryRecursively(directoryPath,callback=Tools.noop,options={encoding:'utf8'}){return new Promise(function(resolve,reject){fileSystem.readdir(directoryPath,options,function(){var _ref9=_asyncToGenerator(function*(error,fileNames){if(error)return reject(error);const files=[];const statPromises=[];for(const fileName of fileNames){const filePath=path.resolve(directoryPath,fileName);statPromises.push(new Promise(function(resolve){return fileSystem.stat(filePath,function(error,stat){files.push({path:filePath,stat:error||stat});resolve()})}))}yield Promise.all(statPromises);if(callback)/*
                         NOTE: Directories have to be iterated first to
                         potentially avoid deeper iterations.
                     */files.sort(function(firstFile,secondFile){if(firstFile.stat.isDirectory()){if(secondFile.stat.isDirectory())return 0;return-1}if(secondFile.stat.isDirectory())return 1;return 0});let finalFiles=[];for(const file of files){finalFiles.push(file);const result=callback(file);if(result===null)break;if(result!==false&&file.stat.isDirectory())finalFiles=finalFiles.concat((yield Tools.walkDirectoryRecursively(file.path,callback)))}resolve(finalFiles)});return function(_x11,_x12){return _ref9.apply(this,arguments)}}())})}/**
@@ -1599,60 +1599,11 @@ process.umask = function() { return 0; };
 /* 4 */
 /***/ (function(module, exports) {
 
+if(typeof __WEBPACK_EXTERNAL_MODULE_4__ === 'undefined') {var e = new Error("Cannot find module \"jQuery\""); e.code = 'MODULE_NOT_FOUND';; throw e;}
 module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
 
 /***/ }),
 /* 5 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_6__;
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_9__;
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_10__;
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_11__;
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports) {
-
-if(typeof __WEBPACK_EXTERNAL_MODULE_12__ === 'undefined') {var e = new Error("Cannot find module \"jQuery\""); e.code = 'MODULE_NOT_FOUND';; throw e;}
-module.exports = __WEBPACK_EXTERNAL_MODULE_12__;
-
-/***/ }),
-/* 13 */,
-/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(0);
