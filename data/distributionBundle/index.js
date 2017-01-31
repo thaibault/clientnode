@@ -239,9 +239,11 @@ export default class Tools {
         '[object Date]': 'date',
         '[object Error]': 'error',
         '[object Function]': 'function',
+        '[object Map]': 'map',
         '[object Number]': 'number',
         '[object Object]': 'object',
         '[object RegExp]': 'regexp',
+        '[object Set]': 'set',
         '[object String]': 'string'
     }
     static closeEventNames:Array<string> = [
@@ -1502,7 +1504,6 @@ export default class Tools {
      * @param methodNames - Method names to perform actions on the given
      * object.
      * @param deep - Indicates to perform a deep wrapping of specified types.
-     * performed via "value instanceof type".).
      * @param typesToExtend - Types which should be extended (Checks are
      * performed via "value instanceof type".).
      * @returns Returns given object wrapped with a dynamic getter proxy.
@@ -1513,24 +1514,34 @@ export default class Tools {
         deep:boolean = true, typesToExtend:Array<mixed> = [Object]
     ):any {
         if (deep && typeof object === 'object')
-            if (object instanceof Map)
-                for (const [key:mixed, value:mixed] of object)
+            if (Array.isArray(object)) {
+                let index:number = 0
+                for (const value:any of object) {
+                    object[index] = Tools.addDynamicGetterAndSetter(
+                        value, getterWrapper, setterWrapper, methodNames, deep)
+                    index += 1
+                }
+            } else if (Tools.determineType(object) === 'map')
+                for (const [key:any, value:any] of object)
                     object.set(key, Tools.addDynamicGetterAndSetter(
                         value, getterWrapper, setterWrapper, methodNames, deep)
                     )
-            else if (object !== null) {
+            else if (Tools.determineType(object) === 'set') {
+                const cache:Array<any> = []
+                for (const value:any of object) {
+                    object.delete(value)
+                    cache.push(Tools.addDynamicGetterAndSetter(
+                        value, getterWrapper, setterWrapper, methodNames, deep)
+                    )
+                }
+                for (const value:any of cache)
+                    object.add(value)
+            } else if (object !== null) {
                 for (const key:string in object)
                     if (object.hasOwnProperty(key))
                         object[key] = Tools.addDynamicGetterAndSetter(
                             object[key], getterWrapper, setterWrapper,
                             methodNames, deep)
-            } else if (Array.isArray(object)) {
-                let index:number = 0
-                for (const value:mixed of object) {
-                    object[index] = Tools.addDynamicGetterAndSetter(
-                        value, getterWrapper, setterWrapper, methodNames, deep)
-                    index += 1
-                }
             }
         if (getterWrapper || setterWrapper)
             for (const type:mixed of typesToExtend)
@@ -1602,13 +1613,15 @@ export default class Tools {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given map as object.
      */
+    // IgnoreTypeCheck
     static convertMapToPlainObject<Value>(
         object:Value, deep:boolean = true
     ):Value|PlainObject {
         if (typeof object === 'object') {
-            if (object instanceof Map) {
+            if (Tools.determineType(object) === 'map') {
                 const newObject:PlainObject = {}
-                for (let [key:any, value:mixed] of object) {
+                // IgnoreTypeCheck
+                for (let [key:any, value:any] of object) {
                     if (deep)
                         value = Tools.convertMapToPlainObject(value, deep)
                     newObject[`${key}`] = value
@@ -1623,10 +1636,21 @@ export default class Tools {
                                 object[key], deep)
                 } else if (Array.isArray(object)) {
                     let index:number = 0
-                    for (const value:mixed of object) {
-                        object[index] = Tools.convertMapToPlainObject(value, deep)
+                    for (const value:any of object) {
+                        object[index] = Tools.convertMapToPlainObject(
+                            value, deep)
                         index += 1
                     }
+                } else if (Tools.determineType(object) === 'set') {
+                    const cache:Array<any> = []
+                    // IgnoreTypeCheck
+                    for (const value:any of object) {
+                        object.delete(value)
+                        cache.push(Tools.convertMapToPlainObject(value, deep))
+                    }
+                    for (const value:any of cache)
+                        // IgnoreTypeCheck
+                        object.add(value)
                 }
         }
         return object
@@ -1638,6 +1662,7 @@ export default class Tools {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given object as map.
      */
+    // IgnoreTypeCheck
     static convertPlainObjectToMap<Value>(
         object:Value, deep:boolean = true
     ):Value|Map<any, any> {
@@ -1661,10 +1686,21 @@ export default class Tools {
                             value, deep)
                         index += 1
                     }
-                } else if (object instanceof Map) {
-                    for (const [key:mixed, value:mixed] of object)
+                } else if (Tools.determineType(object) === 'map')
+                    // IgnoreTypeCheck
+                    for (const [key:any, value:any] of object)
                         object.set(key, Tools.convertPlainObjectToMap(
                             value, deep))
+                else if (Tools.determineType(object) === 'set') {
+                    const cache:Array<any> = []
+                    // IgnoreTypeCheck
+                    for (const value:any of object) {
+                        object.delete(value)
+                        cache.push(Tools.convertPlainObjectToMap(value, deep))
+                    }
+                    for (const value:any of cache)
+                        // IgnoreTypeCheck
+                        object.add(value)
                 }
         }
         return object
@@ -1740,10 +1776,13 @@ export default class Tools {
                 if (Array.isArray(source))
                     for (const item:any of source)
                         destination.push(copyValue(item))
-                if (source instanceof Map)
-                    for (const [key:mixed, value:mixed] of source)
+                else if (Tools.determineType(source) === 'map')
+                    for (const [key:any, value:any] of source)
                         destination.set(key, copyValue(value))
-                else
+                else if (Tools.determineType(source) === 'set')
+                    for (const value:any of source)
+                        destination.add(copyValue(value))
+                else if (source !== null)
                     for (const key:string in source)
                         if (source.hasOwnProperty(key))
                             destination[key] = copyValue(source[key])
@@ -1752,9 +1791,13 @@ export default class Tools {
                     return Tools.copyLimitedRecursively(
                         source, recursionLimit, cyclic, [], stackSource,
                         stackDestination, recursionLevel)
-                if (source instanceof Map)
+                if (Tools.determineType(source) === 'map')
                     return Tools.copyLimitedRecursively(
                         source, recursionLimit, cyclic, new Map(), stackSource,
+                        stackDestination, recursionLevel)
+                if (Tools.determineType(source) === 'set')
+                    return Tools.copyLimitedRecursively(
+                        source, recursionLimit, cyclic, new Set(), stackSource,
                         stackDestination, recursionLevel)
                 if (Tools.determineType(source) === 'date')
                     return new Date(source.getTime())
@@ -1764,10 +1807,9 @@ export default class Tools {
                     destination.lastIndex = source.lastIndex
                     return destination
                 }
-                if (![undefined, null].includes(source))
-                    return Tools.copyLimitedRecursively(
-                        source, recursionLimit, cyclic, {}, stackSource,
-                        stackDestination, recursionLevel)
+                return Tools.copyLimitedRecursively(
+                    source, recursionLimit, cyclic, {}, stackSource,
+                    stackDestination, recursionLevel)
             }
         return destination || source
     }
@@ -1838,14 +1880,29 @@ export default class Tools {
             firstValue instanceof RegExp || secondValue instanceof RegExp
         ) || Array.isArray(firstValue) && Array.isArray(
             secondValue
-        ) && firstValue.length === secondValue.length) {
+        ) && firstValue.length === secondValue.length || ((
+            Tools.determineType(firstValue) === 'map' &&
+            Tools.determineType(secondValue) === 'map' ||
+            Tools.determineType(firstValue) === 'set' &&
+            Tools.determineType(secondValue) === 'set'
+        ) && firstValue.size === secondValue.size)) {
             for (const [first, second] of [[firstValue, secondValue], [
                 secondValue, firstValue
             ]]) {
                 const firstIsArray:boolean = Array.isArray(first)
                 if (firstIsArray && (!Array.isArray(
                     second
-                )) || first.length !== second.length)
+                ) || first.length !== second.length))
+                    return false
+                const firstIsMap:boolean = Tools.determineType(first) === 'map'
+                if (firstIsMap && (Tools.determineType(
+                    second
+                ) !== 'map' || first.size !== second.size))
+                    return false
+                const firstIsSet:boolean = Tools.determineType(first) === 'set'
+                if (firstIsSet && (Tools.determineType(
+                    second
+                ) !== 'set' || first.size !== second.size))
                     return false
                 let equal:boolean = true
                 if (firstIsArray) {
@@ -1857,6 +1914,30 @@ export default class Tools {
                         ))
                             equal = false
                         index += 1
+                    }
+                } else if (firstIsMap)
+                    for (const [key:any, value:any] of first) {
+                        if (deep !== 0 && !Tools.equals(
+                            value, second.get(key), properties, deep - 1,
+                            exceptionPrefixes
+                        ))
+                            equal = false
+                    }
+                else if (firstIsSet) {
+                    for (const value:any of first) {
+                        if (deep !== 0) {
+                            equal = false
+                            for (const secondValue:any of second)
+                                if (Tools.equals(
+                                    value, secondValue, properties, deep - 1,
+                                    exceptionPrefixes
+                                )) {
+                                    equal = true
+                                    break
+                                }
+                            if (!equal)
+                                break
+                        }
                     }
                 } else
                     for (const key:string in first)
@@ -1916,13 +1997,13 @@ export default class Tools {
             if (value === targetValue)
                 return targetValue
             // Recurse if we're merging plain objects or maps.
-            if (deep && value && (
-                Tools.isPlainObject(value) || value instanceof Map
-            )) {
+            if (deep && value && (Tools.isPlainObject(
+                value
+            ) || Tools.determineType(value) === 'map')) {
                 let clone:any
-                if (value instanceof Map)
+                if (Tools.determineType(value) === 'map')
                     clone = targetValue && (
-                        targetValue instanceof Map
+                        Tools.determineType(targetValue) === 'map'
                     ) ? targetValue : new Map()
                 else
                     clone = targetValue && Tools.isPlainObject(
@@ -1936,13 +2017,16 @@ export default class Tools {
             const source:any = targetAndOrSources[index]
             let targetType:string = typeof target
             let sourceType:string = typeof source
-            if (target instanceof Map)
+            if (Tools.determineType(target) === 'map')
                 targetType += ' Map'
-            if (source instanceof Map)
+            if (Tools.determineType(source) === 'map')
                 sourceType += ' Map'
             if (targetType === sourceType && target !== source)
-                if (target instanceof Map && source instanceof Map)
-                    for (const [key:string, value:any] of source)
+                if (
+                    Tools.determineType(target) === 'map' &&
+                    Tools.determineType(source) === 'map'
+                )
+                    for (const [key:any, value:any] of source)
                         target.set(key, mergeValue(key, value, target.get(
                             key)))
                 else if (
@@ -1978,7 +2062,8 @@ export default class Tools {
         const keys:Array<any> = Tools.sort(object)
         for (const key:any of keys)
             if (typeof object === 'object')
-                if (object instanceof Map)
+                if (['map', 'set'].includes(Tools.determineType(object)))
+                    // IgnoreTypeCheck
                     iterator.call(context, object.get(key), key)
                 else if (Array.isArray(object) || object instanceof Object)
                     iterator.call(context, object[key], key)
@@ -2047,7 +2132,10 @@ export default class Tools {
         parentKey:any = null
     ):any {
         /* eslint-disable curly */
-        if (source instanceof Map && target instanceof Map) {
+        if (
+            Tools.determineType(source) === 'map' &&
+            Tools.determineType(target) === 'map'
+        ) {
             for (const [key:string, value:any] of source)
                 if (target.has(key))
                     Tools.modifyObject(
@@ -2098,23 +2186,21 @@ export default class Tools {
      * Represents given object as formatted string.
      * @param object - Object to Represents.
      * @param indention - String (usually whitespaces) to use as indention.
-     * @param stringifier - Optional serialisation function to use.
      * @param initialIndention - String (usually whitespaces) to use as
      * additional indention for the first object traversing level.
      * @returns Representation string.
      */
     static representObject(
-        object:any, indention:string = '    ', stringifier:?Function = null,
-        initialIndention:string = ''
+        object:any, indention:string = '    ', initialIndention:string = ''
     ):string {
         if (object === null)
             return 'null'
         if (object === undefined)
             return 'undefined'
-        if (Tools.isNumeric(object) || typeof object === 'boolean')
-            return `${object}`
         if (typeof object === 'string')
             return `"${object.replace(/\n/g, `\n${initialIndention}`)}"`
+        if (Tools.isNumeric(object) || typeof object === 'boolean')
+            return `${object}`
         if (Array.isArray(object)) {
             let result:string = '['
             let firstSeen:boolean = false
@@ -2123,13 +2209,45 @@ export default class Tools {
                     result += ','
                 result += `\n${initialIndention}${indention}` +
                     Tools.representObject(
-                        item, indention, stringifier,
-                        `${initialIndention}${indention}`)
+                        item, indention, `${initialIndention}${indention}`)
                 firstSeen = true
             }
             if (firstSeen)
                 result += `\n${initialIndention}`
             result += ']'
+            return result
+        }
+        if (Tools.determineType(object) === 'map') {
+            let result:string = ''
+            let firstSeen:boolean = false
+            for (const [key:any, item:any] of object) {
+                if (firstSeen)
+                    result += `,\n${initialIndention}${indention}`
+                result += Tools.representObject(
+                    key, indention, `${initialIndention}${indention}`
+                ) + ' -> ' + Tools.representObject(
+                    item, indention, `${initialIndention}${indention}`)
+                firstSeen = true
+            }
+            if (!firstSeen)
+                result = 'EmptyMap'
+            return result
+        }
+        if (Tools.determineType(object) === 'set') {
+            let result:string = '{'
+            let firstSeen:boolean = false
+            for (const item:any of object) {
+                if (firstSeen)
+                    result += ','
+                result += `\n${initialIndention}${indention}` +
+                    Tools.representObject(
+                        item, indention, `${initialIndention}${indention}`)
+                firstSeen = true
+            }
+            if (firstSeen)
+                result += `\n${initialIndention}}`
+            else
+                result = 'EmptySet'
             return result
         }
         let result:string = '{'
@@ -2140,8 +2258,7 @@ export default class Tools {
                 result += ','
             result += `\n${initialIndention}${indention}${key}: ` +
                 Tools.representObject(
-                    object[key], indention, stringifier,
-                    `${initialIndention}${indention}`)
+                    object[key], indention, `${initialIndention}${indention}`)
             firstSeen = true
         }
         if (firstSeen)
@@ -2322,16 +2439,16 @@ export default class Tools {
      * @param object - Object which keys should be sorted.
      * @returns Sorted list of given keys.
      */
-    static sort(object:mixed):Array<any> {
+    static sort(object:any):Array<any> {
         const keys:Array<any> = []
         if (Array.isArray(object))
             for (let index:number = 0; index < object.length; index++)
                 keys.push(index)
         else if (typeof object === 'object')
-            if (object instanceof Map)
+            if (Tools.determineType(object) === 'map')
                 for (const keyValuePair:Array<any> of object)
                     keys.push(keyValuePair[0])
-            else if (object instanceof Object)
+            else if (object !== null)
                 for (const key:string in object)
                     if (object.hasOwnProperty(key))
                         keys.push(key)
@@ -2360,14 +2477,22 @@ export default class Tools {
             }
             if (Array.isArray(object)) {
                 let index:number = 0
-                for (const value:mixed of object) {
+                for (const value:any of object) {
                     object[index] = Tools.unwrapProxy(value, seenObjects)
                     index += 1
                 }
-            } else if (object instanceof Map)
-                for (const [key:mixed, value:mixed] of object)
+            } else if (Tools.determineType(object) === 'map')
+                for (const [key:any, value:any] of object)
                     object.set(key, Tools.unwrapProxy(value, seenObjects))
-            else
+            else if (Tools.determineType(object) === 'set') {
+                const cache:Array<any> = []
+                for (const value:any of object) {
+                    object.delete(value)
+                    cache.push(Tools.unwrapProxy(value, seenObjects))
+                }
+                for (const value:any of cache)
+                    object.add(value)
+            } else
                 for (const key:string in object)
                     if (object.hasOwnProperty(key))
                         object[key] = Tools.unwrapProxy(
