@@ -76,10 +76,10 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
                     console.warn((
                         // IgnoreTypeCheck
                         `${indention}actual: ` + Tools.representObject(
-                            error.actual, '    ', null, indention
+                            error.actual, '    ', indention
                         ) + ` (${typeof error.actual}) != ` +
                         `expected: ` + Tools.representObject(
-                            error.expected, '    ', null, indention
+                            error.expected, '    ', indention
                         ) + ` (${typeof error.expected})`
                     ).red)
             }
@@ -924,6 +924,10 @@ let tests:Array<Test> = [{callback: function(
             [
                 [[{b: 2, a: [{}]}]],
                 [new Map([['a', [new Map()]], ['b', 2]])]
+            ],
+            [
+                [[{b: 2, a: new Set([{}])}]],
+                [new Map([['a', new Set([new Map()])], ['b', 2]])]
             ]
         ])
             assert.deepEqual(
@@ -957,6 +961,7 @@ let tests:Array<Test> = [{callback: function(
             [[{}, -1], {}],
             [[[]], []],
             [[new Map(), -1], new Map()],
+            [[new Set(), -1], new Set()],
             [[{a: 2}, 0], {a: 2}],
             [[{a: {a: 2}}, 0], {a: null}],
             [[{a: {a: 2}}, 1], {a: {a: 2}}],
@@ -988,6 +993,33 @@ let tests:Array<Test> = [{callback: function(
             [
                 [new Map([['a', new Map([['a', 2]])]]), 10],
                 new Map([['a', new Map([['a', 2]])]])
+            ],
+            [
+                [new Map([['a', new Map([['a', 2]])]]), 10],
+                new Map([['a', new Map([['a', 2]])]])
+            ],
+            [[new Set(['a', 2]), 0], new Set(['a', 2])],
+            [[new Set(['a', new Set(['a', 2])]), 0], new Set(['a', null])],
+            [
+                [new Set(['a', new Set(['a', 2])]), 1],
+                new Set(['a', new Set(['a', 2])])
+            ],
+            [
+                [new Set(['a', new Set(['a', 2])]), 2],
+                new Set(['a', new Set(['a', 2])])
+            ],
+            [[new Set(['a', [new Set(['a', 2])]]), 1], new Set(['a', [null]])],
+            [
+                [new Set(['a', [new Set(['a', 2])]]), 2],
+                new Set(['a', [new Set(['a', 2])]])
+            ],
+            [
+                [new Set(['a', new Set(['a', 2])]), 10],
+                new Set(['a', new Set(['a', 2])])
+            ],
+            [
+                [new Set(['a', new Set(['a', 2])]), 10],
+                new Set(['a', new Set(['a', 2])])
             ]
         ])
             assert.deepEqual(
@@ -1016,6 +1048,8 @@ let tests:Array<Test> = [{callback: function(
             /* eslint-enable no-array-constructor */
             [new Date(), 'date'],
             [new Error(), 'error'],
+            [new Map(), 'map'],
+            [new Set(), 'set'],
             [/test/, 'regexp']
         ])
             assert.strictEqual($.Tools.class.determineType(test[0]), test[1])
@@ -1031,7 +1065,11 @@ let tests:Array<Test> = [{callback: function(
             [[1, 2, 3], [1, 2, 3]],
             [[], []],
             [{}, {}],
+            [new Map(), new Map()],
+            [new Set(), new Set()],
             [[1, 2, 3, {a: 2}], [1, 2, 3, {a: 2}]],
+            [[1, 2, 3, new Map([['a', 2]])], [1, 2, 3, new Map([['a', 2]])]],
+            [[1, 2, 3, new Set(['a', 2])], [1, 2, 3, new Set(['a', 2])]],
             [[1, 2, 3, [1, 2]], [1, 2, 3, [1, 2]]],
             [[{a: 1}], [{a: 1}]],
             [[{a: 1, b: 1}], [{a: 1}], []],
@@ -1059,6 +1097,8 @@ let tests:Array<Test> = [{callback: function(
             [[1, 2, 3, 4], [1, 2, 3, 5]],
             [[1, 2, 3, 4], [1, 2, 3]],
             [[1, 2, 3, {a: 2}], [1, 2, 3, {b: 2}]],
+            [[1, 2, 3, new Map([['a', 2]])], [1, 2, 3, new Map([['b', 2]])]],
+            [[1, 2, 3, new Set(['a', 2])], [1, 2, 3, new Set(['b', 2])]],
             [[1, 2, 3, [1, 2]], [1, 2, 3, [1, 2, 3]]],
             [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2]]],
             [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2, {}]]],
@@ -1083,6 +1123,7 @@ let tests:Array<Test> = [{callback: function(
             [[{a: 1, b: {a: 1}}, {a: 2, b: {b: 1}}], {a: 2, b: {b: 1}}],
             [[[1, 2], [1]], [1]],
             [[new Map()], new Map()],
+            [[new Set()], new Set()],
             [[new Map([['a', 1]])], new Map([['a', 1]])],
             [
                 [new Map([['a', 1]]), new Map([['a', 2]])],
@@ -1246,10 +1287,22 @@ let tests:Array<Test> = [{callback: function(
         const error:Error = new Error('A')
         for (const test:Array<any> of [
             [{}, '{}'],
+            [new Set(), 'EmptySet'],
+            [new Map(), 'EmptyMap'],
             [5, '5'],
             ['a', '"a"'],
             [[], '[]'],
             [{a: 2, b: 3}, '{\n a: 2,\n b: 3\n}'],
+            [new Map([['3', 2], [2, 3]]), '"3" -> 2,\n 2 -> 3'],
+            [
+                new Map([['3', 2], [2, new Map([[3, 3], [2, 2]])]]),
+                '"3" -> 2,\n 2 -> 3 -> 3,\n  2 -> 2'
+            ],
+            [new Set(['3', 2, 2, 3]), '{\n "3",\n 2,\n 3\n}'],
+            [
+                new Set(['3', 2, new Set([3, 2])]),
+                '{\n "3",\n 2,\n {\n  3,\n  2\n }\n}'
+            ],
             [
                 {a: null, b: 3, c: 'a', d: true},
                 '{\n a: null,\n b: 3,\n c: "a",\n d: true\n}'
