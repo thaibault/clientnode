@@ -4188,7 +4188,12 @@ export default class Tools {
                         targetPath, currentSourceFile.path.substring(
                             sourcePath.length))
                     if (currentSourceFile.stat.isDirectory())
-                        fileSystem.mkdirSync(currentTargetPath)
+                        try {
+                            fileSystem.mkdirSync(currentTargetPath)
+                        } catch (error) {
+                            if (!('code' in error && error.code === 'EEXIST'))
+                                throw error
+                        }
                     else
                         try {
                             await Tools.copyFile(
