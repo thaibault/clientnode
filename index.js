@@ -4174,7 +4174,7 @@ export default class Tools {
             fileSystem.mkdir(targetPath, async (
                 error:?Error
             ):Promise<void> => {
-                if (error)
+                if (error && !('code' in error && error.code === 'EEXIST'))
                     return reject(error)
                 let files:Array<File>
                 try {
