@@ -2119,6 +2119,10 @@ export default class Tools {
      * prepend to target list.
      * @param appendIndicatorKey - Indicator property name to mark a value to
      * append to target list.
+     * @param positionPrefix - Indicates a prefix to use a value on given
+     * position to add or remove.
+     * @param positionSuffix - Indicates a suffix to use a value on given
+     * position to add or remove.
      * @param parentSource - Source context to remove modification info from
      * (usually only needed internally).
      * @param parentKey - Source key in given source context to remove
@@ -2128,7 +2132,8 @@ export default class Tools {
     static modifyObject(
         target:any, source:any, removeIndicatorKey:string = '__remove__',
         prependIndicatorKey:string = '__prepend__',
-        appendIndicatorKey:string = '__append__', parentSource:any = null,
+        appendIndicatorKey:string = '__append__', positionPrefix:string = '__',
+        positionSuffix:string = '__', parentSource:any = null,
         parentKey:any = null
     ):any {
         /* eslint-disable curly */
@@ -2140,7 +2145,8 @@ export default class Tools {
                 if (target.has(key))
                     Tools.modifyObject(
                         target.get(key), value, removeIndicatorKey,
-                        prependIndicatorKey, appendIndicatorKey, source, key)
+                        prependIndicatorKey, appendIndicatorKey,
+                        positionPrefix, positionSuffix, source, key)
         } else if (
         /* eslint-enable curly */
             source !== null && typeof source === 'object' &&
@@ -2157,7 +2163,20 @@ export default class Tools {
                                 for (const valueToModify:any of [].concat(
                                     source[key]
                                 ))
-                                    if (target.includes(valueToModify))
+                                    if (
+                                        typeof valueToModify === 'string' &&
+                                        valueToModify.startsWith(
+                                            positionPrefix
+                                        ) && valueToModify.endsWith(
+                                            positionSuffix)
+                                    )
+                                        target.splice(parseInt(
+                                            valueToModify.substring(
+                                                positionPrefix.length,
+                                                valueToModify.length -
+                                                positionSuffix.length)
+                                        ), 1)
+                                    else if (target.includes(valueToModify))
                                         target.splice(
                                             target.indexOf(valueToModify), 1)
                             } else if (key === prependIndicatorKey)
@@ -2178,8 +2197,8 @@ export default class Tools {
                         target[key] = Tools.modifyObject(
                             // IgnoreTypeCheck
                             target[key], source[key], removeIndicatorKey,
-                            prependIndicatorKey, appendIndicatorKey, source,
-                            key)
+                            prependIndicatorKey, appendIndicatorKey,
+                            positionPrefix, positionSuffix, source, key)
         return target
     }
     /**

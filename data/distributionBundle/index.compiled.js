@@ -659,14 +659,18 @@ iterator.call(context,object.get(key),key);else if(Array.isArray(object)||object
      * prepend to target list.
      * @param appendIndicatorKey - Indicator property name to mark a value to
      * append to target list.
+     * @param positionPrefix - Indicates a prefix to use a value on given
+     * position to add or remove.
+     * @param positionSuffix - Indicates a suffix to use a value on given
+     * position to add or remove.
      * @param parentSource - Source context to remove modification info from
      * (usually only needed internally).
      * @param parentKey - Source key in given source context to remove
      * modification info from (usually only needed internally).
      * @returns Given target modified with given source.
-     */static modifyObject(target,source,removeIndicatorKey='__remove__',prependIndicatorKey='__prepend__',appendIndicatorKey='__append__',parentSource=null,parentKey=null){/* eslint-disable curly */if(Tools.determineType(source)==='map'&&Tools.determineType(target)==='map'){for(const[key,value]of source)if(target.has(key))Tools.modifyObject(target.get(key),value,removeIndicatorKey,prependIndicatorKey,appendIndicatorKey,source,key)}else if(/* eslint-enable curly */source!==null&&typeof source==='object'&&target!==null&&typeof target==='object')for(const key in source)if(source.hasOwnProperty(key))if([removeIndicatorKey,prependIndicatorKey,appendIndicatorKey].includes(key)){if(Array.isArray(target)){if(key===removeIndicatorKey){for(const valueToModify of[].concat(source[key]))if(target.includes(valueToModify))target.splice(target.indexOf(valueToModify),1)}else if(key===prependIndicatorKey)target=[].concat(source[key]).concat(target);else target=target.concat(source[key]);}else if(key===removeIndicatorKey)for(const valueToModify of[].concat(source[key]))if(target.hasOwnProperty(valueToModify))delete target[valueToModify];delete source[key];if(parentSource&&parentKey)delete parentSource[parentKey]}else if(target!==null&&target.hasOwnProperty(key))// IgnoreTypeCheck
+     */static modifyObject(target,source,removeIndicatorKey='__remove__',prependIndicatorKey='__prepend__',appendIndicatorKey='__append__',positionPrefix='__',positionSuffix='__',parentSource=null,parentKey=null){/* eslint-disable curly */if(Tools.determineType(source)==='map'&&Tools.determineType(target)==='map'){for(const[key,value]of source)if(target.has(key))Tools.modifyObject(target.get(key),value,removeIndicatorKey,prependIndicatorKey,appendIndicatorKey,positionPrefix,positionSuffix,source,key)}else if(/* eslint-enable curly */source!==null&&typeof source==='object'&&target!==null&&typeof target==='object')for(const key in source)if(source.hasOwnProperty(key))if([removeIndicatorKey,prependIndicatorKey,appendIndicatorKey].includes(key)){if(Array.isArray(target)){if(key===removeIndicatorKey){for(const valueToModify of[].concat(source[key]))if(typeof valueToModify==='string'&&valueToModify.startsWith(positionPrefix)&&valueToModify.endsWith(positionSuffix))target.splice(parseInt(valueToModify.substring(positionPrefix.length,valueToModify.length-positionSuffix.length)),1);else if(target.includes(valueToModify))target.splice(target.indexOf(valueToModify),1)}else if(key===prependIndicatorKey)target=[].concat(source[key]).concat(target);else target=target.concat(source[key]);}else if(key===removeIndicatorKey)for(const valueToModify of[].concat(source[key]))if(target.hasOwnProperty(valueToModify))delete target[valueToModify];delete source[key];if(parentSource&&parentKey)delete parentSource[parentKey]}else if(target!==null&&target.hasOwnProperty(key))// IgnoreTypeCheck
 target[key]=Tools.modifyObject(// IgnoreTypeCheck
-target[key],source[key],removeIndicatorKey,prependIndicatorKey,appendIndicatorKey,source,key);return target}/**
+target[key],source[key],removeIndicatorKey,prependIndicatorKey,appendIndicatorKey,positionPrefix,positionSuffix,source,key);return target}/**
      * Represents given object as formatted string.
      * @param object - Object to Represents.
      * @param indention - String (usually whitespaces) to use as indention.
