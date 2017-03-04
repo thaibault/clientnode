@@ -2662,10 +2662,13 @@ let tests:Array<Test> = [{callback: function(
 // region test runner (in browserAPI)
 let testRan:boolean = false
 browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
+    window.document.body.appenChild(
+        window.document.createElement('div', {id: 'qunit'}))
+    window.document.body.appenChild(
+        window.document.createElement('div', {id: 'qunit-fixture'}))
     testRan = true
     // region configuration
-    QUnit.config = Tools.extendObject(QUnit.config || {
-    }, {
+    QUnit.config = Tools.extendObject(QUnit.config || {}, {
         /*
         notrycatch: true,
         noglobals: true,
