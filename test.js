@@ -2666,6 +2666,15 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
         window.document.createElement('div', {id: 'qunit'}))
     window.document.body.appenChild(
         window.document.createElement('div', {id: 'qunit-fixture'}))
+    if (
+        typeof TARGET_TECHNOLOGY !== 'undefined' || TARGET_TECHNOLOGY === 'web'
+    )
+        window.document.documentElement.appenChild(
+            window.document.createElement('link', {
+                href: '/node_modules/qunitjs/qunit/qunit.css',
+                rel: 'stylesheet',
+                type: 'text/css'
+            }))
     testRan = true
     // region configuration
     QUnit.config = Tools.extendObject(QUnit.config || {}, {
