@@ -16,7 +16,7 @@
 */
 // region imports
 import Tools from 'clientnode'
-import type {File, PlainObject, $DomNode} from 'clientnode'
+import type {DomNode, File, PlainObject, $DomNode} from 'clientnode'
 let ChildProcess:ChildProcess
 try {
     ChildProcess = eval('require')('child_process').ChildProcess
@@ -2662,16 +2662,23 @@ let tests:Array<Test> = [{callback: function(
 // region test runner (in browserAPI)
 let testRan:boolean = false
 browserAPI((browserAPI:BrowserAPI):number => Tools.timeout(():void => {
-    window.document.body.appenChild(window.document.createElement('div', {
-        id: 'qunit'}))
-    window.document.body.appenChild(window.document.createElement('div', {
-        id: 'qunit-fixture'}))
-    window.document.documentElement.appenChild(window.document.createElement(
-        'link', {
+    for (const domNodeSpecification:PlainObject of [
+        {link: {inject: window.document.documentElement
             href: '/node_modules/qunitjs/qunit/qunit.css',
             rel: 'stylesheet',
             type: 'text/css'
-        }))
+        }},
+        {div: {inject: window.document.body, attributes: {id: 'qunit'}}},
+        {div: {inject: window.document.body, attributes: {
+            id: 'qunit-fixture'
+        }}}
+    ]) {
+        const domNodeName:string = Object.keys(domNodeSpecification)[0]
+        const domNode:DomNode = window.document.createElement(domNodeName)
+        for (const name:string in domNodeSpecification[domNodeName].attributes)
+            domNode.setAttribute(name, domNodeSpecification[domNodeName][name])
+        domNodeSpecification[domNodeName].inject.appendChild(domNode)
+    }
     testRan = true
     // region configuration
     QUnit.config = Tools.extendObject(QUnit.config || {}, {
