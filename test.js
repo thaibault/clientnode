@@ -2661,7 +2661,8 @@ let tests:Array<Test> = [{callback: function(
 // endregion
 // region test runner (in browserAPI)
 let testRan:boolean = false
-browserAPI((browserAPI:BrowserAPI):number => Tools.timeout(():void => {
+browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
+):void => {
     for (const domNodeSpecification:PlainObject of [
         {link: {
             attributes: {
