@@ -2663,11 +2663,11 @@ let tests:Array<Test> = [{callback: function(
 let testRan:boolean = false
 browserAPI((browserAPI:BrowserAPI):number => Tools.timeout(():void => {
     for (const domNodeSpecification:PlainObject of [
-        {link: {inject: window.document.documentElement
+        {link: {inject: window.document.documentElement, attributes: {
             href: '/node_modules/qunitjs/qunit/qunit.css',
             rel: 'stylesheet',
             type: 'text/css'
-        }},
+        }}},
         {div: {inject: window.document.body, attributes: {id: 'qunit'}}},
         {div: {inject: window.document.body, attributes: {
             id: 'qunit-fixture'
