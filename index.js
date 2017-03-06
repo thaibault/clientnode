@@ -4133,7 +4133,7 @@ export default class Tools {
             'name', this.constructor._name.charAt(0).toLowerCase() +
             this.constructor._name.substring(1) + (new Date()).getTime()
         ).hide()
-        this.$domNode.after($iFrameDomNode)
+        this.$domNode.append($iFrameDomNode)
         this.constructor.sendToIFrame(
             $iFrameDomNode, url, data, requestType, removeAfterLoad)
         return $iFrameDomNode

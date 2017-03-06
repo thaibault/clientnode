@@ -2663,20 +2663,25 @@ let tests:Array<Test> = [{callback: function(
 let testRan:boolean = false
 browserAPI((browserAPI:BrowserAPI):number => Tools.timeout(():void => {
     for (const domNodeSpecification:PlainObject of [
-        {link: {inject: window.document.documentElement, attributes: {
-            href: '/node_modules/qunitjs/qunit/qunit.css',
-            rel: 'stylesheet',
-            type: 'text/css'
-        }}},
-        {div: {inject: window.document.body, attributes: {id: 'qunit'}}},
-        {div: {inject: window.document.body, attributes: {
-            id: 'qunit-fixture'
-        }}}
+        {link: {
+            attributes: {
+                href: '/node_modules/qunitjs/qunit/qunit.css',
+                rel: 'stylesheet',
+                type: 'text/css'
+            },
+            inject: window.document.getElementsByTagName('head')[0]
+        }},
+        {div: {attributes: {id: 'qunit'}, inject: window.document.body}},
+        {div: {
+            attributes: {id: 'qunit-fixture'}, inject: window.document.body
+        }}
     ]) {
         const domNodeName:string = Object.keys(domNodeSpecification)[0]
         const domNode:DomNode = window.document.createElement(domNodeName)
         for (const name:string in domNodeSpecification[domNodeName].attributes)
-            domNode.setAttribute(name, domNodeSpecification[domNodeName][name])
+            domNode.setAttribute(name, domNodeSpecification[
+                domNodeName
+            ].attributes[name])
         domNodeSpecification[domNodeName].inject.appendChild(domNode)
     }
     testRan = true
