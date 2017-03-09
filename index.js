@@ -4530,7 +4530,10 @@ export default class Tools {
     ):((returnCode:?number) => void) {
         let finished:boolean = false
         return (returnCode:?number):void => {
-            if (!finished)
+            if (finished)
+                finished = true
+            else {
+                finished = true
                 if (typeof returnCode !== 'number' || returnCode === 0) {
                     callback()
                     resolve(reason)
@@ -4541,7 +4544,7 @@ export default class Tools {
                     error.returnCode = returnCode
                     reject(error)
                 }
-            finished = true
+            }
         }
     }
     /**
