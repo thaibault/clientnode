@@ -4450,7 +4450,11 @@ export default class Tools {
                 let finalFiles:Array<File> = []
                 for (const file:File of files) {
                     finalFiles.push(file)
-                    const result:any = callback(file)
+                    let result:any = callback(file)
+                    if (result === null)
+                        break
+                    if (typeof result === 'object' && 'then' in result)
+                        result = await result
                     if (result === null)
                         break
                     if (result !== false && file.stat.isDirectory())
