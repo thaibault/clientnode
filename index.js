@@ -36,6 +36,8 @@ try {
 export type PlainObject = {[key:string]:any}
 export type ProcedureFunction = () => void|Promise<void>
 export type File = {
+    directoryPath:string;
+    name:string;
     path:string;
     stat:Object;
 }
@@ -4426,7 +4428,12 @@ export default class Tools {
                         fileSystem.stat(filePath, (
                             error:?Error, stat:Object
                         ):void => {
-                            files.push({path: filePath, stat: error || stat})
+                            files.push({
+                                directoryPath,
+                                name: fileName,
+                                path: filePath,
+                                stat: error || stat
+                            })
                             resolve()
                         })
                     ))
