@@ -4091,31 +4091,30 @@ export default class Tools {
      * @param removeAfterLoad - Indicates if created iframe should be removed
      * right after load event. Only works if an iframe object is given instead
      * of a simple target name.
-     * @returns Returns the given target.
+     * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
-        target:$DomNode|string, url:string, data:{[key:string]:any},
+        target:$DomNode|DomNode|string, url:string, data:{[key:string]:any},
         requestType:string = 'post', removeAfterLoad:boolean = false
-    ):string {
-        const targetName:string = typeof target === 'string' ? target :
-            target.attr('name')
+    ):$DomNode {
+        const $targetDomNode:$DomNode = (typeof target === 'string') ? $(
+            `iframe[name"${target}"]`
+        ) : $(target)
         const $formDomNode:$DomNode = $('<form>').attr({
-            action: url,
-            method: requestType,
-            target: targetName
-        })
+            action: url, method: requestType, target: $targetDomNode.attr(
+                'name')})
         for (const name:string in data)
             if (data.hasOwnProperty(name))
                 $formDomNode.append($('<input>').attr({
-                    type: 'hidden',
-                    name,
-                    value: data[name]
-                }))
-        $formDomNode.submit().remove()
-        if (removeAfterLoad && typeof target === 'object' && 'on' in target)
-            // IgnoreTypeCheck
-            target.on('load', ():$DomNode => target.remove())
-        return targetName
+                    type: 'hidden', name, value: data[name]}))
+        /*
+            NOTE: The given target form have to be injected into document
+            object model to successfully submit.
+        */
+        $formDomNode.appendTo($targetDomNode).submit().remove()
+        if (removeAfterLoad)
+            $targetDomNode.on('load', ():$DomNode => $targetDomNode.remove())
+        return $targetDomNode
     }
     /**
      * Send given data to a temporary created iframe.
@@ -4491,7 +4490,10 @@ export default class Tools {
             directoryPath, options
         )) {
             const filePath:string = path.resolve(directoryPath, fileName)
-            files.push({path: filePath, stat: fileSystem.statSync(filePath)})
+            files.push({
+                directoryPath, name: fileName, path: filePath,
+                stat: fileSystem.statSync(filePath)
+            })
         }
         if (callback)
             /*
