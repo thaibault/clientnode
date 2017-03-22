@@ -16,7 +16,7 @@
 */
 // region imports
 import Tools from 'clientnode'
-import type {File, PlainObject, $DomNode} from 'clientnode'
+import type {DomNode, File, PlainObject, $DomNode} from 'clientnode'
 let ChildProcess:ChildProcess
 try {
     ChildProcess = eval('require')('child_process').ChildProcess
@@ -2661,11 +2661,33 @@ let tests:Array<Test> = [{callback: function(
 // endregion
 // region test runner (in browserAPI)
 let testRan:boolean = false
-browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
+browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
+):void => {
+    for (const domNodeSpecification:PlainObject of [
+        {link: {
+            attributes: {
+                href: '/node_modules/qunitjs/qunit/qunit.css',
+                rel: 'stylesheet',
+                type: 'text/css'
+            },
+            inject: window.document.getElementsByTagName('head')[0]
+        }},
+        {div: {attributes: {id: 'qunit'}, inject: window.document.body}},
+        {div: {
+            attributes: {id: 'qunit-fixture'}, inject: window.document.body
+        }}
+    ]) {
+        const domNodeName:string = Object.keys(domNodeSpecification)[0]
+        const domNode:DomNode = window.document.createElement(domNodeName)
+        for (const name:string in domNodeSpecification[domNodeName].attributes)
+            domNode.setAttribute(name, domNodeSpecification[
+                domNodeName
+            ].attributes[name])
+        domNodeSpecification[domNodeName].inject.appendChild(domNode)
+    }
     testRan = true
     // region configuration
-    QUnit.config = Tools.extendObject(QUnit.config || {
-    }, {
+    QUnit.config = Tools.extendObject(QUnit.config || {}, {
         /*
         notrycatch: true,
         noglobals: true,
@@ -2760,7 +2782,7 @@ browserAPI((browserAPI:BrowserAPI):number => setTimeout(():void => {
         }
     */
     // endregion
-}, 0))
+}))
 // endregion
 // region export test register function
 let testRegistered:boolean = false
