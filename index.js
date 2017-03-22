@@ -4121,9 +4121,11 @@ export default class Tools {
             NOTE: The given target form have to be injected into document
             object model to successfully submit.
         */
-        $formDomNode.appendTo($targetDomNode).submit().remove()
         if (removeAfterLoad)
             $targetDomNode.on('load', ():$DomNode => $targetDomNode.remove())
+        $formDomNode.insertAfter($targetDomNode)
+        $formDomNode[0].submit()
+        $formDomNode.remove()
         return $targetDomNode
     }
     /**
