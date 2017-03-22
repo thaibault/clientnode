@@ -2729,9 +2729,26 @@ export default class Tools {
     ):Array<any> {
         const containingData:Array<any> = []
         second = Tools.arrayMake(second)
-        for (const initialItem:any of Tools.arrayMake(first))
-            if (Tools.isPlainObject(initialItem))
-                for (const newItem:any of second) {
+        const intersectItem:Function = (
+            firstItem:any, secondItem:any, firstKey:string|number,
+            secondKey:string|number, keysAreAnArray:boolean,
+            iterateGivenKeys:boolean
+        ):?false => {
+            if (iterateGivenKeys) {
+                if (keysAreAnArray)
+                    firstKey = secondKey
+            } else
+                secondKey = firstKey
+            if (secondItem[secondKey] !== firstItem[firstKey] && (strict || !([
+                null, undefined
+            ].includes(secondItem[secondKey]) && [null, undefined].includes(
+                firstItem[firstKey]
+            ))))
+                return false
+        }
+        for (const firstItem:any of Tools.arrayMake(first))
+            if (Tools.isPlainObject(firstItem))
+                for (const secondItem:any of second) {
                     let exists:boolean = true
                     let iterateGivenKeys:boolean
                     const keysAreAnArray:boolean = Array.isArray(keys)
@@ -2741,44 +2758,37 @@ export default class Tools {
                         iterateGivenKeys = true
                     else {
                         iterateGivenKeys = false
-                        keys = initialItem
-                    }
-                    const handle:Function = (
-                        firstKey:string|number, secondKey:string|number
-                    ):?false => {
-                        if (keysAreAnArray && iterateGivenKeys)
-                            firstKey = secondKey
-                        else if (!iterateGivenKeys)
-                            secondKey = firstKey
-                        if (newItem[secondKey] !== initialItem[firstKey] && (
-                            strict || !([null, undefined].includes(
-                                newItem[secondKey]
-                            ) && [null, undefined].includes(
-                                initialItem[firstKey])
-                        ))) {
-                            exists = false
-                            return false
-                        }
+                        keys = firstItem
                     }
                     if (Array.isArray(keys)) {
                         let index:number = 0
                         for (const key:string of keys) {
-                            if (handle(index, key) === false)
+                            if (intersectItem(
+                                firstItem, secondItem, index, key,
+                                keysAreAnArray, iterateGivenKeys
+                            ) === false) {
+                                exists = false
                                 break
+                            }
                             index += 1
                         }
                     } else
                         for (const key:string in keys)
                             if (keys.hasOwnProperty(key))
-                                if (handle(key, keys[key]) === false)
+                                if (intersectItem(
+                                    firstItem, secondItem, key, keys[key],
+                                    keysAreAnArray, iterateGivenKeys
+                                ) === false) {
+                                    exists = false
                                     break
+                                }
                     if (exists) {
-                        containingData.push(initialItem)
+                        containingData.push(firstItem)
                         break
                     }
                 }
-            else if (second.includes(initialItem))
-                containingData.push(initialItem)
+            else if (second.includes(firstItem))
+                containingData.push(firstItem)
         return containingData
     }
     /**
