@@ -12,41 +12,41 @@
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-
+/******/
 /******/ 		// Check if module is in cache
 /******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-
+/******/
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
 /******/ 			l: false,
 /******/ 			exports: {}
 /******/ 		};
-
+/******/
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
+/******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.l = true;
-
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-
-
+/******/
+/******/
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-
+/******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-
+/******/
 /******/ 	// identity function for calling harmony imports with the correct context
 /******/ 	__webpack_require__.i = function(value) { return value; };
-
+/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -57,7 +57,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			});
 /******/ 		}
 /******/ 	};
-
+/******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
 /******/ 	__webpack_require__.n = function(module) {
 /******/ 		var getter = module && module.__esModule ?
@@ -66,13 +66,13 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 		__webpack_require__.d(getter, 'a', getter);
 /******/ 		return getter;
 /******/ 	};
-
+/******/
 /******/ 	// Object.prototype.hasOwnProperty.call
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-
+/******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
-
+/******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
@@ -774,7 +774,7 @@ for(const type of[expressionIndicatorKey,executionIndicatorKey])if(data.hasOwnPr
      * "undefined" should be interpreted as equal (takes only effect if given
      * keys aren't empty).
      * @returns Data which does exit in given initial data.
-     */static arrayIntersect(first,second,keys=[],strict=true){const containingData=[];second=Tools.arrayMake(second);for(const initialItem of Tools.arrayMake(first))if(Tools.isPlainObject(initialItem))for(const newItem of second){let exists=true;let iterateGivenKeys;const keysAreAnArray=Array.isArray(keys);if(Tools.isPlainObject(keys)||keysAreAnArray&&keys.length)iterateGivenKeys=true;else{iterateGivenKeys=false;keys=initialItem}const handle=function handle(firstKey,secondKey){if(keysAreAnArray&&iterateGivenKeys)firstKey=secondKey;else if(!iterateGivenKeys)secondKey=firstKey;if(newItem[secondKey]!==initialItem[firstKey]&&(strict||!([null,undefined].includes(newItem[secondKey])&&[null,undefined].includes(initialItem[firstKey])))){exists=false;return false}};if(Array.isArray(keys)){let index=0;for(const key of keys){if(handle(index,key)===false)break;index+=1}}else for(const key in keys)if(keys.hasOwnProperty(key))if(handle(key,keys[key])===false)break;if(exists){containingData.push(initialItem);break}}else if(second.includes(initialItem))containingData.push(initialItem);return containingData}/**
+     */static arrayIntersect(first,second,keys=[],strict=true){const containingData=[];second=Tools.arrayMake(second);const intersectItem=function intersectItem(firstItem,secondItem,firstKey,secondKey,keysAreAnArray,iterateGivenKeys){if(iterateGivenKeys){if(keysAreAnArray)firstKey=secondKey}else secondKey=firstKey;if(secondItem[secondKey]!==firstItem[firstKey]&&(strict||!([null,undefined].includes(secondItem[secondKey])&&[null,undefined].includes(firstItem[firstKey]))))return false};for(const firstItem of Tools.arrayMake(first))if(Tools.isPlainObject(firstItem))for(const secondItem of second){let exists=true;let iterateGivenKeys;const keysAreAnArray=Array.isArray(keys);if(Tools.isPlainObject(keys)||keysAreAnArray&&keys.length)iterateGivenKeys=true;else{iterateGivenKeys=false;keys=firstItem}if(Array.isArray(keys)){let index=0;for(const key of keys){if(intersectItem(firstItem,secondItem,index,key,keysAreAnArray,iterateGivenKeys)===false){exists=false;break}index+=1}}else for(const key in keys)if(keys.hasOwnProperty(key))if(intersectItem(firstItem,secondItem,key,keys[key],keysAreAnArray,iterateGivenKeys)===false){exists=false;break}if(exists){containingData.push(firstItem);break}}else if(second.includes(firstItem))containingData.push(firstItem);return containingData}/**
      * Creates a list of items within given range.
      * @param range - Array of lower and upper bounds. If only one value is
      * given lower bound will be assumed to be zero. Both integers have to be
@@ -1190,9 +1190,11 @@ currentlyRunningTimer.clear();reject(`Timeout of ${timeoutInSeconds} seconds rea
      * @param removeAfterLoad - Indicates if created iframe should be removed
      * right after load event. Only works if an iframe object is given instead
      * of a simple target name.
-     * @returns Returns the given target.
-     */static sendToIFrame(target,url,data,requestType='post',removeAfterLoad=false){const targetName=typeof target==='string'?target:target.attr('name');const $formDomNode=$('<form>').attr({action:url,method:requestType,target:targetName});for(const name in data)if(data.hasOwnProperty(name))$formDomNode.append($('<input>').attr({type:'hidden',name,value:data[name]}));$formDomNode.submit().remove();if(removeAfterLoad&&typeof target==='object'&&'on'in target)// IgnoreTypeCheck
-target.on('load',function(){return target.remove()});return targetName}/**
+     * @returns Returns the given target as extended dom node.
+     */static sendToIFrame(target,url,data,requestType='post',removeAfterLoad=false){const $targetDomNode=typeof target==='string'?$(`iframe[name"${target}"]`):$(target);const $formDomNode=$('<form>').attr({action:url,method:requestType,target:$targetDomNode.attr('name')});for(const name in data)if(data.hasOwnProperty(name))$formDomNode.append($('<input>').attr({type:'hidden',name,value:data[name]}));/*
+            NOTE: The given target form have to be injected into document
+            object model to successfully submit.
+        */if(removeAfterLoad)$targetDomNode.on('load',function(){return $targetDomNode.remove()});$formDomNode.insertAfter($targetDomNode);$formDomNode[0].submit();$formDomNode.remove();return $targetDomNode}/**
      * Send given data to a temporary created iframe.
      * @param url - URL to send to data to.
      * @param data - Data holding object to send data to.
@@ -1201,7 +1203,7 @@ target.on('load',function(){return target.remove()});return targetName}/**
      * @param removeAfterLoad - Indicates if created iframe should be removed
      * right after load event.
      * @returns Returns the dynamically created iframe.
-     */sendToExternalURL(url,data,requestType='post',removeAfterLoad=true){const $iFrameDomNode=$('<iframe>').attr('name',this.constructor._name.charAt(0).toLowerCase()+this.constructor._name.substring(1)+new Date().getTime()).hide();this.$domNode.after($iFrameDomNode);this.constructor.sendToIFrame($iFrameDomNode,url,data,requestType,removeAfterLoad);return $iFrameDomNode}// / endregion
+     */sendToExternalURL(url,data,requestType='post',removeAfterLoad=true){const $iFrameDomNode=$('<iframe>').attr('name',this.constructor._name.charAt(0).toLowerCase()+this.constructor._name.substring(1)+new Date().getTime()).hide();this.$domNode.append($iFrameDomNode);this.constructor.sendToIFrame($iFrameDomNode,url,data,requestType,removeAfterLoad);return $iFrameDomNode}// / endregion
 // / region file
 /**
      * Copies given source directory via path to given target directory
@@ -1215,7 +1217,7 @@ target.on('load',function(){return target.remove()});return targetName}/**
      * @param writeOptions - Options to use for writing to target file.
      * @returns Promise holding the determined target directory path.
      */static copyDirectoryRecursive(sourcePath,targetPath,callback=Tools.noop,readOptions={encoding:null,flag:'r'},writeOptions={encoding:'utf8',flag:'w',mode:438}){return new Promise(function(){var _ref6=_asyncToGenerator(function*(resolve,reject){// NOTE: Check if folder needs to be created or integrated.
-let isDirectory;try{isDirectory=yield Tools.isDirectory(targetPath)}catch(error){return reject(error)}if(isDirectory)targetPath=path.resolve(targetPath,path.basename(sourcePath));sourcePath=path.resolve(sourcePath);fileSystem.mkdir(targetPath,function(){var _ref7=_asyncToGenerator(function*(error){if(error)return reject(error);let files;try{files=yield Tools.walkDirectoryRecursively(sourcePath,callback)}catch(error){return reject(error)}for(const currentSourceFile of files){const currentTargetPath=path.join(targetPath,currentSourceFile.path.substring(sourcePath.length));if(currentSourceFile.stat.isDirectory())fileSystem.mkdirSync(currentTargetPath);else try{yield Tools.copyFile(currentSourceFile.path,currentTargetPath,readOptions,writeOptions)}catch(error){return reject(error)}}resolve(targetPath)});return function(_x8){return _ref7.apply(this,arguments)}}())});return function(_x6,_x7){return _ref6.apply(this,arguments)}}())}/**
+let isDirectory;try{isDirectory=yield Tools.isDirectory(targetPath)}catch(error){return reject(error)}if(isDirectory)targetPath=path.resolve(targetPath,path.basename(sourcePath));sourcePath=path.resolve(sourcePath);fileSystem.mkdir(targetPath,function(){var _ref7=_asyncToGenerator(function*(error){if(error&&!('code'in error&&error.code==='EEXIST'))return reject(error);let files;try{files=yield Tools.walkDirectoryRecursively(sourcePath,callback)}catch(error){return reject(error)}for(const currentSourceFile of files){const currentTargetPath=path.join(targetPath,currentSourceFile.path.substring(sourcePath.length));if(currentSourceFile.stat.isDirectory())try{fileSystem.mkdirSync(currentTargetPath)}catch(error){if(!('code'in error&&error.code==='EEXIST'))throw error}else try{yield Tools.copyFile(currentSourceFile.path,currentTargetPath,readOptions,writeOptions)}catch(error){return reject(error)}}resolve(targetPath)});return function(_x8){return _ref7.apply(this,arguments)}}())});return function(_x6,_x7){return _ref6.apply(this,arguments)}}())}/**
      * Copies given source directory via path to given target directory
      * location with same target name as source file has or copy to given
      * complete target directory path.
@@ -1282,10 +1284,10 @@ sourcePath=path.resolve(sourcePath);if(Tools.isDirectorySync(targetPath))targetP
      * potentially manipulate further traversing.
      * @param options - Options to use for nested "readdir" calls.
      * @returns A promise holding the determined files.
-     */static walkDirectoryRecursively(directoryPath,callback=Tools.noop,options={encoding:'utf8'}){return new Promise(function(resolve,reject){fileSystem.readdir(directoryPath,options,function(){var _ref9=_asyncToGenerator(function*(error,fileNames){if(error)return reject(error);const files=[];const statPromises=[];for(const fileName of fileNames){const filePath=path.resolve(directoryPath,fileName);statPromises.push(new Promise(function(resolve){return fileSystem.stat(filePath,function(error,stat){files.push({path:filePath,stat:error||stat});resolve()})}))}yield Promise.all(statPromises);if(callback)/*
+     */static walkDirectoryRecursively(directoryPath,callback=Tools.noop,options={encoding:'utf8'}){return new Promise(function(resolve,reject){fileSystem.readdir(directoryPath,options,function(){var _ref9=_asyncToGenerator(function*(error,fileNames){if(error)return reject(error);const files=[];const statPromises=[];for(const fileName of fileNames){const filePath=path.resolve(directoryPath,fileName);statPromises.push(new Promise(function(resolve){return fileSystem.stat(filePath,function(error,stat){files.push({directoryPath,name:fileName,path:filePath,stat:error||stat});resolve()})}))}yield Promise.all(statPromises);if(callback)/*
                         NOTE: Directories have to be iterated first to
                         potentially avoid deeper iterations.
-                    */files.sort(function(firstFile,secondFile){if(firstFile.stat.isDirectory()){if(secondFile.stat.isDirectory())return 0;return-1}if(secondFile.stat.isDirectory())return 1;return 0});let finalFiles=[];for(const file of files){finalFiles.push(file);const result=callback(file);if(result===null)break;if(result!==false&&file.stat.isDirectory())finalFiles=finalFiles.concat((yield Tools.walkDirectoryRecursively(file.path,callback)))}resolve(finalFiles)});return function(_x11,_x12){return _ref9.apply(this,arguments)}}())})}/**
+                    */files.sort(function(firstFile,secondFile){if(firstFile.stat.isDirectory()){if(secondFile.stat.isDirectory())return 0;return-1}if(secondFile.stat.isDirectory())return 1;return 0});let finalFiles=[];for(const file of files){finalFiles.push(file);let result=callback(file);if(result===null)break;if(typeof result==='object'&&'then'in result)result=yield result;if(result===null)break;if(result!==false&&file.stat.isDirectory())finalFiles=finalFiles.concat((yield Tools.walkDirectoryRecursively(file.path,callback)))}resolve(finalFiles)});return function(_x11,_x12){return _ref9.apply(this,arguments)}}())})}/**
      * Iterates through given directory structure recursively and calls given
      * callback for each found file. Callback gets file path and corresponding
      * stat object as argument.
@@ -1293,7 +1295,7 @@ sourcePath=path.resolve(sourcePath);if(Tools.isDirectorySync(targetPath))targetP
      * @param callback - Function to invoke for each traversed file.
      * @param options - Options to use for nested "readdir" calls.
      * @returns Determined list if all files.
-     */static walkDirectoryRecursivelySync(directoryPath,callback=Tools.noop,options={encoding:'utf8'}){let files=[];for(const fileName of fileSystem.readdirSync(directoryPath,options)){const filePath=path.resolve(directoryPath,fileName);files.push({path:filePath,stat:fileSystem.statSync(filePath)})}if(callback)/*
+     */static walkDirectoryRecursivelySync(directoryPath,callback=Tools.noop,options={encoding:'utf8'}){let files=[];for(const fileName of fileSystem.readdirSync(directoryPath,options)){const filePath=path.resolve(directoryPath,fileName);files.push({directoryPath,name:fileName,path:filePath,stat:fileSystem.statSync(filePath)})}if(callback)/*
                 NOTE: Directories have to be iterated first to potentially
                 avoid deeper iterations.
             */files.sort(function(firstFile,secondFile){if(firstFile.stat.isDirectory()){if(secondFile.stat.isDirectory())return 0;return-1}if(secondFile.stat.isDirectory())return 1;return 0});let finalFiles=[];for(const file of files){finalFiles.push(file);const result=callback(file);if(result===null)break;if(result!==false&&file.stat.isDirectory())finalFiles=finalFiles.concat(Tools.walkDirectoryRecursivelySync(file.path,callback))}return finalFiles}// / endregion
@@ -1310,8 +1312,8 @@ sourcePath=path.resolve(sourcePath);if(Tools.isDirectorySync(targetPath))targetP
      * @param callback - Optional function to call of process has successfully
      * finished.
      * @returns Process close handler function.
-     */static getProcessCloseHandler(resolve,reject,reason=null,callback=function(){}){let finished=false;return function(returnCode){if(!finished)if(typeof returnCode!=='number'||returnCode===0){callback();resolve(reason)}else{const error=new Error(`Task exited with error code ${returnCode}`);// IgnoreTypeCheck
-error.returnCode=returnCode;reject(error)}finished=true}}/**
+     */static getProcessCloseHandler(resolve,reject,reason=null,callback=function(){}){let finished=false;return function(returnCode){if(finished)finished=true;else{finished=true;if(typeof returnCode!=='number'||returnCode===0){callback();resolve(reason)}else{const error=new Error(`Task exited with error code ${returnCode}`);// IgnoreTypeCheck
+error.returnCode=returnCode;reject(error)}}}}/**
      * Forwards given child process communication channels to corresponding
      * current process communication channels.
      * @param childProcess - Child process meta data.
@@ -1603,7 +1605,7 @@ process.umask = function() { return 0; };
 /* 4 */
 /***/ (function(module, exports) {
 
-if(typeof __WEBPACK_EXTERNAL_MODULE_4__ === 'undefined') {var e = new Error("Cannot find module \"jQuery\""); e.code = 'MODULE_NOT_FOUND';; throw e;}
+if(typeof __WEBPACK_EXTERNAL_MODULE_4__ === 'undefined') {var e = new Error("Cannot find module \"jQuery\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
 module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
 
 /***/ }),

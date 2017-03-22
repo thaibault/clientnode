@@ -36,6 +36,8 @@ try {
 export type PlainObject = {[key:string]:any}
 export type ProcedureFunction = () => void|Promise<void>
 export type File = {
+    directoryPath:string;
+    name:string;
     path:string;
     stat:Object;
 }
@@ -2727,9 +2729,26 @@ export default class Tools {
     ):Array<any> {
         const containingData:Array<any> = []
         second = Tools.arrayMake(second)
-        for (const initialItem:any of Tools.arrayMake(first))
-            if (Tools.isPlainObject(initialItem))
-                for (const newItem:any of second) {
+        const intersectItem:Function = (
+            firstItem:any, secondItem:any, firstKey:string|number,
+            secondKey:string|number, keysAreAnArray:boolean,
+            iterateGivenKeys:boolean
+        ):?false => {
+            if (iterateGivenKeys) {
+                if (keysAreAnArray)
+                    firstKey = secondKey
+            } else
+                secondKey = firstKey
+            if (secondItem[secondKey] !== firstItem[firstKey] && (strict || !([
+                null, undefined
+            ].includes(secondItem[secondKey]) && [null, undefined].includes(
+                firstItem[firstKey]
+            ))))
+                return false
+        }
+        for (const firstItem:any of Tools.arrayMake(first))
+            if (Tools.isPlainObject(firstItem))
+                for (const secondItem:any of second) {
                     let exists:boolean = true
                     let iterateGivenKeys:boolean
                     const keysAreAnArray:boolean = Array.isArray(keys)
@@ -2739,44 +2758,37 @@ export default class Tools {
                         iterateGivenKeys = true
                     else {
                         iterateGivenKeys = false
-                        keys = initialItem
-                    }
-                    const handle:Function = (
-                        firstKey:string|number, secondKey:string|number
-                    ):?false => {
-                        if (keysAreAnArray && iterateGivenKeys)
-                            firstKey = secondKey
-                        else if (!iterateGivenKeys)
-                            secondKey = firstKey
-                        if (newItem[secondKey] !== initialItem[firstKey] && (
-                            strict || !([null, undefined].includes(
-                                newItem[secondKey]
-                            ) && [null, undefined].includes(
-                                initialItem[firstKey])
-                        ))) {
-                            exists = false
-                            return false
-                        }
+                        keys = firstItem
                     }
                     if (Array.isArray(keys)) {
                         let index:number = 0
                         for (const key:string of keys) {
-                            if (handle(index, key) === false)
+                            if (intersectItem(
+                                firstItem, secondItem, index, key,
+                                keysAreAnArray, iterateGivenKeys
+                            ) === false) {
+                                exists = false
                                 break
+                            }
                             index += 1
                         }
                     } else
                         for (const key:string in keys)
                             if (keys.hasOwnProperty(key))
-                                if (handle(key, keys[key]) === false)
+                                if (intersectItem(
+                                    firstItem, secondItem, key, keys[key],
+                                    keysAreAnArray, iterateGivenKeys
+                                ) === false) {
+                                    exists = false
                                     break
+                                }
                     if (exists) {
-                        containingData.push(initialItem)
+                        containingData.push(firstItem)
                         break
                     }
                 }
-            else if (second.includes(initialItem))
-                containingData.push(initialItem)
+            else if (second.includes(firstItem))
+                containingData.push(firstItem)
         return containingData
     }
     /**
@@ -4089,31 +4101,32 @@ export default class Tools {
      * @param removeAfterLoad - Indicates if created iframe should be removed
      * right after load event. Only works if an iframe object is given instead
      * of a simple target name.
-     * @returns Returns the given target.
+     * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
-        target:$DomNode|string, url:string, data:{[key:string]:any},
+        target:$DomNode|DomNode|string, url:string, data:{[key:string]:any},
         requestType:string = 'post', removeAfterLoad:boolean = false
-    ):string {
-        const targetName:string = typeof target === 'string' ? target :
-            target.attr('name')
+    ):$DomNode {
+        const $targetDomNode:$DomNode = (typeof target === 'string') ? $(
+            `iframe[name"${target}"]`
+        ) : $(target)
         const $formDomNode:$DomNode = $('<form>').attr({
-            action: url,
-            method: requestType,
-            target: targetName
-        })
+            action: url, method: requestType, target: $targetDomNode.attr(
+                'name')})
         for (const name:string in data)
             if (data.hasOwnProperty(name))
                 $formDomNode.append($('<input>').attr({
-                    type: 'hidden',
-                    name,
-                    value: data[name]
-                }))
-        $formDomNode.submit().remove()
-        if (removeAfterLoad && typeof target === 'object' && 'on' in target)
-            // IgnoreTypeCheck
-            target.on('load', ():$DomNode => target.remove())
-        return targetName
+                    type: 'hidden', name, value: data[name]}))
+        /*
+            NOTE: The given target form have to be injected into document
+            object model to successfully submit.
+        */
+        if (removeAfterLoad)
+            $targetDomNode.on('load', ():$DomNode => $targetDomNode.remove())
+        $formDomNode.insertAfter($targetDomNode)
+        $formDomNode[0].submit()
+        $formDomNode.remove()
+        return $targetDomNode
     }
     /**
      * Send given data to a temporary created iframe.
@@ -4133,7 +4146,7 @@ export default class Tools {
             'name', this.constructor._name.charAt(0).toLowerCase() +
             this.constructor._name.substring(1) + (new Date()).getTime()
         ).hide()
-        this.$domNode.after($iFrameDomNode)
+        this.$domNode.append($iFrameDomNode)
         this.constructor.sendToIFrame(
             $iFrameDomNode, url, data, requestType, removeAfterLoad)
         return $iFrameDomNode
@@ -4174,7 +4187,7 @@ export default class Tools {
             fileSystem.mkdir(targetPath, async (
                 error:?Error
             ):Promise<void> => {
-                if (error)
+                if (error && !('code' in error && error.code === 'EEXIST'))
                     return reject(error)
                 let files:Array<File>
                 try {
@@ -4188,7 +4201,12 @@ export default class Tools {
                         targetPath, currentSourceFile.path.substring(
                             sourcePath.length))
                     if (currentSourceFile.stat.isDirectory())
-                        fileSystem.mkdirSync(currentTargetPath)
+                        try {
+                            fileSystem.mkdirSync(currentTargetPath)
+                        } catch (error) {
+                            if (!('code' in error && error.code === 'EEXIST'))
+                                throw error
+                        }
                     else
                         try {
                             await Tools.copyFile(
@@ -4421,7 +4439,12 @@ export default class Tools {
                         fileSystem.stat(filePath, (
                             error:?Error, stat:Object
                         ):void => {
-                            files.push({path: filePath, stat: error || stat})
+                            files.push({
+                                directoryPath,
+                                name: fileName,
+                                path: filePath,
+                                stat: error || stat
+                            })
                             resolve()
                         })
                     ))
@@ -4445,7 +4468,11 @@ export default class Tools {
                 let finalFiles:Array<File> = []
                 for (const file:File of files) {
                     finalFiles.push(file)
-                    const result:any = callback(file)
+                    let result:any = callback(file)
+                    if (result === null)
+                        break
+                    if (typeof result === 'object' && 'then' in result)
+                        result = await result
                     if (result === null)
                         break
                     if (result !== false && file.stat.isDirectory())
@@ -4475,7 +4502,10 @@ export default class Tools {
             directoryPath, options
         )) {
             const filePath:string = path.resolve(directoryPath, fileName)
-            files.push({path: filePath, stat: fileSystem.statSync(filePath)})
+            files.push({
+                directoryPath, name: fileName, path: filePath,
+                stat: fileSystem.statSync(filePath)
+            })
         }
         if (callback)
             /*
@@ -4525,7 +4555,10 @@ export default class Tools {
     ):((returnCode:?number) => void) {
         let finished:boolean = false
         return (returnCode:?number):void => {
-            if (!finished)
+            if (finished)
+                finished = true
+            else {
+                finished = true
                 if (typeof returnCode !== 'number' || returnCode === 0) {
                     callback()
                     resolve(reason)
@@ -4536,7 +4569,7 @@ export default class Tools {
                     error.returnCode = returnCode
                     reject(error)
                 }
-            finished = true
+            }
         }
     }
     /**
