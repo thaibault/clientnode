@@ -1337,7 +1337,7 @@ export default class Tools {
      * given callback.
      * @returns A promise resolving after given delay or being rejected if
      * value "true" is within one of the first three parameter. The promise
-     * holds a boolean indicating weather timeout has been canceled or
+     * holds a boolean indicating whether timeout has been canceled or
      * resolved.
      */
     static timeout(...parameter:Array<any>):Promise<boolean> {
@@ -1732,7 +1732,7 @@ export default class Tools {
      * @param source - Object to copy.
      * @param recursionLimit - Specifies how deep we should traverse into given
      * object recursively.
-     * @param cyclic - Indicates weather known sub structures should be copied
+     * @param cyclic - Indicates whether known sub structures should be copied
      * or referenced (if "true" endless loops can occur of source has cyclic
      * structures).
      * @param destination - Target to copy source to.
