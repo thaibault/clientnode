@@ -489,7 +489,7 @@ names.push(name.replace(/=.+$/g,'').trim());return names}return names}/**
      * given callback.
      * @returns A promise resolving after given delay or being rejected if
      * value "true" is within one of the first three parameter. The promise
-     * holds a boolean indicating weather timeout has been canceled or
+     * holds a boolean indicating whether timeout has been canceled or
      * resolved.
      */static timeout(...parameter){let callback=Tools.noop;let delayInMilliseconds=0;let throwOnTimeoutClear=false;for(const value of parameter)if(typeof value==='number'&&!Number.isNaN(value))delayInMilliseconds=value;else if(typeof value==='boolean')throwOnTimeoutClear=value;else if(Tools.isFunction(value))callback=value;let rejectCallback;let resolveCallback;const result=new Promise(function(resolve,reject){rejectCallback=reject;resolveCallback=resolve});const wrappedCallback=function wrappedCallback(){callback.call(result,...parameter);resolveCallback(false)};const maximumTimeoutDelayInMilliseconds=2147483647;if(delayInMilliseconds<=maximumTimeoutDelayInMilliseconds)// IgnoreTypeCheck
 result.timeoutID=setTimeout(wrappedCallback,delayInMilliseconds);else{/*
@@ -592,7 +592,7 @@ object.add(value)}}return object}/**
      * @param source - Object to copy.
      * @param recursionLimit - Specifies how deep we should traverse into given
      * object recursively.
-     * @param cyclic - Indicates weather known sub structures should be copied
+     * @param cyclic - Indicates whether known sub structures should be copied
      * or referenced (if "true" endless loops can occur of source has cyclic
      * structures).
      * @param destination - Target to copy source to.
