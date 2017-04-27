@@ -1855,26 +1855,20 @@ export default class Tools {
         deep:number = -1, exceptionPrefixes:Array<string> = [],
         ignoreFunctions:boolean = true
     ):boolean {
-        if (
-            ignoreFunctions && Tools.isFunction(
-                firstValue
-            ) && Tools.isFunction(
-                secondValue
-            ) || firstValue === secondValue || Tools.numberIsNotANumber(
-                firstValue
-            ) && Tools.numberIsNotANumber(secondValue) ||
-            firstValue instanceof RegExp &&
-            secondValue instanceof RegExp &&
-            firstValue.toString() === secondValue.toString() ||
-            firstValue instanceof Date &&
-            secondValue instanceof Date && (
-                isNaN(firstValue.getTime()) &&
-                isNaN(secondValue.getTime()) ||
-                !isNaN(firstValue.getTime()) &&
-                !isNaN(secondValue.getTime()) &&
-                firstValue.getTime() === secondValue.getTime()
-            )
-        )
+        if (ignoreFunctions && Tools.isFunction(
+            firstValue
+        ) && Tools.isFunction(
+            secondValue
+        ) || firstValue === secondValue || Tools.numberIsNotANumber(
+            firstValue
+        ) && Tools.numberIsNotANumber(secondValue) ||
+        firstValue instanceof RegExp && secondValue instanceof RegExp &&
+        firstValue.toString() === secondValue.toString() ||
+        firstValue instanceof Date && secondValue instanceof Date && (
+            isNaN(firstValue.getTime()) && isNaN(secondValue.getTime()) ||
+            !isNaN(firstValue.getTime()) && !isNaN(secondValue.getTime()) &&
+            firstValue.getTime() === secondValue.getTime()
+        ))
             return true
         if (Tools.isPlainObject(firstValue) && Tools.isPlainObject(
             secondValue
