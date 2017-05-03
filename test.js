@@ -2680,9 +2680,12 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
         const domNodeName:string = Object.keys(domNodeSpecification)[0]
         const domNode:DomNode = window.document.createElement(domNodeName)
         for (const name:string in domNodeSpecification[domNodeName].attributes)
-            domNode.setAttribute(name, domNodeSpecification[
-                domNodeName
-            ].attributes[name])
+            if (domNodeSpecification[domNodeName].attributes.hasOwnProperty(
+                name
+            ))
+                domNode.setAttribute(name, domNodeSpecification[
+                    domNodeName
+                ].attributes[name])
         domNodeSpecification[domNodeName].inject.appendChild(domNode)
     }
     testRan = true

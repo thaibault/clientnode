@@ -1337,7 +1337,7 @@ export default class Tools {
      * given callback.
      * @returns A promise resolving after given delay or being rejected if
      * value "true" is within one of the first three parameter. The promise
-     * holds a boolean indicating weather timeout has been canceled or
+     * holds a boolean indicating whether timeout has been canceled or
      * resolved.
      */
     static timeout(...parameter:Array<any>):Promise<boolean> {
@@ -1732,7 +1732,7 @@ export default class Tools {
      * @param source - Object to copy.
      * @param recursionLimit - Specifies how deep we should traverse into given
      * object recursively.
-     * @param cyclic - Indicates weather known sub structures should be copied
+     * @param cyclic - Indicates whether known sub structures should be copied
      * or referenced (if "true" endless loops can occur of source has cyclic
      * structures).
      * @param destination - Target to copy source to.
@@ -1855,26 +1855,20 @@ export default class Tools {
         deep:number = -1, exceptionPrefixes:Array<string> = [],
         ignoreFunctions:boolean = true
     ):boolean {
-        if (
-            ignoreFunctions && Tools.isFunction(
-                firstValue
-            ) && Tools.isFunction(
-                secondValue
-            ) || firstValue === secondValue || Tools.numberIsNotANumber(
-                firstValue
-            ) && Tools.numberIsNotANumber(secondValue) ||
-            firstValue instanceof RegExp &&
-            secondValue instanceof RegExp &&
-            firstValue.toString() === secondValue.toString() ||
-            firstValue instanceof Date &&
-            secondValue instanceof Date && (
-                isNaN(firstValue.getTime()) &&
-                isNaN(secondValue.getTime()) ||
-                !isNaN(firstValue.getTime()) &&
-                !isNaN(secondValue.getTime()) &&
-                firstValue.getTime() === secondValue.getTime()
-            )
-        )
+        if (ignoreFunctions && Tools.isFunction(
+            firstValue
+        ) && Tools.isFunction(
+            secondValue
+        ) || firstValue === secondValue || Tools.numberIsNotANumber(
+            firstValue
+        ) && Tools.numberIsNotANumber(secondValue) ||
+        firstValue instanceof RegExp && secondValue instanceof RegExp &&
+        firstValue.toString() === secondValue.toString() ||
+        firstValue instanceof Date && secondValue instanceof Date && (
+            isNaN(firstValue.getTime()) && isNaN(secondValue.getTime()) ||
+            !isNaN(firstValue.getTime()) && !isNaN(secondValue.getTime()) &&
+            firstValue.getTime() === secondValue.getTime()
+        ))
             return true
         if (Tools.isPlainObject(firstValue) && Tools.isPlainObject(
             secondValue
@@ -4554,19 +4548,20 @@ export default class Tools {
         callback:Function = ():void => {}
     ):((returnCode:?number) => void) {
         let finished:boolean = false
-        return (returnCode:?number):void => {
+        return (returnCode:?number, ...parameter:Array<any>):void => {
             if (finished)
                 finished = true
             else {
                 finished = true
                 if (typeof returnCode !== 'number' || returnCode === 0) {
                     callback()
-                    resolve(reason)
+                    resolve({reason, parameter})
                 } else {
                     const error:Error = new Error(
                         `Task exited with error code ${returnCode}`)
                     // IgnoreTypeCheck
                     error.returnCode = returnCode
+                    error.parameter = parameter
                     reject(error)
                 }
             }
