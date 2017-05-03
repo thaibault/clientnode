@@ -4548,19 +4548,20 @@ export default class Tools {
         callback:Function = ():void => {}
     ):((returnCode:?number) => void) {
         let finished:boolean = false
-        return (returnCode:?number):void => {
+        return (returnCode:?number, ...parameter:Array<any>):void => {
             if (finished)
                 finished = true
             else {
                 finished = true
                 if (typeof returnCode !== 'number' || returnCode === 0) {
                     callback()
-                    resolve(reason)
+                    resolve({reason, parameter})
                 } else {
                     const error:Error = new Error(
                         `Task exited with error code ${returnCode}`)
                     // IgnoreTypeCheck
                     error.returnCode = returnCode
+                    error.parameter = parameter
                     reject(error)
                 }
             }
