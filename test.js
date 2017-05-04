@@ -155,8 +155,9 @@ let tests:Array<Test> = [{callback: function(
     this.test(`acquireLock|releaseLock (${roundType})`, async (
         assert:Object
     ):Promise<void> => {
+        const done:Function = assert.async()
         let testValue:boolean = false
-        tools.acquireLock('test', ():void => {
+        await tools.acquireLock('test', ():void => {
             testValue = true
         })
         assert.ok(testValue)
@@ -169,6 +170,7 @@ let tests:Array<Test> = [{callback: function(
         assert.ok(tools.releaseLock('test') instanceof Promise)
         assert.notOk(testValue)
         assert.ok(tools.releaseLock('test') instanceof Promise)
+        assert.notOk(testValue)
         await tools.acquireLock('test', ():void => {
             testValue = true
         })
@@ -176,14 +178,15 @@ let tests:Array<Test> = [{callback: function(
         assert.ok(tools.acquireLock('test', ():void => {
             testValue = false
         }) instanceof Promise)
-        assert.notOk(testValue)
+        assert.ok(testValue)
         assert.ok(tools.acquireLock('test', ():void => {
             testValue = true
         }) instanceof Promise)
+        assert.ok(testValue)
+        tools.releaseLock('test')
         assert.notOk(testValue)
         tools.releaseLock('test')
         assert.ok(testValue)
-        const done:Function = assert.async()
         tools.acquireLock('test').then(async (result:string):Promise<any> => {
             assert.strictEqual(result, 'test')
             $.Tools.class.timeout(():tools.constructor => tools.releaseLock(

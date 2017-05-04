@@ -523,22 +523,16 @@ export default class Tools {
      * all functions given to "acquireLock()" will be executed in right order.
      * @param description - A short string describing the critical areas
      * properties.
-     * @returns Returns the return value of the callback given to the
-     * "acquireLock" method.
+     * @returns Returns the return (maybe promise resolved) value of the
+     * callback given to the "acquireLock" method.
      */
-    async releaseLock(description:string):?Promise<any> {
+    async releaseLock(description:string):Promise<any> {
         let result:any
-        if (this._locks.hasOwnProperty(description)) {
-            if (this._locks[description].length) {
-                result = this._locks[description].shift()(description)
-                if (
-                    result !== null && typeof result === 'object' &&
-                    'then' in result
-                )
-                    await result
-            }
-            delete this._locks[description]
-        }
+        if (this._locks.hasOwnProperty(description))
+            if (this._locks[description].length)
+                result = await this._locks[description].shift()(description)
+            else
+                delete this._locks[description]
         return result
     }
     /**
@@ -4561,6 +4555,7 @@ export default class Tools {
                         `Task exited with error code ${returnCode}`)
                     // IgnoreTypeCheck
                     error.returnCode = returnCode
+                    // IgnoreTypeCheck
                     error.parameter = parameter
                     reject(error)
                 }
