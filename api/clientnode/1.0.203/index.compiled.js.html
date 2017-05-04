@@ -159,6 +159,8 @@ $domNodes[key]=$.fn[key].bind($domNodes);return $domNodes}/* eslint-disable no-u
  * after name mangling.
  * @property $domNode - $-extended dom node if one was given to the constructor
  * method.
+ * @property locks - Mapping of lock descriptions to there corresponding
+ * callbacks.
  * @property _options - Options given to the constructor.
  * @property _defaultOptions - Fallback options if not overwritten by the
  * options given to the constructor method.
@@ -172,8 +174,6 @@ $domNodes[key]=$.fn[key].bind($domNodes);return $domNodes}/* eslint-disable no-u
  * to dom nodes which should be hidden if javaScript is available.
  * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
  * to dom nodes which should be visible if javaScript is available.
- * @property _locks - Mapping of lock descriptions to there corresponding
- * callbacks.
  */class Tools{// endregion
 // region public methods
 // / region special
@@ -197,7 +197,7 @@ $domNodes[key]=$.fn[key].bind($domNodes);return $domNodes}/* eslint-disable no-u
      */// endregion
 // region dynamic properties
 // region static properties
-constructor($domNode=null,options={},defaultOptions={logging:false,domNodeSelectorPrefix:'body',domNode:{hideJavaScriptEnabled:'.tools-hidden-on-javascript-enabled',showJavaScriptEnabled:'.tools-visible-on-javascript-enabled'}},locks={}){if($domNode)this.$domNode=$domNode;this._options=options;this._defaultOptions=defaultOptions;this._locks=locks;// Avoid errors in browsers that lack a console.
+constructor($domNode=null,options={},defaultOptions={logging:false,domNodeSelectorPrefix:'body',domNode:{hideJavaScriptEnabled:'.tools-hidden-on-javascript-enabled',showJavaScriptEnabled:'.tools-visible-on-javascript-enabled'}},locks={}){if($domNode)this.$domNode=$domNode;this._options=options;this._defaultOptions=defaultOptions;this.locks=locks;// Avoid errors in browsers that lack a console.
 if(!('console'in $.global))$.global.console={};for(const methodName of this.constructor.consoleMethodNames)if(!(methodName in $.global.console))$.global.console[methodName]=this.constructor.noop;if(!this.constructor._javaScriptDependentContentHandled&amp;&amp;'document'in $.global&amp;&amp;'filter'in $&amp;&amp;'hide'in $&amp;&amp;'show'in $){this.constructor._javaScriptDependentContentHandled=true;$(`${this._defaultOptions.domNodeSelectorPrefix} `+this._defaultOptions.domNode.hideJavaScriptEnabled).filter(function(){return!$(this).data('javaScriptDependentContentHide')}).data('javaScriptDependentContentHide',true).hide();$(`${this._defaultOptions.domNodeSelectorPrefix} `+this._defaultOptions.domNode.showJavaScriptEnabled).filter(function(){return!$(this).data('javaScriptDependentContentShow')}).data('javaScriptDependentContentShow',true).show()}}/**
      * This method could be overwritten normally. It acts like a destructor.
      * @returns Returns the current instance.
@@ -238,14 +238,14 @@ $domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tool
      * string will be given to the callback function.
      * @param autoRelease - Release the lock after execution of given callback.
      * @returns Returns a promise which will be resolved after releasing lock.
-     */acquireLock(description,callbackFunction=Tools.noop,autoRelease=false){var _this=this;return(0,_asyncToGenerator3.default)(function*(){return new _promise2.default(function(resolve){const wrappedCallbackFunction=(()=>{var _ref=(0,_asyncToGenerator3.default)(function*(description){const result=callbackFunction(description);const finish=function(value){if(autoRelease)_this.releaseLock(description);resolve(value)};if(result!==null&amp;&amp;typeof result==='object'&amp;&amp;'then'in result)return result.then(finish);finish(description)});return function wrappedCallbackFunction(_x){return _ref.apply(this,arguments)}})();if(_this._locks.hasOwnProperty(description))_this._locks[description].push(wrappedCallbackFunction);else{_this._locks[description]=[];wrappedCallbackFunction(description)}})})()}/**
+     */acquireLock(description,callbackFunction=Tools.noop,autoRelease=false){var _this=this;return(0,_asyncToGenerator3.default)(function*(){return new _promise2.default(function(resolve){const wrappedCallbackFunction=(()=>{var _ref=(0,_asyncToGenerator3.default)(function*(description){const result=callbackFunction(description);const finish=function(value){if(autoRelease)_this.releaseLock(description);resolve(value)};if(result!==null&amp;&amp;typeof result==='object'&amp;&amp;'then'in result)return result.then(finish);finish(description)});return function wrappedCallbackFunction(_x){return _ref.apply(this,arguments)}})();if(_this.locks.hasOwnProperty(description))_this.locks[description].push(wrappedCallbackFunction);else{_this.locks[description]=[];wrappedCallbackFunction(description)}})})()}/**
      * Calling this method  causes the given critical area to be finished and
      * all functions given to "acquireLock()" will be executed in right order.
      * @param description - A short string describing the critical areas
      * properties.
      * @returns Returns the return (maybe promise resolved) value of the
      * callback given to the "acquireLock" method.
-     */releaseLock(description){var _this2=this;return(0,_asyncToGenerator3.default)(function*(){let result;if(_this2._locks.hasOwnProperty(description))if(_this2._locks[description].length)result=yield _this2._locks[description].shift()(description);else delete _this2._locks[description];return result})()}/**
+     */releaseLock(description){var _this2=this;return(0,_asyncToGenerator3.default)(function*(){let result;if(_this2.locks.hasOwnProperty(description))if(_this2.locks[description].length)result=yield _this2.locks[description].shift()(description);else delete _this2.locks[description];return result})()}/**
      * Generate a semaphore object with given number of resources.
      * @param numberOfResources - Number of allowed concurrent resource uses.
      * @returns The requested semaphore instance.
@@ -1487,7 +1487,7 @@ module.exports = __webpack_require__(0);
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Thu May 04 2017 21:54:01 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Thu May 04 2017 22:06:01 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
