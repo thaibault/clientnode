@@ -17,9 +17,9 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	function __webpack_require__(moduleId) {
 /******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
+/******/ 		if(installedModules[moduleId]) {
 /******/ 			return installedModules[moduleId].exports;
-/******/
+/******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
@@ -224,9 +224,9 @@ $domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tool
      * all functions given to "acquireLock()" will be executed in right order.
      * @param description - A short string describing the critical areas
      * properties.
-     * @returns Returns the return value of the callback given to the
-     * "acquireLock" method.
-     */releaseLock(description){var _this2=this;return _asyncToGenerator(function*(){let result;if(_this2._locks.hasOwnProperty(description)){if(_this2._locks[description].length){result=_this2._locks[description].shift()(description);if(result!==null&&typeof result==='object'&&'then'in result)yield result}delete _this2._locks[description]}return result})()}/**
+     * @returns Returns the return (maybe promise resolved) value of the
+     * callback given to the "acquireLock" method.
+     */releaseLock(description){var _this2=this;return _asyncToGenerator(function*(){let result;if(_this2._locks.hasOwnProperty(description))if(_this2._locks[description].length)result=yield _this2._locks[description].shift()(description);else delete _this2._locks[description];return result})()}/**
      * Generate a semaphore object with given number of resources.
      * @param numberOfResources - Number of allowed concurrent resource uses.
      * @returns The requested semaphore instance.
@@ -1312,8 +1312,9 @@ sourcePath=path.resolve(sourcePath);if(Tools.isDirectorySync(targetPath))targetP
      * @param callback - Optional function to call of process has successfully
      * finished.
      * @returns Process close handler function.
-     */static getProcessCloseHandler(resolve,reject,reason=null,callback=function(){}){let finished=false;return function(returnCode){if(finished)finished=true;else{finished=true;if(typeof returnCode!=='number'||returnCode===0){callback();resolve(reason)}else{const error=new Error(`Task exited with error code ${returnCode}`);// IgnoreTypeCheck
-error.returnCode=returnCode;reject(error)}}}}/**
+     */static getProcessCloseHandler(resolve,reject,reason=null,callback=function(){}){let finished=false;return function(returnCode,...parameter){if(finished)finished=true;else{finished=true;if(typeof returnCode!=='number'||returnCode===0){callback();resolve({reason,parameter})}else{const error=new Error(`Task exited with error code ${returnCode}`);// IgnoreTypeCheck
+error.returnCode=returnCode;// IgnoreTypeCheck
+error.parameter=parameter;reject(error)}}}}/**
      * Forwards given child process communication channels to corresponding
      * current process communication channels.
      * @param childProcess - Child process meta data.
@@ -1589,6 +1590,10 @@ process.off = noop;
 process.removeListener = noop;
 process.removeAllListeners = noop;
 process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
