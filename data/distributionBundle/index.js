@@ -213,6 +213,8 @@ if (!('context' in $) && 'document' in $.global)
  * after name mangling.
  * @property $domNode - $-extended dom node if one was given to the constructor
  * method.
+ * @property locks - Mapping of lock descriptions to there corresponding
+ * callbacks.
  * @property _options - Options given to the constructor.
  * @property _defaultOptions - Fallback options if not overwritten by the
  * options given to the constructor method.
@@ -226,8 +228,6 @@ if (!('context' in $) && 'document' in $.global)
  * to dom nodes which should be hidden if javaScript is available.
  * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
  * to dom nodes which should be visible if javaScript is available.
- * @property _locks - Mapping of lock descriptions to there corresponding
- * callbacks.
  */
 export default class Tools {
     // region static properties
@@ -339,9 +339,9 @@ export default class Tools {
     // endregion
     // region dynamic properties
     $domNode:$DomNode
+    locks:{[key:string]:Array<LockCallbackFunction>};
     _options:Options
     _defaultOptions:PlainObject
-    _locks:{[key:string]:Array<LockCallbackFunction>};
     // endregion
     // region public methods
     // / region special
@@ -376,7 +376,7 @@ export default class Tools {
             this.$domNode = $domNode
         this._options = options
         this._defaultOptions = defaultOptions
-        this._locks = locks
+        this.locks = locks
         // Avoid errors in browsers that lack a console.
         if (!('console' in $.global))
             $.global.console = {}
@@ -510,10 +510,10 @@ export default class Tools {
                     return result.then(finish)
                 finish(description)
             }
-            if (this._locks.hasOwnProperty(description))
-                this._locks[description].push(wrappedCallbackFunction)
+            if (this.locks.hasOwnProperty(description))
+                this.locks[description].push(wrappedCallbackFunction)
             else {
-                this._locks[description] = []
+                this.locks[description] = []
                 wrappedCallbackFunction(description)
             }
         })
@@ -528,11 +528,11 @@ export default class Tools {
      */
     async releaseLock(description:string):Promise<any> {
         let result:any
-        if (this._locks.hasOwnProperty(description))
-            if (this._locks[description].length)
-                result = await this._locks[description].shift()(description)
+        if (this.locks.hasOwnProperty(description))
+            if (this.locks[description].length)
+                result = await this.locks[description].shift()(description)
             else
-                delete this._locks[description]
+                delete this.locks[description]
         return result
     }
     /**
