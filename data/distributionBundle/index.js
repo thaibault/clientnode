@@ -523,22 +523,16 @@ export default class Tools {
      * all functions given to "acquireLock()" will be executed in right order.
      * @param description - A short string describing the critical areas
      * properties.
-     * @returns Returns the return value of the callback given to the
-     * "acquireLock" method.
+     * @returns Returns the return (maybe promise resolved) value of the
+     * callback given to the "acquireLock" method.
      */
-    async releaseLock(description:string):?Promise<any> {
+    async releaseLock(description:string):Promise<any> {
         let result:any
-        if (this._locks.hasOwnProperty(description)) {
-            if (this._locks[description].length) {
-                result = this._locks[description].shift()(description)
-                if (
-                    result !== null && typeof result === 'object' &&
-                    'then' in result
-                )
-                    await result
-            }
-            delete this._locks[description]
-        }
+        if (this._locks.hasOwnProperty(description))
+            if (this._locks[description].length)
+                result = await this._locks[description].shift()(description)
+            else
+                delete this._locks[description]
         return result
     }
     /**
@@ -1855,26 +1849,20 @@ export default class Tools {
         deep:number = -1, exceptionPrefixes:Array<string> = [],
         ignoreFunctions:boolean = true
     ):boolean {
-        if (
-            ignoreFunctions && Tools.isFunction(
-                firstValue
-            ) && Tools.isFunction(
-                secondValue
-            ) || firstValue === secondValue || Tools.numberIsNotANumber(
-                firstValue
-            ) && Tools.numberIsNotANumber(secondValue) ||
-            firstValue instanceof RegExp &&
-            secondValue instanceof RegExp &&
-            firstValue.toString() === secondValue.toString() ||
-            firstValue instanceof Date &&
-            secondValue instanceof Date && (
-                isNaN(firstValue.getTime()) &&
-                isNaN(secondValue.getTime()) ||
-                !isNaN(firstValue.getTime()) &&
-                !isNaN(secondValue.getTime()) &&
-                firstValue.getTime() === secondValue.getTime()
-            )
-        )
+        if (ignoreFunctions && Tools.isFunction(
+            firstValue
+        ) && Tools.isFunction(
+            secondValue
+        ) || firstValue === secondValue || Tools.numberIsNotANumber(
+            firstValue
+        ) && Tools.numberIsNotANumber(secondValue) ||
+        firstValue instanceof RegExp && secondValue instanceof RegExp &&
+        firstValue.toString() === secondValue.toString() ||
+        firstValue instanceof Date && secondValue instanceof Date && (
+            isNaN(firstValue.getTime()) && isNaN(secondValue.getTime()) ||
+            !isNaN(firstValue.getTime()) && !isNaN(secondValue.getTime()) &&
+            firstValue.getTime() === secondValue.getTime()
+        ))
             return true
         if (Tools.isPlainObject(firstValue) && Tools.isPlainObject(
             secondValue
@@ -4554,19 +4542,21 @@ export default class Tools {
         callback:Function = ():void => {}
     ):((returnCode:?number) => void) {
         let finished:boolean = false
-        return (returnCode:?number):void => {
+        return (returnCode:?number, ...parameter:Array<any>):void => {
             if (finished)
                 finished = true
             else {
                 finished = true
                 if (typeof returnCode !== 'number' || returnCode === 0) {
                     callback()
-                    resolve(reason)
+                    resolve({reason, parameter})
                 } else {
                     const error:Error = new Error(
                         `Task exited with error code ${returnCode}`)
                     // IgnoreTypeCheck
                     error.returnCode = returnCode
+                    // IgnoreTypeCheck
+                    error.parameter = parameter
                     reject(error)
                 }
             }
