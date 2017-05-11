@@ -1420,7 +1420,7 @@ export default class Tools {
                 waitingCallArguments = parameter
             else {
                 lock = true
-                eventFunction.call(this, ...parameter)
+                eventFunction(...parameter)
                 timer = Tools.timeout(thresholdInMilliseconds, ():void => {
                     lock = false
                     if (waitingCallArguments) {
