@@ -781,9 +781,11 @@ let tests:Array<Test> = [{callback: function(
             testValue = true
         })()
         assert.ok(testValue)
-        $.Tools.class.debounce(():void => {
-            testValue = false
-        }, 1000)()
+        const callback:Function = $.Tools.class.debounce(():void => {
+            testValue = !testValue
+        }, 1000)
+        callback()
+        callback()
         assert.notOk(testValue)
     })
     this.test(`fireEvent (${roundType})`, (assert:Object):void => {
