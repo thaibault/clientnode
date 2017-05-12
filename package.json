@@ -39,7 +39,7 @@
     "document": "webOptimizer document",
     "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\"}}}}}}' && npm run buildTest",
     "exportCompatible": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\",__append__:\"transform-proto-to-assign\"},presets:[\"env\",\"stage-0\"]}}}}}' && npm run buildTest",
-    "lint": "webOptimizer typeCheck && webOptimizer lint",
+    "lint": "webOptimizer typeCheck; webOptimizer lint",
     "prepublish": "if ! npm run build; then echo You should rerun install procedure to resolve dependency cycle. && npm run buildAlternatively; fi",
     "serve": "webOptimizer serve",
     "start": "npm run serve",
