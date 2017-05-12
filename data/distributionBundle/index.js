@@ -1420,7 +1420,7 @@ export default class Tools {
                 waitingCallArguments = parameter
             else {
                 lock = true
-                eventFunction.call(this, ...parameter)
+                eventFunction(...parameter)
                 timer = Tools.timeout(thresholdInMilliseconds, ():void => {
                     lock = false
                     if (waitingCallArguments) {
@@ -1602,6 +1602,7 @@ export default class Tools {
             return value
         }, numberOfSpaces)
     }
+    /* eslint-disable require-jsdoc */
     /**
      * Converts given map and all nested found maps objects to corresponding
      * object.
@@ -1651,6 +1652,8 @@ export default class Tools {
         }
         return object
     }
+    /* eslint-enable require-jsdoc */
+    /* eslint-disable require-jsdoc */
     /**
      * Converts given plain object and all nested found objects to
      * corresponding map.
@@ -1701,6 +1704,7 @@ export default class Tools {
         }
         return object
     }
+    /* eslint-enable require-jsdoc */
     /**
      * Replaces given pattern in each value in given object recursively with
      * given string replacement.
@@ -1906,6 +1910,7 @@ export default class Tools {
                         index += 1
                     }
                 } else if (firstIsMap)
+                    /* eslint-disable curly */
                     for (const [key:any, value:any] of first) {
                         if (deep !== 0 && !Tools.equals(
                             value, second.get(key), properties, deep - 1,
@@ -1913,8 +1918,10 @@ export default class Tools {
                         ))
                             equal = false
                     }
+                    /* eslint-enable curly */
+                /* eslint-disable curly */
                 else if (firstIsSet) {
-                    for (const value:any of first) {
+                    for (const value:any of first)
                         if (deep !== 0) {
                             equal = false
                             for (const secondValue:any of second)
@@ -1928,8 +1935,8 @@ export default class Tools {
                             if (!equal)
                                 break
                         }
-                    }
                 } else
+                /* eslint-enable curly */
                     for (const key:string in first)
                         if (first.hasOwnProperty(key)) {
                             if (!equal || properties && !properties.includes(
