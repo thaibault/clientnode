@@ -831,6 +831,7 @@ export default class Tools {
      * @returns Current instance.
      */
     get normalizedClassNames():Tools {
+        // IgnoreTypeCheck
         this.$domNode.find('*').addBack().each(function():void {
             const $thisDomNode:$DomNode = $(this)
             if ($thisDomNode.attr('class')) {
@@ -851,6 +852,7 @@ export default class Tools {
      */
     get normalizedStyles():Tools {
         const self:Tools = this
+        // IgnoreTypeCheck
         this.$domNode.find('*').addBack().each(function():void {
             const $thisDomNode:$DomNode = $(this)
             let serializedStyles:?string = $thisDomNode.attr('style')
@@ -3837,6 +3839,7 @@ export default class Tools {
             ).toString('utf8')
         let result:any
         try {
+            // IgnoreTypeCheck
             result = (new Function(name, `return ${serializedObject}`))(scope)
         } catch (error) {}
         if (typeof result === 'object')
