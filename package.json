@@ -31,24 +31,24 @@
     "url": "https://github.com/thaibault/clientNode"
   },
   "scripts": {
-    "buildTest": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0 --source-maps inline --out-file test.compiled.js test.js",
-    "buildAlternatively": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0 --source-maps inline --out-file index.compiled.js index.js && npm run buildTest",
-    "build": "webOptimizer build && npm run buildTest",
-    "buildDLL": "webOptimizer buildDLL",
+    "build": "webOptimizer build && npm run build:test",
+    "build:alternatively": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0 --source-maps inline --out-file index.compiled.js index.js && npm run buildTest",
+    "build:dll": "webOptimizer build:dll",
+    "build:test": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0 --source-maps inline --out-file test.compiled.js test.js",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\"}}}}}}' && npm run buildTest",
-    "exportCompatible": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\",__append__:\"transform-proto-to-assign\"},presets:[\"env\",\"stage-0\"]}}}}}' && npm run buildTest",
-    "lint": "webOptimizer typeCheck; webOptimizer lint",
+    "export:compatible": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\",__append__:\"transform-proto-to-assign\"},presets:[\"env\",\"stage-0\"]}}}}}' && npm run buildTest",
+    "lint": "webOptimizer check:type; webOptimizer lint",
     "prepublish": "if ! npm run build; then echo You should rerun install procedure to resolve dependency cycle. && npm run buildAlternatively; fi",
     "serve": "webOptimizer serve",
     "start": "npm run serve",
     "test": "webOptimizer test",
-    "testInBrowser": "webOptimizer testInBrowser",
+    "test:browser": "webOptimizer test:browser",
     "update": "npm version patch && npm publish",
-    "updateDocumentation": "documentationWebsite --log-level info",
+    "update:documentation": "documentationWebsite --log-level info",
     "watch": "webOptimizer build --watch",
-    "watchDLL": "webOptimizer buildDLL --watch"
+    "watch:dll": "webOptimizer build:dll --watch"
   },
   "dependencies": {
     "qunitjs": "latest",
@@ -74,7 +74,7 @@
       },
       "internal": {
         "vendor": {
-          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI'] : []"
+          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['build:dll', 'serve', 'test:browser', 'watch:dll'].includes(self.givenCommandLineArguments[2]) ? self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI'] : []"
         }
       }
     },
