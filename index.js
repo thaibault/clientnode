@@ -1992,7 +1992,7 @@ export default class Tools {
             index = 1
         } else
             target = targetOrDeepIndicator
-        const mergeValue = (key:string, value:any, targetValue:any):any => {
+        const mergeValue = (targetValue:any, value:any):any => {
             if (value === targetValue)
                 return targetValue
             // Recurse if we're merging plain objects or maps.
@@ -2001,13 +2001,13 @@ export default class Tools {
             ) || Tools.determineType(value) === 'map')) {
                 let clone:any
                 if (Tools.determineType(value) === 'map')
-                    clone = targetValue && (
-                        Tools.determineType(targetValue) === 'map'
-                    ) ? targetValue : new Map()
-                else
-                    clone = targetValue && Tools.isPlainObject(
+                    clone = (targetValue && Tools.determineType(
                         targetValue
-                    ) ? targetValue : {}
+                    ) === 'map') ? targetValue : new Map()
+                else
+                    clone = (targetValue && Tools.isPlainObject(
+                        targetValue
+                    )) ? targetValue : {}
                 return Tools.extendObject(deep, clone, value)
             }
             return value
@@ -2026,8 +2026,7 @@ export default class Tools {
                     Tools.determineType(source) === 'map'
                 )
                     for (const [key:any, value:any] of source)
-                        target.set(key, mergeValue(key, value, target.get(
-                            key)))
+                        target.set(key, mergeValue(target.get(key), value))
                 else if (
                     target !== null && !Array.isArray(target) &&
                     typeof target === 'object' && source !== null &&
@@ -2035,8 +2034,7 @@ export default class Tools {
                 ) {
                     for (const key:string in source)
                         if (source.hasOwnProperty(key))
-                            target[key] = mergeValue(
-                                key, source[key], target[key])
+                            target[key] = mergeValue(target[key], source[key])
                 } else
                     target = source
             else
