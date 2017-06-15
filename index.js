@@ -329,7 +329,8 @@ export default class Tools {
                 return 11
         return version
     })()
-    static noop = ('noop' in $) ? $.noop : ():void => {}
+    static noop:Function = ('noop' in $) ? $.noop : ():void => {}
+    static plainObjectPrototypes:Array<any> = [Object.prototype]
     static specialRegexSequences:Array<string> = [
         '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}']
     static transitionEndEventNames:string = 'transitionend ' +
@@ -655,7 +656,8 @@ export default class Tools {
     static isPlainObject(object:mixed):boolean {
         return (
             typeof object === 'object' && object !== null &&
-            Object.getPrototypeOf(object) === Object.prototype)
+            Tools.plainObjectPrototypes.includes(Object.getPrototypeOf(object))
+        )
     }
     /**
      * Checks whether given object is a function.
