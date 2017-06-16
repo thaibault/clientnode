@@ -3968,7 +3968,7 @@ export default class Tools {
                 const wrapper:Function = async ():Promise<?Object> => {
                     let response:Object
                     try {
-                        response = await fetch(url)
+                        response = await fetch(url, options)
                     } catch (error) {
                         if (!timedOut) {
                             /* eslint-disable no-use-before-define */
@@ -4051,7 +4051,7 @@ export default class Tools {
                 let timedOut:boolean = false
                 const wrapper:Function = async ():Promise<?Object> => {
                     try {
-                        const response:Object = await fetch(url)
+                        const response:Object = await fetch(url, options)
                         if (timedOut)
                             return response
                         const result:Error = check(response)
