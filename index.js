@@ -3936,6 +3936,7 @@ export default class Tools {
      * available if no response is coming.
      * @param pollIntervallInSeconds - Seconds between two tries to reach given
      * url.
+     * @param options - Fetch options to use.
      * @returns A promise which will be resolved if a request to given url has
      * finished and resulting status code matches given expectedstatus code.
      * Otherwise returned promise will be rejected.
@@ -3943,7 +3944,8 @@ export default class Tools {
     static async checkReachability(
         url:string, wait:boolean = false,
         expectedStatusCodes:number|Array<number> = 200,
-        timeoutInSeconds:number = 10, pollIntervallInSeconds:number = 0.1
+        timeoutInSeconds:number = 10, pollIntervallInSeconds:number = 0.1,
+        options:PlainObject = {}
     ):Promise<Object> {
         expectedStatusCodes = [].concat(expectedStatusCodes)
         const check:Function = (response:?Object):?Object => {
@@ -4005,7 +4007,7 @@ export default class Tools {
                 currentlyRunningTimer.clear()
                 reject(`Timeout of ${timeoutInSeconds} seconds reached.`)
             })
-        return check(await fetch(url))
+        return check(await fetch(url, options))
     }
     /**
      * Checks if given url isn't reachable.
@@ -4017,13 +4019,15 @@ export default class Tools {
      * @param pollIntervallInSeconds - Seconds between two tries to reach given
      * url.
      * @param unexpectedStatusCodes - Status codes to check for.
+     * @param options - Fetch options to use.
      * @returns A promise which will be resolved if a request to given url
      * couldn't finished. Otherwise returned promise will be rejected.
      */
     static async checkUnreachability(
         url:string, wait:boolean = false, timeoutInSeconds:number = 10,
         pollIntervallInSeconds:number = 0.1,
-        unexpectedStatusCodes:?number|Array<number> = null
+        unexpectedStatusCodes:?number|Array<number> = null,
+        options:PlainObject = {}
     ):Promise<Object> {
         const check:Function = (response:?Object):?Error => {
             if (unexpectedStatusCodes) {
@@ -4087,7 +4091,7 @@ export default class Tools {
                 reject(`Timeout of ${timeoutInSeconds} seconds reached.`)
             })
         try {
-            const result:Error = check(await fetch(url))
+            const result:Error = check(await fetch(url, options))
             if (result)
                 return result
         } catch (error) {
