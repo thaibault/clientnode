@@ -3931,7 +3931,7 @@ export default class Tools {
      * @param url - Url to check reachability.
      * @param wait - Boolean indicating if we should retry until a status code
      * will be given.
-     * @param expectedStatusCode - Status code to check for.
+     * @param expectedStatusCodes - Status codes to check for.
      * @param timeoutInSeconds - Delay after assuming given resource isn't
      * available if no response is coming.
      * @param pollIntervallInSeconds - Seconds between two tries to reach given
@@ -3941,17 +3941,21 @@ export default class Tools {
      * Otherwise returned promise will be rejected.
      */
     static async checkReachability(
-        url:string, wait:boolean = false, expectedStatusCode:number = 200,
+        url:string, wait:boolean = false,
+        expectedStatusCodes:number|Array<number> = 200,
         timeoutInSeconds:number = 10, pollIntervallInSeconds:number = 0.1
     ):Promise<Object> {
+        expectedStatusCodes = [].concat(expectedStatusCodes)
         const check:Function = (response:?Object):?Object => {
             if (
                 response && 'status' in response &&
-                response.status !== expectedStatusCode
+                // IgnoreTypeCheck
+                !expectedStatusCodes.includes(response.status)
             )
                 throw new Error(
                     `Given status code ${response.status} differs from ` +
-                    `${expectedStatusCode}.`)
+                    // IgnoreTypeCheck
+                    `${expectedStatusCodes.join(', ')}.`)
             return response
         }
         if (wait)
@@ -4012,26 +4016,28 @@ export default class Tools {
      * available.
      * @param pollIntervallInSeconds - Seconds between two tries to reach given
      * url.
-     * @param unexpectedStatusCode - Status code to check for.
+     * @param unexpectedStatusCodes - Status codes to check for.
      * @returns A promise which will be resolved if a request to given url
      * couldn't finished. Otherwise returned promise will be rejected.
      */
     static async checkUnreachability(
         url:string, wait:boolean = false, timeoutInSeconds:number = 10,
         pollIntervallInSeconds:number = 0.1,
-        unexpectedStatusCode:?number = null
+        unexpectedStatusCodes:?number|Array<number> = null
     ):Promise<Object> {
         const check:Function = (response:?Object):?Error => {
-            if (unexpectedStatusCode) {
+            if (unexpectedStatusCodes) {
+                unexpectedStatusCodes = [].concat(unexpectedStatusCodes)
                 if (
                     response && 'status' in response &&
-                    response.status === unexpectedStatusCode
+                    unexpectedStatusCodes.includes(response.status)
                 )
                     throw new Error(
                         `Given url "${url}" is reachable ans responses with ` +
-                        `unexpeced status code "${response.status}".`)
+                        `unexpected status code "${response.status}".`)
                 return new Error(
-                    `Given status code is not "${unexpectedStatusCode}".`)
+                    'Given status code is not "' +
+                    `${unexpectedStatusCodes.join(', ')}".`)
             }
         }
         if (wait)
