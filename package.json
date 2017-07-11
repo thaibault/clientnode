@@ -51,8 +51,8 @@
     "watch:dll": "webOptimizer build:dll --watch"
   },
   "dependencies": {
-    "qunitjs": "latest",
-    "weboptimizer": "latest"
+    "qunitjs": "^2.4.0",
+    "weboptimizer": "^1.0.330"
   },
   "peerDependencies": {
     "jquery": "*"
