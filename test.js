@@ -2718,8 +2718,10 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
                 roundType
             )) {
                 // NOTE: Enforce to reload module to rebind "$".
-                delete require.cache[require.resolve('clientnode')]
-                delete require.cache[require.resolve('jquery')]
+                try {
+                    delete require.cache[require.resolve('clientnode')]
+                    delete require.cache[require.resolve('jquery')]
+                } catch (error) {}
                 /*
                     NOTE: Module bundler like webpack wraps a commonjs
                     environment. So we have to try to clear the underling
