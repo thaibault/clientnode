@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "qunitjs": "latest",
-    "weboptimizer": "^1.0.339"
+    "weboptimizer": "^1.0.340"
   },
   "peerDependencies": {
     "jquery": "*"
