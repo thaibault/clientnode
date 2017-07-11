@@ -51,24 +51,24 @@
     "watch:dll": "webOptimizer build:dll --watch"
   },
   "dependencies": {
-    "qunitjs": "^2.4.0",
-    "weboptimizer": "^1.0.336"
+    "qunitjs": "latest",
+    "weboptimizer": "latest"
   },
   "peerDependencies": {
-    "eslint": "latest",
-    "flow-bin": "latest",
-    "jquery": "*",
-    "jsdoc": "latest",
-    "webpack": "latest",
-    "webpack-dev-server": "latest"
+    "jquery": "*"
   },
   "devDependencies": {
     "babel-plugin-transform-proto-to-assign": "latest",
     "babel-preset-env": "latest",
     "documentation-website": "latest",
-    "rimraf": "latest",
+    "eslint": "latest",
+    "flow-bin": "latest",
     "jquery": "latest",
-    "source-map-support": "latest"
+    "jsdoc": "latest",
+    "rimraf": "latest",
+    "source-map-support": "latest",
+    "webpack": "latest",
+    "webpack-dev-server": "latest"
   },
   "webOptimizer": {
     "injection": {
