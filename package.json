@@ -52,10 +52,15 @@
   },
   "dependencies": {
     "qunitjs": "^2.4.0",
-    "weboptimizer": "^1.0.331"
+    "weboptimizer": "^1.0.336"
   },
   "peerDependencies": {
-    "jquery": "*"
+    "eslint": "latest",
+    "flow-bin": "latest",
+    "jquery": "*",
+    "jsdoc": "latest",
+    "webpack": "latest",
+    "webpack-dev-server": "latest"
   },
   "devDependencies": {
     "babel-plugin-transform-proto-to-assign": "latest",
