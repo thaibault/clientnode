@@ -150,9 +150,10 @@ export const $:any = (():any => {
         const selector:any = (
             'document' in globalContext &&
             'querySelectorAll' in globalContext.document
-        ) ? globalContext.document.querySelectorAll.bind(
-            globalContext.document
-        ) : ():null => null
+        ) ?
+            globalContext.document.querySelectorAll.bind(
+                globalContext.document
+            ) : ():null => null
         $ = (parameter:any, ...additionalArguments:Array<any>):any => {
             if (typeof parameter === 'string') {
                 const $domNodes:Array<any> = selector(
@@ -1026,9 +1027,9 @@ export default class Tools {
             directiveName)
         return `${delimitedName}, .${delimitedName}, [${delimitedName}], ` +
             `[data-${delimitedName}], [x-${delimitedName}]` + (
-                (delimitedName.includes('-') ? (
-                    `, [${delimitedName.replace(/-/g, '\\:')}], ` +
-                    `[${delimitedName.replace(/-/g, '_')}]`) : ''))
+            (delimitedName.includes('-') ? (
+                `, [${delimitedName.replace(/-/g, '\\:')}], ` +
+                `[${delimitedName.replace(/-/g, '_')}]`) : ''))
     }
     /**
      * Removes a directive name corresponding class or attribute.
@@ -1857,33 +1858,35 @@ export default class Tools {
         deep:number = -1, exceptionPrefixes:Array<string> = [],
         ignoreFunctions:boolean = true
     ):boolean {
-        if (ignoreFunctions && Tools.isFunction(
-            firstValue
-        ) && Tools.isFunction(
-            secondValue
-        ) || firstValue === secondValue || Tools.numberIsNotANumber(
-            firstValue
-        ) && Tools.numberIsNotANumber(secondValue) ||
-        firstValue instanceof RegExp && secondValue instanceof RegExp &&
-        firstValue.toString() === secondValue.toString() ||
-        firstValue instanceof Date && secondValue instanceof Date && (
-            isNaN(firstValue.getTime()) && isNaN(secondValue.getTime()) ||
-            !isNaN(firstValue.getTime()) && !isNaN(secondValue.getTime()) &&
-            firstValue.getTime() === secondValue.getTime()
-        ))
+        if (
+            ignoreFunctions && Tools.isFunction(firstValue) &&
+            Tools.isFunction(secondValue) || firstValue === secondValue ||
+            Tools.numberIsNotANumber(firstValue) &&
+            Tools.numberIsNotANumber(secondValue) ||
+            firstValue instanceof RegExp && secondValue instanceof RegExp &&
+            firstValue.toString() === secondValue.toString() ||
+            firstValue instanceof Date && secondValue instanceof Date && (
+                isNaN(firstValue.getTime()) && isNaN(secondValue.getTime()) ||
+                !isNaN(firstValue.getTime()) &&
+                !isNaN(secondValue.getTime()) &&
+                firstValue.getTime() === secondValue.getTime()
+            )
+        )
             return true
-        if (Tools.isPlainObject(firstValue) && Tools.isPlainObject(
-            secondValue
-        ) && !(
-            firstValue instanceof RegExp || secondValue instanceof RegExp
-        ) || Array.isArray(firstValue) && Array.isArray(
-            secondValue
-        ) && firstValue.length === secondValue.length || ((
-            Tools.determineType(firstValue) === 'map' &&
-            Tools.determineType(secondValue) === 'map' ||
-            Tools.determineType(firstValue) === 'set' &&
-            Tools.determineType(secondValue) === 'set'
-        ) && firstValue.size === secondValue.size)) {
+        if (
+            Tools.isPlainObject(firstValue) && Tools.isPlainObject(
+                secondValue
+            ) && !(
+                firstValue instanceof RegExp || secondValue instanceof RegExp
+            ) || Array.isArray(firstValue) && Array.isArray(
+                secondValue
+            ) && firstValue.length === secondValue.length || ((
+                Tools.determineType(firstValue) === 'map' &&
+                Tools.determineType(secondValue) === 'map' ||
+                Tools.determineType(firstValue) === 'set' &&
+                Tools.determineType(secondValue) === 'set'
+            ) && firstValue.size === secondValue.size)
+        ) {
             for (const [first, second] of [[firstValue, secondValue], [
                 secondValue, firstValue
             ]]) {
@@ -2243,8 +2246,9 @@ export default class Tools {
                     result += `,\n${initialIndention}${indention}`
                 result += Tools.representObject(
                     key, indention, `${initialIndention}${indention}`
-                ) + ' -> ' + Tools.representObject(
-                    item, indention, `${initialIndention}${indention}`)
+                ) + ' -> ' +
+                    Tools.representObject(
+                        item, indention, `${initialIndention}${indention}`)
                 firstSeen = true
             }
             if (!firstSeen)
@@ -2599,11 +2603,12 @@ export default class Tools {
             let empty:boolean = true
             for (const propertyName:string in item)
                 if (item.hasOwnProperty(propertyName))
-                    if (!['', null, undefined].includes(item[
-                        propertyName
-                    ]) && (!propertyNames.length || Tools.arrayMake(
-                        propertyNames
-                    ).includes(propertyName))) {
+                    if (
+                        !['', null, undefined].includes(item[propertyName]) &&
+                        (!propertyNames.length || Tools.arrayMake(
+                            propertyNames
+                        ).includes(propertyName))
+                    ) {
                         empty = false
                         break
                     }
@@ -2692,11 +2697,11 @@ export default class Tools {
             for (const item:Object of Tools.arrayMake(data)) {
                 let matches:boolean = true
                 for (const propertyName:string in propertyPattern)
-                    if (!((
-                        propertyPattern[propertyName] instanceof RegExp
-                    ) ? propertyPattern[propertyName] : new RegExp(
-                        propertyPattern[propertyName]
-                    )).test(item[propertyName])) {
+                    if (!(
+                        (propertyPattern[propertyName] instanceof RegExp) ?
+                            propertyPattern[propertyName] :
+                            new RegExp(propertyPattern[propertyName])
+                    ).test(item[propertyName])) {
                         matches = false
                         break
                     }
@@ -2736,11 +2741,12 @@ export default class Tools {
                     firstKey = secondKey
             } else
                 secondKey = firstKey
-            if (secondItem[secondKey] !== firstItem[firstKey] && (strict || !([
-                null, undefined
-            ].includes(secondItem[secondKey]) && [null, undefined].includes(
-                firstItem[firstKey]
-            ))))
+            if (
+                secondItem[secondKey] !== firstItem[firstKey] &&
+                (strict || !([null, undefined].includes(
+                    secondItem[secondKey]
+                ) && [null, undefined].includes(firstItem[firstKey])))
+            )
                 return false
         }
         for (const firstItem:any of Tools.arrayMake(first))
@@ -3486,11 +3492,10 @@ export default class Tools {
                         nearestRange = currentRange
                 }
                 if (nearestRange) {
-                    target = target.substring(
-                        0, offset + nearestRange[0]
-                    ) + Tools.stringFormat(marker, target.substring(
-                        offset + nearestRange[0], offset + nearestRange[1]
-                    )) + target.substring(offset + nearestRange[1])
+                    target = target.substring(0, offset + nearestRange[0]) +
+                        Tools.stringFormat(marker, target.substring(
+                            offset + nearestRange[0], offset + nearestRange[1]
+                        )) + target.substring(offset + nearestRange[1])
                     offset += nearestRange[1] + (marker.length - '{1}'.length)
                     if (target.length <= offset)
                         break
@@ -3740,10 +3745,10 @@ export default class Tools {
             for (
                 let blockNumber:number = 0; blockNumber < 64; blockNumber += 4
             )
-                blocks[blockNumber >> 2] = value.charCodeAt(blockNumber) + (
-                    value.charCodeAt(blockNumber + 1) << 8
-                ) + (value.charCodeAt(blockNumber + 2) << 16) + (
-                    value.charCodeAt(blockNumber + 3) << 24)
+                blocks[blockNumber >> 2] = value.charCodeAt(blockNumber) +
+                    (value.charCodeAt(blockNumber + 1) << 8) +
+                    (value.charCodeAt(blockNumber + 2) << 16) +
+                    (value.charCodeAt(blockNumber + 3) << 24)
             return blocks
         }
         // endregion
@@ -4430,7 +4435,7 @@ export default class Tools {
      */
     static walkDirectoryRecursively(
         directoryPath:string, callback:Function = Tools.noop,
-        options:PlainObject = {encoding: 'utf8'}
+        options:PlainObject|string = 'utf8'
     ):Promise<Array<File>> {
         return new Promise((resolve:Function, reject:Function):void => {
             fileSystem.readdir(directoryPath, options, async (
@@ -4503,7 +4508,7 @@ export default class Tools {
      */
     static walkDirectoryRecursivelySync(
         directoryPath:string, callback:Function = Tools.noop,
-        options:PlainObject = {encoding: 'utf8'}
+        options:PlainObject|string = 'utf8'
     ):Array<File> {
         let files:Array<File> = []
         for (const fileName:string of fileSystem.readdirSync(
