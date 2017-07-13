@@ -61,6 +61,7 @@
     "babel-cli": "^6.24.1",
     "babel-eslint": "^7.2.3",
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
+    "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.0",
     "documentation-website": "^1.0.61",
     "eslint": "^4.2.0",
@@ -84,7 +85,7 @@
       },
       "internal": {
         "vendor": {
-          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['build:dll', 'serve', 'test:browser', 'watch:dll'].includes(self.givenCommandLineArguments[2]) ? self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI'] : []"
+          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['build:dll', 'serve', 'test:browser', 'watch:dll'].includes(self.givenCommandLineArguments[2]) ? ['babel-polyfill'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI']) : []"
         }
       }
     },
