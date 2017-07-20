@@ -543,9 +543,18 @@ export default class Tools {
      * @returns The requested semaphore instance.
      */
     static getSemaphore(numberOfResources:number = 2):Object {
+        /**
+         * Represents the semaphore state.
+         * @property queue - List of waiting resource requests.
+         * @property numberOfFreeResources - Number free allowed concurrent
+         * resource uses.
+         * @property numberOfResources - Number of allowed concurrent resource
+         * uses.
+         */
         return new class {
             queue:Array<Function> = []
             numberOfResources:number = numberOfResources
+            numberOfFreeResources:number = numberOfResources
             /**
              * Acquires a new resource and runs given callback if available.
              * @returns A promise which will be resolved if requested a
@@ -553,11 +562,11 @@ export default class Tools {
              */
             acquire():Promise<void> {
                 return new Promise((resolve:Function):void => {
-                    if (this.numberOfResources <= 0)
+                    if (this.numberOfFreeResources <= 0)
                         this.queue.push(resolve)
                     else {
-                        this.numberOfResources -= 1
-                        resolve(this.numberOfResources)
+                        this.numberOfFreeResources -= 1
+                        resolve(this.numberOfFreeResources)
                     }
                 })
             }
@@ -568,9 +577,9 @@ export default class Tools {
              */
             release():void {
                 if (this.queue.length === 0)
-                    this.numberOfResources += 1
+                    this.numberOfFreeResources += 1
                 else
-                    this.queue.pop()(this.numberOfResources)
+                    this.queue.pop()(this.numberOfFreeResources)
             }
         }
     }
