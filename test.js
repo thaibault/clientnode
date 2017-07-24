@@ -1062,6 +1062,7 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual($.Tools.class.determineType(test[0]), test[1])
     })
     this.test(`equals (${roundType})`, (assert:Object):void => {
+        const testFunction:Function = ():void => {}
         for (const test:Array<any> of [
             [1, 1],
             [new Date(), new Date()],
@@ -1091,7 +1092,7 @@ let tests:Array<Test> = [{callback: function(
                 [{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3,
                 ['b']
             ],
-            [():void => {}, ():void => {}]
+            [testFunction, testFunction]
         ])
             assert.ok($.Tools.class.equals(...test))
         for (const test:Array<any> of [
