@@ -188,7 +188,6 @@ if (!('context' in $) && 'document' in $.global)
  * logging additional string, array or function handling. A set of helper
  * functions to parse option objects dom trees or handle events is also
  * provided.
- *
  * @property static:abbreviations - Lists all known abbreviation for proper
  * camel case to delimited and back conversion.
  * @property static:animationEndEventNames - Saves a string with all css3
