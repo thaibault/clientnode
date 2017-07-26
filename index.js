@@ -188,6 +188,7 @@ if (!('context' in $) && 'document' in $.global)
  * logging additional string, array or function handling. A set of helper
  * functions to parse option objects dom trees or handle events is also
  * provided.
+ *
  * @property static:abbreviations - Lists all known abbreviation for proper
  * camel case to delimited and back conversion.
  * @property static:animationEndEventNames - Saves a string with all css3
@@ -212,10 +213,12 @@ if (!('context' in $) && 'document' in $.global)
  * javaScript dependent content where hide or shown.
  * @property static:_name - Defines this class name to allow retrieving them
  * after name mangling.
+ *
  * @property $domNode - $-extended dom node if one was given to the constructor
  * method.
  * @property locks - Mapping of lock descriptions to there corresponding
  * callbacks.
+ *
  * @property _options - Options given to the constructor.
  * @property _defaultOptions - Fallback options if not overwritten by the
  * options given to the constructor method.
