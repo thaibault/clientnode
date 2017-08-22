@@ -4448,7 +4448,7 @@ export default class Tools {
         directoryPath:string, callback:Function = Tools.noop,
         options:PlainObject|string = 'utf8'
     ):Promise<Array<File>> {
-        return new Promise((resolve:Function, reject:Function):void => {
+        return new Promise((resolve:Function, reject:Function):void =>
             fileSystem.readdir(directoryPath, options, async (
                 error:?Object, fileNames:Array<string>
             ):Promise<void> => {
@@ -4505,8 +4505,7 @@ export default class Tools {
                                 file.path, callback))
                 }
                 resolve(finalFiles)
-            })
-        })
+            }))
     }
     /**
      * Iterates through given directory structure recursively and calls given
