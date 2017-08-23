@@ -212,10 +212,12 @@ if (!('context' in $) && 'document' in $.global)
  * javaScript dependent content where hide or shown.
  * @property static:_name - Defines this class name to allow retrieving them
  * after name mangling.
+ *
  * @property $domNode - $-extended dom node if one was given to the constructor
  * method.
  * @property locks - Mapping of lock descriptions to there corresponding
  * callbacks.
+ *
  * @property _options - Options given to the constructor.
  * @property _defaultOptions - Fallback options if not overwritten by the
  * options given to the constructor method.
@@ -1228,45 +1230,6 @@ export default class Tools {
     }
     // / endregion
     // / region function
-    /**
-     * Methods given by this method has the plugin scope referenced with
-     * "this". Otherwise "this" usually points to the object the given method
-     * was attached to. If "method" doesn't match string arguments are passed
-     * through a wrapper function with "context" setted as "scope" or "this" if
-     * nothing is provided.
-     * @param method - A method name of given scope.
-     * @param scope - A given scope.
-     * @param additionalArguments - A list of additional arguments to forward
-     * to given function, when it should be called.
-     * @returns Returns the given methods return value.
-     */
-    getMethod(
-        method:Function|string, scope:any = null,
-        ...additionalArguments:Array<any>
-    ):Function {
-        /*
-            This following outcomment line would be responsible for a bug in
-            yuicompressor. Because of declaration of arguments the parser
-            things that arguments is a local variable and could be renamed. It
-            doesn't care about that the magic arguments object is necessary to
-            generate the arguments array in this context.
-
-            var arguments = this.constructor.arrayMake(arguments)
-        */
-        if (!scope)
-            scope = this
-        if (typeof method === 'string' && typeof scope === 'object')
-            return (...parameter:Array<any>):any => {
-                if (!scope[method] && typeof method === 'string')
-                    throw new Error(
-                        `Method "${method}" doesn't exists in "${scope}".`)
-                return scope[method](...parameter.concat(additionalArguments))
-            }
-        return (...parameter:Array<any>):any => {
-            // IgnoreTypeCheck
-            return method.call(scope, ...parameter.concat(additionalArguments))
-        }
-    }
     /**
      * Determines all parameter names from given callable (function or class,
      * ...).
@@ -4446,7 +4409,7 @@ export default class Tools {
         directoryPath:string, callback:Function = Tools.noop,
         options:PlainObject|string = 'utf8'
     ):Promise<Array<File>> {
-        return new Promise((resolve:Function, reject:Function):void => {
+        return new Promise((resolve:Function, reject:Function):void =>
             fileSystem.readdir(directoryPath, options, async (
                 error:?Object, fileNames:Array<string>
             ):Promise<void> => {
@@ -4503,8 +4466,7 @@ export default class Tools {
                                 file.path, callback))
                 }
                 resolve(finalFiles)
-            })
-        })
+            }))
     }
     /**
      * Iterates through given directory structure recursively and calls given

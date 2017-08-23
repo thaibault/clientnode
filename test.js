@@ -695,22 +695,6 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region function handling
-    this.test(`getMethod (${roundType})`, (assert:Object):void => {
-        const testObject = {value: false}
-
-        tools.getMethod(():void => {
-            testObject.value = true
-        })()
-        assert.ok(testObject.value)
-        tools.getMethod(function():void {
-            this.value = false
-        }, testObject)()
-        assert.notOk(testObject.value)
-
-        assert.strictEqual(tools.getMethod((
-            five:5, two:2, three:3
-        ):number => five + two + three, testObject, 5)(2, 3), 10)
-    })
     this.test(`getParameterNames (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [function():void {}, []],
@@ -1062,6 +1046,7 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual($.Tools.class.determineType(test[0]), test[1])
     })
     this.test(`equals (${roundType})`, (assert:Object):void => {
+        const testFunction:Function = ():void => {}
         for (const test:Array<any> of [
             [1, 1],
             [new Date(), new Date()],
@@ -1091,7 +1076,7 @@ let tests:Array<Test> = [{callback: function(
                 [{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3,
                 ['b']
             ],
-            [():void => {}, ():void => {}]
+            [testFunction, testFunction]
         ])
             assert.ok($.Tools.class.equals(...test))
         for (const test:Array<any> of [
