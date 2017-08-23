@@ -1949,6 +1949,170 @@ export default class Tools {
         return false
     }
     /**
+     * Searches for nested mappings with given indicator key and resolves
+     * marked values. Additionally all objects are wrapped with a proxy to
+     * dynamically resolve nested properties.
+     * @param object - Given mapping to resolve.
+     * @param scope - Scope to to use evaluate again.
+     * @param selfReferenceName - Name to use for reference to given object.
+     * @param expressionIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @param executionIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @returns Evaluated given mapping.
+     */
+    static evaluateDynamicDataStructure(
+        object:any, scope:{[key:string]:any} = {},
+        selfReferenceName:string = 'self',
+        expressionIndicatorKey:string = '__evaluate__',
+        executionIndicatorKey:string = '__execute__'
+    ):any {
+        if (typeof object !== 'object' || object === null)
+            return object
+        if (!(selfReferenceName in scope))
+            scope[selfReferenceName] = object
+        const evaluate:Function = (
+            code:string, type:string = expressionIndicatorKey
+        ):any => {
+            code = (type === expressionIndicatorKey) ? `return ${code}` : code
+            let compiledFunction:Function
+            try {
+                /* eslint-disable new-parens */
+                // IgnoreTypeCheck
+                compiledFunction = new (Function.prototype.bind.call(
+                /* eslint-enable new-parens */
+                    Function, null, ...Object.keys(scope), code))
+            } catch (error) {
+                throw new Error(
+                    `Error during compiling code "${code}": "` +
+                    `${Tools.representObject(error)}".`)
+            }
+            try {
+                return compiledFunction(...Object.values(scope))
+            } catch (error) {
+                throw new Error(
+                    `Error running code "${code}" in scope with variables "` +
+                    `${Object.keys(scope).join('", "')}": "` +
+                    `${Tools.representObject(error)}".`)
+            }
+        }
+        const addProxyRecursively:Function = (data:any):any => {
+            if (typeof data !== 'object' || data === null)
+                return data
+            for (const key:string in data)
+                if (
+                    data.hasOwnProperty(key) && key !== '__target__' &&
+                    typeof data[key] === 'object' && data[key] !== null
+                ) {
+                    addProxyRecursively(data[key])
+                    /*
+                        NOTE: We only wrap needed objects for performance
+                        reasons.
+                    */
+                    if (
+                        data[key].hasOwnProperty(expressionIndicatorKey) ||
+                        data[key].hasOwnProperty(executionIndicatorKey)
+                    )
+                        data[key] = new Proxy(data[key], {
+                            get: (target:any, key:any):any => {
+                                if (key === '__target__')
+                                    return target
+                                if (key === 'hasOwnProperty')
+                                    return target[key]
+                                /*
+                                    NOTE: Very complicated stuff section, only
+                                    change while doing a lot of tests.
+                                */
+                                for (const type:string of [
+                                    expressionIndicatorKey,
+                                    executionIndicatorKey
+                                ])
+                                    if (key === type)
+                                        return resolve(evaluate(
+                                            target[key], type))
+                                let resolvedTarget:any = resolve(target)
+                                if (key === 'toString') {
+                                    const result:any = evaluate(resolvedTarget)
+                                    return result[key].bind(result)
+                                }
+                                if (typeof key !== 'string') {
+                                    const result:any = evaluate(resolvedTarget)
+                                    if (result[key] && result[key].call)
+                                        return result[key].bind(result)
+                                    return result[key]
+                                }
+                                for (const type:string of [
+                                    expressionIndicatorKey,
+                                    executionIndicatorKey
+                                ])
+                                    if (target.hasOwnProperty(type))
+                                        return evaluate(
+                                            resolvedTarget, type
+                                        )[key]
+                                return resolvedTarget[key]
+                                // End of complicated stuff.
+                            },
+                            ownKeys: (target:any):Array<string> => {
+                                for (const type:string of [
+                                    expressionIndicatorKey,
+                                    executionIndicatorKey
+                                ])
+                                    if (target.hasOwnProperty(type))
+                                        return Object.getOwnPropertyNames(
+                                            resolve(evaluate(
+                                                target[type], type)))
+                                return Object.getOwnPropertyNames(target)
+                            }
+                        })
+                }
+            return data
+        }
+        const resolve:Function = (data:any):any => {
+            if (typeof data === 'object' && data !== null) {
+                if (data.__target__) {
+                    // NOTE: We have to skip "ownKeys" proxy trap here.
+                    for (const type:string of [
+                        expressionIndicatorKey, executionIndicatorKey
+                    ])
+                        if (data.hasOwnProperty(type))
+                            return data[type]
+                    data = data.__target__
+                }
+                for (const key:string in data)
+                    if (data.hasOwnProperty(key))
+                        if ([
+                            expressionIndicatorKey, executionIndicatorKey
+                        ].includes(key))
+                            return data[key]
+                        else
+                            data[key] = resolve(data[key])
+            }
+            return data
+        }
+        scope.resolve = resolve
+        const removeProxyRecursively:Function = (data:any):any => {
+            if (typeof data === 'object' && data !== null)
+                for (const key:string in data)
+                    if (
+                        data.hasOwnProperty(key) && key !== '__target__' &&
+                        typeof data[key] === 'object' && data[key] !== null
+                    ) {
+                        const target:any = data[key].__target__
+                        if (typeof target !== 'undefined')
+                            data[key] = target
+                        removeProxyRecursively(data[key])
+                    }
+            return data
+        }
+        if (typeof object === 'object' && object !== null)
+            if (object.hasOwnProperty(expressionIndicatorKey))
+                return evaluate(object[expressionIndicatorKey])
+            else if (object.hasOwnProperty(executionIndicatorKey))
+                return evaluate(
+                    object[executionIndicatorKey], executionIndicatorKey)
+        return removeProxyRecursively(resolve(addProxyRecursively(object)))
+    }
+    /**
      * Extends given target object with given sources object. As target and
      * sources many expandable types are allowed but target and sources have to
      * to come from the same type.
@@ -2259,174 +2423,6 @@ export default class Tools {
             result += `\n${initialIndention}`
         result += '}'
         return result
-    }
-    /**
-     * Searches for nested mappings with given indicator key and resolves
-     * marked values. Additionally all objects are wrapped with a proxy to
-     * dynamically resolve nested properties.
-     * @param object - Given mapping to resolve.
-     * @param parameterDescription - Array of scope names.
-     * @param parameter - Array of values for given scope names. If there is
-     * one missing given object will be added.
-     * @param expressionIndicatorKey - Indicator property name to mark a value
-     * to evaluate.
-     * @param executionIndicatorKey - Indicator property name to mark a value
-     * to evaluate.
-     * @returns Evaluated given mapping.
-     */
-    static resolveDynamicDataStructure(
-        object:any, parameterDescription:Array<string> = [],
-        parameter:Array<any> = [],
-        expressionIndicatorKey:string = '__evaluate__',
-        executionIndicatorKey:string = '__execute__'
-    ):any {
-        if (typeof object !== 'object' || object === null)
-            return object
-        parameter = parameter.slice()
-        parameter.push(object)
-        if (parameterDescription.length < parameter.length)
-            parameterDescription.push('self')
-        const evaluate:Function = (
-            code:string, type:string = expressionIndicatorKey
-        ):any => {
-            code = (type === expressionIndicatorKey) ? `return ${code}` : code
-            let compiledFunction:Function
-            try {
-                /* eslint-disable new-parens */
-                // IgnoreTypeCheck
-                compiledFunction = new (Function.prototype.bind.call(
-                /* eslint-enable new-parens */
-                    Function, null, ...parameterDescription.concat(code)))
-            } catch (error) {
-                throw new Error(
-                    `Error during compiling code "${code}": "` +
-                    `${Tools.representObject(error)}".`)
-            }
-            try {
-                return compiledFunction(...parameter)
-            } catch (error) {
-                throw new Error(
-                    `Error running code "${code}" in scope with variables "` +
-                    `${parameterDescription.join('", "')}": "` +
-                    `${Tools.representObject(error)}".`)
-            }
-        }
-        const addProxyRecursively:Function = (data:any):any => {
-            if (typeof data !== 'object' || data === null)
-                return data
-            for (const key:string in data)
-                if (
-                    data.hasOwnProperty(key) && key !== '__target__' &&
-                    typeof data[key] === 'object' && data[key] !== null
-                ) {
-                    addProxyRecursively(data[key])
-                    /*
-                        NOTE: We only wrap needed objects for performance
-                        reasons.
-                    */
-                    if (
-                        data[key].hasOwnProperty(expressionIndicatorKey) ||
-                        data[key].hasOwnProperty(executionIndicatorKey)
-                    )
-                        data[key] = new Proxy(data[key], {
-                            get: (target:any, key:any):any => {
-                                if (key === '__target__')
-                                    return target
-                                if (key === 'hasOwnProperty')
-                                    return target[key]
-                                /*
-                                    NOTE: Very complicated stuff section, only
-                                    change while doing a lot of tests.
-                                */
-                                for (const type:string of [
-                                    expressionIndicatorKey,
-                                    executionIndicatorKey
-                                ])
-                                    if (key === type)
-                                        return resolve(evaluate(
-                                            target[key], type))
-                                let resolvedTarget:any = resolve(target)
-                                if (key === 'toString') {
-                                    const result:any = evaluate(resolvedTarget)
-                                    return result[key].bind(result)
-                                }
-                                if (typeof key !== 'string') {
-                                    const result:any = evaluate(resolvedTarget)
-                                    if (result[key] && result[key].call)
-                                        return result[key].bind(result)
-                                    return result[key]
-                                }
-                                for (const type:string of [
-                                    expressionIndicatorKey,
-                                    executionIndicatorKey
-                                ])
-                                    if (target.hasOwnProperty(type))
-                                        return evaluate(
-                                            resolvedTarget, type
-                                        )[key]
-                                return resolvedTarget[key]
-                                // End of complicated stuff.
-                            },
-                            ownKeys: (target:any):Array<string> => {
-                                for (const type:string of [
-                                    expressionIndicatorKey,
-                                    executionIndicatorKey
-                                ])
-                                    if (target.hasOwnProperty(type))
-                                        return Object.getOwnPropertyNames(
-                                            resolve(evaluate(
-                                                target[type], type)))
-                                return Object.getOwnPropertyNames(target)
-                            }
-                        })
-                }
-            return data
-        }
-        const resolve:Function = (data:any):any => {
-            if (typeof data === 'object' && data !== null) {
-                if (data.__target__) {
-                    // NOTE: We have to skip "ownKeys" proxy trap here.
-                    for (const type:string of [
-                        expressionIndicatorKey, executionIndicatorKey
-                    ])
-                        if (data.hasOwnProperty(type))
-                            return data[type]
-                    data = data.__target__
-                }
-                for (const key:string in data)
-                    if (data.hasOwnProperty(key))
-                        if ([
-                            expressionIndicatorKey, executionIndicatorKey
-                        ].includes(key))
-                            return data[key]
-                        else
-                            data[key] = resolve(data[key])
-            }
-            return data
-        }
-        parameterDescription.push('resolve')
-        parameter.push(resolve)
-        const removeProxyRecursively:Function = (data:any):any => {
-            if (typeof data === 'object' && data !== null)
-                for (const key:string in data)
-                    if (
-                        data.hasOwnProperty(key) && key !== '__target__' &&
-                        typeof data[key] === 'object' && data[key] !== null
-                    ) {
-                        const target:any = data[key].__target__
-                        if (typeof target !== 'undefined')
-                            data[key] = target
-                        removeProxyRecursively(data[key])
-                    }
-            return data
-        }
-        if (typeof object === 'object' && object !== null)
-            if (object.hasOwnProperty(expressionIndicatorKey))
-                return evaluate(object[expressionIndicatorKey])
-            else if (object.hasOwnProperty(executionIndicatorKey))
-                return evaluate(
-                    object[executionIndicatorKey], executionIndicatorKey)
-        return removeProxyRecursively(resolve(addProxyRecursively(object)))
     }
     /**
      * Sort given objects keys.
