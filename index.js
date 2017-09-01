@@ -3880,6 +3880,26 @@ export default class Tools {
     // / endregion
     // / region number
     /**
+     * Determines corresponding utc timestamp for given date object.
+     * @param date - Date to convert.
+     * @param inMilliseconds - Indicates whether given number should be in
+     * seconds (default) or milliseconds.
+     * @returns Determined numerous value.
+     */
+    static numberGetUTCTimestamp(
+        date:Date, inMilliseconds:boolean = false
+    ):number {
+        return Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            date.getUTCHours(),
+            date.getUTCMinutes(),
+            date.getUTCSeconds(),
+            date.getUTCMilliseconds()
+        ) / (inMilliseconds ? 1 : 1000)
+    }
+    /**
      * Checks if given object is java scripts native "Number.NaN" object.
      * @param object - Object to Check.
      * @returns Returns whether given value is not a number or not.
