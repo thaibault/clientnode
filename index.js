@@ -3881,14 +3881,16 @@ export default class Tools {
     // / region number
     /**
      * Determines corresponding utc timestamp for given date object.
-     * @param date - Date to convert.
+     * @param value - Date to convert.
      * @param inMilliseconds - Indicates whether given number should be in
      * seconds (default) or milliseconds.
      * @returns Determined numerous value.
      */
     static numberGetUTCTimestamp(
-        date:Date, inMilliseconds:boolean = false
+        value:any, inMilliseconds:boolean = false
     ):number {
+        const date:Date =
+            [undefined, null].includes(value) ? new Date() : new Date(value)
         return Date.UTC(
             date.getUTCFullYear(),
             date.getUTCMonth(),
