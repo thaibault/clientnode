@@ -2353,6 +2353,18 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region number
+    this.test(`numberGetUTCTimestamp (${roundType})`, (assert:Object):void => {
+        for (const test:Array<any> of [
+            [[new Date(0)], 0],
+            [[new Date(1)], 0.001],
+            [[new Date(0), true], 0],
+            [[new Date(1000), false], 1],
+            [[new Date(1000), true], 1000],
+            [[new Date(0), false], 0]
+        ])
+            assert.strictEqual(
+                $.Tools.class.numberGetUTCTimestamp(...test[0]), test[1])
+    })
     this.test(`numberIsNotANumber (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [NaN, true],
