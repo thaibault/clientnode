@@ -947,7 +947,7 @@ export default class Tools {
      * triggered).
      * @returns Returns true if both dom representations are equivalent.
      */
-    static isEquivalentDom(
+    static isEquivalentDOM(
         first:any, second:any, forceHTMLString:boolean = false
     ):boolean {
         if (first === second)
