@@ -442,7 +442,7 @@ let tests:Array<Test> = [{callback: function(
                 assert.strictEqual($(test[0]).Tools('text'), test[1])
         })
         // endregion
-        this.test(`isEquivalentDom (${roundType})`, (assert:Object):void => {
+        this.test(`isEquivalentDOM (${roundType})`, (assert:Object):void => {
             for (const test:Array<any> of [
                 ['test', 'test'],
                 ['test test', 'test test'],
@@ -486,7 +486,7 @@ let tests:Array<Test> = [{callback: function(
                 ],
                 ['a<br>', 'a<br />', true]
             ])
-                assert.ok($.Tools.class.isEquivalentDom(...test))
+                assert.ok($.Tools.class.isEquivalentDOM(...test))
             for (const test:Array<any> of [
                 ['test', ''],
                 ['test', 'hans'],
@@ -505,7 +505,7 @@ let tests:Array<Test> = [{callback: function(
                 ['text', 'text a'],
                 ['text', 'text a & +']
             ])
-                assert.notOk($.Tools.class.isEquivalentDom(...test))
+                assert.notOk($.Tools.class.isEquivalentDOM(...test))
         })
     }
     if (roundType === 'full')
