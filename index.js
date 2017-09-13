@@ -367,13 +367,17 @@ export default class Tools {
      * class will be given back.
      */
     constructor(
-        $domNode:?$DomNode = null, options:Object = {},
+        $domNode:?$DomNode = null,
+        options:Object = {},
         defaultOptions:PlainObject = {
-            logging: false, domNodeSelectorPrefix: 'body', domNode: {
+            domNode: {
                 hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
                 showJavaScriptEnabled: '.tools-visible-on-javascript-enabled'
-            }
-        }, locks:{[key:string]:Array<LockCallbackFunction>} = {}
+            },
+            domNodeSelectorPrefix: 'body',
+            logging: false
+        },
+        locks:{[key:string]:Array<LockCallbackFunction>} = {}
     ):void {
         if ($domNode)
             this.$domNode = $domNode
