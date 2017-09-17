@@ -2617,6 +2617,8 @@ export default class Tools {
     static arrayExtractIfMatches(
         data:Array<string>, regularExpression:string|RegExp
     ):Array<string> {
+        if (!regularExpression)
+            return Tools.arrayMake(data)
         const result:Array<string> = []
         for (const value:string of Tools.arrayMake(data))
             if (((typeof regularExpression === 'string') ? new RegExp(
@@ -2668,11 +2670,11 @@ export default class Tools {
             for (const item:Object of Tools.arrayMake(data)) {
                 let matches:boolean = true
                 for (const propertyName:string in propertyPattern)
-                    if (!(
-                        (propertyPattern[propertyName] instanceof RegExp) ?
-                            propertyPattern[propertyName] :
-                            new RegExp(propertyPattern[propertyName])
-                    ).test(item[propertyName])) {
+                    if (!(propertyPattern[propertyName] && (
+                        (typeof propertyPattern[propertyName] === 'string') ?
+                            new RegExp(propertyPattern[propertyName]) :
+                            propertyPattern[propertyName]
+                    ).test(item[propertyName]))) {
                         matches = false
                         break
                     }
