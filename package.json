@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "qunitjs": "^2.4.0",
-    "weboptimizer": "^1.0.357"
+    "weboptimizer": "^1.0.365"
   },
   "peerDependencies": {
     "jquery": "*"
@@ -95,7 +95,7 @@
         "jquery$": "jquery/dist/jquery.min"
       },
       "optimizer": {
-        "babili": null
+        "babelMinify": null
       },
       "preprocessor": {
         "javaScript": {
