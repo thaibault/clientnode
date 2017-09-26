@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "qunitjs": "^2.4.0",
-    "weboptimizer": "^1.0.368"
+    "weboptimizer": "^1.0.369"
   },
   "peerDependencies": {
     "jquery": "*"
@@ -63,10 +63,10 @@
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.0",
-    "documentation-website": "^1.0.62",
+    "documentation-website": "^1.0.64",
     "eslint": "^4.2.0",
     "eslint-config-google": "^0.9.1",
-    "eslint-plugin-flowtype": "^2.35.0",
+    "eslint-plugin-flowtype": "^2.36.0",
     "eslint-plugin-jsdoc": "^3.1.1",
     "flow-bin": "^0.51.0",
     "jquery": "^3.2.1",
