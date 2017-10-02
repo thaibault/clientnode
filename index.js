@@ -3908,7 +3908,7 @@ export default class Tools {
         value:any, inMilliseconds:boolean = false
     ):number {
         const date:Date =
-            [undefined, null].includes(value) ? new Date() : new Date(value)
+            [undefined, null].includes(value) ? Date.now() : new Date(value)
         return Date.UTC(
             date.getUTCFullYear(),
             date.getUTCMonth(),
@@ -4164,7 +4164,7 @@ export default class Tools {
     ):$DomNode {
         const $iFrameDomNode:$DomNode = $('<iframe>').attr(
             'name', this.constructor.name.charAt(0).toLowerCase() +
-            this.constructor.name.substring(1) + (new Date()).getTime()
+            this.constructor.name.substring(1) + (Date.now()).getTime()
         ).hide()
         this.$domNode.append($iFrameDomNode)
         this.constructor.sendToIFrame(
