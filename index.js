@@ -1594,7 +1594,6 @@ export default class Tools {
             return value
         }, numberOfSpaces)
     }
-    /* eslint-disable require-jsdoc */
     /**
      * Converts given map and all nested found maps objects to corresponding
      * object.
@@ -1602,14 +1601,10 @@ export default class Tools {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given map as object.
      */
-    // IgnoreTypeCheck
-    static convertMapToPlainObject<Value>(
-        object:Value, deep:boolean = true
-    ):Value|PlainObject {
+    static convertMapToPlainObject(object:any, deep:boolean = true):any {
         if (typeof object === 'object') {
             if (Tools.determineType(object) === 'map') {
                 const newObject:PlainObject = {}
-                // IgnoreTypeCheck
                 for (let [key:any, value:any] of object) {
                     if (deep)
                         value = Tools.convertMapToPlainObject(value, deep)
@@ -1632,20 +1627,16 @@ export default class Tools {
                     }
                 } else if (Tools.determineType(object) === 'set') {
                     const cache:Array<any> = []
-                    // IgnoreTypeCheck
                     for (const value:any of object) {
                         object.delete(value)
                         cache.push(Tools.convertMapToPlainObject(value, deep))
                     }
                     for (const value:any of cache)
-                        // IgnoreTypeCheck
                         object.add(value)
                 }
         }
         return object
     }
-    /* eslint-enable require-jsdoc */
-    /* eslint-disable require-jsdoc */
     /**
      * Converts given plain object and all nested found objects to
      * corresponding map.
@@ -1653,10 +1644,7 @@ export default class Tools {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given object as map.
      */
-    // IgnoreTypeCheck
-    static convertPlainObjectToMap<Value>(
-        object:Value, deep:boolean = true
-    ):Value|Map<any, any> {
+    static convertPlainObjectToMap(object:any, deep:boolean = true):any {
         if (typeof object === 'object') {
             if (Tools.isPlainObject(object)) {
                 const newObject:Map<any, any> = new Map()
@@ -1678,25 +1666,21 @@ export default class Tools {
                         index += 1
                     }
                 } else if (Tools.determineType(object) === 'map')
-                    // IgnoreTypeCheck
                     for (const [key:any, value:any] of object)
                         object.set(key, Tools.convertPlainObjectToMap(
                             value, deep))
                 else if (Tools.determineType(object) === 'set') {
                     const cache:Array<any> = []
-                    // IgnoreTypeCheck
                     for (const value:any of object) {
                         object.delete(value)
                         cache.push(Tools.convertPlainObjectToMap(value, deep))
                     }
                     for (const value:any of cache)
-                        // IgnoreTypeCheck
                         object.add(value)
                 }
         }
         return object
     }
-    /* eslint-enable require-jsdoc */
     /**
      * Replaces given pattern in each value in given object recursively with
      * given string replacement.
