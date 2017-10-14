@@ -210,8 +210,6 @@ if (!('context' in $) && 'document' in $.global)
  * browser specific transition end event names.
  * @property static:_javaScriptDependentContentHandled - Indicates whether
  * javaScript dependent content where hide or shown.
- * @property static:_name - Defines this class name to allow retrieving them
- * after name mangling.
  *
  * @property $domNode - $-extended dom node if one was given to the constructor
  * method.
