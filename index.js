@@ -3808,6 +3808,7 @@ export default class Tools {
         ))
             serializedObject = fileSystem.readFileSync(serializedObject, {
                 encoding: 'utf-8'})
+        serializedObject = serializedObject.trim()
         if (!serializedObject.startsWith('{'))
             serializedObject = eval('Buffer').from(
                 serializedObject, 'base64'
