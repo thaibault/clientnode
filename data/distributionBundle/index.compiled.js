@@ -8,7 +8,7 @@
 		exports["clientnode"] = factory((function webpackLoadOptionalExternalModule() { try { return require('jquery'); } catch(e) {} }()));
 	else
 		root['clientnode'] = factory(root["jQuery"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_4__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_5__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -44,9 +44,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -74,11 +71,18 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(1);
+
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -105,7 +109,7 @@ try{module.require('source-map-support/register')}catch(error){}// endregion
 // / endregion
 // endregion
 // region determine context
-const globalContext=exports.globalContext=function(){if(typeof window==='undefined'){if(typeof global==='undefined')return  false?{}:module;if('window'in global)return global.window;return global}return window}();/* eslint-disable no-use-before-define */const $=exports.$=function(){/* eslint-enable no-use-before-define */let _$;if('$'in globalContext&&globalContext.$!==null)_$=globalContext.$;else{if(!('$'in globalContext)&&'document'in globalContext)try{return __webpack_require__(4)}catch(error){}const selector='document'in globalContext&&'querySelectorAll'in globalContext.document?globalContext.document.querySelectorAll.bind(globalContext.document):function(){return null};_$=function $(parameter,...additionalArguments){if(typeof parameter==='string'){const $domNodes=selector(parameter,...additionalArguments);if('fn'in _$)for(const key in _$.fn)if(_$.fn.hasOwnProperty(key))// IgnoreTypeCheck
+const globalContext=exports.globalContext=function(){if(typeof window==='undefined'){if(typeof global==='undefined')return  false?{}:module;if('window'in global)return global.window;return global}return window}();/* eslint-disable no-use-before-define */const $=exports.$=function(){/* eslint-enable no-use-before-define */let _$;if('$'in globalContext&&globalContext.$!==null)_$=globalContext.$;else{if(!('$'in globalContext)&&'document'in globalContext)try{return __webpack_require__(5)}catch(error){}const selector='document'in globalContext&&'querySelectorAll'in globalContext.document?globalContext.document.querySelectorAll.bind(globalContext.document):function(){return null};_$=function $(parameter,...additionalArguments){if(typeof parameter==='string'){const $domNodes=selector(parameter,...additionalArguments);if('fn'in _$)for(const key in _$.fn)if(_$.fn.hasOwnProperty(key))// IgnoreTypeCheck
 $domNodes[key]=_$.fn[key].bind($domNodes);return $domNodes}/* eslint-disable no-use-before-define */if(Tools.isFunction(parameter)&&'document'in globalContext)/* eslint-enable no-use-before-define */globalContext.document.addEventListener('DOMContentLoaded',parameter);return parameter};_$.fn={}}return _$}();if(!('global'in $))$.global=globalContext;if(!('context'in $)&&'document'in $.global)$.context=$.global.document;// endregion
 // region plugins/classes
 /**
@@ -136,12 +140,12 @@ $domNodes[key]=_$.fn[key].bind($domNodes);return $domNodes}/* eslint-disable no-
  * browser specific transition end event names.
  * @property static:_javaScriptDependentContentHandled - Indicates whether
  * javaScript dependent content where hide or shown.
- * @property static:_name - Defines this class name to allow retrieving them
- * after name mangling.
+ *
  * @property $domNode - $-extended dom node if one was given to the constructor
  * method.
  * @property locks - Mapping of lock descriptions to there corresponding
  * callbacks.
+ *
  * @property _options - Options given to the constructor.
  * @property _defaultOptions - Fallback options if not overwritten by the
  * options given to the constructor method.
@@ -178,7 +182,7 @@ $domNodes[key]=_$.fn[key].bind($domNodes);return $domNodes}/* eslint-disable no-
      */// endregion
 // region dynamic properties
 // region static properties
-constructor($domNode=null,options={},defaultOptions={logging:false,domNodeSelectorPrefix:'body',domNode:{hideJavaScriptEnabled:'.tools-hidden-on-javascript-enabled',showJavaScriptEnabled:'.tools-visible-on-javascript-enabled'}},locks={}){if($domNode)this.$domNode=$domNode;this._options=options;this._defaultOptions=defaultOptions;this.locks=locks;// Avoid errors in browsers that lack a console.
+constructor($domNode=null,options={},defaultOptions={domNode:{hideJavaScriptEnabled:'.tools-hidden-on-javascript-enabled',showJavaScriptEnabled:'.tools-visible-on-javascript-enabled'},domNodeSelectorPrefix:'body',logging:false},locks={}){if($domNode)this.$domNode=$domNode;this._options=options;this._defaultOptions=defaultOptions;this.locks=locks;// Avoid errors in browsers that lack a console.
 if(!('console'in $.global))$.global.console={};for(const methodName of this.constructor.consoleMethodNames)if(!(methodName in $.global.console))$.global.console[methodName]=this.constructor.noop;if(!this.constructor._javaScriptDependentContentHandled&&'document'in $.global&&'filter'in $&&'hide'in $&&'show'in $){this.constructor._javaScriptDependentContentHandled=true;$(`${this._defaultOptions.domNodeSelectorPrefix} `+this._defaultOptions.domNode.hideJavaScriptEnabled).filter(function(){return!$(this).data('javaScriptDependentContentHide')}).data('javaScriptDependentContentHide',true).hide();$(`${this._defaultOptions.domNodeSelectorPrefix} `+this._defaultOptions.domNode.showJavaScriptEnabled).filter(function(){return!$(this).data('javaScriptDependentContentShow')}).data('javaScriptDependentContentShow',true).show()}}/**
      * This method could be overwritten normally. It acts like a destructor.
      * @returns Returns the current instance.
@@ -193,7 +197,7 @@ if(!('console'in $.global))$.global.console={};for(const methodName of this.cons
         */this._options=this.constructor.extendObject(true,{},this._defaultOptions,this._options,options);/*
             The selector prefix should be parsed after extending options
             because the selector would be overwritten otherwise.
-        */this._options.domNodeSelectorPrefix=this.constructor.stringFormat(this._options.domNodeSelectorPrefix,this.constructor.stringCamelCaseToDelimited(this.constructor._name));return this}// / endregion
+        */this._options.domNodeSelectorPrefix=this.constructor.stringFormat(this._options.domNodeSelectorPrefix,this.constructor.stringCamelCaseToDelimited(this.constructor.name));return this}// / endregion
 // / region object orientation
 /* eslint-disable jsdoc/require-description-complete-sentence *//**
      * Defines a generic controller for dom node aware plugins.
@@ -202,11 +206,11 @@ if(!('console'in $.global))$.global.console={};for(const methodName of this.cons
      * @param parameter - The initially given arguments object.
      * @param $domNode - Optionally a $-extended dom node to use as reference.
      * @returns Returns whatever the initializer method returns.
-     */controller(object,parameter,$domNode=null){/* eslint-enable jsdoc/require-description-complete-sentence */if(typeof object==='function'){object=new object($domNode);if(!(object instanceof Tools))object=this.constructor.extendObject(true,new Tools,object)}parameter=this.constructor.arrayMake(parameter);if($domNode&&'data'in $domNode&&!$domNode.data(object.constructor._name))// Attach extended object to the associated dom node.
-$domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tools.isFunction(object[parameter[0]]))return object[parameter[0]](...parameter.slice(1));return object[parameter[0]]}else if(parameter.length===0||typeof parameter[0]==='object')/*
+     */controller(object,parameter,$domNode=null){/* eslint-enable jsdoc/require-description-complete-sentence */if(typeof object==='function'){object=new object($domNode);if(!(object instanceof Tools))object=this.constructor.extendObject(true,new Tools,object)}parameter=this.constructor.arrayMake(parameter);if($domNode&&'data'in $domNode&&!$domNode.data(object.constructor.name))// Attach extended object to the associated dom node.
+$domNode.data(object.constructor.name,object);if(parameter[0]in object){if(Tools.isFunction(object[parameter[0]]))return object[parameter[0]](...parameter.slice(1));return object[parameter[0]]}else if(parameter.length===0||typeof parameter[0]==='object')/*
                 If an options object or no method name is given the initializer
                 will be called.
-            */return object.initialize(...parameter);throw new Error(`Method "${parameter[0]}" does not exist on $-extended dom node `+`"${object.constructor._name}".`)}// / endregion
+            */return object.initialize(...parameter);throw new Error(`Method "${parameter[0]}" does not exist on $-extended dom node `+`"${object.constructor.name}".`)}// / endregion
 // / region mutual exclusion
 /**
      * Calling this method introduces a starting point for a critical area with
@@ -230,15 +234,22 @@ $domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tool
      * Generate a semaphore object with given number of resources.
      * @param numberOfResources - Number of allowed concurrent resource uses.
      * @returns The requested semaphore instance.
-     */static getSemaphore(numberOfResources=2){return new class{constructor(){this.queue=[];this.numberOfResources=numberOfResources}/**
+     */static getSemaphore(numberOfResources=2){/**
+         * Represents the semaphore state.
+         * @property queue - List of waiting resource requests.
+         * @property numberOfFreeResources - Number free allowed concurrent
+         * resource uses.
+         * @property numberOfResources - Number of allowed concurrent resource
+         * uses.
+         */return new class{constructor(){this.queue=[];this.numberOfResources=numberOfResources;this.numberOfFreeResources=numberOfResources}/**
              * Acquires a new resource and runs given callback if available.
              * @returns A promise which will be resolved if requested a
              * resource is available.
-             */acquire(){var _this3=this;return new Promise(function(resolve){if(_this3.numberOfResources<=0)_this3.queue.push(resolve);else{_this3.numberOfResources-=1;resolve(_this3.numberOfResources)}})}/**
+             */acquire(){var _this3=this;return new Promise(function(resolve){if(_this3.numberOfFreeResources<=0)_this3.queue.push(resolve);else{_this3.numberOfFreeResources-=1;resolve(_this3.numberOfFreeResources)}})}/**
              * Releases a resource and runs a waiting resolver if there exists
              * some.
              * @returns Nothing.
-             */release(){if(this.queue.length===0)this.numberOfResources+=1;else this.queue.pop()(this.numberOfResources)}}}// / endregion
+             */release(){if(this.queue.length===0)this.numberOfFreeResources+=1;else this.queue.pop()(this.numberOfFreeResources)}}}// / endregion
 // / region boolean
 /**
      * Determines whether its argument represents a JavaScript number.
@@ -269,7 +280,7 @@ $domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tool
      * @param object - Object to check.
      * @returns Value "true" if given object is a plain javaScript object and
      * "false" otherwise.
-     */static isPlainObject(object){return typeof object==='object'&&object!==null&&Object.getPrototypeOf(object)===Object.prototype}/**
+     */static isPlainObject(object){return typeof object==='object'&&object!==null&&Tools.plainObjectPrototypes.includes(Object.getPrototypeOf(object))}/**
      * Checks whether given object is a function.
      * @param object - Object to check.
      * @returns Value "true" if given object is a function and "false"
@@ -299,7 +310,7 @@ $domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tool
      * @param additionalArguments - Additional arguments are used for string
      * formating.
      * @returns Returns the current instance.
-     */log(object,force=false,avoidAnnotation=false,level='info',...additionalArguments){if(this._options.logging||force||['error','critical'].includes(level)){let message;if(avoidAnnotation)message=object;else if(typeof object==='string'){additionalArguments.unshift(object);message=`${this.constructor._name} (${level}): `+this.constructor.stringFormat(...additionalArguments)}else if(this.constructor.isNumeric(object)||typeof object==='boolean')message=`${this.constructor._name} (${level}): `+object.toString();else{this.log(',--------------------------------------------,');this.log(object,force,true);this.log(`'--------------------------------------------'`)}if(message)if(!('console'in $.global&&level in $.global.console)||$.global.console[level]===this.constructor.noop){if('alert'in $.global)$.global.alert(message)}else $.global.console[level](message)}return this}/**
+     */log(object,force=false,avoidAnnotation=false,level='info',...additionalArguments){if(this._options.logging||force||['error','critical'].includes(level)){let message;if(avoidAnnotation)message=object;else if(typeof object==='string'){additionalArguments.unshift(object);message=`${this.constructor.name} (${level}): `+this.constructor.stringFormat(...additionalArguments)}else if(this.constructor.isNumeric(object)||typeof object==='boolean')message=`${this.constructor.name} (${level}): `+object.toString();else{this.log(',--------------------------------------------,');this.log(object,force,true);this.log(`'--------------------------------------------'`)}if(message)if(!('console'in $.global&&level in $.global.console)||$.global.console[level]===this.constructor.noop){if('alert'in $.global)$.global.alert(message)}else $.global.console[level](message)}return this}/**
      * Wrapper method for the native console method usually provided by
      * interpreter.
      * @param object - Any object to print.
@@ -346,10 +357,12 @@ $domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tool
 /**
      * Normalizes class name order of current dom node.
      * @returns Current instance.
-     */get normalizedClassNames(){this.$domNode.find('*').addBack().each(function(){const $thisDomNode=$(this);if($thisDomNode.attr('class')){const sortedClassNames=$thisDomNode.attr('class').split(' ').sort()||[];$thisDomNode.attr('class','');for(const className of sortedClassNames)$thisDomNode.addClass(className)}else if($thisDomNode.is('[class]'))$thisDomNode.removeAttr('class')});return this}/**
+     */get normalizedClassNames(){// IgnoreTypeCheck
+this.$domNode.find('*').addBack().each(function(){const $thisDomNode=$(this);if($thisDomNode.attr('class')){const sortedClassNames=$thisDomNode.attr('class').split(' ').sort()||[];$thisDomNode.attr('class','');for(const className of sortedClassNames)$thisDomNode.addClass(className)}else if($thisDomNode.is('[class]'))$thisDomNode.removeAttr('class')});return this}/**
      * Normalizes style attributes order of current dom node.
      * @returns Returns current instance.
-     */get normalizedStyles(){const self=this;this.$domNode.find('*').addBack().each(function(){const $thisDomNode=$(this);let serializedStyles=$thisDomNode.attr('style');if(serializedStyles){const sortedStyles=self.constructor.stringCompressStyleValue(serializedStyles).split(';').sort()||[];$thisDomNode.attr('style','');for(const style of sortedStyles)$thisDomNode.css(...style.trim().split(':'));$thisDomNode.attr('style',self.constructor.stringCompressStyleValue($thisDomNode.attr('style')))}else if($thisDomNode.is('[style]'))$thisDomNode.removeAttr('style')});return this}/**
+     */get normalizedStyles(){const self=this;// IgnoreTypeCheck
+this.$domNode.find('*').addBack().each(function(){const $thisDomNode=$(this);let serializedStyles=$thisDomNode.attr('style');if(serializedStyles){const sortedStyles=self.constructor.stringCompressStyleValue(serializedStyles).split(';').sort()||[];$thisDomNode.attr('style','');for(const style of sortedStyles)$thisDomNode.css(...style.trim().split(':'));$thisDomNode.attr('style',self.constructor.stringCompressStyleValue($thisDomNode.attr('style')))}else if($thisDomNode.is('[style]'))$thisDomNode.removeAttr('style')});return this}/**
      * Retrieves a mapping of computed style attributes to their corresponding
      * values.
      * @returns The computed style mapping.
@@ -364,10 +377,10 @@ $domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tool
      * interpreted as html string (otherwise an automatic detection will be
      * triggered).
      * @returns Returns true if both dom representations are equivalent.
-     */static isEquivalentDom(first,second,forceHTMLString=false){if(first===second)return true;if(first&&second){const detemermineHTMLPattern=/^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/;const inputs={first,second};const $domNodes={first:$('<dummy>'),second:$('<dummy>')};/*
+     */static isEquivalentDOM(first,second,forceHTMLString=false){if(first===second)return true;if(first&&second){const detemermineHTMLPattern=/^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/;const inputs={first,second};const $domNodes={first:$('<dummy>'),second:$('<dummy>')/*
                 NOTE: Assume that strings that start "<" and end with ">" are
                 markup and skip the more expensive regular expression check.
-            */for(const type of['first','second'])if(typeof inputs[type]==='string'&&(forceHTMLString||inputs[type].startsWith('<')&&inputs[type].endsWith('>')&&inputs[type].length>=3||detemermineHTMLPattern.test(inputs[type])))$domNodes[type]=$(`<div>${inputs[type]}</div>`);else try{let $selectedDomNode=$(inputs[type]);if($selectedDomNode.length)$domNodes[type]=$('<div>').append($selectedDomNode.clone());else return false}catch(error){return false}if($domNodes.first.length&&$domNodes.first.length===$domNodes.second.length){$domNodes.first=$domNodes.first.Tools('normalizedClassNames').$domNode.Tools('normalizedStyles').$domNode;$domNodes.second=$domNodes.second.Tools('normalizedClassNames').$domNode.Tools('normalizedStyles').$domNode;let index=0;for(const domNode of $domNodes.first)if(!domNode.isEqualNode($domNodes.second[index]))return false;return true}}return false}/**
+            */};for(const type of['first','second'])if(typeof inputs[type]==='string'&&(forceHTMLString||inputs[type].startsWith('<')&&inputs[type].endsWith('>')&&inputs[type].length>=3||detemermineHTMLPattern.test(inputs[type])))$domNodes[type]=$(`<div>${inputs[type]}</div>`);else try{let $selectedDomNode=$(inputs[type]);if($selectedDomNode.length)$domNodes[type]=$('<div>').append($selectedDomNode.clone());else return false}catch(error){return false}if($domNodes.first.length&&$domNodes.first.length===$domNodes.second.length){$domNodes.first=$domNodes.first.Tools('normalizedClassNames').$domNode.Tools('normalizedStyles').$domNode;$domNodes.second=$domNodes.second.Tools('normalizedClassNames').$domNode.Tools('normalizedStyles').$domNode;let index=0;for(const domNode of $domNodes.first)if(!domNode.isEqualNode($domNodes.second[index]))return false;return true}}return false}/**
      * Determines where current dom node is relative to current view port
      * position.
      * @param delta - Allows deltas for "top", "left", "bottom" and "right" for
@@ -439,26 +452,6 @@ $domNode.data(object.constructor._name,object);if(parameter[0]in object){if(Tool
      */static determineUniqueScopeName(prefix='callback',suffix='',scope=$.global,initialUniqueName=''){if(initialUniqueName.length&&!(initialUniqueName in scope))return initialUniqueName;let uniqueName=prefix+suffix;while(true){uniqueName=prefix+parseInt(Math.random()*Math.pow(10,10),10)+suffix;if(!(uniqueName in scope))break}return uniqueName}// / endregion
 // / region function
 /**
-     * Methods given by this method has the plugin scope referenced with
-     * "this". Otherwise "this" usually points to the object the given method
-     * was attached to. If "method" doesn't match string arguments are passed
-     * through a wrapper function with "context" setted as "scope" or "this" if
-     * nothing is provided.
-     * @param method - A method name of given scope.
-     * @param scope - A given scope.
-     * @param additionalArguments - A list of additional arguments to forward
-     * to given function, when it should be called.
-     * @returns Returns the given methods return value.
-     */getMethod(method,scope=null,...additionalArguments){/*
-            This following outcomment line would be responsible for a bug in
-            yuicompressor. Because of declaration of arguments the parser
-            things that arguments is a local variable and could be renamed. It
-            doesn't care about that the magic arguments object is necessary to
-            generate the arguments array in this context.
-
-            var arguments = this.constructor.arrayMake(arguments)
-        */if(!scope)scope=this;if(typeof method==='string'&&typeof scope==='object')return function(...parameter){if(!scope[method]&&typeof method==='string')throw new Error(`Method "${method}" doesn't exists in "${scope}".`);return scope[method](...parameter.concat(additionalArguments))};return function(...parameter){// IgnoreTypeCheck
-return method.call(scope,...parameter.concat(additionalArguments))}}/**
      * Determines all parameter names from given callable (function or class,
      * ...).
      * @param callable - Function or function code to inspect.
@@ -560,27 +553,19 @@ return getterWrapper(defaultHandler.get(proxy,name),name,object)};if(setterWrapp
      * value depending on given redundant value.
      * @param numberOfSpaces - Number of spaces to use for string formatting.
      * @returns The formatted json string.
-     */static convertCircularObjectToJSON(object,determineCicularReferenceValue=function(){return'__circularReference__'},numberOfSpaces=0){const seenObjects=[];return JSON.stringify(object,function(key,value){if(typeof value==='object'&&value!==null){if(seenObjects.includes(value))return determineCicularReferenceValue(key,value,seenObjects);seenObjects.push(value);return value}return value},numberOfSpaces)}/* eslint-disable require-jsdoc *//**
+     */static convertCircularObjectToJSON(object,determineCicularReferenceValue=function(){return'__circularReference__'},numberOfSpaces=0){const seenObjects=[];return JSON.stringify(object,function(key,value){if(typeof value==='object'&&value!==null){if(seenObjects.includes(value))return determineCicularReferenceValue(key,value,seenObjects);seenObjects.push(value);return value}return value},numberOfSpaces)}/**
      * Converts given map and all nested found maps objects to corresponding
      * object.
      * @param object - Map to convert to.
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given map as object.
-     */// IgnoreTypeCheck
-static convertMapToPlainObject(object,deep=true){if(typeof object==='object'){if(Tools.determineType(object)==='map'){const newObject={};// IgnoreTypeCheck
-for(let[key,value]of object){if(deep)value=Tools.convertMapToPlainObject(value,deep);newObject[`${key}`]=value}return newObject}if(deep)if(Tools.isPlainObject(object)){for(const key in object)if(object.hasOwnProperty(key))object[key]=Tools.convertMapToPlainObject(object[key],deep)}else if(Array.isArray(object)){let index=0;for(const value of object){object[index]=Tools.convertMapToPlainObject(value,deep);index+=1}}else if(Tools.determineType(object)==='set'){const cache=[];// IgnoreTypeCheck
-for(const value of object){object.delete(value);cache.push(Tools.convertMapToPlainObject(value,deep))}for(const value of cache)// IgnoreTypeCheck
-object.add(value)}}return object}/* eslint-enable require-jsdoc *//* eslint-disable require-jsdoc *//**
+     */static convertMapToPlainObject(object,deep=true){if(typeof object==='object'){if(Tools.determineType(object)==='map'){const newObject={};for(let[key,value]of object){if(deep)value=Tools.convertMapToPlainObject(value,deep);newObject[`${key}`]=value}return newObject}if(deep)if(Tools.isPlainObject(object)){for(const key in object)if(object.hasOwnProperty(key))object[key]=Tools.convertMapToPlainObject(object[key],deep)}else if(Array.isArray(object)){let index=0;for(const value of object){object[index]=Tools.convertMapToPlainObject(value,deep);index+=1}}else if(Tools.determineType(object)==='set'){const cache=[];for(const value of object){object.delete(value);cache.push(Tools.convertMapToPlainObject(value,deep))}for(const value of cache)object.add(value)}}return object}/**
      * Converts given plain object and all nested found objects to
      * corresponding map.
      * @param object - Object to convert to.
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given object as map.
-     */// IgnoreTypeCheck
-static convertPlainObjectToMap(object,deep=true){if(typeof object==='object'){if(Tools.isPlainObject(object)){const newObject=new Map;for(const key in object)if(object.hasOwnProperty(key)){if(deep)object[key]=Tools.convertPlainObjectToMap(object[key],deep);newObject.set(key,object[key])}return newObject}if(deep)if(Array.isArray(object)){let index=0;for(const value of object){object[index]=Tools.convertPlainObjectToMap(value,deep);index+=1}}else if(Tools.determineType(object)==='map')// IgnoreTypeCheck
-for(const[key,value]of object)object.set(key,Tools.convertPlainObjectToMap(value,deep));else if(Tools.determineType(object)==='set'){const cache=[];// IgnoreTypeCheck
-for(const value of object){object.delete(value);cache.push(Tools.convertPlainObjectToMap(value,deep))}for(const value of cache)// IgnoreTypeCheck
-object.add(value)}}return object}/* eslint-enable require-jsdoc *//**
+     */static convertPlainObjectToMap(object,deep=true){if(typeof object==='object'){if(Tools.isPlainObject(object)){const newObject=new Map;for(const key in object)if(object.hasOwnProperty(key)){if(deep)object[key]=Tools.convertPlainObjectToMap(object[key],deep);newObject.set(key,object[key])}return newObject}if(deep)if(Array.isArray(object)){let index=0;for(const value of object){object[index]=Tools.convertPlainObjectToMap(value,deep);index+=1}}else if(Tools.determineType(object)==='map')for(const[key,value]of object)object.set(key,Tools.convertPlainObjectToMap(value,deep));else if(Tools.determineType(object)==='set'){const cache=[];for(const value of object){object.delete(value);cache.push(Tools.convertPlainObjectToMap(value,deep))}for(const value of cache)object.add(value)}}return object}/**
      * Replaces given pattern in each value in given object recursively with
      * given string replacement.
      * @param object - Object to convert substrings in.
@@ -623,6 +608,27 @@ object.add(value)}}return object}/* eslint-enable require-jsdoc *//**
      * be assumed to be equal (default).
      * @returns Value "true" if both objects are equal and "false" otherwise.
      */static equals(firstValue,secondValue,properties=null,deep=-1,exceptionPrefixes=[],ignoreFunctions=true){if(ignoreFunctions&&Tools.isFunction(firstValue)&&Tools.isFunction(secondValue)||firstValue===secondValue||Tools.numberIsNotANumber(firstValue)&&Tools.numberIsNotANumber(secondValue)||firstValue instanceof RegExp&&secondValue instanceof RegExp&&firstValue.toString()===secondValue.toString()||firstValue instanceof Date&&secondValue instanceof Date&&(isNaN(firstValue.getTime())&&isNaN(secondValue.getTime())||!isNaN(firstValue.getTime())&&!isNaN(secondValue.getTime())&&firstValue.getTime()===secondValue.getTime()))return true;if(Tools.isPlainObject(firstValue)&&Tools.isPlainObject(secondValue)&&!(firstValue instanceof RegExp||secondValue instanceof RegExp)||Array.isArray(firstValue)&&Array.isArray(secondValue)&&firstValue.length===secondValue.length||(Tools.determineType(firstValue)==='map'&&Tools.determineType(secondValue)==='map'||Tools.determineType(firstValue)==='set'&&Tools.determineType(secondValue)==='set')&&firstValue.size===secondValue.size){for(const[first,second]of[[firstValue,secondValue],[secondValue,firstValue]]){const firstIsArray=Array.isArray(first);if(firstIsArray&&(!Array.isArray(second)||first.length!==second.length))return false;const firstIsMap=Tools.determineType(first)==='map';if(firstIsMap&&(Tools.determineType(second)!=='map'||first.size!==second.size))return false;const firstIsSet=Tools.determineType(first)==='set';if(firstIsSet&&(Tools.determineType(second)!=='set'||first.size!==second.size))return false;let equal=true;if(firstIsArray){let index=0;for(const value of first){if(deep!==0&&!Tools.equals(value,second[index],properties,deep-1,exceptionPrefixes))equal=false;index+=1}}else if(firstIsMap)/* eslint-disable curly */for(const[key,value]of first){if(deep!==0&&!Tools.equals(value,second.get(key),properties,deep-1,exceptionPrefixes))equal=false}/* eslint-enable curly *//* eslint-disable curly */else if(firstIsSet){for(const value of first)if(deep!==0){equal=false;for(const secondValue of second)if(Tools.equals(value,secondValue,properties,deep-1,exceptionPrefixes)){equal=true;break}if(!equal)break}}else/* eslint-enable curly */for(const key in first)if(first.hasOwnProperty(key)){if(!equal||properties&&!properties.includes(key))break;let doBreak=false;for(const exceptionPrefix of exceptionPrefixes)if(key.toString().startsWith(exceptionPrefix)){doBreak=true;break}if(doBreak)break;if(deep!==0&&!Tools.equals(first[key],second[key],properties,deep-1,exceptionPrefixes))equal=false}if(!equal)return false}return true}return false}/**
+     * Searches for nested mappings with given indicator key and resolves
+     * marked values. Additionally all objects are wrapped with a proxy to
+     * dynamically resolve nested properties.
+     * @param object - Given mapping to resolve.
+     * @param scope - Scope to to use evaluate again.
+     * @param selfReferenceName - Name to use for reference to given object.
+     * @param expressionIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @param executionIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @returns Evaluated given mapping.
+     */static evaluateDynamicDataStructure(object,scope={},selfReferenceName='self',expressionIndicatorKey='__evaluate__',executionIndicatorKey='__execute__'){if(typeof object!=='object'||object===null)return object;if(!(selfReferenceName in scope))scope[selfReferenceName]=object;const evaluate=function evaluate(code,type=expressionIndicatorKey){code=type===expressionIndicatorKey?`return ${code}`:code;let compiledFunction;try{/* eslint-disable new-parens */// IgnoreTypeCheck
+compiledFunction=new(Function.prototype.bind.call(/* eslint-enable new-parens */Function,null,...Object.keys(scope),code))}catch(error){throw new Error(`Error during compiling code "${code}": "`+`${Tools.representObject(error)}".`)}try{return compiledFunction(...Object.values(scope))}catch(error){throw new Error(`Error running code "${code}" in scope with variables "`+`${Object.keys(scope).join('", "')}": "`+`${Tools.representObject(error)}".`)}};const addProxyRecursively=function addProxyRecursively(data){if(typeof data!=='object'||data===null)return data;for(const key in data)if(data.hasOwnProperty(key)&&key!=='__target__'&&typeof data[key]==='object'&&data[key]!==null){addProxyRecursively(data[key]);/*
+                        NOTE: We only wrap needed objects for performance
+                        reasons.
+                    */if(data[key].hasOwnProperty(expressionIndicatorKey)||data[key].hasOwnProperty(executionIndicatorKey))data[key]=new Proxy(data[key],{get:function get(target,key){if(key==='__target__')return target;if(key==='hasOwnProperty')return target[key];/*
+                                    NOTE: Very complicated stuff section, only
+                                    change while doing a lot of tests.
+                                */for(const type of[expressionIndicatorKey,executionIndicatorKey])if(key===type)return resolve(evaluate(target[key],type));let resolvedTarget=resolve(target);if(key==='toString'){const result=evaluate(resolvedTarget);return result[key].bind(result)}if(typeof key!=='string'){const result=evaluate(resolvedTarget);if(result[key]&&result[key].call)return result[key].bind(result);return result[key]}for(const type of[expressionIndicatorKey,executionIndicatorKey])if(target.hasOwnProperty(type))return evaluate(resolvedTarget,type)[key];return resolvedTarget[key];// End of complicated stuff.
+},ownKeys:function ownKeys(target){for(const type of[expressionIndicatorKey,executionIndicatorKey])if(target.hasOwnProperty(type))return Object.getOwnPropertyNames(resolve(evaluate(target[type],type)));return Object.getOwnPropertyNames(target)}})}return data};const resolve=function resolve(data){if(typeof data==='object'&&data!==null){if(data.__target__){// NOTE: We have to skip "ownKeys" proxy trap here.
+for(const type of[expressionIndicatorKey,executionIndicatorKey])if(data.hasOwnProperty(type))return data[type];data=data.__target__}for(const key in data)if(data.hasOwnProperty(key))if([expressionIndicatorKey,executionIndicatorKey].includes(key))return data[key];else data[key]=resolve(data[key])}return data};scope.resolve=resolve;const removeProxyRecursively=function removeProxyRecursively(data){if(typeof data==='object'&&data!==null)for(const key in data)if(data.hasOwnProperty(key)&&key!=='__target__'&&typeof data[key]==='object'&&data[key]!==null){const target=data[key].__target__;if(typeof target!=='undefined')data[key]=target;removeProxyRecursively(data[key])}return data};if(typeof object==='object'&&object!==null)if(object.hasOwnProperty(expressionIndicatorKey))return evaluate(object[expressionIndicatorKey]);else if(object.hasOwnProperty(executionIndicatorKey))return evaluate(object[executionIndicatorKey],executionIndicatorKey);return removeProxyRecursively(resolve(addProxyRecursively(object)))}/**
      * Extends given target object with given sources object. As target and
      * sources many expandable types are allowed but target and sources have to
      * to come from the same type.
@@ -630,8 +636,8 @@ object.add(value)}}return object}/* eslint-enable require-jsdoc *//**
      * @param targetAndOrSources - Target and at least one source object.
      * @returns Returns given target extended with all given sources.
      */static extendObject(targetOrDeepIndicator,...targetAndOrSources){let index=0;let deep=false;let target;if(typeof targetOrDeepIndicator==='boolean'){// Handle a deep copy situation and skip deep indicator and target.
-deep=targetOrDeepIndicator;target=targetAndOrSources[index];index=1}else target=targetOrDeepIndicator;const mergeValue=function mergeValue(key,value,targetValue){if(value===targetValue)return targetValue;// Recurse if we're merging plain objects or maps.
-if(deep&&value&&(Tools.isPlainObject(value)||Tools.determineType(value)==='map')){let clone;if(Tools.determineType(value)==='map')clone=targetValue&&Tools.determineType(targetValue)==='map'?targetValue:new Map;else clone=targetValue&&Tools.isPlainObject(targetValue)?targetValue:{};return Tools.extendObject(deep,clone,value)}return value};while(index<targetAndOrSources.length){const source=targetAndOrSources[index];let targetType=typeof target;let sourceType=typeof source;if(Tools.determineType(target)==='map')targetType+=' Map';if(Tools.determineType(source)==='map')sourceType+=' Map';if(targetType===sourceType&&target!==source){if(Tools.determineType(target)==='map'&&Tools.determineType(source)==='map')for(const[key,value]of source)target.set(key,mergeValue(key,value,target.get(key)));else if(target!==null&&!Array.isArray(target)&&typeof target==='object'&&source!==null&&!Array.isArray(source)&&typeof source==='object'){for(const key in source)if(source.hasOwnProperty(key))target[key]=mergeValue(key,source[key],target[key])}else target=source;}else target=source;index+=1}return target}/**
+deep=targetOrDeepIndicator;target=targetAndOrSources[index];index=1}else target=targetOrDeepIndicator;const mergeValue=function mergeValue(targetValue,value){if(value===targetValue)return targetValue;// Recurse if we're merging plain objects or maps.
+if(deep&&value&&(Tools.isPlainObject(value)||Tools.determineType(value)==='map')){let clone;if(Tools.determineType(value)==='map')clone=targetValue&&Tools.determineType(targetValue)==='map'?targetValue:new Map;else clone=targetValue&&Tools.isPlainObject(targetValue)?targetValue:{};return Tools.extendObject(deep,clone,value)}return value};while(index<targetAndOrSources.length){const source=targetAndOrSources[index];let targetType=typeof target;let sourceType=typeof source;if(Tools.determineType(target)==='map')targetType+=' Map';if(Tools.determineType(source)==='map')sourceType+=' Map';if(targetType===sourceType&&target!==source){if(Tools.determineType(target)==='map'&&Tools.determineType(source)==='map')for(const[key,value]of source)target.set(key,mergeValue(target.get(key),value));else if(target!==null&&!Array.isArray(target)&&typeof target==='object'&&source!==null&&!Array.isArray(source)&&typeof source==='object'){for(const key in source)if(source.hasOwnProperty(key))target[key]=mergeValue(target[key],source[key])}else target=source;}else target=source;index+=1}return target}/**
      * Iterates given objects own properties in sorted fashion. For
      * each key value pair given iterator function will be called with
      * value and key as arguments.
@@ -678,28 +684,6 @@ target[key],source[key],removeIndicatorKey,prependIndicatorKey,appendIndicatorKe
      * additional indention for the first object traversing level.
      * @returns Representation string.
      */static representObject(object,indention='    ',initialIndention=''){if(object===null)return'null';if(object===undefined)return'undefined';if(typeof object==='string')return`"${object.replace(/\n/g,`\n${initialIndention}`)}"`;if(Tools.isNumeric(object)||typeof object==='boolean')return`${object}`;if(Array.isArray(object)){let result='[';let firstSeen=false;for(const item of object){if(firstSeen)result+=',';result+=`\n${initialIndention}${indention}`+Tools.representObject(item,indention,`${initialIndention}${indention}`);firstSeen=true}if(firstSeen)result+=`\n${initialIndention}`;result+=']';return result}if(Tools.determineType(object)==='map'){let result='';let firstSeen=false;for(const[key,item]of object){if(firstSeen)result+=`,\n${initialIndention}${indention}`;result+=Tools.representObject(key,indention,`${initialIndention}${indention}`)+' -> '+Tools.representObject(item,indention,`${initialIndention}${indention}`);firstSeen=true}if(!firstSeen)result='EmptyMap';return result}if(Tools.determineType(object)==='set'){let result='{';let firstSeen=false;for(const item of object){if(firstSeen)result+=',';result+=`\n${initialIndention}${indention}`+Tools.representObject(item,indention,`${initialIndention}${indention}`);firstSeen=true}if(firstSeen)result+=`\n${initialIndention}}`;else result='EmptySet';return result}let result='{';const keys=Object.getOwnPropertyNames(object).sort();let firstSeen=false;for(const key of keys){if(firstSeen)result+=',';result+=`\n${initialIndention}${indention}${key}: `+Tools.representObject(object[key],indention,`${initialIndention}${indention}`);firstSeen=true}if(firstSeen)result+=`\n${initialIndention}`;result+='}';return result}/**
-     * Searches for nested mappings with given indicator key and resolves
-     * marked values. Additionally all objects are wrapped with a proxy to
-     * dynamically resolve nested properties.
-     * @param object - Given mapping to resolve.
-     * @param parameterDescription - Array of scope names.
-     * @param parameter - Array of values for given scope names. If there is
-     * one missing given object will be added.
-     * @param expressionIndicatorKey - Indicator property name to mark a value
-     * to evaluate.
-     * @param executionIndicatorKey - Indicator property name to mark a value
-     * to evaluate.
-     * @returns Evaluated given mapping.
-     */static resolveDynamicDataStructure(object,parameterDescription=[],parameter=[],expressionIndicatorKey='__evaluate__',executionIndicatorKey='__execute__'){if(typeof object!=='object'||object===null)return object;parameter=parameter.slice();parameter.push(object);if(parameterDescription.length<parameter.length)parameterDescription.push('self');const evaluate=function evaluate(code,type=expressionIndicatorKey){code=type===expressionIndicatorKey?`return ${code}`:code;let compiledFunction;try{/* eslint-disable new-parens */// IgnoreTypeCheck
-compiledFunction=new(Function.prototype.bind.call(/* eslint-enable new-parens */Function,null,...parameterDescription.concat(code)))}catch(error){throw new Error(`Error during compiling code "${code}": "`+`${Tools.representObject(error)}".`)}try{return compiledFunction(...parameter)}catch(error){throw new Error(`Error running code "${code}" in scope with variables "`+`${parameterDescription.join('", "')}": "`+`${Tools.representObject(error)}".`)}};const addProxyRecursively=function addProxyRecursively(data){if(typeof data!=='object'||data===null)return data;for(const key in data)if(data.hasOwnProperty(key)&&key!=='__target__'&&typeof data[key]==='object'&&data[key]!==null){addProxyRecursively(data[key]);/*
-                        NOTE: We only wrap needed objects for performance
-                        reasons.
-                    */if(data[key].hasOwnProperty(expressionIndicatorKey)||data[key].hasOwnProperty(executionIndicatorKey))data[key]=new Proxy(data[key],{get:function get(target,key){if(key==='__target__')return target;if(key==='hasOwnProperty')return target[key];/*
-                                    NOTE: Very complicated stuff section, only
-                                    change while doing a lot of tests.
-                                */for(const type of[expressionIndicatorKey,executionIndicatorKey])if(key===type)return resolve(evaluate(target[key],type));let resolvedTarget=resolve(target);if(key==='toString'){const result=evaluate(resolvedTarget);return result[key].bind(result)}if(typeof key!=='string'){const result=evaluate(resolvedTarget);if(result[key]&&result[key].call)return result[key].bind(result);return result[key]}for(const type of[expressionIndicatorKey,executionIndicatorKey])if(target.hasOwnProperty(type))return evaluate(resolvedTarget,type)[key];return resolvedTarget[key];// End of complicated stuff.
-},ownKeys:function ownKeys(target){for(const type of[expressionIndicatorKey,executionIndicatorKey])if(target.hasOwnProperty(type))return Object.getOwnPropertyNames(resolve(evaluate(target[type],type)));return Object.getOwnPropertyNames(target)}})}return data};const resolve=function resolve(data){if(typeof data==='object'&&data!==null){if(data.__target__){// NOTE: We have to skip "ownKeys" proxy trap here.
-for(const type of[expressionIndicatorKey,executionIndicatorKey])if(data.hasOwnProperty(type))return data[type];data=data.__target__}for(const key in data)if(data.hasOwnProperty(key))if([expressionIndicatorKey,executionIndicatorKey].includes(key))return data[key];else data[key]=resolve(data[key])}return data};parameterDescription.push('resolve');parameter.push(resolve);const removeProxyRecursively=function removeProxyRecursively(data){if(typeof data==='object'&&data!==null)for(const key in data)if(data.hasOwnProperty(key)&&key!=='__target__'&&typeof data[key]==='object'&&data[key]!==null){const target=data[key].__target__;if(typeof target!=='undefined')data[key]=target;removeProxyRecursively(data[key])}return data};if(typeof object==='object'&&object!==null)if(object.hasOwnProperty(expressionIndicatorKey))return evaluate(object[expressionIndicatorKey]);else if(object.hasOwnProperty(executionIndicatorKey))return evaluate(object[executionIndicatorKey],executionIndicatorKey);return removeProxyRecursively(resolve(addProxyRecursively(object)))}/**
      * Sort given objects keys.
      * @param object - Object which keys should be sorted.
      * @returns Sorted list of given keys.
@@ -750,7 +734,7 @@ for(const type of[expressionIndicatorKey,executionIndicatorKey])if(data.hasOwnPr
      * @param data - Data to filter.
      * @param regularExpression - Pattern to match for.
      * @returns Filtered data.
-     */static arrayExtractIfMatches(data,regularExpression){const result=[];for(const value of Tools.arrayMake(data))if((typeof regularExpression==='string'?new RegExp(regularExpression):regularExpression).test(value))result.push(value);return result}/**
+     */static arrayExtractIfMatches(data,regularExpression){if(!regularExpression)return Tools.arrayMake(data);const result=[];for(const value of Tools.arrayMake(data))if((typeof regularExpression==='string'?new RegExp(regularExpression):regularExpression).test(value))result.push(value);return result}/**
      * Filters given data if given property is set or not.
      * @param data - Data to filter.
      * @param propertyName - Property name to check for existence.
@@ -762,7 +746,7 @@ for(const type of[expressionIndicatorKey,executionIndicatorKey])if(data.hasOwnPr
      * @param data - Data to filter.
      * @param propertyPattern - Mapping of property names to pattern.
      * @returns Filtered data.
-     */static arrayExtractIfPropertyMatches(data,propertyPattern){if(data&&propertyPattern){const result=[];for(const item of Tools.arrayMake(data)){let matches=true;for(const propertyName in propertyPattern)if(!(propertyPattern[propertyName]instanceof RegExp?propertyPattern[propertyName]:new RegExp(propertyPattern[propertyName])).test(item[propertyName])){matches=false;break}if(matches)result.push(item)}return result}return data}/**
+     */static arrayExtractIfPropertyMatches(data,propertyPattern){if(data&&propertyPattern){const result=[];for(const item of Tools.arrayMake(data)){let matches=true;for(const propertyName in propertyPattern)if(!(propertyPattern[propertyName]&&(typeof propertyPattern[propertyName]==='string'?new RegExp(propertyPattern[propertyName]):propertyPattern[propertyName]).test(item[propertyName]))){matches=false;break}if(matches)result.push(item)}return result}return data}/**
      * Determines all objects which exists in "first" and in "second".
      * Object key which will be compared are given by "keys". If an empty array
      * is given each key will be compared. If an object is given corresponding
@@ -1113,7 +1097,8 @@ if(convertToHexCode(main('hello'))!=='5d41402abc4b2a76b9719d911017c592')/**
      * object in.
      * @param name - The name under given scope will be available.
      * @returns The parsed object if possible and null otherwise.
-     */static stringParseEncodedObject(serializedObject,scope={},name='scope'){if(serializedObject.endsWith('.json')&&Tools.isFileSync(serializedObject))serializedObject=fileSystem.readFileSync(serializedObject,{encoding:'utf-8'});if(!serializedObject.startsWith('{'))serializedObject=eval('Buffer').from(serializedObject,'base64').toString('utf8');let result;try{result=new Function(name,`return ${serializedObject}`)(scope)}catch(error){}if(typeof result==='object')return result;return null}/**
+     */static stringParseEncodedObject(serializedObject,scope={},name='scope'){if(serializedObject.endsWith('.json')&&Tools.isFileSync(serializedObject))serializedObject=fileSystem.readFileSync(serializedObject,{encoding:'utf-8'});if(!serializedObject.startsWith('{'))serializedObject=eval('Buffer').from(serializedObject,'base64').toString('utf8');let result;try{// IgnoreTypeCheck
+result=new Function(name,`return ${serializedObject}`)(scope)}catch(error){}if(typeof result==='object')return result;return null}/**
      * Represents given phone number. NOTE: Currently only support german phone
      * numbers.
      * @param phoneNumber - Number to format.
@@ -1133,6 +1118,12 @@ return phoneNumber.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/,function(match,prefix,num
      */normalizeDomNodeSelector(selector){let domNodeSelectorPrefix='';if(this._options.domNodeSelectorPrefix)domNodeSelectorPrefix=`${this._options.domNodeSelectorPrefix} `;if(!(selector.startsWith(domNodeSelectorPrefix)||selector.trim().startsWith('<')))selector=domNodeSelectorPrefix+selector;return selector.trim()}// / endregion
 // / region number
 /**
+     * Determines corresponding utc timestamp for given date object.
+     * @param value - Date to convert.
+     * @param inMilliseconds - Indicates whether given number should be in
+     * seconds (default) or milliseconds.
+     * @returns Determined numerous value.
+     */static numberGetUTCTimestamp(value,inMilliseconds=false){const date=[undefined,null].includes(value)?new Date:new Date(value);return Date.UTC(date.getUTCFullYear(),date.getUTCMonth(),date.getUTCDate(),date.getUTCHours(),date.getUTCMinutes(),date.getUTCSeconds(),date.getUTCMilliseconds())/(inMilliseconds?1:1000)}/**
      * Checks if given object is java scripts native "Number.NaN" object.
      * @param object - Object to Check.
      * @returns Returns whether given value is not a number or not.
@@ -1148,21 +1139,24 @@ return phoneNumber.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/,function(match,prefix,num
      * @param url - Url to check reachability.
      * @param wait - Boolean indicating if we should retry until a status code
      * will be given.
-     * @param expectedStatusCode - Status code to check for.
+     * @param expectedStatusCodes - Status codes to check for.
      * @param timeoutInSeconds - Delay after assuming given resource isn't
      * available if no response is coming.
      * @param pollIntervallInSeconds - Seconds between two tries to reach given
      * url.
+     * @param options - Fetch options to use.
      * @returns A promise which will be resolved if a request to given url has
      * finished and resulting status code matches given expectedstatus code.
      * Otherwise returned promise will be rejected.
-     */static checkReachability(url,wait=false,expectedStatusCode=200,timeoutInSeconds=10,pollIntervallInSeconds=0.1){return _asyncToGenerator(function*(){const check=function check(response){if(response&&'status'in response&&response.status!==expectedStatusCode)throw new Error(`Given status code ${response.status} differs from `+`${expectedStatusCode}.`);return response};if(wait)return new Promise(function(){var _ref2=_asyncToGenerator(function*(resolve,reject){let timedOut=false;const wrapper=function(){var _ref3=_asyncToGenerator(function*(){let response;try{response=yield fetch(url)}catch(error){if(!timedOut){/* eslint-disable no-use-before-define */currentlyRunningTimer=Tools.timeout(pollIntervallInSeconds*1000,wrapper);/* eslint-enable no-use-before-define *//*
+     */static checkReachability(url,wait=false,expectedStatusCodes=200,timeoutInSeconds=10,pollIntervallInSeconds=0.1,options={}){return _asyncToGenerator(function*(){expectedStatusCodes=[].concat(expectedStatusCodes);const check=function check(response){if(response&&'status'in response&&// IgnoreTypeCheck
+!expectedStatusCodes.includes(response.status))throw new Error(`Given status code ${response.status} differs from `+// IgnoreTypeCheck
+`${expectedStatusCodes.join(', ')}.`);return response};if(wait)return new Promise(function(){var _ref2=_asyncToGenerator(function*(resolve,reject){let timedOut=false;const wrapper=function(){var _ref3=_asyncToGenerator(function*(){let response;try{response=yield fetch(url,options)}catch(error){if(!timedOut){/* eslint-disable no-use-before-define */currentlyRunningTimer=Tools.timeout(pollIntervallInSeconds*1000,wrapper);/* eslint-enable no-use-before-define *//*
                                 NOTE: A timer rejection is expected. Avoid
                                 throwing errors about unhandled promise
                                 rejections.
                             */currentlyRunningTimer.catch(Tools.noop)}return error}try{resolve(check(response))}catch(error){reject(error)}finally{/* eslint-disable no-use-before-define */// IgnoreTypeCheck
 timer.clear();/* eslint-enable no-use-before-define */}return response});return function wrapper(){return _ref3.apply(this,arguments)}}();let currentlyRunningTimer=Tools.timeout(0,wrapper);const timer=Tools.timeout(timeoutInSeconds*1000);try{yield timer}catch(error){}timedOut=true;// IgnoreTypeCheck
-currentlyRunningTimer.clear();reject(`Timeout of ${timeoutInSeconds} seconds reached.`)});return function(_x2,_x3){return _ref2.apply(this,arguments)}}());return check((yield fetch(url)))})()}/**
+currentlyRunningTimer.clear();reject(`Timeout of ${timeoutInSeconds} seconds reached.`)});return function(_x2,_x3){return _ref2.apply(this,arguments)}}());return check((yield fetch(url,options)))})()}/**
      * Checks if given url isn't reachable.
      * @param url - Url to check reachability.
      * @param wait - Boolean indicating if we should retry until a status code
@@ -1171,16 +1165,17 @@ currentlyRunningTimer.clear();reject(`Timeout of ${timeoutInSeconds} seconds rea
      * available.
      * @param pollIntervallInSeconds - Seconds between two tries to reach given
      * url.
-     * @param unexpectedStatusCode - Status code to check for.
+     * @param unexpectedStatusCodes - Status codes to check for.
+     * @param options - Fetch options to use.
      * @returns A promise which will be resolved if a request to given url
      * couldn't finished. Otherwise returned promise will be rejected.
-     */static checkUnreachability(url,wait=false,timeoutInSeconds=10,pollIntervallInSeconds=0.1,unexpectedStatusCode=null){return _asyncToGenerator(function*(){const check=function check(response){if(unexpectedStatusCode){if(response&&'status'in response&&response.status===unexpectedStatusCode)throw new Error(`Given url "${url}" is reachable ans responses with `+`unexpeced status code "${response.status}".`);return new Error(`Given status code is not "${unexpectedStatusCode}".`)}};if(wait)return new Promise(function(){var _ref4=_asyncToGenerator(function*(resolve,reject){let timedOut=false;const wrapper=function(){var _ref5=_asyncToGenerator(function*(){try{const response=yield fetch(url);if(timedOut)return response;const result=check(response);if(result){// IgnoreTypeCheck
+     */static checkUnreachability(url,wait=false,timeoutInSeconds=10,pollIntervallInSeconds=0.1,unexpectedStatusCodes=null,options={}){return _asyncToGenerator(function*(){const check=function check(response){if(unexpectedStatusCodes){unexpectedStatusCodes=[].concat(unexpectedStatusCodes);if(response&&'status'in response&&unexpectedStatusCodes.includes(response.status))throw new Error(`Given url "${url}" is reachable ans responses with `+`unexpected status code "${response.status}".`);return new Error('Given status code is not "'+`${unexpectedStatusCodes.join(', ')}".`)}};if(wait)return new Promise(function(){var _ref4=_asyncToGenerator(function*(resolve,reject){let timedOut=false;const wrapper=function(){var _ref5=_asyncToGenerator(function*(){try{const response=yield fetch(url,options);if(timedOut)return response;const result=check(response);if(result){// IgnoreTypeCheck
 timer.clear();resolve(result);return result}/* eslint-disable no-use-before-define */currentlyRunningTimer=Tools.timeout(pollIntervallInSeconds*1000,wrapper);/* eslint-enable no-use-before-define *//*
                             NOTE: A timer rejection is expected. Avoid throwing
                             errors about unhandled promise rejections.
                         */currentlyRunningTimer.catch(Tools.noop)}catch(error){/* eslint-disable no-use-before-define */// IgnoreTypeCheck
 timer.clear();/* eslint-enable no-use-before-define */resolve(error);return error}});return function wrapper(){return _ref5.apply(this,arguments)}}();let currentlyRunningTimer=Tools.timeout(0,wrapper);const timer=Tools.timeout(timeoutInSeconds*1000);try{yield timer}catch(error){}timedOut=true;// IgnoreTypeCheck
-currentlyRunningTimer.clear();reject(`Timeout of ${timeoutInSeconds} seconds reached.`)});return function(_x4,_x5){return _ref4.apply(this,arguments)}}());try{const result=check((yield fetch(url)));if(result)return result}catch(error){return error}throw new Error(`Given url "${url}" is reachable.`)})()}/**
+currentlyRunningTimer.clear();reject(`Timeout of ${timeoutInSeconds} seconds reached.`)});return function(_x4,_x5){return _ref4.apply(this,arguments)}}());try{const result=check((yield fetch(url,options)));if(result)return result}catch(error){return error}throw new Error(`Given url "${url}" is reachable.`)})()}/**
      * Send given data to a given iframe.
      * @param target - Name of the target iframe or the target iframe itself.
      * @param url - URL to send to data to.
@@ -1203,7 +1198,7 @@ currentlyRunningTimer.clear();reject(`Timeout of ${timeoutInSeconds} seconds rea
      * @param removeAfterLoad - Indicates if created iframe should be removed
      * right after load event.
      * @returns Returns the dynamically created iframe.
-     */sendToExternalURL(url,data,requestType='post',removeAfterLoad=true){const $iFrameDomNode=$('<iframe>').attr('name',this.constructor._name.charAt(0).toLowerCase()+this.constructor._name.substring(1)+new Date().getTime()).hide();this.$domNode.append($iFrameDomNode);this.constructor.sendToIFrame($iFrameDomNode,url,data,requestType,removeAfterLoad);return $iFrameDomNode}// / endregion
+     */sendToExternalURL(url,data,requestType='post',removeAfterLoad=true){const $iFrameDomNode=$('<iframe>').attr('name',this.constructor.name.charAt(0).toLowerCase()+this.constructor.name.substring(1)+new Date().getTime()).hide();this.$domNode.append($iFrameDomNode);this.constructor.sendToIFrame($iFrameDomNode,url,data,requestType,removeAfterLoad);return $iFrameDomNode}// / endregion
 // / region file
 /**
      * Copies given source directory via path to given target directory
@@ -1284,7 +1279,7 @@ sourcePath=path.resolve(sourcePath);if(Tools.isDirectorySync(targetPath))targetP
      * potentially manipulate further traversing.
      * @param options - Options to use for nested "readdir" calls.
      * @returns A promise holding the determined files.
-     */static walkDirectoryRecursively(directoryPath,callback=Tools.noop,options={encoding:'utf8'}){return new Promise(function(resolve,reject){fileSystem.readdir(directoryPath,options,function(){var _ref9=_asyncToGenerator(function*(error,fileNames){if(error)return reject(error);const files=[];const statPromises=[];for(const fileName of fileNames){const filePath=path.resolve(directoryPath,fileName);statPromises.push(new Promise(function(resolve){return fileSystem.stat(filePath,function(error,stat){files.push({directoryPath,name:fileName,path:filePath,stat:error||stat});resolve()})}))}yield Promise.all(statPromises);if(callback)/*
+     */static walkDirectoryRecursively(directoryPath,callback=Tools.noop,options='utf8'){return new Promise(function(resolve,reject){return fileSystem.readdir(directoryPath,options,function(){var _ref9=_asyncToGenerator(function*(error,fileNames){if(error)return reject(error);const files=[];const statPromises=[];for(const fileName of fileNames){const filePath=path.resolve(directoryPath,fileName);statPromises.push(new Promise(function(resolve){return fileSystem.stat(filePath,function(error,stat){files.push({directoryPath,name:fileName,path:filePath,stat:error||stat});resolve()})}))}yield Promise.all(statPromises);if(callback)/*
                         NOTE: Directories have to be iterated first to
                         potentially avoid deeper iterations.
                     */files.sort(function(firstFile,secondFile){if(firstFile.stat.isDirectory()){if(secondFile.stat.isDirectory())return 0;return-1}if(secondFile.stat.isDirectory())return 1;return 0});let finalFiles=[];for(const file of files){finalFiles.push(file);let result=callback(file);if(result===null)break;if(typeof result==='object'&&'then'in result)result=yield result;if(result===null)break;if(result!==false&&file.stat.isDirectory())finalFiles=finalFiles.concat((yield Tools.walkDirectoryRecursively(file.path,callback)))}resolve(finalFiles)});return function(_x11,_x12){return _ref9.apply(this,arguments)}}())})}/**
@@ -1295,7 +1290,7 @@ sourcePath=path.resolve(sourcePath);if(Tools.isDirectorySync(targetPath))targetP
      * @param callback - Function to invoke for each traversed file.
      * @param options - Options to use for nested "readdir" calls.
      * @returns Determined list if all files.
-     */static walkDirectoryRecursivelySync(directoryPath,callback=Tools.noop,options={encoding:'utf8'}){let files=[];for(const fileName of fileSystem.readdirSync(directoryPath,options)){const filePath=path.resolve(directoryPath,fileName);files.push({directoryPath,name:fileName,path:filePath,stat:fileSystem.statSync(filePath)})}if(callback)/*
+     */static walkDirectoryRecursivelySync(directoryPath,callback=Tools.noop,options='utf8'){let files=[];for(const fileName of fileSystem.readdirSync(directoryPath,options)){const filePath=path.resolve(directoryPath,fileName);files.push({directoryPath,name:fileName,path:filePath,stat:fileSystem.statSync(filePath)})}if(callback)/*
                 NOTE: Directories have to be iterated first to potentially
                 avoid deeper iterations.
             */files.sort(function(firstFile,secondFile){if(firstFile.stat.isDirectory()){if(secondFile.stat.isDirectory())return 0;return-1}if(secondFile.stat.isDirectory())return 1;return 0});let finalFiles=[];for(const file of files){finalFiles.push(file);const result=callback(file);if(result===null)break;if(result!==false&&file.stat.isDirectory())finalFiles=finalFiles.concat(Tools.walkDirectoryRecursivelySync(file.path,callback))}return finalFiles}// / endregion
@@ -1331,10 +1326,10 @@ error.parameter=parameter;reject(error)}}}}/**
      * @param eventFunctionName - Name of function to wrap.
      * @returns Returns $'s wrapped dom node.
      */_bindEventHelper(parameter,removeEvent=false,eventFunctionName='on'){/* eslint-enable jsdoc/require-description-complete-sentence */const $domNode=$(parameter[0]);if(this.constructor.determineType(parameter[1])==='object'&&!removeEvent){for(const eventType in parameter[1])if(parameter[1].hasOwnProperty(eventType))// IgnoreTypeCheck
-this[eventFunctionName]($domNode,eventType,parameter[1][eventType]);return $domNode}parameter=this.constructor.arrayMake(parameter).slice(1);if(parameter.length===0)parameter.push('');if(!parameter[0].includes('.'))parameter[0]+=`.${this.constructor._name}`;if(removeEvent)return $domNode[eventFunctionName](...parameter);return $domNode[eventFunctionName](...parameter)}// endregion
+this[eventFunctionName]($domNode,eventType,parameter[1][eventType]);return $domNode}parameter=this.constructor.arrayMake(parameter).slice(1);if(parameter.length===0)parameter.push('');if(!parameter[0].includes('.'))parameter[0]+=`.${this.constructor.name}`;if(removeEvent)return $domNode[eventFunctionName](...parameter);return $domNode[eventFunctionName](...parameter)}// endregion
 }exports.default=Tools;// endregion
 // region handle $ extending
-Tools.abbreviations=['html','id','url','us','de','api','href'];Tools.animationEndEventNames='animationend webkitAnimationEnd '+'oAnimationEnd MSAnimationEnd';Tools.classToTypeMapping={'[object Array]':'array','[object Boolean]':'boolean','[object Date]':'date','[object Error]':'error','[object Function]':'function','[object Map]':'map','[object Number]':'number','[object Object]':'object','[object RegExp]':'regexp','[object Set]':'set','[object String]':'string'};Tools.closeEventNames=['exit','close','uncaughtException','SIGINT','SIGTERM','SIGQUIT'];Tools.consoleMethodNames=['assert','clear','count','debug','dir','dirxml','error','exception','group','groupCollapsed','groupEnd','info','log','markTimeline','profile','profileEnd','table','time','timeEnd','timeStamp','trace','warn'];Tools.keyCode={BACKSPACE:8,COMMA:188,DELETE:46,DOWN:40,END:35,ENTER:13,ESCAPE:27,HOME:36,LEFT:37,NUMPAD_ADD:107,NUMPAD_DECIMAL:110,NUMPAD_DIVIDE:111,NUMPAD_ENTER:108,NUMPAD_MULTIPLY:106,NUMPAD_SUBTRACT:109,PAGE_DOWN:34,PAGE_UP:33,PERIOD:190,RIGHT:39,SPACE:32,TAB:9,UP:38};Tools.maximalSupportedInternetExplorerVersion=function(){if(!('document'in $.global))return 0;const div=$.global.document.createElement('div');let version;for(version=0;version<10;version++){/*
+Tools.abbreviations=['html','id','url','us','de','api','href'];Tools.animationEndEventNames='animationend webkitAnimationEnd '+'oAnimationEnd MSAnimationEnd';Tools.classToTypeMapping={'[object Array]':'array','[object Boolean]':'boolean','[object Date]':'date','[object Error]':'error','[object Function]':'function','[object Map]':'map','[object Number]':'number','[object Object]':'object','[object RegExp]':'regexp','[object Set]':'set','[object String]':'string'};Tools.closeEventNames=['exit','close','uncaughtException','SIGINT','SIGTERM','SIGQUIT'];Tools.consoleMethodNames=['assert','clear','count','debug','dir','dirxml','error','exception','group','groupCollapsed','groupEnd','info','log','markTimeline','profile','profileEnd','table','time','timeEnd','timeStamp','trace','warn'];Tools.keyCode={BACKSPACE:8,COMMA:188,DELETE:46,DOWN:40,END:35,ENTER:13,ESCAPE:27,F1:112,F2:113,F3:114,F4:115,F5:116,F6:117,F7:118,F8:119,F9:120,F10:121,F11:122,F12:123,HOME:36,LEFT:37,NUMPAD_ADD:107,NUMPAD_DECIMAL:110,NUMPAD_DIVIDE:111,NUMPAD_ENTER:108,NUMPAD_MULTIPLY:106,NUMPAD_SUBTRACT:109,PAGE_DOWN:34,PAGE_UP:33,PERIOD:190,RIGHT:39,SPACE:32,TAB:9,UP:38};Tools.maximalSupportedInternetExplorerVersion=function(){if(!('document'in $.global))return 0;const div=$.global.document.createElement('div');let version;for(version=0;version<10;version++){/*
                 NOTE: We split html comment sequences to avoid wrong
                 interpretation if this code is embedded in markup.
                 NOTE: Internet Explorer 9 and lower sometimes doesn't
@@ -1342,7 +1337,7 @@ Tools.abbreviations=['html','id','url','us','de','api','href'];Tools.animationEn
                 whitespace. If the conditional markup isn't in a commend.
                 Otherwise there shouldn't be any whitespace!
             *//* eslint-disable no-useless-concat */div.innerHTML='<!'+`--[if gt IE ${version}]><i></i><![e`+'ndif]-'+'->';/* eslint-enable no-useless-concat */if(div.getElementsByTagName('i').length===0)break}// Try special detection for internet explorer 10 and 11.
-if(version===0&&'navigator'in $.global)if($.global.navigator.appVersion.includes('MSIE 10'))return 10;else if($.global.navigator.userAgent.includes('Trident')&&$.global.navigator.userAgent.includes('rv:11'))return 11;return version}();Tools.noop='noop'in $?$.noop:function(){};Tools.specialRegexSequences=['-','[',']','(',')','^','$','*','+','.','{','}'];Tools.transitionEndEventNames='transitionend '+'webkitTransitionEnd oTransitionEnd MSTransitionEnd';Tools._javaScriptDependentContentHandled=false;Tools._name='Tools';if('fn'in $)$.fn.Tools=function(...parameter){return new Tools().controller(Tools,parameter,this)};$.Tools=function(...parameter){return new Tools().controller(Tools,parameter)};$.Tools.class=Tools;if('fn'in $){// region prop fix for comments and text nodes
+if(version===0&&'navigator'in $.global)if($.global.navigator.appVersion.includes('MSIE 10'))return 10;else if($.global.navigator.userAgent.includes('Trident')&&$.global.navigator.userAgent.includes('rv:11'))return 11;return version}();Tools.noop='noop'in $?$.noop:function(){};Tools.plainObjectPrototypes=[Object.prototype];Tools.specialRegexSequences=['-','[',']','(',')','^','$','*','+','.','{','}'];Tools.transitionEndEventNames='transitionend '+'webkitTransitionEnd oTransitionEnd MSTransitionEnd';Tools._javaScriptDependentContentHandled=false;if('fn'in $)$.fn.Tools=function(...parameter){return new Tools().controller(Tools,parameter,this)};$.Tools=function(...parameter){return new Tools().controller(Tools,parameter)};$.Tools.class=Tools;if('fn'in $){// region prop fix for comments and text nodes
 const nativePropFunction=$.fn.prop;/**
      * JQuery's native prop implementation ignores properties for text nodes,
      * comments and attribute nodes.
@@ -1359,34 +1354,7 @@ $.readyException=function(error){if(!(typeof error==='string'&&error==='canceled
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
 // endregion
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)(module), __webpack_require__(1), __webpack_require__(3)))
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)(module), __webpack_require__(3), __webpack_require__(4)))
 
 /***/ }),
 /* 2 */
@@ -1418,6 +1386,33 @@ module.exports = function(module) {
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -1607,18 +1602,11 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports) {
 
-if(typeof __WEBPACK_EXTERNAL_MODULE_4__ === 'undefined') {var e = new Error("Cannot find module \"jQuery\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
-module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(0);
-
+if(typeof __WEBPACK_EXTERNAL_MODULE_5__ === 'undefined') {var e = new Error("Cannot find module \"jQuery\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
 
 /***/ })
 /******/ ]);
