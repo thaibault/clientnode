@@ -212,34 +212,36 @@ let tests:Array<Test> = [{callback: function(
     ):Promise<void> => {
         const semaphore:Object = $.Tools.class.getSemaphore(2)
         assert.strictEqual(semaphore.queue.length, 0)
+        assert.strictEqual(semaphore.numberOfFreeResources, 2)
         assert.strictEqual(semaphore.numberOfResources, 2)
         await semaphore.acquire()
         assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfResources, 1)
+        assert.strictEqual(semaphore.numberOfFreeResources, 1)
+        assert.strictEqual(semaphore.numberOfResources, 2)
         await semaphore.acquire()
         assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfResources, 0)
+        assert.strictEqual(semaphore.numberOfFreeResources, 0)
         semaphore.acquire()
         assert.strictEqual(semaphore.queue.length, 1)
-        assert.strictEqual(semaphore.numberOfResources, 0)
+        assert.strictEqual(semaphore.numberOfFreeResources, 0)
         semaphore.acquire()
         assert.strictEqual(semaphore.queue.length, 2)
-        assert.strictEqual(semaphore.numberOfResources, 0)
+        assert.strictEqual(semaphore.numberOfFreeResources, 0)
         semaphore.release()
         assert.strictEqual(semaphore.queue.length, 1)
-        assert.strictEqual(semaphore.numberOfResources, 0)
+        assert.strictEqual(semaphore.numberOfFreeResources, 0)
         semaphore.release()
         assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfResources, 0)
+        assert.strictEqual(semaphore.numberOfFreeResources, 0)
         semaphore.release()
         assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfResources, 1)
+        assert.strictEqual(semaphore.numberOfFreeResources, 1)
         semaphore.release()
         assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfResources, 2)
+        assert.strictEqual(semaphore.numberOfFreeResources, 2)
         semaphore.release()
         assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfResources, 3)
+        assert.strictEqual(semaphore.numberOfFreeResources, 3)
     })
     // // endregion
     // // region boolean
@@ -440,7 +442,7 @@ let tests:Array<Test> = [{callback: function(
                 assert.strictEqual($(test[0]).Tools('text'), test[1])
         })
         // endregion
-        this.test(`isEquivalentDom (${roundType})`, (assert:Object):void => {
+        this.test(`isEquivalentDOM (${roundType})`, (assert:Object):void => {
             for (const test:Array<any> of [
                 ['test', 'test'],
                 ['test test', 'test test'],
@@ -484,7 +486,7 @@ let tests:Array<Test> = [{callback: function(
                 ],
                 ['a<br>', 'a<br />', true]
             ])
-                assert.ok($.Tools.class.isEquivalentDom(...test))
+                assert.ok($.Tools.class.isEquivalentDOM(...test))
             for (const test:Array<any> of [
                 ['test', ''],
                 ['test', 'hans'],
@@ -503,7 +505,7 @@ let tests:Array<Test> = [{callback: function(
                 ['text', 'text a'],
                 ['text', 'text a & +']
             ])
-                assert.notOk($.Tools.class.isEquivalentDom(...test))
+                assert.notOk($.Tools.class.isEquivalentDOM(...test))
         })
     }
     if (roundType === 'full')
@@ -693,22 +695,6 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region function handling
-    this.test(`getMethod (${roundType})`, (assert:Object):void => {
-        const testObject = {value: false}
-
-        tools.getMethod(():void => {
-            testObject.value = true
-        })()
-        assert.ok(testObject.value)
-        tools.getMethod(function():void {
-            this.value = false
-        }, testObject)()
-        assert.notOk(testObject.value)
-
-        assert.strictEqual(tools.getMethod((
-            five:5, two:2, three:3
-        ):number => five + two + three, testObject, 5)(2, 3), 10)
-    })
     this.test(`getParameterNames (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [function():void {}, []],
@@ -1060,6 +1046,7 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual($.Tools.class.determineType(test[0]), test[1])
     })
     this.test(`equals (${roundType})`, (assert:Object):void => {
+        const testFunction:Function = ():void => {}
         for (const test:Array<any> of [
             [1, 1],
             [new Date(), new Date()],
@@ -1089,7 +1076,7 @@ let tests:Array<Test> = [{callback: function(
                 [{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3,
                 ['b']
             ],
-            [():void => {}, ():void => {}]
+            [testFunction, testFunction]
         ])
             assert.ok($.Tools.class.equals(...test))
         for (const test:Array<any> of [
@@ -1116,6 +1103,174 @@ let tests:Array<Test> = [{callback: function(
             assert.notOk($.Tools.class.equals(...test))
         const test = ():void => {}
         assert.ok($.Tools.class.equals(test, test, null, -1, [], false))
+    })
+    this.test(`evaluateDynamicDataStructure (${roundType})`, (
+        assert:Object
+    ):void => {
+        for (const test:Array<any> of [
+            [[null], null],
+            [[false], false],
+            [['1'], '1'],
+            [[3], 3],
+            [[{}], {}],
+            [[{a: null}], {a: null}],
+            [[{__evaluate__: '1 + 3'}], 4],
+            [[[{__evaluate__: '1'}]], [1]],
+            [[[{__evaluate__: `'1'`}]], ['1']],
+            [[{a: {__evaluate__: `'a'`}}], {a: 'a'}],
+            [[{a: {__evaluate__: '1'}}], {a: 1}],
+            [
+                [{a: {__evaluate__: 'self.b'}, b: 2}, {}, 'self', '__run__'],
+                {a: {__evaluate__: 'self.b'}, b: 2}
+            ],
+            [[{a: {__run: '_.b'}, b: 1}, {}, '_', '__run'], {a: 1, b: 1}],
+            [
+                [{a: [{__run: 'self.b'}], b: 1}, {}, 'self', '__run'],
+                {a: [1], b: 1}
+            ],
+            [[{a: {__evaluate__: 'self.b'}, b: 2}], {a: 2, b: 2}],
+            [[{a: {__evaluate__: 'c.b'}, b: 2}, {}, 'c'], {a: 2, b: 2}],
+            [[{
+                a: {__evaluate__: 'self.b'},
+                b: {__evaluate__: 'self.c'},
+                c: 2
+            }], {a: 2, b: 2, c: 2}],
+            [
+                [{
+                    a: {__execute__: 'return self.b'},
+                    b: {__execute__: 'return self.c'},
+                    c: {__execute__: 'return self.d'},
+                    d: {__execute__: 'return self.e'},
+                    e: {__execute__: 'return self.f'},
+                    f: 3
+                }],
+                {a: 3, b: 3, c: 3, d: 3, e: 3, f: 3}
+            ],
+            [[{
+                a: {__evaluate__: 'self.b.d.e'},
+                b: {__evaluate__: 'self.c'},
+                c: {d: {e: 3}}
+            }], {a: 3, b: {d: {e: 3}}, c: {d: {e: 3}}}],
+            [[{
+                n: {__evaluate__: '{a: [1, 2, 3]}'},
+                b: {__evaluate__: 'self.c'},
+                f: {__evaluate__: 'self.g.h'},
+                d: {__evaluate__: 'self.e'},
+                a: {__evaluate__: 'self.b'},
+                e: {__evaluate__: 'self.f.i'},
+                k: {__evaluate__: '`kk <-> "${self.l.join(\'", "\')}"`'},
+                c: {__evaluate__: 'self.d'},
+                o: [{a: 2, b: [[[{__evaluate__: '10 ** 2'}]]]}],
+                l: {__evaluate__: 'self.m.a'},
+                g: {h: {i: {__evaluate__: '`${self.k} <-> ${self.j}`'}}},
+                m: {a: [1, 2, {__evaluate__: '3'}]},
+                j: 'jj'
+            }], {
+                a: 'kk <-> "1", "2", "3" <-> jj',
+                b: 'kk <-> "1", "2", "3" <-> jj',
+                c: 'kk <-> "1", "2", "3" <-> jj',
+                d: 'kk <-> "1", "2", "3" <-> jj',
+                e: 'kk <-> "1", "2", "3" <-> jj',
+                f: {i: 'kk <-> "1", "2", "3" <-> jj'},
+                g: {h: {i: 'kk <-> "1", "2", "3" <-> jj'}},
+                j: 'jj',
+                k: 'kk <-> "1", "2", "3"',
+                l: [1, 2, 3],
+                m: {a: [1, 2, 3]},
+                n: {a: [1, 2, 3]},
+                o: [{a: 2, b: [[[100]]]}]
+            }],
+            [
+                [{
+                    a: {__evaluate__: '_.b.d.e'},
+                    b: {__evaluate__: '_.c'},
+                    c: {d: {e: {
+                        __evaluate__: 'tools.copyLimitedRecursively([2])'
+                    }}}
+                }, {tools: $.Tools.class}, '_'],
+                {a: [2], b: {d: {e: [2]}}, c: {d: {e: [2]}}}
+            ],
+            [[{a: {
+                b: 1,
+                c: {__evaluate__: 'self.a.b'}
+            }}], {a: {b: 1, c: 1}}],
+            [[{a: {
+                b: null,
+                c: {__evaluate__: 'self.a.b'}
+            }}], {a: {b: null, c: null}}],
+            [[{a: {
+                b: undefined,
+                c: {__evaluate__: 'self.a.b'}
+            }}], {a: {b: undefined, c: undefined}}],
+            [[{a: {
+                b: 'jau',
+                c: {__evaluate__: 'self.a.b'}
+            }}], {a: {b: 'jau', c: 'jau'}}],
+            [[{a: {
+                b: {
+                    c: 'jau',
+                    d: {__evaluate__: 'self.a.b.c'}
+                }
+            }}], {a: {b: {c: 'jau', d: 'jau'}}}],
+            [
+                [
+                    [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5],
+                    [26, 5], [3, 10], [1, 11], [25, 12], [26, 12]
+                ],
+                [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5],
+                [26, 5], [3, 10], [1, 11], [25, 12], [26, 12]
+            ],
+            [
+                [
+                    {a: {
+                        b: {__evaluate__: '"t" + "es" + "t"'},
+                        c: {__evaluate__: 'removeS(self.a.b)'}
+                    }},
+                    {removeS: (value:string):string => value.replace('s', '')}
+                ], {a: {b: 'test', c: 'tet'}}
+            ],
+            [
+                [{
+                    a: {__evaluate__: 'toString(self.b)'},
+                    b: {__evaluate__: `'a'`}
+                }, {toString: (value:any):string => value.toString()}],
+                {a: 'a', b: 'a'}
+            ],
+            [[{
+                a: {__evaluate__: 'Object.getOwnPropertyNames(self.b)'},
+                b: {__evaluate__: '{a: 2}'}
+            }], {a: ['a'], b: {a: 2}}],
+            [[{
+                a: {__evaluate__: 'Reflect.ownKeys(self.b)'},
+                b: {__evaluate__: '{a: 2}'}
+            }], {a: ['a'], b: {a: 2}}],
+            [[{
+                a: {__evaluate__: 'Object.getOwnPropertyNames(self.b)'},
+                b: {__evaluate__: 'self.c'},
+                c: {__execute__: 'return {a: 1, b: 2}'}
+            }], {a: ['a', 'b'], b: {a: 1, b: 2}, c: {a: 1, b: 2}}],
+            /*
+                NOTE: This describes a workaround until the "ownKeys" proxy
+                trap works for this use cases.
+            */
+            [[{
+                a: {__evaluate__: 'Object.keys(resolve(self.b))'},
+                b: {__evaluate__: '{a: 2}'}
+            }], {a: ['a'], b: {a: 2}}],
+            [[{
+                a: {__evaluate__: `(() => {
+                    const result = []
+                    for (const key in resolve(self.b))
+                        result.push(key)
+                    return result
+                })()`},
+                b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
+            }], {a: ['a', 'b', 'c'], b: {a: 1, b: 2, c: 3}}]
+        ])
+            assert.deepEqual($.Tools.class.copyLimitedRecursively(
+                $.Tools.class.evaluateDynamicDataStructure(...test[0]), -1,
+                true
+            ), test[1])
     })
     this.test(`extendObject (${roundType})`, (assert:Object):void => {
         for (const test:any of [
@@ -1333,165 +1488,6 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.strictEqual(
                 $.Tools.class.representObject(test[0], ' '), test[1])
-    })
-    this.test(`resolveDynamicDataStructure (${roundType})`, (
-        assert:Object
-    ):void => {
-        for (const test:Array<any> of [
-            [[null], null],
-            [[false], false],
-            [['1'], '1'],
-            [[3], 3],
-            [[{}], {}],
-            [[{a: null}], {a: null}],
-            [[{__evaluate__: '1 + 3'}], 4],
-            [[[{__evaluate__: '1'}]], [1]],
-            [[[{__evaluate__: `'1'`}]], ['1']],
-            [[{a: {__evaluate__: `'a'`}}], {a: 'a'}],
-            [[{a: {__evaluate__: '1'}}], {a: 1}],
-            [
-                [{a: {__evaluate__: 'self.b'}, b: 2}, ['self'], [], '__run__'],
-                {a: {__evaluate__: 'self.b'}, b: 2}
-            ],
-            [[{a: {__run: '_.b'}, b: 1}, ['_'], [], '__run'], {a: 1, b: 1}],
-            [
-                [{a: [{__run: 'self.b'}], b: 1}, ['self'], [], '__run'],
-                {a: [1], b: 1}
-            ],
-            [[{a: {__evaluate__: 'self.b'}, b: 2}, ['self']], {a: 2, b: 2}],
-            [[{a: {__evaluate__: 'c.b'}, b: 2}, ['c']], {a: 2, b: 2}],
-            [[{
-                a: {__evaluate__: 'self.b'},
-                b: {__evaluate__: 'self.c'},
-                c: 2
-            }, ['self']], {a: 2, b: 2, c: 2}],
-            [
-                [{
-                    a: {__execute__: 'return self.b'},
-                    b: {__execute__: 'return self.c'},
-                    c: {__execute__: 'return self.d'},
-                    d: {__execute__: 'return self.e'},
-                    e: {__execute__: 'return self.f'},
-                    f: 3
-                }, ['self']],
-                {a: 3, b: 3, c: 3, d: 3, e: 3, f: 3}
-            ],
-            [[{
-                a: {__evaluate__: 'self.b.d.e'},
-                b: {__evaluate__: 'self.c'},
-                c: {d: {e: 3}}
-            }], {a: 3, b: {d: {e: 3}}, c: {d: {e: 3}}}],
-            [[{
-                n: {__evaluate__: '{a: [1, 2, 3]}'},
-                b: {__evaluate__: 'self.c'},
-                f: {__evaluate__: 'self.g.h'},
-                d: {__evaluate__: 'self.e'},
-                a: {__evaluate__: 'self.b'},
-                e: {__evaluate__: 'self.f.i'},
-                k: {__evaluate__: '`kk <-> "${self.l.join(\'", "\')}"`'},
-                c: {__evaluate__: 'self.d'},
-                o: [{a: 2, b: [[[{__evaluate__: '10 ** 2'}]]]}],
-                l: {__evaluate__: 'self.m.a'},
-                g: {h: {i: {__evaluate__: '`${self.k} <-> ${self.j}`'}}},
-                m: {a: [1, 2, {__evaluate__: '3'}]},
-                j: 'jj'
-            }], {
-                a: 'kk <-> "1", "2", "3" <-> jj',
-                b: 'kk <-> "1", "2", "3" <-> jj',
-                c: 'kk <-> "1", "2", "3" <-> jj',
-                d: 'kk <-> "1", "2", "3" <-> jj',
-                e: 'kk <-> "1", "2", "3" <-> jj',
-                f: {i: 'kk <-> "1", "2", "3" <-> jj'},
-                g: {h: {i: 'kk <-> "1", "2", "3" <-> jj'}},
-                j: 'jj',
-                k: 'kk <-> "1", "2", "3"',
-                l: [1, 2, 3],
-                m: {a: [1, 2, 3]},
-                n: {a: [1, 2, 3]},
-                o: [{a: 2, b: [[[100]]]}]
-            }],
-            [[{
-                a: {__evaluate__: '_.b.d.e'},
-                b: {__evaluate__: '_.c'},
-                c: {d: {e: {
-                    __evaluate__: 'tools.copyLimitedRecursively([2])'
-                }}}
-            }, ['tools', '_'], [$.Tools.class]],
-            {a: [2], b: {d: {e: [2]}}, c: {d: {e: [2]}}}],
-            [[{a: {
-                b: 1,
-                c: {__evaluate__: 'self.a.b'}
-            }}], {a: {b: 1, c: 1}}],
-            [[{a: {
-                b: null,
-                c: {__evaluate__: 'self.a.b'}
-            }}], {a: {b: null, c: null}}],
-            [[{a: {
-                b: undefined,
-                c: {__evaluate__: 'self.a.b'}
-            }}], {a: {b: undefined, c: undefined}}],
-            [[{a: {
-                b: 'jau',
-                c: {__evaluate__: 'self.a.b'}
-            }}], {a: {b: 'jau', c: 'jau'}}],
-            [[{a: {
-                b: {
-                    c: 'jau',
-                    d: {__evaluate__: 'self.a.b.c'}
-                }
-            }}], {a: {b: {c: 'jau', d: 'jau'}}}],
-            [[
-                [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5],
-                [26, 5], [3, 10], [1, 11], [25, 12], [26, 12]
-            ],
-            [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5], [26, 5],
-            [3, 10], [1, 11], [25, 12], [26, 12]],
-            [[{a: {
-                b: {__evaluate__: '"t" + "es" + "t"'},
-                c: {__evaluate__: 'removeS(self.a.b)'}
-            }}, ['removeS'], [(value:string):string =>
-                value.replace('s', '')
-            ]], {a: {b: 'test', c: 'tet'}}],
-            [[{
-                a: {__evaluate__: 'toString(self.b)'},
-                b: {__evaluate__: `'a'`}
-            }, ['toString'], [(value:any):string => value.toString()]], {
-                a: 'a', b: 'a'
-            }],
-            [[{
-                a: {__evaluate__: 'Object.getOwnPropertyNames(self.b)'},
-                b: {__evaluate__: '{a: 2}'}
-            }, [], []], {a: ['a'], b: {a: 2}}],
-            [[{
-                a: {__evaluate__: 'Reflect.ownKeys(self.b)'},
-                b: {__evaluate__: '{a: 2}'}
-            }, [], []], {a: ['a'], b: {a: 2}}],
-            [[{
-                a: {__evaluate__: 'Object.getOwnPropertyNames(self.b)'},
-                b: {__evaluate__: 'self.c'},
-                c: {__execute__: 'return {a: 1, b: 2}'}
-            }, [], []], {a: ['a', 'b'], b: {a: 1, b: 2}, c: {a: 1, b: 2}}],
-            /*
-                NOTE: This describes a workaround until the "ownKeys" proxy
-                trap works for this use cases.
-            */
-            [[{
-                a: {__evaluate__: 'Object.keys(resolve(self.b))'},
-                b: {__evaluate__: '{a: 2}'}
-            }, [], []], {a: ['a'], b: {a: 2}}],
-            [[{
-                a: {__evaluate__: `(() => {
-                    const result = []
-                    for (const key in resolve(self.b))
-                        result.push(key)
-                    return result
-                })()`},
-                b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
-            }, [], []], {a: ['a', 'b', 'c'], b: {a: 1, b: 2, c: 3}}]
-        ])
-            assert.deepEqual($.Tools.class.copyLimitedRecursively(
-                $.Tools.class.resolveDynamicDataStructure(...test[0]), -1, true
-            ), test[1])
     })
     this.test(`sort (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
@@ -2357,6 +2353,18 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region number
+    this.test(`numberGetUTCTimestamp (${roundType})`, (assert:Object):void => {
+        for (const test:Array<any> of [
+            [[new Date(0)], 0],
+            [[new Date(1)], 0.001],
+            [[new Date(0), true], 0],
+            [[new Date(1000), false], 1],
+            [[new Date(1000), true], 1000],
+            [[new Date(0), false], 0]
+        ])
+            assert.strictEqual(
+                $.Tools.class.numberGetUTCTimestamp(...test[0]), test[1])
+    })
     this.test(`numberIsNotANumber (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [NaN, true],
@@ -2397,7 +2405,9 @@ let tests:Array<Test> = [{callback: function(
         for (const test:Array<any> of [
             ['unknownURL', false],
             ['unknownURL', false, 301],
-            ['http://unknownHostName', true, 200, 0.025]
+            ['http://unknownHostName', true, 200, 0.025],
+            ['http://unknownHostName', true, [200], 0.025],
+            ['http://unknownHostName', true, [200, 301], 0.025]
         ])
             try {
                 await $.Tools.class.checkReachability(...test)
@@ -2412,6 +2422,8 @@ let tests:Array<Test> = [{callback: function(
         for (const test:Array<any> of [
             ['unknownURL', false, 10, 0.1, 200],
             ['unknownURL', true, 10, 0.1, 200],
+            ['unknownURL', true, 10, 0.1, [200]],
+            ['unknownURL', true, 10, 0.1, [200, 301]],
             ['http://unknownHostName', true]
         ])
             try {
@@ -2714,8 +2726,10 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
                 roundType
             )) {
                 // NOTE: Enforce to reload module to rebind "$".
-                delete require.cache[require.resolve('clientnode')]
-                delete require.cache[require.resolve('jquery')]
+                try {
+                    delete require.cache[require.resolve('clientnode')]
+                    delete require.cache[require.resolve('jquery')]
+                } catch (error) {}
                 /*
                     NOTE: Module bundler like webpack wraps a commonjs
                     environment. So we have to try to clear the underling

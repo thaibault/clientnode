@@ -150,9 +150,10 @@ export const $:any = (():any => {
         const selector:any = (
             'document' in globalContext &&
             'querySelectorAll' in globalContext.document
-        ) ? globalContext.document.querySelectorAll.bind(
-            globalContext.document
-        ) : ():null => null
+        ) ?
+            globalContext.document.querySelectorAll.bind(
+                globalContext.document
+            ) : ():null => null
         $ = (parameter:any, ...additionalArguments:Array<any>):any => {
             if (typeof parameter === 'string') {
                 const $domNodes:Array<any> = selector(
@@ -209,12 +210,12 @@ if (!('context' in $) && 'document' in $.global)
  * browser specific transition end event names.
  * @property static:_javaScriptDependentContentHandled - Indicates whether
  * javaScript dependent content where hide or shown.
- * @property static:_name - Defines this class name to allow retrieving them
- * after name mangling.
+ *
  * @property $domNode - $-extended dom node if one was given to the constructor
  * method.
  * @property locks - Mapping of lock descriptions to there corresponding
  * callbacks.
+ *
  * @property _options - Options given to the constructor.
  * @property _defaultOptions - Fallback options if not overwritten by the
  * options given to the constructor method.
@@ -282,6 +283,18 @@ export default class Tools {
         END: 35,
         ENTER: 13,
         ESCAPE: 27,
+        F1: 112,
+        F2: 113,
+        F3: 114,
+        F4: 115,
+        F5: 116,
+        F6: 117,
+        F7: 118,
+        F8: 119,
+        F9: 120,
+        F10: 121,
+        F11: 122,
+        F12: 123,
         HOME: 36,
         LEFT: 37,
         NUMPAD_ADD: 107,
@@ -329,13 +342,13 @@ export default class Tools {
                 return 11
         return version
     })()
-    static noop = ('noop' in $) ? $.noop : ():void => {}
+    static noop:Function = ('noop' in $) ? $.noop : ():void => {}
+    static plainObjectPrototypes:Array<any> = [Object.prototype]
     static specialRegexSequences:Array<string> = [
         '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}']
     static transitionEndEventNames:string = 'transitionend ' +
         'webkitTransitionEnd oTransitionEnd MSTransitionEnd'
     static _javaScriptDependentContentHandled:boolean = false
-    static _name:string = 'Tools'
     // endregion
     // region dynamic properties
     $domNode:$DomNode
@@ -364,13 +377,17 @@ export default class Tools {
      * class will be given back.
      */
     constructor(
-        $domNode:?$DomNode = null, options:Object = {},
+        $domNode:?$DomNode = null,
+        options:Object = {},
         defaultOptions:PlainObject = {
-            logging: false, domNodeSelectorPrefix: 'body', domNode: {
+            domNode: {
                 hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
                 showJavaScriptEnabled: '.tools-visible-on-javascript-enabled'
-            }
-        }, locks:{[key:string]:Array<LockCallbackFunction>} = {}
+            },
+            domNodeSelectorPrefix: 'body',
+            logging: false
+        },
+        locks:{[key:string]:Array<LockCallbackFunction>} = {}
     ):void {
         if ($domNode)
             this.$domNode = $domNode
@@ -431,7 +448,7 @@ export default class Tools {
         */
         this._options.domNodeSelectorPrefix = this.constructor.stringFormat(
             this._options.domNodeSelectorPrefix,
-            this.constructor.stringCamelCaseToDelimited(this.constructor._name))
+            this.constructor.stringCamelCaseToDelimited(this.constructor.name))
         return this
     }
     // / endregion
@@ -457,10 +474,10 @@ export default class Tools {
         }
         parameter = this.constructor.arrayMake(parameter)
         if ($domNode && 'data' in $domNode && !$domNode.data(
-            object.constructor._name
+            object.constructor.name
         ))
             // Attach extended object to the associated dom node.
-            $domNode.data(object.constructor._name, object)
+            $domNode.data(object.constructor.name, object)
         if (parameter[0] in object) {
             if (Tools.isFunction(object[parameter[0]]))
                 return object[parameter[0]](...parameter.slice(1))
@@ -473,7 +490,7 @@ export default class Tools {
             return object.initialize(...parameter)
         throw new Error(
             `Method "${parameter[0]}" does not exist on $-extended dom node ` +
-            `"${object.constructor._name}".`)
+            `"${object.constructor.name}".`)
     }
     // / endregion
     // / region mutual exclusion
@@ -541,9 +558,18 @@ export default class Tools {
      * @returns The requested semaphore instance.
      */
     static getSemaphore(numberOfResources:number = 2):Object {
+        /**
+         * Represents the semaphore state.
+         * @property queue - List of waiting resource requests.
+         * @property numberOfFreeResources - Number free allowed concurrent
+         * resource uses.
+         * @property numberOfResources - Number of allowed concurrent resource
+         * uses.
+         */
         return new class {
             queue:Array<Function> = []
             numberOfResources:number = numberOfResources
+            numberOfFreeResources:number = numberOfResources
             /**
              * Acquires a new resource and runs given callback if available.
              * @returns A promise which will be resolved if requested a
@@ -551,11 +577,11 @@ export default class Tools {
              */
             acquire():Promise<void> {
                 return new Promise((resolve:Function):void => {
-                    if (this.numberOfResources <= 0)
+                    if (this.numberOfFreeResources <= 0)
                         this.queue.push(resolve)
                     else {
-                        this.numberOfResources -= 1
-                        resolve(this.numberOfResources)
+                        this.numberOfFreeResources -= 1
+                        resolve(this.numberOfFreeResources)
                     }
                 })
             }
@@ -566,9 +592,9 @@ export default class Tools {
              */
             release():void {
                 if (this.queue.length === 0)
-                    this.numberOfResources += 1
+                    this.numberOfFreeResources += 1
                 else
-                    this.queue.pop()(this.numberOfResources)
+                    this.queue.pop()(this.numberOfFreeResources)
             }
         }
     }
@@ -655,7 +681,8 @@ export default class Tools {
     static isPlainObject(object:mixed):boolean {
         return (
             typeof object === 'object' && object !== null &&
-            Object.getPrototypeOf(object) === Object.prototype)
+            Tools.plainObjectPrototypes.includes(Object.getPrototypeOf(object))
+        )
     }
     /**
      * Checks whether given object is a function.
@@ -720,12 +747,12 @@ export default class Tools {
                 message = object
             else if (typeof object === 'string') {
                 additionalArguments.unshift(object)
-                message = `${this.constructor._name} (${level}): ` +
+                message = `${this.constructor.name} (${level}): ` +
                     this.constructor.stringFormat(...additionalArguments)
             } else if (this.constructor.isNumeric(
                 object
             ) || typeof object === 'boolean')
-                message = `${this.constructor._name} (${level}): ` +
+                message = `${this.constructor.name} (${level}): ` +
                     object.toString()
             else {
                 this.log(',--------------------------------------------,')
@@ -831,6 +858,7 @@ export default class Tools {
      * @returns Current instance.
      */
     get normalizedClassNames():Tools {
+        // IgnoreTypeCheck
         this.$domNode.find('*').addBack().each(function():void {
             const $thisDomNode:$DomNode = $(this)
             if ($thisDomNode.attr('class')) {
@@ -851,6 +879,7 @@ export default class Tools {
      */
     get normalizedStyles():Tools {
         const self:Tools = this
+        // IgnoreTypeCheck
         this.$domNode.find('*').addBack().each(function():void {
             const $thisDomNode:$DomNode = $(this)
             let serializedStyles:?string = $thisDomNode.attr('style')
@@ -932,7 +961,7 @@ export default class Tools {
      * triggered).
      * @returns Returns true if both dom representations are equivalent.
      */
-    static isEquivalentDom(
+    static isEquivalentDOM(
         first:any, second:any, forceHTMLString:boolean = false
     ):boolean {
         if (first === second)
@@ -1022,9 +1051,9 @@ export default class Tools {
             directiveName)
         return `${delimitedName}, .${delimitedName}, [${delimitedName}], ` +
             `[data-${delimitedName}], [x-${delimitedName}]` + (
-                (delimitedName.includes('-') ? (
-                    `, [${delimitedName.replace(/-/g, '\\:')}], ` +
-                    `[${delimitedName.replace(/-/g, '_')}]`) : ''))
+            (delimitedName.includes('-') ? (
+                `, [${delimitedName.replace(/-/g, '\\:')}], ` +
+                `[${delimitedName.replace(/-/g, '_')}]`) : ''))
     }
     /**
      * Removes a directive name corresponding class or attribute.
@@ -1214,45 +1243,6 @@ export default class Tools {
     }
     // / endregion
     // / region function
-    /**
-     * Methods given by this method has the plugin scope referenced with
-     * "this". Otherwise "this" usually points to the object the given method
-     * was attached to. If "method" doesn't match string arguments are passed
-     * through a wrapper function with "context" setted as "scope" or "this" if
-     * nothing is provided.
-     * @param method - A method name of given scope.
-     * @param scope - A given scope.
-     * @param additionalArguments - A list of additional arguments to forward
-     * to given function, when it should be called.
-     * @returns Returns the given methods return value.
-     */
-    getMethod(
-        method:Function|string, scope:any = null,
-        ...additionalArguments:Array<any>
-    ):Function {
-        /*
-            This following outcomment line would be responsible for a bug in
-            yuicompressor. Because of declaration of arguments the parser
-            things that arguments is a local variable and could be renamed. It
-            doesn't care about that the magic arguments object is necessary to
-            generate the arguments array in this context.
-
-            var arguments = this.constructor.arrayMake(arguments)
-        */
-        if (!scope)
-            scope = this
-        if (typeof method === 'string' && typeof scope === 'object')
-            return (...parameter:Array<any>):any => {
-                if (!scope[method] && typeof method === 'string')
-                    throw new Error(
-                        `Method "${method}" doesn't exists in "${scope}".`)
-                return scope[method](...parameter.concat(additionalArguments))
-            }
-        return (...parameter:Array<any>):any => {
-            // IgnoreTypeCheck
-            return method.call(scope, ...parameter.concat(additionalArguments))
-        }
-    }
     /**
      * Determines all parameter names from given callable (function or class,
      * ...).
@@ -1602,7 +1592,6 @@ export default class Tools {
             return value
         }, numberOfSpaces)
     }
-    /* eslint-disable require-jsdoc */
     /**
      * Converts given map and all nested found maps objects to corresponding
      * object.
@@ -1610,14 +1599,10 @@ export default class Tools {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given map as object.
      */
-    // IgnoreTypeCheck
-    static convertMapToPlainObject<Value>(
-        object:Value, deep:boolean = true
-    ):Value|PlainObject {
+    static convertMapToPlainObject(object:any, deep:boolean = true):any {
         if (typeof object === 'object') {
             if (Tools.determineType(object) === 'map') {
                 const newObject:PlainObject = {}
-                // IgnoreTypeCheck
                 for (let [key:any, value:any] of object) {
                     if (deep)
                         value = Tools.convertMapToPlainObject(value, deep)
@@ -1640,20 +1625,16 @@ export default class Tools {
                     }
                 } else if (Tools.determineType(object) === 'set') {
                     const cache:Array<any> = []
-                    // IgnoreTypeCheck
                     for (const value:any of object) {
                         object.delete(value)
                         cache.push(Tools.convertMapToPlainObject(value, deep))
                     }
                     for (const value:any of cache)
-                        // IgnoreTypeCheck
                         object.add(value)
                 }
         }
         return object
     }
-    /* eslint-enable require-jsdoc */
-    /* eslint-disable require-jsdoc */
     /**
      * Converts given plain object and all nested found objects to
      * corresponding map.
@@ -1661,10 +1642,7 @@ export default class Tools {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given object as map.
      */
-    // IgnoreTypeCheck
-    static convertPlainObjectToMap<Value>(
-        object:Value, deep:boolean = true
-    ):Value|Map<any, any> {
+    static convertPlainObjectToMap(object:any, deep:boolean = true):any {
         if (typeof object === 'object') {
             if (Tools.isPlainObject(object)) {
                 const newObject:Map<any, any> = new Map()
@@ -1686,25 +1664,21 @@ export default class Tools {
                         index += 1
                     }
                 } else if (Tools.determineType(object) === 'map')
-                    // IgnoreTypeCheck
                     for (const [key:any, value:any] of object)
                         object.set(key, Tools.convertPlainObjectToMap(
                             value, deep))
                 else if (Tools.determineType(object) === 'set') {
                     const cache:Array<any> = []
-                    // IgnoreTypeCheck
                     for (const value:any of object) {
                         object.delete(value)
                         cache.push(Tools.convertPlainObjectToMap(value, deep))
                     }
                     for (const value:any of cache)
-                        // IgnoreTypeCheck
                         object.add(value)
                 }
         }
         return object
     }
-    /* eslint-enable require-jsdoc */
     /**
      * Replaces given pattern in each value in given object recursively with
      * given string replacement.
@@ -1853,33 +1827,35 @@ export default class Tools {
         deep:number = -1, exceptionPrefixes:Array<string> = [],
         ignoreFunctions:boolean = true
     ):boolean {
-        if (ignoreFunctions && Tools.isFunction(
-            firstValue
-        ) && Tools.isFunction(
-            secondValue
-        ) || firstValue === secondValue || Tools.numberIsNotANumber(
-            firstValue
-        ) && Tools.numberIsNotANumber(secondValue) ||
-        firstValue instanceof RegExp && secondValue instanceof RegExp &&
-        firstValue.toString() === secondValue.toString() ||
-        firstValue instanceof Date && secondValue instanceof Date && (
-            isNaN(firstValue.getTime()) && isNaN(secondValue.getTime()) ||
-            !isNaN(firstValue.getTime()) && !isNaN(secondValue.getTime()) &&
-            firstValue.getTime() === secondValue.getTime()
-        ))
+        if (
+            ignoreFunctions && Tools.isFunction(firstValue) &&
+            Tools.isFunction(secondValue) || firstValue === secondValue ||
+            Tools.numberIsNotANumber(firstValue) &&
+            Tools.numberIsNotANumber(secondValue) ||
+            firstValue instanceof RegExp && secondValue instanceof RegExp &&
+            firstValue.toString() === secondValue.toString() ||
+            firstValue instanceof Date && secondValue instanceof Date && (
+                isNaN(firstValue.getTime()) && isNaN(secondValue.getTime()) ||
+                !isNaN(firstValue.getTime()) &&
+                !isNaN(secondValue.getTime()) &&
+                firstValue.getTime() === secondValue.getTime()
+            )
+        )
             return true
-        if (Tools.isPlainObject(firstValue) && Tools.isPlainObject(
-            secondValue
-        ) && !(
-            firstValue instanceof RegExp || secondValue instanceof RegExp
-        ) || Array.isArray(firstValue) && Array.isArray(
-            secondValue
-        ) && firstValue.length === secondValue.length || ((
-            Tools.determineType(firstValue) === 'map' &&
-            Tools.determineType(secondValue) === 'map' ||
-            Tools.determineType(firstValue) === 'set' &&
-            Tools.determineType(secondValue) === 'set'
-        ) && firstValue.size === secondValue.size)) {
+        if (
+            Tools.isPlainObject(firstValue) && Tools.isPlainObject(
+                secondValue
+            ) && !(
+                firstValue instanceof RegExp || secondValue instanceof RegExp
+            ) || Array.isArray(firstValue) && Array.isArray(
+                secondValue
+            ) && firstValue.length === secondValue.length || ((
+                Tools.determineType(firstValue) === 'map' &&
+                Tools.determineType(secondValue) === 'map' ||
+                Tools.determineType(firstValue) === 'set' &&
+                Tools.determineType(secondValue) === 'set'
+            ) && firstValue.size === secondValue.size)
+        ) {
             for (const [first, second] of [[firstValue, secondValue], [
                 secondValue, firstValue
             ]]) {
@@ -1970,6 +1946,170 @@ export default class Tools {
         return false
     }
     /**
+     * Searches for nested mappings with given indicator key and resolves
+     * marked values. Additionally all objects are wrapped with a proxy to
+     * dynamically resolve nested properties.
+     * @param object - Given mapping to resolve.
+     * @param scope - Scope to to use evaluate again.
+     * @param selfReferenceName - Name to use for reference to given object.
+     * @param expressionIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @param executionIndicatorKey - Indicator property name to mark a value
+     * to evaluate.
+     * @returns Evaluated given mapping.
+     */
+    static evaluateDynamicDataStructure(
+        object:any, scope:{[key:string]:any} = {},
+        selfReferenceName:string = 'self',
+        expressionIndicatorKey:string = '__evaluate__',
+        executionIndicatorKey:string = '__execute__'
+    ):any {
+        if (typeof object !== 'object' || object === null)
+            return object
+        if (!(selfReferenceName in scope))
+            scope[selfReferenceName] = object
+        const evaluate:Function = (
+            code:string, type:string = expressionIndicatorKey
+        ):any => {
+            code = (type === expressionIndicatorKey) ? `return ${code}` : code
+            let compiledFunction:Function
+            try {
+                /* eslint-disable new-parens */
+                // IgnoreTypeCheck
+                compiledFunction = new (Function.prototype.bind.call(
+                /* eslint-enable new-parens */
+                    Function, null, ...Object.keys(scope), code))
+            } catch (error) {
+                throw new Error(
+                    `Error during compiling code "${code}": "` +
+                    `${Tools.representObject(error)}".`)
+            }
+            try {
+                return compiledFunction(...Object.values(scope))
+            } catch (error) {
+                throw new Error(
+                    `Error running code "${code}" in scope with variables "` +
+                    `${Object.keys(scope).join('", "')}": "` +
+                    `${Tools.representObject(error)}".`)
+            }
+        }
+        const addProxyRecursively:Function = (data:any):any => {
+            if (typeof data !== 'object' || data === null)
+                return data
+            for (const key:string in data)
+                if (
+                    data.hasOwnProperty(key) && key !== '__target__' &&
+                    typeof data[key] === 'object' && data[key] !== null
+                ) {
+                    addProxyRecursively(data[key])
+                    /*
+                        NOTE: We only wrap needed objects for performance
+                        reasons.
+                    */
+                    if (
+                        data[key].hasOwnProperty(expressionIndicatorKey) ||
+                        data[key].hasOwnProperty(executionIndicatorKey)
+                    )
+                        data[key] = new Proxy(data[key], {
+                            get: (target:any, key:any):any => {
+                                if (key === '__target__')
+                                    return target
+                                if (key === 'hasOwnProperty')
+                                    return target[key]
+                                /*
+                                    NOTE: Very complicated stuff section, only
+                                    change while doing a lot of tests.
+                                */
+                                for (const type:string of [
+                                    expressionIndicatorKey,
+                                    executionIndicatorKey
+                                ])
+                                    if (key === type)
+                                        return resolve(evaluate(
+                                            target[key], type))
+                                let resolvedTarget:any = resolve(target)
+                                if (key === 'toString') {
+                                    const result:any = evaluate(resolvedTarget)
+                                    return result[key].bind(result)
+                                }
+                                if (typeof key !== 'string') {
+                                    const result:any = evaluate(resolvedTarget)
+                                    if (result[key] && result[key].call)
+                                        return result[key].bind(result)
+                                    return result[key]
+                                }
+                                for (const type:string of [
+                                    expressionIndicatorKey,
+                                    executionIndicatorKey
+                                ])
+                                    if (target.hasOwnProperty(type))
+                                        return evaluate(
+                                            resolvedTarget, type
+                                        )[key]
+                                return resolvedTarget[key]
+                                // End of complicated stuff.
+                            },
+                            ownKeys: (target:any):Array<string> => {
+                                for (const type:string of [
+                                    expressionIndicatorKey,
+                                    executionIndicatorKey
+                                ])
+                                    if (target.hasOwnProperty(type))
+                                        return Object.getOwnPropertyNames(
+                                            resolve(evaluate(
+                                                target[type], type)))
+                                return Object.getOwnPropertyNames(target)
+                            }
+                        })
+                }
+            return data
+        }
+        const resolve:Function = (data:any):any => {
+            if (typeof data === 'object' && data !== null) {
+                if (data.__target__) {
+                    // NOTE: We have to skip "ownKeys" proxy trap here.
+                    for (const type:string of [
+                        expressionIndicatorKey, executionIndicatorKey
+                    ])
+                        if (data.hasOwnProperty(type))
+                            return data[type]
+                    data = data.__target__
+                }
+                for (const key:string in data)
+                    if (data.hasOwnProperty(key))
+                        if ([
+                            expressionIndicatorKey, executionIndicatorKey
+                        ].includes(key))
+                            return data[key]
+                        else
+                            data[key] = resolve(data[key])
+            }
+            return data
+        }
+        scope.resolve = resolve
+        const removeProxyRecursively:Function = (data:any):any => {
+            if (typeof data === 'object' && data !== null)
+                for (const key:string in data)
+                    if (
+                        data.hasOwnProperty(key) && key !== '__target__' &&
+                        typeof data[key] === 'object' && data[key] !== null
+                    ) {
+                        const target:any = data[key].__target__
+                        if (typeof target !== 'undefined')
+                            data[key] = target
+                        removeProxyRecursively(data[key])
+                    }
+            return data
+        }
+        if (typeof object === 'object' && object !== null)
+            if (object.hasOwnProperty(expressionIndicatorKey))
+                return evaluate(object[expressionIndicatorKey])
+            else if (object.hasOwnProperty(executionIndicatorKey))
+                return evaluate(
+                    object[executionIndicatorKey], executionIndicatorKey)
+        return removeProxyRecursively(resolve(addProxyRecursively(object)))
+    }
+    /**
      * Extends given target object with given sources object. As target and
      * sources many expandable types are allowed but target and sources have to
      * to come from the same type.
@@ -1990,7 +2130,7 @@ export default class Tools {
             index = 1
         } else
             target = targetOrDeepIndicator
-        const mergeValue = (key:string, value:any, targetValue:any):any => {
+        const mergeValue = (targetValue:any, value:any):any => {
             if (value === targetValue)
                 return targetValue
             // Recurse if we're merging plain objects or maps.
@@ -1999,13 +2139,13 @@ export default class Tools {
             ) || Tools.determineType(value) === 'map')) {
                 let clone:any
                 if (Tools.determineType(value) === 'map')
-                    clone = targetValue && (
-                        Tools.determineType(targetValue) === 'map'
-                    ) ? targetValue : new Map()
-                else
-                    clone = targetValue && Tools.isPlainObject(
+                    clone = (targetValue && Tools.determineType(
                         targetValue
-                    ) ? targetValue : {}
+                    ) === 'map') ? targetValue : new Map()
+                else
+                    clone = (targetValue && Tools.isPlainObject(
+                        targetValue
+                    )) ? targetValue : {}
                 return Tools.extendObject(deep, clone, value)
             }
             return value
@@ -2024,8 +2164,7 @@ export default class Tools {
                     Tools.determineType(source) === 'map'
                 )
                     for (const [key:any, value:any] of source)
-                        target.set(key, mergeValue(key, value, target.get(
-                            key)))
+                        target.set(key, mergeValue(target.get(key), value))
                 else if (
                     target !== null && !Array.isArray(target) &&
                     typeof target === 'object' && source !== null &&
@@ -2033,8 +2172,7 @@ export default class Tools {
                 ) {
                     for (const key:string in source)
                         if (source.hasOwnProperty(key))
-                            target[key] = mergeValue(
-                                key, source[key], target[key])
+                            target[key] = mergeValue(target[key], source[key])
                 } else
                     target = source
             else
@@ -2241,8 +2379,9 @@ export default class Tools {
                     result += `,\n${initialIndention}${indention}`
                 result += Tools.representObject(
                     key, indention, `${initialIndention}${indention}`
-                ) + ' -> ' + Tools.representObject(
-                    item, indention, `${initialIndention}${indention}`)
+                ) + ' -> ' +
+                    Tools.representObject(
+                        item, indention, `${initialIndention}${indention}`)
                 firstSeen = true
             }
             if (!firstSeen)
@@ -2281,174 +2420,6 @@ export default class Tools {
             result += `\n${initialIndention}`
         result += '}'
         return result
-    }
-    /**
-     * Searches for nested mappings with given indicator key and resolves
-     * marked values. Additionally all objects are wrapped with a proxy to
-     * dynamically resolve nested properties.
-     * @param object - Given mapping to resolve.
-     * @param parameterDescription - Array of scope names.
-     * @param parameter - Array of values for given scope names. If there is
-     * one missing given object will be added.
-     * @param expressionIndicatorKey - Indicator property name to mark a value
-     * to evaluate.
-     * @param executionIndicatorKey - Indicator property name to mark a value
-     * to evaluate.
-     * @returns Evaluated given mapping.
-     */
-    static resolveDynamicDataStructure(
-        object:any, parameterDescription:Array<string> = [],
-        parameter:Array<any> = [],
-        expressionIndicatorKey:string = '__evaluate__',
-        executionIndicatorKey:string = '__execute__'
-    ):any {
-        if (typeof object !== 'object' || object === null)
-            return object
-        parameter = parameter.slice()
-        parameter.push(object)
-        if (parameterDescription.length < parameter.length)
-            parameterDescription.push('self')
-        const evaluate:Function = (
-            code:string, type:string = expressionIndicatorKey
-        ):any => {
-            code = (type === expressionIndicatorKey) ? `return ${code}` : code
-            let compiledFunction:Function
-            try {
-                /* eslint-disable new-parens */
-                // IgnoreTypeCheck
-                compiledFunction = new (Function.prototype.bind.call(
-                /* eslint-enable new-parens */
-                    Function, null, ...parameterDescription.concat(code)))
-            } catch (error) {
-                throw new Error(
-                    `Error during compiling code "${code}": "` +
-                    `${Tools.representObject(error)}".`)
-            }
-            try {
-                return compiledFunction(...parameter)
-            } catch (error) {
-                throw new Error(
-                    `Error running code "${code}" in scope with variables "` +
-                    `${parameterDescription.join('", "')}": "` +
-                    `${Tools.representObject(error)}".`)
-            }
-        }
-        const addProxyRecursively:Function = (data:any):any => {
-            if (typeof data !== 'object' || data === null)
-                return data
-            for (const key:string in data)
-                if (
-                    data.hasOwnProperty(key) && key !== '__target__' &&
-                    typeof data[key] === 'object' && data[key] !== null
-                ) {
-                    addProxyRecursively(data[key])
-                    /*
-                        NOTE: We only wrap needed objects for performance
-                        reasons.
-                    */
-                    if (
-                        data[key].hasOwnProperty(expressionIndicatorKey) ||
-                        data[key].hasOwnProperty(executionIndicatorKey)
-                    )
-                        data[key] = new Proxy(data[key], {
-                            get: (target:any, key:any):any => {
-                                if (key === '__target__')
-                                    return target
-                                if (key === 'hasOwnProperty')
-                                    return target[key]
-                                /*
-                                    NOTE: Very complicated stuff section, only
-                                    change while doing a lot of tests.
-                                */
-                                for (const type:string of [
-                                    expressionIndicatorKey,
-                                    executionIndicatorKey
-                                ])
-                                    if (key === type)
-                                        return resolve(evaluate(
-                                            target[key], type))
-                                let resolvedTarget:any = resolve(target)
-                                if (key === 'toString') {
-                                    const result:any = evaluate(resolvedTarget)
-                                    return result[key].bind(result)
-                                }
-                                if (typeof key !== 'string') {
-                                    const result:any = evaluate(resolvedTarget)
-                                    if (result[key] && result[key].call)
-                                        return result[key].bind(result)
-                                    return result[key]
-                                }
-                                for (const type:string of [
-                                    expressionIndicatorKey,
-                                    executionIndicatorKey
-                                ])
-                                    if (target.hasOwnProperty(type))
-                                        return evaluate(
-                                            resolvedTarget, type
-                                        )[key]
-                                return resolvedTarget[key]
-                                // End of complicated stuff.
-                            },
-                            ownKeys: (target:any):Array<string> => {
-                                for (const type:string of [
-                                    expressionIndicatorKey,
-                                    executionIndicatorKey
-                                ])
-                                    if (target.hasOwnProperty(type))
-                                        return Object.getOwnPropertyNames(
-                                            resolve(evaluate(
-                                                target[type], type)))
-                                return Object.getOwnPropertyNames(target)
-                            }
-                        })
-                }
-            return data
-        }
-        const resolve:Function = (data:any):any => {
-            if (typeof data === 'object' && data !== null) {
-                if (data.__target__) {
-                    // NOTE: We have to skip "ownKeys" proxy trap here.
-                    for (const type:string of [
-                        expressionIndicatorKey, executionIndicatorKey
-                    ])
-                        if (data.hasOwnProperty(type))
-                            return data[type]
-                    data = data.__target__
-                }
-                for (const key:string in data)
-                    if (data.hasOwnProperty(key))
-                        if ([
-                            expressionIndicatorKey, executionIndicatorKey
-                        ].includes(key))
-                            return data[key]
-                        else
-                            data[key] = resolve(data[key])
-            }
-            return data
-        }
-        parameterDescription.push('resolve')
-        parameter.push(resolve)
-        const removeProxyRecursively:Function = (data:any):any => {
-            if (typeof data === 'object' && data !== null)
-                for (const key:string in data)
-                    if (
-                        data.hasOwnProperty(key) && key !== '__target__' &&
-                        typeof data[key] === 'object' && data[key] !== null
-                    ) {
-                        const target:any = data[key].__target__
-                        if (typeof target !== 'undefined')
-                            data[key] = target
-                        removeProxyRecursively(data[key])
-                    }
-            return data
-        }
-        if (typeof object === 'object' && object !== null)
-            if (object.hasOwnProperty(expressionIndicatorKey))
-                return evaluate(object[expressionIndicatorKey])
-            else if (object.hasOwnProperty(executionIndicatorKey))
-                return evaluate(
-                    object[executionIndicatorKey], executionIndicatorKey)
-        return removeProxyRecursively(resolve(addProxyRecursively(object)))
     }
     /**
      * Sort given objects keys.
@@ -2597,11 +2568,12 @@ export default class Tools {
             let empty:boolean = true
             for (const propertyName:string in item)
                 if (item.hasOwnProperty(propertyName))
-                    if (!['', null, undefined].includes(item[
-                        propertyName
-                    ]) && (!propertyNames.length || Tools.arrayMake(
-                        propertyNames
-                    ).includes(propertyName))) {
+                    if (
+                        !['', null, undefined].includes(item[propertyName]) &&
+                        (!propertyNames.length || Tools.arrayMake(
+                            propertyNames
+                        ).includes(propertyName))
+                    ) {
                         empty = false
                         break
                     }
@@ -2639,6 +2611,8 @@ export default class Tools {
     static arrayExtractIfMatches(
         data:Array<string>, regularExpression:string|RegExp
     ):Array<string> {
+        if (!regularExpression)
+            return Tools.arrayMake(data)
         const result:Array<string> = []
         for (const value:string of Tools.arrayMake(data))
             if (((typeof regularExpression === 'string') ? new RegExp(
@@ -2690,11 +2664,11 @@ export default class Tools {
             for (const item:Object of Tools.arrayMake(data)) {
                 let matches:boolean = true
                 for (const propertyName:string in propertyPattern)
-                    if (!((
-                        propertyPattern[propertyName] instanceof RegExp
-                    ) ? propertyPattern[propertyName] : new RegExp(
-                        propertyPattern[propertyName]
-                    )).test(item[propertyName])) {
+                    if (!(propertyPattern[propertyName] && (
+                        (typeof propertyPattern[propertyName] === 'string') ?
+                            new RegExp(propertyPattern[propertyName]) :
+                            propertyPattern[propertyName]
+                    ).test(item[propertyName]))) {
                         matches = false
                         break
                     }
@@ -2734,11 +2708,12 @@ export default class Tools {
                     firstKey = secondKey
             } else
                 secondKey = firstKey
-            if (secondItem[secondKey] !== firstItem[firstKey] && (strict || !([
-                null, undefined
-            ].includes(secondItem[secondKey]) && [null, undefined].includes(
-                firstItem[firstKey]
-            ))))
+            if (
+                secondItem[secondKey] !== firstItem[firstKey] &&
+                (strict || !([null, undefined].includes(
+                    secondItem[secondKey]
+                ) && [null, undefined].includes(firstItem[firstKey])))
+            )
                 return false
         }
         for (const firstItem:any of Tools.arrayMake(first))
@@ -3484,11 +3459,10 @@ export default class Tools {
                         nearestRange = currentRange
                 }
                 if (nearestRange) {
-                    target = target.substring(
-                        0, offset + nearestRange[0]
-                    ) + Tools.stringFormat(marker, target.substring(
-                        offset + nearestRange[0], offset + nearestRange[1]
-                    )) + target.substring(offset + nearestRange[1])
+                    target = target.substring(0, offset + nearestRange[0]) +
+                        Tools.stringFormat(marker, target.substring(
+                            offset + nearestRange[0], offset + nearestRange[1]
+                        )) + target.substring(offset + nearestRange[1])
                     offset += nearestRange[1] + (marker.length - '{1}'.length)
                     if (target.length <= offset)
                         break
@@ -3738,10 +3712,10 @@ export default class Tools {
             for (
                 let blockNumber:number = 0; blockNumber < 64; blockNumber += 4
             )
-                blocks[blockNumber >> 2] = value.charCodeAt(blockNumber) + (
-                    value.charCodeAt(blockNumber + 1) << 8
-                ) + (value.charCodeAt(blockNumber + 2) << 16) + (
-                    value.charCodeAt(blockNumber + 3) << 24)
+                blocks[blockNumber >> 2] = value.charCodeAt(blockNumber) +
+                    (value.charCodeAt(blockNumber + 1) << 8) +
+                    (value.charCodeAt(blockNumber + 2) << 16) +
+                    (value.charCodeAt(blockNumber + 3) << 24)
             return blocks
         }
         // endregion
@@ -3837,6 +3811,7 @@ export default class Tools {
             ).toString('utf8')
         let result:any
         try {
+            // IgnoreTypeCheck
             result = (new Function(name, `return ${serializedObject}`))(scope)
         } catch (error) {}
         if (typeof result === 'object')
@@ -3905,6 +3880,28 @@ export default class Tools {
     // / endregion
     // / region number
     /**
+     * Determines corresponding utc timestamp for given date object.
+     * @param value - Date to convert.
+     * @param inMilliseconds - Indicates whether given number should be in
+     * seconds (default) or milliseconds.
+     * @returns Determined numerous value.
+     */
+    static numberGetUTCTimestamp(
+        value:any, inMilliseconds:boolean = false
+    ):number {
+        const date:Date =
+            [undefined, null].includes(value) ? new Date() : new Date(value)
+        return Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            date.getUTCHours(),
+            date.getUTCMinutes(),
+            date.getUTCSeconds(),
+            date.getUTCMilliseconds()
+        ) / (inMilliseconds ? 1 : 1000)
+    }
+    /**
      * Checks if given object is java scripts native "Number.NaN" object.
      * @param object - Object to Check.
      * @returns Returns whether given value is not a number or not.
@@ -3928,27 +3925,33 @@ export default class Tools {
      * @param url - Url to check reachability.
      * @param wait - Boolean indicating if we should retry until a status code
      * will be given.
-     * @param expectedStatusCode - Status code to check for.
+     * @param expectedStatusCodes - Status codes to check for.
      * @param timeoutInSeconds - Delay after assuming given resource isn't
      * available if no response is coming.
      * @param pollIntervallInSeconds - Seconds between two tries to reach given
      * url.
+     * @param options - Fetch options to use.
      * @returns A promise which will be resolved if a request to given url has
      * finished and resulting status code matches given expectedstatus code.
      * Otherwise returned promise will be rejected.
      */
     static async checkReachability(
-        url:string, wait:boolean = false, expectedStatusCode:number = 200,
-        timeoutInSeconds:number = 10, pollIntervallInSeconds:number = 0.1
+        url:string, wait:boolean = false,
+        expectedStatusCodes:number|Array<number> = 200,
+        timeoutInSeconds:number = 10, pollIntervallInSeconds:number = 0.1,
+        options:PlainObject = {}
     ):Promise<Object> {
+        expectedStatusCodes = [].concat(expectedStatusCodes)
         const check:Function = (response:?Object):?Object => {
             if (
                 response && 'status' in response &&
-                response.status !== expectedStatusCode
+                // IgnoreTypeCheck
+                !expectedStatusCodes.includes(response.status)
             )
                 throw new Error(
                     `Given status code ${response.status} differs from ` +
-                    `${expectedStatusCode}.`)
+                    // IgnoreTypeCheck
+                    `${expectedStatusCodes.join(', ')}.`)
             return response
         }
         if (wait)
@@ -3959,7 +3962,7 @@ export default class Tools {
                 const wrapper:Function = async ():Promise<?Object> => {
                     let response:Object
                     try {
-                        response = await fetch(url)
+                        response = await fetch(url, options)
                     } catch (error) {
                         if (!timedOut) {
                             /* eslint-disable no-use-before-define */
@@ -3998,7 +4001,7 @@ export default class Tools {
                 currentlyRunningTimer.clear()
                 reject(`Timeout of ${timeoutInSeconds} seconds reached.`)
             })
-        return check(await fetch(url))
+        return check(await fetch(url, options))
     }
     /**
      * Checks if given url isn't reachable.
@@ -4009,26 +4012,30 @@ export default class Tools {
      * available.
      * @param pollIntervallInSeconds - Seconds between two tries to reach given
      * url.
-     * @param unexpectedStatusCode - Status code to check for.
+     * @param unexpectedStatusCodes - Status codes to check for.
+     * @param options - Fetch options to use.
      * @returns A promise which will be resolved if a request to given url
      * couldn't finished. Otherwise returned promise will be rejected.
      */
     static async checkUnreachability(
         url:string, wait:boolean = false, timeoutInSeconds:number = 10,
         pollIntervallInSeconds:number = 0.1,
-        unexpectedStatusCode:?number = null
+        unexpectedStatusCodes:?number|Array<number> = null,
+        options:PlainObject = {}
     ):Promise<Object> {
         const check:Function = (response:?Object):?Error => {
-            if (unexpectedStatusCode) {
+            if (unexpectedStatusCodes) {
+                unexpectedStatusCodes = [].concat(unexpectedStatusCodes)
                 if (
                     response && 'status' in response &&
-                    response.status === unexpectedStatusCode
+                    unexpectedStatusCodes.includes(response.status)
                 )
                     throw new Error(
                         `Given url "${url}" is reachable ans responses with ` +
-                        `unexpeced status code "${response.status}".`)
+                        `unexpected status code "${response.status}".`)
                 return new Error(
-                    `Given status code is not "${unexpectedStatusCode}".`)
+                    'Given status code is not "' +
+                    `${unexpectedStatusCodes.join(', ')}".`)
             }
         }
         if (wait)
@@ -4038,7 +4045,7 @@ export default class Tools {
                 let timedOut:boolean = false
                 const wrapper:Function = async ():Promise<?Object> => {
                     try {
-                        const response:Object = await fetch(url)
+                        const response:Object = await fetch(url, options)
                         if (timedOut)
                             return response
                         const result:Error = check(response)
@@ -4078,7 +4085,7 @@ export default class Tools {
                 reject(`Timeout of ${timeoutInSeconds} seconds reached.`)
             })
         try {
-            const result:Error = check(await fetch(url))
+            const result:Error = check(await fetch(url, options))
             if (result)
                 return result
         } catch (error) {
@@ -4138,8 +4145,8 @@ export default class Tools {
         removeAfterLoad:boolean = true
     ):$DomNode {
         const $iFrameDomNode:$DomNode = $('<iframe>').attr(
-            'name', this.constructor._name.charAt(0).toLowerCase() +
-            this.constructor._name.substring(1) + (new Date()).getTime()
+            'name', this.constructor.name.charAt(0).toLowerCase() +
+            this.constructor.name.substring(1) + (new Date()).getTime()
         ).hide()
         this.$domNode.append($iFrameDomNode)
         this.constructor.sendToIFrame(
@@ -4417,9 +4424,9 @@ export default class Tools {
      */
     static walkDirectoryRecursively(
         directoryPath:string, callback:Function = Tools.noop,
-        options:PlainObject = {encoding: 'utf8'}
+        options:PlainObject|string = 'utf8'
     ):Promise<Array<File>> {
-        return new Promise((resolve:Function, reject:Function):void => {
+        return new Promise((resolve:Function, reject:Function):void =>
             fileSystem.readdir(directoryPath, options, async (
                 error:?Object, fileNames:Array<string>
             ):Promise<void> => {
@@ -4476,8 +4483,7 @@ export default class Tools {
                                 file.path, callback))
                 }
                 resolve(finalFiles)
-            })
-        })
+            }))
     }
     /**
      * Iterates through given directory structure recursively and calls given
@@ -4490,7 +4496,7 @@ export default class Tools {
      */
     static walkDirectoryRecursivelySync(
         directoryPath:string, callback:Function = Tools.noop,
-        options:PlainObject = {encoding: 'utf8'}
+        options:PlainObject|string = 'utf8'
     ):Array<File> {
         let files:Array<File> = []
         for (const fileName:string of fileSystem.readdirSync(
@@ -4617,7 +4623,7 @@ export default class Tools {
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
-            parameter[0] += `.${this.constructor._name}`
+            parameter[0] += `.${this.constructor.name}`
         if (removeEvent)
             return $domNode[eventFunctionName](...parameter)
         return $domNode[eventFunctionName](...parameter)
