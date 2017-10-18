@@ -1827,6 +1827,7 @@ export default class Tools {
         deep:number = -1, exceptionPrefixes:Array<string> = [],
         ignoreFunctions:boolean = true
     ):boolean {
+        const Buffer:?Object = eval('Buffer')
         if (
             ignoreFunctions && Tools.isFunction(firstValue) &&
             Tools.isFunction(secondValue) || firstValue === secondValue ||
