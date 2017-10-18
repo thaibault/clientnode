@@ -51,6 +51,7 @@
     "watch:dll": "webOptimizer build:dll --watch"
   },
   "dependencies": {
+    "buffer": "^5.0.8",
     "qunitjs": "^2.4.0",
     "weboptimizer": "^1.0.385"
   },
