@@ -1077,9 +1077,9 @@ let tests:Array<Test> = [{callback: function(
                 ['b']
             ],
             [testFunction, testFunction],
-            typeof Buffer === 'undefined' ? [true, true] : [
-                new Buffer('a'), new Buffer('a')
-            ]
+            typeof Buffer !== 'undefined' && Buffer.isBuffer ?
+                [new Buffer('a'), new Buffer('a')] :
+                [true, true]
         ])
             assert.ok($.Tools.class.equals(...test))
         for (const test:Array<any> of [
