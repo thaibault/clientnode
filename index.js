@@ -1827,7 +1827,6 @@ export default class Tools {
         deep:number = -1, exceptionPrefixes:Array<string> = [],
         ignoreFunctions:boolean = true
     ):boolean {
-        const Buffer:?Object = eval('Buffer')
         if (
             ignoreFunctions && Tools.isFunction(firstValue) &&
             Tools.isFunction(secondValue) || firstValue === secondValue ||
@@ -1841,9 +1840,9 @@ export default class Tools {
                 !isNaN(secondValue.getTime()) &&
                 firstValue.getTime() === secondValue.getTime()
             ) ||
-            typeof Buffer !== 'undefined' && Buffer.isBuffer &&
-            firstValue instanceof Buffer &&
-            secondValue instanceof Buffer &&
+            typeof eval('Buffer') !== 'undefined' && eval('Buffer').isBuffer &&
+            firstValue instanceof eval('Buffer') &&
+            secondValue instanceof eval('Buffer') &&
             firstValue.toString('base64') === secondValue.toString('base64')
         )
             return true
