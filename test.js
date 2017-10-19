@@ -1045,7 +1045,8 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.strictEqual($.Tools.class.determineType(test[0]), test[1])
     })
-    this.test(`equals (${roundType})`, (assert:Object):void => {
+    this.test(`equals (${roundType})`, async (assert:Object):Promise<void> => {
+        const done:Function = assert.async()
         const testFunction:Function = ():void => {}
         for (const test:Array<any> of [
             [1, 1],
@@ -1076,11 +1077,91 @@ let tests:Array<Test> = [{callback: function(
                 [{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3,
                 ['b']
             ],
-            [testFunction, testFunction],
-            TARGET_TECHNOLOGY === 'node' ? [new Buffer('a'), new Buffer('a')] :
-            [true, true]
+            [testFunction, testFunction]
         ])
             assert.ok($.Tools.class.equals(...test))
+        if (TARGET_TECHNOLOGY === 'node')
+            assert.ok($.Tools.class.equals(
+                new Buffer('a'), new Buffer('a'),
+                null, -1, [], true, true))
+        else {
+            for (const test:Array<any> of [
+                [
+                    new Blob(['a'], {type: 'text/plain'}),
+                    new Blob(['a'], {type: 'text/plain'})
+                ],
+                [
+                    [new Blob(['a'], {type: 'text/plain'})],
+                    [new Blob(['a'], {type: 'text/plain'})]
+                ],
+                [
+                    {a: new Blob(['a'], {type: 'text/plain'})},
+                    {a: new Blob(['a'], {type: 'text/plain'})}
+                ],
+                [
+                    new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
+                    new Map([['a', new Blob(['a'], {type: 'text/plain'})]])
+                ],
+                [
+                    new Set([new Blob(['a'], {type: 'text/plain'})]),
+                    new Set([new Blob(['a'], {type: 'text/plain'})])
+                ],
+                [
+                    {
+                        a: new Set([[new Map([['a', new Blob(['a'], {
+                            type: 'text/plain'
+                        })]])]]),
+                        b: 2
+                    },
+                    {
+                        a: new Set([[new Map([['a', new Blob(['a'], {
+                            type: 'text/plain'
+                        })]])]]),
+                        b: 2
+                    }
+                ]
+            ])
+                assert.ok(await $.Tools.class.equals(
+                    ...test, null, -1, [], true, true))
+            for (const test:Array<any> of [
+                [
+                    new Blob(['a'], {type: 'text/plain'}),
+                    new Blob(['b'], {type: 'text/plain'})
+                ],
+                [
+                    [new Blob(['a'], {type: 'text/plain'})],
+                    [new Blob(['b'], {type: 'text/plain'})]
+                ],
+                [
+                    {a: new Blob(['a'], {type: 'text/plain'})},
+                    {a: new Blob(['b'], {type: 'text/plain'})}
+                ],
+                [
+                    new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
+                    new Map([['a', new Blob(['b'], {type: 'text/plain'})]])
+                ],
+                [
+                    new Set([new Blob(['a'], {type: 'text/plain'})]),
+                    new Set([new Blob(['b'], {type: 'text/plain'})])
+                ],
+                [
+                    {
+                        a: new Set([[new Map([['a', new Blob(['a'], {
+                            type: 'text/plain'
+                        })]])]]),
+                        b: 2
+                    },
+                    {
+                        a: new Set([[new Map([['a', new Blob(['b'], {
+                            type: 'text/plain'
+                        })]])]]),
+                        b: 2
+                    }
+                ]
+            ])
+                assert.notOk(await $.Tools.class.equals(
+                    ...test, null, -1, [], true, true))
+        }
         for (const test:Array<any> of [
             [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 2],
             [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3],
@@ -1105,6 +1186,7 @@ let tests:Array<Test> = [{callback: function(
             assert.notOk($.Tools.class.equals(...test))
         const test = ():void => {}
         assert.ok($.Tools.class.equals(test, test, null, -1, [], false))
+        done()
     })
     this.test(`evaluateDynamicDataStructure (${roundType})`, (
         assert:Object
