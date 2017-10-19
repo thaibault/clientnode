@@ -1840,7 +1840,7 @@ export default class Tools {
                 !isNaN(secondValue.getTime()) &&
                 firstValue.getTime() === secondValue.getTime()
             ) ||
-            typeof eval('Buffer') !== 'undefined' && eval('Buffer').isBuffer &&
+            eval('typeof Buffer') !== 'undefined' && eval('Buffer').isBuffer &&
             firstValue instanceof eval('Buffer') &&
             secondValue instanceof eval('Buffer') &&
             firstValue.toString('base64') === secondValue.toString('base64')
