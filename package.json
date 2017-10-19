@@ -32,9 +32,9 @@
   },
   "scripts": {
     "build": "webOptimizer build && npm run build:test",
-    "build:alternatively": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0 --source-maps inline --out-file index.compiled.js index.js && npm run build:test",
+    "build:alternatively": "babel --plugins transform-flow-strip-types,transform-runtime --presets env,stage-0 --source-maps inline --out-file index.compiled.js index.js && npm run build:test",
     "build:dll": "webOptimizer build:dll",
-    "build:test": "babel --plugins transform-flow-strip-types,transform-runtime --presets modern-browsers,es2017,stage-0 --source-maps inline --out-file test.compiled.js test.js",
+    "build:test": "babel --plugins transform-flow-strip-types,transform-runtime --presets env,stage-0 --source-maps inline --out-file test.compiled.js test.js",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\"}}}}}}' && npm run build:test",
@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "qunitjs": "^2.4.0",
-    "weboptimizer": "^1.0.385"
+    "weboptimizer": "^1.0.392"
   },
   "peerDependencies": {
     "jquery": "*"
@@ -62,7 +62,6 @@
     "babel-eslint": "^8.0.1",
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
-    "babel-preset-env": "^1.6.1",
     "documentation-website": "^1.0.69",
     "eslint": "^4.9.0",
     "eslint-config-google": "^0.9.1",
@@ -101,7 +100,7 @@
         "javaScript": {
           "options": {
             "presets": {
-              "__evaluate__": "(self.targetTechnology === 'node' ? ['es2017-node7'] : [['modern-browsers', {loose: true}], 'es2017']).concat('stage-0')"
+              "__evaluate__": "(self.targetTechnology === 'node' ? [['env', {targets: {node: 'current'}}]] : [['env', {loose: true, targets: {browsers: ['last 2 versions']}}]]).concat('stage-0')"
             }
           }
         }
