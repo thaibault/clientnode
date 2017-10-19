@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "qunitjs": "^2.4.0",
-    "weboptimizer": "^1.0.393"
+    "weboptimizer": "^1.0.394"
   },
   "peerDependencies": {
     "jquery": "*"
@@ -100,7 +100,7 @@
         "javaScript": {
           "options": {
             "presets": {
-              "__evaluate__": "[['env', {targets: self.targetTechnology === 'node' ? {node: 'current'} : {browsers: 'last 2 versions'}}]].concat('stage-0')"
+              "__evaluate__": "[['env', {targets: self.targetTechnology === 'node' ? {node: 'current'} : {browsers: 'last 2 versions', node: 'current'}}]].concat('stage-0')"
             }
           }
         }
