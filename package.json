@@ -51,6 +51,7 @@
     "watch:dll": "webOptimizer build:dll --watch"
   },
   "dependencies": {
+    "babel-runtime": "^6.26.0",
     "qunitjs": "^2.4.0",
     "weboptimizer": "^1.0.394"
   },
