@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "qunitjs": "^2.4.0",
-    "weboptimizer": "^1.0.395"
+    "weboptimizer": "^1.0.396"
   },
   "peerDependencies": {
     "babel-runtime": "*",
@@ -63,7 +63,7 @@
     "babel-eslint": "^8.0.1",
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
-    "documentation-website": "^1.0.73",
+    "documentation-website": "^1.0.74",
     "eslint": "^4.9.0",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.36.0",
