@@ -2414,7 +2414,7 @@ let tests:Array<Test> = [{callback: function(
             assert.equal(
                 $.Tools.class.stringDecodeHTMLEntities(test[0]), test[1])
     })
-    this.test(`normalizeDomNodeSelector (${roundType})`, (
+    this.test(`stringNormalizeDomNodeSelector (${roundType})`, (
         assert:Object
     ):void => {
         for (const test:Array<string> of [
@@ -2425,7 +2425,7 @@ let tests:Array<Test> = [{callback: function(
             ['', 'body']
         ])
             assert.strictEqual(
-                tools.normalizeDomNodeSelector(test[0]), test[1])
+                tools.stringNormalizeDomNodeSelector(test[0]), test[1])
         for (const test:string of [
             '',
             'div',
@@ -2433,7 +2433,7 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.strictEqual($.Tools({
                 domNodeSelectorPrefix: ''
-            }).normalizeDomNodeSelector(test), test)
+            }).stringNormalizeDomNodeSelector(test), test)
     })
     // // endregion
     // // region number
