@@ -1182,8 +1182,9 @@ export default class Tools {
                                 name
                             ].split(match[0]))
                                 domNodeSelectors[name] += ', ' +
-                                    this.normalizeDomNodeSelector(selectorPart)
-                        domNodes[name] = $(this.normalizeDomNodeSelector(
+                                    this.stringNormalizeDomNodeSelector(
+                                        selectorPart)
+                        domNodes[name] = $(this.stringNormalizeDomNodeSelector(
                             domNodeSelectors[name]))
                     }
         if (this._options.domNodeSelectorPrefix)
@@ -3927,7 +3928,7 @@ export default class Tools {
      * @param selector - A dom node selector.
      * @returns Returns given selector prefixed.
      */
-    normalizeDomNodeSelector(selector:string):string {
+    stringNormalizeDomNodeSelector(selector:string):string {
         let domNodeSelectorPrefix:string = ''
         if (this._options.domNodeSelectorPrefix)
             domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
