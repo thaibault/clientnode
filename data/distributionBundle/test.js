@@ -47,7 +47,7 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     require('colors')
     fileSystem = require('fs')
     path = require('path')
-    QUnit = require('qunitjs')
+    QUnit = require('qunit')
     removeDirectoryRecursivelySync = require('rimraf').sync
     const errors:Array<PlainObject> = []
     let indention:string = ''
@@ -116,7 +116,7 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
         })
     })
 } else
-    QUnit = require('script!qunitjs') && window.QUnit
+    QUnit = require('script!qunit') && window.QUnit
 // endregion
 // region default test specification
 let tests:Array<Test> = [{callback: function(
@@ -2767,7 +2767,7 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
     for (const domNodeSpecification:PlainObject of [
         {link: {
             attributes: {
-                href: '/node_modules/qunitjs/qunit/qunit.css',
+                href: '/node_modules/qunit/qunit/qunit.css',
                 rel: 'stylesheet',
                 type: 'text/css'
             },
