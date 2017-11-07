@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "qunit": "^2.4.1",
-    "weboptimizer": "^1.0.405"
+    "weboptimizer": "^1.0.406"
   },
   "peerDependencies": {
     "babel-runtime": "*",
