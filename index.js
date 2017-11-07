@@ -1936,7 +1936,7 @@ $domNode.data(object.constructor.name,object);if(parameter[0]in object){var _obj
      * retrieved dom nodes.
      * @returns Returns All $ wrapped dom nodes corresponding to given
      * selectors.
-     */value:function grabDomNode(domNodeSelectors,wrapperDomNode){/* eslint-enable jsdoc/require-description-complete-sentence */var domNodes={};if(domNodeSelectors)if(wrapperDomNode){var $wrapperDomNode=$(wrapperDomNode);for(var _name in domNodeSelectors){if(domNodeSelectors.hasOwnProperty(_name))domNodes[_name]=$wrapperDomNode.find(domNodeSelectors[_name])}}else for(var _name2 in domNodeSelectors){if(domNodeSelectors.hasOwnProperty(_name2)){var match=domNodeSelectors[_name2].match(', *');if(match){var _iteratorNormalCompletion2=true;var _didIteratorError2=false;var _iteratorError2=undefined;try{for(var _iterator2=(0,_getIterator3.default)(domNodeSelectors[_name2].split(match[0])),_step2;!(_iteratorNormalCompletion2=(_step2=_iterator2.next()).done);_iteratorNormalCompletion2=true){var selectorPart=_step2.value;domNodeSelectors[_name2]+=', '+this.normalizeDomNodeSelector(selectorPart)}}catch(err){_didIteratorError2=true;_iteratorError2=err}finally{try{if(!_iteratorNormalCompletion2&&_iterator2.return){_iterator2.return()}}finally{if(_didIteratorError2){throw _iteratorError2}}}}domNodes[_name2]=$(this.normalizeDomNodeSelector(domNodeSelectors[_name2]))}}if(this._options.domNodeSelectorPrefix)domNodes.parent=$(this._options.domNodeSelectorPrefix);if('window'in $.global)domNodes.window=$($.global.window);if('document'in $.global)domNodes.document=$($.global.document);return domNodes}// / endregion
+     */value:function grabDomNode(domNodeSelectors,wrapperDomNode){/* eslint-enable jsdoc/require-description-complete-sentence */var domNodes={};if(domNodeSelectors)if(wrapperDomNode){var $wrapperDomNode=$(wrapperDomNode);for(var _name in domNodeSelectors){if(domNodeSelectors.hasOwnProperty(_name))domNodes[_name]=$wrapperDomNode.find(domNodeSelectors[_name])}}else for(var _name2 in domNodeSelectors){if(domNodeSelectors.hasOwnProperty(_name2)){var match=domNodeSelectors[_name2].match(', *');if(match){var _iteratorNormalCompletion2=true;var _didIteratorError2=false;var _iteratorError2=undefined;try{for(var _iterator2=(0,_getIterator3.default)(domNodeSelectors[_name2].split(match[0])),_step2;!(_iteratorNormalCompletion2=(_step2=_iterator2.next()).done);_iteratorNormalCompletion2=true){var selectorPart=_step2.value;domNodeSelectors[_name2]+=', '+this.stringNormalizeDomNodeSelector(selectorPart)}}catch(err){_didIteratorError2=true;_iteratorError2=err}finally{try{if(!_iteratorNormalCompletion2&&_iterator2.return){_iterator2.return()}}finally{if(_didIteratorError2){throw _iteratorError2}}}}domNodes[_name2]=$(this.stringNormalizeDomNodeSelector(domNodeSelectors[_name2]))}}if(this._options.domNodeSelectorPrefix)domNodes.parent=$(this._options.domNodeSelectorPrefix);if('window'in $.global)domNodes.window=$($.global.window);if('document'in $.global)domNodes.document=$($.global.document);return domNodes}// / endregion
 // / region scope
 /**
      * Overwrites all inherited variables from parent scope with "undefined".
@@ -1983,11 +1983,11 @@ $domNode.data(object.constructor.name,object);if(parameter[0]in object){var _obj
      * @param typesToExtend - Types which should be extended (Checks are
      * performed via "value instanceof type".).
      * @returns Returns given object wrapped with a dynamic getter proxy.
-     */},{key:'normalizeDomNodeSelector',/**
+     */},{key:'stringNormalizeDomNodeSelector',/**
      * Converts a dom selector to a prefixed dom selector string.
      * @param selector - A dom node selector.
      * @returns Returns given selector prefixed.
-     */value:function normalizeDomNodeSelector(selector){var domNodeSelectorPrefix='';if(this._options.domNodeSelectorPrefix)domNodeSelectorPrefix=this._options.domNodeSelectorPrefix+' ';if(!(selector.startsWith(domNodeSelectorPrefix)||selector.trim().startsWith('<')))selector=domNodeSelectorPrefix+selector;return selector.trim()}// / endregion
+     */value:function stringNormalizeDomNodeSelector(selector){var domNodeSelectorPrefix='';if(this._options.domNodeSelectorPrefix)domNodeSelectorPrefix=this._options.domNodeSelectorPrefix+' ';if(!(selector.startsWith(domNodeSelectorPrefix)||selector.trim().startsWith('<')))selector=domNodeSelectorPrefix+selector;return selector.trim()}// / endregion
 // / region number
 /**
      * Determines corresponding utc timestamp for given date object.
