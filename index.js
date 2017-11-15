@@ -230,7 +230,7 @@ if (!('context' in $) && 'document' in $.global)
  * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
  * to dom nodes which should be visible if javaScript is available.
  */
-export default class Tools {
+export class Tools {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
@@ -4690,6 +4690,7 @@ export default class Tools {
     }
     // endregion
 }
+export default Tools
 // endregion
 // region handle $ extending
 if ('fn' in $)
