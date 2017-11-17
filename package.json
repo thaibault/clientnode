@@ -52,7 +52,8 @@
   },
   "peerDependencies": {
     "babel-runtime": "*",
-    "jquery": "*"
+    "jquery": "*",
+    "qunit": "*"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
