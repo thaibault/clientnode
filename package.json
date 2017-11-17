@@ -60,7 +60,7 @@
     "babel-eslint": "^8.0.2",
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
-    "documentation-website": "^1.0.75",
+    "documentation-website": "^1.0.76",
     "eslint": "^4.11.0",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.36.0",
