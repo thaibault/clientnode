@@ -71,7 +71,7 @@
     "qunit": "^2.4.1",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.5.0",
-    "weboptimizer": "^1.0.412",
+    "weboptimizer": "^1.0.416",
     "webpack": "^3.8.0",
     "webpack-dev-server": "^2.9.3"
   },
@@ -92,9 +92,6 @@
       "aliases": {
         "clientnode$": "./index",
         "jquery$": "jquery/dist/jquery.min"
-      },
-      "optimizer": {
-        "babelMinify": null
       },
       "preprocessor": {
         "javaScript": {
