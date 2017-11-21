@@ -121,7 +121,7 @@ module.exports = __webpack_require__(1);
     See http://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */// region imports
-Object.defineProperty(exports,'__esModule',{value:true});exports.$=exports.globalContext=undefined;var _getOwnPropertyNames=__webpack_require__(3);var _getOwnPropertyNames2=_interopRequireDefault(_getOwnPropertyNames);var _values=__webpack_require__(4);var _values2=_interopRequireDefault(_values);var _keys=__webpack_require__(5);var _keys2=_interopRequireDefault(_keys);var _set=__webpack_require__(6);var _set2=_interopRequireDefault(_set);var _map=__webpack_require__(7);var _map2=_interopRequireDefault(_map);var _stringify=__webpack_require__(8);var _stringify2=_interopRequireDefault(_stringify);var _isNan=__webpack_require__(9);var _isNan2=_interopRequireDefault(_isNan);var _getPrototypeOf=__webpack_require__(10);var _getPrototypeOf2=_interopRequireDefault(_getPrototypeOf);var _promise=__webpack_require__(11);var _promise2=_interopRequireDefault(_promise);var _asyncToGenerator2=__webpack_require__(12);var _asyncToGenerator3=_interopRequireDefault(_asyncToGenerator2);function _interopRequireDefault(obj){return obj&amp;&amp;obj.__esModule?obj:{default:obj}}let fileSystem={};try{fileSystem=eval('require')('fs')}catch(error){}let path={};try{path=eval('require')('path')}catch(error){}// NOTE: Only needed for debugging this file.
+Object.defineProperty(exports,'__esModule',{value:true});exports.Tools=exports.$=exports.globalContext=undefined;var _getOwnPropertyNames=__webpack_require__(3);var _getOwnPropertyNames2=_interopRequireDefault(_getOwnPropertyNames);var _values=__webpack_require__(4);var _values2=_interopRequireDefault(_values);var _keys=__webpack_require__(5);var _keys2=_interopRequireDefault(_keys);var _set=__webpack_require__(6);var _set2=_interopRequireDefault(_set);var _map=__webpack_require__(7);var _map2=_interopRequireDefault(_map);var _stringify=__webpack_require__(8);var _stringify2=_interopRequireDefault(_stringify);var _isNan=__webpack_require__(9);var _isNan2=_interopRequireDefault(_isNan);var _getPrototypeOf=__webpack_require__(10);var _getPrototypeOf2=_interopRequireDefault(_getPrototypeOf);var _promise=__webpack_require__(11);var _promise2=_interopRequireDefault(_promise);var _asyncToGenerator2=__webpack_require__(12);var _asyncToGenerator3=_interopRequireDefault(_asyncToGenerator2);function _interopRequireDefault(obj){return obj&amp;&amp;obj.__esModule?obj:{default:obj}}let fileSystem={};try{fileSystem=eval('require')('fs')}catch(error){}let path={};try{path=eval('require')('path')}catch(error){}// NOTE: Only needed for debugging this file.
 try{module.require('source-map-support/register')}catch(error){}// endregion
 // region types
 // / region browser
@@ -157,6 +157,8 @@ $domNodes[key]=$.fn[key].bind($domNodes);return $domNodes}/* eslint-disable no-u
  * expression symbols.
  * @property static:transitionEndEventNames - Saves a string with all css3
  * browser specific transition end event names.
+ *
+ * @property static:_name - Not minifyable class name.
  * @property static:_javaScriptDependentContentHandled - Indicates whether
  * javaScript dependent content where hide or shown.
  *
@@ -200,12 +202,12 @@ $domNodes[key]=$.fn[key].bind($domNodes);return $domNodes}/* eslint-disable no-u
      * class will be given back.
      */// endregion
 // region dynamic properties
-// region static properties
 constructor($domNode=null,options={},defaultOptions={domNode:{hideJavaScriptEnabled:'.tools-hidden-on-javascript-enabled',showJavaScriptEnabled:'.tools-visible-on-javascript-enabled'},domNodeSelectorPrefix:'body',logging:false},locks={}){if($domNode)this.$domNode=$domNode;this._options=options;this._defaultOptions=defaultOptions;this.locks=locks;// Avoid errors in browsers that lack a console.
 if(!('console'in $.global))$.global.console={};for(const methodName of this.constructor.consoleMethodNames)if(!(methodName in $.global.console))$.global.console[methodName]=this.constructor.noop;if(!this.constructor._javaScriptDependentContentHandled&amp;&amp;'document'in $.global&amp;&amp;'filter'in $&amp;&amp;'hide'in $&amp;&amp;'show'in $){this.constructor._javaScriptDependentContentHandled=true;$(`${this._defaultOptions.domNodeSelectorPrefix} `+this._defaultOptions.domNode.hideJavaScriptEnabled).filter(function(){return!$(this).data('javaScriptDependentContentHide')}).data('javaScriptDependentContentHide',true).hide();$(`${this._defaultOptions.domNodeSelectorPrefix} `+this._defaultOptions.domNode.showJavaScriptEnabled).filter(function(){return!$(this).data('javaScriptDependentContentShow')}).data('javaScriptDependentContentShow',true).show()}}/**
      * This method could be overwritten normally. It acts like a destructor.
      * @returns Returns the current instance.
-     */destructor(){if('off'in $.fn)this.off('*');return this}/**
+     */// region static properties
+destructor(){if('off'in $.fn)this.off('*');return this}/**
      * This method should be overwritten normally. It is triggered if current
      * object was created via the "new" keyword and is called now.
      * @param options - An options object.
@@ -216,7 +218,7 @@ if(!('console'in $.global))$.global.console={};for(const methodName of this.cons
         */this._options=this.constructor.extendObject(true,{},this._defaultOptions,this._options,options);/*
             The selector prefix should be parsed after extending options
             because the selector would be overwritten otherwise.
-        */this._options.domNodeSelectorPrefix=this.constructor.stringFormat(this._options.domNodeSelectorPrefix,this.constructor.stringCamelCaseToDelimited(this.constructor.name));return this}// / endregion
+        */this._options.domNodeSelectorPrefix=this.constructor.stringFormat(this._options.domNodeSelectorPrefix,this.constructor.stringCamelCaseToDelimited(this.constructor._name));return this}// / endregion
 // / region object orientation
 /* eslint-disable jsdoc/require-description-complete-sentence *//**
      * Defines a generic controller for dom node aware plugins.
@@ -225,11 +227,11 @@ if(!('console'in $.global))$.global.console={};for(const methodName of this.cons
      * @param parameter - The initially given arguments object.
      * @param $domNode - Optionally a $-extended dom node to use as reference.
      * @returns Returns whatever the initializer method returns.
-     */controller(object,parameter,$domNode=null){/* eslint-enable jsdoc/require-description-complete-sentence */if(typeof object==='function'){object=new object($domNode);if(!(object instanceof Tools))object=this.constructor.extendObject(true,new Tools,object)}parameter=this.constructor.arrayMake(parameter);if($domNode&amp;&amp;'data'in $domNode&amp;&amp;!$domNode.data(object.constructor.name))// Attach extended object to the associated dom node.
-$domNode.data(object.constructor.name,object);if(parameter[0]in object){if(Tools.isFunction(object[parameter[0]]))return object[parameter[0]](...parameter.slice(1));return object[parameter[0]]}else if(parameter.length===0||typeof parameter[0]==='object')/*
+     */controller(object,parameter,$domNode=null){/* eslint-enable jsdoc/require-description-complete-sentence */if(typeof object==='function'){object=new object($domNode);if(!(object instanceof Tools))object=this.constructor.extendObject(true,new Tools,object)}const name=object.constructor._name||object.constructor.name;parameter=this.constructor.arrayMake(parameter);if($domNode&amp;&amp;'data'in $domNode&amp;&amp;!$domNode.data(name))// Attach extended object to the associated dom node.
+$domNode.data(name);if(parameter[0]in object){if(Tools.isFunction(object[parameter[0]]))return object[parameter[0]](...parameter.slice(1));return object[parameter[0]]}else if(parameter.length===0||typeof parameter[0]==='object')/*
                 If an options object or no method name is given the initializer
                 will be called.
-            */return object.initialize(...parameter);throw new Error(`Method "${parameter[0]}" does not exist on $-extended dom node `+`"${object.constructor.name}".`)}// / endregion
+            */return object.initialize(...parameter);throw new Error(`Method "${parameter[0]}" does not exist on $-extended dom node `+`"${name}".`)}// / endregion
 // / region mutual exclusion
 /**
      * Calling this method introduces a starting point for a critical area with
@@ -329,7 +331,7 @@ $domNode.data(object.constructor.name,object);if(parameter[0]in object){if(Tools
      * @param additionalArguments - Additional arguments are used for string
      * formating.
      * @returns Returns the current instance.
-     */log(object,force=false,avoidAnnotation=false,level='info',...additionalArguments){if(this._options.logging||force||['error','critical'].includes(level)){let message;if(avoidAnnotation)message=object;else if(typeof object==='string'){additionalArguments.unshift(object);message=`${this.constructor.name} (${level}): `+this.constructor.stringFormat(...additionalArguments)}else if(this.constructor.isNumeric(object)||typeof object==='boolean')message=`${this.constructor.name} (${level}): `+object.toString();else{this.log(',--------------------------------------------,');this.log(object,force,true);this.log(`'--------------------------------------------'`)}if(message)if(!('console'in $.global&amp;&amp;level in $.global.console)||$.global.console[level]===this.constructor.noop){if('alert'in $.global)$.global.alert(message)}else $.global.console[level](message)}return this}/**
+     */log(object,force=false,avoidAnnotation=false,level='info',...additionalArguments){if(this._options.logging||force||['error','critical'].includes(level)){let message;if(avoidAnnotation)message=object;else if(typeof object==='string'){additionalArguments.unshift(object);message=`${this.constructor._name} (${level}): `+this.constructor.stringFormat(...additionalArguments)}else if(this.constructor.isNumeric(object)||typeof object==='boolean')message=`${this.constructor._name} (${level}): `+object.toString();else{this.log(',--------------------------------------------,');this.log(object,force,true);this.log(`'--------------------------------------------'`)}if(message)if(!('console'in $.global&amp;&amp;level in $.global.console)||$.global.console[level]===this.constructor.noop){if('alert'in $.global)$.global.alert(message)}else $.global.console[level](message)}return this}/**
      * Wrapper method for the native console method usually provided by
      * interpreter.
      * @param object - Any object to print.
@@ -1223,7 +1225,7 @@ currentlyRunningTimer.clear();reject(`Timeout of ${timeoutInSeconds} seconds rea
      * @param removeAfterLoad - Indicates if created iframe should be removed
      * right after load event.
      * @returns Returns the dynamically created iframe.
-     */sendToExternalURL(url,data,requestType='post',removeAfterLoad=true){const $iFrameDomNode=$('&lt;iframe>').attr('name',this.constructor.name.charAt(0).toLowerCase()+this.constructor.name.substring(1)+new Date().getTime()).hide();this.$domNode.append($iFrameDomNode);this.constructor.sendToIFrame($iFrameDomNode,url,data,requestType,removeAfterLoad);return $iFrameDomNode}// / endregion
+     */sendToExternalURL(url,data,requestType='post',removeAfterLoad=true){const $iFrameDomNode=$('&lt;iframe>').attr('name',this.constructor._name.charAt(0).toLowerCase()+this.constructor._name.substring(1)+new Date().getTime()).hide();this.$domNode.append($iFrameDomNode);this.constructor.sendToIFrame($iFrameDomNode,url,data,requestType,removeAfterLoad);return $iFrameDomNode}// / endregion
 // / region file
 /**
      * Copies given source directory via path to given target directory
@@ -1351,10 +1353,8 @@ error.parameter=parameter;reject(error)}}}}/**
      * @param eventFunctionName - Name of function to wrap.
      * @returns Returns $'s wrapped dom node.
      */_bindEventHelper(parameter,removeEvent=false,eventFunctionName='on'){/* eslint-enable jsdoc/require-description-complete-sentence */const $domNode=$(parameter[0]);if(this.constructor.determineType(parameter[1])==='object'&amp;&amp;!removeEvent){for(const eventType in parameter[1])if(parameter[1].hasOwnProperty(eventType))// IgnoreTypeCheck
-this[eventFunctionName]($domNode,eventType,parameter[1][eventType]);return $domNode}parameter=this.constructor.arrayMake(parameter).slice(1);if(parameter.length===0)parameter.push('');if(!parameter[0].includes('.'))parameter[0]+=`.${this.constructor.name}`;if(removeEvent)return $domNode[eventFunctionName](...parameter);return $domNode[eventFunctionName](...parameter)}// endregion
-}exports.default=Tools;// endregion
-// region handle $ extending
-Tools.abbreviations=['html','id','url','us','de','api','href'];Tools.animationEndEventNames='animationend webkitAnimationEnd '+'oAnimationEnd MSAnimationEnd';Tools.classToTypeMapping={'[object Array]':'array','[object Boolean]':'boolean','[object Date]':'date','[object Error]':'error','[object Function]':'function','[object Map]':'map','[object Number]':'number','[object Object]':'object','[object RegExp]':'regexp','[object Set]':'set','[object String]':'string'};Tools.closeEventNames=['exit','close','uncaughtException','SIGINT','SIGTERM','SIGQUIT'];Tools.consoleMethodNames=['assert','clear','count','debug','dir','dirxml','error','exception','group','groupCollapsed','groupEnd','info','log','markTimeline','profile','profileEnd','table','time','timeEnd','timeStamp','trace','warn'];Tools.keyCode={BACKSPACE:8,COMMA:188,DELETE:46,DOWN:40,END:35,ENTER:13,ESCAPE:27,F1:112,F2:113,F3:114,F4:115,F5:116,F6:117,F7:118,F8:119,F9:120,F10:121,F11:122,F12:123,HOME:36,LEFT:37,NUMPAD_ADD:107,NUMPAD_DECIMAL:110,NUMPAD_DIVIDE:111,NUMPAD_ENTER:108,NUMPAD_MULTIPLY:106,NUMPAD_SUBTRACT:109,PAGE_DOWN:34,PAGE_UP:33,PERIOD:190,RIGHT:39,SPACE:32,TAB:9,UP:38};Tools.maximalSupportedInternetExplorerVersion=(()=>{if(!('document'in $.global))return 0;const div=$.global.document.createElement('div');let version;for(version=0;version&lt;10;version++){/*
+this[eventFunctionName]($domNode,eventType,parameter[1][eventType]);return $domNode}parameter=this.constructor.arrayMake(parameter).slice(1);if(parameter.length===0)parameter.push('');if(!parameter[0].includes('.'))parameter[0]+=`.${this.constructor._name}`;if(removeEvent)return $domNode[eventFunctionName](...parameter);return $domNode[eventFunctionName](...parameter)}// endregion
+}exports.Tools=Tools;Tools.abbreviations=['html','id','url','us','de','api','href'];Tools.animationEndEventNames='animationend webkitAnimationEnd '+'oAnimationEnd MSAnimationEnd';Tools.classToTypeMapping={'[object Array]':'array','[object Boolean]':'boolean','[object Date]':'date','[object Error]':'error','[object Function]':'function','[object Map]':'map','[object Number]':'number','[object Object]':'object','[object RegExp]':'regexp','[object Set]':'set','[object String]':'string'};Tools.closeEventNames=['exit','close','uncaughtException','SIGINT','SIGTERM','SIGQUIT'];Tools.consoleMethodNames=['assert','clear','count','debug','dir','dirxml','error','exception','group','groupCollapsed','groupEnd','info','log','markTimeline','profile','profileEnd','table','time','timeEnd','timeStamp','trace','warn'];Tools.keyCode={BACKSPACE:8,COMMA:188,DELETE:46,DOWN:40,END:35,ENTER:13,ESCAPE:27,F1:112,F2:113,F3:114,F4:115,F5:116,F6:117,F7:118,F8:119,F9:120,F10:121,F11:122,F12:123,HOME:36,LEFT:37,NUMPAD_ADD:107,NUMPAD_DECIMAL:110,NUMPAD_DIVIDE:111,NUMPAD_ENTER:108,NUMPAD_MULTIPLY:106,NUMPAD_SUBTRACT:109,PAGE_DOWN:34,PAGE_UP:33,PERIOD:190,RIGHT:39,SPACE:32,TAB:9,UP:38};Tools.maximalSupportedInternetExplorerVersion=(()=>{if(!('document'in $.global))return 0;const div=$.global.document.createElement('div');let version;for(version=0;version&lt;10;version++){/*
                 NOTE: We split html comment sequences to avoid wrong
                 interpretation if this code is embedded in markup.
                 NOTE: Internet Explorer 9 and lower sometimes doesn't
@@ -1362,7 +1362,9 @@ Tools.abbreviations=['html','id','url','us','de','api','href'];Tools.animationEn
                 whitespace. If the conditional markup isn't in a commend.
                 Otherwise there shouldn't be any whitespace!
             *//* eslint-disable no-useless-concat */div.innerHTML='&lt;!'+`--[if gt IE ${version}]>&lt;i>&lt;/i>&lt;![e`+'ndif]-'+'->';/* eslint-enable no-useless-concat */if(div.getElementsByTagName('i').length===0)break}// Try special detection for internet explorer 10 and 11.
-if(version===0&amp;&amp;'navigator'in $.global)if($.global.navigator.appVersion.includes('MSIE 10'))return 10;else if($.global.navigator.userAgent.includes('Trident')&amp;&amp;$.global.navigator.userAgent.includes('rv:11'))return 11;return version})();Tools.noop='noop'in $?$.noop:()=>{};Tools.plainObjectPrototypes=[Object.prototype];Tools.specialRegexSequences=['-','[',']','(',')','^','$','*','+','.','{','}'];Tools.transitionEndEventNames='transitionend '+'webkitTransitionEnd oTransitionEnd MSTransitionEnd';Tools._javaScriptDependentContentHandled=false;if('fn'in $)$.fn.Tools=function(...parameter){return new Tools().controller(Tools,parameter,this)};$.Tools=(...parameter)=>new Tools().controller(Tools,parameter);$.Tools.class=Tools;if('fn'in $){// region prop fix for comments and text nodes
+if(version===0&amp;&amp;'navigator'in $.global)if($.global.navigator.appVersion.includes('MSIE 10'))return 10;else if($.global.navigator.userAgent.includes('Trident')&amp;&amp;$.global.navigator.userAgent.includes('rv:11'))return 11;return version})();Tools.noop='noop'in $?$.noop:()=>{};Tools.plainObjectPrototypes=[Object.prototype];Tools.specialRegexSequences=['-','[',']','(',')','^','$','*','+','.','{','}'];Tools.transitionEndEventNames='transitionend '+'webkitTransitionEnd oTransitionEnd MSTransitionEnd';Tools._javaScriptDependentContentHandled=false;Tools._name='tools';exports.default=Tools;// endregion
+// region handle $ extending
+if('fn'in $)$.fn.Tools=function(...parameter){return new Tools().controller(Tools,parameter,this)};$.Tools=(...parameter)=>new Tools().controller(Tools,parameter);$.Tools.class=Tools;if('fn'in $){// region prop fix for comments and text nodes
 const nativePropFunction=$.fn.prop;/**
      * JQuery's native prop implementation ignores properties for text nodes,
      * comments and attribute nodes.
@@ -1493,7 +1495,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_13__;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Nov 07 2017 14:28:30 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Nov 21 2017 11:25:23 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>
