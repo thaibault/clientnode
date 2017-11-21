@@ -208,6 +208,8 @@ if (!('context' in $) && 'document' in $.global)
  * expression symbols.
  * @property static:transitionEndEventNames - Saves a string with all css3
  * browser specific transition end event names.
+ *
+ * @property static:_name - Not minifyable class name.
  * @property static:_javaScriptDependentContentHandled - Indicates whether
  * javaScript dependent content where hide or shown.
  *
@@ -230,7 +232,7 @@ if (!('context' in $) && 'document' in $.global)
  * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
  * to dom nodes which should be visible if javaScript is available.
  */
-export default class Tools {
+export class Tools {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
@@ -348,7 +350,9 @@ export default class Tools {
         '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}']
     static transitionEndEventNames:string = 'transitionend ' +
         'webkitTransitionEnd oTransitionEnd MSTransitionEnd'
+
     static _javaScriptDependentContentHandled:boolean = false
+    static _name:string = 'tools'
     // endregion
     // region dynamic properties
     $domNode:$DomNode
@@ -448,7 +452,8 @@ export default class Tools {
         */
         this._options.domNodeSelectorPrefix = this.constructor.stringFormat(
             this._options.domNodeSelectorPrefix,
-            this.constructor.stringCamelCaseToDelimited(this.constructor.name))
+            this.constructor.stringCamelCaseToDelimited(
+                this.constructor._name))
         return this
     }
     // / endregion
@@ -472,12 +477,11 @@ export default class Tools {
                 object = this.constructor.extendObject(
                     true, new Tools(), object)
         }
+        const name:string = object.constructor._name || object.constructor.name
         parameter = this.constructor.arrayMake(parameter)
-        if ($domNode && 'data' in $domNode && !$domNode.data(
-            object.constructor.name
-        ))
+        if ($domNode && 'data' in $domNode && !$domNode.data(name))
             // Attach extended object to the associated dom node.
-            $domNode.data(object.constructor.name, object)
+            $domNode.data(name)
         if (parameter[0] in object) {
             if (Tools.isFunction(object[parameter[0]]))
                 return object[parameter[0]](...parameter.slice(1))
@@ -490,7 +494,7 @@ export default class Tools {
             return object.initialize(...parameter)
         throw new Error(
             `Method "${parameter[0]}" does not exist on $-extended dom node ` +
-            `"${object.constructor.name}".`)
+            `"${name}".`)
     }
     // / endregion
     // / region mutual exclusion
@@ -747,12 +751,12 @@ export default class Tools {
                 message = object
             else if (typeof object === 'string') {
                 additionalArguments.unshift(object)
-                message = `${this.constructor.name} (${level}): ` +
+                message = `${this.constructor._name} (${level}): ` +
                     this.constructor.stringFormat(...additionalArguments)
             } else if (this.constructor.isNumeric(
                 object
             ) || typeof object === 'boolean')
-                message = `${this.constructor.name} (${level}): ` +
+                message = `${this.constructor._name} (${level}): ` +
                     object.toString()
             else {
                 this.log(',--------------------------------------------,')
@@ -4205,8 +4209,8 @@ export default class Tools {
         removeAfterLoad:boolean = true
     ):$DomNode {
         const $iFrameDomNode:$DomNode = $('<iframe>').attr(
-            'name', this.constructor.name.charAt(0).toLowerCase() +
-            this.constructor.name.substring(1) + (new Date()).getTime()
+            'name', this.constructor._name.charAt(0).toLowerCase() +
+            this.constructor._name.substring(1) + (new Date()).getTime()
         ).hide()
         this.$domNode.append($iFrameDomNode)
         this.constructor.sendToIFrame(
@@ -4683,13 +4687,14 @@ export default class Tools {
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
-            parameter[0] += `.${this.constructor.name}`
+            parameter[0] += `.${this.constructor._name}`
         if (removeEvent)
             return $domNode[eventFunctionName](...parameter)
         return $domNode[eventFunctionName](...parameter)
     }
     // endregion
 }
+export default Tools
 // endregion
 // region handle $ extending
 if ('fn' in $)
