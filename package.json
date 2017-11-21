@@ -93,15 +93,6 @@
         "clientnode$": "./index",
         "jquery$": "jquery/dist/jquery.min"
       },
-      "preprocessor": {
-        "javaScript": {
-          "options": {
-            "presets": {
-              "__evaluate__": "[['env', {targets: self.targetTechnology === 'node' ? {node: 'current'} : {browsers: 'last 2 versions', node: 'current'}}]].concat('stage-0')"
-            }
-          }
-        }
-      },
       "skipParseRegularExpressions": {
         "__evaluate__": "/(?:^|\\/)(?:(?:babel-polyfill\\/dist\\/polyfill)|(?:jquery\\/dist\\/jquery)|(?:webpack\\/buildin\\/global)|(?:webpack\\/buildin\\/module))(?:\\.min)?\\.js(?:\\?.+|$)/"
       }
