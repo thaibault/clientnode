@@ -71,17 +71,12 @@
     "qunit": "^2.4.1",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.5.0",
-    "weboptimizer": "^1.0.417",
+    "weboptimizer": "^1.0.419",
     "webpack": "^3.8.0",
     "webpack-dev-server": "^2.9.3"
   },
   "webOptimizer": {
     "injection": {
-      "external": {
-        "aliases": {
-          "jquery": "jQuery"
-        }
-      },
       "internal": {
         "vendor": {
           "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['build:dll', 'serve', 'test:browser', 'watch:dll'].includes(self.givenCommandLineArguments[2]) ? ['babel-polyfill'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunit', 'weboptimizer/browserAPI']) : []"
@@ -93,12 +88,12 @@
         "clientnode$": "./index",
         "jquery$": "jquery/dist/jquery.min"
       },
-      "preprocessor": {
-        "javaScript": {
-          "options": {
-            "presets": {
-              "__evaluate__": "[['env', {loose: true, targets: self.targetTechnology === 'node' ? {node: 'current'} : {browsers: 'last 2 versions', node: 'current'}}]].concat('stage-0').concat((self.debug || 2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'document') ? [] : [['minify', {guards: false, mangle: false, simplify: false}]])"
-            }
+      "optimizer": {
+        "babelMinify": {
+          "module": {
+            "guards": false,
+            "mangle": false,
+            "simplify": false
           }
         }
       },
