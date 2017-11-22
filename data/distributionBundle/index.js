@@ -183,6 +183,53 @@ if (!('context' in $) && 'document' in $.global)
 // endregion
 // region plugins/classes
 /**
+ * Represents the semaphore state.
+ * @property queue - List of waiting resource requests.
+ * @property numberOfFreeResources - Number free allowed concurrent resource
+ * uses.
+ * @property numberOfResources - Number of allowed concurrent resource uses.
+ */
+export class Semaphore {
+    queue:Array<Function> = []
+    numberOfResources:number
+    numberOfFreeResources:number
+    /**
+     * Initializes number of resources.
+     * @param numberOfResources - Number of resources to manage.
+     * @returns Nothing.
+     */
+    constructor(numberOfResources:number = 2) {
+        this.numberOfResources = numberOfResources
+        this.numberOfFreeResources = numberOfResources
+    }
+    /**
+     * Acquires a new resource and runs given callback if available.
+     * @returns A promise which will be resolved if requested resource
+     * is available.
+     */
+    acquire():Promise<void> {
+        return new Promise((resolve:Function):void => {
+            if (this.numberOfFreeResources <= 0)
+                this.queue.push(resolve)
+            else {
+                this.numberOfFreeResources -= 1
+                resolve(this.numberOfFreeResources)
+            }
+        })
+    }
+    /**
+     * Releases a resource and runs a waiting resolver if there exists
+     * some.
+     * @returns Nothing.
+     */
+    release():void {
+        if (this.queue.length === 0)
+            this.numberOfFreeResources += 1
+        else
+            this.queue.pop()(this.numberOfFreeResources)
+    }
+}
+/**
  * This plugin provides such interface logic like generic controller logic for
  * integrating plugins into $, mutual exclusion for depending gui elements,
  * logging additional string, array or function handling. A set of helper
@@ -510,25 +557,23 @@ export class Tools {
      * @param autoRelease - Release the lock after execution of given callback.
      * @returns Returns a promise which will be resolved after releasing lock.
      */
-    async acquireLock(
+    acquireLock(
         description:string, callbackFunction:LockCallbackFunction = Tools.noop,
         autoRelease:boolean = false
     ):Promise<any> {
         return new Promise((resolve:Function):void => {
-            const wrappedCallbackFunction:LockCallbackFunction = async (
+            const wrappedCallbackFunction:LockCallbackFunction = (
                 description:string
-            ):Promise<any> => {
-                const result:?Promise<any> = callbackFunction(description)
+            ):?Promise<any> => {
+                const result:any = callbackFunction(description)
                 const finish:Function = (value:any):void => {
                     if (autoRelease)
                         this.releaseLock(description)
                     resolve(value)
                 }
-                if (
-                    result !== null && typeof result === 'object' &&
-                    'then' in result
-                )
+                try {
                     return result.then(finish)
+                } catch (error) {}
                 finish(description)
             }
             if (this.locks.hasOwnProperty(description))
@@ -561,46 +606,8 @@ export class Tools {
      * @param numberOfResources - Number of allowed concurrent resource uses.
      * @returns The requested semaphore instance.
      */
-    static getSemaphore(numberOfResources:number = 2):Object {
-        /**
-         * Represents the semaphore state.
-         * @property queue - List of waiting resource requests.
-         * @property numberOfFreeResources - Number free allowed concurrent
-         * resource uses.
-         * @property numberOfResources - Number of allowed concurrent resource
-         * uses.
-         */
-        return new class {
-            queue:Array<Function> = []
-            numberOfResources:number = numberOfResources
-            numberOfFreeResources:number = numberOfResources
-            /**
-             * Acquires a new resource and runs given callback if available.
-             * @returns A promise which will be resolved if requested a
-             * resource is available.
-             */
-            acquire():Promise<void> {
-                return new Promise((resolve:Function):void => {
-                    if (this.numberOfFreeResources <= 0)
-                        this.queue.push(resolve)
-                    else {
-                        this.numberOfFreeResources -= 1
-                        resolve(this.numberOfFreeResources)
-                    }
-                })
-            }
-            /**
-             * Releases a resource and runs a waiting resolver if there exists
-             * some.
-             * @returns Nothing.
-             */
-            release():void {
-                if (this.queue.length === 0)
-                    this.numberOfFreeResources += 1
-                else
-                    this.queue.pop()(this.numberOfFreeResources)
-            }
-        }
+    static getSemaphore(numberOfResources:number = 2):Semaphore {
+        return new Semaphore(numberOfResources)
     }
     // / endregion
     // / region boolean
@@ -865,14 +872,11 @@ export class Tools {
         // IgnoreTypeCheck
         this.$domNode.find('*').addBack().each(function():void {
             const $thisDomNode:$DomNode = $(this)
-            if ($thisDomNode.attr('class')) {
-                const sortedClassNames:Array<string> = $thisDomNode.attr(
-                    'class'
-                ).split(' ').sort() || []
-                $thisDomNode.attr('class', '')
-                for (const className:string of sortedClassNames)
-                    $thisDomNode.addClass(className)
-            } else if ($thisDomNode.is('[class]'))
+            if ($thisDomNode.attr('class'))
+                $thisDomNode.attr('class', ($thisDomNode.attr('class').split(
+                    ' '
+                ).sort() || []).join(' '))
+            else if ($thisDomNode.is('[class]'))
                 $thisDomNode.removeAttr('class')
         })
         return this
@@ -887,18 +891,14 @@ export class Tools {
         this.$domNode.find('*').addBack().each(function():void {
             const $thisDomNode:$DomNode = $(this)
             let serializedStyles:?string = $thisDomNode.attr('style')
-            if (serializedStyles) {
-                const sortedStyles:Array<string> =
-                    self.constructor.stringCompressStyleValue(
-                        serializedStyles
-                    ).split(';').sort() || []
-                $thisDomNode.attr('style', '')
-                for (const style:string of sortedStyles)
-                    $thisDomNode.css(...style.trim().split(':'))
+            if (serializedStyles)
                 $thisDomNode.attr(
-                    'style', self.constructor.stringCompressStyleValue(
-                        $thisDomNode.attr('style')))
-            } else if ($thisDomNode.is('[style]'))
+                    'style', self.constructor.stringCompressStyleValue((
+                        self.constructor.stringCompressStyleValue(
+                            serializedStyles
+                        ).split(';').sort() || []).map((style:string):string =>
+                            style.trim()).join(';')))
+            else if ($thisDomNode.is('[style]'))
                 $thisDomNode.removeAttr('style')
         })
         return this
@@ -1010,6 +1010,7 @@ export class Tools {
                     'normalizedClassNames'
                 ).$domNode.Tools('normalizedStyles').$domNode
                 let index:number = 0
+                // TODO minify problem.
                 for (const domNode:DomNode of $domNodes.first)
                     if (!domNode.isEqualNode($domNodes.second[index]))
                         return false
@@ -1182,12 +1183,14 @@ export class Tools {
                         const match:?Array<string> =
                             domNodeSelectors[name].match(', *')
                         if (match)
-                            for (const selectorPart:string of domNodeSelectors[
+                            domNodeSelectors[name] += domNodeSelectors[
                                 name
-                            ].split(match[0]))
-                                domNodeSelectors[name] += ', ' +
-                                    this.stringNormalizeDomNodeSelector(
-                                        selectorPart)
+                            ].split(match[0]).map((
+                                selectorPart:string
+                            ):string =>
+                                ', ' + this.stringNormalizeDomNodeSelector(
+                                    selectorPart)
+                            ).join('')
                         domNodes[name] = $(this.stringNormalizeDomNodeSelector(
                             domNodeSelectors[name]))
                     }
@@ -1615,6 +1618,7 @@ export class Tools {
                 }
                 return newObject
             }
+            /* TODO minify error ->*/
             if (deep)
                 if (Tools.isPlainObject(object)) {
                     for (const key:string in object)
@@ -1660,6 +1664,7 @@ export class Tools {
                     }
                 return newObject
             }
+            /* TODO minify error ->*/
             if (deep)
                 if (Array.isArray(object)) {
                     let index:number = 0
@@ -1752,6 +1757,7 @@ export class Tools {
                     }
                     return result
                 }
+            // TODO -> minify error
                 if (Array.isArray(source))
                     for (const item:any of source)
                         destination.push(copyValue(item))
@@ -4654,7 +4660,6 @@ export class Tools {
         })
         return childProcess
     }
-    // / endregion
     // endregion
     // region protected methods
     /* eslint-disable jsdoc/require-description-complete-sentence */
