@@ -71,7 +71,7 @@
     "qunit": "^2.4.1",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.5.0",
-    "weboptimizer": "^1.0.416",
+    "weboptimizer": "^1.0.417",
     "webpack": "^3.8.0",
     "webpack-dev-server": "^2.9.3"
   },
@@ -97,7 +97,7 @@
         "javaScript": {
           "options": {
             "presets": {
-              "__evaluate__": "[['env', {targets: self.targetTechnology === 'node' ? {node: 'current'} : {browsers: 'last 2 versions', node: 'current'}}]].concat('stage-0')"
+              "__evaluate__": "[['env', {loose: true, targets: self.targetTechnology === 'node' ? {node: 'current'} : {browsers: 'last 2 versions', node: 'current'}}]].concat('stage-0').concat((self.debug || 2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'document') ? [] : [['minify', {guards: false, mangle: false, simplify: false}]])"
             }
           }
         }
