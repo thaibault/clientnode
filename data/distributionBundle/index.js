@@ -528,7 +528,7 @@ export class Tools {
         parameter = this.constructor.arrayMake(parameter)
         if ($domNode && 'data' in $domNode && !$domNode.data(name))
             // Attach extended object to the associated dom node.
-            $domNode.data(name)
+            $domNode.data(name, object)
         if (parameter[0] in object) {
             if (Tools.isFunction(object[parameter[0]]))
                 return object[parameter[0]](...parameter.slice(1))
