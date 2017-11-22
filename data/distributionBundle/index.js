@@ -3747,7 +3747,8 @@ export class Tools {
         const convertCharactorToHexCode = (character:any):string => {
             let hexString:string = ''
             for (let round:number = 0; round < 4; round++)
-                hexString += hexCharacters[(character >> (
+                // NOTE: "+=" can not be used here since the minifier breaks.
+                hexString = hexString + hexCharacters[(character >> (
                     round * 8 + 4
                 )) & 0x0F] + hexCharacters[(character >> (round * 8)) & 0x0F]
             return hexString
