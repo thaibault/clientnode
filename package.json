@@ -93,6 +93,15 @@
         "clientnode$": "./index",
         "jquery$": "jquery/dist/jquery.min"
       },
+      "preprocessor": {
+        "javaScript": {
+          "options": {
+            "presets": {
+              "__evaluate__": "[['env', {loose: true, targets: self.targetTechnology === 'node' ? {node: 'current'} : {browsers: 'last 2 versions', node: 'current'}}]].concat('stage-0').concat((self.debug || 2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'document') ? [] : [['minify', {guards: false, mangle: false, simplify: false}]])"
+            }
+          }
+        }
+      },
       "skipParseRegularExpressions": {
         "__evaluate__": "/(?:^|\\/)(?:(?:babel-polyfill\\/dist\\/polyfill)|(?:jquery\\/dist\\/jquery)|(?:webpack\\/buildin\\/global)|(?:webpack\\/buildin\\/module))(?:\\.min)?\\.js(?:\\?.+|$)/"
       }
