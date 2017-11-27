@@ -61,7 +61,7 @@
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "documentation-website": "^1.0.78",
-    "eslint": "^4.11.0",
+    "eslint": "^4.12.0",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.36.0",
     "eslint-plugin-jsdoc": "^3.1.1",
@@ -71,7 +71,7 @@
     "qunit": "^2.4.1",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.5.0",
-    "weboptimizer": "^1.0.424",
+    "weboptimizer": "^1.0.426",
     "webpack": "^3.8.0",
     "webpack-dev-server": "^2.9.3"
   },
