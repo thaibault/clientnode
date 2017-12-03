@@ -39,7 +39,7 @@ export type File = {
     directoryPath:string;
     name:string;
     path:string;
-    stat:Object;
+    stats:Object;
 }
 export type GetterFunction = (keyOrValue:any, key:?any, target:?any) => any
 export type SetterFunction = (key:any, value:any, target:?any) => any
@@ -4273,7 +4273,7 @@ export class Tools {
                     const currentTargetPath:string = path.join(
                         targetPath, currentSourceFile.path.substring(
                             sourcePath.length))
-                    if (currentSourceFile.stat.isDirectory())
+                    if (currentSourceFile.stats.isDirectory())
                         try {
                             fileSystem.mkdirSync(currentTargetPath)
                         } catch (error) {
@@ -4322,7 +4322,7 @@ export class Tools {
             const currentTargetPath:string = path.join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
-            if (currentSourceFile.stat.isDirectory())
+            if (currentSourceFile.stats.isDirectory())
                 fileSystem.mkdirSync(currentTargetPath)
             else
                 Tools.copyFileSync(
@@ -4416,7 +4416,7 @@ export class Tools {
     static isDirectory(filePath:string):Promise<boolean> {
         return new Promise((resolve:Function, reject:Function):void =>
             fileSystem.stat(filePath, (
-                error:?Error, stat:Object
+                error:?Error, stats:Object
             ):void => {
                 if (error)
                     if (error.hasOwnProperty(
@@ -4427,7 +4427,7 @@ export class Tools {
                     else
                         reject(error)
                 else
-                    resolve(stat.isDirectory())
+                    resolve(stats.isDirectory())
             }))
     }
     /**
@@ -4504,37 +4504,48 @@ export class Tools {
                 if (error)
                     return reject(error)
                 const files:Array<File> = []
-                const statPromises:Array<Promise<void>> = []
+                const statsPromises:Array<Promise<void>> = []
                 for (const fileName:string of fileNames) {
                     const filePath:string = path.resolve(
                         directoryPath, fileName)
-                    statPromises.push(new Promise((resolve:Function):void =>
+                    statsPromises.push(new Promise((resolve:Function):void =>
                         fileSystem.stat(filePath, (
-                            error:?Error, stat:Object
+                            error:?Error, stats:Object
                         ):void => {
                             files.push({
                                 directoryPath,
+                                error,
                                 name: fileName,
                                 path: filePath,
-                                stat: error || stat
+                                stats
                             })
                             resolve()
                         })
                     ))
                 }
-                await Promise.all(statPromises)
+                await Promise.all(statsPromises)
                 if (callback)
                     /*
                         NOTE: Directories have to be iterated first to
                         potentially avoid deeper iterations.
                     */
                     files.sort((firstFile:File, secondFile:File):number => {
-                        if (firstFile.stat.isDirectory()) {
-                            if (secondFile.stat.isDirectory())
+                        if (firstFile.error) {
+                            if (secondFile.error)
+                                return 0
+                            return 1
+                        }
+                        if (firstFile.stats.isDirectory()) {
+                            if (
+                                secondFile.error ||
+                                secondFile.stats.isDirectory()
+                            )
                                 return 0
                             return -1
                         }
-                        if (secondFile.stat.isDirectory())
+                        if (secondFile.error)
+                            return -1
+                        if (secondFile.stats.isDirectory())
                             return 1
                         return 0
                     })
@@ -4548,7 +4559,11 @@ export class Tools {
                         result = await result
                     if (result === null)
                         break
-                    if (result !== false && file.stat.isDirectory())
+                    if (
+                        result !== false &&
+                        !file.error &&
+                        file.stats.isDirectory()
+                    )
                         finalFiles = finalFiles.concat(
                             await Tools.walkDirectoryRecursively(
                                 file.path, callback))
@@ -4559,7 +4574,7 @@ export class Tools {
     /**
      * Iterates through given directory structure recursively and calls given
      * callback for each found file. Callback gets file path and corresponding
-     * stat object as argument.
+     * stats object as argument.
      * @param directoryPath - Path to directory structure to traverse.
      * @param callback - Function to invoke for each traversed file.
      * @param options - Options to use for nested "readdir" calls.
@@ -4576,7 +4591,7 @@ export class Tools {
             const filePath:string = path.resolve(directoryPath, fileName)
             files.push({
                 directoryPath, name: fileName, path: filePath,
-                stat: fileSystem.statSync(filePath)
+                stats: fileSystem.statSync(filePath)
             })
         }
         if (callback)
@@ -4585,12 +4600,12 @@ export class Tools {
                 avoid deeper iterations.
             */
             files.sort((firstFile:File, secondFile:File):number => {
-                if (firstFile.stat.isDirectory()) {
-                    if (secondFile.stat.isDirectory())
+                if (firstFile.stats.isDirectory()) {
+                    if (secondFile.stats.isDirectory())
                         return 0
                     return -1
                 }
-                if (secondFile.stat.isDirectory())
+                if (secondFile.stats.isDirectory())
                     return 1
                 return 0
             })
@@ -4600,7 +4615,7 @@ export class Tools {
             const result:any = callback(file)
             if (result === null)
                 break
-            if (result !== false && file.stat.isDirectory())
+            if (result !== false && file.stats.isDirectory())
                 finalFiles = finalFiles.concat(
                     Tools.walkDirectoryRecursivelySync(file.path, callback))
         }

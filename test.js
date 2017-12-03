@@ -2668,7 +2668,7 @@ let tests:Array<Test> = [{callback: function(
             }
             assert.strictEqual(files.length, 1)
             assert.ok(files[0].hasOwnProperty('path'))
-            assert.ok(files[0].hasOwnProperty('stat'))
+            assert.ok(files[0].hasOwnProperty('stats'))
             assert.strictEqual(filePaths.length, 1)
             done()
         })
@@ -2684,7 +2684,7 @@ let tests:Array<Test> = [{callback: function(
                 $.Tools.class.walkDirectoryRecursivelySync('./', callback)
             assert.strictEqual(files.length, 1)
             assert.ok(files[0].hasOwnProperty('path'))
-            assert.ok(files[0].hasOwnProperty('stat'))
+            assert.ok(files[0].hasOwnProperty('stats'))
             assert.strictEqual(filePaths.length, 1)
         })
     }
