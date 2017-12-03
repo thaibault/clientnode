@@ -896,8 +896,8 @@ export class Tools {
                     'style', self.constructor.stringCompressStyleValue((
                         self.constructor.stringCompressStyleValue(
                             serializedStyles
-                        ).split(';').sort() || []).map((style:string):string =>
-                            style.trim()).join(';')))
+                        ).split(';').sort() || []
+                    ).map((style:string):string => style.trim()).join(';')))
             else if ($thisDomNode.is('[style]'))
                 $thisDomNode.removeAttr('style')
         })
@@ -1010,7 +1010,6 @@ export class Tools {
                     'normalizedClassNames'
                 ).$domNode.Tools('normalizedStyles').$domNode
                 let index:number = 0
-                // TODO minify problem.
                 for (const domNode:DomNode of $domNodes.first)
                     if (!domNode.isEqualNode($domNodes.second[index]))
                         return false
@@ -1618,7 +1617,6 @@ export class Tools {
                 }
                 return newObject
             }
-            /* TODO minify error ->*/
             if (deep)
                 if (Tools.isPlainObject(object)) {
                     for (const key:string in object)
@@ -1664,7 +1662,6 @@ export class Tools {
                     }
                 return newObject
             }
-            /* TODO minify error ->*/
             if (deep)
                 if (Array.isArray(object)) {
                     let index:number = 0
@@ -1749,15 +1746,16 @@ export class Tools {
                     const result:any = Tools.copyLimitedRecursively(
                         value, recursionLimit, cyclic, null, stackSource,
                         stackDestination, recursionLevel + 1)
-                    if (!cyclic && ![undefined, null].includes(
-                        value
-                    ) && typeof value === 'object') {
+                    if (
+                        !cyclic &&
+                        ![undefined, null].includes(value) &&
+                        typeof value === 'object'
+                    ) {
                         stackSource.push(value)
                         stackDestination.push(result)
                     }
                     return result
                 }
-            // TODO -> minify error
                 if (Array.isArray(source))
                     for (const item:any of source)
                         destination.push(copyValue(item))
@@ -4454,7 +4452,7 @@ export class Tools {
      */
     static isFile(filePath:string):Promise<boolean> {
         return new Promise((resolve:Function, reject:Function):void =>
-            fileSystem.stat(filePath, (error:?Error, stat:Object):void => {
+            fileSystem.stat(filePath, (error:?Error, stats:Object):void => {
                 if (error)
                     if (error.hasOwnProperty(
                         'code'
