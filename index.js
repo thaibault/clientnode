@@ -4464,7 +4464,7 @@ export class Tools {
                     else
                         reject(error)
                 else
-                    resolve(stat.isFile())
+                    resolve(stats.isFile())
             }))
     }
     /**
