@@ -2409,11 +2409,22 @@ export class Tools {
      * @param indention - String (usually whitespaces) to use as indention.
      * @param initialIndention - String (usually whitespaces) to use as
      * additional indention for the first object traversing level.
+     * @param numberOfLevels - Specifies number of levels to traverse given
+     * data structure.
+     * @param maximumNumberOfLevelsReachedIdentifier - Replacement for objects
+     * which are out of specified bounds to traverse.
      * @returns Representation string.
      */
     static representObject(
-        object:any, indention:string = '    ', initialIndention:string = ''
+        object:any,
+        indention:string = '    ',
+        initialIndention:string = '',
+        numberOfLevels:number = 8,
+        maximumNumberOfLevelsReachedIdentifier:any =
+        '__maximum_number_of_levels_reached__'
     ):string {
+        if (numberOfLevels === 0)
+            return maximumNumberOfLevelsReachedIdentifier
         if (object === null)
             return 'null'
         if (object === undefined)
@@ -2430,7 +2441,9 @@ export class Tools {
                     result += ','
                 result += `\n${initialIndention}${indention}` +
                     Tools.representObject(
-                        item, indention, `${initialIndention}${indention}`)
+                        item, indention, `${initialIndention}${indention}`,
+                        numberOfLevels - 1,
+                        maximumNumberOfLevelsReachedIdentifier)
                 firstSeen = true
             }
             if (firstSeen)
@@ -2445,10 +2458,13 @@ export class Tools {
                 if (firstSeen)
                     result += `,\n${initialIndention}${indention}`
                 result += Tools.representObject(
-                    key, indention, `${initialIndention}${indention}`
+                    key, indention, `${initialIndention}${indention}`,
+                    numberOfLevels - 1, maximumNumberOfLevelsReachedIdentifier
                 ) + ' -> ' +
                     Tools.representObject(
-                        item, indention, `${initialIndention}${indention}`)
+                        item, indention, `${initialIndention}${indention}`,
+                        numberOfLevels - 1,
+                        maximumNumberOfLevelsReachedIdentifier)
                 firstSeen = true
             }
             if (!firstSeen)
@@ -2463,7 +2479,9 @@ export class Tools {
                     result += ','
                 result += `\n${initialIndention}${indention}` +
                     Tools.representObject(
-                        item, indention, `${initialIndention}${indention}`)
+                        item, indention, `${initialIndention}${indention}`,
+                        numberOfLevels - 1,
+                        maximumNumberOfLevelsReachedIdentifier)
                 firstSeen = true
             }
             if (firstSeen)
@@ -2480,7 +2498,8 @@ export class Tools {
                 result += ','
             result += `\n${initialIndention}${indention}${key}: ` +
                 Tools.representObject(
-                    object[key], indention, `${initialIndention}${indention}`)
+                    object[key], indention, `${initialIndention}${indention}`,
+                    numberOfLevels - 1, maximumNumberOfLevelsReachedIdentifier)
             firstSeen = true
         }
         if (firstSeen)
