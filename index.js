@@ -37,9 +37,10 @@ export type PlainObject = {[key:string]:any}
 export type ProcedureFunction = () => void|Promise<void>
 export type File = {
     directoryPath:string;
+    error:Error|null;
     name:string;
     path:string;
-    stats:Object;
+    stats:Object|null;
 }
 export type GetterFunction = (keyOrValue:any, key:?any, target:?any) => any
 export type SetterFunction = (key:any, value:any, target:?any) => any
@@ -4290,7 +4291,10 @@ export class Tools {
                     const currentTargetPath:string = path.join(
                         targetPath, currentSourceFile.path.substring(
                             sourcePath.length))
-                    if (currentSourceFile.stats.isDirectory())
+                    if (
+                        currentSourceFile.stats &&
+                        currentSourceFile.stats.isDirectory()
+                    )
                         try {
                             fileSystem.mkdirSync(currentTargetPath)
                         } catch (error) {
@@ -4339,7 +4343,10 @@ export class Tools {
             const currentTargetPath:string = path.join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
-            if (currentSourceFile.stats.isDirectory())
+            if (
+                currentSourceFile.stats &&
+                currentSourceFile.stats.isDirectory()
+            )
                 fileSystem.mkdirSync(currentTargetPath)
             else
                 Tools.copyFileSync(
@@ -4531,10 +4538,10 @@ export class Tools {
                         ):void => {
                             files.push({
                                 directoryPath,
-                                error,
+                                error: error || null,
                                 name: fileName,
                                 path: filePath,
-                                stats
+                                stats: stats || null
                             })
                             resolve()
                         })
@@ -4552,9 +4559,10 @@ export class Tools {
                                 return 0
                             return 1
                         }
-                        if (firstFile.stats.isDirectory()) {
+                        if (firstFile.stats && firstFile.stats.isDirectory()) {
                             if (
                                 secondFile.error ||
+                                secondFile.stats &&
                                 secondFile.stats.isDirectory()
                             )
                                 return 0
@@ -4562,7 +4570,7 @@ export class Tools {
                         }
                         if (secondFile.error)
                             return -1
-                        if (secondFile.stats.isDirectory())
+                        if (secondFile.stats && secondFile.stats.isDirectory())
                             return 1
                         return 0
                     })
@@ -4578,7 +4586,7 @@ export class Tools {
                         break
                     if (
                         result !== false &&
-                        !file.error &&
+                        file.stats &&
                         file.stats.isDirectory()
                     )
                         finalFiles = finalFiles.concat(
@@ -4606,10 +4614,19 @@ export class Tools {
             directoryPath, options
         )) {
             const filePath:string = path.resolve(directoryPath, fileName)
-            files.push({
-                directoryPath, name: fileName, path: filePath,
-                stats: fileSystem.statSync(filePath)
-            })
+            const file:File = {
+                directoryPath,
+                error: null,
+                name: fileName,
+                path: filePath,
+                stats: null
+            }
+            try {
+                file.stats = fileSystem.statSync(filePath)
+            } catch (error) {
+                file.error = error
+            }
+            files.push()
         }
         if (callback)
             /*
@@ -4617,12 +4634,23 @@ export class Tools {
                 avoid deeper iterations.
             */
             files.sort((firstFile:File, secondFile:File):number => {
-                if (firstFile.stats.isDirectory()) {
-                    if (secondFile.stats.isDirectory())
+                if (firstFile.error) {
+                    if (secondFile.error)
+                        return 0
+                    return 1
+                }
+                if (firstFile.stats && firstFile.stats.isDirectory()) {
+                    if (
+                        secondFile.error ||
+                        secondFile.stats &&
+                        secondFile.stats.isDirectory()
+                    )
                         return 0
                     return -1
                 }
-                if (secondFile.stats.isDirectory())
+                if (secondFile.error)
+                    return -1
+                if (secondFile.stats && secondFile.stats.isDirectory())
                     return 1
                 return 0
             })
@@ -4632,7 +4660,11 @@ export class Tools {
             const result:any = callback(file)
             if (result === null)
                 break
-            if (result !== false && file.stats.isDirectory())
+            if (
+                result !== false &&
+                file.stats &&
+                file.stats.isDirectory()
+            )
                 finalFiles = finalFiles.concat(
                     Tools.walkDirectoryRecursivelySync(file.path, callback))
         }
