@@ -4626,7 +4626,7 @@ export class Tools {
             } catch (error) {
                 file.error = error
             }
-            files.push()
+            files.push(file)
         }
         if (callback)
             /*
