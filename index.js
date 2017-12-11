@@ -870,16 +870,19 @@ export class Tools {
      * @returns Current instance.
      */
     get normalizedClassNames():Tools {
-        // IgnoreTypeCheck
-        this.$domNode.find('*').addBack().each(function():void {
-            const $thisDomNode:$DomNode = $(this)
-            if ($thisDomNode.attr('class'))
-                $thisDomNode.attr('class', ($thisDomNode.attr('class').split(
-                    ' '
-                ).sort() || []).join(' '))
-            else if ($thisDomNode.is('[class]'))
-                $thisDomNode.removeAttr('class')
-        })
+        if (this.$domNode) {
+            const className:string = 'class'
+            // IgnoreTypeCheck
+            this.$domNode.find('*').addBack().each(function():void {
+                const $thisDomNode:$DomNode = $(this)
+                if ($thisDomNode.attr(className))
+                    $thisDomNode.attr(className, ($thisDomNode.attr(
+                        className
+                    ).split(' ').sort() || []).join(' '))
+                else if ($thisDomNode.is(`[${className}]`))
+                    $thisDomNode.removeAttr(className)
+            })
+        }
         return this
     }
     /**
@@ -887,21 +890,25 @@ export class Tools {
      * @returns Returns current instance.
      */
     get normalizedStyles():Tools {
-        const self:Tools = this
-        // IgnoreTypeCheck
-        this.$domNode.find('*').addBack().each(function():void {
-            const $thisDomNode:$DomNode = $(this)
-            let serializedStyles:?string = $thisDomNode.attr('style')
-            if (serializedStyles)
-                $thisDomNode.attr(
-                    'style', self.constructor.stringCompressStyleValue((
-                        self.constructor.stringCompressStyleValue(
-                            serializedStyles
-                        ).split(';').sort() || []
-                    ).map((style:string):string => style.trim()).join(';')))
-            else if ($thisDomNode.is('[style]'))
-                $thisDomNode.removeAttr('style')
-        })
+        if (this.$domNode) {
+            const self:Tools = this
+            const styleName:string = 'style'
+            // IgnoreTypeCheck
+            this.$domNode.find('*').addBack().each(function():void {
+                const $thisDomNode:$DomNode = $(this)
+                let serializedStyles:?string = $thisDomNode.attr(styleName)
+                if (serializedStyles)
+                    $thisDomNode.attr(
+                        styleName, self.constructor.stringCompressStyleValue((
+                            self.constructor.stringCompressStyleValue(
+                                serializedStyles
+                            ).split(';').sort() || []
+                        ).map((style:string):string => style.trim()).join(
+                            ';')))
+                else if ($thisDomNode.is(`[${styleName}]`))
+                    $thisDomNode.removeAttr(styleName)
+            })
+        }
         return this
     }
     /**
