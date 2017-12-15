@@ -37,9 +37,10 @@ export type PlainObject = {[key:string]:any}
 export type ProcedureFunction = () => void|Promise<void>
 export type File = {
     directoryPath:string;
+    error:Error|null;
     name:string;
     path:string;
-    stat:Object;
+    stats:Object|null;
 }
 export type GetterFunction = (keyOrValue:any, key:?any, target:?any) => any
 export type SetterFunction = (key:any, value:any, target:?any) => any
@@ -869,16 +870,19 @@ export class Tools {
      * @returns Current instance.
      */
     get normalizedClassNames():Tools {
-        // IgnoreTypeCheck
-        this.$domNode.find('*').addBack().each(function():void {
-            const $thisDomNode:$DomNode = $(this)
-            if ($thisDomNode.attr('class'))
-                $thisDomNode.attr('class', ($thisDomNode.attr('class').split(
-                    ' '
-                ).sort() || []).join(' '))
-            else if ($thisDomNode.is('[class]'))
-                $thisDomNode.removeAttr('class')
-        })
+        if (this.$domNode) {
+            const className:string = 'class'
+            // IgnoreTypeCheck
+            this.$domNode.find('*').addBack().each(function():void {
+                const $thisDomNode:$DomNode = $(this)
+                if ($thisDomNode.attr(className))
+                    $thisDomNode.attr(className, ($thisDomNode.attr(
+                        className
+                    ).split(' ').sort() || []).join(' '))
+                else if ($thisDomNode.is(`[${className}]`))
+                    $thisDomNode.removeAttr(className)
+            })
+        }
         return this
     }
     /**
@@ -886,21 +890,25 @@ export class Tools {
      * @returns Returns current instance.
      */
     get normalizedStyles():Tools {
-        const self:Tools = this
-        // IgnoreTypeCheck
-        this.$domNode.find('*').addBack().each(function():void {
-            const $thisDomNode:$DomNode = $(this)
-            let serializedStyles:?string = $thisDomNode.attr('style')
-            if (serializedStyles)
-                $thisDomNode.attr(
-                    'style', self.constructor.stringCompressStyleValue((
-                        self.constructor.stringCompressStyleValue(
-                            serializedStyles
-                        ).split(';').sort() || []).map((style:string):string =>
-                            style.trim()).join(';')))
-            else if ($thisDomNode.is('[style]'))
-                $thisDomNode.removeAttr('style')
-        })
+        if (this.$domNode) {
+            const self:Tools = this
+            const styleName:string = 'style'
+            // IgnoreTypeCheck
+            this.$domNode.find('*').addBack().each(function():void {
+                const $thisDomNode:$DomNode = $(this)
+                let serializedStyles:?string = $thisDomNode.attr(styleName)
+                if (serializedStyles)
+                    $thisDomNode.attr(
+                        styleName, self.constructor.stringCompressStyleValue((
+                            self.constructor.stringCompressStyleValue(
+                                serializedStyles
+                            ).split(';').sort() || []
+                        ).map((style:string):string => style.trim()).join(
+                            ';')))
+                else if ($thisDomNode.is(`[${styleName}]`))
+                    $thisDomNode.removeAttr(styleName)
+            })
+        }
         return this
     }
     /**
@@ -1010,7 +1018,6 @@ export class Tools {
                     'normalizedClassNames'
                 ).$domNode.Tools('normalizedStyles').$domNode
                 let index:number = 0
-                // TODO minify problem.
                 for (const domNode:DomNode of $domNodes.first)
                     if (!domNode.isEqualNode($domNodes.second[index]))
                         return false
@@ -1618,7 +1625,6 @@ export class Tools {
                 }
                 return newObject
             }
-            /* TODO minify error ->*/
             if (deep)
                 if (Tools.isPlainObject(object)) {
                     for (const key:string in object)
@@ -1664,7 +1670,6 @@ export class Tools {
                     }
                 return newObject
             }
-            /* TODO minify error ->*/
             if (deep)
                 if (Array.isArray(object)) {
                     let index:number = 0
@@ -1749,15 +1754,16 @@ export class Tools {
                     const result:any = Tools.copyLimitedRecursively(
                         value, recursionLimit, cyclic, null, stackSource,
                         stackDestination, recursionLevel + 1)
-                    if (!cyclic && ![undefined, null].includes(
-                        value
-                    ) && typeof value === 'object') {
+                    if (
+                        !cyclic &&
+                        ![undefined, null].includes(value) &&
+                        typeof value === 'object'
+                    ) {
                         stackSource.push(value)
                         stackDestination.push(result)
                     }
                     return result
                 }
-            // TODO -> minify error
                 if (Array.isArray(source))
                     for (const item:any of source)
                         destination.push(copyValue(item))
@@ -2411,11 +2417,22 @@ export class Tools {
      * @param indention - String (usually whitespaces) to use as indention.
      * @param initialIndention - String (usually whitespaces) to use as
      * additional indention for the first object traversing level.
+     * @param numberOfLevels - Specifies number of levels to traverse given
+     * data structure.
+     * @param maximumNumberOfLevelsReachedIdentifier - Replacement for objects
+     * which are out of specified bounds to traverse.
      * @returns Representation string.
      */
     static representObject(
-        object:any, indention:string = '    ', initialIndention:string = ''
+        object:any,
+        indention:string = '    ',
+        initialIndention:string = '',
+        numberOfLevels:number = 8,
+        maximumNumberOfLevelsReachedIdentifier:any =
+        '__maximum_number_of_levels_reached__'
     ):string {
+        if (numberOfLevels === 0)
+            return maximumNumberOfLevelsReachedIdentifier
         if (object === null)
             return 'null'
         if (object === undefined)
@@ -2432,7 +2449,9 @@ export class Tools {
                     result += ','
                 result += `\n${initialIndention}${indention}` +
                     Tools.representObject(
-                        item, indention, `${initialIndention}${indention}`)
+                        item, indention, `${initialIndention}${indention}`,
+                        numberOfLevels - 1,
+                        maximumNumberOfLevelsReachedIdentifier)
                 firstSeen = true
             }
             if (firstSeen)
@@ -2447,10 +2466,13 @@ export class Tools {
                 if (firstSeen)
                     result += `,\n${initialIndention}${indention}`
                 result += Tools.representObject(
-                    key, indention, `${initialIndention}${indention}`
+                    key, indention, `${initialIndention}${indention}`,
+                    numberOfLevels - 1, maximumNumberOfLevelsReachedIdentifier
                 ) + ' -> ' +
                     Tools.representObject(
-                        item, indention, `${initialIndention}${indention}`)
+                        item, indention, `${initialIndention}${indention}`,
+                        numberOfLevels - 1,
+                        maximumNumberOfLevelsReachedIdentifier)
                 firstSeen = true
             }
             if (!firstSeen)
@@ -2465,7 +2487,9 @@ export class Tools {
                     result += ','
                 result += `\n${initialIndention}${indention}` +
                     Tools.representObject(
-                        item, indention, `${initialIndention}${indention}`)
+                        item, indention, `${initialIndention}${indention}`,
+                        numberOfLevels - 1,
+                        maximumNumberOfLevelsReachedIdentifier)
                 firstSeen = true
             }
             if (firstSeen)
@@ -2482,7 +2506,8 @@ export class Tools {
                 result += ','
             result += `\n${initialIndention}${indention}${key}: ` +
                 Tools.representObject(
-                    object[key], indention, `${initialIndention}${indention}`)
+                    object[key], indention, `${initialIndention}${indention}`,
+                    numberOfLevels - 1, maximumNumberOfLevelsReachedIdentifier)
             firstSeen = true
         }
         if (firstSeen)
@@ -4273,7 +4298,10 @@ export class Tools {
                     const currentTargetPath:string = path.join(
                         targetPath, currentSourceFile.path.substring(
                             sourcePath.length))
-                    if (currentSourceFile.stat.isDirectory())
+                    if (
+                        currentSourceFile.stats &&
+                        currentSourceFile.stats.isDirectory()
+                    )
                         try {
                             fileSystem.mkdirSync(currentTargetPath)
                         } catch (error) {
@@ -4322,7 +4350,10 @@ export class Tools {
             const currentTargetPath:string = path.join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
-            if (currentSourceFile.stat.isDirectory())
+            if (
+                currentSourceFile.stats &&
+                currentSourceFile.stats.isDirectory()
+            )
                 fileSystem.mkdirSync(currentTargetPath)
             else
                 Tools.copyFileSync(
@@ -4416,7 +4447,7 @@ export class Tools {
     static isDirectory(filePath:string):Promise<boolean> {
         return new Promise((resolve:Function, reject:Function):void =>
             fileSystem.stat(filePath, (
-                error:?Error, stat:Object
+                error:?Error, stats:Object
             ):void => {
                 if (error)
                     if (error.hasOwnProperty(
@@ -4427,7 +4458,7 @@ export class Tools {
                     else
                         reject(error)
                 else
-                    resolve(stat.isDirectory())
+                    resolve(stats.isDirectory())
             }))
     }
     /**
@@ -4454,7 +4485,7 @@ export class Tools {
      */
     static isFile(filePath:string):Promise<boolean> {
         return new Promise((resolve:Function, reject:Function):void =>
-            fileSystem.stat(filePath, (error:?Error, stat:Object):void => {
+            fileSystem.stat(filePath, (error:?Error, stats:Object):void => {
                 if (error)
                     if (error.hasOwnProperty(
                         'code'
@@ -4464,7 +4495,7 @@ export class Tools {
                     else
                         reject(error)
                 else
-                    resolve(stat.isFile())
+                    resolve(stats.isFile())
             }))
     }
     /**
@@ -4504,37 +4535,49 @@ export class Tools {
                 if (error)
                     return reject(error)
                 const files:Array<File> = []
-                const statPromises:Array<Promise<void>> = []
+                const statsPromises:Array<Promise<void>> = []
                 for (const fileName:string of fileNames) {
                     const filePath:string = path.resolve(
                         directoryPath, fileName)
-                    statPromises.push(new Promise((resolve:Function):void =>
+                    statsPromises.push(new Promise((resolve:Function):void =>
                         fileSystem.stat(filePath, (
-                            error:?Error, stat:Object
+                            error:?Error, stats:Object
                         ):void => {
                             files.push({
                                 directoryPath,
+                                error: error || null,
                                 name: fileName,
                                 path: filePath,
-                                stat: error || stat
+                                stats: stats || null
                             })
                             resolve()
                         })
                     ))
                 }
-                await Promise.all(statPromises)
+                await Promise.all(statsPromises)
                 if (callback)
                     /*
                         NOTE: Directories have to be iterated first to
                         potentially avoid deeper iterations.
                     */
                     files.sort((firstFile:File, secondFile:File):number => {
-                        if (firstFile.stat.isDirectory()) {
-                            if (secondFile.stat.isDirectory())
+                        if (firstFile.error) {
+                            if (secondFile.error)
+                                return 0
+                            return 1
+                        }
+                        if (firstFile.stats && firstFile.stats.isDirectory()) {
+                            if (
+                                secondFile.error ||
+                                secondFile.stats &&
+                                secondFile.stats.isDirectory()
+                            )
                                 return 0
                             return -1
                         }
-                        if (secondFile.stat.isDirectory())
+                        if (secondFile.error)
+                            return -1
+                        if (secondFile.stats && secondFile.stats.isDirectory())
                             return 1
                         return 0
                     })
@@ -4548,7 +4591,11 @@ export class Tools {
                         result = await result
                     if (result === null)
                         break
-                    if (result !== false && file.stat.isDirectory())
+                    if (
+                        result !== false &&
+                        file.stats &&
+                        file.stats.isDirectory()
+                    )
                         finalFiles = finalFiles.concat(
                             await Tools.walkDirectoryRecursively(
                                 file.path, callback))
@@ -4559,7 +4606,7 @@ export class Tools {
     /**
      * Iterates through given directory structure recursively and calls given
      * callback for each found file. Callback gets file path and corresponding
-     * stat object as argument.
+     * stats object as argument.
      * @param directoryPath - Path to directory structure to traverse.
      * @param callback - Function to invoke for each traversed file.
      * @param options - Options to use for nested "readdir" calls.
@@ -4574,10 +4621,19 @@ export class Tools {
             directoryPath, options
         )) {
             const filePath:string = path.resolve(directoryPath, fileName)
-            files.push({
-                directoryPath, name: fileName, path: filePath,
-                stat: fileSystem.statSync(filePath)
-            })
+            const file:File = {
+                directoryPath,
+                error: null,
+                name: fileName,
+                path: filePath,
+                stats: null
+            }
+            try {
+                file.stats = fileSystem.statSync(filePath)
+            } catch (error) {
+                file.error = error
+            }
+            files.push(file)
         }
         if (callback)
             /*
@@ -4585,12 +4641,23 @@ export class Tools {
                 avoid deeper iterations.
             */
             files.sort((firstFile:File, secondFile:File):number => {
-                if (firstFile.stat.isDirectory()) {
-                    if (secondFile.stat.isDirectory())
+                if (firstFile.error) {
+                    if (secondFile.error)
+                        return 0
+                    return 1
+                }
+                if (firstFile.stats && firstFile.stats.isDirectory()) {
+                    if (
+                        secondFile.error ||
+                        secondFile.stats &&
+                        secondFile.stats.isDirectory()
+                    )
                         return 0
                     return -1
                 }
-                if (secondFile.stat.isDirectory())
+                if (secondFile.error)
+                    return -1
+                if (secondFile.stats && secondFile.stats.isDirectory())
                     return 1
                 return 0
             })
@@ -4600,7 +4667,11 @@ export class Tools {
             const result:any = callback(file)
             if (result === null)
                 break
-            if (result !== false && file.stat.isDirectory())
+            if (
+                result !== false &&
+                file.stats &&
+                file.stats.isDirectory()
+            )
                 finalFiles = finalFiles.concat(
                     Tools.walkDirectoryRecursivelySync(file.path, callback))
         }
