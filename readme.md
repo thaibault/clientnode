@@ -13,7 +13,7 @@ endregion -->
 
 [![Build Status](https://travis-ci.org/thaibault/clientNode.svg?branch=master)](https://travis-ci.org/thaibault/clientNode)
 [![npm version](https://badge.fury.io/js/clientnode.svg)](https://badge.fury.io/js/clientnode)
-[![downloads](https://www.npmjs.com/package/clientnode)](https://img.shields.io/npm/dy/clientNode.svg)
+[![downloads](https://img.shields.io/npm/dy/clientNode.svg)](https://www.npmjs.com/package/clientnode)
 [![dependencies](https://img.shields.io/david/thaibault/clientNode.svg)](https://david-dm.org/thaibault/clientNode)
 [![devDependencies](https://img.shields.io/david/dev/thaibault/clientNode.svg)](https://david-dm.org/thaibault/clientNode?type=dev)
 [![peerDependencies](https://img.shields.io/david/peer/thaibault/clientNode.svg)](https://david-dm.org/thaibault/clientNode?type=peer)
