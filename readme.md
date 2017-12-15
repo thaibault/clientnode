@@ -14,9 +14,9 @@ endregion -->
 [![npm version](https://badge.fury.io/js/clientnode.svg)](https://www.npmjs.com/package/clientnode)
 [![downloads](https://img.shields.io/npm/dy/clientnode.svg)](https://www.npmjs.com/package/clientnode)
 [![build status](https://travis-ci.org/thaibault/clientNode.svg?branch=master)](https://travis-ci.org/thaibault/clientNode)
-[![dependencies](https://img.shields.io/david/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientNode)
-[![devDependencies](https://img.shields.io/david/dev/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientNode?type=dev)
-[![peerDependencies](https://img.shields.io/david/peer/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientNode?type=peer)
+[![dependencies](https://img.shields.io/david/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode)
+[![devDependencies](https://img.shields.io/david/dev/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode?type=dev)
+[![peerDependencies](https://img.shields.io/david/peer/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode?type=peer)
 [![documentation-website](https://img.shields.io/website-up-down-green-red/http/torben.website/clientNode.svg?label=documentation-website)](http://torben.website/clientNode)
 
 <!--|deDE:Einsatz-->
