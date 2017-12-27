@@ -57,11 +57,11 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
-    "babel-eslint": "^8.0.3",
+    "babel-eslint": "^8.1.2",
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "documentation-website": "^1.0.82",
-    "eslint": "^4.13.1",
+    "eslint": "^4.14.0",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.40.1",
     "eslint-plugin-jsdoc": "^3.3.0",
