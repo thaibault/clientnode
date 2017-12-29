@@ -41,7 +41,7 @@
     "export:compatible": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\",__append__:\"transform-proto-to-assign\"},presets:[\"env\",\"stage-0\"]}}}}}' && npm run build:test",
     "lint": "webOptimizer check:type; webOptimizer lint",
     "prepare": "if ! npm run build; then echo You should rerun install procedure to resolve dependency cycle. && npm run buildAlternatively; fi",
-    "report:coverage": "cat ./coverage/lcov.info | coveralls",
+    "report:coverage": "nyc report --reporter=text-lcov | coveralls",
     "serve": "webOptimizer serve",
     "start": "npm run serve",
     "test": "nyc npm run test:plain",
