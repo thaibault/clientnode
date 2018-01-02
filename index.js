@@ -1730,7 +1730,7 @@ export class Tools {
      * level in given source data structure.
      * @returns Value "true" if both objects are equal and "false" otherwise.
      */
-    static copyLimitedRecursively(
+    static copy(
         source:any, recursionLimit:number = -1, cyclic:boolean = false,
         destination:any = null, stackSource:Array<any> = [],
         stackDestination:Array<any> = [], recursionLevel:number = 0
@@ -1751,7 +1751,7 @@ export class Tools {
                     stackDestination.push(destination)
                 }
                 const copyValue:Function = (value:any):any => {
-                    const result:any = Tools.copyLimitedRecursively(
+                    const result:any = Tools.copy(
                         value, recursionLimit, cyclic, null, stackSource,
                         stackDestination, recursionLevel + 1)
                     if (
@@ -1779,15 +1779,15 @@ export class Tools {
                             destination[key] = copyValue(source[key])
             } else if (source) {
                 if (Array.isArray(source))
-                    return Tools.copyLimitedRecursively(
+                    return Tools.copy(
                         source, recursionLimit, cyclic, [], stackSource,
                         stackDestination, recursionLevel)
                 if (Tools.determineType(source) === 'map')
-                    return Tools.copyLimitedRecursively(
+                    return Tools.copy(
                         source, recursionLimit, cyclic, new Map(), stackSource,
                         stackDestination, recursionLevel)
                 if (Tools.determineType(source) === 'set')
-                    return Tools.copyLimitedRecursively(
+                    return Tools.copy(
                         source, recursionLimit, cyclic, new Set(), stackSource,
                         stackDestination, recursionLevel)
                 if (Tools.determineType(source) === 'date')
@@ -1798,7 +1798,7 @@ export class Tools {
                     destination.lastIndex = source.lastIndex
                     return destination
                 }
-                return Tools.copyLimitedRecursively(
+                return Tools.copy(
                     source, recursionLimit, cyclic, {}, stackSource,
                     stackDestination, recursionLevel)
             }
