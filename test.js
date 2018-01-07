@@ -103,9 +103,10 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
         process.once('exit', ():void => process.exit(details.failed))
     }
     // NOTE: Fixes qunit's ugly multi "done()" calls.
-    let finalDoneTimeoutID:?number = null
+    let finalDoneTimeoutID:any = null
     QUnit.done((...parameter:Array<any>):void => {
         if (finalDoneTimeoutID) {
+            // IgnoreTypeCheck
             clearTimeout(finalDoneTimeoutID)
             finalDoneTimeoutID = null
         }

@@ -1391,6 +1391,7 @@ export class Tools {
         // IgnoreTypeCheck
         result.clear = ():void => {
             if (result.timeoutID) {
+                // IgnoreTypeCheck
                 clearTimeout(result.timeoutID);
                 (throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)
             }
@@ -3173,7 +3174,7 @@ export class Tools {
      * @param url - The url to extract protocol from.
      * @param fallback - Fallback port to use if no protocol exists in given
      * url (default is current protocol).
-     * returns Extracted protocol.
+     * @returns Extracted protocol.
      */
     static stringGetProtocolName(
         url:string = 'location' in $.global && $.global.location.href || '',
