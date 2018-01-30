@@ -63,7 +63,7 @@
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "coveralls": "^3.0.0",
-    "documentation-website": "^1.0.89",
+    "documentation-website": "^1.0.93",
     "eslint": "^4.16.0",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.42.0",
