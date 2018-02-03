@@ -64,7 +64,7 @@
     "babel-polyfill": "^6.23.0",
     "coveralls": "^3.0.0",
     "documentation-website": "^1.0.95",
-    "eslint": "^4.16.0",
+    "eslint": "^4.17.0",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.42.0",
     "eslint-plugin-jsdoc": "^3.3.0",
@@ -75,7 +75,7 @@
     "qunit": "^2.5.0",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.5.3",
-    "weboptimizer": "^1.0.487",
+    "weboptimizer": "^1.0.488",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.10.1"
   },
