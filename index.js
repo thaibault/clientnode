@@ -3789,12 +3789,13 @@ export class Tools {
                 value[index] = convertCharactorToHexCode(value[index])
             return value.join('')
         }
+        /* eslint-disable jsdoc/require-description-complete-sentence */
         /**
          * There needs to be support for unicode here, unless we pretend that
          * we can redefine the md5 algorithm for multi-byte characters
          * (perhaps by adding every four 16-bit characters and shortening the
          * sum to 32 bits). Otherwise I suggest performing md5 as if every
-         * character was two bytes--e.g., 0040 0025 = @%--but then how will an
+         * character was two bytes e.g., 0040 0025 = @%--but then how will an
          * ordinary md5 sum be matched? There is no way to standardize text
          * to something like utf-8 before transformation; speed cost is
          * utterly prohibitive. The JavaScript standard itself needs to look
@@ -3814,6 +3815,7 @@ export class Tools {
                     (value.charCodeAt(blockNumber + 3) << 24)
             return blocks
         }
+        /* eslint-enable jsdoc/require-description-complete-sentence */
         // endregion
         /**
          * Triggers the main algorithm to calculate the md5 representation of
