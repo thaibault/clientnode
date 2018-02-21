@@ -74,13 +74,13 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
                     console.warn(`${indention}${error.message.red}`)
                 if (typeof error.actual !== 'undefined')
                     console.warn((
-                        // IgnoreTypeCheck
                         `${indention}actual: ` + Tools.representObject(
                             error.actual, '    ', indention
                         ) + ` (${typeof error.actual}) != ` +
                         `expected: ` + Tools.representObject(
                             error.expected, '    ', indention
                         ) + ` (${typeof error.expected})`
+                        // IgnoreTypeCheck
                     ).red)
             }
             errors.length = 0
@@ -103,9 +103,10 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
         process.once('exit', ():void => process.exit(details.failed))
     }
     // NOTE: Fixes qunit's ugly multi "done()" calls.
-    let finalDoneTimeoutID:?number = null
+    let finalDoneTimeoutID:any = null
     QUnit.done((...parameter:Array<any>):void => {
         if (finalDoneTimeoutID) {
+            // IgnoreTypeCheck
             clearTimeout(finalDoneTimeoutID)
             finalDoneTimeoutID = null
         }
@@ -938,9 +939,7 @@ let tests:Array<Test> = [{callback: function(
                 test[0], test[1], test[2]
             ), test[3])
     })
-    this.test(`copyLimitedRecursively (${roundType})`, (
-        assert:Object
-    ):void => {
+    this.test(`copy (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [[21], 21],
             [[0, -1], 0],
@@ -1013,8 +1012,7 @@ let tests:Array<Test> = [{callback: function(
                 new Set(['a', new Set(['a', 2])])
             ]
         ])
-            assert.deepEqual(
-                $.Tools.class.copyLimitedRecursively(...test[0]), test[1])
+            assert.deepEqual($.Tools.class.copy(...test[0]), test[1])
     })
     this.test(`determineType (${roundType})`, (assert:Object):void => {
         assert.strictEqual($.Tools.class.determineType(), 'undefined')
@@ -1268,9 +1266,7 @@ let tests:Array<Test> = [{callback: function(
                 [{
                     a: {__evaluate__: '_.b.d.e'},
                     b: {__evaluate__: '_.c'},
-                    c: {d: {e: {
-                        __evaluate__: 'tools.copyLimitedRecursively([2])'
-                    }}}
+                    c: {d: {e: {__evaluate__: 'tools.copy([2])'}}}
                 }, {tools: $.Tools.class}, '_'],
                 {a: [2], b: {d: {e: [2]}}, c: {d: {e: [2]}}}
             ],
@@ -1351,7 +1347,7 @@ let tests:Array<Test> = [{callback: function(
                 b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
             }], {a: ['a', 'b', 'c'], b: {a: 1, b: 2, c: 3}}]
         ])
-            assert.deepEqual($.Tools.class.copyLimitedRecursively(
+            assert.deepEqual($.Tools.class.copy(
                 $.Tools.class.evaluateDynamicDataStructure(...test[0]), -1,
                 true
             ), test[1])
