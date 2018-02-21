@@ -71,11 +71,11 @@
     "flow-bin": "^0.66.0",
     "jquery": "^3.3.1",
     "jsdoc": "^3.5.3",
-    "nyc": "^11.5.0",
+    "nyc": "^11.4.1",
     "qunit": "^2.5.0",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.5.3",
-    "weboptimizer": "^1.0.524",
+    "weboptimizer": "^1.0.525",
     "webpack": "^3.11.0",
     "webpack-dev-server": "^2.10.1"
   },
