@@ -1391,6 +1391,7 @@ export class Tools {
         // IgnoreTypeCheck
         result.clear = ():void => {
             if (result.timeoutID) {
+                // IgnoreTypeCheck
                 clearTimeout(result.timeoutID);
                 (throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)
             }
@@ -1730,7 +1731,7 @@ export class Tools {
      * level in given source data structure.
      * @returns Value "true" if both objects are equal and "false" otherwise.
      */
-    static copyLimitedRecursively(
+    static copy(
         source:any, recursionLimit:number = -1, cyclic:boolean = false,
         destination:any = null, stackSource:Array<any> = [],
         stackDestination:Array<any> = [], recursionLevel:number = 0
@@ -1751,7 +1752,7 @@ export class Tools {
                     stackDestination.push(destination)
                 }
                 const copyValue:Function = (value:any):any => {
-                    const result:any = Tools.copyLimitedRecursively(
+                    const result:any = Tools.copy(
                         value, recursionLimit, cyclic, null, stackSource,
                         stackDestination, recursionLevel + 1)
                     if (
@@ -1779,15 +1780,15 @@ export class Tools {
                             destination[key] = copyValue(source[key])
             } else if (source) {
                 if (Array.isArray(source))
-                    return Tools.copyLimitedRecursively(
+                    return Tools.copy(
                         source, recursionLimit, cyclic, [], stackSource,
                         stackDestination, recursionLevel)
                 if (Tools.determineType(source) === 'map')
-                    return Tools.copyLimitedRecursively(
+                    return Tools.copy(
                         source, recursionLimit, cyclic, new Map(), stackSource,
                         stackDestination, recursionLevel)
                 if (Tools.determineType(source) === 'set')
-                    return Tools.copyLimitedRecursively(
+                    return Tools.copy(
                         source, recursionLimit, cyclic, new Set(), stackSource,
                         stackDestination, recursionLevel)
                 if (Tools.determineType(source) === 'date')
@@ -1798,7 +1799,7 @@ export class Tools {
                     destination.lastIndex = source.lastIndex
                     return destination
                 }
-                return Tools.copyLimitedRecursively(
+                return Tools.copy(
                     source, recursionLimit, cyclic, {}, stackSource,
                     stackDestination, recursionLevel)
             }
@@ -3173,7 +3174,7 @@ export class Tools {
      * @param url - The url to extract protocol from.
      * @param fallback - Fallback port to use if no protocol exists in given
      * url (default is current protocol).
-     * returns Extracted protocol.
+     * @returns Extracted protocol.
      */
     static stringGetProtocolName(
         url:string = 'location' in $.global && $.global.location.href || '',
@@ -3788,12 +3789,13 @@ export class Tools {
                 value[index] = convertCharactorToHexCode(value[index])
             return value.join('')
         }
+        /* eslint-disable jsdoc/require-description-complete-sentence */
         /**
          * There needs to be support for unicode here, unless we pretend that
          * we can redefine the md5 algorithm for multi-byte characters
          * (perhaps by adding every four 16-bit characters and shortening the
          * sum to 32 bits). Otherwise I suggest performing md5 as if every
-         * character was two bytes--e.g., 0040 0025 = @%--but then how will an
+         * character was two bytes e.g., 0040 0025 = @%--but then how will an
          * ordinary md5 sum be matched? There is no way to standardize text
          * to something like utf-8 before transformation; speed cost is
          * utterly prohibitive. The JavaScript standard itself needs to look
@@ -3813,6 +3815,7 @@ export class Tools {
                     (value.charCodeAt(blockNumber + 3) << 24)
             return blocks
         }
+        /* eslint-enable jsdoc/require-description-complete-sentence */
         // endregion
         /**
          * Triggers the main algorithm to calculate the md5 representation of
