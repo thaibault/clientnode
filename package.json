@@ -75,9 +75,10 @@
     "qunit": "^2.5.0",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.5.3",
-    "weboptimizer": "^1.0.533",
-    "webpack": "^3.11.0",
-    "webpack-dev-server": "^2.11.2"
+    "weboptimizer": "^2.0.2",
+    "webpack": "^4.0.1",
+    "webpack-cli": "^2.0.9",
+    "webpack-dev-server": "^3.0.0"
   },
   "webOptimizer": {
     "export": {
