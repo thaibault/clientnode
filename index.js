@@ -1390,6 +1390,7 @@ export class Tools {
         }
         // IgnoreTypeCheck
         result.clear = ():void => {
+            // IgnoreTypeCheck
             if (result.timeoutID) {
                 // IgnoreTypeCheck
                 clearTimeout(result.timeoutID);
@@ -4288,6 +4289,7 @@ export class Tools {
             fileSystem.mkdir(targetPath, async (
                 error:?Error
             ):Promise<void> => {
+                // IgnoreTypeCheck
                 if (error && !('code' in error && error.code === 'EEXIST'))
                     return reject(error)
                 let files:Array<File>
