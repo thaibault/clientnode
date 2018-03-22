@@ -75,7 +75,7 @@
     "qunit": "^2.5.1",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.5.4",
-    "weboptimizer": "^2.0.60",
+    "weboptimizer": "^2.0.61",
     "webpack": "^4.2.0",
     "webpack-cli": "^2.0.13",
     "webpack-dev-server": "^3.1.1"
