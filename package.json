@@ -33,7 +33,6 @@
   "scripts": {
     "build": "webOptimizer build && npm run build:test",
     "build:alternatively": "babel --plugins transform-flow-strip-types,transform-runtime --presets env,stage-0 --source-maps inline --out-file index.compiled.js index.js && npm run build:test",
-    "build:dll": "webOptimizer build:dll",
     "build:export": "webOptimizer build '{__reference__: \"export\"}' && npm run build:test",
     "build:export:compatible": "webOptimizer build '{__reference__: [\"export\", \"exportCompatible\"]}' && npm run build:test",
     "build:test": "babel --plugins transform-flow-strip-types,transform-runtime --presets env,stage-0 --source-maps inline --out-file test.compiled.js test.js",
@@ -49,8 +48,7 @@
     "test:plain": "webOptimizer test",
     "update": "npm version patch && npm publish",
     "update:documentation": "documentationWebsite --log-level info",
-    "watch": "webOptimizer build --watch",
-    "watch:dll": "webOptimizer build:dll --watch"
+    "watch": "webOptimizer build --watch"
   },
   "peerDependencies": {
     "babel-runtime": "*",
