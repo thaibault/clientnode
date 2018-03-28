@@ -2756,6 +2756,17 @@ let tests:Array<Test> = [{callback: function(
     // endregion
 }, closeWindow: false, roundTypes: []}]
 // endregion
+// region configuration
+QUnit.config = Tools.extendObject(QUnit.config || {}, {
+    autostart: false,
+    /*
+    notrycatch: true,
+    noglobals: true,
+    */
+    testTimeout: 30 * 1000,
+    scrolltop: false
+})
+// endregion
 // region test runner (in browserAPI)
 let testRan:boolean = false
 browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
@@ -2786,16 +2797,6 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
         domNodeSpecification[domNodeName].inject.appendChild(domNode)
     }
     testRan = true
-    // region configuration
-    QUnit.config = Tools.extendObject(QUnit.config || {}, {
-        /*
-        notrycatch: true,
-        noglobals: true,
-        */
-        testTimeout: 30 * 1000,
-        scrolltop: false
-    })
-    // endregion
     const testPromises:Array<Promise<any>> = []
     let closeWindow:boolean = false
     for (const test:Test of tests) {
@@ -2858,17 +2859,13 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
                     testPromises.push(testPromise)
             }
     }
-    if (
-        typeof TARGET_TECHNOLOGY === 'undefined' ||
-        TARGET_TECHNOLOGY === 'node'
-    )
-        Promise.all(testPromises).then(():void => {
-            if (closeWindow)
-                browserAPI.window.close()
-            QUnit.load()
-        }).catch((error:Error):void => {
-            throw error
-        })
+    Promise.all(testPromises).then(():void => {
+        if (closeWindow)
+            browserAPI.window.close()
+        QUnit.start()
+    }).catch((error:Error):void => {
+        throw error
+    })
     // region hot module replacement handler
     /*
         NOTE: hot module replacement doesn't work with async tests yet since
