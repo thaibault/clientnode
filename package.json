@@ -63,7 +63,7 @@
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "coveralls": "^3.0.0",
-    "documentation-website": "^1.0.118",
+    "documentation-website": "^1.0.119",
     "eslint": "^4.19.1",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.46.1",
@@ -72,11 +72,11 @@
     "jquery": "^3.3.1",
     "jsdoc": "^3.5.3",
     "nyc": "^11.6.0",
-    "qunit": "^2.5.1",
+    "qunit": "^2.6.0",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.5.4",
-    "weboptimizer": "^2.0.67",
-    "webpack": "^4.2.0",
+    "weboptimizer": "^2.0.69",
+    "webpack": "^4.3.0",
     "webpack-cli": "^2.0.13",
     "webpack-dev-server": "^3.1.1"
   },
@@ -117,13 +117,6 @@
     "files": {
       "compose": {
         "cascadingStyleSheet": null
-      }
-    },
-    "injection": {
-      "internal": {
-        "vendor": {
-          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['build:dll', 'serve', 'test:browser', 'watch:dll'].includes(self.givenCommandLineArguments[2]) ? ['babel-polyfill'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunit', 'weboptimizer/browserAPI']) : []"
-        }
       }
     },
     "module": {
