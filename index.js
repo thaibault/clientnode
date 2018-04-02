@@ -27,10 +27,6 @@ let path:Object = {}
 try {
     path = eval('require')('path')
 } catch (error) {}
-// NOTE: Only needed for debugging this file.
-try {
-    module.require('source-map-support/register')
-} catch (error) {}
 // endregion
 // region types
 export type PlainObject = {[key:string]:any}
