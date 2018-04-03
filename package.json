@@ -72,7 +72,7 @@
     "nyc": "^11.6.0",
     "qunit": "^2.6.0",
     "rimraf": "^2.6.1",
-    "weboptimizer": "^2.0.78",
+    "weboptimizer": "^2.0.79",
     "webpack": "^4.4.1",
     "webpack-cli": "^2.0.13",
     "webpack-dev-server": "^3.1.1"
