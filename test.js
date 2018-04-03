@@ -2885,7 +2885,7 @@ let testRegistered:boolean = false
  * Registers a complete test set.
  * @param callback - A function containing all tests to run. This callback gets
  * some useful parameters and will be executed in context of qunit.
- * @param roundTypes - A list of round types which should be avoided.
+ * @param givenRoundTypes - A list of round types which should be avoided.
  * @param closeWindow - Indicates whether the window object should be closed
  * after finishing all tests.
  * @returns The list of currently registered tests.
@@ -2894,8 +2894,11 @@ export default function(
     callback:((
         roundType:string, targetTechnology:?string, $:any,
         browserAPI:BrowserAPI, tools:Object, $bodyDomNode:$DomNode
-    ) => any), roundTypes:Array<string> = [], closeWindow:boolean = false
+    ) => any),
+    givenRoundTypes:string|Array<string> = [],
+    closeWindow:boolean = false
 ):Array<Test> {
+    const roundTypes:Array<string> = [].concat(givenRoundTypes)
     if (testRan)
         throw new Error(
             'You have to register your tests immediately after importing the' +
