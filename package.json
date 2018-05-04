@@ -60,8 +60,8 @@
     "babel-eslint": "^8.2.3",
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
-    "coveralls": "^3.0.0",
-    "documentation-website": "^1.0.128",
+    "coveralls": "^3.0.1",
+    "documentation-website": "^1.0.129",
     "eslint": "^4.19.1",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.46.3",
@@ -72,10 +72,10 @@
     "nyc": "^11.7.1",
     "qunit": "^2.6.0",
     "rimraf": "^2.6.1",
-    "weboptimizer": "^2.0.117",
+    "weboptimizer": "^2.0.118",
     "webpack": "^4.6.0",
     "webpack-cli": "^2.1.0",
-    "webpack-dev-server": "^3.1.3"
+    "webpack-dev-server": "^3.1.4"
   },
   "webOptimizer": {
     "export": {
