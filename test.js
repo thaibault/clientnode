@@ -37,7 +37,11 @@ declare var TARGET_TECHNOLOGY:string
 // region determine technology specific implementations
 let fileSystem:Object
 let path:Object
-let QUnit:Object
+let QUnit:{
+    config:Object;
+    start:Function;
+    test:Function;
+}
 let removeDirectoryRecursivelySync:Function
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     require('colors')
@@ -112,8 +116,8 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
             })
         })
     })
-} else
-    QUnit = require('script!qunit') && window.QUnit
+} else if (require('script!qunit'))
+    QUnit = window.QUnit
 // endregion
 // region default test specification
 let tests:Array<Test> = [{callback: function(
@@ -2753,6 +2757,7 @@ let tests:Array<Test> = [{callback: function(
 }, closeWindow: false, roundTypes: []}]
 // endregion
 // region configuration
+// IgnoreTypeCheck
 QUnit.config = Tools.extendObject(QUnit.config || {}, {
     autostart: false,
     /*
