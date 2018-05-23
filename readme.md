@@ -75,8 +75,8 @@ Features
         Extended dom tree handling.<!--deDE:Erweitertes DOM-Baum-Management-->
     </li>
     <li>
-        Plugin scoped event handling
-        <!--deDE:Plugineigene Namensräume für Events-->
+        Plugin scoped event handling.
+        <!--deDE:Plugineigene Namensräume für Events.-->
     </li>
     <li>
         Generic none-redundant plugin pattern for JavaScript and CoffeeScript
