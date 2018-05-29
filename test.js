@@ -1080,7 +1080,7 @@ let tests:Array<Test> = [{callback: function(
             assert.ok($.Tools.class.equals(...test))
         if (TARGET_TECHNOLOGY === 'node')
             assert.ok($.Tools.class.equals(
-                new Buffer('a'), new Buffer('a'),
+                Buffer.from('a'), Buffer.from('a'),
                 null, -1, [], true, true))
         else {
             for (const test:Array<any> of [
@@ -2356,20 +2356,20 @@ let tests:Array<Test> = [{callback: function(
                 [['null'], null],
                 [['{a: undefined}'], {a: undefined}],
                 [
-                    [new Buffer('{a: undefined}').toString('base64')],
+                    [Buffer.from('{a: undefined}').toString('base64')],
                     {a: undefined}
                 ],
                 [['{a: 2}'], {a: 2}],
-                [[new Buffer('{a: 1}').toString('base64')], {a: 1}],
+                [[Buffer.from('{a: 1}').toString('base64')], {a: 1}],
                 [['null'], null],
-                [[new Buffer('null').toString('base64')], null],
+                [[Buffer.from('null').toString('base64')], null],
                 [['{}'], {}],
-                [[new Buffer('{}').toString('base64')], {}],
+                [[Buffer.from('{}').toString('base64')], {}],
                 [['{a: a}'], null],
-                [[new Buffer('{a: a}').toString('base64')], null],
+                [[Buffer.from('{a: a}').toString('base64')], null],
                 [['{a: scope.a}', {a: 2}], {a: 2}],
                 [
-                    [new Buffer('{a: scope.a}').toString('base64'), {a: 2}],
+                    [Buffer.from('{a: scope.a}').toString('base64'), {a: 2}],
                     {a: 2}
                 ]
             ])
