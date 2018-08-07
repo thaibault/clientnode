@@ -3127,7 +3127,7 @@ export class Tools {
         fallback:any = (
             'location' in $.global && $.global.location.hostname || '')
     ):any {
-        const result:Array<?string> =
+        const result:?Array<string> =
             /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
         if (result && result.length > 2 && result[1] && result[2])
             return result[2]
@@ -3150,7 +3150,7 @@ export class Tools {
         url:string = 'location' in $.global && $.global.location.href || '',
         fallback:any = null, parameter:Array<string> = []
     ):number {
-        const result:Array<?string> =
+        const result:?Array<string> =
             /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec(url)
         if (result && result.length > 1)
             return parseInt(result[1], 10)
@@ -3179,7 +3179,7 @@ export class Tools {
             $.global.location.protocol.substring(
                 0, $.global.location.protocol.length - 1) || ''
     ):any {
-        const result:Array<?string> = /^([a-z]+):\/\//i.exec(url)
+        const result:?Array<string> = /^([a-z]+):\/\//i.exec(url)
         if (result && result.length > 1 && result[1])
             return result[1]
         return fallback
