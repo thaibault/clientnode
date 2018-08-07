@@ -37,11 +37,8 @@ declare var TARGET_TECHNOLOGY:string
 // region determine technology specific implementations
 let fileSystem:Object
 let path:Object
-let QUnit:{
-    config:Object;
-    start:Function;
-    test:Function;
-}
+// IgnoreTypeCheck
+let QUnit:Object
 let removeDirectoryRecursivelySync:Function
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     require('colors')
