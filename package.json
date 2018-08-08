@@ -35,7 +35,7 @@
     "build:alternatively": "babel --plugins transform-flow-strip-types,transform-runtime --presets env,stage-0 --source-maps inline --out-file index.compiled.js index.js && npm run build:test",
     "build:export": "webOptimizer build '{__reference__: \"export\"}' && npm run build:test",
     "build:export:compatible": "webOptimizer build '{__reference__: [\"export\", \"exportCompatible\"}' && npm run build:test",
-    "build:test": "babel --plugins transform-flow-strip-types,transform-runtime --presets env,stage-0 --source-maps inline --out-file test.compiled.js test.js && sed --in-place --regexp-extended \"s/('use strict';)/\\1if(typeof module!=='undefined'\\&\\&typeof eval('require')!=='undefined'\\&\\&module!==eval('require.main')\\&\\&'paths'in module\\&\\&typeof __dirname!=='undefined')module.paths=eval('require.main.paths').concat(module.paths.filter((path)=>eval('require.main.paths').includes(path)));/\" test.compiled.js",
+    "build:test": "babel --plugins transform-flow-strip-types,transform-runtime --presets env,stage-0 --source-maps inline --out-file test.compiled.js test.js && sed --in-place --regexp-extended \"s/('use strict';)/\\1if(typeof module!=='undefined'\\&\\&eval('typeof require')!=='undefined'\\&\\&module!==eval('require.main')\\&\\&'paths'in module\\&\\&typeof __dirname!=='undefined')module.paths=eval('require.main.paths').concat(module.paths.filter((path)=>eval('require.main.paths').includes(path)));/\" test.compiled.js",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "lint": "webOptimizer check:type; webOptimizer lint",
@@ -125,13 +125,14 @@
         "babelMinify": {
           "bundle": {
             "transform": {
+              "#": "For Task \"test\", this module would produce this error \"ERROR in ./test.js Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: clientNode/test.js: Cannot read property 'end' of null\".",
               "removeConsole": false
             }
           },
           "module": {
-            "#": "To provide a generic logging mechanism we need this feature to be exported.",
+            "#": "For Task \"test\", this module would produce this error \"ERROR in ./test.js Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: clientNode/test.js: Cannot read property 'end' of null\".",
             "evaluate": false,
-            "mangle": false,
+            "#": "To provide a generic logging mechanism we need this feature to be exported.",
             "removeConsole": false
           }
         }
