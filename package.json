@@ -35,7 +35,7 @@
     "build:alternatively": "babel --plugins transform-flow-strip-types,transform-runtime --presets env,stage-0 --source-maps inline --out-file index.compiled.js index.js && npm run build:test",
     "build:export": "webOptimizer build '{__reference__: \"export\"}' && npm run build:test",
     "build:export:compatible": "webOptimizer build '{__reference__: [\"export\", \"exportCompatible\"}' && npm run build:test",
-    "build:test": "babel --plugins transform-flow-strip-types,transform-runtime --presets env,stage-0 --source-maps inline --out-file test.compiled.js test.js && sed --in-place --regexp-extended \"s/('use strict';)/\\1if(typeof module!=='undefined'\\&\\&typeof require!=='undefined'\\&\\&module!==require.main\\&\\&'paths'in module\\&\\&typeof __dirname!=='undefined')module.paths=require.main.paths.concat(module.paths.filter((path)=>require.main.paths.includes(path)));/\" test.compiled.js",
+    "build:test": "babel --plugins transform-flow-strip-types,transform-runtime --presets env,stage-0 --source-maps inline --out-file test.compiled.js test.js && sed --in-place --regexp-extended \"s/('use strict';)/\\1if(typeof module!=='undefined'\\&\\&typeof eval('require')!=='undefined'\\&\\&module!==eval('require.main')\\&\\&'paths'in module\\&\\&typeof __dirname!=='undefined')module.paths=eval('require.main.paths').concat(module.paths.filter((path)=>eval('require.main.paths').includes(path)));/\" test.compiled.js",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "lint": "webOptimizer check:type; webOptimizer lint",
@@ -72,7 +72,7 @@
     "nyc": "^12.0.2",
     "qunit": "^2.6.1",
     "rimraf": "^2.6.1",
-    "weboptimizer": "^2.0.168",
+    "weboptimizer": "^2.0.174",
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.5"
