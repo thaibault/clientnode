@@ -1520,51 +1520,40 @@ let tests:Array<Test> = [{callback: function(
             assert.deepEqual(test[0][1], test[2])
         }
     })
-    QUnit.test('representObject', (assert:Object):void => {
-        const error:Error = new Error('A')
+    QUnit.test('removeKeys', (assert:Object):void => {
         for (const test:Array<any> of [
-            [{}, '{}'],
-            [new Set(), 'EmptySet'],
-            [new Map(), 'EmptyMap'],
-            [5, '5'],
-            ['a', '"a"'],
-            [[], '[]'],
-            [{a: 2, b: 3}, '{\n a: 2,\n b: 3\n}'],
-            [new Map([['3', 2], [2, 3]]), '"3" -> 2,\n 2 -> 3'],
+            [{}, [], {}],
+            [new Set(), '#', new Set()],
+            [new Map(), [], new Map()],
+            [5, [], 5],
+            ['a', [], 'a'],
+            [[], [], []],
+            [{a: 2, b: 3}, ['a'], {b: 3}],
             [
-                new Map([['3', 2], [2, new Map([[3, 3], [2, 2]])]]),
-                '"3" -> 2,\n 2 -> 3 -> 3,\n  2 -> 2'
-            ],
-            [new Set(['3', 2, 2, 3]), '{\n "3",\n 2,\n 3\n}'],
-            [
-                new Set(['3', 2, new Set([3, 2])]),
-                '{\n "3",\n 2,\n {\n  3,\n  2\n }\n}'
+                new Map([['3', ['a:to remove']], ['a', 3]]),
+                'a',
+                new Map([['3', []]])
             ],
             [
-                {a: null, b: 3, c: 'a', d: true},
-                '{\n a: null,\n b: 3,\n c: "a",\n d: true\n}'
+                [{a: ['#:comment', 'value', '#: remove']}],
+                '#',
+                [{a: ['value']}]
             ],
             [
-                {a: {a: null, b: 3, c: 'a', d: true}},
-                '{\n a: {\n  a: null,\n  b: 3,\n  c: "a",\n  d: true\n }\n}'
+                [{a: new Set(['#:comment', 'value', '#: remove'])}],
+                '#',
+                [{a: new Set(['value'])}]
             ],
             [
-                {a: {a: null, b: 3, c: 'a', d: {}}},
-                '{\n a: {\n  a: null,\n  b: 3,\n  c: "a",\n  d: {}\n }\n}'
-            ],
-            [
-                {a: {a: {a: null, b: {}}}},
-                '{\n a: {\n  a: {\n   a: null,\n   b: {}\n  }\n }\n}'
-            ],
-            [
-                {a: {a: error}},
-                '{\n a: {\n  a: {\n   message: "A",\n   stack: "' +
-                `${error.stack.replace(/\n/g, '\n   ')}"\n  }\n }\n}`
-            ],
-            [[{a: 2}], '[\n {\n  a: 2\n }\n]']
+                [{a: new Map([
+                    ['#', 'comment'], ['key', 'value'], ['#', 'remove']
+                ])}],
+                '#',
+                [{a: new Map([['key', 'value']])}]
+            ]
         ])
-            assert.strictEqual(
-                $.Tools.class.representObject(test[0], ' '), test[1])
+            assert.deepEqual(
+                $.Tools.class.removeKeys(test[0], test[1]), test[2])
     })
     this.test(`sort (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
