@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.72",
+  "version": "3.0.73",
   "license": "CC-BY-3.0",
   "description": "upgrade to object orientated rock solid plugins",
   "homepage": "http://torben.website/clientNode",
@@ -129,11 +129,9 @@
             }
           },
           "module": {
-            "#": "This module would produce this error: \"Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: /clientNode/test.js: Cannot read property 'end' of null\".",
-            "evaluate": false,
-            "#": "This module would produce this error: \"UnhandledPromiseRejectionWarning: TypeError: Cannot create property 'next' on string '.dynamicConfiguration-0.json' at Function.<anonymous> (/clientNode/index.compiled.js:1:80221)\".",
-            "mangle": false,
             "#": "To provide a generic logging mechanism we need this feature to be exported.",
+            "evaluate": false,
+            "mangle": false,
             "removeConsole": false
           }
         }
