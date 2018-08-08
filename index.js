@@ -1729,9 +1729,13 @@ export class Tools {
      * @returns Value "true" if both objects are equal and "false" otherwise.
      */
     static copy(
-        source:any, recursionLimit:number = -1, cyclic:boolean = false,
-        destination:any = null, stackSource:Array<any> = [],
-        stackDestination:Array<any> = [], recursionLevel:number = 0
+        source:any,
+        recursionLimit:number = -1,
+        cyclic:boolean = false,
+        destination:any = null,
+        stackSource:Array<any> = [],
+        stackDestination:Array<any> = [],
+        recursionLevel:number = 0
     ):any {
         if (typeof source === 'object')
             if (destination) {
@@ -2338,10 +2342,14 @@ export class Tools {
      * @returns Given target modified with given source.
      */
     static modifyObject(
-        target:any, source:any, removeIndicatorKey:string = '__remove__',
+        target:any,
+        source:any,
+        removeIndicatorKey:string = '__remove__',
         prependIndicatorKey:string = '__prepend__',
-        appendIndicatorKey:string = '__append__', positionPrefix:string = '__',
-        positionSuffix:string = '__', parentSource:any = null,
+        appendIndicatorKey:string = '__append__',
+        positionPrefix:string = '__',
+        positionSuffix:string = '__',
+        parentSource:any = null,
         parentKey:any = null
     ):any {
         /* eslint-disable curly */
@@ -2363,7 +2371,8 @@ export class Tools {
             for (const key:string in source)
                 if (source.hasOwnProperty(key))
                     if ([
-                        removeIndicatorKey, prependIndicatorKey,
+                        removeIndicatorKey,
+                        prependIndicatorKey,
                         appendIndicatorKey
                     ].includes(key)) {
                         if (Array.isArray(target))
@@ -2374,9 +2383,8 @@ export class Tools {
                                     if (
                                         typeof valueToModify === 'string' &&
                                         valueToModify.startsWith(
-                                            positionPrefix
-                                        ) && valueToModify.endsWith(
-                                            positionSuffix)
+                                            positionPrefix) &&
+                                        valueToModify.endsWith(positionSuffix)
                                     )
                                         target.splice(parseInt(
                                             valueToModify.substring(
@@ -2410,8 +2418,62 @@ export class Tools {
         return target
     }
     /**
+     * Removes given key from given object recursively.
+     * @param object - Object to process.
+     * @param keys - List of keys to remove.
+     * @returns Processed given object.
+     */
+    static removeKeys(object:any, keys:Array<string>|string = '#'):any {
+        const resolvedKeys:Array<string> = [].concat(keys)
+        if (Array.isArray(object)) {
+            let index:number = 0
+            for (const subObject:any of object.slice()) {
+                let skip:boolean = false
+                if (typeof subObject === 'string')
+                    for (const key:string of resolvedKeys)
+                        if (subObject.startsWith(`${key}:`)) {
+                            object.splice(index, 1)
+                            skip = true
+                            break
+                        }
+                if (skip)
+                    continue
+                object[index] = Tools.removeKeys(subObject, resolvedKeys)
+                index += 1
+            }
+        } else if (Tools.determineType(object) === 'set')
+            for (const subObject:any of new Set(object)) {
+                let skip:boolean = false
+                if (typeof subObject === 'string')
+                    for (const key:string of resolvedKeys)
+                        if (subObject.startsWith(`${key}:`)) {
+                            object.delete(subObject)
+                            skip = true
+                            break
+                        }
+                if (skip)
+                    continue
+                Tools.removeKeys(subObject, resolvedKeys)
+            }
+        else if (Tools.determineType(object) === 'map') {
+            for (const key:string of resolvedKeys)
+                if (object.has(key))
+                    object.delete(key)
+            for (const [key:string, value:any] of object)
+                object.set(key, Tools.removeKeys(value, resolvedKeys))
+        } else if (object !== null && typeof object === 'object') {
+            for (const key:string of resolvedKeys)
+                if (object.hasOwnProperty(key))
+                    delete object[key]
+            for (const key:string in object)
+                if (object.hasOwnProperty(key))
+                    object[key] = Tools.removeKeys(object[key], resolvedKeys)
+        }
+        return object
+    }
+    /**
      * Represents given object as formatted string.
-     * @param object - Object to Represents.
+     * @param object - Object to represent.
      * @param indention - String (usually whitespaces) to use as indention.
      * @param initialIndention - String (usually whitespaces) to use as
      * additional indention for the first object traversing level.
