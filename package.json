@@ -125,13 +125,14 @@
         "babelMinify": {
           "bundle": {
             "transform": {
-              "#": "For Task \"test\", this module would produce this error \"ERROR in ./test.js Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: clientNode/test.js: Cannot read property 'end' of null\".",
+              "#": "To provide a generic logging mechanism we need this feature to be exported.",
               "removeConsole": false
             }
           },
           "module": {
-            "#": "To provide a generic logging mechanism we need this feature to be exported.",
+            "#": "For Task \"test\", this module would produce this error \"ERROR in ./test.js Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: clientNode/test.js: Cannot read property 'end' of null\".",
             "evaluate": false,
+            "mangle": false,
             "removeConsole": false
           }
         }
