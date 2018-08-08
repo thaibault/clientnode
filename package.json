@@ -72,7 +72,7 @@
     "nyc": "^12.0.2",
     "qunit": "^2.6.1",
     "rimraf": "^2.6.1",
-    "weboptimizer": "^2.0.178",
+    "weboptimizer": "^2.0.179",
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.5"
@@ -132,7 +132,9 @@
           "module": {
             "#": "For Task \"test\", this module would produce this error \"ERROR in ./test.js Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: clientNode/test.js: Cannot read property 'end' of null\".",
             "evaluate": false,
+            "#0": "For external task \"clear\", this module would produce this error \"UnhandledPromiseRejectionWarning: TypeError: Cannot create property 'next' on string '.dynamicConfiguration-0.json' at Function.<anonymous> (clientNode/index.compiled.js:1:80221)\".",
             "mangle": false,
+            "#1": "To provide a generic logging mechanism we need this feature to be exported.",
             "removeConsole": false
           }
         }
