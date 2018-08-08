@@ -1529,6 +1529,7 @@ let tests:Array<Test> = [{callback: function(
             ['a', [], 'a'],
             [[], [], []],
             [{a: 2, b: 3}, ['a'], {b: 3}],
+            [{a: 2, a0: 2, b: 3}, ['a'], {b: 3}],
             [
                 new Map([['3', ['a:to remove']], ['a', 3]]),
                 'a',

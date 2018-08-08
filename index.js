@@ -2429,46 +2429,72 @@ export class Tools {
             let index:number = 0
             for (const subObject:any of object.slice()) {
                 let skip:boolean = false
-                if (typeof subObject === 'string')
+                if (typeof subObject === 'string') {
                     for (const key:string of resolvedKeys)
                         if (subObject.startsWith(`${key}:`)) {
                             object.splice(index, 1)
                             skip = true
                             break
                         }
-                if (skip)
-                    continue
+                    if (skip)
+                        continue
+                }
                 object[index] = Tools.removeKeys(subObject, resolvedKeys)
                 index += 1
             }
         } else if (Tools.determineType(object) === 'set')
             for (const subObject:any of new Set(object)) {
                 let skip:boolean = false
-                if (typeof subObject === 'string')
+                if (typeof subObject === 'string') {
                     for (const key:string of resolvedKeys)
                         if (subObject.startsWith(`${key}:`)) {
                             object.delete(subObject)
                             skip = true
                             break
                         }
-                if (skip)
-                    continue
+                    if (skip)
+                        continue
+                }
                 Tools.removeKeys(subObject, resolvedKeys)
             }
-        else if (Tools.determineType(object) === 'map') {
-            for (const key:string of resolvedKeys)
-                if (object.has(key))
-                    object.delete(key)
-            for (const [key:string, value:any] of object)
-                object.set(key, Tools.removeKeys(value, resolvedKeys))
-        } else if (object !== null && typeof object === 'object') {
-            for (const key:string of resolvedKeys)
-                if (object.hasOwnProperty(key))
-                    delete object[key]
-            for (const key:string in object)
-                if (object.hasOwnProperty(key))
+        else if (Tools.determineType(object) === 'map')
+            for (const [key:any, subObject:any] of new Map(object)) {
+                let skip:boolean = false
+                if (typeof key === 'string') {
+                    for (const resolvedKey:string of resolvedKeys) {
+                        const escapedKey:string =
+                            Tools.stringEscapeRegularExpressions(resolvedKey)
+                        if (new RegExp(`^${escapedKey}[0-9]*$`).test(key)) {
+                            object.delete(key)
+                            skip = true
+                            break
+                        }
+                    }
+                    if (skip)
+                        continue
+                }
+                object.set(key, Tools.removeKeys(subObject, resolvedKeys))
+            }
+        else if (object !== null && typeof object === 'object')
+            for (const key:string in Object.assign({}, object))
+                if (object.hasOwnProperty(key)) {
+                    let skip:boolean = false
+                    for (const resolvedKey:string of resolvedKeys) {
+                        const escapedKey:string =
+                            Tools.stringEscapeRegularExpressions(
+                                resolvedKey)
+                        if (new RegExp(`^${escapedKey}[0-9]*$`).test(
+                            key
+                        )) {
+                            delete object[key]
+                            skip = true
+                            break
+                        }
+                    }
+                    if (skip)
+                        continue
                     object[key] = Tools.removeKeys(object[key], resolvedKeys)
-        }
+                }
         return object
     }
     /**
