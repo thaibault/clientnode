@@ -414,8 +414,8 @@ let tests:Array<Test> = [{callback: function(
                 ['<span>', {}],
                 ['<span>hans</span>', {}],
                 ['<span style="display:block"></span>', {display: 'block'}],
-                ['<span style="display:block;float:left"></span>', {
-                    display: 'block', float: 'left'
+                ['<span style="display:block;height:100px;"></span>', {
+                    display: 'block', height: '100px'
                 }]
             ]) {
                 const $domNode:$DomNode = $(test[0])
