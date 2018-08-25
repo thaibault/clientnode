@@ -46,7 +46,7 @@
     "test": "nyc yarn test:plain",
     "test:browser": "webOptimizer test:browser",
     "test:plain": "webOptimizer test",
-    "update": "yarn --new-version patch && yarn publish",
+    "update": "yarn version --patch && yarn publish",
     "update:documentation": "documentationWebsite --log-level info",
     "watch": "webOptimizer build --watch"
   },
