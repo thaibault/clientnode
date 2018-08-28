@@ -4120,9 +4120,11 @@ export class Tools {
      * Otherwise returned promise will be rejected.
      */
     static async checkReachability(
-        url:string, wait:boolean = false,
+        url:string,
+        wait:boolean = false,
         expectedStatusCodes:number|Array<number> = 200,
-        timeoutInSeconds:number = 10, pollIntervallInSeconds:number = 0.1,
+        timeoutInSeconds:number = 10,
+        pollIntervallInSeconds:number = 0.1,
         options:PlainObject = {}
     ):Promise<Object> {
         expectedStatusCodes = [].concat(expectedStatusCodes)
@@ -4202,7 +4204,9 @@ export class Tools {
      * couldn't finished. Otherwise returned promise will be rejected.
      */
     static async checkUnreachability(
-        url:string, wait:boolean = false, timeoutInSeconds:number = 10,
+        url:string,
+        wait:boolean = false,
+        timeoutInSeconds:number = 10,
         pollIntervallInSeconds:number = 0.1,
         unexpectedStatusCodes:?number|Array<number> = null,
         options:PlainObject = {}
@@ -4211,11 +4215,12 @@ export class Tools {
             if (unexpectedStatusCodes) {
                 unexpectedStatusCodes = [].concat(unexpectedStatusCodes)
                 if (
-                    response && 'status' in response &&
+                    response &&
+                    'status' in response &&
                     unexpectedStatusCodes.includes(response.status)
                 )
                     throw new Error(
-                        `Given url "${url}" is reachable ans responses with ` +
+                        `Given url "${url}" is reachable and responses with ` +
                         `unexpected status code "${response.status}".`)
                 return new Error(
                     'Given status code is not "' +
@@ -4226,6 +4231,7 @@ export class Tools {
             return new Promise(async (
                 resolve:Function, reject:Function
             ):Promise<void> => {
+                console.log('A', url, options, fetch)
                 let timedOut:boolean = false
                 const wrapper:Function = async ():Promise<?Object> => {
                     try {

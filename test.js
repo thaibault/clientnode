@@ -118,8 +118,12 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
 // endregion
 // region default test specification
 let tests:Array<Test> = [{callback: function(
-    roundType:string, targetTechnology:?string, $:any, browserAPI:BrowserAPI,
-    tools:Object, $bodyDomNode:$DomNode
+    roundType:string,
+    targetTechnology:?string,
+    $:any,
+    browserAPI:BrowserAPI,
+    tools:Object,
+    $bodyDomNode:$DomNode
 ):void {
     this.module(`tools (${roundType})`)
     // region tests
