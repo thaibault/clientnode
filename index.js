@@ -4231,7 +4231,6 @@ export class Tools {
             return new Promise(async (
                 resolve:Function, reject:Function
             ):Promise<void> => {
-                console.log('A', url, options, fetch)
                 let timedOut:boolean = false
                 const wrapper:Function = async ():Promise<?Object> => {
                     try {
