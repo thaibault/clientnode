@@ -1925,8 +1925,8 @@ cli-width@^2.0.0:
   resolved "https://registry.yarnpkg.com/cli-width/-/cli-width-2.2.0.tgz#ff19ede8a9a5e579324147b0c11f0fbcbabed639"
 
 clientnode@*:
-  version "3.0.98"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.98.tgz#ea1d5d14662d9f41c1018d16d08aa075c2179219"
+  version "3.0.100"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.100.tgz#182f10a02118db2236bc91bd7b2b73d020423a28"
   dependencies:
     colors "^1.3.2"
 
@@ -1971,7 +1971,7 @@ color-name@1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.3.tgz#a7d0558bd89c42f795dd42328f740831ca53bc25"
 
-colors@^1.3.2:
+colors@*, colors@^1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/colors/-/colors-1.3.2.tgz#2df8ff573dfbf255af562f8ce7181d6b971a359b"
 
@@ -3465,7 +3465,7 @@ http-parser-js@>=0.4.0:
 
 http-proxy-middleware@~0.18.0:
   version "0.18.0"
-  resolved "https://registry.yarnpkg.com/http-proxy-middleware/-/http-proxy-middleware-0.18.0.tgz#0987e6bb5a5606e5a69168d8f967a87f15dd8aab"
+  resolved "http://registry.npmjs.org/http-proxy-middleware/-/http-proxy-middleware-0.18.0.tgz#0987e6bb5a5606e5a69168d8f967a87f15dd8aab"
   dependencies:
     http-proxy "^1.16.2"
     is-glob "^4.0.0"
@@ -4491,6 +4491,10 @@ no-case@^2.2.0:
   resolved "https://registry.yarnpkg.com/no-case/-/no-case-2.3.2.tgz#60b813396be39b3f1288a4c1ed5d1e7d28b464ac"
   dependencies:
     lower-case "^1.1.1"
+
+node-fetch@*:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.2.0.tgz#4ee79bde909262f9775f731e3656d0db55ced5b5"
 
 node-forge@0.7.5:
   version "0.7.5"
@@ -6373,8 +6377,8 @@ webidl-conversions@^4.0.2:
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-4.0.2.tgz#a855980b1f0b6b359ba1d5d9fb39ae941faa63ad"
 
 weboptimizer@*:
-  version "2.0.215"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.215.tgz#bdee55ce4a33283b752dd9d06d654daa9a427f46"
+  version "2.0.217"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.217.tgz#a560bab74704a4fd926780f3de2eb73b9d0a404e"
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
