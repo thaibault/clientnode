@@ -15,11 +15,16 @@
     endregion
 */
 // region imports
-import Tools from 'clientnode'
+import Tools, {globalContext} from 'clientnode'
 import type {DomNode, File, PlainObject, $DomNode} from 'clientnode'
-let ChildProcess:ChildProcess
+if (!('fetch' in globalContext))
+    try {
+        globalContext.fetch = eval('require')('node-fetch')
+    } catch (error) {}
 try {
-    ChildProcess = eval('require')('child_process').ChildProcess
+    var ChildProcess:ChildProcess = eval('require')(
+        'child_process'
+    ).ChildProcess
 } catch (error) {}
 import browserAPI from 'weboptimizer/browserAPI.compiled'
 import type {BrowserAPI} from 'weboptimizer/type'
@@ -304,7 +309,11 @@ let tests:Array<Test> = [{callback: function(
     })
     this.test(`isFunction (${roundType})`, (assert:Object):void => {
         for (const okValue:any of [
-            Object, new Function('return 1'), function():void {}, ():void => {}
+            Object,
+            new Function('return 1'),
+            function():void {},
+            ():void => {},
+            async ():Promise<void> => {}
         ])
             assert.ok($.Tools.class.isFunction(okValue))
         for (const notOkValue:any of [

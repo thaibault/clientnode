@@ -699,9 +699,9 @@ export class Tools {
      * otherwise.
      */
     static isFunction(object:mixed):boolean {
-        return Boolean(object) && {}.toString.call(
-            object
-        ) === '[object Function]'
+        return Boolean(object) && [
+            '[object AsyncFunction]', '[object Function]'
+        ].includes({}.toString.call(object))
     }
     // / endregion
     // / region language fixes
@@ -4176,7 +4176,7 @@ export class Tools {
                     }
                     return response
                 }
-                let currentlyRunningTimer = Tools.timeout(0, wrapper)
+                let currentlyRunningTimer = Tools.timeout(wrapper)
                 const timer:Promise<boolean> = Tools.timeout(
                     timeoutInSeconds * 1000)
                 try {
@@ -4262,7 +4262,7 @@ export class Tools {
                         return error
                     }
                 }
-                let currentlyRunningTimer = Tools.timeout(0, wrapper)
+                let currentlyRunningTimer = Tools.timeout(wrapper)
                 const timer:Promise<boolean> = Tools.timeout(
                     timeoutInSeconds * 1000)
                 try {
