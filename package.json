@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.100",
+  "version": "3.0.101",
   "license": "CC-BY-3.0",
   "description": "upgrade to object orientated rock solid plugins",
   "homepage": "https://torben.website/clientNode",
@@ -55,8 +55,8 @@
   },
   "peerDependencies": {
     "babel-runtime": "*",
-    "node-fetch": "*",
     "jquery": "*",
+    "node-fetch": "*",
     "qunit": "*"
   },
   "devDependencies": {
