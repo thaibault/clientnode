@@ -22,9 +22,11 @@ if (!('fetch' in globalContext))
         globalContext.fetch = eval('require')('node-fetch')
     } catch (error) {}
 try {
+    /* eslint-disable no-var */
     var ChildProcess:ChildProcess = eval('require')(
         'child_process'
     ).ChildProcess
+    /* eslint-enable no-var */
 } catch (error) {}
 import browserAPI from 'weboptimizer/browserAPI.compiled'
 import type {BrowserAPI} from 'weboptimizer/type'
