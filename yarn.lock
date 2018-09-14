@@ -1909,8 +1909,8 @@ cli-width@^2.0.0:
   resolved "https://registry.yarnpkg.com/cli-width/-/cli-width-2.2.0.tgz#ff19ede8a9a5e579324147b0c11f0fbcbabed639"
 
 clientnode@*:
-  version "3.0.115"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.115.tgz#82cec9d692b21c105c7de87dc6d39b481bf2c71c"
+  version "3.0.116"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.116.tgz#796d404feeb8efe9743fefb25dc257299d63015d"
   dependencies:
     colors "*"
 
@@ -6337,8 +6337,8 @@ webidl-conversions@^4.0.2:
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-4.0.2.tgz#a855980b1f0b6b359ba1d5d9fb39ae941faa63ad"
 
 weboptimizer@*:
-  version "2.0.248"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.248.tgz#699323d57c6e308ada98392d310f8b797f99c6b1"
+  version "2.0.250"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.250.tgz#59632b04a717db1b40bd0a028526d7ba99a438c6"
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
