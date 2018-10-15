@@ -892,7 +892,7 @@ export class Tools {
             // IgnoreTypeCheck
             this.$domNode.find('*').addBack().each(function():void {
                 const $thisDomNode:$DomNode = $(this)
-                let serializedStyles:?string = $thisDomNode.attr(styleName)
+                const serializedStyles:?string = $thisDomNode.attr(styleName)
                 if (serializedStyles)
                     $thisDomNode.attr(
                         styleName, self.constructor.stringCompressStyleValue((
@@ -994,7 +994,7 @@ export class Tools {
                     $domNodes[type] = $(`<div>${inputs[type]}</div>`)
                 else
                     try {
-                        let $selectedDomNode:$DomNode = $(inputs[type])
+                        const $selectedDomNode:$DomNode = $(inputs[type])
                         if ($selectedDomNode.length)
                             $domNodes[type] = $('<div>').append(
                                 $selectedDomNode.clone())
@@ -1014,9 +1014,11 @@ export class Tools {
                     'normalizedClassNames'
                 ).$domNode.Tools('normalizedStyles').$domNode
                 let index:number = 0
-                for (const domNode:DomNode of $domNodes.first)
+                for (const domNode:DomNode of $domNodes.first) {
                     if (!domNode.isEqualNode($domNodes.second[index]))
                         return false
+                    index += 1
+                }
                 return true
             }
         }
@@ -2104,7 +2106,7 @@ export class Tools {
                                     if (key === type)
                                         return resolve(evaluate(
                                             target[key], type))
-                                let resolvedTarget:any = resolve(target)
+                                const resolvedTarget:any = resolve(target)
                                 if (key === 'toString') {
                                     const result:any = evaluate(resolvedTarget)
                                     return result[key].bind(result)
@@ -3066,7 +3068,7 @@ export class Tools {
                     'itself.\n' +
                     `Dependency chain: "${predecessors.join('" -> "')}" => "` +
                     `${node}".`)
-            let index = nodes.indexOf(node)
+            const index = nodes.indexOf(node)
             // If the node still exists, traverse its dependencies.
             if (index !== -1) {
                 let copy:?Array<string>
@@ -4710,7 +4712,7 @@ export class Tools {
         directoryPath:string, callback:Function = Tools.noop,
         options:PlainObject|string = 'utf8'
     ):Array<File> {
-        let files:Array<File> = []
+        const files:Array<File> = []
         for (const fileName:string of fileSystem.readdirSync(
             directoryPath, options
         )) {

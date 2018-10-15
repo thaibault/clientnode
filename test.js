@@ -872,7 +872,7 @@ let tests:Array<Test> = [{callback: function(
     this.test(`convertCircularObjectToJSON (${roundType})`, (
         assert:Object
     ):void => {
-        let testObject1:Object = {}
+        const testObject1:Object = {}
         const testObject2:Object = {a: testObject1}
         testObject1.a = testObject2
         for (const test:Array<any> of [
