@@ -4904,7 +4904,7 @@ if ('fn' in $) {
     }
     // endregion
     // region fix script loading errors with canceling requests after dom ready
-    $.readyException = (error:Error):void => {
+    $.readyException = (error:Error|string):void => {
         if (!(typeof error === 'string' && error === 'canceled'))
             throw error
     }
