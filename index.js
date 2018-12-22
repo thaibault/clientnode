@@ -2875,7 +2875,10 @@ export class Tools {
      * @returns Data which does exit in given initial data.
      */
     static arrayIntersect(
-        first:Array<any>, second:Array<any>, keys:Object|Array<string> = [],
+        first:Array<any>,
+        second:Array<any>,
+        // IgnoreTypeCheck
+        keys:Object|Array<string> = [],
         strict:boolean = true
     ):Array<any> {
         const containingData:Array<any> = []
