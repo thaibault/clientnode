@@ -1850,9 +1850,13 @@ export class Tools {
      * determined boolean values is returned.
      */
     static equals(
-        firstValue:any, secondValue:any, properties:?Array<any> = null,
-        deep:number = -1, exceptionPrefixes:Array<string> = [],
-        ignoreFunctions:boolean = true, compareBlobs:boolean = false
+        firstValue:any,
+        secondValue:any,
+        properties:?Array<any> = null,
+        deep:number = -1,
+        exceptionPrefixes:Array<string> = [],
+        ignoreFunctions:boolean = true,
+        compareBlobs:boolean = false
     ):Promise<boolean>|boolean {
         if (
             ignoreFunctions && Tools.isFunction(firstValue) &&
@@ -1891,46 +1895,66 @@ export class Tools {
                 }
             })
         if (
-            Tools.isPlainObject(firstValue) && Tools.isPlainObject(
-                secondValue
-            ) && !(
+            Tools.isPlainObject(firstValue) &&
+            Tools.isPlainObject(secondValue) &&
+            !(
                 firstValue instanceof RegExp || secondValue instanceof RegExp
-            ) || Array.isArray(firstValue) && Array.isArray(
-                secondValue
-            ) && firstValue.length === secondValue.length || ((
-                Tools.determineType(firstValue) === 'map' &&
-                Tools.determineType(secondValue) === 'map' ||
-                Tools.determineType(firstValue) === 'set' &&
-                Tools.determineType(secondValue) === 'set'
-            ) && firstValue.size === secondValue.size)
+            ) ||
+            Array.isArray(firstValue) &&
+            Array.isArray(secondValue) &&
+            firstValue.length === secondValue.length ||
+            (
+                (
+                    Tools.determineType(firstValue) === 'map' &&
+                    Tools.determineType(secondValue) === 'map' ||
+                    Tools.determineType(firstValue) === 'set' &&
+                    Tools.determineType(secondValue) === 'set'
+                ) &&
+                firstValue.size === secondValue.size
+            )
         ) {
             const promises:Array<Promise<boolean>> = []
-            for (const [first, second] of [[firstValue, secondValue], [
-                secondValue, firstValue
-            ]]) {
+            for (const [first, second] of [
+                [firstValue, secondValue],
+                [secondValue, firstValue]
+            ]) {
                 const firstIsArray:boolean = Array.isArray(first)
-                if (firstIsArray && (!Array.isArray(
-                    second
-                ) || first.length !== second.length))
+                if (
+                    firstIsArray &&
+                    (!Array.isArray(second) || first.length !== second.length)
+                )
                     return false
                 const firstIsMap:boolean = Tools.determineType(first) === 'map'
-                if (firstIsMap && (Tools.determineType(
-                    second
-                ) !== 'map' || first.size !== second.size))
+                if (
+                    firstIsMap &&
+                    (
+                        Tools.determineType(second) !== 'map' ||
+                        first.size !== second.size
+                    )
+                )
                     return false
                 const firstIsSet:boolean = Tools.determineType(first) === 'set'
-                if (firstIsSet && (Tools.determineType(
-                    second
-                ) !== 'set' || first.size !== second.size))
+                if (
+                    firstIsSet &&
+                    (
+                        Tools.determineType(second) !== 'set' ||
+                        first.size !== second.size
+                    )
+                )
                     return false
                 if (firstIsArray) {
                     let index:number = 0
                     for (const value:any of first) {
                         if (deep !== 0) {
                             const result:any = Tools.equals(
-                                value, second[index], properties, deep - 1,
-                                exceptionPrefixes, ignoreFunctions,
-                                compareBlobs)
+                                value,
+                                second[index],
+                                properties,
+                                deep - 1,
+                                exceptionPrefixes,
+                                ignoreFunctions,
+                                compareBlobs
+                            )
                             if (!result)
                                 return false
                             else if (
@@ -1945,9 +1969,14 @@ export class Tools {
                     for (const [key:any, value:any] of first)
                         if (deep !== 0) {
                             const result:any = Tools.equals(
-                                value, second.get(key), properties, deep - 1,
-                                exceptionPrefixes, ignoreFunctions,
-                                compareBlobs)
+                                value,
+                                second.get(key),
+                                properties,
+                                deep - 1,
+                                exceptionPrefixes,
+                                ignoreFunctions,
+                                compareBlobs
+                            )
                             if (!result)
                                 return false
                             else if (
@@ -1963,9 +1992,14 @@ export class Tools {
                             const subPromises:Array<Promise<boolean>> = []
                             for (const secondValue:any of second) {
                                 const result:any = Tools.equals(
-                                    value, secondValue, properties, deep - 1,
-                                    exceptionPrefixes, ignoreFunctions,
-                                    compareBlobs)
+                                    value,
+                                    secondValue,
+                                    properties,
+                                    deep - 1,
+                                    exceptionPrefixes,
+                                    ignoreFunctions,
+                                    compareBlobs
+                                )
                                 if (typeof result === 'boolean') {
                                     if (result) {
                                         equal = true
@@ -2003,9 +2037,14 @@ export class Tools {
                                 break
                             if (deep !== 0) {
                                 const result:any = Tools.equals(
-                                    first[key], second[key], properties,
-                                    deep - 1, exceptionPrefixes,
-                                    ignoreFunctions, compareBlobs)
+                                    first[key],
+                                    second[key],
+                                    properties,
+                                    deep - 1,
+                                    exceptionPrefixes,
+                                    ignoreFunctions,
+                                    compareBlobs
+                                )
                                 if (!result)
                                     return false
                                 else if (
@@ -2038,7 +2077,8 @@ export class Tools {
      * @returns Evaluated given mapping.
      */
     static evaluateDynamicDataStructure(
-        object:any, scope:{[key:string]:any} = {},
+        object:any,
+        scope:{[key:string]:any} = {},
         selfReferenceName:string = 'self',
         expressionIndicatorKey:string = '__evaluate__',
         executionIndicatorKey:string = '__execute__'
@@ -2069,7 +2109,8 @@ export class Tools {
                 throw new Error(
                     `Error running code "${code}" in scope with variables "` +
                     `${Object.keys(scope).join('", "')}": "` +
-                    `${Tools.representObject(error)}".`)
+                    `${Tools.representObject(error)}".`
+                )
             }
         }
         const addProxyRecursively:Function = (data:any):any => {
@@ -3450,7 +3491,8 @@ export class Tools {
      * @returns The formatted string.
      */
     static stringCamelCaseToDelimited(
-        string:string, delimiter:string = '-',
+        string:string,
+        delimiter:string = '-',
         abbreviations:?Array<string> = null
     ):string {
     /* eslint-enable jsdoc/require-description-complete-sentence */
@@ -3499,7 +3541,8 @@ export class Tools {
      * @returns The formatted string.
      */
     static stringDelimitedToCamelCase(
-        string:string, delimiter:string = '-',
+        string:string,
+        delimiter:string = '-',
         abbreviations:?Array<string> = null,
         preserveWrongFormattedAbbreviations:boolean = false,
         removeMultipleDelimiter:boolean = false
@@ -3587,7 +3630,8 @@ export class Tools {
      * search targets.
      */
     static stringFindNormalizedMatchRange(
-        target:any, query:any,
+        target:any,
+        query:any,
         normalizer:Function = (value:any):string => `${value}`.toLowerCase()
     ):?Array<number> {
         query = normalizer(query)
@@ -3617,7 +3661,8 @@ export class Tools {
      * @returns Processed result.
      */
     static stringMark(
-        target:?string, words:?string|?Array<string>,
+        target:?string,
+        words:?string|?Array<string>,
         marker:string = '<span class="tools-mark">{1}</span>',
         normalizer:Function = (value:any):string => `${value}`.toLowerCase()
     ):?string {
@@ -3966,14 +4011,91 @@ export class Tools {
         // endregion
     }
     /**
-     * Normalizes given phone number for automatic dialing mechanisms.
-     * @param phoneNumber - Number to normalize.
+     * Normalizes given phone number for automatic dialing or comparison.
+     * @param value - Number to normalize.
+     * @param dialable - Indicates whether the result should be dialed or
+     * represented as lossless data.
      * @returns Normalized number.
      */
-    static stringNormalizePhoneNumber(phoneNumber:?string|?number):string {
-        if (typeof phoneNumber === 'string' || typeof phoneNumber === 'number')
-            return `${phoneNumber}`.replace(/[^0-9]*\+/, '00').replace(
-                /[^0-9]+/g, '')
+    static stringNormalizePhoneNumber(
+        value:?string|?number, dialable:boolean=true
+    ):string {
+        if (typeof value === 'string' || typeof value === 'number') {
+            value = `${value}`.trim()
+            // TODO check modifier like ".../g" everywhere!
+            // Normalize country code prefix.
+            value = value.replace(/^[^0-9]*\+/, '00')
+            if (dialable)
+                return value.replace(/[^0-9]+/g, '')
+            const separatorPattern:string = '(?:[ /\\-]+)'
+            // Remove unneeded area code zero in brackets.
+            value = value.replace(
+                new RegExp(
+                    `^(.+?)${separatorPattern}?\(0\)${separatorPattern}?(.+)$`
+                ),
+                '$1-$2'
+            )
+            // Remove unneeded area code brackets.
+            value = value.replace(
+                new RegExp(
+                    `^(.+?)${separatorPattern}?\((.+)\)${separatorPattern}?` +
+                    '(.+)$'
+                ),
+                '$1-$2-$3'
+            )
+            /*
+                Remove separators which doesn't mark semantics:
+                1: Country code
+                2: Area code
+                3: Number
+            */
+            let compiledPattern:RegExp = new RegExp(
+                `^(00[0-9]+)${separatorPattern}([0-9]+)${separatorPattern}` +
+                '(.+)$'
+            )
+            if (compiledPattern.test(value))
+                // Country code and area code matched.
+                value = value.replace(compiledPattern, (
+                    match:string,
+                    countryCode:string,
+                    areaCode:string,
+                    number:string
+                ) =>
+                    `${countryCode}-${areaCode}-` +
+                    Tools.stringSliceSeparatorExceptLast(number)
+                )
+            else
+                /*
+                    One prefix code matched:
+                    1: Prefix code
+                    2: Number
+                */
+                compiledPattern = /^([0-9 ]+)[\/-](.+)$/
+                const replacer:Function = (
+                    match:string, prefixCode:string, number:string
+                ) =>
+                    `${prefixCode.replace(/ +/, '')}-` + 
+                    Tools.stringSliceSeparatorExceptLast(number)
+                if (compiledPattern.test(value))
+                    // Prefer "/" or "-" over " " as area code separator.
+                    value = value.replace(compiledPattern,  replacer)
+                else
+                    value = value.replace(
+                        new RegExp(`^([0-9]+)${separatorPattern}(.+)$`),
+                        replacer
+                    )
+            return value.replace(/[^0-9-]+/, '')
+        }
+        return ''
+    }
+    /**
+     * Normalizes given zip code for automatic address processing.
+     * @param value - Number to normalize.
+     * @returns Normalized number.
+     */
+    static stringNormalizeZipCode(value:?string|?number):string {
+        if (typeof value === 'string' || typeof value === 'number')
+            return `${value}`.trim().replace(/[^0-9]+/g, '')
         return ''
     }
     /**
@@ -4010,23 +4132,23 @@ export class Tools {
     /**
      * Represents given phone number. NOTE: Currently only support german phone
      * numbers.
-     * @param phoneNumber - Number to format.
+     * @param value - Number to format.
      * @returns Formatted number.
      */
-    static stringRepresentPhoneNumber(phoneNumber:?string|?number):string {
-        if (['number', 'string'].includes(Tools.determineType(
-            phoneNumber
-        )) && phoneNumber) {
+    static stringRepresentPhoneNumber(value:?string|?number):string {
+        if (
+            ['number', 'string'].includes(Tools.determineType(value)) &&
+            value
+        ) {
             // Represent country code and leading area code zero.
-            phoneNumber = `${phoneNumber}`.replace(
+            value = `${value}`.replace(
                 /^(00|\+)([0-9]+)-([0-9-]+)$/, '+$2 (0) $3')
             // Add German country code if not exists.
-            phoneNumber = phoneNumber.replace(
-                /^0([1-9][0-9-]+)$/, '+49 (0) $1')
+            value = value.replace(/^0([1-9][0-9-]+)$/, '+49 (0) $1')
             // Separate area code from base number.
-            phoneNumber = phoneNumber.replace(/^([^-]+)-([0-9-]+)$/, '$1 / $2')
+            value = value.replace(/^([^-]+)-([0-9-]+)$/, '$1 / $2')
             // Partition base number in one triple and tuples or tuples only.
-            return phoneNumber.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/, (
+            return value.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/, (
                 match:string, prefix:string, number:string, suffix:string
             ):string => prefix + (
                 (number.length % 2 === 0) ? number.replace(
@@ -4831,6 +4953,7 @@ export class Tools {
         })
         return childProcess
     }
+    // endregion
     // endregion
     // region protected methods
     /* eslint-disable jsdoc/require-description-complete-sentence */
