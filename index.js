@@ -4023,6 +4023,8 @@ export class Tools {
         if (typeof value === 'string' || typeof value === 'number') {
             value = `${value}`.trim()
             // TODO check modifier like ".../g" everywhere!
+            // TODO integrate stringSliceSeparatorExceptLast from
+            // "_preserve_only_last_separator"
             // Normalize country code prefix.
             value = value.replace(/^[^0-9]*\+/, '00')
             if (dialable)
