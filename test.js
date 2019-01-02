@@ -1535,7 +1535,25 @@ let tests:Array<Test> = [{callback: function(
             assert.deepEqual(test[0][1], test[2])
         }
     })
-    QUnit.test('removeKeys', (assert:Object):void => {
+    this.test('normalizeDateTime', (assert:Object):void => {
+        const now:Date = new Date()
+        for (const test:Array<any> of [
+            [now, now],
+            [1.2, new Date()],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ])
+            assert.deepEqual($.Tools.class.normalizeDateTime(test[0]), test[1])
+    })
+    this.test('removeKeys', (assert:Object):void => {
         for (const test:Array<any> of [
             [{}, [], {}],
             [new Set(), '#', new Set()],

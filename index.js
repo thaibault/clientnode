@@ -2259,13 +2259,15 @@ export class Tools {
             ) || Tools.determineType(value) === 'map')) {
                 let clone:any
                 if (Tools.determineType(value) === 'map')
-                    clone = (targetValue && Tools.determineType(
-                        targetValue
-                    ) === 'map') ? targetValue : new Map()
+                    clone = (
+                        targetValue &&
+                        Tools.determineType(targetValue) === 'map'
+                    ) ? targetValue : new Map()
                 else
-                    clone = (targetValue && Tools.isPlainObject(
-                        targetValue
-                    )) ? targetValue : {}
+                    clone = (
+                        targetValue &&
+                        Tools.isPlainObject(targetValue)
+                    ) ? targetValue : {}
                 return Tools.extendObject(deep, clone, value)
             }
             return value
@@ -2286,9 +2288,12 @@ export class Tools {
                     for (const [key:any, value:any] of source)
                         target.set(key, mergeValue(target.get(key), value))
                 else if (
-                    target !== null && !Array.isArray(target) &&
-                    typeof target === 'object' && source !== null &&
-                    !Array.isArray(source) && typeof source === 'object'
+                    target !== null &&
+                    !Array.isArray(target) &&
+                    typeof target === 'object' &&
+                    source !== null &&
+                    !Array.isArray(source) &&
+                    typeof source === 'object'
                 ) {
                     for (const key:string in source)
                         if (source.hasOwnProperty(key))
@@ -2335,9 +2340,15 @@ export class Tools {
     static getProxyHandler(
         target:any, methodNames:{[key:string]:string} = {}
     ):Object {
-        methodNames = Tools.extendObject({
-            delete: '[]', get: '[]', has: '[]', set: '[]'
-        }, methodNames)
+        methodNames = Tools.extendObject(
+            {
+                delete: '[]',
+                get: '[]',
+                has: '[]',
+                set: '[]'
+            },
+            methodNames
+        )
         return {
             deleteProperty: (proxy:Proxy<any>, key:any):any => {
                 if (methodNames.delete === '[]')
@@ -2403,13 +2414,22 @@ export class Tools {
             for (const [key:string, value:any] of source)
                 if (target.has(key))
                     Tools.modifyObject(
-                        target.get(key), value, removeIndicatorKey,
-                        prependIndicatorKey, appendIndicatorKey,
-                        positionPrefix, positionSuffix, source, key)
+                        target.get(key),
+                        value,
+                        removeIndicatorKey,
+                        prependIndicatorKey,
+                        appendIndicatorKey,
+                        positionPrefix,
+                        positionSuffix,
+                        source,
+                        key
+                    )
         } else if (
         /* eslint-enable curly */
-            source !== null && typeof source === 'object' &&
-            target !== null && typeof target === 'object'
+            source !== null &&
+            typeof source === 'object' &&
+            target !== null &&
+            typeof target === 'object'
         )
             for (const key:string in source)
                 if (source.hasOwnProperty(key))
@@ -2429,12 +2449,14 @@ export class Tools {
                                             positionPrefix) &&
                                         valueToModify.endsWith(positionSuffix)
                                     )
-                                        target.splice(parseInt(
-                                            valueToModify.substring(
+                                        target.splice(
+                                            parseInt(valueToModify.substring(
                                                 positionPrefix.length,
                                                 valueToModify.length -
-                                                positionSuffix.length)
-                                        ), 1)
+                                                positionSuffix.length
+                                            )),
+                                            1
+                                        )
                                     else if (target.includes(valueToModify))
                                         target.splice(
                                             target.indexOf(valueToModify), 1)
@@ -2455,10 +2477,25 @@ export class Tools {
                         // IgnoreTypeCheck
                         target[key] = Tools.modifyObject(
                             // IgnoreTypeCheck
-                            target[key], source[key], removeIndicatorKey,
-                            prependIndicatorKey, appendIndicatorKey,
-                            positionPrefix, positionSuffix, source, key)
+                            target[key],
+                            source[key],
+                            removeIndicatorKey,
+                            prependIndicatorKey,
+                            appendIndicatorKey,
+                            positionPrefix,
+                            positionSuffix,
+                            source,
+                            key
+                        )
         return target
+    }
+    /**
+     * Interprets a date object from given artefact.
+     * @param value - To interpret.
+     * @returns Interpreted date object.
+     */
+    static normalizeDateTime(value:?string|?number|?Date):Date {
+        return new Date(value)
     }
     /**
      * Removes given key from given object recursively.
@@ -2524,11 +2561,8 @@ export class Tools {
                     let skip:boolean = false
                     for (const resolvedKey:string of resolvedKeys) {
                         const escapedKey:string =
-                            Tools.stringEscapeRegularExpressions(
-                                resolvedKey)
-                        if (new RegExp(`^${escapedKey}[0-9]*$`).test(
-                            key
-                        )) {
+                            Tools.stringEscapeRegularExpressions(resolvedKey)
+                        if (new RegExp(`^${escapedKey}[0-9]*$`).test(key)) {
                             delete object[key]
                             skip = true
                             break
