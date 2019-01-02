@@ -3471,16 +3471,6 @@ export class Tools {
         return ''
     }
     // // endregion
-    /**
-     * Compresses given style attribute value.
-     * @param styleValue - Style value to compress.
-     * @returns The compressed value.
-     */
-    static stringCompressStyleValue(styleValue:string):string {
-        return styleValue.replace(/ *([:;]) */g, '$1').replace(
-            / +/g, ' '
-        ).replace(/^;+/, '').replace(/;+$/, '').trim()
-    }
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Converts a camel cased string to its delimited string version.
@@ -3527,6 +3517,29 @@ export class Tools {
     static stringCapitalize(string:string):string {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return string.charAt(0).toUpperCase() + string.substring(1)
+    }
+    /**
+     * Compresses given style attribute value.
+     * @param styleValue - Style value to compress.
+     * @returns The compressed value.
+     */
+    static stringCompressStyleValue(styleValue:string):string {
+        return styleValue.replace(/ *([:;]) */g, '$1').replace(
+            / +/g, ' '
+        ).replace(/^;+/, '').replace(/;+$/, '').trim()
+    }
+    /**
+     * Decodes all html symbols in text nodes in given html string.
+     * @param htmlString - HTML string to decode.
+     * @returns Decoded html string.
+     */
+    static stringDecodeHTMLEntities(htmlString:string):?string {
+        if ('document' in $.global) {
+            const textareaDomNode = $.global.document.createElement('textarea')
+            textareaDomNode.innerHTML = htmlString
+            return textareaDomNode.value
+        }
+        return null
     }
     /**
      * Converts a delimited string to its camel case representation.
@@ -3585,6 +3598,36 @@ export class Tools {
         return string
     }
     /**
+     * Finds the string match of given query in given target text by applying
+     * given normalisation function to target and query.
+     * @param target - Target to search in.
+     * @param query - Search string to search for.
+     * @param normalizer - Function to use as normalisation for queries and
+     * search targets.
+     */
+    static stringFindNormalizedMatchRange(
+        target:any,
+        query:any,
+        normalizer:Function = (value:any):string => `${value}`.toLowerCase()
+    ):?Array<number> {
+        query = normalizer(query)
+        if (normalizer(target) && query)
+            for (let index = 0; index < target.length; index += 1)
+                if (normalizer(target.substring(index)).startsWith(query)) {
+                    if (query.length === 1)
+                        return [index, index + 1]
+                    for (
+                        let subIndex = target.length; subIndex > index;
+                        subIndex -= 1
+                    )
+                        if (!normalizer(target.substring(
+                            index, subIndex
+                        )).startsWith(query))
+                            return [index, subIndex + 1]
+                }
+        return null
+    }
+    /**
      * Performs a string formation. Replaces every placeholder "{i}" with the
      * i'th argument.
      * @param string - The string to format.
@@ -3620,36 +3663,6 @@ export class Tools {
      */
     static stringLowerCase(string:string):string {
         return string.charAt(0).toLowerCase() + string.substring(1)
-    }
-    /**
-     * Finds the string match of given query in given target text by applying
-     * given normalisation function to target and query.
-     * @param target - Target to search in.
-     * @param query - Search string to search for.
-     * @param normalizer - Function to use as normalisation for queries and
-     * search targets.
-     */
-    static stringFindNormalizedMatchRange(
-        target:any,
-        query:any,
-        normalizer:Function = (value:any):string => `${value}`.toLowerCase()
-    ):?Array<number> {
-        query = normalizer(query)
-        if (normalizer(target) && query)
-            for (let index = 0; index < target.length; index += 1)
-                if (normalizer(target.substring(index)).startsWith(query)) {
-                    if (query.length === 1)
-                        return [index, index + 1]
-                    for (
-                        let subIndex = target.length; subIndex > index;
-                        subIndex -= 1
-                    )
-                        if (!normalizer(target.substring(
-                            index, subIndex
-                        )).startsWith(query))
-                            return [index, subIndex + 1]
-                }
-        return null
     }
     /**
      * Wraps given mark strings in given target with given marker.
@@ -4022,9 +4035,6 @@ export class Tools {
     ):string {
         if (typeof value === 'string' || typeof value === 'number') {
             value = `${value}`.trim()
-            // TODO check modifier like ".../g" everywhere!
-            // TODO integrate stringSliceSeparatorExceptLast from
-            // "_preserve_only_last_separator"
             // Normalize country code prefix.
             value = value.replace(/^[^0-9]*\+/, '00')
             if (dialable)
@@ -4033,15 +4043,16 @@ export class Tools {
             // Remove unneeded area code zero in brackets.
             value = value.replace(
                 new RegExp(
-                    `^(.+?)${separatorPattern}?\(0\)${separatorPattern}?(.+)$`
+                    `^(.+?)${separatorPattern}?\\(0\\)${separatorPattern}?` +
+                    '(.+)$'
                 ),
                 '$1-$2'
             )
             // Remove unneeded area code brackets.
             value = value.replace(
                 new RegExp(
-                    `^(.+?)${separatorPattern}?\((.+)\)${separatorPattern}?` +
-                    '(.+)$'
+                    `^(.+?)${separatorPattern}?\\((.+)\\)` +
+                    `${separatorPattern}?(.+)$`
                 ),
                 '$1-$2-$3'
             )
@@ -4062,11 +4073,11 @@ export class Tools {
                     countryCode:string,
                     areaCode:string,
                     number:string
-                ) =>
+                ):string =>
                     `${countryCode}-${areaCode}-` +
-                    Tools.stringSliceSeparatorExceptLast(number)
+                    Tools.stringSliceAllExceptNumberAndLastSeperator(number)
                 )
-            else
+            else {
                 /*
                     One prefix code matched:
                     1: Prefix code
@@ -4075,18 +4086,19 @@ export class Tools {
                 compiledPattern = /^([0-9 ]+)[\/-](.+)$/
                 const replacer:Function = (
                     match:string, prefixCode:string, number:string
-                ) =>
-                    `${prefixCode.replace(/ +/, '')}-` + 
-                    Tools.stringSliceSeparatorExceptLast(number)
+                ):string =>
+                    `${prefixCode.replace(/ +/, '')}-` +
+                    Tools.stringSliceAllExceptNumberAndLastSeperator(number)
                 if (compiledPattern.test(value))
                     // Prefer "/" or "-" over " " as area code separator.
-                    value = value.replace(compiledPattern,  replacer)
+                    value = value.replace(compiledPattern, replacer)
                 else
                     value = value.replace(
                         new RegExp(`^([0-9]+)${separatorPattern}(.+)$`),
                         replacer
                     )
-            return value.replace(/[^0-9-]+/, '')
+            }
+            return value.replace(/[^0-9-]+/g, '')
         }
         return ''
     }
@@ -4164,17 +4176,26 @@ export class Tools {
         return ''
     }
     /**
-     * Decodes all html symbols in text nodes in given html string.
-     * @param htmlString - HTML string to decode.
-     * @returns Decoded html string.
+     * Slices all none numbers but preserves last separator.
+     * @param value - String to process.
+     * @returns - Sliced given value.
      */
-    static stringDecodeHTMLEntities(htmlString:string):?string {
-        if ('document' in $.global) {
-            const textareaDomNode = $.global.document.createElement('textarea')
-            textareaDomNode.innerHTML = htmlString
-            return textareaDomNode.value
-        }
-        return null
+    static stringSliceAllExceptNumberAndLastSeperator(value:string):string {
+        /*
+            1: baseNumber
+            2: directDialingNumberSuffix
+        */
+        const compiledPattern:RegExp = /^(.*[0-9].*)-([0-9]+)$/
+        if (compiledPattern.test(value))
+            return value.replace(compiledPattern, (
+                match:string,
+                baseNumber:string,
+                directDialingNumberSuffix:string
+            ):string =>
+                `${baseNumber.replace(/[^0-9]+/g, '')}-` +
+                directDialingNumberSuffix
+            )
+        return value.replace(/[^0-9]+/g, '')
     }
     /**
      * Converts a dom selector to a prefixed dom selector string.
