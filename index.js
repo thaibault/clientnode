@@ -2495,6 +2495,114 @@ export class Tools {
      * @returns Interpreted date object.
      */
     static normalizeDateTime(value:?string|?number|?Date):Date {
+        /*
+        self.content = None
+        if content is None:
+            self.content = NativeDateTime.now()
+        elif builtins.isinstance(content, NativeDateTime):
+            self.content = content
+        elif builtins.isinstance(content, (builtins.int, builtins.float)):
+            self.content = NativeDateTime.fromtimestamp(content)
+        else:
+            converted_value = String(content).number
+            if builtins.isinstance(converted_value, (
+                builtins.int, builtins.float
+            )):
+                self.content = NativeDateTime.fromtimestamp(converted_value)
+                '''
+                    We make a simple precheck to determine if it could be a \
+                    date like representation. Idea: There should be at least \
+                    some numbers and separators.
+                '''
+# # python3.5
+# #             elif builtins.isinstance(
+# #                 content, builtins.str
+# #             ) and builtins.len(regularExpression.compile(
+# #                 '[^a-zA-Z]'
+# #             ).sub('', content)) < 3 and builtins.len(
+# #                 regularExpression.compile('[0-9]{1,4}[^0-9]').findall(
+# #                     content)
+# #             ) > 1:
+# #                 timezone_pattern = regularExpression.compile('(.+)\+(.+)')
+# #                 timezone_match = timezone_pattern.fullmatch(content)
+            elif builtins.isinstance(content, (
+                builtins.unicode, builtins.str
+            )) and builtins.len(regularExpression.compile(
+                '[^a-zA-Z]'
+            ).sub('', content)) < 3 and builtins.len(
+                regularExpression.compile('[0-9]{1,4}[^0-9]').findall(
+                    content)
+            ) > 1:
+                content = Date.slice_weekday(content)
+                timezone_pattern = regularExpression.compile('(.+)\+(.+)$')
+                timezone_match = timezone_pattern.match(content)
+# #
+                self._interpret_date_time(
+                    content=timezone_pattern.sub(
+                        '\\1', content
+                    ) if timezone_match else content,
+                    timezone_match=timezone_match)
+            if self.content is None:
+                raise __exception__(
+                    '"%s" couldn\'t be interpreted as "%s".', content,
+                    self.__class__.__name__)
+
+    # # # endregion
+
+    # # endregion
+
+    # # region protected
+
+    @JointPoint
+# # python3.5
+# #     def _interpret_date_time(
+# #         self: Self, content: builtins.str, timezone_match: (
+# #             builtins.type(None),
+# #             builtins.type(regularExpression.compile('').match(''))
+# #         )) -> Self:
+    def _interpret_date_time(self, content, timezone_match):
+# #
+        '''Interprets given content string as date time.'''
+        for time_delimiter in ('T', ' ', ''):
+            for delimiter in ('/', '.', ':', '-'):
+                for year_format in (
+                    ('', '{delimiter}%y'), ('', '{delimiter}%Y'),
+                    ('%y{delimiter}', ''), ('%Y{delimiter}', '')
+                ):
+                    for time_format in ('%X', '%H:%M:%S', '%H:%M', '%H', ''):
+                        for ms_format in ('', ':%f'):
+                            for date_time_format in (
+                                '%c', '{first_year}%m{delimiter}%d{last_year}'
+                                '{time_delimiter}{time}{microsecond}',
+                                '{first_year}%d{delimiter}%m{last_year}'
+                                '{time_delimiter}{time}{microsecond}',
+                                '{first_year}%w{delimiter}%m{last_year}'
+                                '{time_delimiter}{time}{microsecond}'
+                            ):
+                                try:
+                                    self.content = NativeDateTime.strptime(
+                                        content, date_time_format.format(
+                                            delimiter=delimiter,
+                                            time_delimiter=time_delimiter,
+                                            first_year=year_format[
+                                                0
+                                            ].format(delimiter=delimiter),
+                                            last_year=year_format[
+                                                1
+                                            ].format(delimiter=delimiter),
+                                            microsecond=ms_format,
+                                            time=time_format))
+                                except builtins.ValueError:
+                                    pass
+                                else:
+                                    # TODO this makes no sense when dealing with utc.
+                                    if timezone_match and False:
+                                        self.content += TimeDelta(
+                                            timezone_match.group(2)
+                                        ).content
+                                    return self
+        return self
+        */
         return new Date(value)
     }
     /**
