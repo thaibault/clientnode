@@ -1539,19 +1539,27 @@ let tests:Array<Test> = [{callback: function(
         const now:Date = new Date()
         for (const test:Array<any> of [
             [now, now],
-            [1.2, new Date()],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
+            [1.2, new Date(1970, 2 - 1, 1)],
+            ['1.2', new Date(1970, 2 - 1, 1)],
+            [1, new Date(1)],
+            ['1.1.1970', new Date(1970, 1 - 1, 1],
+            ['1.1.1970 10', new Date(1970, 1 - 1, 1, 10)],
+            ['1.1.1970 10:30', new Date(1970, 1 - 1, 1, 10, 30)],
+            ['1.1.1970 10:30:30', new Date(1970, 1 - 1, 1, 10, 30, 30)],
+            [123456, new Date(Date.UTC(1970, 1 - 1, 2, 11, 17, 36, 0))],
+            ['2014-11-26 08:30:00', new Date(2014, 11 - 1, 26, 8, 30)],
+            ['2014-11-26T08:30:00', new Date(2014, 11 - 1, 26, 8, 30)],
+            ['2014-11-26T08:30:00+01:00', new Date(2014, 11 - 1, 26, 9, 30)],
+            ['2014-11-10T08:30:00+01:00', new Date(2014, 11 - 1, 10, 9, 30)],
+            ['1.1.1970 08:30:00', new Date(1970, 1 - 1, 1, 8, 30)],
+            [new Date(1970, 1 - 1, 1, 8, 30), new Date(1970, 1 - 1, 1, 8, 30)],
+            ['abc', 'TODO'],
+            ['1+1+1970 08+30+00', 'TODO']
         ])
-            assert.deepEqual($.Tools.class.normalizeDateTime(test[0]), test[1])
+            assert.ok($.Tools.class.equals(
+                $.Tools.class.normalizeDateTime(test[0]),
+                test[1]
+            ))
     })
     this.test('removeKeys', (assert:Object):void => {
         for (const test:Array<any> of [
