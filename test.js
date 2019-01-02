@@ -2095,23 +2095,6 @@ let tests:Array<Test> = [{callback: function(
                 $.Tools.class.stringRepresentURL(test[0]), test[1])
     })
     // /// endregion
-    this.test(`stringCompressStyleValue (${roundType})`, (
-        assert:Object
-    ):void => {
-        for (const test:Array<any> of [
-            ['', ''],
-            [' border: 1px  solid red;', 'border:1px solid red'],
-            ['border : 1px solid red ', 'border:1px solid red'],
-            ['border : 1px  solid red ;', 'border:1px solid red'],
-            ['border : 1px  solid red   ; ', 'border:1px solid red'],
-            ['height: 1px ; width:2px ; ', 'height:1px;width:2px'],
-            [';;height: 1px ; width:2px ; ;', 'height:1px;width:2px'],
-            [' ;;height: 1px ; width:2px ; ;', 'height:1px;width:2px'],
-            [';height: 1px ; width:2px ; ', 'height:1px;width:2px']
-        ])
-            assert.strictEqual(
-                $.Tools.class.stringCompressStyleValue(test[0]), test[1])
-    })
     this.test(`stringCamelCaseToDelimited (${roundType})`, (
         assert:Object
     ):void => {
@@ -2145,6 +2128,38 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(
                 $.Tools.class.stringCapitalize(test[0]), test[1])
     })
+    this.test(`stringCompressStyleValue (${roundType})`, (
+        assert:Object
+    ):void => {
+        for (const test:Array<any> of [
+            ['', ''],
+            [' border: 1px  solid red;', 'border:1px solid red'],
+            ['border : 1px solid red ', 'border:1px solid red'],
+            ['border : 1px  solid red ;', 'border:1px solid red'],
+            ['border : 1px  solid red   ; ', 'border:1px solid red'],
+            ['height: 1px ; width:2px ; ', 'height:1px;width:2px'],
+            [';;height: 1px ; width:2px ; ;', 'height:1px;width:2px'],
+            [' ;;height: 1px ; width:2px ; ;', 'height:1px;width:2px'],
+            [';height: 1px ; width:2px ; ', 'height:1px;width:2px']
+        ])
+            assert.strictEqual(
+                $.Tools.class.stringCompressStyleValue(test[0]), test[1])
+    })
+    this.test(`stringDecodeHTMLEntities (${roundType})`, (
+        assert:Object
+    ):void => {
+        for (const test:Array<string> of [
+            ['', ''],
+            ['<div></div>', '<div></div>'],
+            ['<div>&amp;</div>', '<div>&</div>'],
+            [
+                '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>',
+                '<div>&äÄüÜöÖ</div>'
+            ]
+        ])
+            assert.equal(
+                $.Tools.class.stringDecodeHTMLEntities(test[0]), test[1])
+    })
     this.test(`stringDelimitedToCamelCase (${roundType})`, (
         assert:Object
     ):void => {
@@ -2172,41 +2187,6 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.strictEqual(
                 $.Tools.class.stringDelimitedToCamelCase(...test[0]), test[1])
-    })
-    this.test(`stringFormat (${roundType})`, (assert:Object):void => {
-        for (const test:Array<any> of [
-            [['{1}', 'test'], 'test'],
-            [['', 'test'], ''],
-            [['{1}'], '{1}'],
-            [['{1} test {2} - {2}', 1, 2], '1 test 2 - 2']
-        ])
-            assert.strictEqual(
-                $.Tools.class.stringFormat(...test[0]), test[1])
-    })
-    this.test(`stringGetRegularExpressionValidated (${roundType})`, (
-        assert:Object
-    ):void => {
-        for (const test:Array<any> of [
-            [`that's no regex: .*$`, `that's no regex: \\.\\*\\$`],
-            ['', ''],
-            ['-[]()^$*+.}-\\', '\\-\\[\\]\\(\\)\\^\\$\\*\\+\\.\\}\\-\\\\'],
-            ['-', '\\-']
-        ])
-            assert.strictEqual(
-                $.Tools.class.stringGetRegularExpressionValidated(test[0]),
-                test[1])
-    })
-    this.test(`stringLowerCase (${roundType})`, (assert:Object):void => {
-        for (const test:Array<any> of [
-            ['HansPeter', 'hansPeter'],
-            ['', ''],
-            ['A', 'a'],
-            ['a', 'a'],
-            ['aa', 'aa'],
-            ['Aa', 'aa'],
-            ['aa', 'aa']
-        ])
-            assert.strictEqual($.Tools.class.stringLowerCase(test[0]), test[1])
     })
     this.test(`stringFindNormalizedMatchRange (${roundType})`, (
         assert:Object
@@ -2246,6 +2226,41 @@ let tests:Array<Test> = [{callback: function(
             assert.deepEqual($.Tools.class.stringFindNormalizedMatchRange(
                 ...test[0]
             ), test[1])
+    })
+    this.test(`stringFormat (${roundType})`, (assert:Object):void => {
+        for (const test:Array<any> of [
+            [['{1}', 'test'], 'test'],
+            [['', 'test'], ''],
+            [['{1}'], '{1}'],
+            [['{1} test {2} - {2}', 1, 2], '1 test 2 - 2']
+        ])
+            assert.strictEqual(
+                $.Tools.class.stringFormat(...test[0]), test[1])
+    })
+    this.test(`stringGetRegularExpressionValidated (${roundType})`, (
+        assert:Object
+    ):void => {
+        for (const test:Array<any> of [
+            [`that's no regex: .*$`, `that's no regex: \\.\\*\\$`],
+            ['', ''],
+            ['-[]()^$*+.}-\\', '\\-\\[\\]\\(\\)\\^\\$\\*\\+\\.\\}\\-\\\\'],
+            ['-', '\\-']
+        ])
+            assert.strictEqual(
+                $.Tools.class.stringGetRegularExpressionValidated(test[0]),
+                test[1])
+    })
+    this.test(`stringLowerCase (${roundType})`, (assert:Object):void => {
+        for (const test:Array<any> of [
+            ['HansPeter', 'hansPeter'],
+            ['', ''],
+            ['A', 'a'],
+            ['a', 'a'],
+            ['aa', 'aa'],
+            ['Aa', 'aa'],
+            ['aa', 'aa']
+        ])
+            assert.strictEqual($.Tools.class.stringLowerCase(test[0]), test[1])
     })
     this.test(`stringMark (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
@@ -2433,6 +2448,20 @@ let tests:Array<Test> = [{callback: function(
                     $.Tools.class.stringParseEncodedObject(...test[0]), test[1]
                 )
         })
+    this.test(`stringSliceAllExceptNumberAndLastSeperator (${roundType})`, (
+        assert:Object
+    ):void => {
+        for (const test:Array<any> of [
+            ['12-34-56', '1234-56'],
+            ['12 34 56', '123456'],
+            ['123456', '123456']
+        ])
+            assert.strictEqual(
+                $.Tools.class.stringSliceAllExceptNumberAndLastSeperator(
+                    test[0]),
+                test[1]
+            )
+    })
     this.test(`stringRepresentPhoneNumber (${roundType})`, (
         assert:Object
     ):void => {
@@ -2450,21 +2479,6 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.strictEqual(
                 $.Tools.class.stringRepresentPhoneNumber(test[0]), test[1])
-    })
-    this.test(`stringDecodeHTMLEntities (${roundType})`, (
-        assert:Object
-    ):void => {
-        for (const test:Array<string> of [
-            ['', ''],
-            ['<div></div>', '<div></div>'],
-            ['<div>&amp;</div>', '<div>&</div>'],
-            [
-                '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>',
-                '<div>&äÄüÜöÖ</div>'
-            ]
-        ])
-            assert.equal(
-                $.Tools.class.stringDecodeHTMLEntities(test[0]), test[1])
     })
     this.test(`stringNormalizeDomNodeSelector (${roundType})`, (
         assert:Object
