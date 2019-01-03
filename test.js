@@ -1536,12 +1536,14 @@ let tests:Array<Test> = [{callback: function(
         }
     })
     this.test('normalizeDateTime', (assert:Object):void => {
+        assert.equal(typeof $.Tools.class.normalizeDateTime(), 'object')
         const now:Date = new Date()
         for (const test:Array<any> of [
             [now, now],
-            [1.2, new Date(1970, 2 - 1, 1)],
-            ['1.2', new Date(1970, 2 - 1, 1)],
-            [1, new Date(1)],
+            [1.2, new Date(1.2 / 1000)],
+            ['1.2', new Date(1.2 / 1000)
+            ['1.2.1970', new Date(1970, 2 - 1, 1)],
+            [1, new Date(1000)]/* TODO ,
             ['1.1.1970', new Date(1970, 1 - 1, 1],
             ['1.1.1970 10', new Date(1970, 1 - 1, 1, 10)],
             ['1.1.1970 10:30', new Date(1970, 1 - 1, 1, 10, 30)],
@@ -1555,6 +1557,7 @@ let tests:Array<Test> = [{callback: function(
             [new Date(1970, 1 - 1, 1, 8, 30), new Date(1970, 1 - 1, 1, 8, 30)],
             ['abc', 'TODO'],
             ['1+1+1970 08+30+00', 'TODO']
+            */
         ])
             assert.ok($.Tools.class.equals(
                 $.Tools.class.normalizeDateTime(test[0]),

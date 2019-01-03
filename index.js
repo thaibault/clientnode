@@ -2492,76 +2492,47 @@ export class Tools {
     /**
      * Interprets a date object from given artefact.
      * @param value - To interpret.
-     * @returns Interpreted date object.
+     * @returns Interpreted date object or "null" if given value couldn't be
+     * interpret.
      */
-    static normalizeDateTime(value:?string|?number|?Date):Date {
-        /*
-        self.content = None
-        if content is None:
-            self.content = NativeDateTime.now()
-        elif builtins.isinstance(content, NativeDateTime):
-            self.content = content
-        elif builtins.isinstance(content, (builtins.int, builtins.float)):
-            self.content = NativeDateTime.fromtimestamp(content)
-        else:
-            converted_value = String(content).number
-            if builtins.isinstance(converted_value, (
-                builtins.int, builtins.float
-            )):
-                self.content = NativeDateTime.fromtimestamp(converted_value)
-                '''
-                    We make a simple precheck to determine if it could be a \
-                    date like representation. Idea: There should be at least \
-                    some numbers and separators.
-                '''
-# # python3.5
-# #             elif builtins.isinstance(
-# #                 content, builtins.str
-# #             ) and builtins.len(regularExpression.compile(
-# #                 '[^a-zA-Z]'
-# #             ).sub('', content)) < 3 and builtins.len(
-# #                 regularExpression.compile('[0-9]{1,4}[^0-9]').findall(
-# #                     content)
-# #             ) > 1:
-# #                 timezone_pattern = regularExpression.compile('(.+)\+(.+)')
-# #                 timezone_match = timezone_pattern.fullmatch(content)
-            elif builtins.isinstance(content, (
-                builtins.unicode, builtins.str
-            )) and builtins.len(regularExpression.compile(
-                '[^a-zA-Z]'
-            ).sub('', content)) < 3 and builtins.len(
-                regularExpression.compile('[0-9]{1,4}[^0-9]').findall(
-                    content)
-            ) > 1:
-                content = Date.slice_weekday(content)
-                timezone_pattern = regularExpression.compile('(.+)\+(.+)$')
-                timezone_match = timezone_pattern.match(content)
-# #
-                self._interpret_date_time(
-                    content=timezone_pattern.sub(
-                        '\\1', content
-                    ) if timezone_match else content,
-                    timezone_match=timezone_match)
-            if self.content is None:
-                raise __exception__(
-                    '"%s" couldn\'t be interpreted as "%s".', content,
-                    self.__class__.__name__)
+    static normalizeDateTime(value:?string|?number|?Date = null):Date|null {
+        if (value === null)
+            return new Date()
+        if (typeof value === 'string') {
+            /*
+                We make a simple precheck to determine if it could be a date
+                like representation. Idea: There should be at least some
+                numbers and separators.
+            */
+            if (
+                value.replace(/[^a-zA-Z]/g, '').length < 3 &&
+                value.match(/[0-9]{1,4}[^0-9]/g).length > 1
+            ) {
+                value = Tools.stringSliceWeekday(value)
+                const timezonePattern:RegExp = /(.+)\+(.+)$/
+                const timezoneMatch:Array<number|string> = value.match(
+                    timezonePattern)
+                Tools.stringInterpretDateTime(
+                    timezoneMatch ?
+                        value.replace(timezonePattern, '$1') :
+                        value,
+                    timezoneMatch
+                )
+            } else {
+                const floatRepresentation:number = parseFloat(value)
+                if (`${floatRepresentation}` === value)
+                    value = floatRepresentation
+            }
+/* TODO
+    def slice_weekday(cls, content):
+        '''Slice weekday from given date representation.'''
+        weekday_pattern = regularExpression.compile('[A-Za-z]{2}\. (.+)$')
+        weekday_match = weekday_pattern.match(content)
+        if weekday_match:
+            return weekday_pattern.sub('\\1', content)
+        return content
 
-    # # # endregion
-
-    # # endregion
-
-    # # region protected
-
-    @JointPoint
-# # python3.5
-# #     def _interpret_date_time(
-# #         self: Self, content: builtins.str, timezone_match: (
-# #             builtins.type(None),
-# #             builtins.type(regularExpression.compile('').match(''))
-# #         )) -> Self:
     def _interpret_date_time(self, content, timezone_match):
-# #
         '''Interprets given content string as date time.'''
         for time_delimiter in ('T', ' ', ''):
             for delimiter in ('/', '.', ':', '-'):
@@ -2601,9 +2572,13 @@ export class Tools {
                                             timezone_match.group(2)
                                         ).content
                                     return self
-        return self
         */
-        return new Date(value)
+        if (typeof value === 'number')
+            return new Date(value / 1000)
+        const result:Date = new Date(value)
+        if (isNaN(result.getDate())
+            return null
+        return result
     }
     /**
      * Removes given key from given object recursively.
