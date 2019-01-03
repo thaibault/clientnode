@@ -2279,6 +2279,17 @@ let tests:Array<Test> = [{callback: function(
                 $.Tools.class.stringGetRegularExpressionValidated(test[0]),
                 test[1])
     })
+    this.test(`stringInterpretDateTime (${roundType})`, (
+        assert:Object
+    ):void => {
+        for (const test:Array<any> of [
+            // TODO
+        ])
+            assert.strictEqual(
+                $.Tools.class.stringInterpretDateTime(test[0]),
+                test[1]
+            )
+    })
     this.test(`stringLowerCase (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             ['HansPeter', 'hansPeter'],
@@ -2508,6 +2519,20 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.strictEqual(
                 $.Tools.class.stringRepresentPhoneNumber(test[0]), test[1])
+    })
+    this.test(`stringSliceWeekday (${roundType})`, (assert:Object):void => {
+        for (const test:Array<string> of [
+            ['', ''],
+            ['a', 'a'],
+            ['1.1.1970', '1.1.1970'],
+            ['Do. 1.1.1970', '1.1.1970'],
+            ['We. 1.1.1970', '1.1.1970'],
+            ['Mo. 1.1.1970', '1.1.1970'],
+            ['Mo. ', 'Mo. ']
+        ])
+            assert.strictEqual(
+                $.Tools.class.stringSliceWeekday(test[0]), test[1]
+            )
     })
     this.test(`stringNormalizeDomNodeSelector (${roundType})`, (
         assert:Object
