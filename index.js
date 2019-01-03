@@ -2512,67 +2512,19 @@ export class Tools {
                 const timezonePattern:RegExp = /(.+)\+(.+)$/
                 const timezoneMatch:Array<number|string> = value.match(
                     timezonePattern)
-                Tools.stringInterpretDateTime(
+                value = Tools.stringInterpretDateTime(
                     timezoneMatch ?
                         value.replace(timezonePattern, '$1') :
                         value,
                     timezoneMatch
                 )
+                if (value === null)
+                    return value
             } else {
                 const floatRepresentation:number = parseFloat(value)
                 if (`${floatRepresentation}` === value)
                     value = floatRepresentation
             }
-/* TODO
-    def slice_weekday(cls, content):
-        '''Slice weekday from given date representation.'''
-        weekday_pattern = regularExpression.compile('[A-Za-z]{2}\. (.+)$')
-        weekday_match = weekday_pattern.match(content)
-        if weekday_match:
-            return weekday_pattern.sub('\\1', content)
-        return content
-
-    def _interpret_date_time(self, content, timezone_match):
-        '''Interprets given content string as date time.'''
-        for time_delimiter in ('T', ' ', ''):
-            for delimiter in ('/', '.', ':', '-'):
-                for year_format in (
-                    ('', '{delimiter}%y'), ('', '{delimiter}%Y'),
-                    ('%y{delimiter}', ''), ('%Y{delimiter}', '')
-                ):
-                    for time_format in ('%X', '%H:%M:%S', '%H:%M', '%H', ''):
-                        for ms_format in ('', ':%f'):
-                            for date_time_format in (
-                                '%c', '{first_year}%m{delimiter}%d{last_year}'
-                                '{time_delimiter}{time}{microsecond}',
-                                '{first_year}%d{delimiter}%m{last_year}'
-                                '{time_delimiter}{time}{microsecond}',
-                                '{first_year}%w{delimiter}%m{last_year}'
-                                '{time_delimiter}{time}{microsecond}'
-                            ):
-                                try:
-                                    self.content = NativeDateTime.strptime(
-                                        content, date_time_format.format(
-                                            delimiter=delimiter,
-                                            time_delimiter=time_delimiter,
-                                            first_year=year_format[
-                                                0
-                                            ].format(delimiter=delimiter),
-                                            last_year=year_format[
-                                                1
-                                            ].format(delimiter=delimiter),
-                                            microsecond=ms_format,
-                                            time=time_format))
-                                except builtins.ValueError:
-                                    pass
-                                else:
-                                    # TODO this makes no sense when dealing with utc.
-                                    if timezone_match and False:
-                                        self.content += TimeDelta(
-                                            timezone_match.group(2)
-                                        ).content
-                                    return self
-        */
         if (typeof value === 'number')
             return new Date(value / 1000)
         const result:Date = new Date(value)
@@ -3773,6 +3725,51 @@ export class Tools {
     static stringGetRegularExpressionValidated(string:string):string {
         return string.replace(/([\\|.*$^+[\]()?\-{}])/g, '\\$1')
     }
+    /*
+     * Interprets given content string as date time.
+     * @param value - Date time string to interpret.
+     * @param timezoneMatch - Timezone informations.
+     * @returns Interpret date time object.
+     */
+    static stringInterpretDateTime(
+        value:string, timezoneMatch:Array<any>
+    ):Date|null {
+        // TODO
+        for (const timeDelimiter:string of ['T', ' ', ''])
+            for (const delimiter:string of ['/', '.', ':', '-'])
+                for (const yearFormat:PlainObject of [
+                    {first: '', last: `${delimiter}%y`},
+                    {first: '', last: `${delimiter}%Y`},
+                    {first: `%y${delimiter}`, last: ''},
+                    {first: `%Y${delimiter}`, last: ''}
+                ])
+                    for (const timeFormat:string of [
+                        '%X', '%H:%M:%S', '%H:%M', '%H', ''
+                    ])
+                        for (const microsecondFormat:string of ['', ':%f'])
+                            for (const dateTimeFormat:string of [
+                                '%c',
+                                `${yearFormat.first}%m${delimiter}%d${yearFormat.last}`,
+                                `${timeDelimiter}${timeFormat}${microsecondFormat}`,
+                                `${yearFormat.first}%d${delimiter}%m${yearFormat.last}`,
+                                `${timeDelimiter}${timeFormat}${microsecondFormat}`,
+                                `${yearFormat.first}%w${delimiter}%m${yearFormat.last}`,
+                                `${timeDelimiter}${timeFormat}${microsecondFormat}`
+                            ]) {
+                                try:
+                                    value = NativeDateTime.strptime(
+                                        value, dateTimeFormat)
+                                except builtins.ValueError:
+                                    pass
+                                else {
+                                    // TODO this makes no sense when dealing with utc.
+                                    if (timezoneMatch && false)
+                                        value += TimeDelta(timezoneMatch.group(2)).content
+                                    return value
+                                }
+                            }
+        return null
+    }
     /**
      * Converts a string to its lower case representation.
      * @param string - The string to format.
@@ -4313,6 +4310,18 @@ export class Tools {
                 directDialingNumberSuffix
             )
         return value.replace(/[^0-9]+/g, '')
+    }
+    /*
+     * Slice weekday from given date representation.
+     * @param value - String to process.
+     * @returns Sliced given string.
+     */
+    static stringSliceWeekday(value:string):string {
+        const weekdayPattern:RegExp = /[A-Za-z]{2}\. (.+)$/
+        const weekdayMatch:Array<any> = value.match(weekdayPattern)
+        if (weekdayMatch)
+            return value.replace(weekdayPattern, '$1')
+        return value
     }
     /**
      * Converts a dom selector to a prefixed dom selector string.
