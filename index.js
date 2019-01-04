@@ -1859,19 +1859,25 @@ export class Tools {
         compareBlobs:boolean = false
     ):Promise<boolean>|boolean {
         if (
-            ignoreFunctions && Tools.isFunction(firstValue) &&
-            Tools.isFunction(secondValue) || firstValue === secondValue ||
+            ignoreFunctions &&
+            Tools.isFunction(firstValue) &&
+            Tools.isFunction(secondValue) ||
+            firstValue === secondValue ||
             Tools.numberIsNotANumber(firstValue) &&
             Tools.numberIsNotANumber(secondValue) ||
-            firstValue instanceof RegExp && secondValue instanceof RegExp &&
+            firstValue instanceof RegExp &&
+            secondValue instanceof RegExp &&
             firstValue.toString() === secondValue.toString() ||
-            firstValue instanceof Date && secondValue instanceof Date && (
-                isNaN(firstValue.getTime()) && isNaN(secondValue.getTime()) ||
+            firstValue instanceof Date &&
+            secondValue instanceof Date && (
+                isNaN(firstValue.getTime()) &&
+                isNaN(secondValue.getTime()) ||
                 !isNaN(firstValue.getTime()) &&
                 !isNaN(secondValue.getTime()) &&
                 firstValue.getTime() === secondValue.getTime()
             ) ||
-            compareBlobs && eval('typeof Buffer') !== 'undefined' &&
+            compareBlobs &&
+            eval('typeof Buffer') !== 'undefined' &&
             eval('Buffer').isBuffer &&
             firstValue instanceof eval('Buffer') &&
             secondValue instanceof eval('Buffer') &&
@@ -2504,13 +2510,11 @@ export class Tools {
                 like representation. Idea: There should be at least some
                 numbers and separators.
             */
-            if (
-                value.replace(/[^a-zA-Z]/g, '').length < 3 &&
-                value.match(/[0-9]{1,4}[^0-9]/g).length > 1
-            ) {
+            const preCheck:Array<any>|null = value.match(/[0-9]{1,4}[^0-9]/g)
+            if (preCheck && preCheck.length > 1) {
                 value = Tools.stringSliceWeekday(value)
                 const timezonePattern:RegExp = /(.+)\+(.+)$/
-                const timezoneMatch:Array<number|string> = value.match(
+                const timezoneMatch:Array<number|string>|null = value.match(
                     timezonePattern)
                 value = Tools.stringInterpretDateTime(
                     timezoneMatch ?
@@ -2525,10 +2529,11 @@ export class Tools {
                 if (`${floatRepresentation}` === value)
                     value = floatRepresentation
             }
+        }
         if (typeof value === 'number')
             return new Date(value / 1000)
         const result:Date = new Date(value)
-        if (isNaN(result.getDate())
+        if (isNaN(result.getDate()))
             return null
         return result
     }
@@ -3734,34 +3739,59 @@ export class Tools {
     static stringInterpretDateTime(
         value:string, timezoneMatch:Array<any>
     ):Date|null {
-        // TODO
-        for (const timeDelimiter:string of ['T', ' ', ''])
-            for (const delimiter:string of ['/', '.', ':', '-'])
-                for (const yearFormat:PlainObject of [
-                    {first: '', last: `${delimiter}%y`},
-                    {first: '', last: `${delimiter}%Y`},
-                    {first: `%y${delimiter}`, last: ''},
-                    {first: `%Y${delimiter}`, last: ''}
-                ])
+        // TODO could be specified more in detail.
+        const millisecondPattern:string = '(?<millisecond>[0-9]{1,4})'
+        const minuteAndSecondPattern:string = '(?:0?[1-9])|(?:[1-5][0-9])|(?:60)'
+        const secondPattern:string = `(?<second>${minuteAndSecondPattern})`
+        const minutePattern:string = `(?<minute>${minuteAndSecondPattern})`
+        const hourPattern:string = '(?<hour>(?:0?[1-9])|(?:1[0-9])|(?:2[1-4]))'
+        const dayPattern:string = '(?<day>(?:0?[1-9])|(?:[1-3][0-9]))'
+        const monthPattern:string = '(?<month>(?:0?[1-9])|(?:1[0-2]))'
+        const yearPattern:string = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
+        // TODO handle month names.
+        for (const wordToSlice:string of ['', 'Uhr', "o'clock"])
+            for (const timeDelimiter:string of ['T', ' '])
+                for (const timeComponentDelimiter:string of ['/', ':', '-', ' '])
                     for (const timeFormat:string of [
-                        '%X', '%H:%M:%S', '%H:%M', '%H', ''
+                        `${hourPattern}${timeComponentDelimiter}${minutePattern}`,
+                        `${hourPattern}${timeComponentDelimiter}${minutePattern}${timeComponentDelimiter}${secondPattern}`,
+                        `${hourPattern}${timeComponentDelimiter}${minutePattern}${timeComponentDelimiter}${secondPattern}${timeComponentDelimiter}${millisecondPattern}`,
+                        hourPattern
                     ])
-                        for (const microsecondFormat:string of ['', ':%f'])
+                        for (const dateComponentDelimiter:string of ['/', '.', ':', '-', ' '])
                             for (const dateTimeFormat:string of [
-                                '%c',
-                                `${yearFormat.first}%m${delimiter}%d${yearFormat.last}`,
-                                `${timeDelimiter}${timeFormat}${microsecondFormat}`,
-                                `${yearFormat.first}%d${delimiter}%m${yearFormat.last}`,
-                                `${timeDelimiter}${timeFormat}${microsecondFormat}`,
-                                `${yearFormat.first}%w${delimiter}%m${yearFormat.last}`,
-                                `${timeDelimiter}${timeFormat}${microsecondFormat}`
+                                // day/month variation and year
+                                `${monthPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${yearPattern}`,
+                                `${dayPattern}${dateComponentDelimiter}${monthPattern}${dateComponentDelimiter}${yearPattern}`,
+                                // year and day/month variation
+                                `${yearPattern}${dateComponentDelimiter}${monthPattern}${dateComponentDelimiter}${dayPattern}`,
+                                `${yearPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${monthPattern}`,
+                                // day/month variation, year and time
+                                `${monthPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${yearPattern}${timeDelimiter}${timeFormat}`,
+                                `${dayPattern}${dateComponentDelimiter}${monthPattern}${dateComponentDelimiter}${yearPattern}${timeDelimiter}${timeFormat}`,
+                                // time, day/month variation and year
+                                `${timeFormat}${timeDelimiter}${monthPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${yearPattern}`,
+                                `${timeFormat}${timeDelimiter}${dayPattern}${dateComponentDelimiter}${monthPattern}${dateComponentDelimiter}${yearPattern}`,
+                                // year, day/month variation and time
+                                `${yearPattern}${dateComponentDelimiter}${monthPattern}${dateComponentDelimiter}${dayPattern}${timeDelimiter}${timeFormat}`,
+                                `${yearPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${monthPattern}${timeDelimiter}${timeFormat}`,
+                                // time, year and day/month variation
+                                `${timeFormat}${timeDelimiter}${yearPattern}${dateComponentDelimiter}${monthPattern}${dateComponentDelimiter}${dayPattern}`,
+                                `${timeFormat}${timeDelimiter}${yearPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${monthPattern}`,
+                                // time
+                                timeFormat
                             ]) {
-                                try:
+                                const scopeMapping:Array<string> = 
+                                dateTimeFormat
+                                value = value.replace(wordToSlice, '')
+                                let parsed:boolean = true
+                                try {
                                     value = NativeDateTime.strptime(
                                         value, dateTimeFormat)
-                                except builtins.ValueError:
-                                    pass
-                                else {
+                                } catch (error) {
+                                    parsed = false
+                                }
+                                if (parsed) {
                                     // TODO this makes no sense when dealing with utc.
                                     if (timezoneMatch && false)
                                         value += TimeDelta(timezoneMatch.group(2)).content
