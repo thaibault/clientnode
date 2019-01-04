@@ -1541,9 +1541,9 @@ let tests:Array<Test> = [{callback: function(
         for (const test:Array<any> of [
             [now, now],
             [1.2, new Date(1.2 / 1000)],
-            ['1.2', new Date(1.2 / 1000)
-            ['1.2.1970', new Date(1970, 2 - 1, 1)],
+            ['1.2', new Date(1.2 / 1000)],
             [1, new Date(1000)]/* TODO ,
+            ['1.2.1970', new Date(1970, 2 - 1, 1)],
             ['1.1.1970', new Date(1970, 1 - 1, 1],
             ['1.1.1970 10', new Date(1970, 1 - 1, 1, 10)],
             ['1.1.1970 10:30', new Date(1970, 1 - 1, 1, 10, 30)],
