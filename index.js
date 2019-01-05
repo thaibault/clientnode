@@ -253,6 +253,8 @@ export class Semaphore {
  * @property static:transitionEndEventNames - Saves a string with all css3
  * browser specific transition end event names.
  *
+ * @property static:_dateTimePatternCache - Caches compiled date tine pattern
+ * regular expressions.
  * @property static:_name - Not minifyable class name.
  * @property static:_javaScriptDependentContentHandled - Indicates whether
  * javaScript dependent content where hide or shown.
@@ -395,6 +397,7 @@ export class Tools {
     static transitionEndEventNames:string = 'transitionend ' +
         'webkitTransitionEnd oTransitionEnd MSTransitionEnd'
 
+    static _dateTimePatternCache:Array<RegExp> = []
     static _javaScriptDependentContentHandled:boolean = false
     static _name:string = 'tools'
     // endregion
@@ -2512,16 +2515,7 @@ export class Tools {
             */
             const preCheck:Array<any>|null = value.match(/[0-9]{1,4}[^0-9]/g)
             if (preCheck && preCheck.length > 1) {
-                value = Tools.stringSliceWeekday(value)
-                const timezonePattern:RegExp = /(.+)\+(.+)$/
-                const timezoneMatch:Array<number|string>|null = value.match(
-                    timezonePattern)
-                value = Tools.stringInterpretDateTime(
-                    timezoneMatch ?
-                        value.replace(timezonePattern, '$1') :
-                        value,
-                    timezoneMatch
-                )
+                value = Tools.stringInterpretDateTime(value)
                 if (value === null)
                     return value
             } else {
@@ -2532,6 +2526,7 @@ export class Tools {
         }
         if (typeof value === 'number')
             return new Date(value / 1000)
+        // IgnoreTypeCheck
         const result:Date = new Date(value)
         if (isNaN(result.getDate()))
             return null
@@ -3730,35 +3725,43 @@ export class Tools {
     static stringGetRegularExpressionValidated(string:string):string {
         return string.replace(/([\\|.*$^+[\]()?\-{}])/g, '\\$1')
     }
-    /*
+    /**
      * Interprets given content string as date time.
      * @param value - Date time string to interpret.
-     * @param timezoneMatch - Timezone informations.
      * @returns Interpret date time object.
      */
-    static stringInterpretDateTime(
-        value:string, timezoneMatch:Array<any>
-    ):Date|null {
-        // TODO could be specified more in detail.
-        const millisecondPattern:string = '(?<millisecond>[0-9]{1,4})'
-        const minuteAndSecondPattern:string = '(?:0?[1-9])|(?:[1-5][0-9])|(?:60)'
-        const secondPattern:string = `(?<second>${minuteAndSecondPattern})`
-        const minutePattern:string = `(?<minute>${minuteAndSecondPattern})`
-        const hourPattern:string = '(?<hour>(?:0?[1-9])|(?:1[0-9])|(?:2[1-4]))'
-        const dayPattern:string = '(?<day>(?:0?[1-9])|(?:[1-3][0-9]))'
-        const monthPattern:string = '(?<month>(?:0?[1-9])|(?:1[0-2]))'
-        const yearPattern:string = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
+    static stringInterpretDateTime(value:string):Date|null {
         // TODO handle month names.
-        for (const wordToSlice:string of ['', 'Uhr', "o'clock"])
+        // TODO dot delimiter and day -> month should become first
+        // but slash delimiter and month -> day also!
+        if (!Tools._dateTimePatternCache.length) {
+            // region pre-compile regular expressions
+            // / region pattern
+            // TODO could be specified more in detail.
+            const millisecondPattern:string = '(?<millisecond>[0-9]{1,4})'
+            const minuteAndSecondPattern:string =
+                '(?:0?[1-9])|(?:[1-5][0-9])|(?:60)'
+            const secondPattern:string = `(?<second>${minuteAndSecondPattern})`
+            const minutePattern:string = `(?<minute>${minuteAndSecondPattern})`
+            const hourPattern:string =
+                '(?<hour>(?:0?[1-9])|(?:1[0-9])|(?:2[1-4]))'
+            const dayPattern:string = '(?<day>(?:0?[1-9])|(?:[1-3][0-9]))'
+            const monthPattern:string = '(?<month>(?:0?[1-9])|(?:1[0-2]))'
+            const yearPattern:string = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
+            // / endregion
             for (const timeDelimiter:string of ['T', ' '])
-                for (const timeComponentDelimiter:string of ['/', ':', '-', ' '])
+                for (const timeComponentDelimiter:string of [
+                    '/', ':', '-', ' '
+                ])
                     for (const timeFormat:string of [
                         `${hourPattern}${timeComponentDelimiter}${minutePattern}`,
                         `${hourPattern}${timeComponentDelimiter}${minutePattern}${timeComponentDelimiter}${secondPattern}`,
                         `${hourPattern}${timeComponentDelimiter}${minutePattern}${timeComponentDelimiter}${secondPattern}${timeComponentDelimiter}${millisecondPattern}`,
                         hourPattern
                     ])
-                        for (const dateComponentDelimiter:string of ['/', '.', ':', '-', ' '])
+                        for (const dateComponentDelimiter:string of [
+                            '/', '.', ':', '-', ' '
+                        ])
                             for (const dateTimeFormat:string of [
                                 // day/month variation and year
                                 `${monthPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${yearPattern}`,
@@ -3780,24 +3783,40 @@ export class Tools {
                                 `${timeFormat}${timeDelimiter}${yearPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${monthPattern}`,
                                 // time
                                 timeFormat
-                            ]) {
-                                const scopeMapping:Array<string> = 
-                                dateTimeFormat
-                                value = value.replace(wordToSlice, '')
-                                let parsed:boolean = true
-                                try {
-                                    value = NativeDateTime.strptime(
-                                        value, dateTimeFormat)
-                                } catch (error) {
-                                    parsed = false
-                                }
-                                if (parsed) {
-                                    // TODO this makes no sense when dealing with utc.
-                                    if (timezoneMatch && false)
-                                        value += TimeDelta(timezoneMatch.group(2)).content
-                                    return value
-                                }
-                            }
+                            ])
+                                Tools._dateTimePatternCache.push(new RegExp(
+                                    `^${dateTimeFormat}$`))
+            // endregion
+        }
+        // region pre-process
+        value = Tools.stringSliceWeekday(value)
+        const timezonePattern:RegExp = /(.+)\+(.+)$/
+        const timezoneMatch:Array<any>|null = value.match(timezonePattern)
+        if (timezoneMatch)
+            value = value.replace(timezonePattern, '$1')
+        for (const wordToSlice:string of ['', 'Uhr', `o'clock`])
+            value = value.replace(wordToSlice, '')
+        // endregion
+        for (const dateTimePattern:RegExp of Tools._dateTimePatternCache) {
+            let match:Array<any>|null = null
+            try {
+                match = value.match(dateTimePattern)
+            } catch (error) {}
+            if (match) {
+                console.log('TODO', value, dateTimePattern, match.groups)
+                let result:Date = new Date(
+                    parseInt(match.groups.year),
+                    parseInt(match.groups.month - 1),
+                    parseInt(match.groups.day)
+                )
+                // TODO this makes no sense when dealing with utc.
+                if (timezoneMatch && false)
+                    result = new Date(
+                        result.getTime() + new Date(timezoneMatch[2]).getTime()
+                    )
+                return result
+            }
+        }
         return null
     }
     /**
@@ -4341,14 +4360,14 @@ export class Tools {
             )
         return value.replace(/[^0-9]+/g, '')
     }
-    /*
+    /**
      * Slice weekday from given date representation.
      * @param value - String to process.
      * @returns Sliced given string.
      */
     static stringSliceWeekday(value:string):string {
         const weekdayPattern:RegExp = /[A-Za-z]{2}\. (.+)$/
-        const weekdayMatch:Array<any> = value.match(weekdayPattern)
+        const weekdayMatch:Array<any>|null = value.match(weekdayPattern)
         if (weekdayMatch)
             return value.replace(weekdayPattern, '$1')
         return value

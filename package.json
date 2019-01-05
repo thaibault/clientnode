@@ -64,6 +64,7 @@
     "@babel/plugin-transform-proto-to-assign": "*",
     "@babel/polyfill": "*",
     "babel-eslint": "*",
+    "babel-plugin-transform-modern-regexp": "*",
     "coveralls": "*",
     "documentation-website": "*",
     "eslint": "*",
@@ -144,6 +145,24 @@
             "mangle": false,
             "#1": "To provide a generic logging mechanism we need this feature to be exported.",
             "removeConsole": false
+          }
+        }
+      },
+      "preprocessor": {
+        "javaScript": {
+          "options": {
+            "plugins": {
+              "#": "Can be removed when stage-3 proposals like \"https://github.com/tc39/proposal-regexp-named-groups\" has been implemented.",
+              "__append__": [[
+                "transform-modern-regexp",
+                {
+                  "features": [
+                    "dotAll",
+                    "namedCapturingGroups"
+                  ]
+                }
+              ]]
+            }
           }
         }
       }
