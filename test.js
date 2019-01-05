@@ -349,11 +349,12 @@ let tests:Array<Test> = [{callback: function(
             [{A: 'a', B: 'b'}, 'A: a (Type: "string")\nB: b (Type: "string")']
         ])
             assert.strictEqual($.Tools.class.show(test[0]), test[1])
-        assert.ok((new RegExp(
-            /* eslint-disable no-control-regex */
-            '^(.|\n|\r|\\u2028|\\u2029)+\\(Type: "function"\\)$'
-            /* eslint-enable no-control-regex */
-        )).test($.Tools.class.show($.Tools)))
+        /* eslint-disable no-control-regex */
+        assert.ok(/^.+\(Type: "function"\)$/su.test(
+            $.Tools.class.show($.Tools.class.noop)
+        ))
+        console.log($.Tools.class.show($.Tools))
+        /* eslint-enable no-control-regex */
     })
     // // endregion
     // // region dom node handling
@@ -1542,7 +1543,7 @@ let tests:Array<Test> = [{callback: function(
             [now, now],
             [1.2, new Date(1.2 / 1000)],
             ['1.2', new Date(1.2 / 1000)],
-            [1, new Date(1000)]/* TODO ,
+            [1, new Date(1 / 1000)]/* TODO ,
             ['1.2.1970', new Date(1970, 2 - 1, 1)],
             ['1.1.1970', new Date(1970, 1 - 1, 1],
             ['1.1.1970 10', new Date(1970, 1 - 1, 1, 10)],
@@ -1730,7 +1731,7 @@ let tests:Array<Test> = [{callback: function(
             [[{a: 2}], {b: /a/}, []],
             [
                 [{mimeType: 'text/x-webm'}],
-                {mimeType: new RegExp('^text/x-webm$')},
+                {mimeType: /^text\/x-webm$/},
                 [{mimeType: 'text/x-webm'}]
             ]
         ])
@@ -2283,12 +2284,15 @@ let tests:Array<Test> = [{callback: function(
         assert:Object
     ):void => {
         for (const test:Array<any> of [
+            ['', null],
+            ['1.1.1970', new Date(1970, 1 - 1, 1)]
+        ]) {
             // TODO
-        ])
-            assert.strictEqual(
-                $.Tools.class.stringInterpretDateTime(test[0]),
-                test[1]
-            )
+            console.log($.Tools.class.stringInterpretDateTime(test[0]))
+            assert.ok($.Tools.class.equals(
+                $.Tools.class.stringInterpretDateTime(test[0]), test[1]
+            ))
+        }
     })
     this.test(`stringLowerCase (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
