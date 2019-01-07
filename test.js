@@ -2300,7 +2300,10 @@ let tests:Array<Test> = [{callback: function(
                 '2014-11-10T08:30:00+02:00',
                 new Date(Date.UTC(2014, 11 - 1, 10, 6, 30))
             ],
-            ['1.1.1970 08:30:00', new Date(1970, 1 - 1, 1, 8, 30)]
+            ['1.1.1970 08:30:00', new Date(1970, 1 - 1, 1, 8, 30)],
+            ['Mo. 1.1.1970', new Date(1970, 1 - 1, 1)],
+            ['Di. 2.1.1970', new Date(1970, 1 - 1, 2)],
+            ['Fr. 3.1.1970', new Date(1970, 1 - 1, 3)]
         ])
             assert.ok($.Tools.class.equals(
                 $.Tools.class.stringInterpretDateTime(test[0], false), test[1]
