@@ -2501,10 +2501,15 @@ export class Tools {
     /**
      * Interprets a date object from given artefact.
      * @param value - To interpret.
+     * @param interpretAsUTC - Identifies if given date should be interpret as
+     * utc.
      * @returns Interpreted date object or "null" if given value couldn't be
      * interpret.
      */
-    static normalizeDateTime(value:?string|?number|?Date = null):Date|null {
+    static normalizeDateTime(
+        value:?string|?number|?Date = null,
+        interpretAsUTC:boolean = true
+    ):Date|null {
         if (value === null)
             return new Date()
         if (typeof value === 'string') {
@@ -2515,7 +2520,7 @@ export class Tools {
             */
             const preCheck:Array<any>|null = value.match(/[0-9]{1,4}[^0-9]/g)
             if (preCheck && preCheck.length > 1) {
-                value = Tools.stringInterpretDateTime(value)
+                value = Tools.stringInterpretDateTime(value, interpretAsUTC)
                 if (value === null)
                     return value
             } else {
@@ -2525,7 +2530,7 @@ export class Tools {
             }
         }
         if (typeof value === 'number')
-            return new Date(value / 1000)
+            return new Date(value * 1000)
         // IgnoreTypeCheck
         const result:Date = new Date(value)
         if (isNaN(result.getDate()))
@@ -3728,64 +3733,212 @@ export class Tools {
     /**
      * Interprets given content string as date time.
      * @param value - Date time string to interpret.
+     * @param interpretAsUTC - Identifies if given date should be interpret as
+     * utc.
      * @returns Interpret date time object.
      */
-    static stringInterpretDateTime(value:string):Date|null {
+    static stringInterpretDateTime(
+        value:string, interpretAsUTC:boolean = true
+    ):Date|null {
         // TODO handle month names.
-        // TODO dot delimiter and day -> month should become first
-        // but slash delimiter and month -> day also!
         if (!Tools._dateTimePatternCache.length) {
             // region pre-compile regular expressions
             // / region pattern
-            // TODO could be specified more in detail.
-            const millisecondPattern:string = '(?<millisecond>[0-9]{1,4})'
+            const millisecondPattern:string =
+                '(?<millisecond>(?:0{0,3}[0-9])|(?:0{0,2}[1-9]{2})|' +
+                '(?:0?[1-9]{3})|(?:1[1-9]{3}))'
             const minuteAndSecondPattern:string =
-                '(?:0?[1-9])|(?:[1-5][0-9])|(?:60)'
+                '(?:0?[0-9])|(?:[1-5][0-9])|(?:60)'
             const secondPattern:string = `(?<second>${minuteAndSecondPattern})`
             const minutePattern:string = `(?<minute>${minuteAndSecondPattern})`
             const hourPattern:string =
-                '(?<hour>(?:0?[1-9])|(?:1[0-9])|(?:2[1-4]))'
-            const dayPattern:string = '(?<day>(?:0?[1-9])|(?:[1-3][0-9]))'
+                '(?<hour>(?:0?[0-9])|(?:1[0-9])|(?:2[1-4]))'
+            const dayPattern:string =
+                '(?<day>(?:0?[1-9])|(?:[1-2][0-9])|(?:3[01]))'
             const monthPattern:string = '(?<month>(?:0?[1-9])|(?:1[0-2]))'
             const yearPattern:string = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
             // / endregion
+            const patternPresenceCache:{[key:string]:true} = {}
             for (const timeDelimiter:string of ['T', ' '])
                 for (const timeComponentDelimiter:string of [
-                    '/', ':', '-', ' '
+                    ':', '/', '-', ' '
                 ])
                     for (const timeFormat:string of [
-                        `${hourPattern}${timeComponentDelimiter}${minutePattern}`,
-                        `${hourPattern}${timeComponentDelimiter}${minutePattern}${timeComponentDelimiter}${secondPattern}`,
-                        `${hourPattern}${timeComponentDelimiter}${minutePattern}${timeComponentDelimiter}${secondPattern}${timeComponentDelimiter}${millisecondPattern}`,
+                        hourPattern + timeComponentDelimiter + minutePattern,
+
+                        hourPattern +
+                        timeComponentDelimiter +
+                        minutePattern +
+                        timeComponentDelimiter +
+                        secondPattern,
+
+                        hourPattern +
+                        timeComponentDelimiter +
+                        minutePattern +
+                        timeComponentDelimiter +
+                        secondPattern +
+                        timeComponentDelimiter +
+                        millisecondPattern,
+
                         hourPattern
                     ])
-                        for (const dateComponentDelimiter:string of [
-                            '/', '.', ':', '-', ' '
+                        for (const dateTimeFormat:PlainObject of [
+                            // day/month variation and year
+                            {
+                                delimiter: ['/', '-', ' '],
+                                pattern:
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    yearPattern
+                            },
+                            {
+                                delimiter: '\\.',
+                                pattern:
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    yearPattern
+                            },
+                            // year and day/month variation
+                            {
+                                delimiter: ['/', '-', ' '],
+                                pattern:
+                                    yearPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern
+                            },
+                            {
+                                delimiter: '\\.',
+                                pattern:
+                                    yearPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern
+                            },
+                            // day/month variation, year and time
+                            {
+                                delimiter: ['/', '-', ' '],
+                                pattern:
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    yearPattern +
+                                    timeDelimiter +
+                                    timeFormat
+                            },
+                            {
+                                delimiter: '\\.',
+                                pattern:
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    yearPattern +
+                                    timeDelimiter +
+                                    timeFormat
+                            },
+                            // time, day/month variation and year
+                            {
+                                delimiter: ['/', '-', ' '],
+                                pattern:
+                                    timeFormat +
+                                    timeDelimiter +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    yearPattern
+                            },
+                            {
+                                delimiter: '\\.',
+                                pattern:
+                                    timeFormat +
+                                    timeDelimiter +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    yearPattern
+                            },
+                            // year, day/month variation and time
+                            {
+                                delimiter: ['/', '-', ' '],
+                                pattern:
+                                    yearPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    timeDelimiter +
+                                    timeFormat
+                            },
+                            {
+                                delimiter: '\\.',
+                                pattern:
+                                    yearPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    timeDelimiter +
+                                    timeFormat
+                            },
+                            // time, year and day/month variation
+                            {
+                                delimiter: ['/', '-', ' '],
+                                pattern:
+                                    timeFormat +
+                                    timeDelimiter +
+                                    yearPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern
+                            },
+                            {
+                                delimiter: '\\.',
+                                pattern:
+                                    timeFormat +
+                                    timeDelimiter +
+                                    yearPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern
+                            },
+                            // time
+                            {pattern: timeFormat}
                         ])
-                            for (const dateTimeFormat:string of [
-                                // day/month variation and year
-                                `${monthPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${yearPattern}`,
-                                `${dayPattern}${dateComponentDelimiter}${monthPattern}${dateComponentDelimiter}${yearPattern}`,
-                                // year and day/month variation
-                                `${yearPattern}${dateComponentDelimiter}${monthPattern}${dateComponentDelimiter}${dayPattern}`,
-                                `${yearPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${monthPattern}`,
-                                // day/month variation, year and time
-                                `${monthPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${yearPattern}${timeDelimiter}${timeFormat}`,
-                                `${dayPattern}${dateComponentDelimiter}${monthPattern}${dateComponentDelimiter}${yearPattern}${timeDelimiter}${timeFormat}`,
-                                // time, day/month variation and year
-                                `${timeFormat}${timeDelimiter}${monthPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${yearPattern}`,
-                                `${timeFormat}${timeDelimiter}${dayPattern}${dateComponentDelimiter}${monthPattern}${dateComponentDelimiter}${yearPattern}`,
-                                // year, day/month variation and time
-                                `${yearPattern}${dateComponentDelimiter}${monthPattern}${dateComponentDelimiter}${dayPattern}${timeDelimiter}${timeFormat}`,
-                                `${yearPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${monthPattern}${timeDelimiter}${timeFormat}`,
-                                // time, year and day/month variation
-                                `${timeFormat}${timeDelimiter}${yearPattern}${dateComponentDelimiter}${monthPattern}${dateComponentDelimiter}${dayPattern}`,
-                                `${timeFormat}${timeDelimiter}${yearPattern}${dateComponentDelimiter}${dayPattern}${dateComponentDelimiter}${monthPattern}`,
-                                // time
-                                timeFormat
-                            ])
-                                Tools._dateTimePatternCache.push(new RegExp(
-                                    `^${dateTimeFormat}$`))
+                            for (
+                                const delimiter:string of
+                                [].concat(dateTimeFormat.hasOwnProperty(
+                                    'delimiter'
+                                ) ? dateTimeFormat.delimiter : '-')
+                            ) {
+                                const pattern:string = (new Function(
+                                    'delimiter',
+                                    `return \`^${dateTimeFormat.pattern}$\``
+                                ))(delimiter)
+                                const flags:string =
+                                    dateTimeFormat.hasOwnProperty('flags') ?
+                                        dateTimeFormat.flags :
+                                        ''
+                                const key:string = pattern + flags
+                                if (!patternPresenceCache.hasOwnProperty(
+                                    key
+                                )) {
+                                    patternPresenceCache[key] = true
+                                    Tools._dateTimePatternCache.push(
+                                        new RegExp(pattern, flags))
+                                }
+                            }
             // endregion
         }
         // region pre-process
@@ -3796,6 +3949,7 @@ export class Tools {
             value = value.replace(timezonePattern, '$1')
         for (const wordToSlice:string of ['', 'Uhr', `o'clock`])
             value = value.replace(wordToSlice, '')
+        value = value.trim()
         // endregion
         for (const dateTimePattern:RegExp of Tools._dateTimePatternCache) {
             let match:Array<any>|null = null
@@ -3803,17 +3957,30 @@ export class Tools {
                 match = value.match(dateTimePattern)
             } catch (error) {}
             if (match) {
-                console.log('TODO', value, dateTimePattern, match.groups)
-                let result:Date = new Date(
-                    parseInt(match.groups.year),
-                    parseInt(match.groups.month - 1),
-                    parseInt(match.groups.day)
-                )
-                // TODO this makes no sense when dealing with utc.
-                if (timezoneMatch && false)
-                    result = new Date(
-                        result.getTime() + new Date(timezoneMatch[2]).getTime()
-                    )
+                const get:Function = (name:string, fallback:number = 0):number =>
+                    name in match.groups ?
+                        parseInt(match.groups[name]) :
+                        fallback
+                const parameter:Array<number> = [
+                    get('year', 1970), get('month', 1) - 1, get('day', 1),
+                    get('hour'), get('minute'), get('second'),
+                    get('millisecond')
+                ]
+                let result:Date
+                if (timezoneMatch) {
+                    const timeShift:Date|null = Tools.stringInterpretDateTime(
+                        timezoneMatch[2], true)
+                    if (timeShift)
+                        result = new Date(
+                            Date.UTC(...parameter) - timeShift.getTime())
+                }
+                if (!result)
+                    if (interpretAsUTC)
+                        result = new Date(Date.UTC(...parameter))
+                    else
+                        result = new Date(...parameter)
+                if (isNaN(result.getDate()))
+                    return null
                 return result
             }
         }

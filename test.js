@@ -353,7 +353,6 @@ let tests:Array<Test> = [{callback: function(
         assert.ok(/^.+\(Type: "function"\)$/su.test(
             $.Tools.class.show($.Tools.class.noop)
         ))
-        console.log($.Tools.class.show($.Tools))
         /* eslint-enable no-control-regex */
     })
     // // endregion
@@ -1541,27 +1540,17 @@ let tests:Array<Test> = [{callback: function(
         const now:Date = new Date()
         for (const test:Array<any> of [
             [now, now],
-            [1.2, new Date(1.2 / 1000)],
-            ['1.2', new Date(1.2 / 1000)],
-            [1, new Date(1 / 1000)]/* TODO ,
-            ['1.2.1970', new Date(1970, 2 - 1, 1)],
-            ['1.1.1970', new Date(1970, 1 - 1, 1],
-            ['1.1.1970 10', new Date(1970, 1 - 1, 1, 10)],
-            ['1.1.1970 10:30', new Date(1970, 1 - 1, 1, 10, 30)],
-            ['1.1.1970 10:30:30', new Date(1970, 1 - 1, 1, 10, 30, 30)],
-            [123456, new Date(Date.UTC(1970, 1 - 1, 2, 11, 17, 36, 0))],
-            ['2014-11-26 08:30:00', new Date(2014, 11 - 1, 26, 8, 30)],
-            ['2014-11-26T08:30:00', new Date(2014, 11 - 1, 26, 8, 30)],
-            ['2014-11-26T08:30:00+01:00', new Date(2014, 11 - 1, 26, 9, 30)],
-            ['2014-11-10T08:30:00+01:00', new Date(2014, 11 - 1, 10, 9, 30)],
-            ['1.1.1970 08:30:00', new Date(1970, 1 - 1, 1, 8, 30)],
+            [1.2, new Date(1.2 * 1000)],
+            ['1.2', new Date(1.2 * 1000)],
+            [1, new Date(1 * 1000)],
+            ['2/1/1970', new Date(1970, 2 - 1, 1)],
+            [0.001, new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, 0, 1))],
             [new Date(1970, 1 - 1, 1, 8, 30), new Date(1970, 1 - 1, 1, 8, 30)],
-            ['abc', 'TODO'],
-            ['1+1+1970 08+30+00', 'TODO']
-            */
+            ['abc', null],
+            ['1+1+1970 08+30+00', null]
         ])
             assert.ok($.Tools.class.equals(
-                $.Tools.class.normalizeDateTime(test[0]),
+                $.Tools.class.normalizeDateTime(test[0], false),
                 test[1]
             ))
     })
@@ -2285,14 +2274,37 @@ let tests:Array<Test> = [{callback: function(
     ):void => {
         for (const test:Array<any> of [
             ['', null],
-            ['1.1.1970', new Date(1970, 1 - 1, 1)]
-        ]) {
-            // TODO
-            console.log($.Tools.class.stringInterpretDateTime(test[0]))
+            ['01:00', new Date(1970, 1 - 1, 1, 1)],
+            ['01:02', new Date(1970, 1 - 1, 1, 1, 2)],
+            ['01:00:00', new Date(1970, 1 - 1, 1, 1)],
+            ['01:02:00', new Date(1970, 1 - 1, 1, 1, 2)],
+            ['01:02:03', new Date(1970, 1 - 1, 1, 1, 2, 3)],
+            ['01:02:03:0', new Date(1970, 1 - 1, 1, 1, 2, 3)],
+            ['01:02:03:4', new Date(1970, 1 - 1, 1, 1, 2, 3, 4)],
+            ['1.1.1970', new Date(1970, 1 - 1, 1)],
+            ['1.2.1970', new Date(1970, 2 - 1, 1)],
+            ['1.1.1970 10', new Date(1970, 1 - 1, 1, 10)],
+            ['1.1.1970 10:30', new Date(1970, 1 - 1, 1, 10, 30)],
+            ['1.1.1970 10:30:30', new Date(1970, 1 - 1, 1, 10, 30, 30)],
+            ['2014-11-26 08:30:00', new Date(2014, 11 - 1, 26, 8, 30)],
+            ['2014-11-26T08:30:00', new Date(2014, 11 - 1, 26, 8, 30)],
+            [
+                '2014-11-26T08:30:00+01:00',
+                new Date(Date.UTC(2014, 11 - 1, 26, 7, 30))
+            ],
+            [
+                '2014-11-10T08:30:00+01:00',
+                new Date(Date.UTC(2014, 11 - 1, 10, 7, 30))
+            ],
+            [
+                '2014-11-10T08:30:00+02:00',
+                new Date(Date.UTC(2014, 11 - 1, 10, 6, 30))
+            ],
+            ['1.1.1970 08:30:00', new Date(1970, 1 - 1, 1, 8, 30)]
+        ])
             assert.ok($.Tools.class.equals(
-                $.Tools.class.stringInterpretDateTime(test[0]), test[1]
+                $.Tools.class.stringInterpretDateTime(test[0], false), test[1]
             ))
-        }
     })
     this.test(`stringLowerCase (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
