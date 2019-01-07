@@ -3740,7 +3740,7 @@ export class Tools {
     static stringInterpretDateTime(
         value:string, interpretAsUTC:boolean = true
     ):Date|null {
-        // TODO handle month names.
+        // TODO handle am/pm
         if (!Tools._dateTimePatternCache.length) {
             // region pre-compile regular expressions
             // / region pattern
@@ -3942,6 +3942,30 @@ export class Tools {
             // endregion
         }
         // region pre-process
+        // TODO TEST
+        let monthNumber:number = 1
+        for (const monthVariation:Array<string> of [
+            ['jan', 'january?', 'janvier'],
+            ['feb', 'february?', 'février'],
+            ['m(?:a|ae|ä)r', 'm(?:a|ae|ä)r(?:ch|s|z)'],
+            ['ap[rv]', 'a[pv]ril'],
+            ['ma[iy]'],
+            ['ju[ein]', 'jui?n[ei]?'],
+            ['jul', 'jul[iy]', 'juillet'],
+            ['aug', 'august', 'août'],
+            ['sep', 'septemb(?:er|re)'],
+            ['o[ck]t', 'o[ck]tob(?:er|re)'],
+            ['nov', 'novemb(?:er|re)'],
+            ['de[cz]', 'd[eé][cz]emb(?:er|re)'],
+        ]) {
+            const pattern:RegExp = new RegExp(
+                `(^|[^a-z])${monthVariation}([^a-z]|$)`, 'i')
+            if (pattern.test(value)) {
+                value.replace(pattern, `$1${monthNumber}$2`)
+                break
+            }
+            monthNumber += 1
+        }
         value = Tools.stringSliceWeekday(value)
         const timezonePattern:RegExp = /(.+)\+(.+)$/
         const timezoneMatch:Array<any>|null = value.match(timezonePattern)
