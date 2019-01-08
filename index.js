@@ -4004,7 +4004,6 @@ export class Tools {
         value = value.toLowerCase()
         // Reduce each none alphanumeric symbol to a single one.
         value = value.replace(/([^0-9a-z])[^0-9a-z]+/g, '$1')
-        // TODO TEST
         let monthNumber:number = 1
         for (const monthVariation:Array<string> of [
             ['jan', 'january?', 'janvier'],
