@@ -3740,6 +3740,7 @@ export class Tools {
     static stringInterpretDateTime(
         value:string, interpretAsUTC:boolean = true
     ):Date|null {
+        // NOTE: All patterns can assume lower cased strings.
         // TODO handle am/pm
         if (!Tools._dateTimePatternCache.length) {
             // region pre-compile regular expressions
@@ -3759,161 +3760,216 @@ export class Tools {
             const yearPattern:string = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
             // / endregion
             const patternPresenceCache:{[key:string]:true} = {}
-            for (const timeDelimiter:string of ['T', ' '])
+            for (const timeDelimiter:string of ['t', ' '])
                 for (const timeComponentDelimiter:string of [
                     ':', '/', '-', ' '
                 ])
                     for (const timeFormat:string of [
-                        hourPattern + timeComponentDelimiter + minutePattern,
+                        hourPattern +
+                        `${timeComponentDelimiter}+` +
+                        minutePattern,
 
                         hourPattern +
-                        timeComponentDelimiter +
+                        `${timeComponentDelimiter}+` +
                         minutePattern +
-                        timeComponentDelimiter +
+                        `${timeComponentDelimiter}+` +
                         secondPattern,
 
                         hourPattern +
-                        timeComponentDelimiter +
+                        `${timeComponentDelimiter}+` +
                         minutePattern +
-                        timeComponentDelimiter +
+                        `${timeComponentDelimiter}+` +
                         secondPattern +
-                        timeComponentDelimiter +
+                        `${timeComponentDelimiter}+` +
                         millisecondPattern,
 
                         hourPattern
                     ])
                         for (const dateTimeFormat:PlainObject of [
-                            // day/month variation and year
                             {
                                 delimiter: ['/', '-', ' '],
-                                pattern:
+                                pattern: [
                                     monthPattern +
                                     '${delimiter}' +
                                     dayPattern +
                                     '${delimiter}' +
-                                    yearPattern
-                            },
-                            {
-                                delimiter: '\\.',
-                                pattern:
-                                    dayPattern +
-                                    '${delimiter}' +
+                                    yearPattern,
+
                                     monthPattern +
                                     '${delimiter}' +
-                                    yearPattern
-                            },
-                            // year and day/month variation
-                            {
-                                delimiter: ['/', '-', ' '],
-                                pattern:
+                                    dayPattern +
+                                    ' +' +
+                                    yearPattern,
+
                                     yearPattern +
                                     '${delimiter}' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern,
+
+                                    yearPattern +
+                                    ' +' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern,
+
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    yearPattern +
+                                    `${timeDelimiter}+` +
+                                    timeFormat,
+
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    ' +' +
+                                    yearPattern +
+                                    `${timeDelimiter}+` +
+                                    timeFormat,
+
+                                    timeFormat +
+                                    `${timeDelimiter}+` +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    yearPattern,
+
+                                    timeFormat +
+                                    `${timeDelimiter}+` +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    ' +' +
+                                    yearPattern,
+
+                                    yearPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    `${timeDelimiter}+` +
+                                    timeFormat,
+
+                                    yearPattern +
+                                    ' +' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    `${timeDelimiter}+` +
+                                    timeFormat,
+
+                                    timeFormat +
+                                    `${timeDelimiter}+` +
+                                    yearPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    dayPattern,
+
+                                    timeFormat +
+                                    `${timeDelimiter}+` +
+                                    yearPattern +
+                                    ' +' +
                                     monthPattern +
                                     '${delimiter}' +
                                     dayPattern
+                                ]
                             },
                             {
                                 delimiter: '\\.',
-                                pattern:
+                                pattern: [
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    yearPattern,
+
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    ' +' +
+                                    yearPattern,
+
                                     yearPattern +
                                     '${delimiter}' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern,
+
+                                    yearPattern +
+                                    ' +' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern,
+
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    yearPattern +
+                                    `${timeDelimiter}+` +
+                                    timeFormat,
+
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    ' +' +
+                                    yearPattern +
+                                    `${timeDelimiter}+` +
+                                    timeFormat,
+
+                                    timeFormat +
+                                    `${timeDelimiter}+` +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    '${delimiter}' +
+                                    yearPattern,
+
+                                    timeFormat +
+                                    `${timeDelimiter}+` +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    ' +' +
+                                    yearPattern,
+
+                                    yearPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    `${timeDelimiter}+` +
+                                    timeFormat,
+
+                                    yearPattern +
+                                    ' +' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern +
+                                    `${timeDelimiter}+` +
+                                    timeFormat,
+
+                                    timeFormat +
+                                    `${timeDelimiter}+` +
+                                    yearPattern +
+                                    '${delimiter}' +
+                                    dayPattern +
+                                    '${delimiter}' +
+                                    monthPattern,
+
+                                    timeFormat +
+                                    `${timeDelimiter}+` +
+                                    yearPattern +
+                                    ' +' +
                                     dayPattern +
                                     '${delimiter}' +
                                     monthPattern
+                                ]
                             },
-                            // day/month variation, year and time
-                            {
-                                delimiter: ['/', '-', ' '],
-                                pattern:
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    yearPattern +
-                                    timeDelimiter +
-                                    timeFormat
-                            },
-                            {
-                                delimiter: '\\.',
-                                pattern:
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    yearPattern +
-                                    timeDelimiter +
-                                    timeFormat
-                            },
-                            // time, day/month variation and year
-                            {
-                                delimiter: ['/', '-', ' '],
-                                pattern:
-                                    timeFormat +
-                                    timeDelimiter +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    yearPattern
-                            },
-                            {
-                                delimiter: '\\.',
-                                pattern:
-                                    timeFormat +
-                                    timeDelimiter +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    yearPattern
-                            },
-                            // year, day/month variation and time
-                            {
-                                delimiter: ['/', '-', ' '],
-                                pattern:
-                                    yearPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    timeDelimiter +
-                                    timeFormat
-                            },
-                            {
-                                delimiter: '\\.',
-                                pattern:
-                                    yearPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    timeDelimiter +
-                                    timeFormat
-                            },
-                            // time, year and day/month variation
-                            {
-                                delimiter: ['/', '-', ' '],
-                                pattern:
-                                    timeFormat +
-                                    timeDelimiter +
-                                    yearPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern
-                            },
-                            {
-                                delimiter: '\\.',
-                                pattern:
-                                    timeFormat +
-                                    timeDelimiter +
-                                    yearPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern
-                            },
-                            // time
                             {pattern: timeFormat}
                         ])
                             for (
@@ -3921,27 +3977,33 @@ export class Tools {
                                 [].concat(dateTimeFormat.hasOwnProperty(
                                     'delimiter'
                                 ) ? dateTimeFormat.delimiter : '-')
-                            ) {
-                                const pattern:string = (new Function(
-                                    'delimiter',
-                                    `return \`^${dateTimeFormat.pattern}$\``
-                                ))(delimiter)
-                                const flags:string =
-                                    dateTimeFormat.hasOwnProperty('flags') ?
-                                        dateTimeFormat.flags :
-                                        ''
-                                const key:string = pattern + flags
-                                if (!patternPresenceCache.hasOwnProperty(
-                                    key
+                            )
+                                for (let pattern:string of [].concat(
+                                    dateTimeFormat.pattern
                                 )) {
-                                    patternPresenceCache[key] = true
-                                    Tools._dateTimePatternCache.push(
-                                        new RegExp(pattern, flags))
+                                    // IgnoreTypeCheck
+                                    pattern = (new Function(
+                                        'delimiter', `return \`^${pattern}$\``
+                                    ))(`${delimiter}+`)
+                                    const flags:string =
+                                        dateTimeFormat.hasOwnProperty(
+                                            'flags'
+                                        ) ? dateTimeFormat.flags : ''
+                                    const key:string = pattern + flags
+                                    if (!patternPresenceCache.hasOwnProperty(
+                                        key
+                                    )) {
+                                        patternPresenceCache[key] = true
+                                        Tools._dateTimePatternCache.push(
+                                            new RegExp(pattern, flags))
+                                    }
                                 }
-                            }
             // endregion
         }
         // region pre-process
+        value = value.toLowerCase()
+        // Reduce each none alphanumeric symbol to a single one.
+        value = value.replace(/([^0-9a-z])[^0-9a-z]+/g, '$1')
         // TODO TEST
         let monthNumber:number = 1
         for (const monthVariation:Array<string> of [
@@ -3956,14 +4018,20 @@ export class Tools {
             ['sep', 'septemb(?:er|re)'],
             ['o[ck]t', 'o[ck]tob(?:er|re)'],
             ['nov', 'novemb(?:er|re)'],
-            ['de[cz]', 'd[eé][cz]emb(?:er|re)'],
+            ['de[cz]', 'd[eé][cz]emb(?:er|re)']
         ]) {
-            const pattern:RegExp = new RegExp(
-                `(^|[^a-z])${monthVariation}([^a-z]|$)`, 'i')
-            if (pattern.test(value)) {
-                value.replace(pattern, `$1${monthNumber}$2`)
-                break
+            let matched:boolean = false
+            for (const name:string of monthVariation) {
+                const pattern:RegExp = new RegExp(
+                    `(^|[^a-z])${name}([^a-z]|$)`)
+                if (pattern.test(value)) {
+                    value = value.replace(pattern, `$1${monthNumber}$2`)
+                    matched = true
+                    break
+                }
             }
+            if (matched)
+                break
             monthNumber += 1
         }
         value = Tools.stringSliceWeekday(value)
@@ -3981,16 +4049,19 @@ export class Tools {
                 match = value.match(dateTimePattern)
             } catch (error) {}
             if (match) {
-                const get:Function = (name:string, fallback:number = 0):number =>
-                    name in match.groups ?
-                        parseInt(match.groups[name]) :
-                        fallback
+                const get:Function = (
+                    name:string, fallback:number = 0
+                // IgnoreTypeCheck
+                ):number => name in match.groups ?
+                    // IgnoreTypeCheck
+                    parseInt(match.groups[name]) :
+                    fallback
                 const parameter:Array<number> = [
                     get('year', 1970), get('month', 1) - 1, get('day', 1),
                     get('hour'), get('minute'), get('second'),
                     get('millisecond')
                 ]
-                let result:Date
+                let result:Date|null = null
                 if (timezoneMatch) {
                     const timeShift:Date|null = Tools.stringInterpretDateTime(
                         timezoneMatch[2], true)
@@ -4557,7 +4628,7 @@ export class Tools {
      * @returns Sliced given string.
      */
     static stringSliceWeekday(value:string):string {
-        const weekdayPattern:RegExp = /[A-Za-z]{2}\. (.+)$/
+        const weekdayPattern:RegExp = /[a-z]{2}\.+ *([^ ].*)$/i
         const weekdayMatch:Array<any>|null = value.match(weekdayPattern)
         if (weekdayMatch)
             return value.replace(weekdayPattern, '$1')
