@@ -2275,6 +2275,7 @@ let tests:Array<Test> = [{callback: function(
         for (const test:Array<any> of [
             ['', null],
             ['01:00', new Date(1970, 1 - 1, 1, 1)],
+            // TODO ['01:00 A.M.', new Date(1970, 1 - 1, 1, 1)],
             ['01:02', new Date(1970, 1 - 1, 1, 1, 2)],
             ['01:00:00', new Date(1970, 1 - 1, 1, 1)],
             ['01:02:00', new Date(1970, 1 - 1, 1, 1, 2)],
@@ -2307,10 +2308,9 @@ let tests:Array<Test> = [{callback: function(
             ['3.Jan.1970', new Date(1970, 1 - 1, 3)],
             ['3. Jan. 1970', new Date(1970, 1 - 1, 3)],
             ['3. mai. 1970', new Date(1970, 5 - 1, 3)],
-            ['3. may 1970', new Date(1970, 5 - 1, 3)]/*,
+            ['3. may 1970', new Date(1970, 5 - 1, 3)],
             ['3. märz 1970', new Date(1970, 3 - 1, 3)],
             ['3. Dezember 1970', new Date(1970, 12 - 1, 3)]
-            */
         ])
             assert.ok($.Tools.class.equals(
                 $.Tools.class.stringInterpretDateTime(test[0], false), test[1]
