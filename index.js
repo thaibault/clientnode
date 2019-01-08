@@ -3989,12 +3989,14 @@ export class Tools {
                                         dateTimeFormat.hasOwnProperty(
                                             'flags'
                                         ) ? dateTimeFormat.flags : ''
+                                    // IgnoreTypeCheck
                                     const key:string = pattern + flags
                                     if (!patternPresenceCache.hasOwnProperty(
                                         key
                                     )) {
                                         patternPresenceCache[key] = true
                                         Tools._dateTimePatternCache.push(
+                                            // IgnoreTypeCheck
                                             new RegExp(pattern, flags))
                                     }
                                 }
