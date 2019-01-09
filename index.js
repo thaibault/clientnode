@@ -2709,8 +2709,12 @@ export class Tools {
                 result += ','
             result += `\n${initialIndention}${indention}${key}: ` +
                 Tools.representObject(
-                    object[key], indention, `${initialIndention}${indention}`,
-                    numberOfLevels - 1, maximumNumberOfLevelsReachedIdentifier)
+                    object[key],
+                    indention,
+                    `${initialIndention}${indention}`,
+                    numberOfLevels - 1,
+                    maximumNumberOfLevelsReachedIdentifier
+                )
             firstSeen = true
         }
         if (firstSeen)
