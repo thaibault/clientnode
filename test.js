@@ -1590,6 +1590,31 @@ let tests:Array<Test> = [{callback: function(
             assert.deepEqual(
                 $.Tools.class.removeKeys(test[0], test[1]), test[2])
     })
+    this.test('representObject', (assert:Object):void => {
+        for (const test:Array<any> of [
+            [[''], '""'],
+            [
+                [{
+                    a: 'A',
+                    b: 123,
+                    c: null,
+                    d: ['a', 1, null]
+                }],
+                `{
+                    a: "A",
+                    b: 123,
+                    c: null,
+                    d: [
+                        "a",
+                        1,
+                        null
+                    ]
+                }`.replace(/(\n) {16}/g, '$1')
+            ]
+        ])
+            assert.deepEqual(
+                $.Tools.class.representObject(...test[0]), test[1])
+    })
     this.test(`sort (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [[], []],
