@@ -3420,10 +3420,14 @@ export class Tools {
      * key doesn't exist "undefined" is returned.
      */
     static stringGetURLVariable(
-        keyToGet:string, givenInput:?string, subDelimiter:string = '$',
-        hashedPathIndicator:string = '!', givenSearch:?string,
+        keyToGet:string,
+        givenInput:?string,
+        subDelimiter:string = '$',
+        hashedPathIndicator:string = '!',
+        givenSearch:?string,
         givenHash:?string = (
-            'location' in $.global && $.global.location.hash || '')
+            'location' in $.global && $.global.location.hash || ''
+        )
     ):Array<string>|string {
         // region set search and hash
         let hash:string = (givenHash) ? givenHash : '#'
@@ -3504,8 +3508,10 @@ export class Tools {
      * second (or current).
      */
     static stringIsInternalURL(
-        firstURL:string, secondURL:string = 'location' in $.global &&
-        $.global.location.href || ''
+        firstURL:string,
+        secondURL:string = (
+            'location' in $.global && $.global.location.href || ''
+        )
     ):boolean {
         const explicitDomainName:string = Tools.stringGetDomainName(
             firstURL, false)
@@ -4887,8 +4893,11 @@ export class Tools {
      * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
-        target:$DomNode|DomNode|string, url:string, data:{[key:string]:any},
-        requestType:string = 'post', removeAfterLoad:boolean = false
+        target:$DomNode|DomNode|string,
+        url:string,
+        data:{[key:string]:any},
+        requestType:string = 'post',
+        removeAfterLoad:boolean = false
     ):$DomNode {
         const $targetDomNode:$DomNode = (typeof target === 'string') ? $(
             `iframe[name"${target}"]`
@@ -4922,12 +4931,16 @@ export class Tools {
      * @returns Returns the dynamically created iframe.
      */
     sendToExternalURL(
-        url:string, data:{[key:string]:any}, requestType:string = 'post',
+        url:string,
+        data:{[key:string]:any},
+        requestType:string = 'post',
         removeAfterLoad:boolean = true
     ):$DomNode {
         const $iFrameDomNode:$DomNode = $('<iframe>').attr(
-            'name', this.constructor._name.charAt(0).toLowerCase() +
-            this.constructor._name.substring(1) + (new Date()).getTime()
+            'name',
+            this.constructor._name.charAt(0).toLowerCase() +
+                this.constructor._name.substring(1) +
+            (new Date()).getTime()
         ).hide()
         this.$domNode.append($iFrameDomNode)
         this.constructor.sendToIFrame(
@@ -5432,7 +5445,8 @@ export class Tools {
      * @returns Returns $'s wrapped dom node.
      */
     _bindEventHelper(
-        parameter:Array<any>, removeEvent:boolean = false,
+        parameter:Array<any>,
+        removeEvent:boolean = false,
         eventFunctionName:string = 'on'
     ):$DomNode {
     /* eslint-enable jsdoc/require-description-complete-sentence */
