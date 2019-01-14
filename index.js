@@ -2518,8 +2518,9 @@ export class Tools {
                 like representation. Idea: There should be at least some
                 numbers and separators.
             */
-            const preCheck:Array<any>|null = value.match(/[0-9]{1,4}[^0-9]/g)
-            if (preCheck && preCheck.length > 1) {
+            if (/^.*(?:(?:[0-9]{1,4}[^0-9]){2}|[0-9]{1,4}[^0-9.]).*$/.test(
+                value
+            )) {
                 value = Tools.stringInterpretDateTime(value, interpretAsUTC)
                 if (value === null)
                     return value
