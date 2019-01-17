@@ -2507,8 +2507,7 @@ export class Tools {
      * interpret.
      */
     static normalizeDateTime(
-        value:?string|?number|?Date = null,
-        interpretAsUTC:boolean = true
+        value:?string|?number|?Date = null, interpretAsUTC:boolean = true
     ):Date|null {
         if (value === null)
             return new Date()
