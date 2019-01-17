@@ -2512,7 +2512,7 @@ export class Tools {
     ):Date|null {
         if (value === null)
             return new Date()
-        if (typeof value === 'string') {
+        if (typeof value === 'string')
             /*
                 We make a simple precheck to determine if it could be a date
                 like representation. Idea: There should be at least some
@@ -2529,7 +2529,6 @@ export class Tools {
                 if (`${floatRepresentation}` === value)
                     value = floatRepresentation
             }
-        }
         if (typeof value === 'number')
             return new Date(value * 1000)
         // IgnoreTypeCheck
