@@ -3336,7 +3336,8 @@ export class Tools {
     static stringGetDomainName(
         url:string = 'location' in $.global && $.global.location.href || '',
         fallback:any = (
-            'location' in $.global && $.global.location.hostname || '')
+            'location' in $.global && $.global.location.hostname || ''
+        )
     ):any {
         const result:?Array<string> =
             /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
