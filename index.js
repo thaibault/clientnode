@@ -453,7 +453,9 @@ export class Tools {
                 $.global.console[methodName] = this.constructor.noop
         if (
             !this.constructor._javaScriptDependentContentHandled &&
-            'document' in $.global && 'filter' in $ && 'hide' in $ &&
+            'document' in $.global &&
+            'filter' in $ &&
+            'hide' in $ &&
             'show' in $
         ) {
             this.constructor._javaScriptDependentContentHandled = true
@@ -861,6 +863,53 @@ export class Tools {
         }
         output = `${object}`.trim()
         return `${output} (Type: "${Tools.determineType(object)}")`
+    }
+    // / endregion
+    // / region cookie
+    /**
+     * Gets a cookie value by given name.
+     * @param name - Name to identify requested value.
+     * @returns Requested value.
+     */
+    static getCookie(name:string):string|null {
+        if ('document' in $.global) {
+            const key:string = `${name}=`
+            const decodedCookie:string = decodeURIComponent(
+                $.global.document.cookie)
+            for (const date:string of decodedCookie.split(';')) {
+                while (date.charAt(0) === ' ')
+                    date = date.substring(1)
+                if (date.indexOf(key) === 0)
+                    return date.substring(key.length, date.length)
+            }
+        }
+        return null
+    }
+    /**
+     * Sets a cookie key-value-pair.
+     * @param name - Name to identify given value.
+     * @param value - Value to set.
+     * @param numberOfDaysUntilExpiration - Number of days until given key
+     * @param path - Path to reference with given key-value-pair.
+     * shouldn't be deleted.
+     * @returns Current instance.
+     */
+    static setCookie(
+        name:string,
+        value:string,
+        numberOfDaysUntilExpiration:number = 365,
+        path:string = '/'
+    ):Tools {
+        if ('document' in $.global) {
+            const now:Date = new Date()
+            now.setTime(
+                now.getTime() +
+                (numberOfDaysUntilExpiration * 24 * 60 * 60 * 1000)
+            )
+            $.global.document.cookie =
+                `${name}=${value};expires="${now.toUTCString()};path=${path}`
+        }
+        return this
     }
     // / endregion
     // / region dom node
