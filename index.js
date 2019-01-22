@@ -876,7 +876,7 @@ export class Tools {
             const key:string = `${name}=`
             const decodedCookie:string = decodeURIComponent(
                 $.global.document.cookie)
-            for (const date:string of decodedCookie.split(';')) {
+            for (let date:string of decodedCookie.split(';')) {
                 while (date.charAt(0) === ' ')
                     date = date.substring(1)
                 if (date.indexOf(key) === 0)
@@ -890,16 +890,16 @@ export class Tools {
      * @param name - Name to identify given value.
      * @param value - Value to set.
      * @param numberOfDaysUntilExpiration - Number of days until given key
-     * @param path - Path to reference with given key-value-pair.
      * shouldn't be deleted.
-     * @returns Current instance.
+     * @param path - Path to reference with given key-value-pair.
+     * @returns A boolean indicating whether cookie could be set or not.
      */
     static setCookie(
         name:string,
         value:string,
         numberOfDaysUntilExpiration:number = 365,
         path:string = '/'
-    ):Tools {
+    ):boolean {
         if ('document' in $.global) {
             const now:Date = new Date()
             now.setTime(
@@ -908,8 +908,9 @@ export class Tools {
             )
             $.global.document.cookie =
                 `${name}=${value};expires="${now.toUTCString()};path=${path}`
+            return true
         }
-        return this
+        return false
     }
     // / endregion
     // / region dom node
@@ -3477,7 +3478,7 @@ export class Tools {
         givenHash:?string = (
             'location' in $.global && $.global.location.hash || ''
         )
-    ):Array<string>|string {
+    ):Array<string>|string|null {
         // region set search and hash
         let hash:string = (givenHash) ? givenHash : '#'
         let search:string = ''
@@ -3543,9 +3544,12 @@ export class Tools {
             variables[key] = value
         }
         // endregion
-        if (keyToGet)
-            // IgnoreTypeCheck
-            return variables[keyToGet]
+        if (keyToGet) {
+            if (variables.hasOwnProperty(keyToGet))
+                // IgnoreTypeCheck
+                return variables[keyToGet]
+            return null
+        }
         return variables
     }
     /**
