@@ -2031,9 +2031,9 @@ let tests:Array<Test> = [{callback: function(
         assert.ok(Array.isArray($.Tools.class.stringGetURLVariable(null, '&')))
         assert.ok(Array.isArray($.Tools.class.stringGetURLVariable(null, '#')))
         for (const test:Array<any> of [
-            [['notExisting'], undefined],
-            [['notExisting', '&'], undefined],
-            [['notExisting', '#'], undefined],
+            [['notExisting'], null],
+            [['notExisting', '&'], null],
+            [['notExisting', '#'], null],
             [['test', '?test=2'], '2'],
             [['test', 'test=2'], '2'],
             [['test', 'test=2&a=2'], '2'],
@@ -2042,7 +2042,7 @@ let tests:Array<Test> = [{callback: function(
             [['test', '?b=3&test=2&a=2'], '2'],
             [['test', '&', '$', '!', '', '#$test=2'], '2'],
             [['test', '&', '$', '!', '?test=4', '#$test=3'], '4'],
-            [['a', '&', '$', '!', '?test=4', '#$test=3'], undefined],
+            [['a', '&', '$', '!', '?test=4', '#$test=3'], null],
             [['test', '#', '$', '!', '?test=4', '#$test=3'], '3'],
             [['test', '#', '$', '!', '', '#!test#$test=4'], '4'],
             [['test', '#', '$', '!', '', '#!/test/a#$test=4'], '4'],
@@ -3042,8 +3042,8 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
         if (closeWindow)
             browserAPI.window.close()
         QUnit.start()
-    }).catch((error:Error):void => {
-        throw error
+    }).catch((error:any):void => {
+        throw Error(error)
     })
     // region hot module replacement handler
     /*
