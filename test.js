@@ -1364,7 +1364,7 @@ let tests:Array<Test> = [{callback: function(
                 true
             ), test[1])
     })
-    this.test(`extendObject (${roundType})`, (assert:Object):void => {
+    this.test(`extend (${roundType})`, (assert:Object):void => {
         for (const test:any of [
             [[[]], []],
             [[{}], {}],
@@ -1441,12 +1441,11 @@ let tests:Array<Test> = [{callback: function(
                 new Map([['a', new Map([['a', [3, 4]]])]])
             ]
         ])
-            assert.deepEqual($.Tools.class.extendObject(...test[0]), test[1])
-        assert.strictEqual(
-            $.Tools.class.extendObject([1, 2], undefined), undefined)
-        assert.strictEqual($.Tools.class.extendObject([1, 2], null), null)
+            assert.deepEqual($.Tools.class.extend(...test[0]), test[1])
+        assert.strictEqual($.Tools.class.extend([1, 2], undefined), undefined)
+        assert.strictEqual($.Tools.class.extend([1, 2], null), null)
         const target:Object = {a: [1, 2]}
-        $.Tools.class.extendObject(true, target, {a: [3, 4]})
+        $.Tools.class.extend(true, target, {a: [3, 4]})
         assert.deepEqual(target, {a: [3, 4]})
     })
     this.test(`forEachSorted (${roundType})`, (assert:Object):void => {
@@ -2936,7 +2935,7 @@ let tests:Array<Test> = [{callback: function(
 // endregion
 // region configuration
 // IgnoreTypeCheck
-QUnit.config = Tools.extendObject(QUnit.config || {}, {
+QUnit.config = Tools.extend(QUnit.config || {}, {
     autostart: false,
     /*
     notrycatch: true,

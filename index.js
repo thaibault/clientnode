@@ -493,7 +493,7 @@ export class Tools {
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
         */
-        this._options = this.constructor.extendObject(
+        this._options = this.constructor.extend(
             true, {}, this._defaultOptions, this._options, options)
         /*
             The selector prefix should be parsed after extending options
@@ -523,7 +523,7 @@ export class Tools {
         if (typeof object === 'function') {
             object = new object($domNode)
             if (!(object instanceof Tools))
-                object = this.constructor.extendObject(
+                object = this.constructor.extend(
                     true, new Tools(), object)
         }
         const name:string = object.constructor._name || object.constructor.name
@@ -1085,7 +1085,7 @@ export class Tools {
      * @returns Returns one of "above", "left", "below", "right" or "in".
      */
     getPositionRelativeToViewport(delta:Position = {}):RelativePosition {
-        delta = this.constructor.extendObject(
+        delta = this.constructor.extend(
             {top: 0, left: 0, bottom: 0, right: 0}, delta)
         if (
             'window' in $.global && this.$domNode && this.$domNode.length &&
@@ -2296,7 +2296,7 @@ export class Tools {
      * @param targetAndOrSources - Target and at least one source object.
      * @returns Returns given target extended with all given sources.
      */
-    static extendObject(
+    static extend(
         targetOrDeepIndicator:boolean|any, ...targetAndOrSources:Array<any>
     ):any {
         let index:number = 0
@@ -2327,7 +2327,7 @@ export class Tools {
                         targetValue &&
                         Tools.isPlainObject(targetValue)
                     ) ? targetValue : {}
-                return Tools.extendObject(deep, clone, value)
+                return Tools.extend(deep, clone, value)
             }
             return value
         }
@@ -2399,7 +2399,7 @@ export class Tools {
     static getProxyHandler(
         target:any, methodNames:{[key:string]:string} = {}
     ):Object {
-        methodNames = Tools.extendObject(
+        methodNames = Tools.extend(
             {
                 delete: '[]',
                 get: '[]',
@@ -3470,7 +3470,7 @@ export class Tools {
      * key doesn't exist "undefined" is returned.
      */
     static stringGetURLVariable(
-        keyToGet:string,
+        keyToGet:?string,
         givenInput:?string,
         subDelimiter:string = '$',
         hashedPathIndicator:string = '!',
