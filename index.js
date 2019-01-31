@@ -3149,21 +3149,16 @@ export class Tools {
         const result:Array<Array<any>> = []
 
         const permute:Function = (
-            currentData:Array<any>, m:Array<any> = []
+            currentData:Array<any>, dataToMixin:Array<any> = []
         ):void => {
             if (currentData.length === 0)
-                result.push(m)
+                result.push(dataToMixin)
             else
                 for (
                     let index:number = 0; index < currentData.length; index++
                 ) {
                     const copy = currentData.slice()
-                    /*
-                        NOTE: This variable declaration is needed to avoid an
-                        endless loop.
-                    */
-                    const next = copy.splice(index, 1)
-                    permute(copy.slice(), m.concat(next))
+                    permute(copy, dataToMixin.concat(copy.splice(index, 1)))
                 }
         }
 
