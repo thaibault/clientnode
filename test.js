@@ -1807,6 +1807,39 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.deepEqual($.Tools.class.arrayPermutate(test[0]), test[1])
     })
+    this.test(`arrayPermutateLength (${roundType})`, (assert:Object):void => {
+        for (const test:Array<any> of [
+            [[], []],
+            [[1], [[1]]],
+            [[1, 2], [[1], [2], [1, 2]]],
+            [
+                [1, 2, 3],
+                [
+                    [1],
+                    [2],
+                    [3],
+                    [1, 2],
+                    [1, 3],
+                    [2, 3],
+                    [1, 2, 3]
+                ]
+            ],
+            [
+                ['1', '2', '3'],
+                [
+                    ['1'],
+                    ['2'],
+                    ['3'],
+                    ['1', '2'],
+                    ['1', '3'],
+                    ['2', '3'],
+                    ['1', '2', '3']
+                ]
+            ]
+        ])
+            assert.deepEqual(
+                $.Tools.class.arrayPermutateLength(test[0]), test[1])
+    })
     this.test(`arrayUnique (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [[1, 2, 3, 1], [1, 2, 3]],

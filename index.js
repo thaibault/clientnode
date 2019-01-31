@@ -3166,6 +3166,47 @@ export class Tools {
         return result
     }
     /**
+     * Generates all lengths permutations of given iterable.
+     * @param data - Array like object.
+     * @param minimalSubsetLength - Defines how long the minimal subset length
+     * should be.
+     * @returns Array of permuted arrays.
+     */
+    static arrayPermutateLength(
+        data:Array<any>, minimalSubsetLength:number = 1
+    ):Array<Array<any>> {
+        const result:Array<Array<any>> = []
+        if (data.length === 0)
+            return result
+        const generate:Function = (
+            index:number, source:Array<any>, rest:Array<any>
+        ):void => {
+            if (index === 0) {
+                if (rest.length > 0)
+                    result[result.length] = rest
+                return
+            }
+            for (
+                let sourceIndex:number = 0;
+                sourceIndex < source.length;
+                sourceIndex++
+            )
+                generate(
+                    index - 1,
+                    source.slice(sourceIndex + 1),
+                    rest.concat([source[sourceIndex]])
+                )
+        }
+        for (
+            let index:number = minimalSubsetLength;
+            index < data.length;
+            index++
+        )
+            generate(index, data, [], result)
+        result.push(data)
+        return result
+    }
+    /**
      * Sums up given property of given item list.
      * @param data - The objects with specified property to sum up.
      * @param propertyName - Property name to sum up its value.
