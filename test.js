@@ -1643,34 +1643,6 @@ let tests:Array<Test> = [{callback: function(
     })
     // // endregion
     // // region array
-    this.test(`arrayMerge (${roundType})`, (assert:Object):void => {
-        for (const test:Array<any> of [
-            [[], [], []],
-            [[1], [], [1]],
-            [[], [1], [1]],
-            [[1], [1], [1, 1]],
-            [[1, 2, 3, 1], [1, 2, 3], [1, 2, 3, 1, 1, 2, 3]]
-        ])
-            assert.deepEqual(
-                $.Tools.class.arrayMerge(test[0], test[1]), test[2])
-    })
-    this.test(`arrayMake (${roundType})`, (assert:Object):void => {
-        for (const test:Array<any> of [
-            [[], []],
-            [[1, 2, 3], [1, 2, 3]],
-            [1, [1]]
-        ])
-            assert.deepEqual($.Tools.class.arrayMake(test[0]), test[1])
-    })
-    this.test(`arrayUnique (${roundType})`, (assert:Object):void => {
-        for (const test:Array<any> of [
-            [[1, 2, 3, 1], [1, 2, 3]],
-            [[1, 2, 3, 1, 2, 3], [1, 2, 3]],
-            [[], []],
-            [[1, 2, 3], [1, 2, 3]]
-        ])
-            assert.deepEqual($.Tools.class.arrayUnique(test[0]), test[1])
-    })
     this.test(`arrayAggregatePropertyIfEqual (${roundType})`, (
         assert:Object
     ):void => {
@@ -1785,6 +1757,64 @@ let tests:Array<Test> = [{callback: function(
             [[[2, 10], 2], [2, 4, 6, 8, 10]]
         ])
             assert.deepEqual($.Tools.class.arrayMakeRange(...test[0]), test[1])
+    })
+    this.test(`arrayMerge (${roundType})`, (assert:Object):void => {
+        for (const test:Array<any> of [
+            [[], [], []],
+            [[1], [], [1]],
+            [[], [1], [1]],
+            [[1], [1], [1, 1]],
+            [[1, 2, 3, 1], [1, 2, 3], [1, 2, 3, 1, 1, 2, 3]]
+        ])
+            assert.deepEqual(
+                $.Tools.class.arrayMerge(test[0], test[1]), test[2])
+    })
+    this.test(`arrayMake (${roundType})`, (assert:Object):void => {
+        for (const test:Array<any> of [
+            [[], []],
+            [[1, 2, 3], [1, 2, 3]],
+            [1, [1]]
+        ])
+            assert.deepEqual($.Tools.class.arrayMake(test[0]), test[1])
+    })
+    this.test(`arrayPermutate (${roundType})`, (assert:Object):void => {
+        for (const test:Array<any> of [
+            [[], [[]]],
+            [[1], [[1]]],
+            [[1, 2], [[1, 2], [2, 1]]],
+            [
+                [1, 2, 3],
+                [
+                    [1, 2, 3],
+                    [1, 3, 2],
+                    [2, 1, 3],
+                    [2, 3, 1],
+                    [3, 1, 2],
+                    [3, 2, 1]
+                ]
+            ],
+            [
+                ['1', '2', '3'],
+                [
+                    ['1', '2', '3'],
+                    ['1', '3', '2'],
+                    ['2', '1', '3'],
+                    ['2', '3', '1'],
+                    ['3', '1', '2'],
+                    ['3', '2', '1']
+                ]
+            ]
+        ])
+            assert.deepEqual($.Tools.class.arrayPermutate(test[0]), test[1])
+    })
+    this.test(`arrayUnique (${roundType})`, (assert:Object):void => {
+        for (const test:Array<any> of [
+            [[1, 2, 3, 1], [1, 2, 3]],
+            [[1, 2, 3, 1, 2, 3], [1, 2, 3]],
+            [[], []],
+            [[1, 2, 3], [1, 2, 3]]
+        ])
+            assert.deepEqual($.Tools.class.arrayUnique(test[0]), test[1])
     })
     this.test(`arraySumUpProperty (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [

@@ -2840,47 +2840,6 @@ export class Tools {
     // / endregion
     // / region array
     /**
-     * Merge the contents of two arrays together into the first array.
-     * @param target - Target array.
-     * @param source - Source array.
-     * @returns Target array with merged given source one.
-     */
-    static arrayMerge(target:Array<any>, source:Array<any>):Array<any> {
-        if (!Array.isArray(source))
-            source = Array.prototype.slice.call(source)
-        for (const value:any of source)
-            target.push(value)
-        return target
-    }
-    /**
-     * Converts given object into an array.
-     * @param object - Target to convert.
-     * @returns Generated array.
-     */
-    static arrayMake(object:any):Array<any> {
-        const result:Array<any> = []
-        if (![null, undefined].includes(result))
-            if (Tools.isArrayLike(Object(object)))
-                Tools.arrayMerge(
-                    result, typeof object === 'string' ? [object] : object)
-            else
-                result.push(object)
-        return result
-    }
-    /**
-     * Makes all values in given iterable unique by removing duplicates (The
-     * first occurrences will be left).
-     * @param data - Array like object.
-     * @returns Sliced version of given object.
-     */
-    static arrayUnique(data:Array<any>):Array<any> {
-        const result:Array<any> = []
-        for (const value:any of Tools.arrayMake(data))
-            if (!result.includes(value))
-                result.push(value)
-        return result
-    }
-    /**
      * Summarizes given property of given item list.
      * @param data - Array of objects with given property name.
      * @param propertyName - Property name to summarize.
@@ -3138,6 +3097,77 @@ export class Tools {
             index += step
             result.push(index)
         }
+        return result
+    }
+    /**
+     * Merge the contents of two arrays together into the first array.
+     * @param target - Target array.
+     * @param source - Source array.
+     * @returns Target array with merged given source one.
+     */
+    static arrayMerge(target:Array<any>, source:Array<any>):Array<any> {
+        if (!Array.isArray(source))
+            source = Array.prototype.slice.call(source)
+        for (const value:any of source)
+            target.push(value)
+        return target
+    }
+    /**
+     * Converts given object into an array.
+     * @param object - Target to convert.
+     * @returns Generated array.
+     */
+    static arrayMake(object:any):Array<any> {
+        const result:Array<any> = []
+        if (![null, undefined].includes(result))
+            if (Tools.isArrayLike(Object(object)))
+                Tools.arrayMerge(
+                    result, typeof object === 'string' ? [object] : object)
+            else
+                result.push(object)
+        return result
+    }
+    /**
+     * Makes all values in given iterable unique by removing duplicates (The
+     * first occurrences will be left).
+     * @param data - Array like object.
+     * @returns Sliced version of given object.
+     */
+    static arrayUnique(data:Array<any>):Array<any> {
+        const result:Array<any> = []
+        for (const value:any of Tools.arrayMake(data))
+            if (!result.includes(value))
+                result.push(value)
+        return result
+    }
+    /**
+     * Generates all permutations of given iterable.
+     * @param data - Array like object.
+     * @returns Array of permuted arrays.
+     */
+    static arrayPermutate(data:Array<any>):Array<Array<any>> {
+        const result:Array<Array<any>> = []
+
+        const permute:Function = (
+            currentData:Array<any>, m:Array<any> = []
+        ):void => {
+            if (currentData.length === 0)
+                result.push(m)
+            else
+                for (
+                    let index:number = 0; index < currentData.length; index++
+                ) {
+                    const copy = currentData.slice()
+                    /*
+                        NOTE: This variable declaration is needed to avoid an
+                        endless loop.
+                    */
+                    const next = copy.splice(index, 1)
+                    permute(copy.slice(), m.concat(next))
+                }
+        }
+
+        permute(data)
         return result
     }
     /**
