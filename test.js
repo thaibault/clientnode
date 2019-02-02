@@ -2344,6 +2344,21 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(
                 $.Tools.class.stringFormat(...test[0]), test[1])
     })
+    this.test(`stringGetEditDistance (${roundType})`, (assert:Object):void => {
+        for (const test:Array<any> of [
+            ['', '', 0],
+            ['h', 'h', 0],
+            ['hans', 'hans', 0],
+            ['hans', 'hansa', 1],
+            ['hansa', 'hans', 1],
+            ['hans', 'hbns', 1],
+            ['hbns', 'hans', 1],
+            ['hbbs', 'hans', 2],
+            ['beer', 'hans', 4]
+        ])
+            assert.strictEqual(
+                $.Tools.class.stringGetEditDistance(test[0], test[1]), test[2])
+    })
     this.test(`stringGetRegularExpressionValidated (${roundType})`, (
         assert:Object
     ):void => {
