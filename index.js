@@ -3851,6 +3851,61 @@ export class Tools {
         return string
     }
     /**
+     * Calculates the edit (levenstein) distance between two given strings.
+     * @param first - First string to compare.
+     * @param second - Second string to compare.
+     * @returns The distance as number.
+     */
+    static stringGetEditDistance(first:string, second:string):number {
+        /*
+            Create empty edit distance matrix for all possible modifications of
+            substrings of "first" to substrings of "second".
+        */
+        const distanceMatrix:Array<number> = Array(second.length + 1)
+            .fill(null).map(() => Array(first.length + 1).fill(null))
+        /*
+            Fill the first row of the matrix.
+            If this is first row then we're transforming empty string to
+            "first".
+            In this case the number of transformations equals to size of
+            "first" substring.
+        */
+        for (let index:number = 0; index <= first.length; index++)
+            distanceMatrix[0][index] = index
+        /*
+            Fill the first column of the matrix.
+            If this is first column then we're transforming empty string to
+            "second".
+            In this case the number of transformations equals to size of
+            "second" substring.
+        */
+        for (let index:number = 0; index <= second.length; index++)
+            distanceMatrix[index][0] = index
+        for (
+            let firstIndex:number = 1;
+            firstIndex <= second.length;
+            firstIndex++
+        )
+            for (
+                let secondIndex = 1;
+                secondIndex <= first.length;
+                secondIndex++
+            ) {
+                const indicator:number =
+                    first[secondIndex - 1] === second[firstIndex - 1] ? 0 : 1
+                distanceMatrix[firstIndex][secondIndex] = Math.min(
+                    // deletion
+                    distanceMatrix[firstIndex][secondIndex - 1] + 1,
+                    // insertion
+                    distanceMatrix[firstIndex - 1][secondIndex] + 1,
+                    // substitution
+                    distanceMatrix[firstIndex - 1][secondIndex - 1] + indicator
+                )
+            }
+
+        return distanceMatrix[second.length][first.length]
+    }
+    /**
      * Validates the current string for using in a regular expression pattern.
      * Special regular expression chars will be escaped.
      * @param string - The string to format.
