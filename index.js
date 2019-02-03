@@ -3202,7 +3202,7 @@ export class Tools {
             index < data.length;
             index++
         )
-            generate(index, data, [], result)
+            generate(index, data, [])
         result.push(data)
         return result
     }
