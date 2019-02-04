@@ -3861,8 +3861,9 @@ export class Tools {
             Create empty edit distance matrix for all possible modifications of
             substrings of "first" to substrings of "second".
         */
-        const distanceMatrix:Array<number> = Array(second.length + 1)
-            .fill(null).map(() => Array(first.length + 1).fill(null))
+        const distanceMatrix:Array<Array<number>> =
+            Array(second.length + 1)
+                .fill(null).map(() => Array(first.length + 1).fill(null))
         /*
             Fill the first row of the matrix.
             If this is first row then we're transforming empty string to
