@@ -5180,7 +5180,7 @@ export class Tools {
                             fileSystem.mkdirSync(currentTargetPath)
                         } catch (error) {
                             if (!('code' in error && error.code === 'EEXIST'))
-                                throw Error(error)
+                                throw error
                         }
                     else
                         try {
@@ -5348,7 +5348,7 @@ export class Tools {
                 'code'
             ) && ['ENOENT', 'ENOTDIR'].includes(error.code))
                 return false
-            throw Error(error)
+            throw error
         }
     }
     /**

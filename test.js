@@ -3120,7 +3120,7 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
             browserAPI.window.close()
         QUnit.start()
     }).catch((error:any):void => {
-        throw Error(error)
+        throw error
     })
     // region hot module replacement handler
     /*
