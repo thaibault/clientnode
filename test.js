@@ -196,7 +196,7 @@ let tests:Array<Test> = [{callback: function(
         assert.notOk(testValue)
         tools.releaseLock('test')
         assert.ok(testValue)
-        tools.acquireLock('test').then(async (result:string):Promise<any> => {
+        tools.acquireLock('test').then(async (result:string):Promise<void> => {
             assert.strictEqual(result, 'test')
             $.Tools.class.timeout(():tools.constructor => tools.releaseLock(
                 'test'))

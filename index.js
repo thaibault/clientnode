@@ -3862,8 +3862,9 @@ export class Tools {
             substrings of "first" to substrings of "second".
         */
         const distanceMatrix:Array<Array<number>> =
-            Array(second.length + 1)
-                .fill(null).map(() => Array(first.length + 1).fill(null))
+            Array(second.length + 1).fill(null).map(():Array<number> =>
+                Array(first.length + 1).fill(null)
+            )
         /*
             Fill the first row of the matrix.
             If this is first row then we're transforming empty string to
@@ -4958,7 +4959,8 @@ export class Tools {
                 timedOut = true
                 // IgnoreTypeCheck
                 currentlyRunningTimer.clear()
-                reject(`Timeout of ${timeoutInSeconds} seconds reached.`)
+                reject(new Error(
+                    `Timeout of ${timeoutInSeconds} seconds reached.`))
             })
         return check(await fetch(url, options))
     }
@@ -5044,7 +5046,8 @@ export class Tools {
                 timedOut = true
                 // IgnoreTypeCheck
                 currentlyRunningTimer.clear()
-                reject(`Timeout of ${timeoutInSeconds} seconds reached.`)
+                reject(new Error(
+                    `Timeout of ${timeoutInSeconds} seconds reached.`))
             })
         try {
             const result:Error = check(await fetch(url, options))
