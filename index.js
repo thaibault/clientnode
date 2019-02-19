@@ -2366,27 +2366,28 @@ export class Tools {
         return target
     }
     /**
-     * Iterates given objects own properties in sorted fashion. For
-     * each key value pair given iterator function will be called with
-     * value and key as arguments.
-     * @param object - Object to iterate.
-     * @param iterator - Function to execute for each key value pair. Value
-     * will be the first and key will be the second argument.
-     * @param context - The "this" binding for given iterator function.
-     * @returns List of given sorted keys.
+     * Retrieves substructure in given object referenced by given selector
+     * path.
+     * @param target - Object to search in.
+     * @param selector - Selector path.
+     * @param delimiter - Delimiter to delimit given selector components.
+     * @returns Determined sub structure of given data or "undefined".
      */
-    static forEachSorted(
-        object:mixed, iterator:(key:any, value:any) => any, context:Object
-    ):Array<any> {
-        const keys:Array<any> = Tools.sort(object)
-        for (const key:any of keys)
-            if (typeof object === 'object')
-                if (['map', 'set'].includes(Tools.determineType(object)))
-                    // IgnoreTypeCheck
-                    iterator.call(context, object.get(key), key)
-                else if (Array.isArray(object) || object instanceof Object)
-                    iterator.call(context, object[key], key)
-        return keys
+    static getSubstructure(
+        target:any, selector:Array<string>|string, delimiter:string = '.'
+    ):any {
+        let path:Array<string> = []
+        for (const component:string of [].concat(selector))
+            path = path.concat(component.split(delimiter))
+        let result:any = target
+        for (const name:string of path)
+            if (
+                result !== null &&
+                typeof result === 'object' &&
+                result.hasOwnProperty(name)
+            )
+                result = result[name]
+        return result
     }
     /**
      * Generates a proxy handler which forwards all operations to given object

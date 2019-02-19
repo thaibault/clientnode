@@ -1448,36 +1448,16 @@ let tests:Array<Test> = [{callback: function(
         $.Tools.class.extend(true, target, {a: [3, 4]})
         assert.deepEqual(target, {a: [3, 4]})
     })
-    this.test(`forEachSorted (${roundType})`, (assert:Object):void => {
-        let result = []
-        const tester = (item:Array<any>|Object):Array<any> =>
-            $.Tools.class.forEachSorted(
-                item, (value:any, key:string|number):number =>
-                    result.push([key, value]))
-        tester({})
-        assert.deepEqual(result, [])
-        assert.deepEqual(tester({}), [])
-        assert.deepEqual(tester([]), [])
-        assert.deepEqual(tester({a: 2}), ['a'])
-        assert.deepEqual(tester({b: 1, a: 2}), ['a', 'b'])
-        result = []
-        tester({b: 1, a: 2})
-        assert.deepEqual(result, [['a', 2], ['b', 1]])
-        result = []
-
-        tester([2, 2])
-        assert.deepEqual(result, [[0, 2], [1, 2]])
-        result = []
-        tester({'5': 2, '6': 2, '2': 3})
-        assert.deepEqual(result, [['2', 3], ['5', 2], ['6', 2]])
-        result = []
-        tester({a: 2, c: 2, z: 3})
-        assert.deepEqual(result, [['a', 2], ['c', 2], ['z', 3]])
-        $.Tools.class.forEachSorted([1], function():number {
-            result = this
-            return result
-        }, 2)
-        assert.deepEqual(result, 2)
+    this.test(`getSubstructure (${roundType})`, (assert:Object):void => {
+        for (const test:any of [
+            [[{}, []], {}],
+            [[{a: 1}, ['a']], 1],
+            [[{a: {a: null}}, 'a.a'], null],
+            [[{a: {a: []}}, 'a.a'], []],
+            [[{a: {b: {c: 3}}}, ['a', 'b.c']], 3]
+        ])
+            assert.deepEqual(
+                $.Tools.class.getSubstructure(...test[0]), test[1])
     })
     this.test(`getProxyHandler (${roundType})`, (assert:Object):void => {
         assert.ok($.Tools.class.isPlainObject($.Tools.class.getProxyHandler(
