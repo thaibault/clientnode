@@ -693,7 +693,8 @@ export class Tools {
      */
     static isPlainObject(object:mixed):boolean {
         return (
-            typeof object === 'object' && object !== null &&
+            typeof object === 'object' &&
+            object !== null &&
             Tools.plainObjectPrototypes.includes(Object.getPrototypeOf(object))
         )
     }
@@ -704,9 +705,12 @@ export class Tools {
      * otherwise.
      */
     static isFunction(object:mixed):boolean {
-        return Boolean(object) && [
-            '[object AsyncFunction]', '[object Function]'
-        ].includes({}.toString.call(object))
+        return (
+            Boolean(object) &&
+            ['[object AsyncFunction]', '[object Function]'].includes(
+                {}.toString.call(object)
+            )
+        )
     }
     // / endregion
     // / region language fixes
