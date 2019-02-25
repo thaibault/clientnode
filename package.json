@@ -33,8 +33,8 @@
   "scripts": {
     "build": "webOptimizer build && yarn build:test",
     "build:alternatively": "babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-flow-strip-types,@babel/plugin-transform-runtime --presets @babel/env --source-maps inline --out-file index.compiled.js index.js && yarn build:test",
-    "build:export": "webOptimizer build '{__reference__: \"export\"}' && yarn build:test",
-    "build:export:compatible": "webOptimizer build '{__reference__: [\"export\", \"exportCompatible\"]}' && yarn build:test",
+    "build:export": "webOptimizer build '{__reference__: \"target:export\"}' && yarn build:test",
+    "build:export:compatible": "webOptimizer build '{__reference__: [\"target:export\", \"target:compatible\"]}' && yarn build:test",
     "build:test": "babel --plugins @babel/plugin-transform-flow-strip-types,@babel/plugin-transform-runtime --presets @babel/env --source-maps inline --out-file test.compiled.js test.js && sed --in-place --regexp-extended \"s/('use strict';)/\\1if(typeof module!=='undefined'\\&\\&eval('typeof require')!=='undefined'\\&\\&module!==eval('require.main')\\&\\&'paths'in module\\&\\&typeof __dirname!=='undefined')module.paths=eval('require.main.paths').concat(module.paths.filter((path)=>eval('require.main.paths').includes(path)));/\" test.compiled.js",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
@@ -94,32 +94,6 @@
         }
       }
     },
-    "export": {
-      "module": {
-        "preprocessor": {
-          "javaScript": {
-            "options": {
-              "plugins": {
-                "__remove__": "@babel/plugin-transform-runtime"
-              }
-            }
-          }
-        }
-      }
-    },
-    "exportCompatible": {
-      "module": {
-        "preprocessor": {
-          "javaScript": {
-            "options": {
-              "plugins": {
-                "__append__": "@babel/plugin-transform-proto-to-assign"
-              }
-            }
-          }
-        }
-      }
-    },
     "files": {
       "compose": {
         "cascadingStyleSheet": null
@@ -164,6 +138,32 @@
                   }
                 ]
               ]
+            }
+          }
+        }
+      }
+    },
+    "target:compatible": {
+      "module": {
+        "preprocessor": {
+          "javaScript": {
+            "options": {
+              "plugins": {
+                "__append__": "@babel/plugin-transform-proto-to-assign"
+              }
+            }
+          }
+        }
+      }
+    },
+    "target:export": {
+      "module": {
+        "preprocessor": {
+          "javaScript": {
+            "options": {
+              "plugins": {
+                "__remove__": "@babel/plugin-transform-runtime"
+              }
             }
           }
         }
