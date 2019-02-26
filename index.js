@@ -360,7 +360,10 @@ export class Tools {
         UP: 38
     }
     static maximalSupportedInternetExplorerVersion:number = (():number => {
-        if (!('document' in $.global))
+        if (
+            !('document' in $.global) ||
+            [null, undefined].includes($.global.document)
+        )
             return 0
         const div = $.global.document.createElement('div')
         let version:number
