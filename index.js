@@ -5196,8 +5196,11 @@ export class Tools {
                     else
                         try {
                             await Tools.copyFile(
-                                currentSourceFile.path, currentTargetPath,
-                                readOptions, writeOptions)
+                                currentSourceFile.path,
+                                currentTargetPath,
+                                readOptions,
+                                writeOptions
+                            )
                         } catch (error) {
                             return reject(error)
                         }
@@ -5277,8 +5280,8 @@ export class Tools {
                 return reject(error)
             }
             if (isDirectory)
-                targetPath = path.resolve(targetPath, path.basename(
-                    sourcePath))
+                targetPath = path.resolve(
+                    targetPath, path.basename(sourcePath))
             fileSystem.readFile(sourcePath, readOptions, (
                 error:?Error, data:Object|string
             ):void => {
@@ -5331,9 +5334,7 @@ export class Tools {
      */
     static isDirectory(filePath:string):Promise<boolean> {
         return new Promise((resolve:Function, reject:Function):void =>
-            fileSystem.stat(filePath, (
-                error:?Error, stats:Object
-            ):void => {
+            fileSystem.stat(filePath, (error:?Error, stats:Object):void => {
                 if (error)
                     if (error.hasOwnProperty(
                         'code'
@@ -5498,7 +5499,8 @@ export class Tools {
      * @returns Determined list if all files.
      */
     static walkDirectoryRecursivelySync(
-        directoryPath:string, callback:Function = Tools.noop,
+        directoryPath:string,
+        callback:Function = Tools.noop,
         options:PlainObject|string = 'utf8'
     ):Array<File> {
         const files:Array<File> = []
