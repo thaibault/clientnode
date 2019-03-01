@@ -35,7 +35,7 @@
     "build:alternatively": "babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-flow-strip-types,@babel/plugin-transform-runtime --presets @babel/env --source-maps inline --out-file index.compiled.js index.js && yarn build:test",
     "build:export": "webOptimizer build '{__reference__: \"target:export\"}' && yarn build:test",
     "build:export:compatible": "webOptimizer build '{__reference__: [\"target:export\", \"target:compatible\"]}' && yarn build:test",
-    "build:test": "babel --plugins @babel/plugin-transform-flow-strip-types,@babel/plugin-transform-runtime --presets @babel/env --source-maps inline --out-file test.compiled.js test.js && sed --in-place --regexp-extended \"s/('use strict';)/\\1if(typeof module!=='undefined'\\&\\&eval('typeof require')!=='undefined'\\&\\&'main'in eval('require')\\&\\&eval('typeof require.main')!=='undefined'\\&\\&module!==eval('require.main')\\&\\&'paths'in module\\&\\&typeof __dirname!=='undefined')module.paths=eval('require.main.paths').concat(module.paths.filter((path)=>eval('require.main.paths').includes(path)));/\" test.compiled.js",
+    "build:test": "webOptimizer build '{__reference__: [\"target:single\", \"target:test\"]}'",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "lint": "webOptimizer check:type; webOptimizer lint",
@@ -163,6 +163,43 @@
             "options": {
               "plugins": {
                 "__remove__": "@babel/plugin-transform-runtime"
+              }
+            }
+          }
+        }
+      }
+    },
+    "target:single": {
+      "injection": {
+        "external": {
+          "implicit": {
+            "pattern": {
+              "#": "We remove local module references to support target specific module resolving.",
+              "exclude": {
+                "__remove__": "__0__"
+              },
+              "include": {
+                "__append__": {
+                  "__evaluate__": "/^\\./"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "target:test": {
+      "injection": {
+        "entry": {
+          "test": "./test"
+        },
+        "external": {
+          "implicit": {
+            "pattern": {
+              "exclude": {
+                "__append__": {
+                  "__evaluate__": "/^\\.\\/test/"
+                }
               }
             }
           }
