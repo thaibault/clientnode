@@ -2101,9 +2101,9 @@ cli-width@^2.0.0:
   integrity sha1-/xnt6Kml5XkyQUewwR8PvLq+1jk=
 
 clientnode@*:
-  version "3.0.248"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.248.tgz#0eb63bd6dd882bab87c2bdbf3eb68cb85f016748"
-  integrity sha512-oR2DYz/2WKFkZCv2sdYqV38aDqV82ACIwgTumLVpzL+l3sYgt9JYaudHsN6eDSZuNoBc2tXpIFsFgqm8tG6hsw==
+  version "3.0.250"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.250.tgz#3dd9aad8e471c49e7ddec7c65b56e1110a0ae9ee"
+  integrity sha512-SS8kyFjYrzvgi5fj5epeSjFpsi7Rtb6PzqmXghni4dvOKly/rdH9gy3+LzyZzNuVlVU2QorWtUF5NovP1lpCag==
   dependencies:
     colors "*"
 
@@ -3312,9 +3312,9 @@ flatted@^2.0.0:
   integrity sha512-R+H8IZclI8AAkSBRQJLVOsxwAoHd6WC40b4QTNWIjzAa6BXOBfQcM587MXDTVPeYaopFNWHUFLx7eNmHDSxMWg==
 
 flow-bin@*:
-  version "0.93.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.93.0.tgz#9192a08d88db2a8da0ff55e42420f44539791430"
-  integrity sha512-p8yq4ocOlpyJgOEBEj0v0GzCP25c9WP0ilFQ8hXSbrTR7RPKuR+Whr+OitlVyp8ocdX0j1MrIwQ8x28dacy1pg==
+  version "0.94.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.94.0.tgz#b5d58fe7559705b73a18229f97edfc3ab6ffffcb"
+  integrity sha512-DYF7r9CJ/AksfmmB4+q+TyLMoeQPRnqtF1Pk7KY3zgfkB/nVuA3nXyzqgsIPIvnMSiFEXQcFK4z+iPxSLckZhQ==
 
 flush-write-stream@^1.0.0:
   version "1.1.1"
@@ -5394,9 +5394,9 @@ package-hash@^3.0.0:
     release-zalgo "^1.0.0"
 
 pako@~1.0.5:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.8.tgz#6844890aab9c635af868ad5fecc62e8acbba3ea4"
-  integrity sha512-6i0HVbUfcKaTv+EG8ZTr75az7GFXcLYk9UyLEg7Notv/Ma+z/UG3TCoz6GiNeOrn1E/e63I0X/Hpw18jHOTUnA==
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.10.tgz#4328badb5086a426aa90f541977d4955da5c9732"
+  integrity sha512-0DTvPVU3ed8+HNXOu5Bs+o//Mbdj9VNQMUOe9oKCwh8l0GNwpTDMKCWbRjgtD291AWnkAgkqA/LOnQS8AmS1tw==
 
 parallel-transform@^1.1.0:
   version "1.1.0"
@@ -5797,9 +5797,9 @@ read-pkg@^3.0.0:
     util-deprecate "~1.0.1"
 
 readable-stream@^3.0.6, readable-stream@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.1.1.tgz#ed6bbc6c5ba58b090039ff18ce670515795aeb06"
-  integrity sha512-DkN66hPyqDhnIQ6Jcsvx9bFjhw214O4poMBcIMgPVpQvNy9a0e0Uhg5SqySyDKAmUlwt8LonTBz1ezOnM8pUdA==
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.2.0.tgz#de17f229864c120a9f56945756e4f32c4045245d"
+  integrity sha512-RV20kLjdmpZuTF1INEb9IA3L68Nmi+Ri7ppZqo78wj//Pn62fCoJyV9zalccNzDD/OuJpMG4f+pfMl8+L6QdGw==
   dependencies:
     inherits "^2.0.3"
     string_decoder "^1.1.1"
@@ -7119,9 +7119,9 @@ webidl-conversions@^4.0.2:
   integrity sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==
 
 weboptimizer@*:
-  version "2.0.416"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.416.tgz#b76516e3a23e6a75df0c242f6022cb27df478214"
-  integrity sha512-+fJcPgcIsQBBh7MdBTsVhKQ1q/Uxbtx3GvSQGGBwgVzxfmBrio9ARCItZTzR52TIcudNUykHl7tGnA4Ut7hztQ==
+  version "2.0.419"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.419.tgz#0c5eef07d47be7a7207eace20093ad1e7f6ebdb9"
+  integrity sha512-t52kxqkPx/oN4qIavo2R8lCHG+aiEqLGL66iM/gy4XdYgeqTjduxQCBol3AseQSMX8wV0p7W6PGfe6N1502+gg==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
