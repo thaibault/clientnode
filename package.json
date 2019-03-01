@@ -191,6 +191,7 @@
     "target:test": {
       "injection": {
         "entry": {
+          "index": [],
           "test": "./test"
         },
         "external": {
