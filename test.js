@@ -28,6 +28,7 @@ try {
     ).ChildProcess
     /* eslint-enable no-var */
 } catch (error) {}
+// TODO can be done via alias!
 import browserAPI from 'weboptimizer/browserAPI.compiled'
 import type {BrowserAPI} from 'weboptimizer/type'
 // endregion
@@ -3014,15 +3015,20 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
                 rel: 'stylesheet',
                 type: 'text/css'
             },
-            inject: window.document.getElementsByTagName('head')[0]
+            inject: browserAPI.window.document.getElementsByTagName('head')[0]
         }},
-        {div: {attributes: {id: 'qunit'}, inject: window.document.body}},
         {div: {
-            attributes: {id: 'qunit-fixture'}, inject: window.document.body
+            attributes: {id: 'qunit'},
+            inject: browserAPI.window.document.body
+        }},
+        {div: {
+            attributes: {id: 'qunit-fixture'},
+            inject: browserAPI.window.document.body
         }}
     ]) {
         const domNodeName:string = Object.keys(domNodeSpecification)[0]
-        const domNode:DomNode = window.document.createElement(domNodeName)
+        const domNode:DomNode = browserAPI.window.document.createElement(
+            domNodeName)
         for (const name:string in domNodeSpecification[domNodeName].attributes)
             if (domNodeSpecification[domNodeName].attributes.hasOwnProperty(
                 name
@@ -3065,20 +3071,23 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
                 let $bodyDomNode:$DomNode
                 let $:any
                 if (roundType === 'plain') {
-                    window.$ = null
+                    browserAPI.window.$ = null
                     $ = require('clientnode').$
                 } else {
                     if (roundType === 'full') {
                         for (const name:string of [
-                            'document', 'Element', 'HTMLElement', 'matchMedia',
+                            'document',
+                            'Element',
+                            'HTMLElement',
+                            'matchMedia',
                             'Node'
                         ])
                             if (!(name in global))
-                                global[name] = window[name]
-                        window.$ = require('jquery')
+                                global[name] = browserAPI.window[name]
+                        browserAPI.window.$ = require('jquery')
                     }
                     $ = require('clientnode').$
-                    $.context = window.document
+                    $.context = browserAPI.window.document
                     $bodyDomNode = $('body')
                 }
                 const tools:$.Tools = (roundType === 'plain') ? $.Tools(

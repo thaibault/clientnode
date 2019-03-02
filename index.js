@@ -153,9 +153,9 @@ export const $:any = (():any => {
             ) : ():null => null
         $ = (parameter:any, ...additionalArguments:Array<any>):any => {
             if (typeof parameter === 'string') {
-                const $domNodes:Array<any> = selector(
+                const $domNodes:?Array<any> = selector(
                     parameter, ...additionalArguments)
-                if ('fn' in $)
+                if ($domNodes && 'fn' in $)
                     for (const key:string in $.fn)
                         if ($.fn.hasOwnProperty(key))
                             // IgnoreTypeCheck
@@ -5683,9 +5683,12 @@ if ('fn' in $) {
      * setter.
      */
     $.fn.prop = function(key:string, ...additionalParameter:Array<any>):any {
-        if (additionalParameter.length < 2 && this.length && [
-            '#text', '#comment'
-        ].includes(this[0].nodeName) && key in this[0]) {
+        if (
+            additionalParameter.length < 2 &&
+            this.length &&
+            ['#text', '#comment'].includes(this[0].nodeName) &&
+            key in this[0]
+        ) {
             if (additionalParameter.length === 0)
                 return this[0][key]
             if (additionalParameter.length === 1) {
