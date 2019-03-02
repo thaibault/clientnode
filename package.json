@@ -35,7 +35,7 @@
     "build:alternatively": "babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-flow-strip-types,@babel/plugin-transform-runtime --presets @babel/env --source-maps inline --out-file index.compiled.js index.js && yarn build:test",
     "build:export": "webOptimizer build '{__reference__: \"target:export\"}' && yarn build:test",
     "build:export:compatible": "webOptimizer build '{__reference__: [\"target:export\", \"target:compatible\"]}' && yarn build:test",
-    "build:test": "webOptimizer build '{__reference__: [\"target:single\", \"target:test\"]}'",
+    "build:test": "webOptimizer build '{__reference__: \"target:test\"}'",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "lint": "webOptimizer check:type; webOptimizer lint",
@@ -169,26 +169,12 @@
         }
       }
     },
-    "target:single": {
-      "injection": {
-        "external": {
-          "implicit": {
-            "pattern": {
-              "#": "We remove local module references to support target specific module resolving.",
-              "exclude": {
-                "__remove__": "__0__"
-              },
-              "include": {
-                "__append__": {
-                  "__evaluate__": "/^\\./"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "target:test": {
+      "module": {
+        "aliases": {
+          "__remove__": "clientnode$"
+        }
+      },
       "injection": {
         "entry": {
           "index": [],
@@ -197,15 +183,21 @@
         "external": {
           "implicit": {
             "pattern": {
-              "exclude": {
-                "__append__": {
+              "exclude": [
+                {
                   "__evaluate__": "/^\\.\\/test/"
+                }
+              ],
+              "include": {
+                "__append__": {
+                  "__evaluate__": "/^\\./"
                 }
               }
             }
           }
         }
-      }
+      },
+      "targetTechnology": "node"
     }
   }
 }
