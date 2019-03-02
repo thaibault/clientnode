@@ -2184,8 +2184,10 @@ export class Tools {
                 return data
             for (const key:string in data)
                 if (
-                    data.hasOwnProperty(key) && key !== '__target__' &&
-                    typeof data[key] === 'object' && data[key] !== null
+                    data.hasOwnProperty(key) &&
+                    key !== '__target__' &&
+                    typeof data[key] === 'object' &&
+                    data[key] !== null
                 ) {
                     addProxyRecursively(data[key])
                     /*
