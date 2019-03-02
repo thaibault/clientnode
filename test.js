@@ -2772,24 +2772,25 @@ let tests:Array<Test> = [{callback: function(
             assert:Object
         ):Promise<void> => {
             const done:Function = assert.async()
-            let result:string = ''
-            try {
-                result = await $.Tools.class.copyDirectoryRecursive(
-                    './', './test.compiled', ():null => null)
-            } catch (error) {
-                console.error(error)
-            }
-            assert.ok(result.endsWith('/test.compiled'))
-            removeDirectoryRecursivelySync('./test.compiled')
+            assert.ok((await $.Tools.class.copyDirectoryRecursive(
+                './',
+                './copyDirectoryRecursiveTest.compiled',
+                $.Tools.class.noop
+            )).endsWith('/copyDirectoryRecursiveTest.compiled'))
+            removeDirectoryRecursivelySync(
+                './copyDirectoryRecursiveTest.compiled')
             done()
         })
         this.test(`copyDirectoryRecursiveSync (${roundType})`, (
             assert:Object
         ):void => {
             assert.ok($.Tools.class.copyDirectoryRecursiveSync(
-                './', './synctest.compiled', ():null => null
-            ).endsWith('/synctest.compiled'))
-            removeDirectoryRecursivelySync('./synctest.compiled')
+                './',
+                './copyDirectoryRecursiveTestSync.compiled',
+                $.Tools.class.noop
+            ).endsWith('/copyDirectoryRecursiveTestSync.compiled'))
+            removeDirectoryRecursivelySync(
+                './copyDirectoryRecursiveTestSync.compiled')
         })
         this.test(`copyFile (${roundType})`, async (
             assert:Object
