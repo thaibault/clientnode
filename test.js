@@ -3034,9 +3034,8 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
             if (domNodeSpecification[domNodeName].attributes.hasOwnProperty(
                 name
             ))
-                domNode.setAttribute(name, domNodeSpecification[
-                    domNodeName
-                ].attributes[name])
+                domNode.setAttribute(
+                    name, domNodeSpecification[domNodeName].attributes[name])
         domNodeSpecification[domNodeName].inject.appendChild(domNode)
     }
     testRan = true
@@ -3046,9 +3045,10 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
         if (test.closeWindow)
             closeWindow = true
         for (const roundType:string of ['plain', 'document', 'full'])
-            if (test.roundTypes.length === 0 || test.roundTypes.includes(
-                roundType
-            )) {
+            if (
+                test.roundTypes.length === 0 ||
+                test.roundTypes.includes(roundType)
+            ) {
                 // NOTE: Enforce to reload module to rebind "$".
                 try {
                     delete require.cache[require.resolve('clientnode')]
@@ -3060,20 +3060,26 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
                     cache.
                 */
                 for (const request:string of [
-                    'clientnode', 'jquery', 'jquery/dist/jquery',
-                    'jquery/dist/jquery.js', 'jquery/dist/jquery.min',
-                    'jquery/dist/jquery.min.js', 'jquery/dist/jquery.min'
+                    'clientnode',
+                    'jquery',
+                    'jquery/dist/jquery',
+                    'jquery/dist/jquery.js',
+                    'jquery/dist/jquery.min',
+                    'jquery/dist/jquery.min.js',
+                    'jquery/dist/jquery.min'
                 ])
                     try {
                         eval(
                             `delete require.cache[require.resolve('` +
                             `${request}')]`)
                     } catch (error) {}
-                let $bodyDomNode:$DomNode
                 let $:any
+                let $bodyDomNode:$DomNode
+                let tools:$.Tools
                 if (roundType === 'plain') {
                     browserAPI.window.$ = null
                     $ = require('clientnode').$
+                    tools = $.Tools()
                 } else {
                     if (roundType === 'full') {
                         for (const name:string of [
@@ -3090,16 +3096,22 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
                     $ = require('clientnode').$
                     $.context = browserAPI.window.document
                     $bodyDomNode = $('body')
+                    tools = $bodyDomNode.Tools()
                 }
-                const tools:$.Tools = (roundType === 'plain') ? $.Tools(
-                ) : $('body').Tools()
                 const testPromise:?Object = test.callback.call(
-                    QUnit, roundType, (
+                    QUnit,
+                    roundType,
+                    (
                         typeof TARGET_TECHNOLOGY === 'undefined'
-                    ) ? null : TARGET_TECHNOLOGY, $, browserAPI, tools,
-                    $bodyDomNode)
+                    ) ? null : TARGET_TECHNOLOGY,
+                    $,
+                    browserAPI,
+                    tools,
+                    $bodyDomNode
+                )
                 if (
-                    typeof testPromise === 'object' && testPromise &&
+                    typeof testPromise === 'object' &&
+                    testPromise &&
                     'then' in testPromise
                 )
                     testPromises.push(testPromise)
@@ -3142,8 +3154,12 @@ let testRegistered:boolean = false
  */
 export default function(
     callback:((
-        roundType:string, targetTechnology:?string, $:any,
-        browserAPI:BrowserAPI, tools:Object, $bodyDomNode:$DomNode
+        roundType:string,
+        targetTechnology:?string,
+        $:any,
+        browserAPI:BrowserAPI,
+        tools:Object,
+        $bodyDomNode:$DomNode
     ) => any),
     givenRoundTypes:string|Array<string> = [],
     closeWindow:boolean = false

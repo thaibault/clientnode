@@ -114,11 +114,12 @@ export type Storage = {
 }
 export type Window = {
     addEventListener:(type:string, callback:Function) => void;
+    close:() => void;
     document:Object;
     location:Location;
     localStorage:Storage;
     sessionStorage:Storage;
-    close:() => void;
+    $:Object;
 }
 // / endregion
 // endregion
