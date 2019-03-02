@@ -4744,9 +4744,10 @@ export class Tools {
     static stringParseEncodedObject(
         serializedObject:string, scope:Object = {}, name:string = 'scope'
     ):?PlainObject {
-        if (serializedObject.endsWith('.json') && Tools.isFileSync(
-            serializedObject
-        ))
+        if (
+            serializedObject.endsWith('.json') &&
+            Tools.isFileSync(serializedObject)
+        )
             serializedObject = fileSystem.readFileSync(serializedObject, {
                 encoding: 'utf-8'})
         serializedObject = serializedObject.trim()
@@ -5147,67 +5148,49 @@ export class Tools {
      * @param writeOptions - Options to use for writing to target file.
      * @returns Promise holding the determined target directory path.
      */
-    static copyDirectoryRecursive(
-        sourcePath:string, targetPath:string, callback:Function = Tools.noop,
+    static async copyDirectoryRecursive(
+        sourcePath:string,
+        targetPath:string,
+        callback:Function = Tools.noop,
         readOptions:PlainObject = {encoding: null, flag: 'r'},
         writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):Promise<string> {
-        return new Promise(async (
-            resolve:Function, reject:Function
-        ):Promise<void> => {
-            // NOTE: Check if folder needs to be created or integrated.
-            let isDirectory:boolean
-            try {
-                isDirectory = await Tools.isDirectory(targetPath)
-            } catch (error) {
-                return reject(error)
-            }
-            if (isDirectory)
-                targetPath = path.resolve(targetPath, path.basename(
-                    sourcePath))
-            sourcePath = path.resolve(sourcePath)
-            fileSystem.mkdir(targetPath, async (
-                error:?Error
-            ):Promise<void> => {
-                // IgnoreTypeCheck
-                if (error && !('code' in error && error.code === 'EEXIST'))
-                    return reject(error)
-                let files:Array<File>
+        // NOTE: Check if folder needs to be created or integrated.
+        sourcePath = path.resolve(sourcePath)
+        if (await Tools.isDirectory(targetPath))
+            targetPath = path.resolve(targetPath, path.basename(sourcePath))
+        try {
+            await fileSystem.promises.mkdir(targetPath)
+        } catch (error) {
+            if (!('code' in error && error.code === 'EEXIST'))
+                throw error
+        }
+        for (
+            const currentSourceFile:File of
+            await Tools.walkDirectoryRecursively(sourcePath, callback)
+        ) {
+            const currentTargetPath:string = path.join(
+                targetPath, currentSourceFile.path.substring(sourcePath.length)
+            )
+            if (
+                currentSourceFile.stats &&
+                currentSourceFile.stats.isDirectory()
+            )
                 try {
-                    files = await Tools.walkDirectoryRecursively(
-                        sourcePath, callback)
+                    await fileSystem.promises.mkdir(currentTargetPath)
                 } catch (error) {
-                    return reject(error)
+                    if (!('code' in error && error.code === 'EEXIST'))
+                        throw error
                 }
-                for (const currentSourceFile:File of files) {
-                    const currentTargetPath:string = path.join(
-                        targetPath, currentSourceFile.path.substring(
-                            sourcePath.length))
-                    if (
-                        currentSourceFile.stats &&
-                        currentSourceFile.stats.isDirectory()
-                    )
-                        try {
-                            fileSystem.mkdirSync(currentTargetPath)
-                        } catch (error) {
-                            if (!('code' in error && error.code === 'EEXIST'))
-                                throw error
-                        }
-                    else
-                        try {
-                            await Tools.copyFile(
-                                currentSourceFile.path,
-                                currentTargetPath,
-                                readOptions,
-                                writeOptions
-                            )
-                        } catch (error) {
-                            return reject(error)
-                        }
-                }
-                resolve(targetPath)
-            })
-        })
+            else
+                await Tools.copyFile(
+                    currentSourceFile.path,
+                    currentTargetPath,
+                    readOptions,
+                    writeOptions
+                )
+        }
+        return targetPath
     }
     /**
      * Copies given source directory via path to given target directory
@@ -5222,15 +5205,22 @@ export class Tools {
      * @returns Determined target directory path.
      */
     static copyDirectoryRecursiveSync(
-        sourcePath:string, targetPath:string, callback:Function = Tools.noop,
+        sourcePath:string,
+        targetPath:string,
+        callback:Function = Tools.noop,
         readOptions:PlainObject = {encoding: null, flag: 'r'},
         writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):string {
-        // Check if folder needs to be created or integrated.
+        // NOTE: Check if folder needs to be created or integrated.
         sourcePath = path.resolve(sourcePath)
         if (Tools.isDirectorySync(targetPath))
             targetPath = path.resolve(targetPath, path.basename(sourcePath))
-        fileSystem.mkdirSync(targetPath)
+        try {
+            fileSystem.mkdirSync(targetPath)
+        } catch (error) {
+            if (!('code' in error && error.code === 'EEXIST'))
+                throw error
+        }
         for (
             const currentSourceFile:File of Tools.walkDirectoryRecursivelySync(
                 sourcePath, callback)
@@ -5242,11 +5232,19 @@ export class Tools {
                 currentSourceFile.stats &&
                 currentSourceFile.stats.isDirectory()
             )
-                fileSystem.mkdirSync(currentTargetPath)
+                try {
+                    fileSystem.mkdirSync(currentTargetPath)
+                } catch (error) {
+                    if (!('code' in error && error.code === 'EEXIST'))
+                        throw error
+                }
             else
                 Tools.copyFileSync(
-                    currentSourceFile.path, currentTargetPath, readOptions,
-                    writeOptions)
+                    currentSourceFile.path,
+                    currentTargetPath,
+                    readOptions,
+                    writeOptions
+                )
         }
         return targetPath
     }
@@ -5261,8 +5259,9 @@ export class Tools {
      * @param writeOptions - Options to use for writing to target file.
      * @returns Determined target file path.
      */
-    static copyFile(
-        sourcePath:string, targetPath:string,
+    static async copyFile(
+        sourcePath:string,
+        targetPath:string,
         readOptions:PlainObject = {encoding: null, flag: 'r'},
         writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):Promise<string> {
@@ -5270,34 +5269,12 @@ export class Tools {
             NOTE: If target path references a directory a new file with the
             same name will be created.
         */
-        return new Promise(async (
-            resolve:Function, reject:Function
-        ):Promise<void> => {
-            let isDirectory:boolean
-            try {
-                isDirectory = await Tools.isDirectory(targetPath)
-            } catch (error) {
-                return reject(error)
-            }
-            if (isDirectory)
-                targetPath = path.resolve(
-                    targetPath, path.basename(sourcePath))
-            fileSystem.readFile(sourcePath, readOptions, (
-                error:?Error, data:Object|string
-            ):void => {
-                if (error)
-                    reject(error)
-                else
-                    fileSystem.writeFile(targetPath, data, writeOptions, (
-                        error:?Error
-                    ):void => {
-                        if (error)
-                            reject(error)
-                        else
-                            resolve(targetPath)
-                    })
-            })
-        })
+        if (await Tools.isDirectory(targetPath))
+            targetPath = path.resolve(targetPath, path.basename(sourcePath))
+        const data:Object|string = await fileSystem.promises.readFile(
+            sourcePath, readOptions)
+        fileSystem.promises.writeFile(targetPath, data, writeOptions)
+        return targetPath
     }
     /**
      * Copies given source file via path to given target directory location
@@ -5311,7 +5288,8 @@ export class Tools {
      * @returns Determined target file path.
      */
     static copyFileSync(
-        sourcePath:string, targetPath:string,
+        sourcePath:string,
+        targetPath:string,
         readOptions:PlainObject = {encoding: null, flag: 'r'},
         writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):string {
@@ -5321,9 +5299,11 @@ export class Tools {
         */
         if (Tools.isDirectorySync(targetPath))
             targetPath = path.resolve(targetPath, path.basename(sourcePath))
-        fileSystem.writeFileSync(targetPath, fileSystem.readFileSync(
-            sourcePath, readOptions
-        ), writeOptions)
+        fileSystem.writeFileSync(
+            targetPath,
+            fileSystem.readFileSync(sourcePath, readOptions),
+            writeOptions
+        )
         return targetPath
     }
     /**
@@ -5332,20 +5312,17 @@ export class Tools {
      * @returns A promise holding a boolean which indicates directory
      * existents.
      */
-    static isDirectory(filePath:string):Promise<boolean> {
-        return new Promise((resolve:Function, reject:Function):void =>
-            fileSystem.stat(filePath, (error:?Error, stats:Object):void => {
-                if (error)
-                    if (error.hasOwnProperty(
-                        'code'
-                    // IgnoreTypeCheck
-                    ) && ['ENOENT', 'ENOTDIR'].includes(error.code))
-                        resolve(false)
-                    else
-                        reject(error)
-                else
-                    resolve(stats.isDirectory())
-            }))
+    static async isDirectory(filePath:string):Promise<boolean> {
+        try {
+            return (await fileSystem.promises.stat(filePath)).isDirectory()
+        } catch (error) {
+            if (
+                error.hasOwnProperty('code') &&
+                ['ENOENT', 'ENOTDIR'].includes(error.code)
+            )
+                return false
+            throw error
+        }
     }
     /**
      * Checks if given path points to a valid directory.
@@ -5356,9 +5333,10 @@ export class Tools {
         try {
             return fileSystem.statSync(filePath).isDirectory()
         } catch (error) {
-            if (error.hasOwnProperty(
-                'code'
-            ) && ['ENOENT', 'ENOTDIR'].includes(error.code))
+            if (
+                error.hasOwnProperty('code') &&
+                ['ENOENT', 'ENOTDIR'].includes(error.code)
+            )
                 return false
             throw error
         }
@@ -5369,20 +5347,17 @@ export class Tools {
      * @returns A promise holding a boolean which indicates directory
      * existents.
      */
-    static isFile(filePath:string):Promise<boolean> {
-        return new Promise((resolve:Function, reject:Function):void =>
-            fileSystem.stat(filePath, (error:?Error, stats:Object):void => {
-                if (error)
-                    if (error.hasOwnProperty(
-                        'code'
-                    // IgnoreTypeCheck
-                    ) && ['ENOENT', 'ENOTDIR'].includes(error.code))
-                        resolve(false)
-                    else
-                        reject(error)
-                else
-                    resolve(stats.isFile())
-            }))
+    static async isFile(filePath:string):Promise<boolean> {
+        try {
+            return (await fileSystem.promises.stat(filePath)).isFile()
+        } catch (error) {
+            if (
+                error.hasOwnProperty('code') &&
+                ['ENOENT', 'ENOTDIR'].includes(error.code)
+            )
+                return false
+            throw error
+        }
     }
     /**
      * Checks if given path points to a valid file.
@@ -5393,9 +5368,10 @@ export class Tools {
         try {
             return fileSystem.statSync(filePath).isFile()
         } catch (error) {
-            if (error.hasOwnProperty(
-                'code'
-            ) && ['ENOENT', 'ENOTDIR'].includes(error.code))
+            if (
+                error.hasOwnProperty('code') &&
+                ['ENOENT', 'ENOTDIR'].includes(error.code)
+            )
                 return false
             throw error
         }
@@ -5410,84 +5386,71 @@ export class Tools {
      * @param options - Options to use for nested "readdir" calls.
      * @returns A promise holding the determined files.
      */
-    static walkDirectoryRecursively(
-        directoryPath:string, callback:Function = Tools.noop,
+    static async walkDirectoryRecursively(
+        directoryPath:string,
+        callback:Function = Tools.noop,
         options:PlainObject|string = 'utf8'
     ):Promise<Array<File>> {
-        return new Promise((resolve:Function, reject:Function):void =>
-            fileSystem.readdir(directoryPath, options, async (
-                error:?Object, fileNames:Array<string>
-            ):Promise<void> => {
-                if (error)
-                    return reject(error)
-                const files:Array<File> = []
-                const statsPromises:Array<Promise<void>> = []
-                for (const fileName:string of fileNames) {
-                    const filePath:string = path.resolve(
-                        directoryPath, fileName)
-                    statsPromises.push(new Promise((resolve:Function):void =>
-                        fileSystem.stat(filePath, (
-                            error:?Error, stats:Object
-                        ):void => {
-                            files.push({
-                                directoryPath,
-                                error: error || null,
-                                name: fileName,
-                                path: filePath,
-                                stats: stats || null
-                            })
-                            resolve()
-                        })
-                    ))
-                }
-                await Promise.all(statsPromises)
-                if (callback)
-                    /*
-                        NOTE: Directories have to be iterated first to
-                        potentially avoid deeper iterations.
-                    */
-                    files.sort((firstFile:File, secondFile:File):number => {
-                        if (firstFile.error) {
-                            if (secondFile.error)
-                                return 0
-                            return 1
-                        }
-                        if (firstFile.stats && firstFile.stats.isDirectory()) {
-                            if (
-                                secondFile.error ||
-                                secondFile.stats &&
-                                secondFile.stats.isDirectory()
-                            )
-                                return 0
-                            return -1
-                        }
-                        if (secondFile.error)
-                            return -1
-                        if (secondFile.stats && secondFile.stats.isDirectory())
-                            return 1
+        const files:Array<File> = []
+        for (const fileName:string of await fileSystem.promises.readdir(
+            directoryPath, options
+        )) {
+            const filePath:string = path.resolve(directoryPath, fileName)
+            const file:File = {
+                directoryPath,
+                error: null,
+                name: fileName,
+                path: filePath,
+                stats: null
+            }
+            try {
+                file.stats = await fileSystem.promises.stat(filePath)
+            } catch (error) {
+                file.error = error
+            }
+            files.push(file)
+        }
+        if (callback)
+            /*
+                NOTE: Directories have to be iterated first to potentially
+                avoid deeper iterations.
+            */
+            files.sort((firstFile:File, secondFile:File):number => {
+                if (firstFile.error) {
+                    if (secondFile.error)
                         return 0
-                    })
-                let finalFiles:Array<File> = []
-                for (const file:File of files) {
-                    finalFiles.push(file)
-                    let result:any = callback(file)
-                    if (result === null)
-                        break
-                    if (typeof result === 'object' && 'then' in result)
-                        result = await result
-                    if (result === null)
-                        break
-                    if (
-                        result !== false &&
-                        file.stats &&
-                        file.stats.isDirectory()
-                    )
-                        finalFiles = finalFiles.concat(
-                            await Tools.walkDirectoryRecursively(
-                                file.path, callback))
+                    return 1
                 }
-                resolve(finalFiles)
-            }))
+                if (firstFile.stats && firstFile.stats.isDirectory()) {
+                    if (
+                        secondFile.error ||
+                        secondFile.stats &&
+                        secondFile.stats.isDirectory()
+                    )
+                        return 0
+                    return -1
+                }
+                if (secondFile.error)
+                    return -1
+                if (secondFile.stats && secondFile.stats.isDirectory())
+                    return 1
+                return 0
+            })
+        let finalFiles:Array<File> = []
+        for (const file:File of files) {
+            finalFiles.push(file)
+            const result:any = callback(file)
+            if (result === null)
+                break
+            if (
+                result !== false &&
+                file.stats &&
+                file.stats.isDirectory()
+            )
+                finalFiles = finalFiles.concat(
+                    Tools.walkDirectoryRecursivelySync(file.path, callback))
+        }
+        return finalFiles
     }
     /**
      * Iterates through given directory structure recursively and calls given
