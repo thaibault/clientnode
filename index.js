@@ -2381,10 +2381,14 @@ export class Tools {
      * @param target - Object to search in.
      * @param selector - Selector path.
      * @param delimiter - Delimiter to delimit given selector components.
+     * @param skipMissingLevel - Indicates to skip missing level in given path.
      * @returns Determined sub structure of given data or "undefined".
      */
     static getSubstructure(
-        target:any, selector:Array<string>|string, delimiter:string = '.'
+        target:any,
+        selector:Array<string>|string,
+        delimiter:string = '.',
+        skipMissingLevel:boolean = false
     ):any {
         let path:Array<string> = []
         for (const component:string of [].concat(selector))
@@ -2397,6 +2401,8 @@ export class Tools {
                 result.hasOwnProperty(name)
             )
                 result = result[name]
+            else if (!skipMissingLevel)
+                break
         return result
     }
     /**
