@@ -2005,9 +2005,9 @@ camelcase@^5.0.0:
   integrity sha512-IXFsBS2pC+X0j0N/GE7Dm7j3bsEBp+oTpb7F50dwEVX7rf3IgwO9XatnegTsDtniKCUtEJH4fSU6Asw7uoVLfQ==
 
 caniuse-lite@^1.0.30000939:
-  version "1.0.30000947"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000947.tgz#c30305e9701449c22e97f4e9837cea3d76aa3273"
-  integrity sha512-ubgBUfufe5Oi3W1+EHyh2C3lfBIEcZ6bTuvl5wNOpIuRB978GF/Z+pQ7pGGUpeYRB0P+8C7i/3lt6xkeu2hwnA==
+  version "1.0.30000948"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000948.tgz#793ed7c28fe664856beb92b43fc013fc22b81633"
+  integrity sha512-Lw4y7oz1X5MOMZm+2IFaSISqVVQvUuD+ZUSfeYK/SlYiMjkHN/eJ2PDfJehW5NA6JjrxYSSnIWfwjeObQMEjFQ==
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -2890,9 +2890,9 @@ eslint-plugin-flowtype@*:
     lodash "^4.17.11"
 
 eslint-plugin-jsdoc@*:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-4.2.0.tgz#e8c4b397c8536f94af54894fcbe57b488de4614e"
-  integrity sha512-uNbIaqPenElXOwlk/IHpxOlPiHFi9tZ0uRmbkP3YELVXp1yr4gKOvgaMIK70gz1/9+Jhztrhe4B3EWCm9Kq6ow==
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-4.4.1.tgz#bbfff55a6ee4c9b996560e8840cd75087ee905f2"
+  integrity sha512-scDqhjrt75NgspUqcLStxNCAKeAFFMngS+cKNqQoJ86INGyu52ZID1Y72BJb67QtSZYh6fRXmHRIxhxyiXf5eQ==
   dependencies:
     comment-parser "^0.5.4"
     jsdoctypeparser "^2.0.0-alpha-8"
@@ -4939,9 +4939,9 @@ mute-stream@0.0.7:
   integrity sha1-MHXOk7whuPq0PhvE2n6BFe0ee6s=
 
 nan@^2.9.2:
-  version "2.13.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.13.0.tgz#7bdfc27dd3c060c46e60b62c72b74012d1a4cd68"
-  integrity sha512-5DDQvN0luhXdut8SCwzm/ZuAX2W+fwhqNzfq7CZ+OJzQ6NwpcqmIGyLD1R8MEt7BeErzcsI0JLr4pND2pNp2Cw==
+  version "2.13.1"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.13.1.tgz#a15bee3790bde247e8f38f1d446edcdaeb05f2dd"
+  integrity sha512-I6YB/YEuDeUZMmhscXKxGgZlFnhsn5y0hgOZBadkzfTRrZBtJDZeg6eQf7PYMIEclwmorTKK8GztsyOUSVBREA==
 
 nanomatch@^1.2.9:
   version "1.2.13"
@@ -7149,9 +7149,9 @@ webidl-conversions@^4.0.2:
   integrity sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==
 
 weboptimizer@*:
-  version "2.0.450"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.450.tgz#37d4860e799acc55b707bf06837d33e0202c8363"
-  integrity sha512-gI1lplzT+ydXFdV+WPc9tmiPn0omvfGfE08ihmCvk6kXhHvgH46TxD8qZNhMhVduiUNmTYAq2J9qlGsc76T95w==
+  version "2.0.452"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.452.tgz#9be60a61cc03b1414485ef900bdf5830aa011c3b"
+  integrity sha512-oSR/YvwfBu0mmDVuRZmwpbnwMjaKXk9OVTheyvps68l0W9BtBUNefgQvO0tCeJwwQZdIUece9Eb5SgnqWdasPA==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
