@@ -2752,7 +2752,8 @@ let tests:Array<Test> = [{callback: function(
     })
     if (
         typeof targetTechnology !== 'undefined' &&
-        targetTechnology === 'web' && roundType === 'full'
+        targetTechnology === 'web' &&
+        roundType === 'full'
     ) {
         this.test(`sendToIFrame (${roundType})`, (assert:Object):void => {
             const iFrame = $('<iframe>').hide().attr('name', 'test')
