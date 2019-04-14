@@ -1805,7 +1805,8 @@ export class Tools {
                 if (source === destination)
                     throw new Error(
                         `Can't copy because source and destination are ` +
-                        `identical.`)
+                        `identical.`
+                    )
                 if (recursionLimit !== -1 && recursionLimit < recursionLevel)
                     return null
                 if (!cyclic && ![undefined, null].includes(source)) {
@@ -1838,23 +1839,41 @@ export class Tools {
                 else if (Tools.determineType(source) === 'set')
                     for (const value:any of source)
                         destination.add(copyValue(value))
-                else if (source !== null)
+                else if (source !== null && 'hasOwnProperty' in source)
                     for (const key:string in source)
                         if (source.hasOwnProperty(key))
                             destination[key] = copyValue(source[key])
             } else if (source) {
                 if (Array.isArray(source))
                     return Tools.copy(
-                        source, recursionLimit, cyclic, [], stackSource,
-                        stackDestination, recursionLevel)
+                        source,
+                        recursionLimit,
+                        cyclic,
+                        [],
+                        stackSource,
+                        stackDestination,
+                        recursionLevel
+                    )
                 if (Tools.determineType(source) === 'map')
                     return Tools.copy(
-                        source, recursionLimit, cyclic, new Map(), stackSource,
-                        stackDestination, recursionLevel)
+                        source,
+                        recursionLimit,
+                        cyclic,
+                        new Map(),
+                        stackSource,
+                        stackDestination,
+                        recursionLevel
+                    )
                 if (Tools.determineType(source) === 'set')
                     return Tools.copy(
-                        source, recursionLimit, cyclic, new Set(), stackSource,
-                        stackDestination, recursionLevel)
+                        source,
+                        recursionLimit,
+                        cyclic,
+                        new Set(),
+                        stackSource,
+                        stackDestination,
+                        recursionLevel
+                    )
                 if (Tools.determineType(source) === 'date')
                     return new Date(source.getTime())
                 if (Tools.determineType(source) === 'regexp') {
@@ -1864,8 +1883,14 @@ export class Tools {
                     return destination
                 }
                 return Tools.copy(
-                    source, recursionLimit, cyclic, {}, stackSource,
-                    stackDestination, recursionLevel)
+                    source,
+                    recursionLimit,
+                    cyclic,
+                    {},
+                    stackSource,
+                    stackDestination,
+                    recursionLevel
+                )
             }
         return destination || source
     }
