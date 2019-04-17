@@ -1902,9 +1902,10 @@ export class Tools {
     static determineType(object:any = undefined):string {
         if ([undefined, null].includes(object))
             return `${object}`
-        if (['object', 'function'].includes(
-            typeof object
-        ) && 'toString' in object) {
+        if (
+            ['object', 'function'].includes(typeof object) &&
+            'toString' in object
+        ) {
             const stringRepresentation:string =
                 Tools.classToTypeMapping.toString.call(object)
             if (Tools.classToTypeMapping.hasOwnProperty(stringRepresentation))
@@ -5636,9 +5637,10 @@ export class Tools {
     ):$DomNode {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         const $domNode:$DomNode = $(parameter[0])
-        if (this.constructor.determineType(
-            parameter[1]
-        ) === 'object' && !removeEvent) {
+        if (
+            this.constructor.determineType(parameter[1]) === 'object' &&
+            !removeEvent
+        ) {
             for (const eventType:string in parameter[1])
                 if (parameter[1].hasOwnProperty(eventType))
                     // IgnoreTypeCheck
