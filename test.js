@@ -2944,9 +2944,7 @@ let tests:Array<Test> = [{callback: function(
                  * @param size - Number of bytes to read asynchronously.
                  * @returns Red data.
                  */
-                _read(size:number):string {
-                    return `${size}`
-                }
+                _read(size?:number):void {}
                 /**
                  * Triggers if contents should be written on current stream.
                  * @param chunk - The chunk to be written. Will always be a
@@ -2954,14 +2952,12 @@ let tests:Array<Test> = [{callback: function(
                  * @param encoding - Specifies encoding to be used as input
                  * data.
                  * @param callback - Will be called if data has been written.
-                 * @returns Returns "true" if more data could be written and
-                 * "false" otherwise.
+                 * @returns Returns Nothing.
                  */
                 _write(
                     chunk:Buffer|string, encoding:string, callback:Function
-                ):boolean {
+                ):void {
                     callback(new Error('test'))
-                    return true
                 }
             }
             const stdoutMockupDuplexStream:MockupDuplexStream =
