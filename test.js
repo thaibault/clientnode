@@ -2941,10 +2941,10 @@ let tests:Array<Test> = [{callback: function(
             class MockupDuplexStream extends require('stream').Duplex {
                 /**
                  * Triggers if contents from current stream should be red.
-                 * @param size - Number of bytes to read asynchronously.
+                 * @param _size - Number of bytes to read asynchronously.
                  * @returns Red data.
                  */
-                _read(size?:number):void {}
+                _read(_size?:number):void {}
                 /**
                  * Triggers if contents should be written on current stream.
                  * @param chunk - The chunk to be written. Will always be a
