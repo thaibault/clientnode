@@ -1281,9 +1281,11 @@ export class Tools {
         scope:Object, prefixesToIgnore:Array<string> = []
     ):Object {
         for (const name:string in scope)
-            if (!(prefixesToIgnore.includes(name.charAt(0)) || [
-                'this', 'constructor'
-            ].includes(name) || scope.hasOwnProperty(name)))
+            if (!(
+                prefixesToIgnore.includes(name.charAt(0)) ||
+                ['this', 'constructor'].includes(name) ||
+                scope.hasOwnProperty(name)
+            ))
                 /*
                     NOTE: Delete ("delete $scope[name]") doesn't destroy the
                     automatic lookup to parent scope.
