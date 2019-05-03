@@ -2715,7 +2715,7 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual($.Tools.class.numberRound(...test[0]), test[1])
     })
     // // endregion
-    // // region data transfer
+    // // region data transnfer
     this.test('checkReachability', async (assert:Object):Promise<void> => {
         const done:Function = assert.async()
         for (const test:Array<any> of [
@@ -2774,7 +2774,7 @@ let tests:Array<Test> = [{callback: function(
         ):Promise<void> => {
             const done:Function = assert.async()
             assert.ok((await $.Tools.class.copyDirectoryRecursive(
-                './',
+                './node_modules/.bin',
                 './copyDirectoryRecursiveTest.compiled',
                 $.Tools.class.noop
             )).endsWith('/copyDirectoryRecursiveTest.compiled'))
@@ -2786,7 +2786,7 @@ let tests:Array<Test> = [{callback: function(
             assert:Object
         ):void => {
             assert.ok($.Tools.class.copyDirectoryRecursiveSync(
-                './',
+                './node_modules/.bin',
                 './copyDirectoryRecursiveTestSync.compiled',
                 $.Tools.class.noop
             ).endsWith('/copyDirectoryRecursiveTestSync.compiled'))
@@ -2801,12 +2801,18 @@ let tests:Array<Test> = [{callback: function(
             try {
                 result = await $.Tools.class.copyFile(
                     path.resolve('./', path.basename(__filename)),
-                    './test.compiled.js')
+                    `./test.${roundType}.compiled.js`
+                )
             } catch (error) {
                 console.error(error)
             }
-            assert.ok(result.endsWith('/test.compiled.js'))
-            fileSystem.unlinkSync('./test.compiled.js')
+            assert.ok(result.endsWith(`./test.${roundType}.compiled.js`))
+            /*
+                NOTE: A race condition was identified here. So we need an
+                additional digest loop to have this test artefact placed here.
+            */
+            await Tools.timeout()
+            fileSystem.unlinkSync(`./test.${roundType}.compiled.js`)
             done()
         })
         this.test(`copyFileSync (${roundType})`, (assert:Object):void => {
