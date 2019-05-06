@@ -2196,7 +2196,7 @@ export class Tools {
             } catch (error) {
                 throw new Error(
                     `Error during compiling code "${code}": "` +
-                    `${Tools.representObject(error)}".`)
+                    `${Tools.represent(error)}".`)
             }
             try {
                 return compiledFunction(...Object.values(scope))
@@ -2204,7 +2204,7 @@ export class Tools {
                 throw new Error(
                     `Error running code "${code}" in scope with variables "` +
                     `${Object.keys(scope).join('", "')}": "` +
-                    `${Tools.representObject(error)}".`
+                    `${Tools.represent(error)}".`
                 )
             }
         }
@@ -2720,7 +2720,7 @@ export class Tools {
      * which are out of specified bounds to traverse.
      * @returns Representation string.
      */
-    static representObject(
+    static represent(
         object:any,
         indention:string = '    ',
         initialIndention:string = '',
@@ -2745,10 +2745,13 @@ export class Tools {
                 if (firstSeen)
                     result += ','
                 result += `\n${initialIndention}${indention}` +
-                    Tools.representObject(
-                        item, indention, `${initialIndention}${indention}`,
+                    Tools.represent(
+                        item,
+                        indention,
+                        `${initialIndention}${indention}`,
                         numberOfLevels - 1,
-                        maximumNumberOfLevelsReachedIdentifier)
+                        maximumNumberOfLevelsReachedIdentifier
+                    )
                 firstSeen = true
             }
             if (firstSeen)
@@ -2762,14 +2765,22 @@ export class Tools {
             for (const [key:any, item:any] of object) {
                 if (firstSeen)
                     result += `,\n${initialIndention}${indention}`
-                result += Tools.representObject(
-                    key, indention, `${initialIndention}${indention}`,
-                    numberOfLevels - 1, maximumNumberOfLevelsReachedIdentifier
-                ) + ' -> ' +
-                    Tools.representObject(
-                        item, indention, `${initialIndention}${indention}`,
+                result +=
+                    Tools.represent(
+                        key,
+                        indention,
+                        `${initialIndention}${indention}`,
                         numberOfLevels - 1,
-                        maximumNumberOfLevelsReachedIdentifier)
+                        maximumNumberOfLevelsReachedIdentifier
+                    ) +
+                    ' -> ' +
+                    Tools.represent(
+                        item,
+                        indention,
+                        `${initialIndention}${indention}`,
+                        numberOfLevels - 1,
+                        maximumNumberOfLevelsReachedIdentifier
+                    )
                 firstSeen = true
             }
             if (!firstSeen)
@@ -2782,11 +2793,15 @@ export class Tools {
             for (const item:any of object) {
                 if (firstSeen)
                     result += ','
-                result += `\n${initialIndention}${indention}` +
-                    Tools.representObject(
-                        item, indention, `${initialIndention}${indention}`,
+                result +=
+                    `\n${initialIndention}${indention}` +
+                    Tools.represent(
+                        item,
+                        indention,
+                        `${initialIndention}${indention}`,
                         numberOfLevels - 1,
-                        maximumNumberOfLevelsReachedIdentifier)
+                        maximumNumberOfLevelsReachedIdentifier
+                    )
                 firstSeen = true
             }
             if (firstSeen)
@@ -2802,7 +2817,7 @@ export class Tools {
             if (firstSeen)
                 result += ','
             result += `\n${initialIndention}${indention}${key}: ` +
-                Tools.representObject(
+                Tools.represent(
                     object[key],
                     indention,
                     `${initialIndention}${indention}`,
