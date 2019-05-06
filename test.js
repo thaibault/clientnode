@@ -79,12 +79,12 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
                     console.warn(`${indention}${error.message.red}`)
                 if (typeof error.actual !== 'undefined')
                     console.warn((
-                        `${indention}actual: ` + Tools.representObject(
-                            error.actual, '    ', indention
-                        ) + ` (${typeof error.actual}) != ` +
-                        `expected: ` + Tools.representObject(
-                            error.expected, '    ', indention
-                        ) + ` (${typeof error.expected})`
+                        `${indention}actual: ` +
+                        Tools.represent(error.actual, '    ', indention) +
+                        ` (${typeof error.actual}) != ` +
+                        `expected: ` +
+                        Tools.represent(error.expected, '    ', indention) +
+                        ` (${typeof error.expected})`
                         // IgnoreTypeCheck
                     ).red)
             }
@@ -1571,7 +1571,7 @@ let tests:Array<Test> = [{callback: function(
             assert.deepEqual(
                 $.Tools.class.removeKeys(test[0], test[1]), test[2])
     })
-    this.test('representObject', (assert:Object):void => {
+    this.test('represent', (assert:Object):void => {
         for (const test:Array<any> of [
             [[''], '""'],
             [
@@ -1593,8 +1593,7 @@ let tests:Array<Test> = [{callback: function(
                 }`.replace(/(\n) {16}/g, '$1')
             ]
         ])
-            assert.deepEqual(
-                $.Tools.class.representObject(...test[0]), test[1])
+            assert.deepEqual($.Tools.class.represent(...test[0]), test[1])
     })
     this.test(`sort (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
