@@ -216,8 +216,7 @@ export class Semaphore {
         })
     }
     /**
-     * Releases a resource and runs a waiting resolver if there exists
-     * some.
+     * Releases a resource and runs a waiting resolver if there exists some.
      * @returns Nothing.
      */
     release():void {
@@ -3071,8 +3070,11 @@ export class Tools {
         const containingData:Array<any> = []
         second = Tools.arrayMake(second)
         const intersectItem:Function = (
-            firstItem:any, secondItem:any, firstKey:string|number,
-            secondKey:string|number, keysAreAnArray:boolean,
+            firstItem:any,
+            secondItem:any,
+            firstKey:string|number,
+            secondKey:string|number,
+            keysAreAnArray:boolean,
             iterateGivenKeys:boolean
         ):?false => {
             if (iterateGivenKeys) {
@@ -3082,9 +3084,13 @@ export class Tools {
                 secondKey = firstKey
             if (
                 secondItem[secondKey] !== firstItem[firstKey] &&
-                (strict || !([null, undefined].includes(
-                    secondItem[secondKey]
-                ) && [null, undefined].includes(firstItem[firstKey])))
+                (
+                    strict ||
+                    !(
+                        [null, undefined].includes(secondItem[secondKey]) &&
+                        [null, undefined].includes(firstItem[firstKey])
+                    )
+                )
             )
                 return false
         }
@@ -3094,9 +3100,11 @@ export class Tools {
                     let exists:boolean = true
                     let iterateGivenKeys:boolean
                     const keysAreAnArray:boolean = Array.isArray(keys)
-                    if (Tools.isPlainObject(
-                        keys
-                    ) || keysAreAnArray && keys.length)
+                    if (
+                        Tools.isPlainObject(keys) ||
+                        keysAreAnArray &&
+                        keys.length
+                    )
                         iterateGivenKeys = true
                     else {
                         iterateGivenKeys = false
@@ -3106,8 +3114,12 @@ export class Tools {
                         let index:number = 0
                         for (const key:string of keys) {
                             if (intersectItem(
-                                firstItem, secondItem, index, key,
-                                keysAreAnArray, iterateGivenKeys
+                                firstItem,
+                                secondItem,
+                                index,
+                                key,
+                                keysAreAnArray,
+                                iterateGivenKeys
                             ) === false) {
                                 exists = false
                                 break
@@ -3118,8 +3130,12 @@ export class Tools {
                         for (const key:string in keys)
                             if (keys.hasOwnProperty(key))
                                 if (intersectItem(
-                                    firstItem, secondItem, key, keys[key],
-                                    keysAreAnArray, iterateGivenKeys
+                                    firstItem,
+                                    secondItem,
+                                    key,
+                                    keys[key],
+                                    keysAreAnArray,
+                                    iterateGivenKeys
                                 ) === false) {
                                     exists = false
                                     break
@@ -3364,7 +3380,8 @@ export class Tools {
                     `Cyclic dependency found. "${node}" is dependent of ` +
                     'itself.\n' +
                     `Dependency chain: "${predecessors.join('" -> "')}" => "` +
-                    `${node}".`)
+                    `${node}".`
+                )
             const index = nodes.indexOf(node)
             // If the node still exists, traverse its dependencies.
             if (index !== -1) {
@@ -3443,9 +3460,10 @@ export class Tools {
         name:string, allowedSymbols:string = '0-9a-zA-Z_$'
     ):string {
         return name.toString().replace(/^[^a-zA-Z_$]+/, '').replace(
-            new RegExp(`[^${allowedSymbols}]+([a-zA-Z0-9])`, 'g'), (
-                fullMatch:string, firstLetter:string
-            ):string => firstLetter.toUpperCase())
+            new RegExp(`[^${allowedSymbols}]+([a-zA-Z0-9])`, 'g'),
+            (fullMatch:string, firstLetter:string):string =>
+                firstLetter.toUpperCase()
+        )
     }
     /**
      * This method is intended for encoding *key* or *value* parts of query
@@ -3458,10 +3476,12 @@ export class Tools {
      * @returns Encoded given url.
      */
     static stringEncodeURIComponent(url:string, encodeSpaces:boolean):string {
-        return encodeURIComponent(url).replace(/%40/gi, '@').replace(
-            /%3A/gi, ':'
-        ).replace(/%24/g, '$').replace(/%2C/gi, ',').replace(
-            /%20/g, (encodeSpaces) ? '%20' : '+')
+        return encodeURIComponent(url)
+            .replace(/%40/gi, '@')
+            .replace(/%3A/gi, ':')
+            .replace(/%24/g, '$')
+            .replace(/%2C/gi, ',')
+            .replace(/%20/g, (encodeSpaces) ? '%20' : '+')
     }
     /**
      * Appends a path selector to the given path if there isn't one yet.
@@ -3488,7 +3508,8 @@ export class Tools {
     static stringHasPathPrefix(
         prefix:?string = '/admin',
         path:string = (
-            'location' in $.global && $.global.location.pathname || ''),
+            'location' in $.global && $.global.location.pathname || ''
+        ),
         separator:string = '/'
     ):boolean {
         if (typeof prefix === 'string') {
@@ -3536,7 +3557,8 @@ export class Tools {
      */
     static stringGetPortNumber(
         url:string = 'location' in $.global && $.global.location.href || '',
-        fallback:any = null, parameter:Array<string> = []
+        fallback:any = null,
+        parameter:Array<string> = []
     ):number {
         const result:?Array<string> =
             /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec(url)
@@ -3544,9 +3566,10 @@ export class Tools {
             return parseInt(result[1], 10)
         if (fallback !== null)
             return fallback
-        if (Tools.stringIsInternalURL(
-            url, ...parameter
-        ) && 'location' in $.global && $.global.location.port &&
+        if (
+            Tools.stringIsInternalURL(url, ...parameter) &&
+            'location' in $.global &&
+            $.global.location.port &&
             parseInt($.global.location.port, 10)
         )
             return parseInt($.global.location.port, 10)
@@ -3564,8 +3587,10 @@ export class Tools {
     static stringGetProtocolName(
         url:string = 'location' in $.global && $.global.location.href || '',
         fallback:any = 'location' in $.global &&
-            $.global.location.protocol.substring(
-                0, $.global.location.protocol.length - 1) || ''
+        $.global.location.protocol.substring(
+            0, $.global.location.protocol.length - 1
+        ) ||
+        ''
     ):any {
         const result:?Array<string> = /^([a-z]+):\/\//i.exec(url)
         if (result && result.length > 1 && result[1])
@@ -3698,14 +3723,19 @@ export class Tools {
             firstURL, false)
         const explicitPortNumber = Tools.stringGetPortNumber(firstURL, false)
         return (
-            !explicitDomainName ||
-            explicitDomainName === Tools.stringGetDomainName(secondURL)
-        ) && (
-            !explicitProtocolName ||
-            explicitProtocolName === Tools.stringGetProtocolName(secondURL)
-        ) && (
-            !explicitPortNumber ||
-            explicitPortNumber === Tools.stringGetPortNumber(secondURL))
+            (
+                !explicitDomainName ||
+                explicitDomainName === Tools.stringGetDomainName(secondURL)
+            ) &&
+            (
+                !explicitProtocolName ||
+                explicitProtocolName === Tools.stringGetProtocolName(secondURL)
+            ) &&
+            (
+                !explicitPortNumber ||
+                explicitPortNumber === Tools.stringGetPortNumber(secondURL)
+            )
+        )
     }
     /**
      * Normalized given website url.
@@ -3764,9 +3794,10 @@ export class Tools {
                 `(${abbreviationPattern})(${abbreviationPattern})`, 'g'
             ), `$1${delimiter}$2`)
         }
-        string = string.replace(new RegExp(
-            `([^${escapedDelimiter}])([A-Z][a-z]+)`, 'g'
-        ), `$1${delimiter}$2`)
+        string = string.replace(
+            new RegExp(`([^${escapedDelimiter}])([A-Z][a-z]+)`, 'g'),
+            `$1${delimiter}$2`
+        )
         return string.replace(
             new RegExp('([a-z0-9])([A-Z])', 'g'), `$1${delimiter}$2`
         ).toLowerCase()
@@ -3787,9 +3818,12 @@ export class Tools {
      * @returns The compressed value.
      */
     static stringCompressStyleValue(styleValue:string):string {
-        return styleValue.replace(/ *([:;]) */g, '$1').replace(
-            / +/g, ' '
-        ).replace(/^;+/, '').replace(/;+$/, '').trim()
+        return styleValue
+            .replace(/ *([:;]) */g, '$1')
+            .replace(/ +/g, ' ')
+            .replace(/^;+/, '')
+            .replace(/;+$/, '')
+            .trim()
     }
     /**
      * Decodes all html symbols in text nodes in given html string.
@@ -3844,18 +3878,26 @@ export class Tools {
             string = string.substring(delimiter.length)
             stringStartsWithDelimiter = true
         }
-        string = string.replace(new RegExp(
-            `(${escapedDelimiter})(${abbreviationPattern})` +
-            `(${escapedDelimiter}|$)`, 'g'
-        ), (
-            fullMatch:string, before:string, abbreviation:string, after:string
-        ):string => before + abbreviation.toUpperCase() + after)
+        string = string.replace(
+            new RegExp(
+                `(${escapedDelimiter})(${abbreviationPattern})` +
+                `(${escapedDelimiter}|$)`,
+                'g'
+            ),
+            (
+                fullMatch:string,
+                before:string,
+                abbreviation:string,
+                after:string
+            ):string => before + abbreviation.toUpperCase() + after
+        )
         if (removeMultipleDelimiter)
             escapedDelimiter = `(?:${escapedDelimiter})+`
-        string = string.replace(new RegExp(
-            `${escapedDelimiter}([a-zA-Z0-9])`, 'g'
-        ), (fullMatch:string, firstLetter:string):string =>
-            firstLetter.toUpperCase())
+        string = string.replace(
+            new RegExp(`${escapedDelimiter}([a-zA-Z0-9])`, 'g'),
+            (fullMatch:string, firstLetter:string):string =>
+                firstLetter.toUpperCase()
+        )
         if (stringStartsWithDelimiter)
             string = delimiter + string
         return string
@@ -3880,7 +3922,8 @@ export class Tools {
                     if (query.length === 1)
                         return [index, index + 1]
                     for (
-                        let subIndex = target.length; subIndex > index;
+                        let subIndex = target.length;
+                        subIndex > index;
                         subIndex -= 1
                     )
                         if (!normalizer(target.substring(
@@ -3905,7 +3948,8 @@ export class Tools {
         let index:number = 0
         for (const value:string|number of additionalArguments) {
             string = string.replace(
-                new RegExp(`\\{${index}\\}`, 'gm'), `${value}`)
+                new RegExp(`\\{${index}\\}`, 'gm'), `${value}`
+            )
             index += 1
         }
         return string
@@ -4368,16 +4412,23 @@ export class Tools {
                 for (const word:string of words) {
                     currentRange = Tools.stringFindNormalizedMatchRange(
                         restTarget, word, normalizer)
-                    if (currentRange && (
-                        !nearestRange || currentRange[0] < nearestRange[0]
-                    ))
+                    if (
+                        currentRange &&
+                        (!nearestRange || currentRange[0] < nearestRange[0])
+                    )
                         nearestRange = currentRange
                 }
                 if (nearestRange) {
-                    target = target.substring(0, offset + nearestRange[0]) +
-                        Tools.stringFormat(marker, target.substring(
-                            offset + nearestRange[0], offset + nearestRange[1]
-                        )) + target.substring(offset + nearestRange[1])
+                    target =
+                        target.substring(0, offset + nearestRange[0]) +
+                        Tools.stringFormat(
+                            marker,
+                            target.substring(
+                                offset + nearestRange[0],
+                                offset + nearestRange[1]
+                            )
+                        ) +
+                        target.substring(offset + nearestRange[1])
                     offset += nearestRange[1] + (marker.length - '{1}'.length)
                     if (target.length <= offset)
                         break
@@ -4418,7 +4469,8 @@ export class Tools {
         ):number => {
             a = unsignedModule2PowerOf32Addition(
                 unsignedModule2PowerOf32Addition(a, q),
-                unsignedModule2PowerOf32Addition(x, t))
+                unsignedModule2PowerOf32Addition(x, t)
+            )
             return unsignedModule2PowerOf32Addition(
                 (a << s) | (a >>> (32 - s)), b)
         }
@@ -4434,7 +4486,12 @@ export class Tools {
          * @returns Result.
          */
         const ff = (
-            a:number, b:number, c:number, d:number, x:number, s:number,
+            a:number,
+            b:number,
+            c:number,
+            d:number,
+            x:number,
+            s:number,
             t:number
         ):number => cmn((b & c) | ((~b) & d), a, b, x, s, t)
         /**
@@ -4449,7 +4506,12 @@ export class Tools {
          * @returns Result.
          */
         const gg = (
-            a:number, b:number, c:number, d:number, x:number, s:number,
+            a:number,
+            b:number,
+            c:number,
+            d:number,
+            x:number,
+            s:number,
             t:number
         ):number => cmn((b & d) | (c & (~d)), a, b, x, s, t)
         /**
@@ -4464,7 +4526,12 @@ export class Tools {
          * @returns Result.
          */
         const hh = (
-            a:number, b:number, c:number, d:number, x:number, s:number,
+            a:number,
+            b:number,
+            c:number,
+            d:number,
+            x:number,
+            s:number,
             t:number
         ):number => cmn(b ^ c ^ d, a, b, x, s, t)
         /**
@@ -4479,7 +4546,12 @@ export class Tools {
          * @returns Result.
          */
         const ii = (
-            a:number, b:number, c:number, d:number, x:number, s:number,
+            a:number,
+            b:number,
+            c:number,
+            d:number,
+            x:number,
+            s:number,
             t:number
         ):number => cmn(c ^ (b | (~d)), a, b, x, s, t)
         /**
@@ -4629,7 +4701,8 @@ export class Tools {
             for (
                 let blockNumber:number = 0; blockNumber < 64; blockNumber += 4
             )
-                blocks[blockNumber >> 2] = value.charCodeAt(blockNumber) +
+                blocks[blockNumber >> 2] =
+                    value.charCodeAt(blockNumber) +
                     (value.charCodeAt(blockNumber + 1) << 8) +
                     (value.charCodeAt(blockNumber + 2) << 16) +
                     (value.charCodeAt(blockNumber + 3) << 24)
@@ -4646,10 +4719,12 @@ export class Tools {
         const main = (value:string):Array<any> => {
             const length:number = value.length
             const state:Array<any> = [
-                1732584193, -271733879, -1732584194, 271733878]
+                1732584193, -271733879, -1732584194, 271733878
+            ]
             let blockNumber:number
             for (
-                blockNumber = 64; blockNumber <= value.length;
+                blockNumber = 64;
+                blockNumber <= value.length;
                 blockNumber += 64
             )
                 cycle(state, handleBlock(value.substring(
@@ -4800,13 +4875,13 @@ export class Tools {
             serializedObject.endsWith('.json') &&
             Tools.isFileSync(serializedObject)
         )
-            serializedObject = fileSystem.readFileSync(serializedObject, {
-                encoding: 'utf-8'})
+            serializedObject = fileSystem.readFileSync(
+                serializedObject, {encoding: 'utf-8'})
         serializedObject = serializedObject.trim()
         if (!serializedObject.startsWith('{'))
-            serializedObject = eval('Buffer').from(
-                serializedObject, 'base64'
-            ).toString('utf8')
+            serializedObject = eval('Buffer')
+                .from(serializedObject, 'base64')
+                .toString('utf8')
         let result:any
         try {
             // IgnoreTypeCheck
@@ -4837,14 +4912,21 @@ export class Tools {
             // Partition base number in one triple and tuples or tuples only.
             return value.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/, (
                 match:string, prefix:string, number:string, suffix:string
-            ):string => prefix + (
-                (number.length % 2 === 0) ? number.replace(
-                    /([0-9]{2})/g, '$1 '
-                ) : number.replace(/^([0-9]{3})([0-9]+)$/, (
-                    match:string, triple:string, rest:string
-                ):string => `${triple} ` + rest.replace(
-                    /([0-9]{2})/g, '$1 '
-                ).trim()) + suffix).trim()).trim()
+            ):string =>
+                prefix +
+                (
+                    (number.length % 2 === 0) ?
+                        number.replace(/([0-9]{2})/g, '$1 ') :
+                        number.replace(
+                            /^([0-9]{3})([0-9]+)$/,
+                            (
+                                match:string, triple:string, rest:string
+                            ):string =>
+                                `${triple} ` +
+                                rest.replace(/([0-9]{2})/g, '$1 ').trim()
+                        ) + suffix
+                ).trim()
+            ).trim()
         }
         return ''
     }
@@ -4891,8 +4973,10 @@ export class Tools {
         let domNodeSelectorPrefix:string = ''
         if (this._options.domNodeSelectorPrefix)
             domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
-        if (!(selector.startsWith(domNodeSelectorPrefix) || selector.trim(
-        ).startsWith('<')))
+        if (!(
+            selector.startsWith(domNodeSelectorPrefix) ||
+            selector.trim().startsWith('<')
+        ))
             selector = domNodeSelectorPrefix + selector
         return selector.trim()
     }
