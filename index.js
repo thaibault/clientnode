@@ -5528,6 +5528,7 @@ export class Tools {
         options:PlainObject|string = 'utf8'
     ):Promise<Array<File>> {
         const files:Array<File> = []
+        // TODO use (everywhere) direct with "withFileTypes" option.
         for (const fileName:string of await fileSystem.promises.readdir(
             directoryPath, options
         )) {
