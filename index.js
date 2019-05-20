@@ -896,6 +896,7 @@ export class Tools {
      * Sets a cookie key-value-pair.
      * @param name - Name to identify given value.
      * @param value - Value to set.
+     * @param domain - Domain to reference with given key-value-pair.
      * @param numberOfDaysUntilExpiration - Number of days until given key
      * shouldn't be deleted.
      * @param path - Path to reference with given key-value-pair.
@@ -904,6 +905,7 @@ export class Tools {
     static setCookie(
         name:string,
         value:string,
+        domain:string = '',
         numberOfDaysUntilExpiration:number = 365,
         path:string = '/'
     ):boolean {
@@ -913,8 +915,17 @@ export class Tools {
                 now.getTime() +
                 (numberOfDaysUntilExpiration * 24 * 60 * 60 * 1000)
             )
+            if (
+                domain === '' &&
+                'location' in $.global &&
+                'hostname' in $.global.location
+            )
+                domain = $.global.location.hostname
             $.global.document.cookie =
-                `${name}=${value};expires="${now.toUTCString()};path=${path}`
+                `${name}=${value};` +
+                `expires="${now.toUTCString()};` +
+                `path=${path};` +
+                `domain=${domain}`
             return true
         }
         return false
