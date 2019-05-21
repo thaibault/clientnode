@@ -2574,6 +2574,11 @@ export class Tools {
                                     else if (target.includes(valueToModify))
                                         target.splice(
                                             target.indexOf(valueToModify), 1)
+                                    else if (
+                                        typeof valueToModify === 'number' &&
+                                        valueToModify < target.length
+                                    )
+                                        target.splice(valueToModify, 1)
                             } else if (key === prependIndicatorKey)
                                 target = [].concat(source[key]).concat(target)
                             else
