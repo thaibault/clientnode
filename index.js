@@ -563,7 +563,8 @@ export class Tools {
      * @returns Returns a promise which will be resolved after releasing lock.
      */
     acquireLock(
-        description:string, callbackFunction:LockCallbackFunction = Tools.noop,
+        description:string,
+        callbackFunction:LockCallbackFunction = Tools.noop,
         autoRelease:boolean = false
     ):Promise<any> {
         return new Promise((resolve:Function):void => {
