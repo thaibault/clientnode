@@ -21,7 +21,11 @@
 import type {ChildProcess} from 'child_process'
 let fileSystem:Object = {}
 try {
-    fileSystem = eval('require')('fs')
+    fileSystem = eval('require')('fs').promises
+} catch (error) {}
+let synchronousFileSystem:Object = {}
+try {
+    synchronousFileSystem = eval('require')('fs')
 } catch (error) {}
 let path:Object = {}
 try {
@@ -4892,7 +4896,7 @@ export class Tools {
             serializedObject.endsWith('.json') &&
             Tools.isFileSync(serializedObject)
         )
-            serializedObject = fileSystem.readFileSync(
+            serializedObject = synchronousFileSystem.readFileSync(
                 serializedObject, {encoding: 'utf-8'})
         serializedObject = serializedObject.trim()
         if (!serializedObject.startsWith('{'))
@@ -5313,7 +5317,7 @@ export class Tools {
         if (await Tools.isDirectory(targetPath))
             targetPath = path.resolve(targetPath, path.basename(sourcePath))
         try {
-            await fileSystem.promises.mkdir(targetPath)
+            await fileSystem.mkdir(targetPath)
         } catch (error) {
             if (!('code' in error && error.code === 'EEXIST'))
                 throw error
@@ -5330,7 +5334,7 @@ export class Tools {
                 currentSourceFile.stats.isDirectory()
             )
                 try {
-                    await fileSystem.promises.mkdir(currentTargetPath)
+                    await fileSystem.mkdir(currentTargetPath)
                 } catch (error) {
                     if (!('code' in error && error.code === 'EEXIST'))
                         throw error
@@ -5369,7 +5373,7 @@ export class Tools {
         if (Tools.isDirectorySync(targetPath))
             targetPath = path.resolve(targetPath, path.basename(sourcePath))
         try {
-            fileSystem.mkdirSync(targetPath)
+            synchronousFileSystem.mkdirSync(targetPath)
         } catch (error) {
             if (!('code' in error && error.code === 'EEXIST'))
                 throw error
@@ -5386,7 +5390,7 @@ export class Tools {
                 currentSourceFile.stats.isDirectory()
             )
                 try {
-                    fileSystem.mkdirSync(currentTargetPath)
+                    synchronousFileSystem.mkdirSync(currentTargetPath)
                 } catch (error) {
                     if (!('code' in error && error.code === 'EEXIST'))
                         throw error
@@ -5424,9 +5428,9 @@ export class Tools {
         */
         if (await Tools.isDirectory(targetPath))
             targetPath = path.resolve(targetPath, path.basename(sourcePath))
-        const data:Object|string = await fileSystem.promises.readFile(
+        const data:Object|string = await fileSystem.readFile(
             sourcePath, readOptions)
-        fileSystem.promises.writeFile(targetPath, data, writeOptions)
+        fileSystem.writeFile(targetPath, data, writeOptions)
         return targetPath
     }
     /**
@@ -5452,9 +5456,9 @@ export class Tools {
         */
         if (Tools.isDirectorySync(targetPath))
             targetPath = path.resolve(targetPath, path.basename(sourcePath))
-        fileSystem.writeFileSync(
+        synchronousFileSystem.writeFileSync(
             targetPath,
-            fileSystem.readFileSync(sourcePath, readOptions),
+            synchronousFileSystem.readFileSync(sourcePath, readOptions),
             writeOptions
         )
         return targetPath
@@ -5467,7 +5471,7 @@ export class Tools {
      */
     static async isDirectory(filePath:string):Promise<boolean> {
         try {
-            return (await fileSystem.promises.stat(filePath)).isDirectory()
+            return (await fileSystem.stat(filePath)).isDirectory()
         } catch (error) {
             if (
                 error.hasOwnProperty('code') &&
@@ -5484,7 +5488,7 @@ export class Tools {
      */
     static isDirectorySync(filePath:string):boolean {
         try {
-            return fileSystem.statSync(filePath).isDirectory()
+            return synchronousFileSystem.statSync(filePath).isDirectory()
         } catch (error) {
             if (
                 error.hasOwnProperty('code') &&
@@ -5502,7 +5506,7 @@ export class Tools {
      */
     static async isFile(filePath:string):Promise<boolean> {
         try {
-            return (await fileSystem.promises.stat(filePath)).isFile()
+            return (await fileSystem.stat(filePath)).isFile()
         } catch (error) {
             if (
                 error.hasOwnProperty('code') &&
@@ -5519,7 +5523,7 @@ export class Tools {
      */
     static isFileSync(filePath:string):boolean {
         try {
-            return fileSystem.statSync(filePath).isFile()
+            return synchronousFileSystem.statSync(filePath).isFile()
         } catch (error) {
             if (
                 error.hasOwnProperty('code') &&
@@ -5546,7 +5550,7 @@ export class Tools {
     ):Promise<Array<File>> {
         const files:Array<File> = []
         // TODO use (everywhere) direct with "withFileTypes" option.
-        for (const fileName:string of await fileSystem.promises.readdir(
+        for (const fileName:string of await fileSystem.readdir(
             directoryPath, options
         )) {
             const filePath:string = path.resolve(directoryPath, fileName)
@@ -5558,7 +5562,7 @@ export class Tools {
                 stats: null
             }
             try {
-                file.stats = await fileSystem.promises.stat(filePath)
+                file.stats = await fileSystem.stat(filePath)
             } catch (error) {
                 file.error = error
             }
@@ -5621,7 +5625,7 @@ export class Tools {
         options:PlainObject|string = 'utf8'
     ):Array<File> {
         const files:Array<File> = []
-        for (const fileName:string of fileSystem.readdirSync(
+        for (const fileName:string of synchronousFileSystem.readdirSync(
             directoryPath, options
         )) {
             const filePath:string = path.resolve(directoryPath, fileName)
@@ -5633,7 +5637,7 @@ export class Tools {
                 stats: null
             }
             try {
-                file.stats = fileSystem.statSync(filePath)
+                file.stats = synchronousFileSystem.statSync(filePath)
             } catch (error) {
                 file.error = error
             }

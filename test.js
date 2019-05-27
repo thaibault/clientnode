@@ -43,14 +43,14 @@ export type Test = {
 declare var TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
-let fileSystem:Object
+let synchronousFileSystem:Object
 let path:Object
 // IgnoreTypeCheck
 let QUnit:Object
 let removeDirectoryRecursivelySync:Function
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     require('colors')
-    fileSystem = require('fs')
+    synchronousFileSystem = require('fs')
     path = require('path')
     QUnit = require('qunit')
     removeDirectoryRecursivelySync = require('rimraf').sync
@@ -2811,7 +2811,7 @@ let tests:Array<Test> = [{callback: function(
                 additional digest loop to have this test artefact placed here.
             */
             await Tools.timeout()
-            fileSystem.unlinkSync(`./test.${roundType}.compiled.js`)
+            synchronousFileSystem.unlinkSync(`./test.${roundType}.compiled.js`)
             done()
         })
         this.test(`copyFileSync (${roundType})`, (assert:Object):void => {
@@ -2819,7 +2819,7 @@ let tests:Array<Test> = [{callback: function(
                 path.resolve('./', path.basename(__filename)),
                 './synctest.compiled.js'
             ).endsWith('/synctest.compiled.js'))
-            fileSystem.unlinkSync('./synctest.compiled.js')
+            synchronousFileSystem.unlinkSync('./synctest.compiled.js')
         })
         this.test(`isDirectory (${roundType})`, async (
             assert:Object
