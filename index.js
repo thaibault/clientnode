@@ -5055,8 +5055,11 @@ export class Tools {
      * @param pollIntervallInSeconds - Seconds between two tries to reach given
      * url.
      * @param options - Fetch options to use.
+     * @param expectedIntermediateStatusCodes - A list of expected but
+     * unwanted response codes. If detecting them waiting will continue until
+     * an expected (positiv) code occurs or timeout is reached.
      * @returns A promise which will be resolved if a request to given url has
-     * finished and resulting status code matches given expectedstatus code.
+     * finished and resulting status code matches given expected status code.
      * Otherwise returned promise will be rejected.
      */
     static async checkReachability(
@@ -5065,19 +5068,27 @@ export class Tools {
         expectedStatusCodes:number|Array<number> = 200,
         timeoutInSeconds:number = 10,
         pollIntervallInSeconds:number = 0.1,
-        options:PlainObject = {}
+        options:PlainObject = {},
+        expectedIntermediateStatusCodes:number|Array<number> = []
     ):Promise<Object> {
         expectedStatusCodes = [].concat(expectedStatusCodes)
+        expectedIntermediateStatusCodes = [].concat(
+            expectedIntermediateStatusCodes)
         const check:Function = (response:?Object):?Object => {
             if (
-                response && 'status' in response &&
-                // IgnoreTypeCheck
-                !expectedStatusCodes.includes(response.status)
+                !(
+                    response &&
+                    'status' in response &&
+                    // IgnoreTypeCheck
+                    expectedStatusCodes.includes(response.status)
+                )
             )
                 throw new Error(
+                    // IgnoreTypeCheck
                     `Given status code ${response.status} differs from ` +
                     // IgnoreTypeCheck
-                    `${expectedStatusCodes.join(', ')}.`)
+                    `${expectedStatusCodes.join(', ')}.`
+                )
             return response
         }
         if (wait)
@@ -5107,7 +5118,16 @@ export class Tools {
                     try {
                         resolve(check(response))
                     } catch (error) {
-                        reject(error)
+                        if (
+                            response &&
+                            'status' in response &&
+                            // IgnoreTypeCheck
+                            expectedIntermediateStatusCodes.includes(
+                                response.status)
+                        )
+                            wrapper()
+                        else
+                            reject(error)
                     } finally {
                         /* eslint-disable no-use-before-define */
                         // IgnoreTypeCheck
@@ -5162,10 +5182,12 @@ export class Tools {
                 )
                     throw new Error(
                         `Given url "${url}" is reachable and responses with ` +
-                        `unexpected status code "${response.status}".`)
+                        `unexpected status code "${response.status}".`
+                    )
                 return new Error(
                     'Given status code is not "' +
-                    `${unexpectedStatusCodes.join(', ')}".`)
+                    `${unexpectedStatusCodes.join(', ')}".`
+                )
             }
         }
         if (wait)
