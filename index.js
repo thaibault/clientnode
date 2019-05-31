@@ -5074,15 +5074,15 @@ export class Tools {
         expectedStatusCodes = [].concat(expectedStatusCodes)
         expectedIntermediateStatusCodes = [].concat(
             expectedIntermediateStatusCodes)
-        const check:Function = (response:?Object):?Object => {
-            if (
-                !(
-                    response &&
-                    'status' in response &&
-                    // IgnoreTypeCheck
-                    expectedStatusCodes.includes(response.status)
-                )
-            )
+        const isStatusCodeExpected:Function = (
+            response:?Object, expectedStatusCodes:Array<number>
+        ):boolean => Boolean(
+            response &&
+            'status' in response &&
+            expectedStatusCodes.includes(response.status)
+        )
+        const checkAndThrow:Function = (response:?Object):?Object => {
+            if (!isStatusCodeExpected(response, expectedStatusCodes))
                 throw new Error(
                     // IgnoreTypeCheck
                     `Given status code ${response.status} differs from ` +
@@ -5096,49 +5096,46 @@ export class Tools {
                 resolve:Function, reject:Function
             ):Promise<void> => {
                 let timedOut:boolean = false
+                const timer:Promise<boolean> = Tools.timeout(
+                    timeoutInSeconds * 1000)
+                const retryErrorHandler:Function = (error:Object):Object => {
+                    if (!timedOut) {
+                        /* eslint-disable no-use-before-define */
+                        currentlyRunningTimer = Tools.timeout(
+                            pollIntervallInSeconds * 1000, wrapper)
+                        /* eslint-enable no-use-before-define */
+                        /*
+                            NOTE: A timer rejection is expected. Avoid
+                            throwing errors about unhandled promise
+                            rejections.
+                        */
+                        currentlyRunningTimer.catch(Tools.noop)
+                    }
+                    return error
+                }
                 const wrapper:Function = async ():Promise<?Object> => {
                     let response:Object
                     try {
                         response = await fetch(url, options)
                     } catch (error) {
-                        if (!timedOut) {
-                            /* eslint-disable no-use-before-define */
-                            currentlyRunningTimer = Tools.timeout(
-                                pollIntervallInSeconds * 1000, wrapper)
-                            /* eslint-enable no-use-before-define */
-                            /*
-                                NOTE: A timer rejection is expected. Avoid
-                                throwing errors about unhandled promise
-                                rejections.
-                            */
-                            currentlyRunningTimer.catch(Tools.noop)
-                        }
-                        return error
+                        return retryErrorHandler(error)
                     }
                     try {
-                        resolve(check(response))
-                    } catch (error) {
-                        if (
-                            response &&
-                            'status' in response &&
-                            // IgnoreTypeCheck
-                            expectedIntermediateStatusCodes.includes(
-                                response.status)
-                        )
-                            wrapper()
-                        else
-                            reject(error)
-                    } finally {
-                        /* eslint-disable no-use-before-define */
+                        resolve(checkAndThrow(response))
                         // IgnoreTypeCheck
                         timer.clear()
-                        /* eslint-enable no-use-before-define */
+                    } catch (error) {
+                        if (isStatusCodeExpected(
+                            response, expectedIntermediateStatusCodes
+                        ))
+                            return retryErrorHandler(error)
+                        reject(error)
+                        // IgnoreTypeCheck
+                        timer.clear()
                     }
                     return response
                 }
                 let currentlyRunningTimer = Tools.timeout(wrapper)
-                const timer:Promise<boolean> = Tools.timeout(
-                    timeoutInSeconds * 1000)
                 try {
                     await timer
                 } catch (error) {}
@@ -5148,7 +5145,7 @@ export class Tools {
                 reject(new Error(
                     `Timeout of ${timeoutInSeconds} seconds reached.`))
             })
-        return check(await fetch(url, options))
+        return checkAndThrow(await fetch(url, options))
     }
     /**
      * Checks if given url isn't reachable.
