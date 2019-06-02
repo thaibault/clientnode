@@ -2141,9 +2141,9 @@ cli-width@^2.0.0:
   integrity sha1-/xnt6Kml5XkyQUewwR8PvLq+1jk=
 
 clientnode@*:
-  version "3.0.330"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.330.tgz#c7ce66d4a6e1f921026a946098fc111d21eb1008"
-  integrity sha512-mmY3r8tlo20Fis0OFROx0qupjr8N2DqPgIgIZAnqSWFFaWA8UBZAjFvqyAz/Ltd4toEHEuA8N1Z8PzrlHrJFyQ==
+  version "3.0.331"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.331.tgz#ef091a5ebeb522bd9fa224a0d962b225af7eeffd"
+  integrity sha512-VaPjejVv0J8s8rAfbgonqhpQUdW0zP9N1/trhq5fVB1O0VLRgTIJroN06WhRGZLMKtQp4aWElvaxeZymuidy7Q==
   dependencies:
     colors "*"
 
@@ -4054,9 +4054,9 @@ internal-ip@^4.3.0:
     ipaddr.js "^1.9.0"
 
 internationalisation@*:
-  version "1.0.191"
-  resolved "https://registry.yarnpkg.com/internationalisation/-/internationalisation-1.0.191.tgz#fbf0fef657d84aa2d230aad9c50435ff4e74f893"
-  integrity sha512-5A7sIMhd6Go3FNQlg3KWju6pOP76fU62V4b4YNvWy8IFrIOCWN1kSItLeVeg/NMZO8VD9rWS+hJDZA9Bh5TQKg==
+  version "1.0.192"
+  resolved "https://registry.yarnpkg.com/internationalisation/-/internationalisation-1.0.192.tgz#7f19bbf2314ac58a4c2d2f422c9751dd50afc62e"
+  integrity sha512-cGvgLrGROSJvj0XPo+TsREP3D31jLrhjamXGIMnNF5Oio2gap7BgrdbRbsO0U/k9g89gHk/adD68Qjzv8YaSCA==
 
 interpret@^1.1.0:
   version "1.2.0"
@@ -7288,9 +7288,9 @@ webidl-conversions@^4.0.2:
   integrity sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==
 
 weboptimizer@*:
-  version "2.0.505"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.505.tgz#e8ff1b351f79912b46489aeb6f106464d9348ac2"
-  integrity sha512-N7uxM4ZCAvGzQ6xjxWIuXkAKwVUEyP0Eew11FroLkWb2qv3+Lr1hjrs5SVvCPRydtyY3L5E+FXER6paX2MSG1w==
+  version "2.0.507"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.507.tgz#318962a868262df2d30fc7ea891040814dee5e6f"
+  integrity sha512-nEM2IWVFT3joajK/0uTG3tWoHwEtPywXehSq0GOnntVZJmaIlBBojtTlHOe88VlommEqwjFf2HXp9i18Ff2SwA==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
