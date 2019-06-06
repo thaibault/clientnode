@@ -1588,9 +1588,12 @@ export class Tools {
      * @returns Returns given object wrapped with a dynamic getter proxy.
      */
     static addDynamicGetterAndSetter(
-        object:any, getterWrapper:?GetterFunction = null,
-        setterWrapper:?SetterFunction = null, methodNames:PlainObject = {},
-        deep:boolean = true, typesToExtend:Array<mixed> = [Object]
+        object:any,
+        getterWrapper:?GetterFunction = null,
+        setterWrapper:?SetterFunction = null,
+        methodNames:PlainObject = {},
+        deep:boolean = true,
+        typesToExtend:Array<mixed> = [Object]
     ):any {
         if (deep && typeof object === 'object')
             if (Array.isArray(object)) {
