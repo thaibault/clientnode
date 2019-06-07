@@ -1628,7 +1628,8 @@ export class Tools {
         if (getterWrapper || setterWrapper)
             for (const type:mixed of typesToExtend)
                 if (
-                    typeof object === 'object' && object instanceof type &&
+                    typeof object === 'object' &&
+                    object instanceof type &&
                     object !== null
                 ) {
                     const defaultHandler = Tools.getProxyHandler(
@@ -2210,7 +2211,8 @@ export class Tools {
                 // IgnoreTypeCheck
                 compiledFunction = new (Function.prototype.bind.call(
                 /* eslint-enable new-parens */
-                    Function, null, ...Object.keys(scope), code))
+                    Function, null, ...Object.keys(scope), code
+                ))
             } catch (error) {
                 throw new Error(
                     `Error during compiling code "${code}": "` +
@@ -2228,7 +2230,11 @@ export class Tools {
             }
         }
         const addProxyRecursively:Function = (data:any):any => {
-            if (typeof data !== 'object' || data === null)
+            if (
+                typeof data !== 'object' ||
+                data === null ||
+                typeof Proxy === 'undefined'
+            )
                 return data
             for (const key:string in data)
                 if (
@@ -2320,13 +2326,16 @@ export class Tools {
                     data = data.__target__
                 }
                 for (const key:string in data)
-                    if (data.hasOwnProperty(key))
+                    if (data.hasOwnProperty(key)) {
                         if ([
                             expressionIndicatorKey, executionIndicatorKey
-                        ].includes(key))
+                        ].includes(key)) {
+                            if (typeof Proxy === 'undefined')
+                                return resolve(evaluate(data[key]))
                             return data[key]
-                        else
-                            data[key] = resolve(data[key])
+                        }
+                        data[key] = resolve(data[key])
+                    }
             }
             return data
         }
