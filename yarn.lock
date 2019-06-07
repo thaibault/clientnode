@@ -2141,9 +2141,9 @@ cli-width@^2.0.0:
   integrity sha1-/xnt6Kml5XkyQUewwR8PvLq+1jk=
 
 clientnode@*:
-  version "3.0.336"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.336.tgz#a9b596838d235e8b4288fd8c9e07bc0f6ce07aa8"
-  integrity sha512-2mxjP93XUsnP/Q5f3NlsSQDmpFD3FUQMvbBQo93HDTBE5H3vyRDLgjYw4sBQdyPQwl8xt7J2KAmYzMt91ct2QQ==
+  version "3.0.337"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.337.tgz#1cd69cd52be63cfe88e3c06b9ea8cba0fdef7c91"
+  integrity sha512-pVZLfDhS9/8v0JmfOii7zhLVMKTnCUO9M2MwfbE04lTPKJP5JRTjs7I64l7SMs0vmGeP17C0ZxrctoDr+96Xzg==
   dependencies:
     colors "*"
 
@@ -5727,9 +5727,9 @@ prelude-ls@~1.1.2:
   integrity sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=
 
 prettier@^1.17.0:
-  version "1.18.1"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.18.1.tgz#2c79bdc97cbd457fc56e2f37c91cf076d69a8e07"
-  integrity sha512-cO2Lm9UuFJHhNgHSChbFddQEzNPP+sA6fX1tGmC0VNqTc2X+7EH0gpGWdEX0HfCe5+NVyOyyyWUpLKsb8LU5vg==
+  version "1.18.2"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.18.2.tgz#6823e7c5900017b4bd3acf46fe9ac4b4d7bda9ea"
+  integrity sha512-OeHeMc0JhFE9idD4ZdtNibzY0+TPHSpSSb9h8FqtP+YnoZZ1sl8Vc9b1sasjfymH3SonAF4QcA2+mzHPhMvIiw==
 
 pretty-error@^2.0.2:
   version "2.1.1"
@@ -7310,9 +7310,9 @@ webidl-conversions@^4.0.2:
   integrity sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==
 
 weboptimizer@*:
-  version "2.0.512"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.512.tgz#957ffc70204afb7e5f9651078e802c689303359e"
-  integrity sha512-XWu3u8RF/eIkzExkk2nG5OUPqCgF8r4iB43bQlGddFM+cJOYcRX+W5T2JgsGaHToASwa/rMSSADRxyYNMnwtyA==
+  version "2.0.513"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.513.tgz#e58a716fea7ba66025e77e73ba94bddd0c7372c4"
+  integrity sha512-/RkOByasOqU0Jr5fnwpdzTCxPYZ9kcZZ8GG210S+APG8LG03EiHEDpKTaxPPnJy9M9YbNEnXXEGV7vOMsUY6LA==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
