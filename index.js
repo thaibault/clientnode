@@ -2214,7 +2214,8 @@ export class Tools {
             } catch (error) {
                 throw new Error(
                     `Error during compiling code "${code}": "` +
-                    `${Tools.represent(error)}".`)
+                    `${Tools.represent(error)}".`
+                )
             }
             try {
                 return compiledFunction(...Object.values(scope))
@@ -2244,7 +2245,8 @@ export class Tools {
                     if (
                         data[key].hasOwnProperty(expressionIndicatorKey) ||
                         data[key].hasOwnProperty(executionIndicatorKey)
-                    )
+                    ) {
+                        const backup:Object = data[key]
                         data[key] = new Proxy(data[key], {
                             get: (target:any, key:any):any => {
                                 if (key === '__target__')
@@ -2296,6 +2298,13 @@ export class Tools {
                                 return Object.getOwnPropertyNames(target)
                             }
                         })
+                        /*
+                            NOTE: Known proxy polyfills does not provide the
+                            "__target__" api.
+                        */
+                        if (!data[key].__target__)
+                            data[key].__target__ = backup
+                    }
                 }
             return data
         }
@@ -2326,8 +2335,10 @@ export class Tools {
             if (typeof data === 'object' && data !== null)
                 for (const key:string in data)
                     if (
-                        data.hasOwnProperty(key) && key !== '__target__' &&
-                        typeof data[key] === 'object' && data[key] !== null
+                        data.hasOwnProperty(key) &&
+                        key !== '__target__' &&
+                        ['function', 'undefined'].includes(typeof data[key]) &&
+                        data[key] !== null
                     ) {
                         const target:any = data[key].__target__
                         if (typeof target !== 'undefined')
