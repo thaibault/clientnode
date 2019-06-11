@@ -62,7 +62,6 @@
   "devDependencies": {
     "@babel/cli": "*",
     "@babel/plugin-transform-proto-to-assign": "*",
-    "@babel/polyfill": "*",
     "babel-eslint": "*",
     "babel-plugin-transform-modern-regexp": "*",
     "coveralls": "*",
