@@ -364,9 +364,13 @@ export class Tools {
         UP: 38
     }
     static maximalSupportedInternetExplorerVersion:number = (():number => {
+        /*
+            NOTE: This method uses "Array.indexOf" instead of "Array.includes"
+            since this function could be crucial in wide browser support.
+        */
         if (
             !('document' in $.global) ||
-            [null, undefined].includes($.global.document)
+            [null, undefined].indexOf($.global.document) !== -1
         )
             return 0
         const div = $.global.document.createElement('div')
@@ -389,11 +393,12 @@ export class Tools {
         }
         // Try special detection for internet explorer 10 and 11.
         if (version === 0 && 'navigator' in $.global)
-            if ($.global.navigator.appVersion.includes('MSIE 10'))
+            if ($.global.navigator.appVersion.indexOf('MSIE 10') !== -1)
                 return 10
-            else if ($.global.navigator.userAgent.includes(
-                'Trident'
-            ) && $.global.navigator.userAgent.includes('rv:11'))
+            else if (
+                $.global.navigator.userAgent.indexOf('Trident') !== -1 &&
+                $.global.navigator.userAgent.indexOf('rv:11') !== -1
+            )
                 return 11
         return version
     })()
