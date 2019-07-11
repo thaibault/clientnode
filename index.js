@@ -1496,7 +1496,8 @@ export class Tools {
      * @returns Returns the wrapped method.
      */
     static debounce(
-        eventFunction:Function, thresholdInMilliseconds:number = 600,
+        eventFunction:Function,
+        thresholdInMilliseconds:number = 600,
         ...additionalArguments:Array<any>
     ):Function {
         let lock:boolean = false
@@ -1536,8 +1537,10 @@ export class Tools {
      * "false" otherwise.
      */
     fireEvent(
-        eventName:string, callOnlyOptionsMethod:boolean = false,
-        scope:any = this, ...additionalArguments:Array<any>
+        eventName:string,
+        callOnlyOptionsMethod:boolean = false,
+        scope:any = this,
+        ...additionalArguments:Array<any>
     ):any {
         const eventHandlerName:string =
             `on${this.constructor.stringCapitalize(eventName)}`
@@ -1547,7 +1550,8 @@ export class Tools {
             else if (`_${eventHandlerName}` in scope)
                 scope[`_${eventHandlerName}`](...additionalArguments)
         if (
-            scope._options && eventHandlerName in scope._options &&
+            scope._options &&
+            eventHandlerName in scope._options &&
             scope._options[eventHandlerName] !== this.constructor.noop
         )
             return scope._options[eventHandlerName].call(
