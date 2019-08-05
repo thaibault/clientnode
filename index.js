@@ -884,6 +884,15 @@ export class Tools {
     // / endregion
     // / region cookie
     /**
+     * Deletes a cookie value by given name.
+     * @param name - Name to identify requested value.
+     * @returns Nothing.
+     */
+    static deleteCookie(name:string):void {
+        if ('document' in $.global)
+            $.global.document.cookie = `${name}=; Max-Age=-99999999;`
+    }
+    /**
      * Gets a cookie value by given name.
      * @param name - Name to identify requested value.
      * @returns Requested value.
