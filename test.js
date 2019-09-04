@@ -3073,7 +3073,8 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
                     try {
                         eval(
                             `delete require.cache[require.resolve('` +
-                            `${request}')]`)
+                            `${request}')]`
+                        )
                     } catch (error) {}
                 let $:any
                 let $bodyDomNode:$DomNode
