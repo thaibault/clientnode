@@ -52,12 +52,12 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     require('colors')
     synchronousFileSystem = require('fs')
     path = require('path')
-    QUnit = require('qunit')
+    // TODO QUnit = require('qunit')
     removeDirectoryRecursivelySync = require('rimraf').sync
     const errors:Array<PlainObject> = []
     let indention:string = ''
     const seenTests:Set<string> = new Set()
-    QUnit.moduleStart((module:PlainObject):void => {
+    /* TODO QUnit.moduleStart((module:PlainObject):void => {
         if (module.name) {
             indention = '    '
             console.info(module.name.bold.blue)
@@ -121,6 +121,7 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
             })
         })
     })
+    */
 } else if (require('script!qunit'))
     QUnit = window.QUnit
 // endregion
@@ -2996,30 +2997,31 @@ let tests:Array<Test> = [{callback: function(
 }, closeWindow: false, roundTypes: []}]
 // endregion
 // region configuration
-// IgnoreTypeCheck
+/* TODO
 QUnit.config = Tools.extend(QUnit.config || {}, {
     autostart: false,
-    /*
-    notrycatch: true,
-    noglobals: true,
-    */
+    //notrycatch: true,
+    //noglobals: true,
     testTimeout: 30 * 1000,
     scrolltop: false
 })
+*/
 // endregion
 // region test runner (in browserAPI)
 let testRan:boolean = false
 browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
 ):void => {
     for (const domNodeSpecification:PlainObject of [
-        {link: {
-            attributes: {
-                href: '/node_modules/qunit/qunit/qunit.css',
-                rel: 'stylesheet',
-                type: 'text/css'
-            },
-            inject: browserAPI.window.document.getElementsByTagName('head')[0]
-        }},
+        /*TODO{
+            link: {
+                attributes: {
+                    href: '/node_modules/qunit/qunit/qunit.css',
+                    rel: 'stylesheet',
+                    type: 'text/css'
+                },
+                inject: browserAPI.window.document.getElementsByTagName('head')[0]
+            }
+        },
         {div: {
             attributes: {id: 'qunit'},
             inject: browserAPI.window.document.body
@@ -3027,7 +3029,7 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
         {div: {
             attributes: {id: 'qunit-fixture'},
             inject: browserAPI.window.document.body
-        }}
+        }}*/
     ]) {
         const domNodeName:string = Object.keys(domNodeSpecification)[0]
         const domNode:DomNode = browserAPI.window.document.createElement(
@@ -3102,11 +3104,11 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
                     tools = $bodyDomNode.Tools()
                 }
                 const testPromise:?Object = test.callback.call(
-                    QUnit,
+                    /*TODO QUnit*/global,
                     roundType,
-                    (
-                        typeof TARGET_TECHNOLOGY === 'undefined'
-                    ) ? null : TARGET_TECHNOLOGY,
+                    (typeof TARGET_TECHNOLOGY === 'undefined') ?
+                        null :
+                        TARGET_TECHNOLOGY,
                     $,
                     browserAPI,
                     tools,
@@ -3123,7 +3125,7 @@ browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
     Promise.all(testPromises).then(():void => {
         if (closeWindow)
             browserAPI.window.close()
-        QUnit.start()
+        // QUnit.start()
     }).catch((error:any):void => {
         throw error
     })
@@ -3171,7 +3173,8 @@ export default function(
     if (testRan)
         throw new Error(
             'You have to register your tests immediately after importing the' +
-            ' library.')
+            ' library.'
+        )
     if (!testRegistered) {
         testRegistered = true
         tests = []

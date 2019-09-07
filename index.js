@@ -962,9 +962,13 @@ export class Tools {
             this.$domNode.find('*').addBack().each(function():void {
                 const $thisDomNode:$DomNode = $(this)
                 if ($thisDomNode.attr(className))
-                    $thisDomNode.attr(className, ($thisDomNode.attr(
-                        className
-                    ).split(' ').sort() || []).join(' '))
+                    $thisDomNode.attr(
+                        className,
+                        (
+                            $thisDomNode.attr(className).split(' ').sort() ||
+                            []
+                        ).join(' ')
+                    )
                 else if ($thisDomNode.is(`[${className}]`))
                     $thisDomNode.removeAttr(className)
             })
@@ -985,12 +989,16 @@ export class Tools {
                 const serializedStyles:?string = $thisDomNode.attr(styleName)
                 if (serializedStyles)
                     $thisDomNode.attr(
-                        styleName, self.constructor.stringCompressStyleValue((
-                            self.constructor.stringCompressStyleValue(
-                                serializedStyles
-                            ).split(';').sort() || []
-                        ).map((style:string):string => style.trim()).join(
-                            ';')))
+                        styleName,
+                        self.constructor.stringCompressStyleValue((
+                            self.constructor
+                                .stringCompressStyleValue(serializedStyles)
+                                .split(';')
+                                .sort() ||
+                            []
+                        ).map((style:string):string =>
+                            style.trim()).join(';'))
+                    )
                 else if ($thisDomNode.is(`[${styleName}]`))
                     $thisDomNode.removeAttr(styleName)
             })
@@ -1076,11 +1084,18 @@ export class Tools {
                 markup and skip the more expensive regular expression check.
             */
             for (const type:string of ['first', 'second'])
-                if (typeof inputs[type] === 'string' && (forceHTMLString || (
-                    inputs[type].startsWith('<') &&
-                    inputs[type].endsWith('>') && inputs[type].length >= 3 ||
-                    detemermineHTMLPattern.test(inputs[type])
-                )))
+                if (
+                    typeof inputs[type] === 'string' &&
+                    (
+                        forceHTMLString ||
+                        (
+                            inputs[type].startsWith('<') &&
+                            inputs[type].endsWith('>') &&
+                            inputs[type].length >= 3 ||
+                            detemermineHTMLPattern.test(inputs[type])
+                        )
+                    )
+                )
                     $domNodes[type] = $(`<div>${inputs[type]}</div>`)
                 else
                     try {
