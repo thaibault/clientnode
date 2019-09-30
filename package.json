@@ -21,9 +21,7 @@
     "jquery"
   ],
   "files": [
-    "index.js",
-    "test.js",
-    "test.compiled.js"
+    "index.js"
   ],
   "main": "index.compiled.js",
   "repository": {
@@ -50,14 +48,9 @@
     "update:documentation": "documentationWebsite --log-level info",
     "watch": "webOptimizer build --watch"
   },
-  "dependencies": {
-    "colors": "*"
-  },
   "peerDependencies": {
     "babel-runtime": "*",
-    "jquery": "*",
-    "node-fetch": "*",
-    "qunit": "*"
+    "jquery": "*"
   },
   "devDependencies": {
     "@babel/cli": "*",
@@ -71,6 +64,7 @@
     "eslint-plugin-flowtype": "*",
     "eslint-plugin-jsdoc": "*",
     "flow-bin": "*",
+    "jest": "*",
     "jquery": "*",
     "jsdoc": "*",
     "node-fetch": "*",
@@ -102,7 +96,8 @@
     "module": {
       "aliases": {
         "clientnode$": "./index",
-        "jquery$": "jquery/dist/jquery.min"
+        "jquery$": "jquery/dist/jquery.min",
+        "weboptimizer/browserAPI": "weboptimizer/browserAPI.compiled"
       },
       "optimizer": {
         "babelMinify": {
