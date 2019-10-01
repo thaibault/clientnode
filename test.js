@@ -628,13 +628,13 @@ describe('clientNode.Tools', ():void => {
         for (const test:Array<any> of [
             [function():void {}, []],
             ['function() {}', []],
-            ['function(a, /* asd*/ b, c/**/) {}', ['a', 'b', 'c']],
-            ['(a, /*asd*/b, c/**/) => {}', ['a', 'b', 'c']],
-            [`(a, /*asd*/b, c/**/) => {
+            ['function(a, /* dummy*TODO/ b, c/**TODO/) {}', ['a', 'b', 'c']],
+            ['(a, /*dummy*TODO/b, c/**TODO/) => {}', ['a', 'b', 'c']],
+            [`(a, /*dummy*TODO/b, c/**TODO/) => {
                 return 2
             }`, ['a', 'b', 'c']],
-            ['(a, /* asd*/b, c/* */) => 2', ['a', 'b', 'c']],
-            ['(a, /* asd*/b = 2, c/* */) => 2', ['a', 'b', 'c']],
+            ['(a, /* dummy*TODO/b, c/* *TODO/) => 2', ['a', 'b', 'c']],
+            ['(a, /* dummy*TODO/b = 2, c/* *TODO/) => 2', ['a', 'b', 'c']],
             ['a => 2', ['a']],
             [`class A {
                 constructor(a, b, c) {}
@@ -2847,6 +2847,7 @@ describe('clientNode.Tools', ():void => {
     }
     // / endregion
     // / region process handler
+    TODO*/
     if (TARGET_TECHNOLOGY === 'node') {
         this.test(`getProcessCloseHandler (${roundType})`, (
             assert:Object
@@ -2897,7 +2898,7 @@ describe('clientNode.Tools', ():void => {
     }
     // / endregion
     // endregion
-    // reg ion protected
+    // region protected
     if (roundType === 'full')
         this.test(`_bindEventHelper (${roundType})`, (
             assert:Object
