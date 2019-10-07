@@ -15,7 +15,7 @@
     endregion
 */
 // region imports
-import Tools, {globalContext} from 'clientnode'
+import Tools, {globalContext, Semaphore} from 'clientnode'
 import type {DomNode, File, PlainObject, $DomNode} from 'clientnode'
 if (!('fetch' in globalContext))
     try {
@@ -28,7 +28,6 @@ try {
     ).ChildProcess
     /* eslint-enable no-var */
 } catch (error) {}
-import browserAPI from 'weboptimizer/browserAPI'
 import type {BrowserAPI} from 'weboptimizer/type'
 // endregion
 // region declaration
@@ -44,12 +43,28 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     synchronousFileSystem = require('fs')
 }
 // endregion
-// region default test specification
+describe('clientNode.Semaphore', ():void => {
+    test('constructor', ():void => {
+        expect(new Semaphore()).toHaveProperty('numberOfResources', 2)
+        expect(new Semaphore()).toHaveProperty(
+            'numberOfFreeResources', (new Semaphore()).numberOfResources)
+    })
+    test('acquire/release', async ():Promise<void> => {
+        const semaphore = new Semaphore()
+        expect(semaphore.numberOfFreeResources).toStrictEqual(2)
+        expect(await semaphore.acquire()).toBeInstanceOf(1)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(1)
+        semaphore.release()
+        expect(semaphore.numberOfFreeResources).toStrictEqual(2)
+    })
+})
 describe('clientNode.Tools', ():void => {
     // region public methods
     // / region special
     test('constructor', ():void => {
-        expect.objectContaining(new Tools())
+        expect(Tools).toHaveProperty('abbreviations')
+        expect(new Tools()).toHaveProperty('_options')
+    })
     /*
     this.test(`destructor (${roundType})`, (assert:Object):void =>
         assert.strictEqual(tools.destructor(), tools))
@@ -179,8 +194,8 @@ describe('clientNode.Tools', ():void => {
             assert.notOk($.Tools.class.isNumeric(test))
     })
     this.test(`isWindow (${roundType})`, (assert:Object):void => {
-        assert.ok($.Tools.class.isWindow(browserAPI.window))
-        for (const test:any of [null, {}, browserAPI])
+        assert.ok($.Tools.class.isWindow(browser.window))
+        for (const test:any of [null, {}, browser])
             assert.notOk($.Tools.class.isWindow(test))
     })
     this.test(`isArrayLike (${roundType})`, (assert:Object):void => {
@@ -2847,7 +2862,6 @@ describe('clientNode.Tools', ():void => {
     }
     // / endregion
     // / region process handler
-    TODO*/
     if (TARGET_TECHNOLOGY === 'node') {
         this.test(`getProcessCloseHandler (${roundType})`, (
             assert:Object
@@ -2861,13 +2875,13 @@ describe('clientNode.Tools', ():void => {
             /**
              * A mockup duplex stream for mocking "stdout" and "strderr"
              * process connections.
-             */
+             *//*TODO
             class MockupDuplexStream extends require('stream').Duplex {
                 /**
                  * Triggers if contents from current stream should be red.
                  * @param _size - Number of bytes to read asynchronously.
                  * @returns Red data.
-                 */
+                 *//*TODO
                 _read(_size?:number):void {}
                 /**
                  * Triggers if contents should be written on current stream.
@@ -2877,7 +2891,7 @@ describe('clientNode.Tools', ():void => {
                  * data.
                  * @param callback - Will be called if data has been written.
                  * @returns Returns Nothing.
-                 */
+                 *//*TODO
                 _write(
                     chunk:Buffer|string, encoding:string, callback:Function
                 ):void {
@@ -2911,8 +2925,9 @@ describe('clientNode.Tools', ():void => {
                 assert.ok(tools._bindEventHelper(...test))
         })
     // endregion
+    */
 })
-// endregion
+// endregionendregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:

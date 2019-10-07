@@ -286,8 +286,8 @@ export class Tools {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
-    static animationEndEventNames:string = 'animationend webkitAnimationEnd ' +
-        'oAnimationEnd MSAnimationEnd'
+    static animationEndEventNames:string =
+        'animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd'
     static classToTypeMapping:{[key:string]:string} = {
         '[object Array]': 'array',
         '[object Boolean]': 'boolean',
@@ -440,7 +440,7 @@ export class Tools {
      * class will be given back.
      */
     constructor(
-        $domNode:?$DomNode = null,
+        $domNode:null|$DomNode = null,
         options:Object = {},
         defaultOptions:PlainObject = {
             domNode: {
@@ -529,7 +529,7 @@ export class Tools {
      * @returns Returns whatever the initializer method returns.
      */
     controller(
-        object:Object, parameter:Array<any>, $domNode:?$DomNode = null
+        object:Object, parameter:Array<any>, $domNode:null|$DomNode = null
     ):any {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
