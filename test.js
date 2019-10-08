@@ -52,7 +52,7 @@ describe('clientNode.Semaphore', ():void => {
     test('acquire/release', async ():Promise<void> => {
         const semaphore = new Semaphore()
         expect(semaphore.numberOfFreeResources).toStrictEqual(2)
-        expect(await semaphore.acquire()).toBeInstanceOf(1)
+        expect(await semaphore.acquire()).toStrictEqual(1)
         expect(semaphore.numberOfFreeResources).toStrictEqual(1)
         semaphore.release()
         expect(semaphore.numberOfFreeResources).toStrictEqual(2)
