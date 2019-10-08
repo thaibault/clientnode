@@ -15,7 +15,7 @@
     endregion
 */
 // region imports
-import Tools, {globalContext} from 'clientnode'
+import Tools, {globalContext, Semaphore} from 'clientnode'
 import type {DomNode, File, PlainObject, $DomNode} from 'clientnode'
 if (!('fetch' in globalContext))
     try {
@@ -28,16 +28,7 @@ try {
     ).ChildProcess
     /* eslint-enable no-var */
 } catch (error) {}
-// TODO can be done via alias!
-import browserAPI from 'weboptimizer/browserAPI.compiled'
 import type {BrowserAPI} from 'weboptimizer/type'
-// endregion
-// region types
-export type Test = {
-    callback:Function;
-    closeWindow:boolean;
-    roundTypes:Array<string>
-}
 // endregion
 // region declaration
 declare var TARGET_TECHNOLOGY:string
@@ -45,100 +36,36 @@ declare var TARGET_TECHNOLOGY:string
 // region determine technology specific implementations
 let synchronousFileSystem:Object
 let path:Object
-// IgnoreTypeCheck
-let QUnit:Object
 let removeDirectoryRecursivelySync:Function
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
-    require('colors')
-    synchronousFileSystem = require('fs')
     path = require('path')
-    QUnit = require('qunit')
     removeDirectoryRecursivelySync = require('rimraf').sync
-    const errors:Array<PlainObject> = []
-    let indention:string = ''
-    const seenTests:Set<string> = new Set()
-    QUnit.moduleStart((module:PlainObject):void => {
-        if (module.name) {
-            indention = '    '
-            console.info(module.name.bold.blue)
-        }
-    })
-    QUnit.log((details:PlainObject):void => {
-        if (!details.result)
-            errors.push(details)
-    })
-    QUnit.testDone((details:PlainObject):void => {
-        if (seenTests.has(details.name))
-            return
-        seenTests.add(details.name)
-        if (details.failed) {
-            // IgnoreTypeCheck
-            console.info(`${indention}✖ ${details.name}`.red)
-            for (const error:PlainObject of errors) {
-                if (error.message)
-                    console.warn(`${indention}${error.message.red}`)
-                if (typeof error.actual !== 'undefined')
-                    console.warn((
-                        `${indention}actual: ` +
-                        Tools.represent(error.actual, '    ', indention) +
-                        ` (${typeof error.actual}) != ` +
-                        `expected: ` +
-                        Tools.represent(error.expected, '    ', indention) +
-                        ` (${typeof error.expected})`
-                        // IgnoreTypeCheck
-                    ).red)
-            }
-            errors.length = 0
-        } else
-            // IgnoreTypeCheck
-            console.info(`${indention}✔ ${details.name}`.green)
-    })
-    const done:Function = (details:PlainObject):void => {
-        console.info(
-            // IgnoreTypeCheck
-            `Tests completed in ${details.runtime / 1000} seconds.`.grey)
-        const message:string =
-            `${details.passed} tests of ${details.total} passed.`
-        if (details.failed > 0)
-            // IgnoreTypeCheck
-            console.warn(`${message}, ${details.failed} failed.`.red.bold)
-        else
-            // IgnoreTypeCheck
-            console.info(`${message}`.green.bold)
-        process.once('exit', ():void => process.exit(details.failed))
-    }
-    // NOTE: Fixes qunit's ugly multi "done()" calls.
-    let finalDoneTimeoutID:any = null
-    QUnit.done((...parameter:Array<any>):void => {
-        if (finalDoneTimeoutID) {
-            // IgnoreTypeCheck
-            clearTimeout(finalDoneTimeoutID)
-            finalDoneTimeoutID = null
-        }
-        finalDoneTimeoutID = setTimeout(():void => {
-            finalDoneTimeoutID = setTimeout(():void => {
-                done(...parameter)
-            })
-        })
-    })
-} else if (require('script!qunit'))
-    QUnit = window.QUnit
+    synchronousFileSystem = require('fs')
+}
 // endregion
-// region default test specification
-let tests:Array<Test> = [{callback: function(
-    roundType:string,
-    targetTechnology:?string,
-    $:any,
-    browserAPI:BrowserAPI,
-    tools:Object,
-    $bodyDomNode:$DomNode
-):void {
-    this.module(`tools (${roundType})`)
-    // region tests
-    // / region public methods
-    // // region special
-    this.test(`constructor (${roundType})`, (assert:Object):void => assert.ok(
-        tools))
+describe('clientNode.Semaphore', ():void => {
+    test('constructor', ():void => {
+        expect(new Semaphore()).toHaveProperty('numberOfResources', 2)
+        expect(new Semaphore()).toHaveProperty(
+            'numberOfFreeResources', (new Semaphore()).numberOfResources)
+    })
+    test('acquire/release', async ():Promise<void> => {
+        const semaphore = new Semaphore()
+        expect(semaphore.numberOfFreeResources).toStrictEqual(2)
+        expect(await semaphore.acquire()).toStrictEqual(1)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(1)
+        semaphore.release()
+        expect(semaphore.numberOfFreeResources).toStrictEqual(2)
+    })
+})
+describe('clientNode.Tools', ():void => {
+    // region public methods
+    // / region special
+    test('constructor', ():void => {
+        expect(Tools).toHaveProperty('abbreviations')
+        expect(new Tools()).toHaveProperty('_options')
+    })
+    /*
     this.test(`destructor (${roundType})`, (assert:Object):void =>
         assert.strictEqual(tools.destructor(), tools))
     this.test(`initialize (${roundType})`, (assert:Object):void => {
@@ -152,16 +79,16 @@ let tests:Array<Test> = [{callback: function(
             thirdToolsInstance._options.domNodeSelectorPrefix,
             'body.tools div.tools')
     })
-    // // endregion
-    // // region object orientation
+    // / endregion
+    // / region  object orientation
     this.test(`controller (${roundType})`, (assert:Object):void => {
         assert.strictEqual(tools.controller(tools, []), tools)
         assert.strictEqual(tools.controller($.Tools.class, [], $(
             'body'
         )).constructor.name, $.Tools.class.name)
     })
-    // // endregion
-    // // region mutual exclusion
+    // / endregion
+    // / region mutual exclusion
     this.test(`acquireLock|releaseLock (${roundType})`, async (
         assert:Object
     ):Promise<void> => {
@@ -253,8 +180,8 @@ let tests:Array<Test> = [{callback: function(
         assert.strictEqual(semaphore.queue.length, 0)
         assert.strictEqual(semaphore.numberOfFreeResources, 3)
     })
-    // // endregion
-    // // region boolean
+    // / endregion
+    // / region boolean
     this.test(`isNumeric (${roundType})`, (assert:Object):void => {
         for (const test:any of [
             0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10
@@ -267,8 +194,8 @@ let tests:Array<Test> = [{callback: function(
             assert.notOk($.Tools.class.isNumeric(test))
     })
     this.test(`isWindow (${roundType})`, (assert:Object):void => {
-        assert.ok($.Tools.class.isWindow(browserAPI.window))
-        for (const test:any of [null, {}, browserAPI])
+        assert.ok($.Tools.class.isWindow(browser.window))
+        for (const test:any of [null, {}, browser])
             assert.notOk($.Tools.class.isWindow(test))
     })
     this.test(`isArrayLike (${roundType})`, (assert:Object):void => {
@@ -301,8 +228,9 @@ let tests:Array<Test> = [{callback: function(
             {},
             {a: 1},
             /* eslint-disable no-new-object */
-            new Object()
+            // TODO new Object()
             /* eslint-enable no-new-object */
+    /*
         ])
             assert.ok($.Tools.class.isPlainObject(okValue))
         for (const notOkValue:any of [
@@ -324,12 +252,12 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.notOk($.Tools.class.isFunction(notOkValue))
     })
-    // // endregion
-    // // region language fixes
+    // / endregion
+    // / region language fixes
     this.test(`mouseOutEventHandlerFix (${roundType})`, (assert:Object):void =>
         assert.ok($.Tools.class.mouseOutEventHandlerFix(():void => {})))
-    // // endregion
-    // // region logging
+    // / endregion
+    // / region logging
     this.test(`log (${roundType})`, (assert:Object):void => assert.strictEqual(
         tools.log('test'), tools))
     this.test(`info (${roundType})`, (assert:Object):void =>
@@ -351,13 +279,15 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.strictEqual($.Tools.class.show(test[0]), test[1])
         /* eslint-disable no-control-regex */
+        /* TODO
         assert.ok(/^.+\(Type: "function"\)$/su.test(
             $.Tools.class.show($.Tools.class.noop)
         ))
         /* eslint-enable no-control-regex */
+    /*TODO
     })
-    // // endregion
-    // // region dom node handling
+    // / endregion
+    // / region dom node handling
     if (roundType === 'full') {
         // region getter
         this.test(`get normalizedClassNames (${roundType})`, (
@@ -650,8 +580,8 @@ let tests:Array<Test> = [{callback: function(
                 assert.deepEqual($domNodes, test[1])
             }
         })
-    // // endregion
-    // // region scope
+    // / endregion
+    // / region scope
     this.test(`isolateScope (${roundType})`, (assert:Object):void => {
         assert.deepEqual($.Tools.class.isolateScope({}), {})
         assert.deepEqual($.Tools.class.isolateScope({a: 2}), {a: 2})
@@ -707,19 +637,19 @@ let tests:Array<Test> = [{callback: function(
         assert.ok(name.endsWith('klaus'))
         assert.ok(name.length > 'hans'.length + 'klaus'.length)
     })
-    // // endregion
-    // // region function handling
+    // / endregion
+    // / region function handling
     this.test(`getParameterNames (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [function():void {}, []],
             ['function() {}', []],
-            ['function(a, /* asd*/ b, c/**/) {}', ['a', 'b', 'c']],
-            ['(a, /*asd*/b, c/**/) => {}', ['a', 'b', 'c']],
-            [`(a, /*asd*/b, c/**/) => {
+            ['function(a, /* dummy*TODO/ b, c/**TODO/) {}', ['a', 'b', 'c']],
+            ['(a, /*dummy*TODO/b, c/**TODO/) => {}', ['a', 'b', 'c']],
+            [`(a, /*dummy*TODO/b, c/**TODO/) => {
                 return 2
             }`, ['a', 'b', 'c']],
-            ['(a, /* asd*/b, c/* */) => 2', ['a', 'b', 'c']],
-            ['(a, /* asd*/b = 2, c/* */) => 2', ['a', 'b', 'c']],
+            ['(a, /* dummy*TODO/b, c/* *TODO/) => 2', ['a', 'b', 'c']],
+            ['(a, /* dummy*TODO/b = 2, c/* *TODO/) => 2', ['a', 'b', 'c']],
             ['a => 2', ['a']],
             [`class A {
                 constructor(a, b, c) {}
@@ -773,8 +703,8 @@ let tests:Array<Test> = [{callback: function(
         assert.ok(test2)
         done()
     })
-    // // endregion
-    // // region event
+    // / endregion
+    // / region event
     this.test(`debounce (${roundType})`, (assert:Object):void => {
         let testValue = false
         $.Tools.class.debounce(():void => {
@@ -820,8 +750,8 @@ let tests:Array<Test> = [{callback: function(
             assert.notOk(testValue)
         })
     }
-    // // endregion
-    // // region object
+    // / endregion
+    // / region object
     this.test(`addDynamicGetterAndSetter (${roundType})`, (
         assert:Object
     ):void => {
@@ -1046,8 +976,9 @@ let tests:Array<Test> = [{callback: function(
             [[], 'array'],
             /* eslint-disable no-array-constructor */
             // IgnoreTypeCheck
-            [new Array(), 'array'],
+            // TODO [new Array(), 'array'],
             /* eslint-enable no-array-constructor */
+    /* TODO
             [new Date(), 'date'],
             [new Error(), 'error'],
             [new Map(), 'map'],
@@ -1346,6 +1277,7 @@ let tests:Array<Test> = [{callback: function(
                 NOTE: This describes a workaround until the "ownKeys" proxy
                 trap works for this use cases.
             */
+    /* TODO
             [[{
                 a: {__evaluate__: 'Object.keys(resolve(self.b))'},
                 b: {__evaluate__: '{a: 2}'}
@@ -1621,8 +1553,8 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.deepEqual($.Tools.class.unwrapProxy(test[0]), test[1])
     })
-    // // endregion
-    // // region array
+    // / endregion
+    // / region array
     this.test(`arrayAggregatePropertyIfEqual (${roundType})`, (
         assert:Object
     ):void => {
@@ -1882,8 +1814,8 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.throws(():void => $.Tools.class.arraySortTopological(test))
     })
-    // // endregion
-    // // region string
+    // / endregion
+    // / region string
     this.test('stringEscapeRegularExpressions', (
         assert:Object
     ):void => {
@@ -1920,7 +1852,7 @@ let tests:Array<Test> = [{callback: function(
                     test[0]
                 ), test[1])
     })
-    // /// region url handling
+    // // region url handling
     this.test(`stringEncodeURIComponent (${roundType})`, (
         assert:Object
     ):void => {
@@ -2181,7 +2113,7 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(
                 $.Tools.class.stringRepresentURL(test[0]), test[1])
     })
-    // /// endregion
+    // // endregion
     this.test(`stringCamelCaseToDelimited (${roundType})`, (
         assert:Object
     ):void => {
@@ -2666,8 +2598,8 @@ let tests:Array<Test> = [{callback: function(
                 domNodeSelectorPrefix: ''
             }).stringNormalizeDomNodeSelector(test), test)
     })
-    // // endregion
-    // // region number
+    // / endregion
+    // / region number
     this.test(`numberGetUTCTimestamp (${roundType})`, (assert:Object):void => {
         for (const test:Array<any> of [
             [[new Date(0)], 0],
@@ -2713,8 +2645,8 @@ let tests:Array<Test> = [{callback: function(
         ])
             assert.strictEqual($.Tools.class.numberRound(...test[0]), test[1])
     })
-    // // endregion
-    // // region data transnfer
+    // / endregion
+    // / region data transnfer
     this.test('checkReachability', async (assert:Object):Promise<void> => {
         const done:Function = assert.async()
         for (const test:Array<any> of [
@@ -2765,8 +2697,8 @@ let tests:Array<Test> = [{callback: function(
         ):void => assert.ok(tools.sendToExternalURL(
             window.document.URL, {test: 5})))
     }
-    // // endregion
-    // // region file
+    // / endregion
+    // / region file
     if (TARGET_TECHNOLOGY === 'node') {
         this.test(`copyDirectoryRecursive (${roundType})`, async (
             assert:Object
@@ -2810,6 +2742,7 @@ let tests:Array<Test> = [{callback: function(
                 NOTE: A race condition was identified here. So we need an
                 additional digest loop to have this test artefact placed here.
             */
+    /*
             await Tools.timeout()
             synchronousFileSystem.unlinkSync(`./test.${roundType}.compiled.js`)
             done()
@@ -2927,8 +2860,8 @@ let tests:Array<Test> = [{callback: function(
             assert.strictEqual(filePaths.length, 1)
         })
     }
-    // // endregion
-    // // region process handler
+    // / endregion
+    // / region process handler
     if (TARGET_TECHNOLOGY === 'node') {
         this.test(`getProcessCloseHandler (${roundType})`, (
             assert:Object
@@ -2942,13 +2875,13 @@ let tests:Array<Test> = [{callback: function(
             /**
              * A mockup duplex stream for mocking "stdout" and "strderr"
              * process connections.
-             */
+             *//*TODO
             class MockupDuplexStream extends require('stream').Duplex {
                 /**
                  * Triggers if contents from current stream should be red.
                  * @param _size - Number of bytes to read asynchronously.
                  * @returns Red data.
-                 */
+                 *//*TODO
                 _read(_size?:number):void {}
                 /**
                  * Triggers if contents should be written on current stream.
@@ -2958,7 +2891,7 @@ let tests:Array<Test> = [{callback: function(
                  * data.
                  * @param callback - Will be called if data has been written.
                  * @returns Returns Nothing.
-                 */
+                 *//*TODO
                 _write(
                     chunk:Buffer|string, encoding:string, callback:Function
                 ):void {
@@ -2977,9 +2910,9 @@ let tests:Array<Test> = [{callback: function(
                 $.Tools.class.handleChildProcess(childProcess), childProcess)
         })
     }
-    // // endregion
     // / endregion
-    // / region protected
+    // endregion
+    // region protected
     if (roundType === 'full')
         this.test(`_bindEventHelper (${roundType})`, (
             assert:Object
@@ -2991,194 +2924,10 @@ let tests:Array<Test> = [{callback: function(
             ])
                 assert.ok(tools._bindEventHelper(...test))
         })
-    // / endregion
     // endregion
-}, closeWindow: false, roundTypes: []}]
-// endregion
-// region configuration
-// IgnoreTypeCheck
-QUnit.config = Tools.extend(QUnit.config || {}, {
-    autostart: false,
-    /*
-    notrycatch: true,
-    noglobals: true,
     */
-    testTimeout: 30 * 1000,
-    scrolltop: false
 })
-// endregion
-// region test runner (in browserAPI)
-let testRan:boolean = false
-browserAPI((browserAPI:BrowserAPI):Promise<boolean> => Tools.timeout((
-):void => {
-    for (const domNodeSpecification:PlainObject of [
-        {link: {
-            attributes: {
-                href: '/node_modules/qunit/qunit/qunit.css',
-                rel: 'stylesheet',
-                type: 'text/css'
-            },
-            inject: browserAPI.window.document.getElementsByTagName('head')[0]
-        }},
-        {div: {
-            attributes: {id: 'qunit'},
-            inject: browserAPI.window.document.body
-        }},
-        {div: {
-            attributes: {id: 'qunit-fixture'},
-            inject: browserAPI.window.document.body
-        }}
-    ]) {
-        const domNodeName:string = Object.keys(domNodeSpecification)[0]
-        const domNode:DomNode = browserAPI.window.document.createElement(
-            domNodeName)
-        for (const name:string in domNodeSpecification[domNodeName].attributes)
-            if (domNodeSpecification[domNodeName].attributes.hasOwnProperty(
-                name
-            ))
-                domNode.setAttribute(
-                    name, domNodeSpecification[domNodeName].attributes[name])
-        domNodeSpecification[domNodeName].inject.appendChild(domNode)
-    }
-    testRan = true
-    const testPromises:Array<Promise<any>> = []
-    let closeWindow:boolean = false
-    for (const test:Test of tests) {
-        if (test.closeWindow)
-            closeWindow = true
-        for (const roundType:string of ['plain', 'document', 'full'])
-            if (
-                test.roundTypes.length === 0 ||
-                test.roundTypes.includes(roundType)
-            ) {
-                // NOTE: Enforce to reload module to rebind "$".
-                try {
-                    delete require.cache[require.resolve('clientnode')]
-                    delete require.cache[require.resolve('jquery')]
-                } catch (error) {}
-                /*
-                    NOTE: Module bundler like webpack wraps a commonjs
-                    environment. So we have to try to clear the underling
-                    cache.
-                */
-                for (const request:string of [
-                    'clientnode',
-                    'jquery',
-                    'jquery/dist/jquery',
-                    'jquery/dist/jquery.js',
-                    'jquery/dist/jquery.min',
-                    'jquery/dist/jquery.min.js',
-                    'jquery/dist/jquery.min'
-                ])
-                    try {
-                        eval(
-                            `delete require.cache[require.resolve('` +
-                            `${request}')]`)
-                    } catch (error) {}
-                let $:any
-                let $bodyDomNode:$DomNode
-                let tools:$.Tools
-                if (roundType === 'plain') {
-                    browserAPI.window.$ = null
-                    $ = require('clientnode').$
-                    tools = $.Tools()
-                } else {
-                    if (roundType === 'full') {
-                        for (const name:string of [
-                            'document',
-                            'Element',
-                            'HTMLElement',
-                            'matchMedia',
-                            'Node'
-                        ])
-                            if (!(name in global))
-                                global[name] = browserAPI.window[name]
-                        browserAPI.window.$ = require('jquery')
-                    }
-                    $ = require('clientnode').$
-                    $.context = browserAPI.window.document
-                    $bodyDomNode = $('body')
-                    tools = $bodyDomNode.Tools()
-                }
-                const testPromise:?Object = test.callback.call(
-                    QUnit,
-                    roundType,
-                    (
-                        typeof TARGET_TECHNOLOGY === 'undefined'
-                    ) ? null : TARGET_TECHNOLOGY,
-                    $,
-                    browserAPI,
-                    tools,
-                    $bodyDomNode
-                )
-                if (
-                    typeof testPromise === 'object' &&
-                    testPromise &&
-                    'then' in testPromise
-                )
-                    testPromises.push(testPromise)
-            }
-    }
-    Promise.all(testPromises).then(():void => {
-        if (closeWindow)
-            browserAPI.window.close()
-        QUnit.start()
-    }).catch((error:any):void => {
-        throw error
-    })
-    // region hot module replacement handler
-    /*
-        NOTE: hot module replacement doesn't work with async tests yet since
-        qunit is not resetable yet:
-
-        if (typeof module === 'object' && 'hot' in module && module.hot) {
-            module.hot.accept()
-            // IgnoreTypeCheck
-            module.hot.dispose(():void => {
-                QUnit.reset()
-                console.clear()
-            }
-        }
-    */
-    // endregion
-}))
-// endregion
-// region export test register function
-let testRegistered:boolean = false
-/**
- * Registers a complete test set.
- * @param callback - A function containing all tests to run. This callback gets
- * some useful parameters and will be executed in context of qunit.
- * @param givenRoundTypes - A list of round types which should be avoided.
- * @param closeWindow - Indicates whether the window object should be closed
- * after finishing all tests.
- * @returns The list of currently registered tests.
- */
-export default function(
-    callback:((
-        roundType:string,
-        targetTechnology:?string,
-        $:any,
-        browserAPI:BrowserAPI,
-        tools:Object,
-        $bodyDomNode:$DomNode
-    ) => any),
-    givenRoundTypes:string|Array<string> = [],
-    closeWindow:boolean = false
-):Array<Test> {
-    const roundTypes:Array<string> = [].concat(givenRoundTypes)
-    if (testRan)
-        throw new Error(
-            'You have to register your tests immediately after importing the' +
-            ' library.')
-    if (!testRegistered) {
-        testRegistered = true
-        tests = []
-    }
-    tests.push({callback, closeWindow, roundTypes})
-    return tests
-}
-// endregion
+// endregionendregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:

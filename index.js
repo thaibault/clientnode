@@ -286,8 +286,8 @@ export class Tools {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
-    static animationEndEventNames:string = 'animationend webkitAnimationEnd ' +
-        'oAnimationEnd MSAnimationEnd'
+    static animationEndEventNames:string =
+        'animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd'
     static classToTypeMapping:{[key:string]:string} = {
         '[object Array]': 'array',
         '[object Boolean]': 'boolean',
@@ -440,7 +440,7 @@ export class Tools {
      * class will be given back.
      */
     constructor(
-        $domNode:?$DomNode = null,
+        $domNode:null|$DomNode = null,
         options:Object = {},
         defaultOptions:PlainObject = {
             domNode: {
@@ -529,7 +529,7 @@ export class Tools {
      * @returns Returns whatever the initializer method returns.
      */
     controller(
-        object:Object, parameter:Array<any>, $domNode:?$DomNode = null
+        object:Object, parameter:Array<any>, $domNode:null|$DomNode = null
     ):any {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
@@ -962,9 +962,13 @@ export class Tools {
             this.$domNode.find('*').addBack().each(function():void {
                 const $thisDomNode:$DomNode = $(this)
                 if ($thisDomNode.attr(className))
-                    $thisDomNode.attr(className, ($thisDomNode.attr(
-                        className
-                    ).split(' ').sort() || []).join(' '))
+                    $thisDomNode.attr(
+                        className,
+                        (
+                            $thisDomNode.attr(className).split(' ').sort() ||
+                            []
+                        ).join(' ')
+                    )
                 else if ($thisDomNode.is(`[${className}]`))
                     $thisDomNode.removeAttr(className)
             })
@@ -985,12 +989,16 @@ export class Tools {
                 const serializedStyles:?string = $thisDomNode.attr(styleName)
                 if (serializedStyles)
                     $thisDomNode.attr(
-                        styleName, self.constructor.stringCompressStyleValue((
-                            self.constructor.stringCompressStyleValue(
-                                serializedStyles
-                            ).split(';').sort() || []
-                        ).map((style:string):string => style.trim()).join(
-                            ';')))
+                        styleName,
+                        self.constructor.stringCompressStyleValue((
+                            self.constructor
+                                .stringCompressStyleValue(serializedStyles)
+                                .split(';')
+                                .sort() ||
+                            []
+                        ).map((style:string):string =>
+                            style.trim()).join(';'))
+                    )
                 else if ($thisDomNode.is(`[${styleName}]`))
                     $thisDomNode.removeAttr(styleName)
             })
@@ -1076,11 +1084,18 @@ export class Tools {
                 markup and skip the more expensive regular expression check.
             */
             for (const type:string of ['first', 'second'])
-                if (typeof inputs[type] === 'string' && (forceHTMLString || (
-                    inputs[type].startsWith('<') &&
-                    inputs[type].endsWith('>') && inputs[type].length >= 3 ||
-                    detemermineHTMLPattern.test(inputs[type])
-                )))
+                if (
+                    typeof inputs[type] === 'string' &&
+                    (
+                        forceHTMLString ||
+                        (
+                            inputs[type].startsWith('<') &&
+                            inputs[type].endsWith('>') &&
+                            inputs[type].length >= 3 ||
+                            detemermineHTMLPattern.test(inputs[type])
+                        )
+                    )
+                )
                     $domNodes[type] = $(`<div>${inputs[type]}</div>`)
                 else
                     try {
