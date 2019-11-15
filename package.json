@@ -76,7 +76,7 @@
     "commandLine": {
       "test": {
         "environments": [
-          "weboptimizer/jestEnvironmentBrowser.compiled"
+          "./jestEnvironmentBrowser"
         ]
       }
     },
