@@ -73,13 +73,6 @@
   },
   "sideEffects": false,
   "webOptimizer": {
-    "commandLine": {
-      "test": {
-        "environments": [
-          "./jestEnvironmentBrowser"
-        ]
-      }
-    },
     "debug": {
       "module": {
         "optimizer": {

@@ -23,14 +23,17 @@ if (!('fetch' in globalContext))
     } catch (error) {}
 try {
     /* eslint-disable no-var */
-    var ChildProcess:ChildProcess = eval('require')(
-        'child_process'
-    ).ChildProcess
+    var ChildProcess:ChildProcess =
+        eval('require')('child_process').ChildProcess
     /* eslint-enable no-var */
 } catch (error) {}
-import type {BrowserAPI} from 'weboptimizer/type'
+import {getInitializedBrowser} from 'weboptimizer/browser'
+import type {Browser} from 'weboptimizer/type'
 // endregion
 // region declaration
+declare function describe(description:string, test:Function):void
+declare function expect(subject:any):any
+declare function test(description:string, test:Function):Promise<void>|void
 declare var TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
@@ -46,7 +49,7 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     removeDirectoryRecursivelySync = require('rimraf').sync
     synchronousFileSystem = require('fs')
 }
- // endregion
+// endregion
 describe(`clientNode.Semaphore (${testEnvironment})`, ():void => {
     test('constructor', ():void => {
         expect(new Semaphore()).toHaveProperty('numberOfResources', 2)
@@ -94,98 +97,106 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             .toStrictEqual($.Tools.class.name)
     })
     // / endregion
-    /*
     // / region mutual exclusion
     test(`acquireLock|releaseLock (${testEnvironment})`, async (
-        assert:Object
+        done:Function
     ):Promise<void> => {
-        const done:Function = assert.async()
+        const tools:Tools = new Tools()
         let testValue:boolean = false
         await tools.acquireLock('test', ():void => {
             testValue = true
         })
-        assert.ok(testValue)
-        assert.ok(tools.acquireLock('test', ():void => {
-            testValue = false
-        }) instanceof Promise)
-        assert.ok(testValue)
-        assert.ok($.Tools().releaseLock('test') instanceof Promise)
-        assert.ok(testValue)
-        assert.ok(tools.releaseLock('test') instanceof Promise)
-        assert.notOk(testValue)
-        assert.ok(tools.releaseLock('test') instanceof Promise)
-        assert.notOk(testValue)
+        expect(testValue).toStrictEqual(true)
+        expect(tools.acquireLock(
+            'test',
+            ():void => {
+                testValue = false
+            }
+        )).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual(true)
+        expect($.Tools().releaseLock('test')).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual(true)
+        expect(tools.releaseLock('test')).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual(false)
+        expect(tools.releaseLock('test')).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual(false)
         await tools.acquireLock('test', ():void => {
             testValue = true
         })
-        assert.ok(testValue)
-        assert.ok(tools.acquireLock('test', ():void => {
-            testValue = false
-        }) instanceof Promise)
-        assert.ok(testValue)
-        assert.ok(tools.acquireLock('test', ():void => {
-            testValue = true
-        }) instanceof Promise)
-        assert.ok(testValue)
+        expect(testValue).toStrictEqual(true)
+        expect(tools.acquireLock(
+            'test',
+            ():void => {
+                testValue = false
+            }
+        )).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual(true)
+        expect(tools.acquireLock(
+            'test',
+            ():void => {
+                testValue = true
+            }
+        )).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual(true)
         tools.releaseLock('test')
-        assert.notOk(testValue)
+        expect(testValue).toStrictEqual(false)
         tools.releaseLock('test')
-        assert.ok(testValue)
+        expect(testValue).toStrictEqual(true)
         tools.acquireLock('test').then(async (result:string):Promise<void> => {
-            assert.strictEqual(result, 'test')
-            $.Tools.class.timeout(():tools.constructor => tools.releaseLock(
-                'test'))
+            expect(result).toStrictEqual('test')
+            Tools.timeout(():tools.constructor =>
+                tools.releaseLock('test')
+            )
             result = await tools.acquireLock('test')
-            assert.strictEqual(result, 'test')
-            $.Tools.class.timeout(():tools.constructor => tools.releaseLock(
-                'test'))
+            expect(result).toStrictEqual('test')
+            Tools.timeout(():tools.constructor =>
+                tools.releaseLock('test')
+            )
             result = await tools.acquireLock('test', ():Promise<boolean> => {
                 return new Promise(async (resolve:Function):Promise<void> => {
-                    await $.Tools.class.timeout()
+                    await Tools.timeout()
                     testValue = false
                     resolve(testValue)
                 })
             })
-            assert.notOk(testValue)
+            expect(testValue).toStrictEqual(false)
             done()
         })
         tools.releaseLock('test')
     })
-    test('getSemaphore', async (
-        assert:Object
-    ):Promise<void> => {
+    test('getSemaphore', async ():Promise<void> => {
         const semaphore:Object = $.Tools.class.getSemaphore(2)
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 2)
-        assert.strictEqual(semaphore.numberOfResources, 2)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(2)
+        expect(semaphore.numberOfResources).toStrictEqual(2)
         await semaphore.acquire()
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 1)
-        assert.strictEqual(semaphore.numberOfResources, 2)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(1)
+        expect(semaphore.numberOfResources).toStrictEqual(2)
         await semaphore.acquire()
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 0)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
         semaphore.acquire()
-        assert.strictEqual(semaphore.queue.length, 1)
-        assert.strictEqual(semaphore.numberOfFreeResources, 0)
+        expect(semaphore.queue.length).toStrictEqual(1)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
         semaphore.acquire()
-        assert.strictEqual(semaphore.queue.length, 2)
-        assert.strictEqual(semaphore.numberOfFreeResources, 0)
+        expect(semaphore.queue.length).toStrictEqual(2)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
         semaphore.release()
-        assert.strictEqual(semaphore.queue.length, 1)
-        assert.strictEqual(semaphore.numberOfFreeResources, 0)
+        expect(semaphore.queue.length).toStrictEqual(1)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
         semaphore.release()
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 0)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
         semaphore.release()
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 1)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(1)
         semaphore.release()
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 2)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(2)
         semaphore.release()
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 3)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(3)
     })
     // / endregion
     // / region boolean
@@ -193,18 +204,31 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         for (const test:any of [
             0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10
         ])
-            assert.ok($.Tools.class.isNumeric(test))
+            expect(Tools.isNumeric(test)).toStrictEqual(true)
         for (const test:any of [
-            null, undefined, false, true, '', 'a', {}, /a/, '-0x42',
-            '7.2acdgs', NaN, Infinity
+            null,
+            undefined,
+            false,
+            true,
+            '',
+            'a',
+            {},
+            /a/,
+            '-0x42',
+            '7.2acdgs',
+            NaN,
+            Infinity
         ])
-            assert.notOk($.Tools.class.isNumeric(test))
+            expect(Tools.isNumeric(test)).toStrictEqual(false)
     })
-    test('isWindow', ():void => {
-        assert.ok($.Tools.class.isWindow(browser.window))
+    /*
+    test('isWindow', async ():Promise<void> => {
+        const browser:Browser = await getInitializedBrowser()
+        expect($.Tools.class.isWindow(browser.window)).toStrictEqual(true)
         for (const test:any of [null, {}, browser])
-            assert.notOk($.Tools.class.isWindow(test))
+            expect($.Tools.class.isWindow(test)).toStrictEqual(false)
     })
+    /*
     test('isArrayLike', ():void => {
         for (const test:Array<any> of [
             [], window.document.querySelectorAll('*')
