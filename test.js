@@ -15,8 +15,8 @@
     endregion
 */
 // region imports
-import Tools, {globalContext, Semaphore, $} from 'clientnode'
-import type {DomNode, File, PlainObject, $DomNode} from 'clientnode'
+import Tools, {globalContext, Semaphore, $} from './index'
+import type {DomNode, File, PlainObject, $DomNode} from './index'
 if (!('fetch' in globalContext))
     try {
         globalContext.fetch = eval('require')('node-fetch')
@@ -37,19 +37,20 @@ declare function test(description:string, test:Function):Promise<void>|void
 declare var TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
-let synchronousFileSystem:Object
 let path:Object
 let removeDirectoryRecursivelySync:Function
+let synchronousFileSystem:Object
 let testEnvironment:string = 'browser'
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
-    testEnvironment = typeof document === 'undefined' ?
-        'node' :
-        'node-with-dom'
     path = require('path')
     removeDirectoryRecursivelySync = require('rimraf').sync
     synchronousFileSystem = require('fs')
+    testEnvironment = typeof document === 'undefined' ?
+        'node' :
+        'node-with-dom'
 }
 // endregion
+// region semaphore
 describe(`clientNode.Semaphore (${testEnvironment})`, ():void => {
     test('constructor', ():void => {
         expect(new Semaphore()).toHaveProperty('numberOfResources', 2)
@@ -65,7 +66,10 @@ describe(`clientNode.Semaphore (${testEnvironment})`, ():void => {
         expect(semaphore.numberOfFreeResources).toStrictEqual(2)
     })
 })
+// endregion
+// region tools
 describe(`clientNode.Tools (${testEnvironment})`, ():void => {
+    const tools:Tools = new Tools()
     // region public methods
     // / region special
     test('constructor', ():void => {
@@ -73,11 +77,9 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         expect(new Tools()).toHaveProperty('_options')
     })
     test('destructor', ():void => {
-        const tools:Tools = new Tools()
         expect(tools.destructor()).toStrictEqual(tools)
     })
     test('initialize', ():void => {
-        const tools:Tools = new Tools()
         const secondToolsInstance:Tools = $.Tools({logging: true})
         const thirdToolsInstance:Tools = $.Tools({
             domNodeSelectorPrefix: 'body.{1} div.{1}'})
@@ -90,18 +92,17 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     // / endregion
     // / region  object orientation
     test('controller', ():void => {
-        const tools:Tools = new Tools()
-
         expect(tools.controller(tools, [])).toStrictEqual(tools)
         expect(tools.controller($.Tools.class, [], $('body')).constructor.name)
-            .toStrictEqual($.Tools.class.name)
+            .toStrictEqual(Tools.name)
+        expect(tools.controller(Tools, [], $('body')).constructor.name)
+            .toStrictEqual(Tools.name)
     })
     // / endregion
     // / region mutual exclusion
     test(`acquireLock|releaseLock (${testEnvironment})`, async (
         done:Function
     ):Promise<void> => {
-        const tools:Tools = new Tools()
         let testValue:boolean = false
         await tools.acquireLock('test', ():void => {
             testValue = true
@@ -165,7 +166,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         tools.releaseLock('test')
     })
     test('getSemaphore', async ():Promise<void> => {
-        const semaphore:Object = $.Tools.class.getSemaphore(2)
+        const semaphore:Object = Tools.getSemaphore(2)
         expect(semaphore.queue.length).toStrictEqual(0)
         expect(semaphore.numberOfFreeResources).toStrictEqual(2)
         expect(semaphore.numberOfResources).toStrictEqual(2)
@@ -221,21 +222,20 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         ])
             expect(Tools.isNumeric(test)).toStrictEqual(false)
     })
-    /*
     test('isWindow', async ():Promise<void> => {
         const browser:Browser = await getInitializedBrowser()
-        expect($.Tools.class.isWindow(browser.window)).toStrictEqual(true)
+        expect(Tools.isWindow(browser.window)).toStrictEqual(true)
         for (const test:any of [null, {}, browser])
-            expect($.Tools.class.isWindow(test)).toStrictEqual(false)
+            expect(Tools.isWindow(test)).toStrictEqual(false)
     })
-    /*
-    test('isArrayLike', ():void => {
+    test('isArrayLike', async ():Promise<void> => {
+        const browser:Browser = await getInitializedBrowser()
         for (const test:Array<any> of [
-            [], window.document.querySelectorAll('*')
+            [], browser.window.document.querySelectorAll('*')
         ])
-            assert.ok($.Tools.class.isArrayLike(test))
+            expect(Tools.isArrayLike(test)).toStrictEqual(true)
         for (const test:any of [{}, null, undefined, false, true, /a/])
-            assert.notOk($.Tools.class.isArrayLike(test))
+            expect(Tools.isArrayLike(test)).toStrictEqual(false)
     })
     test('isAnyMatching', ():void => {
         for (const test:Array<any> of [
@@ -244,7 +244,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['test', [/a/, /b/, /es/]],
             ['test', ['', 'test']]
         ])
-            assert.ok($.Tools.class.isAnyMatching(...test))
+            expect(Tools.isAnyMatching(...test)).toStrictEqual(true)
         for (const test:Array<any> of [
             ['', []],
             ['test', [/tes$/]],
@@ -252,54 +252,54 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['test', [/^est$/]],
             ['test', ['a']]
         ])
-            assert.notOk($.Tools.class.isAnyMatching(...test))
+            expect(Tools.isAnyMatching(...test)).toStrictEqual(false)
     })
     test('isPlainObject', ():void => {
         for (const okValue:any of [
             {},
             {a: 1},
             /* eslint-disable no-new-object */
-            // TODO new Object()
+            new Object()
             /* eslint-enable no-new-object */
-    /*
         ])
-            assert.ok($.Tools.class.isPlainObject(okValue))
+            expect(Tools.isPlainObject(okValue)).toStrictEqual(true)
         for (const notOkValue:any of [
             new String(), Object, null, 0, 1, true, undefined
         ])
-            assert.notOk($.Tools.class.isPlainObject(notOkValue))
+            expect(Tools.isPlainObject(notOkValue)).toStrictEqual(false)
     })
     test('isFunction', ():void => {
-        for (const okValue:any of [
+        for (const value:any of [
             Object,
             new Function('return 1'),
             function():void {},
             ():void => {},
             async ():Promise<void> => {}
         ])
-            assert.ok($.Tools.class.isFunction(okValue))
-        for (const notOkValue:any of [
+            expect(Tools.isFunction(value)).toStrictEqual(true)
+        for (const value:any of [
             null, false, 0, 1, undefined, {}, new Boolean()
         ])
-            assert.notOk($.Tools.class.isFunction(notOkValue))
+            expect(Tools.isFunction(value)).toStrictEqual(false)
     })
     // / endregion
     // / region language fixes
     test('mouseOutEventHandlerFix', ():void =>
-        assert.ok($.Tools.class.mouseOutEventHandlerFix(():void => {})))
+        expect(Tools.mouseOutEventHandlerFix(():void => {})).toBeTruthy()
+    )
     // / endregion
     // / region logging
-    test('log', ():void => assert.strictEqual(
-        tools.log('test'), tools))
+    test('log', ():void => expect(tools.log('test')).toStrictEqual(tools))
     test('info', ():void =>
-        assert.strictEqual(tools.info('test {0}'), tools))
-    test('debug', ():void =>
-        assert.strictEqual(tools.debug('test'), tools))
+        expect(tools.info('test {0}')).toStrictEqual(tools)
+    )
+    test('debug', ():void => expect(tools.debug('test')).toStrictEqual(tools))
     // NOTE: This test breaks javaScript modules in strict mode.
-    this.skip(`${testEnvironment}-error`, ():void => assert.strictEqual(
-        tools.error('ignore this error, it is only a {1}', 'test'), tools))
-    test('warn', ():void =>
-        assert.strictEqual(tools.warn('test'), tools))
+    test.skip(`${testEnvironment}-error`, ():void =>
+        expect(tools.error('ignore this error, it is only a {1}', 'test'))
+            .toStrictEqual(tools)
+    )
+    test('warn', ():void => expect(tools.warn('test')).toStrictEqual(tools))
     test('show', ():void => {
         for (const test:Array<any> of [
             [1, '1 (Type: "number")'],
@@ -308,17 +308,15 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['hans', 'hans (Type: "string")'],
             [{A: 'a', B: 'b'}, 'A: a (Type: "string")\nB: b (Type: "string")']
         ])
-            assert.strictEqual($.Tools.class.show(test[0]), test[1])
+            expect(Tools.show(test[0])).toStrictEqual(test[1])
         /* eslint-disable no-control-regex */
-        /* TODO
-        assert.ok(/^.+\(Type: "function"\)$/su.test(
-            $.Tools.class.show($.Tools.class.noop)
-        ))
+        expect(/^.+\(Type: "function"\)$/su.test(Tools.show(Tools.noop)))
+            .toStrictEqual(true)
         /* eslint-enable no-control-regex */
-    /*TODO
     })
     // / endregion
     // / region dom node handling
+    // TODO
     if (testEnvironment === 'full') {
         // region getter
         test(`get normalizedClassNames (${testEnvironment})`, (
@@ -347,6 +345,9 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             $('<div class="a b"><pre class="a b c"></pre></div>').prop(
                 'outerHTML'))
         })
+
+    }
+    /*
         test(`get normalizedStyles (${testEnvironment})`, (
             assert:Object
         ):void => {
@@ -461,7 +462,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 ],
                 ['a<br>', 'a<br />', true]
             ])
-                assert.ok($.Tools.class.isEquivalentDOM(...test))
+                assert.ok(Tools.isEquivalentDOM(...test))
             for (const test:Array<any> of [
                 ['test', ''],
                 ['test', 'hans'],
@@ -480,7 +481,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 ['text', 'text a'],
                 ['text', 'text a & +']
             ])
-                assert.notOk($.Tools.class.isEquivalentDOM(...test))
+                assert.notOk(Tools.isEquivalentDOM(...test))
         })
     }
     if (testEnvironment === 'full')
@@ -514,9 +515,8 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 '[x-mce-href], [mce\\:href], [mce_href]'
             ]
         ])
-            assert.strictEqual($.Tools.class.generateDirectiveSelector(
-                test[0]
-            ), test[1])
+            assert.strictEqual(
+                Tools.generateDirectiveSelector(test[0]), test[1])
     })
     if (testEnvironment === 'full')
         test('removeDirective', ():void => {
@@ -535,8 +535,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['data-a-bb', 'aBb'],
             ['x:a:b', 'aB']
         ])
-            assert.equal(
-                $.Tools.class.getNormalizedDirectiveName(test[0]), test[1])
+            assert.equal(Tools.getNormalizedDirectiveName(test[0]), test[1])
     })
     if (testEnvironment === 'full')
         test('getDirectiveValue', ():void =>
@@ -563,7 +562,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['<a />', 'a'],
             ['<a></a>', 'a']
         ])
-            assert.strictEqual($.Tools.class.getDomNodeName(test[0]), test[1])
+            assert.strictEqual(Tools.getDomNodeName(test[0]), test[1])
     })
     if (testEnvironment === 'full')
         test('grabDomNode', ():void => {
@@ -614,9 +613,9 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     // / endregion
     // / region scope
     test('isolateScope', ():void => {
-        assert.deepEqual($.Tools.class.isolateScope({}), {})
-        assert.deepEqual($.Tools.class.isolateScope({a: 2}), {a: 2})
-        assert.deepEqual($.Tools.class.isolateScope({
+        assert.deepEqual(Tools.isolateScope({}), {})
+        assert.deepEqual(Tools.isolateScope({a: 2}), {a: 2})
+        assert.deepEqual(Tools.isolateScope({
             a: 2, b: {a: [1, 2]}
         }), {a: 2, b: {a: [1, 2]}})
         let scope = function():void {
@@ -624,45 +623,37 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         }
         scope.prototype = {b: 2, _a: 5}
         scope = new scope()
-        assert.deepEqual($.Tools.class.isolateScope(scope, ['_']), {
+        assert.deepEqual(Tools.isolateScope(scope, ['_']), {
             _a: 5, a: 2, b: undefined
         })
         scope.b = 3
-        assert.deepEqual(
-            $.Tools.class.isolateScope(scope, ['_']), {_a: 5, a: 2, b: 3})
-        assert.deepEqual($.Tools.class.isolateScope(scope), {
+        assert.deepEqual(Tools.isolateScope(scope, ['_']), {_a: 5, a: 2, b: 3})
+        assert.deepEqual(Tools.isolateScope(scope), {
             _a: undefined, a: 2, b: 3})
         scope._a = 6
-        assert.deepEqual(
-            $.Tools.class.isolateScope(scope, ['_']), {_a: 6, a: 2, b: 3})
+        assert.deepEqual(Tools.isolateScope(scope, ['_']), {_a: 6, a: 2, b: 3})
         scope = function():void {
             this.a = 2
         }
         scope.prototype = {b: 3}
-        assert.deepEqual($.Tools.class.isolateScope(
-            new scope(), ['b']
-        ), {a: 2, b: 3})
-        assert.deepEqual($.Tools.class.isolateScope(new scope()), {
+        assert.deepEqual(Tools.isolateScope(new scope(), ['b']), {a: 2, b: 3})
+        assert.deepEqual(Tools.isolateScope(new scope()), {
             a: 2, b: undefined
         })
     })
     test('determineUniqueScopeName', (
         assert:Object
     ):void => {
-        assert.ok($.Tools.class.determineUniqueScopeName().startsWith(
-            'callback'))
-        assert.ok($.Tools.class.determineUniqueScopeName('hans').startsWith(
-            'hans'))
-        assert.ok($.Tools.class.determineUniqueScopeName(
-            'hans', '', {}
-        ).startsWith('hans'))
-        assert.strictEqual($.Tools.class.determineUniqueScopeName(
+        assert.ok(Tools.determineUniqueScopeName().startsWith('callback'))
+        assert.ok(Tools.determineUniqueScopeName('hans').startsWith('hans'))
+        assert.ok(Tools.determineUniqueScopeName('hans', '', {}).startsWith('hans'))
+        assert.strictEqual(Tools.determineUniqueScopeName(
             'hans', '', {}, 'peter'
         ), 'peter')
-        assert.ok($.Tools.class.determineUniqueScopeName(
+        assert.ok(Tools.determineUniqueScopeName(
             'hans', '', {peter: 2}, 'peter'
         ).startsWith('hans'))
-        const name:string = $.Tools.class.determineUniqueScopeName(
+        const name:string = Tools.determineUniqueScopeName(
             'hans', 'klaus', {peter: 2}, 'peter')
         assert.ok(name.startsWith('hans'))
         assert.ok(name.endsWith('klaus'))
@@ -687,7 +678,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 a() {}
             }`, ['a', 'b', 'c']]
         ])
-            assert.deepEqual($.Tools.class.getParameterNames(test[0]), test[1])
+            assert.deepEqual(Tools.getParameterNames(test[0]), test[1])
     })
     test('identity', ():void => {
         for (const test:Array<any> of [
@@ -697,37 +688,37 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [null, null],
             ['hans', 'hans']
         ])
-            assert.strictEqual($.Tools.class.identity(test[0]), test[1])
-        assert.ok($.Tools.class.identity({}) !== {})
+            assert.strictEqual(Tools.identity(test[0]), test[1])
+        assert.ok(Tools.identity({}) !== {})
         const testObject = {}
-        assert.strictEqual($.Tools.class.identity(testObject), testObject)
+        assert.strictEqual(Tools.identity(testObject), testObject)
     })
     test('invertArrayFilter', ():void => {
-        assert.deepEqual($.Tools.class.invertArrayFilter(
-            $.Tools.class.arrayDeleteEmptyItems
+        assert.deepEqual(Tools.invertArrayFilter(
+            Tools.arrayDeleteEmptyItems
         )([{a: null}]), [{a: null}])
-        assert.deepEqual($.Tools.class.invertArrayFilter(
-            $.Tools.class.arrayExtractIfMatches
+        assert.deepEqual(Tools.invertArrayFilter(
+            Tools.arrayExtractIfMatches
         )(['a', 'b'], '^a$'), ['b'])
     })
     test('timeout', async (
         assert:Object
     ):Promise<void> => {
         const done:Function = assert.async()
-        assert.notOk(await $.Tools.class.timeout())
-        assert.notOk(await $.Tools.class.timeout(0))
-        assert.notOk(await $.Tools.class.timeout(1))
-        assert.ok($.Tools.class.timeout() instanceof Promise)
-        assert.ok($.Tools.class.timeout().hasOwnProperty('clear'))
+        assert.notOk(await Tools.timeout())
+        assert.notOk(await Tools.timeout(0))
+        assert.notOk(await Tools.timeout(1))
+        assert.ok(Tools.timeout() instanceof Promise)
+        assert.ok(Tools.timeout().hasOwnProperty('clear'))
         let test:boolean = false
-        const result:Promise<boolean> = $.Tools.class.timeout(10 ** 20, true)
+        const result:Promise<boolean> = Tools.timeout(10 ** 20, true)
         result.catch(():void => {
             test = true
         })
         // IgnoreTypeCheck
         result.clear()
         let test2:boolean = false
-        assert.notOk(await $.Tools.class.timeout(():void => {
+        assert.notOk(await Tools.timeout(():void => {
             test2 = true
         }))
         assert.ok(test)
@@ -738,11 +729,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     // / region event
     test('debounce', ():void => {
         let testValue = false
-        $.Tools.class.debounce(():void => {
+        Tools.debounce(():void => {
             testValue = true
         })()
         assert.ok(testValue)
-        const callback:Function = $.Tools.class.debounce(():void => {
+        const callback:Function = Tools.debounce(():void => {
             testValue = !testValue
         }, 1000)
         callback()
@@ -786,45 +777,42 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     test('addDynamicGetterAndSetter', (
         assert:Object
     ):void => {
-        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(null), null)
-        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(true), true)
-        assert.deepEqual(
-            $.Tools.class.addDynamicGetterAndSetter({a: 2}), {a: 2})
-        assert.notOk($.Tools.class.addDynamicGetterAndSetter({
+        assert.strictEqual(Tools.addDynamicGetterAndSetter(null), null)
+        assert.strictEqual(Tools.addDynamicGetterAndSetter(true), true)
+        assert.deepEqual(Tools.addDynamicGetterAndSetter({a: 2}), {a: 2})
+        assert.notOk(Tools.addDynamicGetterAndSetter({
         }).__target__ instanceof Object)
-        assert.ok($.Tools.class.addDynamicGetterAndSetter({}, (
+        assert.ok(Tools.addDynamicGetterAndSetter({}, (
             value:any
         ):any => value).__target__ instanceof Object)
         const mockup = {}
-        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(
-            mockup
-        ), mockup)
-        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(
+        assert.strictEqual(Tools.addDynamicGetterAndSetter(mockup), mockup)
+        assert.strictEqual(Tools.addDynamicGetterAndSetter(
             mockup, (value:any):any => value
         ).__target__, mockup)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter({a: 1}, (
+        assert.deepEqual(Tools.addDynamicGetterAndSetter({a: 1}, (
             value:any
         ):any => value + 2).a, 3)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
+        assert.deepEqual(Tools.addDynamicGetterAndSetter(
             {a: {a: 1}}, (value:any):any => (
                 value instanceof Object
             ) ? value : value + 2).a.a, 3)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter({a: {a: [{
+        assert.deepEqual(Tools.addDynamicGetterAndSetter({a: {a: [{
             a: 1
         }]}}, (value:any):any => (
             value instanceof Object
         ) ? value : value + 2).a.a[0].a, 3)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
+        assert.deepEqual(Tools.addDynamicGetterAndSetter(
             {a: {a: 1}}, (value:any):any =>
                 (value instanceof Object) ? value : value + 2,
             null, {has: 'hasOwnProperty'}, false
         ).a.a, 1)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
+        assert.deepEqual(Tools.addDynamicGetterAndSetter(
             {a: 1}, (value:any):any =>
                 (value instanceof Object) ? value : value + 2,
             null, {has: 'hasOwnProperty'}, false, []
         ).a, 1)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
+        assert.deepEqual(Tools.addDynamicGetterAndSetter(
             {a: new Map([['a', 1]])}, (value:any):any =>
                 (value instanceof Object) ? value : value + 2,
             null, {delete: 'delete', get: 'get', set: 'set', has: 'has'}, true,
@@ -845,7 +833,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [testObject1, '{"a":{"a":"__circularReference__"}}']
         ])
             assert.deepEqual(
-                $.Tools.class.convertCircularObjectToJSON(test[0]), test[1])
+                Tools.convertCircularObjectToJSON(test[0]), test[1])
     })
     test('convertMapToPlainObject', (
         assert:Object
@@ -867,7 +855,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ]
         ])
             assert.deepEqual(
-                $.Tools.class.convertMapToPlainObject(...test[0]), test[1])
+                Tools.convertMapToPlainObject(...test[0]), test[1])
     })
     test('convertPlainObjectToMap', (
         assert:Object
@@ -897,7 +885,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ]
         ])
             assert.deepEqual(
-                $.Tools.class.convertPlainObjectToMap(...test[0]), test[1])
+                Tools.convertPlainObjectToMap(...test[0]), test[1])
     })
     test('convertSubstringInPlainObject', (
         assert:Object
@@ -909,7 +897,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [{a: 'aa'}, /a/g, 'b', {a: 'bb'}],
             [{a: {a: 'aa'}}, /a/g, 'b', {a: {a: 'bb'}}]
         ])
-            assert.deepEqual($.Tools.class.convertSubstringInPlainObject(
+            assert.deepEqual(Tools.convertSubstringInPlainObject(
                 test[0], test[1], test[2]
             ), test[3])
     })
@@ -986,10 +974,10 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 new Set(['a', new Set(['a', 2])])
             ]
         ])
-            assert.deepEqual($.Tools.class.copy(...test[0]), test[1])
+            assert.deepEqual(Tools.copy(...test[0]), test[1])
     })
     test('determineType', ():void => {
-        assert.strictEqual($.Tools.class.determineType(), 'undefined')
+        assert.strictEqual(Tools.determineType(), 'undefined')
         for (const test:Array<any> of [
             [undefined, 'undefined'],
             [{}.notDefined, 'undefined'],
@@ -1016,7 +1004,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [new Set(), 'set'],
             [/test/, 'regexp']
         ])
-            assert.strictEqual($.Tools.class.determineType(test[0]), test[1])
+            assert.strictEqual(Tools.determineType(test[0]), test[1])
     })
     test('equals', async ():Promise<void> => {
         const done:Function = assert.async()
@@ -1052,9 +1040,9 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ],
             [testFunction, testFunction]
         ])
-            assert.ok($.Tools.class.equals(...test))
+            assert.ok(Tools.equals(...test))
         if (TARGET_TECHNOLOGY === 'node')
-            assert.ok($.Tools.class.equals(
+            assert.ok(Tools.equals(
                 Buffer.from('a'), Buffer.from('a'),
                 null, -1, [], true, true))
         else {
@@ -1094,7 +1082,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                     }
                 ]
             ])
-                assert.ok(await $.Tools.class.equals(
+                assert.ok(await Tools.equals(
                     ...test, null, -1, [], true, true))
             for (const test:Array<any> of [
                 [
@@ -1132,7 +1120,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                     }
                 ]
             ])
-                assert.notOk(await $.Tools.class.equals(
+                assert.notOk(await Tools.equals(
                     ...test, null, -1, [], true, true))
         }
         for (const test:Array<any> of [
@@ -1156,9 +1144,9 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
             [():void => {}, ():void => {}, null, -1, [], false]
         ])
-            assert.notOk($.Tools.class.equals(...test))
+            assert.notOk(Tools.equals(...test))
         const test = ():void => {}
-        assert.ok($.Tools.class.equals(test, test, null, -1, [], false))
+        assert.ok(Tools.equals(test, test, null, -1, [], false))
         done()
     })
     test('evaluateDynamicDataStructure', (
@@ -1323,8 +1311,8 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
             }], {a: ['a', 'b', 'c'], b: {a: 1, b: 2, c: 3}}]
         ])
-            assert.deepEqual($.Tools.class.copy(
-                $.Tools.class.evaluateDynamicDataStructure(...test[0]), -1,
+            assert.deepEqual(Tools.copy(
+                Tools.evaluateDynamicDataStructure(...test[0]), -1,
                 true
             ), test[1])
     })
@@ -1405,11 +1393,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 new Map([['a', new Map([['a', [3, 4]]])]])
             ]
         ])
-            assert.deepEqual($.Tools.class.extend(...test[0]), test[1])
-        assert.strictEqual($.Tools.class.extend([1, 2], undefined), undefined)
-        assert.strictEqual($.Tools.class.extend([1, 2], null), null)
+            assert.deepEqual(Tools.extend(...test[0]), test[1])
+        assert.strictEqual(Tools.extend([1, 2], undefined), undefined)
+        assert.strictEqual(Tools.extend([1, 2], null), null)
         const target:Object = {a: [1, 2]}
-        $.Tools.class.extend(true, target, {a: [3, 4]})
+        Tools.extend(true, target, {a: [3, 4]})
         assert.deepEqual(target, {a: [3, 4]})
     })
     test('getSubstructure', ():void => {
@@ -1421,12 +1409,12 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[{a: {b: {c: 3}}}, ['a', 'b.c']], 3]
         ])
             assert.deepEqual(
-                $.Tools.class.getSubstructure(...test[0]), test[1])
+                Tools.getSubstructure(...test[0]), test[1])
     })
     test('getProxyHandler', ():void => {
-        assert.ok($.Tools.class.isPlainObject($.Tools.class.getProxyHandler(
+        assert.ok(Tools.isPlainObject(Tools.getProxyHandler(
             {})))
-        assert.ok($.Tools.class.isPlainObject($.Tools.class.getProxyHandler(
+        assert.ok(Tools.isPlainObject(Tools.getProxyHandler(
             new Map(), {get: 'get'})))
     })
     test('modifyObject', ():void => {
@@ -1474,12 +1462,12 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 {a: {__prepend__: 's', __remove__: [2, 2], __append__: 'a'}}
             ], {a: ['s', 1, 'a']}, {}]
         ]) {
-            assert.deepEqual($.Tools.class.modifyObject(...test[0]), test[1])
+            assert.deepEqual(Tools.modifyObject(...test[0]), test[1])
             assert.deepEqual(test[0][1], test[2])
         }
     })
     test('normalizeDateTime', ():void => {
-        assert.equal(typeof $.Tools.class.normalizeDateTime(), 'object')
+        assert.equal(typeof Tools.normalizeDateTime(), 'object')
         const now:Date = new Date()
         for (const test:Array<any> of [
             [now, now],
@@ -1493,8 +1481,8 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['abc', null],
             ['1+1+1970 08+30+00', null]
         ])
-            assert.ok($.Tools.class.equals(
-                $.Tools.class.normalizeDateTime(test[0], false),
+            assert.ok(Tools.equals(
+                Tools.normalizeDateTime(test[0], false),
                 test[1]
             ))
     })
@@ -1532,7 +1520,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ]
         ])
             assert.deepEqual(
-                $.Tools.class.removeKeys(test[0], test[1]), test[2])
+                Tools.removeKeys(test[0], test[1]), test[2])
     })
     test('represent', ():void => {
         for (const test:Array<any> of [
@@ -1556,7 +1544,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 }`.replace(/(\n) {16}/g, '$1')
             ]
         ])
-            assert.deepEqual($.Tools.class.represent(...test[0]), test[1])
+            assert.deepEqual(Tools.represent(...test[0]), test[1])
     })
     test('sort', ():void => {
         for (const test:Array<any> of [
@@ -1573,7 +1561,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [{c: 2, b: 5, a: 'a'}, ['a', 'b', 'c']],
             [{b: 2, c: 5, z: 'a'}, ['b', 'c', 'z']]
         ])
-            assert.deepEqual($.Tools.class.sort(test[0]), test[1])
+            assert.deepEqual(Tools.sort(test[0]), test[1])
     })
     test('unwrapProxy', ():void => {
         for (const test:Array<any> of [
@@ -1582,7 +1570,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [{a: 'aa'}, {a: 'aa'}],
             [{a: {__target__: 2, __revoke__: ():void => {}}}, {a: 2}]
         ])
-            assert.deepEqual($.Tools.class.unwrapProxy(test[0]), test[1])
+            assert.deepEqual(Tools.unwrapProxy(test[0]), test[1])
     })
     // / endregion
     // / region array
@@ -1595,7 +1583,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[[{a: 'b'}, {a: 'c'}], 'a'], ''],
             [[[{a: 'b'}, {a: 'c'}], 'a', false], false]
         ])
-            assert.strictEqual($.Tools.class.arrayAggregatePropertyIfEqual(
+            assert.strictEqual(Tools.arrayAggregatePropertyIfEqual(
                 ...test[0]
             ), test[1])
     })
@@ -1608,7 +1596,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[[]], []]
         ])
             assert.deepEqual(
-                $.Tools.class.arrayDeleteEmptyItems(...test[0]), test[1])
+                Tools.arrayDeleteEmptyItems(...test[0]), test[1])
     })
     test('arrayExtract', ():void => {
         for (const test:Array<any> of [
@@ -1619,7 +1607,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[[{a: 'b', c: 'd'}, {c: 3}], ['c']], [{c: 'd'}, {c: 3}]]
         ])
             assert.deepEqual(
-                $.Tools.class.arrayExtract(...test[0]), test[1])
+                Tools.arrayExtract(...test[0]), test[1])
     })
     test('arrayExtractIfMatches', ():void => {
         for (const test:Array<any> of [
@@ -1632,7 +1620,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [['a', 'b'], 'b', ['b']],
             [['a', 'b'], '[ab]', ['a', 'b']]
         ])
-            assert.deepEqual($.Tools.class.arrayExtractIfMatches(
+            assert.deepEqual(Tools.arrayExtractIfMatches(
                 test[0], test[1]
             ), test[2])
     })
@@ -1645,7 +1633,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[], 'b', []],
             [[{a: 2}, {b: 3}], 'a', [{a: 2}]]
         ])
-            assert.deepEqual($.Tools.class.arrayExtractIfPropertyExists(
+            assert.deepEqual(Tools.arrayExtractIfPropertyExists(
                 test[0], test[1]
             ), test[2])
     })
@@ -1664,7 +1652,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 [{mimeType: 'text/x-webm'}]
             ]
         ])
-            assert.deepEqual($.Tools.class.arrayExtractIfPropertyMatches(
+            assert.deepEqual(Tools.arrayExtractIfPropertyMatches(
                 test[0], test[1]
             ), test[2])
     })
@@ -1689,7 +1677,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[[{b: undefined}], [{}], ['b'], true], [{b: undefined}]],
             [[[{b: 1}], [{a: 1}], {b: 'a'}, true], [{b: 1}]]
         ])
-            assert.deepEqual($.Tools.class.arrayIntersect(...test[0]), test[1])
+            assert.deepEqual(Tools.arrayIntersect(...test[0]), test[1])
     })
     test('arrayMakeRange', ():void => {
         for (const test:Array<any> of [
@@ -1699,7 +1687,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[[2, 5]], [2, 3, 4, 5]],
             [[[2, 10], 2], [2, 4, 6, 8, 10]]
         ])
-            assert.deepEqual($.Tools.class.arrayMakeRange(...test[0]), test[1])
+            assert.deepEqual(Tools.arrayMakeRange(...test[0]), test[1])
     })
     test('arrayMerge', ():void => {
         for (const test:Array<any> of [
@@ -1710,7 +1698,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[1, 2, 3, 1], [1, 2, 3], [1, 2, 3, 1, 1, 2, 3]]
         ])
             assert.deepEqual(
-                $.Tools.class.arrayMerge(test[0], test[1]), test[2])
+                Tools.arrayMerge(test[0], test[1]), test[2])
     })
     test('arrayMake', ():void => {
         for (const test:Array<any> of [
@@ -1718,7 +1706,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[1, 2, 3], [1, 2, 3]],
             [1, [1]]
         ])
-            assert.deepEqual($.Tools.class.arrayMake(test[0]), test[1])
+            assert.deepEqual(Tools.arrayMake(test[0]), test[1])
     })
     test('arrayPermutate', ():void => {
         for (const test:Array<any> of [
@@ -1748,7 +1736,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 ]
             ]
         ])
-            assert.deepEqual($.Tools.class.arrayPermutate(test[0]), test[1])
+            assert.deepEqual(Tools.arrayPermutate(test[0]), test[1])
     })
     test('arrayPermutateLength', ():void => {
         for (const test:Array<any> of [
@@ -1781,7 +1769,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ]
         ])
             assert.deepEqual(
-                $.Tools.class.arrayPermutateLength(test[0]), test[1])
+                Tools.arrayPermutateLength(test[0]), test[1])
     })
     test('arrayUnique', ():void => {
         for (const test:Array<any> of [
@@ -1790,7 +1778,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[], []],
             [[1, 2, 3], [1, 2, 3]]
         ])
-            assert.deepEqual($.Tools.class.arrayUnique(test[0]), test[1])
+            assert.deepEqual(Tools.arrayUnique(test[0]), test[1])
     })
     test('arraySumUpProperty', ():void => {
         for (const test:Array<any> of [
@@ -1799,7 +1787,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[[{a: 2}, {b: 3}], 'c'], 0]
         ])
             assert.strictEqual(
-                $.Tools.class.arraySumUpProperty(...test[0]), test[1])
+                Tools.arraySumUpProperty(...test[0]), test[1])
     })
     test('arrayAppendAdd', ():void => {
         const testObject:Object = {}
@@ -1810,7 +1798,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[{b: [2]}, 2, 'b', false], {b: [2, 2]}],
             [[{b: [2]}, 2, 'b'], {b: [2]}]
         ])
-            assert.deepEqual($.Tools.class.arrayAppendAdd(...test[0]), test[1])
+            assert.deepEqual(Tools.arrayAppendAdd(...test[0]), test[1])
     })
     test('arrayRemove', ():void => {
         for (const test:Array<any> of [
@@ -1820,8 +1808,8 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[[1, 2], 2], [1]],
             [[[1, 2], 2, true], [1]]
         ])
-            assert.deepEqual($.Tools.class.arrayRemove(...test[0]), test[1])
-        assert.throws(():?Array<any> => $.Tools.class.arrayRemove(
+            assert.deepEqual(Tools.arrayRemove(...test[0]), test[1])
+        assert.throws(():?Array<any> => Tools.arrayRemove(
             [], 2, true
         ), new Error(`Given target doesn't exists in given list.`))
     })
@@ -1837,13 +1825,13 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [{b: ['a'], a: [], c: ['a', 'b']}, ['a', 'b', 'c']]
         ])
             assert.deepEqual(
-                $.Tools.class.arraySortTopological(test[0]), test[1])
+                Tools.arraySortTopological(test[0]), test[1])
         for (const test:any of [
             {a: 'a'},
             {a: 'b', b: 'a'},
             {a: 'b', b: 'c', c: 'a'}
         ])
-            assert.throws(():void => $.Tools.class.arraySortTopological(test))
+            assert.throws(():void => Tools.arraySortTopological(test))
     })
     // / endregion
     // / region string
@@ -1864,7 +1852,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [['-', '\\'], '\\-']
         ])
             assert.strictEqual(
-                $.Tools.class.stringEscapeRegularExpressions(...test[0]),
+                Tools.stringEscapeRegularExpressions(...test[0]),
                 test[1])
     })
     test('stringConvertToValidVariableName', ():void => {
@@ -1879,7 +1867,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['--a--a', 'aA']
         ])
             assert.strictEqual(
-                $.Tools.class.stringConvertToValidVariableName(
+                Tools.stringConvertToValidVariableName(
                     test[0]
                 ), test[1])
     })
@@ -1895,7 +1883,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [['+'], '%2B']
         ])
             assert.strictEqual(
-                $.Tools.class.stringEncodeURIComponent(...test[0]), test[1])
+                Tools.stringEncodeURIComponent(...test[0]), test[1])
     })
     test('stringAddSeparatorToPath', (
         assert:Object
@@ -1910,7 +1898,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [['/a/bb/', '|'], '/a/bb/|']
         ])
             assert.strictEqual(
-                $.Tools.class.stringAddSeparatorToPath(...test[0]), test[1])
+                Tools.stringAddSeparatorToPath(...test[0]), test[1])
     })
     test('stringHasPathPrefix', ():void => {
         for (const test:Array<any> of [
@@ -1921,14 +1909,14 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['a/', 'a/b'],
             ['/admin', '/admin#test', '#']
         ])
-            assert.ok($.Tools.class.stringHasPathPrefix(...test))
+            assert.ok(Tools.stringHasPathPrefix(...test))
         for (const test:Array<any> of [
             ['b', 'a/b'],
             ['b/', 'a/b'],
             ['/admin/', '/admin/test', '#'],
             ['/admin', '/admin/test', '#']
         ])
-            assert.notOk($.Tools.class.stringHasPathPrefix(...test))
+            assert.notOk(Tools.stringHasPathPrefix(...test))
     })
     test('stringGetDomainName', ():void => {
         for (const test:Array<any> of [
@@ -1964,7 +1952,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [['//alternate.local/'], 'alternate.local']
         ])
             assert.strictEqual(
-                $.Tools.class.stringGetDomainName(...test[0]), test[1])
+                Tools.stringGetDomainName(...test[0]), test[1])
     })
     test('stringGetPortNumber', ():void => {
         for (const test:Array<any> of [
@@ -1981,7 +1969,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [['https://localhost:89'], 89]
         ])
             assert.strictEqual(
-                $.Tools.class.stringGetPortNumber(...test[0]), test[1])
+                Tools.stringGetPortNumber(...test[0]), test[1])
     })
     test('stringGetProtocolName', ():void => {
         for (const test:Array<any> of [
@@ -2029,12 +2017,12 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ]
         ])
             assert.strictEqual(
-                $.Tools.class.stringGetProtocolName(...test[0]), test[1])
+                Tools.stringGetProtocolName(...test[0]), test[1])
     })
     test('stringGetURLVariable', ():void => {
-        assert.ok(Array.isArray($.Tools.class.stringGetURLVariable()))
-        assert.ok(Array.isArray($.Tools.class.stringGetURLVariable(null, '&')))
-        assert.ok(Array.isArray($.Tools.class.stringGetURLVariable(null, '#')))
+        assert.ok(Array.isArray(Tools.stringGetURLVariable()))
+        assert.ok(Array.isArray(Tools.stringGetURLVariable(null, '&')))
+        assert.ok(Array.isArray(Tools.stringGetURLVariable(null, '#')))
         for (const test:Array<any> of [
             [['notExisting'], null],
             [['notExisting', '&'], null],
@@ -2060,7 +2048,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [['test', '&', '$', '!', null, '#!test?test=3#$test=4'], '4']
         ])
             assert.strictEqual(
-                $.Tools.class.stringGetURLVariable(...test[0]), test[1])
+                Tools.stringGetURLVariable(...test[0]), test[1])
     })
     test('stringIsInternalURL', ():void => {
         for (const test:Array<any> of [
@@ -2091,7 +2079,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['#1', $.global.location.href],
             ['/a', $.global.location.href]
         ])
-            assert.ok($.Tools.class.stringIsInternalURL(...test))
+            assert.ok(Tools.stringIsInternalURL(...test))
         for (const test:Array<any> of [
             [
                 `${$.global.location.protocol}//www.test.de/site/subSite` +
@@ -2117,7 +2105,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 'https://www.test.de/site/subSite?param=value#hash'
             ]
         ])
-            assert.notOk($.Tools.class.stringIsInternalURL(...test))
+            assert.notOk(Tools.stringIsInternalURL(...test))
     })
     test('stringNormalizeURL', ():void => {
         for (const test:Array<any> of [
@@ -2127,7 +2115,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['https://test', 'https://test']
         ])
             assert.strictEqual(
-                $.Tools.class.stringNormalizeURL(test[0]), test[1])
+                Tools.stringNormalizeURL(test[0]), test[1])
     })
     test('stringRepresentURL', ():void => {
         for (const test:Array<any> of [
@@ -2142,7 +2130,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [' ', '']
         ])
             assert.strictEqual(
-                $.Tools.class.stringRepresentURL(test[0]), test[1])
+                Tools.stringRepresentURL(test[0]), test[1])
     })
     // // endregion
     test('stringCamelCaseToDelimited', (
@@ -2163,7 +2151,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [['hansPeter', '-', []], 'hans-peter']
         ])
             assert.strictEqual(
-                $.Tools.class.stringCamelCaseToDelimited(...test[0]), test[1])
+                Tools.stringCamelCaseToDelimited(...test[0]), test[1])
     })
     test('stringCapitalize', ():void => {
         for (const test:Array<any> of [
@@ -2176,7 +2164,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['aa', 'Aa']
         ])
             assert.strictEqual(
-                $.Tools.class.stringCapitalize(test[0]), test[1])
+                Tools.stringCapitalize(test[0]), test[1])
     })
     test('stringCompressStyleValue', (
         assert:Object
@@ -2193,7 +2181,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [';height: 1px ; width:2px ; ', 'height:1px;width:2px']
         ])
             assert.strictEqual(
-                $.Tools.class.stringCompressStyleValue(test[0]), test[1])
+                Tools.stringCompressStyleValue(test[0]), test[1])
     })
     test('stringDecodeHTMLEntities', (
         assert:Object
@@ -2208,7 +2196,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ]
         ])
             assert.equal(
-                $.Tools.class.stringDecodeHTMLEntities(test[0]), test[1])
+                Tools.stringDecodeHTMLEntities(test[0]), test[1])
     })
     test('stringDelimitedToCamelCase', (
         assert:Object
@@ -2236,7 +2224,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [['hans--Url', '-', [], false, true], 'hansUrl']
         ])
             assert.strictEqual(
-                $.Tools.class.stringDelimitedToCamelCase(...test[0]), test[1])
+                Tools.stringDelimitedToCamelCase(...test[0]), test[1])
     })
     test('stringFindNormalizedMatchRange', (
         assert:Object
@@ -2273,7 +2261,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 [2, 9]
             ]
         ])
-            assert.deepEqual($.Tools.class.stringFindNormalizedMatchRange(
+            assert.deepEqual(Tools.stringFindNormalizedMatchRange(
                 ...test[0]
             ), test[1])
     })
@@ -2285,7 +2273,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [['{1} test {2} - {2}', 1, 2], '1 test 2 - 2']
         ])
             assert.strictEqual(
-                $.Tools.class.stringFormat(...test[0]), test[1])
+                Tools.stringFormat(...test[0]), test[1])
     })
     test('stringGetEditDistance', ():void => {
         for (const test:Array<any> of [
@@ -2300,7 +2288,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['beer', 'hans', 4]
         ])
             assert.strictEqual(
-                $.Tools.class.stringGetEditDistance(test[0], test[1]), test[2])
+                Tools.stringGetEditDistance(test[0], test[1]), test[2])
     })
     test('stringGetRegularExpressionValidated', (
         assert:Object
@@ -2312,7 +2300,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['-', '\\-']
         ])
             assert.strictEqual(
-                $.Tools.class.stringGetRegularExpressionValidated(test[0]),
+                Tools.stringGetRegularExpressionValidated(test[0]),
                 test[1])
     })
     test('stringInterpretDateTime', (
@@ -2359,8 +2347,8 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['3. märz 1970', new Date(1970, 3 - 1, 3)],
             ['3. Dezember 1970', new Date(1970, 12 - 1, 3)]
         ])
-            assert.ok($.Tools.class.equals(
-                $.Tools.class.stringInterpretDateTime(test[0], false), test[1]
+            assert.ok(Tools.equals(
+                Tools.stringInterpretDateTime(test[0], false), test[1]
             ))
     })
     test('stringLowerCase', ():void => {
@@ -2373,7 +2361,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['Aa', 'aa'],
             ['aa', 'aa']
         ])
-            assert.strictEqual($.Tools.class.stringLowerCase(test[0]), test[1])
+            assert.strictEqual(Tools.stringLowerCase(test[0]), test[1])
     })
     test('stringMark', ():void => {
         for (const test:Array<any> of [
@@ -2456,7 +2444,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 '<a>str.</a>A <a>strasse</a> B <a>straße</a> C <a>str.</a> D'
             ]
         ])
-            assert.strictEqual($.Tools.class.stringMark(...test[0]), test[1])
+            assert.strictEqual(Tools.stringMark(...test[0]), test[1])
     })
     test(`stringMD5 (${testEnvironment})`, ():void => {
         for (const test:Array<any> of [
@@ -2466,7 +2454,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [['test', true], '098f6bcd4621d373cade4e832627b4f6'],
             [['ä', true], 'c15bcc5577f9fade4b4a3256190a59b0']
         ])
-            assert.strictEqual($.Tools.class.stringMD5(...test[0]), test[1])
+            assert.strictEqual(Tools.stringMD5(...test[0]), test[1])
     })
     test('stringNormalizePhoneNumber', (
         assert:Object
@@ -2479,7 +2467,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['+49 172 (0) / 0212 - 3', '0049172002123']
         ])
             assert.strictEqual(
-                $.Tools.class.stringNormalizePhoneNumber(test[0]), test[1])
+                Tools.stringNormalizePhoneNumber(test[0]), test[1])
         for (const test:Array<any> of [
             ['0', '0'],
             [' 0  ', '0'],
@@ -2514,7 +2502,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['03677842375', '03677842375']
         ])
             assert.strictEqual(
-                $.Tools.class.stringNormalizePhoneNumber(test[0], false),
+                Tools.stringNormalizePhoneNumber(test[0], false),
                 test[1]
             )
     })
@@ -2531,7 +2519,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [' 1B23A45 ', '12345']
         ])
             assert.strictEqual(
-                $.Tools.class.stringNormalizeZipCode(test[0]), test[1])
+                Tools.stringNormalizeZipCode(test[0]), test[1])
     })
     if (TARGET_TECHNOLOGY === 'node')
         test('stringParseEncodedObject', ():void => {
@@ -2558,7 +2546,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 ]
             ])
                 assert.deepEqual(
-                    $.Tools.class.stringParseEncodedObject(...test[0]), test[1]
+                    Tools.stringParseEncodedObject(...test[0]), test[1]
                 )
         })
     test('stringSliceAllExceptNumberAndLastSeperator', (
@@ -2570,7 +2558,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['123456', '123456']
         ])
             assert.strictEqual(
-                $.Tools.class.stringSliceAllExceptNumberAndLastSeperator(
+                Tools.stringSliceAllExceptNumberAndLastSeperator(
                     test[0]),
                 test[1]
             )
@@ -2591,7 +2579,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [' ', '']
         ])
             assert.strictEqual(
-                $.Tools.class.stringRepresentPhoneNumber(test[0]), test[1])
+                Tools.stringRepresentPhoneNumber(test[0]), test[1])
     })
     test('stringSliceWeekday', ():void => {
         for (const test:Array<string> of [
@@ -2605,7 +2593,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['Mo. ', 'Mo. ']
         ])
             assert.strictEqual(
-                $.Tools.class.stringSliceWeekday(test[0]), test[1]
+                Tools.stringSliceWeekday(test[0]), test[1]
             )
     })
     test('stringNormalizeDomNodeSelector', (
@@ -2641,7 +2629,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[new Date(0), false], 0]
         ])
             assert.strictEqual(
-                $.Tools.class.numberGetUTCTimestamp(...test[0]), test[1])
+                Tools.numberGetUTCTimestamp(...test[0]), test[1])
     })
     test('numberIsNotANumber', ():void => {
         for (const test:Array<any> of [
@@ -2655,7 +2643,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [0, false]
         ])
             assert.strictEqual(
-                $.Tools.class.numberIsNotANumber(test[0]), test[1])
+                Tools.numberIsNotANumber(test[0]), test[1])
     })
     test('numberRound', ():void => {
         for (const test:Array<any> of [
@@ -2674,7 +2662,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [[650, -2], 700],
             [[649, -2], 600]
         ])
-            assert.strictEqual($.Tools.class.numberRound(...test[0]), test[1])
+            assert.strictEqual(Tools.numberRound(...test[0]), test[1])
     })
     // / endregion
     // / region data transnfer
@@ -2688,7 +2676,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['http://unknownHostName', true, [200, 301], 0.025]
         ])
             try {
-                await $.Tools.class.checkReachability(...test)
+                await Tools.checkReachability(...test)
                 assert.ok(false)
             } catch (error) {
                 assert.ok(true)
@@ -2705,7 +2693,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['http://unknownHostName', true]
         ])
             try {
-                await $.Tools.class.checkUnreachability(...test)
+                await Tools.checkUnreachability(...test)
                 assert.ok(true)
             } catch (error) {
                 assert.ok(false)
@@ -2720,7 +2708,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         test('sendToIFrame', ():void => {
             const iFrame = $('<iframe>').hide().attr('name', 'test')
             $('body').append(iFrame)
-            assert.ok($.Tools.class.sendToIFrame(
+            assert.ok(Tools.sendToIFrame(
                 iFrame, window.document.URL, {test: 5}, 'get', true))
         })
         test('sendToExternalURL', (
@@ -2735,10 +2723,10 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             assert:Object
         ):Promise<void> => {
             const done:Function = assert.async()
-            assert.ok((await $.Tools.class.copyDirectoryRecursive(
+            assert.ok((await Tools.copyDirectoryRecursive(
                 './node_modules/.bin',
                 './copyDirectoryRecursiveTest.compiled',
-                $.Tools.class.noop
+                Tools.noop
             )).endsWith('/copyDirectoryRecursiveTest.compiled'))
             removeDirectoryRecursivelySync(
                 './copyDirectoryRecursiveTest.compiled')
@@ -2747,10 +2735,10 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         test('copyDirectoryRecursiveSync', (
             assert:Object
         ):void => {
-            assert.ok($.Tools.class.copyDirectoryRecursiveSync(
+            assert.ok(Tools.copyDirectoryRecursiveSync(
                 './node_modules/.bin',
                 './copyDirectoryRecursiveTestSync.compiled',
-                $.Tools.class.noop
+                Tools.noop
             ).endsWith('/copyDirectoryRecursiveTestSync.compiled'))
             removeDirectoryRecursivelySync(
                 './copyDirectoryRecursiveTestSync.compiled')
@@ -2761,7 +2749,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             const done:Function = assert.async()
             let result:string = ''
             try {
-                result = await $.Tools.class.copyFile(
+                result = await Tools.copyFile(
                     path.resolve('./', path.basename(__filename)),
                     `./test.${testEnvironment}.compiled.js`
                 )
@@ -2779,7 +2767,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             done()
         })
         test('copyFileSync', ():void => {
-            assert.ok($.Tools.class.copyFileSync(
+            assert.ok(Tools.copyFileSync(
                 path.resolve('./', path.basename(__filename)),
                 './synctest.compiled.js'
             ).endsWith('/synctest.compiled.js'))
@@ -2792,7 +2780,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             for (const filePath:string of ['./', '../']) {
                 let result:boolean
                 try {
-                    result = await $.Tools.class.isDirectory(filePath)
+                    result = await Tools.isDirectory(filePath)
                 } catch (error) {
                     console.error(error)
                 }
@@ -2803,7 +2791,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ]) {
                 let result:boolean
                 try {
-                    result = await $.Tools.class.isDirectory(filePath)
+                    result = await Tools.isDirectory(filePath)
                 } catch (error) {
                     console.error(error)
                 }
@@ -2813,11 +2801,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         })
         test('isDirectorySync', ():void => {
             for (const filePath:string of ['./', '../'])
-                assert.ok($.Tools.class.isDirectorySync(filePath))
+                assert.ok(Tools.isDirectorySync(filePath))
             for (const filePath:string of [
                 path.resolve('./', path.basename(__filename))
             ])
-                assert.notOk($.Tools.class.isDirectorySync(filePath))
+                assert.notOk(Tools.isDirectorySync(filePath))
         })
         test('isFile', async (
             assert:Object
@@ -2828,7 +2816,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ]) {
                 let result:boolean
                 try {
-                    result = await $.Tools.class.isFile(filePath)
+                    result = await Tools.isFile(filePath)
                 } catch (error) {
                     console.error(error)
                 }
@@ -2837,7 +2825,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             for (const filePath:string of ['./', '../']) {
                 let result:boolean
                 try {
-                    result = await $.Tools.class.isFile(filePath)
+                    result = await Tools.isFile(filePath)
                 } catch (error) {
                     console.error(error)
                 }
@@ -2849,9 +2837,9 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             for (const filePath:string of [
                 path.resolve('./', path.basename(__filename))
             ])
-                assert.ok($.Tools.class.isFileSync(filePath))
+                assert.ok(Tools.isFileSync(filePath))
             for (const filePath:string of ['./', '../'])
-                assert.notOk($.Tools.class.isFileSync(filePath))
+                assert.notOk(Tools.isFileSync(filePath))
         })
         test('walkDirectoryRecursively', async (
             assert:Object
@@ -2864,7 +2852,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             }
             let files:Array<File> = []
             try {
-                files = await $.Tools.class.walkDirectoryRecursively(
+                files = await Tools.walkDirectoryRecursively(
                     './', callback)
             } catch (error) {
                 console.error(error)
@@ -2884,7 +2872,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 return null
             }
             const files:Array<File> =
-                $.Tools.class.walkDirectoryRecursivelySync('./', callback)
+                Tools.walkDirectoryRecursivelySync('./', callback)
             assert.strictEqual(files.length, 1)
             assert.ok(files[0].hasOwnProperty('path'))
             assert.ok(files[0].hasOwnProperty('stats'))
@@ -2897,7 +2885,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         test('getProcessCloseHandler', (
             assert:Object
         ):void => assert.strictEqual(
-            typeof $.Tools.class.getProcessCloseHandler(
+            typeof Tools.getProcessCloseHandler(
                 ():void => {}, ():void => {}
             ), 'function'))
         test('handleChildProcess', (
@@ -2938,7 +2926,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             childProcess.stderr = stderrMockupDuplexStream
 
             assert.strictEqual(
-                $.Tools.class.handleChildProcess(childProcess), childProcess)
+                Tools.handleChildProcess(childProcess), childProcess)
         })
     }
     // / endregion
@@ -2958,6 +2946,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     // endregion
     */
 })
+// endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
