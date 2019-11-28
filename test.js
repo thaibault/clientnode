@@ -49,6 +49,7 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
         'node' :
         'node-with-dom'
 }
+const hasDOM:boolean = ['browser', 'node-with-dom'].includes(testEnvironment)
 // endregion
 // region semaphore
 describe(`clientNode.Semaphore (${testEnvironment})`, ():void => {
@@ -316,60 +317,76 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     })
     // / endregion
     // / region dom node handling
-    // TODO
-    if (testEnvironment === 'full') {
+    if (hasDOM) {
         // region getter
-        test(`get normalizedClassNames (${testEnvironment})`, (
-            assert:Object
-        ):void => {
-            assert.strictEqual($('<div>').Tools(
-                'normalizedClassNames'
-            ).$domNode.prop('outerHTML'), $('<div>').prop('outerHTML'))
-            assert.strictEqual($('<div class>').Tools(
-                'normalizedClassNames'
-            ).$domNode.html(), $('<div>').html())
-            assert.strictEqual($('<div class="">').Tools(
-                'normalizedClassNames'
-            ).$domNode.html(), $('<div>').html())
-            assert.strictEqual($('<div class="a">').Tools(
-                'normalizedClassNames'
-            ).$domNode.prop('outerHTML'), $('<div class="a">').prop(
-                'outerHTML'))
-            assert.strictEqual($('<div class="b a">').Tools(
-                'normalizedClassNames'
-            ).$domNode.prop('outerHTML'), $('<div class="a b">').prop(
-                'outerHTML'))
-            assert.strictEqual($(
-                '<div class="b a"><pre class="c b a"></pre></div>'
-            ).Tools('normalizedClassNames').$domNode.prop('outerHTML'),
-            $('<div class="a b"><pre class="a b c"></pre></div>').prop(
-                'outerHTML'))
+        test(`get normalizedClassNames (${testEnvironment})`, async (
+        ):Promise<void> => {
+            await getInitializedBrowser()
+            expect(
+                $('<div>')
+                    .Tools('normalizedClassNames')
+                    .$domNode.prop('outerHTML')
+            ).toStrictEqual($('<div>').prop('outerHTML'))
+            expect(
+                $('<div class>').Tools('normalizedClassNames').$domNode.html()
+            ).toStrictEqual($('<div>').html())
+            expect(
+                $('<div class="">')
+                    .Tools('normalizedClassNames')
+                    .$domNode
+                    .html()
+            ).toStrictEqual($('<div>').html())
+            expect(
+                $('<div class="a">')
+                    .Tools('normalizedClassNames')
+                    .$domNode
+                    .prop('outerHTML')
+            ).toStrictEqual($('<div class="a">').prop('outerHTML'))
+            expect(
+                $('<div class="b a">')
+                    .Tools('normalizedClassNames')
+                    .$domNode
+                    .prop('outerHTML')
+            ).toStrictEqual($('<div class="a b">').prop('outerHTML'))
+            expect(
+                $('<div class="b a"><pre class="c b a"></pre></div>')
+                    .Tools('normalizedClassNames')
+                    .$domNode
+                    .prop('outerHTML')
+            ).toStrictEqual(
+                $('<div class="a b"><pre class="a b c"></pre></div>')
+                    .prop('outerHTML')
+            )
         })
-
-    }
-    /*
         test(`get normalizedStyles (${testEnvironment})`, (
             assert:Object
         ):void => {
-            assert.strictEqual($('<div>').Tools(
-                'normalizedStyles'
-            ).$domNode.prop('outerHTML'), $('<div>').prop('outerHTML'))
-            assert.strictEqual($('<div style>').Tools(
-                'normalizedStyles'
-            ).$domNode.html(), $('<div>').html())
-            assert.strictEqual($('<div style="">').Tools(
-                'normalizedStyles'
-            ).$domNode.html(), $('<div>').html())
-            assert.strictEqual($(
-                '<div style="border: 1px solid  red ;">'
-            ).Tools('normalizedStyles').$domNode.prop('outerHTML'), $(
-                '<div style="border:1px solid red">'
-            ).prop('outerHTML'))
-            assert.strictEqual($(
-                '<div style="width: 50px;height: 100px;">'
-            ).Tools('normalizedStyles').$domNode.prop('outerHTML'), $(
-                '<div style="height:100px;width:50px">'
-            ).prop('outerHTML'))
+            expect(
+                $('<div>').Tools('normalizedStyles').$domNode.prop('outerHTML')
+            ).toStrictEqual($('<div>').prop('outerHTML'))
+            expect(
+                $('<div style>').Tools('normalizedStyles').$domNode.html()
+            ).toStrictEqual($('<div>').html())
+            expect(
+                $('<div style="">').Tools('normalizedStyles').$domNode.html()
+            ).toStrictEqual($('<div>').html())
+            expect(
+                $('<div style="border: 1px solid  red ;">')
+                    .Tools('normalizedStyles')
+                    .$domNode
+                    .prop('outerHTML')
+            ).toStrictEqual(
+                $('<div style="border:1px solid red">').prop('outerHTML')
+            )
+            expect(
+                $('<div style="width: 50px;height: 100px;">')
+                    .Tools('normalizedStyles')
+                    .$domNode
+                    .prop('outerHTML')
+            ).toStrictEqual(
+                $('<div style="height:100px;width:50px">').prop('outerHTML')
+            )
+    /*
             assert.strictEqual($(
                 '<div style=";width: 50px ; height:100px">'
             ).Tools('normalizedStyles').$domNode.prop('outerHTML'), $(
@@ -386,7 +403,10 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 '    <pre style="color:red;height:1px;width:2px"></pre>' +
                 '</div>'
             ).prop('outerHTML'))
+    */
         })
+    }
+    /*
         test(`get style (${testEnvironment})`, ():void => {
             for (const test:Array<any> of [
                 ['<span>', {}],
