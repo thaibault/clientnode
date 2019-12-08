@@ -358,9 +358,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                     .prop('outerHTML')
             )
         })
-        test(`get normalizedStyles (${testEnvironment})`, (
-            assert:Object
-        ):void => {
+        test(`get normalizedStyles (${testEnvironment})`, ():void => {
             expect(
                 $('<div>').Tools('normalizedStyles').$domNode.prop('outerHTML')
             ).toStrictEqual($('<div>').prop('outerHTML'))
@@ -386,44 +384,52 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ).toStrictEqual(
                 $('<div style="height:100px;width:50px">').prop('outerHTML')
             )
-    /*
-            assert.strictEqual($(
-                '<div style=";width: 50px ; height:100px">'
-            ).Tools('normalizedStyles').$domNode.prop('outerHTML'), $(
-                '<div style="height:100px;width:50px">'
-            ).prop('outerHTML'))
-            assert.strictEqual($(
-                '<div style="width:10px;height:50px">' +
-                '    <pre style=";;width:2px;height:1px; color: red; ">' +
-                    '</pre>' +
-                '</div>'
-            ).Tools('normalizedStyles').$domNode.prop('outerHTML'),
-            $(
-                '<div style="height:50px;width:10px">' +
-                '    <pre style="color:red;height:1px;width:2px"></pre>' +
-                '</div>'
-            ).prop('outerHTML'))
-    */
+            expect(
+                $('<div style=";width: 50px ; height:100px">')
+                    .Tools('normalizedStyles')
+                    .$domNode
+                    .prop('outerHTML'),
+            ).toStrictEqual(
+                $('<div style="height:100px;width:50px">').prop('outerHTML')
+            )
+            expect(
+                $(
+                    '<div style="width:10px;height:50px">' +
+                    '    <pre style=";;width:2px;height:1px; color: red; ">' +
+                        '</pre>' +
+                    '</div>'
+                )
+                    .Tools('normalizedStyles')
+                    .$domNode
+                    .prop('outerHTML')
+            ).toStrictEqual(
+                $(
+                    '<div style="height:50px;width:10px">' +
+                    '    <pre style="color:red;height:1px;width:2px"></pre>' +
+                    '</div>'
+                )
+                    .prop('outerHTML')
+            )
         })
-    }
-    /*
         test(`get style (${testEnvironment})`, ():void => {
             for (const test:Array<any> of [
                 ['<span>', {}],
                 ['<span>hans</span>', {}],
                 ['<span style="display:block"></span>', {display: 'block'}],
-                ['<span style="display:block;height:100px;"></span>', {
-                    display: 'block', height: '100px'
-                }]
+                [
+                    '<span style="display:block;height:100px;"></span>',
+                    {display: 'block', height: '100px'}
+                ]
             ]) {
                 const $domNode:$DomNode = $(test[0])
-                $bodyDomNode.append($domNode)
+                $('body').append($domNode)
                 const styles:PlainObject = $domNode.Tools('style')
                 for (const propertyName:string in test[1])
                     if (test[1].hasOwnProperty(propertyName)) {
-                        assert.ok(styles.hasOwnProperty(propertyName))
-                        assert.strictEqual(
-                            styles[propertyName], test[1][propertyName])
+                        expect(styles.hasOwnProperty(propertyName))
+                            .toStrictEqual(true)
+                        expect(styles[propertyName])
+                            .toStrictEqual(test[1][propertyName])
                     }
                 $domNode.remove()
             }
@@ -435,7 +441,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 ['<div><div>hans</div</div>', ''],
                 ['<div>hans<div>peter</div></div>', 'hans']
             ])
-                assert.strictEqual($(test[0]).Tools('text'), test[1])
+                expect($(test[0]).Tools('text')).toStrictEqual(test[1])
         })
         // endregion
         test('isEquivalentDOM', ():void => {
@@ -459,16 +465,19 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 ],
                 [
                     '<a target="_blank" class="a"><div b="3" a="2"></div></a>',
-                    '<a class="a" target="_blank"><div a="2" b="3">' +
-                    '</div></a>'
+                    '<a class="a" target="_blank"><div a="2" b="3"></div></a>'
                 ],
                 [
-                    '<a target="_blank" class="b a">' +
-                    '   <div b="3" a="2"></div>' +
-                    '</a>',
-                    '<a class="a b" target="_blank">' +
-                    '   <div a="2" b="3"></div>' +
-                    '</a>'
+                    `
+                        <a target="_blank" class="b a">
+                            <div b="3" a="2"></div>
+                        </a>
+                    `,
+                    `
+                        <a class="a b" target="_blank">
+                            <div a="2" b="3"></div>
+                        </a>
+                    `
                 ],
                 ['<div>a</div><div>b</div>', '<div>a</div><div>b</div>'],
                 ['<div>a</div>b', '<div>a</div>b'],
@@ -482,7 +491,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 ],
                 ['a<br>', 'a<br />', true]
             ])
-                assert.ok(Tools.isEquivalentDOM(...test))
+                expect(Tools.isEquivalentDOM(...test)).toStrictEqual(true)
             for (const test:Array<any> of [
                 ['test', ''],
                 ['test', 'hans'],
@@ -501,18 +510,14 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 ['text', 'text a'],
                 ['text', 'text a & +']
             ])
-                assert.notOk(Tools.isEquivalentDOM(...test))
+                expect(Tools.isEquivalentDOM(...test)).toStrictEqual(false)
         })
+        test('getPositionRelativeToViewport', ():void =>
+            expect(['above', 'left', 'right', 'below', 'in'])
+                .toContain(tools.getPositionRelativeToViewport())
+        )
     }
-    if (testEnvironment === 'full')
-        test('getPositionRelativeToViewport', (
-            assert:Object
-        ):void => assert.ok([
-            'above', 'left', 'right', 'below', 'in'
-        ].includes(tools.getPositionRelativeToViewport())))
-    test('generateDirectiveSelector', (
-        assert:Object
-    ):void => {
+    test('generateDirectiveSelector', ():void => {
         for (const test:Array<string> of [
             ['a-b', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
             ['aB', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
@@ -535,9 +540,10 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 '[x-mce-href], [mce\\:href], [mce_href]'
             ]
         ])
-            assert.strictEqual(
-                Tools.generateDirectiveSelector(test[0]), test[1])
+            expect(Tools.generateDirectiveSelector(test[0]))
+                .toStrictEqual(test[1])
     })
+    /* TODO
     if (testEnvironment === 'full')
         test('removeDirective', ():void => {
             const $localBodyDomNode = $bodyDomNode.Tools(
