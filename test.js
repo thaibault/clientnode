@@ -543,40 +543,40 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             expect(Tools.generateDirectiveSelector(test[0]))
                 .toStrictEqual(test[1])
     })
-    /* TODO
-    if (testEnvironment === 'full')
+    if (hasDOM)
         test('removeDirective', ():void => {
-            const $localBodyDomNode = $bodyDomNode.Tools(
-                'removeDirective', 'a')
-            assert.equal($localBodyDomNode.Tools().removeDirective(
-                'a'
-            ), $localBodyDomNode)
+            const $localBodyDomNode = $('body').Tools('removeDirective', 'a')
+            expect($localBodyDomNode.Tools().removeDirective('a'))
+                .toStrictEqual($localBodyDomNode)
         })
-    test('getNormalizedDirectiveName', (
-        assert:Object
-    ):void => {
+    test('getNormalizedDirectiveName', ():void => {
         for (const test:Array<string> of [
             ['data-a', 'a'],
             ['x-a', 'a'],
             ['data-a-bb', 'aBb'],
             ['x:a:b', 'aB']
         ])
-            assert.equal(Tools.getNormalizedDirectiveName(test[0]), test[1])
+            expect(Tools.getNormalizedDirectiveName(test[0]))
+                .toStrictEqual(test[1])
     })
-    if (testEnvironment === 'full')
+    if (hasDOM)
         test('getDirectiveValue', ():void =>
-            assert.equal($('body').Tools('getDirectiveValue', 'a'), null))
-    test('sliceDomNodeSelectorPrefix', (
-        assert:Object
-    ):void => {
-        assert.strictEqual(tools.sliceDomNodeSelectorPrefix('body div'), 'div')
-        assert.strictEqual($.Tools({
-            domNodeSelectorPrefix: 'body div'
-        }).sliceDomNodeSelectorPrefix('body div'), '')
-        assert.strictEqual($.Tools({
-            domNodeSelectorPrefix: ''
-        }).sliceDomNodeSelectorPrefix('body div'), 'body div')
+            expect($('body').Tools('getDirectiveValue', 'a'))
+                .toStrictEqual(null)
+        )
+    test('sliceDomNodeSelectorPrefix', ():void => {
+        expect(tools.sliceDomNodeSelectorPrefix('body div'))
+            .toStrictEqual('div')
+        expect(
+            $.Tools({domNodeSelectorPrefix: 'body div'})
+                .sliceDomNodeSelectorPrefix('body div')
+        ).toStrictEqual('')
+        expect(
+            $.Tools({domNodeSelectorPrefix: ''})
+                .sliceDomNodeSelectorPrefix('body div')
+        ).toStrictEqual('body div')
     })
+    /*
     test('getDomNodeName', ():void => {
         for (const test:Array<string> of [
             ['div', 'div'],
