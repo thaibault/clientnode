@@ -1327,7 +1327,7 @@ export class Tools {
         for (const name:string in scope)
             if (!(
                 prefixesToIgnore.includes(name.charAt(0)) ||
-                ['this', 'constructor'].includes(name) ||
+                ['constructor', 'prototype', 'this'].includes(name) ||
                 scope.hasOwnProperty(name)
             ))
                 /*

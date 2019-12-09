@@ -544,7 +544,8 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 .toStrictEqual(test[1])
     })
     if (hasDOM)
-        test('removeDirective', ():void => {
+        test('removeDirective', async ():Promise<void> => {
+            await getInitializedBrowser()
             const $localBodyDomNode = $('body').Tools('removeDirective', 'a')
             expect($localBodyDomNode.Tools().removeDirective('a'))
                 .toStrictEqual($localBodyDomNode)
@@ -560,10 +561,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 .toStrictEqual(test[1])
     })
     if (hasDOM)
-        test('getDirectiveValue', ():void =>
+        test('getDirectiveValue', async ():Promise<void> => {
+            await getInitializedBrowser()
             expect($('body').Tools('getDirectiveValue', 'a'))
                 .toStrictEqual(null)
-        )
+        })
     test('sliceDomNodeSelectorPrefix', ():void => {
         expect(tools.sliceDomNodeSelectorPrefix('body div'))
             .toStrictEqual('div')
@@ -576,7 +578,6 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 .sliceDomNodeSelectorPrefix('body div')
         ).toStrictEqual('body div')
     })
-    /*
     test('getDomNodeName', ():void => {
         for (const test:Array<string> of [
             ['div', 'div'],
@@ -588,74 +589,45 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['<a />', 'a'],
             ['<a></a>', 'a']
         ])
-            assert.strictEqual(Tools.getDomNodeName(test[0]), test[1])
+            expect(Tools.getDomNodeName(test[0])).toStrictEqual(test[1])
     })
-    if (testEnvironment === 'full')
-        test('grabDomNode', ():void => {
+    if (hasDOM)
+        test('grabDomNode', async ():Promise<void> => {
+            const browser:Browser = await getInitializedBrowser()
             for (const test:Array<any> of [
+                [[{a: 'div'}], {a: $('div'), parent: $('body')}],
                 [
-                    [{
-                        qunit: 'body div#qunit',
-                        qunitFixture: 'body div#qunit-fixture'
-                    }],
-                    {
-                        qunit: $('body div#qunit'),
-                        qunitFixture: $('body div#qunit-fixture'),
-                        parent: $('body')
-                    }
-                ],
-                [
-                    [{
-                        qunit: 'div#qunit',
-                        qunitFixture: 'div#qunit-fixture'
-                    }],
-                    {
-                        parent: $('body'),
-                        qunit: $('body div#qunit'),
-                        qunitFixture: $('body div#qunit-fixture')
-                    }
-                ],
-                [
-                    [
-                        {
-                            qunit: 'div#qunit',
-                            qunitFixture: 'div#qunit-fixture'
-                        },
-                        'body'
-                    ],
-                    {
-                        parent: $('body'),
-                        qunit: $('body').find('div#qunit'),
-                        qunitFixture: $('body').find('div#qunit-fixture')
-                    }
+                    [{a: 'script'}, 'body'],
+                    {a: $('body').find('script'), parent: $('body')}
                 ]
             ]) {
                 const $domNodes = tools.grabDomNode(...test[0])
                 delete $domNodes.window
                 delete $domNodes.document
-                assert.deepEqual($domNodes, test[1])
+                expect($domNodes).toEqual(test[1])
             }
         })
     // / endregion
     // / region scope
     test('isolateScope', ():void => {
-        assert.deepEqual(Tools.isolateScope({}), {})
-        assert.deepEqual(Tools.isolateScope({a: 2}), {a: 2})
-        assert.deepEqual(Tools.isolateScope({
-            a: 2, b: {a: [1, 2]}
-        }), {a: 2, b: {a: [1, 2]}})
+        expect(Tools.isolateScope({})).toEqual({})
+        expect(Tools.isolateScope({a: 2})).toEqual({a: 2})
+        expect(Tools.isolateScope({a: 2, b: {a: [1, 2]}}))
+            .toEqual({a: 2, b: {a: [1, 2]}})
         let scope = function():void {
             this.a = 2
         }
-        scope.prototype = {b: 2, _a: 5}
+        scope.prototype = {_a: 5, b: 2}
         scope = new scope()
-        assert.deepEqual(Tools.isolateScope(scope, ['_']), {
-            _a: 5, a: 2, b: undefined
-        })
+        console.log('TODO', Tools.isolateScope(scope, ['_']).prototype)
+        expect(Tools.equals(
+            Tools.isolateScope(scope, ['_']),
+            {_a: 5, a: 2, b: undefined}
+        )).toStrictEqual(true)
+        /* TODO
         scope.b = 3
-        assert.deepEqual(Tools.isolateScope(scope, ['_']), {_a: 5, a: 2, b: 3})
-        assert.deepEqual(Tools.isolateScope(scope), {
-            _a: undefined, a: 2, b: 3})
+        expect(Tools.isolateScope(scope, ['_'])).toEqual({_a: 5, a: 2, b: 3})
+        expect(Tools.isolateScope(scope)).toEqual({_a: undefined, a: 2, b: 3})
         scope._a = 6
         assert.deepEqual(Tools.isolateScope(scope, ['_']), {_a: 6, a: 2, b: 3})
         scope = function():void {
@@ -666,7 +638,9 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         assert.deepEqual(Tools.isolateScope(new scope()), {
             a: 2, b: undefined
         })
+        */
     })
+    /* TODO
     test('determineUniqueScopeName', (
         assert:Object
     ):void => {
