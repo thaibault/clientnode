@@ -202,42 +202,46 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     })
     // / endregion
     // / region boolean
-    test('isNumeric', ():void => {
-        for (const test:any of [
-            0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10
-        ])
-            expect(Tools.isNumeric(test)).toStrictEqual(true)
-        for (const test:any of [
-            null,
-            undefined,
-            false,
-            true,
-            '',
-            'a',
-            {},
-            /a/,
-            '-0x42',
-            '7.2acdgs',
-            NaN,
-            Infinity
-        ])
-            expect(Tools.isNumeric(test)).toStrictEqual(false)
-    })
+    test.each([0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10])(
+        '.isNumeric(%s) === true',
+        (value:any):void => expect(Tools.isNumeric(value)).toStrictEqual(true)
+    )
+    test.each([
+        null,
+        undefined,
+        false,
+        true,
+        '',
+        'a',
+        {},
+        /a/,
+        '-0x42',
+        '7.2acdgs',
+        NaN,
+        Infinity
+    ])(
+        '.isNumeric(%p) === false',
+        (value:any):void => expect(Tools.isNumeric(value)).toStrictEqual(false)
+    )
     test('isWindow', async ():Promise<void> => {
         const browser:Browser = await getInitializedBrowser()
         expect(Tools.isWindow(browser.window)).toStrictEqual(true)
-        for (const test:any of [null, {}, browser])
-            expect(Tools.isWindow(test)).toStrictEqual(false)
+        for (const value:any of [null, {}, browser])
+            expect(Tools.isWindow(value)).toStrictEqual(false)
     })
     test('isArrayLike', async ():Promise<void> => {
         const browser:Browser = await getInitializedBrowser()
-        for (const test:Array<any> of [
+        for (const value:Array<any> of [
             [], browser.window.document.querySelectorAll('*')
         ])
-            expect(Tools.isArrayLike(test)).toStrictEqual(true)
-        for (const test:any of [{}, null, undefined, false, true, /a/])
-            expect(Tools.isArrayLike(test)).toStrictEqual(false)
+            expect(Tools.isArrayLike(value)).toStrictEqual(true)
     })
+    test.each([{}, null, undefined, false, true, /a/])(
+        '.isArrayLike(%p) === false',
+        (value:any):void =>
+            expect(Tools.isArrayLike(value)).toStrictEqual(false)
+    )
+    // TODO migrate to each
     test('isAnyMatching', ():void => {
         for (const test:Array<any> of [
             ['', ['']],
@@ -614,31 +618,35 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         expect(Tools.isolateScope({a: 2})).toEqual({a: 2})
         expect(Tools.isolateScope({a: 2, b: {a: [1, 2]}}))
             .toEqual({a: 2, b: {a: [1, 2]}})
-        let scope = function():void {
+        let Scope:Function = function():void {
             this.a = 2
         }
-        scope.prototype = {_a: 5, b: 2}
-        scope = new scope()
-        console.log('TODO', Tools.isolateScope(scope, ['_']).prototype)
-        expect(Tools.equals(
-            Tools.isolateScope(scope, ['_']),
-            {_a: 5, a: 2, b: undefined}
-        )).toStrictEqual(true)
-        /* TODO
+        Scope.prototype = {_a: 5, b: 2}
+        let scope:Scope = new Scope()
+        Tools.isolateScope(scope, ['_'])
+        let finalScope:PlainObject = {}
+        for (const name:string in scope)
+            finalScope[name] = scope[name]
+        expect(finalScope).toEqual({_a: 5, a: 2, b: undefined})
         scope.b = 3
-        expect(Tools.isolateScope(scope, ['_'])).toEqual({_a: 5, a: 2, b: 3})
+        Tools.isolateScope(scope, ['_'])
+        finalScope = {}
+        for (const name:string in scope)
+            finalScope[name] = scope[name]
+        expect(finalScope).toEqual({_a: 5, a: 2, b: 3})
         expect(Tools.isolateScope(scope)).toEqual({_a: undefined, a: 2, b: 3})
         scope._a = 6
-        assert.deepEqual(Tools.isolateScope(scope, ['_']), {_a: 6, a: 2, b: 3})
-        scope = function():void {
+        expect(Tools.isolateScope(scope, ['_'])).toEqual({_a: 6, a: 2, b: 3})
+        Scope = function():void {
             this.a = 2
         }
-        scope.prototype = {b: 3}
-        assert.deepEqual(Tools.isolateScope(new scope(), ['b']), {a: 2, b: 3})
-        assert.deepEqual(Tools.isolateScope(new scope()), {
-            a: 2, b: undefined
-        })
-        */
+        Scope.prototype = {b: 3}
+        scope = Tools.isolateScope(new Scope(), ['b'])
+        finalScope = {}
+        for (const name:string in scope)
+            finalScope[name] = scope[name]
+        expect(finalScope).toEqual({a: 2, b: 3})
+        expect(Tools.isolateScope(new Scope())).toEqual({a: 2, b: undefined})
     })
     /* TODO
     test('determineUniqueScopeName', (
