@@ -241,24 +241,28 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         (value:any):void =>
             expect(Tools.isArrayLike(value)).toStrictEqual(false)
     )
+    test.each([
+        ['', ['']],
+        ['test', [/test/]],
+        ['test', [/a/, /b/, /es/]],
+        ['test', ['', 'test']]
+    ])(
+        `.isAnyMatching('%s', %p) === true`,
+        (target:string, pattern:Array<string|RegExp>):void =>
+            expect(Tools.isAnyMatching(target, pattern)).toStrictEqual(true)
+    )
+    test.each([
+        ['', []],
+        ['test', [/tes$/]],
+        ['test', [/^est/]],
+        ['test', [/^est$/]],
+        ['test', ['a']]
+    ])(
+        `.isAnyMatching('%s', %p) === false`,
+        (target:string, pattern:Array<string|RegExp>):void =>
+            expect(Tools.isAnyMatching(target, pattern)).toStrictEqual(false)
+    )
     // TODO migrate to each
-    test('isAnyMatching', ():void => {
-        for (const test:Array<any> of [
-            ['', ['']],
-            ['test', [/test/]],
-            ['test', [/a/, /b/, /es/]],
-            ['test', ['', 'test']]
-        ])
-            expect(Tools.isAnyMatching(...test)).toStrictEqual(true)
-        for (const test:Array<any> of [
-            ['', []],
-            ['test', [/tes$/]],
-            ['test', [/^est/]],
-            ['test', [/^est$/]],
-            ['test', ['a']]
-        ])
-            expect(Tools.isAnyMatching(...test)).toStrictEqual(false)
-    })
     test('isPlainObject', ():void => {
         for (const okValue:any of [
             {},
