@@ -4120,7 +4120,7 @@ export class Tools {
             const secondPattern:string = `(?<second>${minuteAndSecondPattern})`
             const minutePattern:string = `(?<minute>${minuteAndSecondPattern})`
             const hourPattern:string =
-                '(?<hour>(?:0?[0-9])|(?:1[0-9])|(?:2[1-4]))'
+                '(?<hour>(?:0?[0-9])|(?:1[0-9])|(?:2[0-4]))'
             const dayPattern:string =
                 '(?<day>(?:0?[1-9])|(?:[1-2][0-9])|(?:3[01]))'
             const monthPattern:string = '(?<month>(?:0?[1-9])|(?:1[0-2]))'
