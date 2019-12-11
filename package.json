@@ -90,7 +90,8 @@
     },
     "module": {
       "aliases": {
-        "clientnode$": "./index",
+        "#": "Ensure that dependent modules uses latest version.",
+        "clientnode$": "../../index",
         "jquery$": "jquery/dist/jquery.min"
       },
       "optimizer": {

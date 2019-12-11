@@ -15,35 +15,44 @@
     endregion
 */
 // region imports
-import Tools, {globalContext, Semaphore} from 'clientnode'
-import type {DomNode, File, PlainObject, $DomNode} from 'clientnode'
+import Tools, {globalContext, Semaphore, $} from './index'
+import type {DomNode, File, PlainObject, $DomNode} from './index'
 if (!('fetch' in globalContext))
     try {
         globalContext.fetch = eval('require')('node-fetch')
     } catch (error) {}
 try {
     /* eslint-disable no-var */
-    var ChildProcess:ChildProcess = eval('require')(
-        'child_process'
-    ).ChildProcess
+    var ChildProcess:ChildProcess =
+        eval('require')('child_process').ChildProcess
     /* eslint-enable no-var */
 } catch (error) {}
-import type {BrowserAPI} from 'weboptimizer/type'
+import {getInitializedBrowser} from 'weboptimizer/browser'
+import type {Browser} from 'weboptimizer/type'
 // endregion
 // region declaration
+declare function describe(description:string, test:Function):void
+declare function expect(subject:any):any
+declare function test(description:string, test:Function):Promise<void>|void
 declare var TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
-let synchronousFileSystem:Object
 let path:Object
 let removeDirectoryRecursivelySync:Function
+let synchronousFileSystem:Object
+let testEnvironment:string = 'browser'
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     path = require('path')
     removeDirectoryRecursivelySync = require('rimraf').sync
     synchronousFileSystem = require('fs')
+    testEnvironment = typeof document === 'undefined' ?
+        'node' :
+        'node-with-dom'
 }
+const hasDOM:boolean = ['browser', 'node-with-dom'].includes(testEnvironment)
 // endregion
-describe('clientNode.Semaphore', ():void => {
+// region semaphore
+describe(`clientNode.Semaphore (${testEnvironment})`, ():void => {
     test('constructor', ():void => {
         expect(new Semaphore()).toHaveProperty('numberOfResources', 2)
         expect(new Semaphore()).toHaveProperty(
@@ -58,218 +67,249 @@ describe('clientNode.Semaphore', ():void => {
         expect(semaphore.numberOfFreeResources).toStrictEqual(2)
     })
 })
-describe('clientNode.Tools', ():void => {
+// endregion
+// region tools
+describe(`clientNode.Tools (${testEnvironment})`, ():void => {
+    const tools:Tools = new Tools()
     // region public methods
     // / region special
     test('constructor', ():void => {
         expect(Tools).toHaveProperty('abbreviations')
         expect(new Tools()).toHaveProperty('_options')
     })
-    /*
-    this.test(`destructor (${roundType})`, (assert:Object):void =>
-        assert.strictEqual(tools.destructor(), tools))
-    this.test(`initialize (${roundType})`, (assert:Object):void => {
-        const secondToolsInstance = $.Tools({logging: true})
-        const thirdToolsInstance = $.Tools({
+    test('destructor', ():void => {
+        expect(tools.destructor()).toStrictEqual(tools)
+    })
+    test('initialize', ():void => {
+        const secondToolsInstance:Tools = $.Tools({logging: true})
+        const thirdToolsInstance:Tools = $.Tools({
             domNodeSelectorPrefix: 'body.{1} div.{1}'})
 
-        assert.notOk(tools._options.logging)
-        assert.ok(secondToolsInstance._options.logging)
-        assert.strictEqual(
-            thirdToolsInstance._options.domNodeSelectorPrefix,
-            'body.tools div.tools')
+        expect(tools._options).not.toHaveProperty('logging')
+        expect(secondToolsInstance._options).toHaveProperty('logging', true)
+        expect(thirdToolsInstance._options.domNodeSelectorPrefix)
+            .toStrictEqual('body.tools div.tools')
     })
     // / endregion
     // / region  object orientation
-    this.test(`controller (${roundType})`, (assert:Object):void => {
-        assert.strictEqual(tools.controller(tools, []), tools)
-        assert.strictEqual(tools.controller($.Tools.class, [], $(
-            'body'
-        )).constructor.name, $.Tools.class.name)
+    test('controller', ():void => {
+        expect(tools.controller(tools, [])).toStrictEqual(tools)
+        expect(tools.controller($.Tools.class, [], $('body')).constructor.name)
+            .toStrictEqual(Tools.name)
+        expect(tools.controller(Tools, [], $('body')).constructor.name)
+            .toStrictEqual(Tools.name)
     })
     // / endregion
     // / region mutual exclusion
-    this.test(`acquireLock|releaseLock (${roundType})`, async (
-        assert:Object
+    test(`acquireLock|releaseLock (${testEnvironment})`, async (
+        done:Function
     ):Promise<void> => {
-        const done:Function = assert.async()
         let testValue:boolean = false
         await tools.acquireLock('test', ():void => {
             testValue = true
         })
-        assert.ok(testValue)
-        assert.ok(tools.acquireLock('test', ():void => {
-            testValue = false
-        }) instanceof Promise)
-        assert.ok(testValue)
-        assert.ok($.Tools().releaseLock('test') instanceof Promise)
-        assert.ok(testValue)
-        assert.ok(tools.releaseLock('test') instanceof Promise)
-        assert.notOk(testValue)
-        assert.ok(tools.releaseLock('test') instanceof Promise)
-        assert.notOk(testValue)
+        expect(testValue).toStrictEqual(true)
+        expect(tools.acquireLock(
+            'test',
+            ():void => {
+                testValue = false
+            }
+        )).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual(true)
+        expect($.Tools().releaseLock('test')).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual(true)
+        expect(tools.releaseLock('test')).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual(false)
+        expect(tools.releaseLock('test')).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual(false)
         await tools.acquireLock('test', ():void => {
             testValue = true
         })
-        assert.ok(testValue)
-        assert.ok(tools.acquireLock('test', ():void => {
-            testValue = false
-        }) instanceof Promise)
-        assert.ok(testValue)
-        assert.ok(tools.acquireLock('test', ():void => {
-            testValue = true
-        }) instanceof Promise)
-        assert.ok(testValue)
+        expect(testValue).toStrictEqual(true)
+        expect(tools.acquireLock(
+            'test',
+            ():void => {
+                testValue = false
+            }
+        )).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual(true)
+        expect(tools.acquireLock(
+            'test',
+            ():void => {
+                testValue = true
+            }
+        )).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual(true)
         tools.releaseLock('test')
-        assert.notOk(testValue)
+        expect(testValue).toStrictEqual(false)
         tools.releaseLock('test')
-        assert.ok(testValue)
+        expect(testValue).toStrictEqual(true)
         tools.acquireLock('test').then(async (result:string):Promise<void> => {
-            assert.strictEqual(result, 'test')
-            $.Tools.class.timeout(():tools.constructor => tools.releaseLock(
-                'test'))
+            expect(result).toStrictEqual('test')
+            Tools.timeout(():tools.constructor =>
+                tools.releaseLock('test')
+            )
             result = await tools.acquireLock('test')
-            assert.strictEqual(result, 'test')
-            $.Tools.class.timeout(():tools.constructor => tools.releaseLock(
-                'test'))
+            expect(result).toStrictEqual('test')
+            Tools.timeout(():tools.constructor =>
+                tools.releaseLock('test')
+            )
             result = await tools.acquireLock('test', ():Promise<boolean> => {
                 return new Promise(async (resolve:Function):Promise<void> => {
-                    await $.Tools.class.timeout()
+                    await Tools.timeout()
                     testValue = false
                     resolve(testValue)
                 })
             })
-            assert.notOk(testValue)
+            expect(testValue).toStrictEqual(false)
             done()
         })
         tools.releaseLock('test')
     })
-    this.test(`getSemaphore (${roundType})`, async (
-        assert:Object
-    ):Promise<void> => {
-        const semaphore:Object = $.Tools.class.getSemaphore(2)
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 2)
-        assert.strictEqual(semaphore.numberOfResources, 2)
+    test('getSemaphore', async ():Promise<void> => {
+        const semaphore:Object = Tools.getSemaphore(2)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(2)
+        expect(semaphore.numberOfResources).toStrictEqual(2)
         await semaphore.acquire()
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 1)
-        assert.strictEqual(semaphore.numberOfResources, 2)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(1)
+        expect(semaphore.numberOfResources).toStrictEqual(2)
         await semaphore.acquire()
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 0)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
         semaphore.acquire()
-        assert.strictEqual(semaphore.queue.length, 1)
-        assert.strictEqual(semaphore.numberOfFreeResources, 0)
+        expect(semaphore.queue.length).toStrictEqual(1)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
         semaphore.acquire()
-        assert.strictEqual(semaphore.queue.length, 2)
-        assert.strictEqual(semaphore.numberOfFreeResources, 0)
+        expect(semaphore.queue.length).toStrictEqual(2)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
         semaphore.release()
-        assert.strictEqual(semaphore.queue.length, 1)
-        assert.strictEqual(semaphore.numberOfFreeResources, 0)
+        expect(semaphore.queue.length).toStrictEqual(1)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
         semaphore.release()
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 0)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
         semaphore.release()
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 1)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(1)
         semaphore.release()
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 2)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(2)
         semaphore.release()
-        assert.strictEqual(semaphore.queue.length, 0)
-        assert.strictEqual(semaphore.numberOfFreeResources, 3)
+        expect(semaphore.queue.length).toStrictEqual(0)
+        expect(semaphore.numberOfFreeResources).toStrictEqual(3)
     })
     // / endregion
     // / region boolean
-    this.test(`isNumeric (${roundType})`, (assert:Object):void => {
-        for (const test:any of [
-            0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10
-        ])
-            assert.ok($.Tools.class.isNumeric(test))
-        for (const test:any of [
-            null, undefined, false, true, '', 'a', {}, /a/, '-0x42',
-            '7.2acdgs', NaN, Infinity
-        ])
-            assert.notOk($.Tools.class.isNumeric(test))
+    test.each([0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10])(
+        '.isNumeric(%s) === true',
+        (value:any):void => expect(Tools.isNumeric(value)).toStrictEqual(true)
+    )
+    test.each([
+        null,
+        undefined,
+        false,
+        true,
+        '',
+        'a',
+        {},
+        /a/,
+        '-0x42',
+        '7.2acdgs',
+        NaN,
+        Infinity
+    ])(
+        '.isNumeric(%p) === false',
+        (value:any):void => expect(Tools.isNumeric(value)).toStrictEqual(false)
+    )
+    test('isWindow', async ():Promise<void> => {
+        const browser:Browser = await getInitializedBrowser()
+        expect(Tools.isWindow(browser.window)).toStrictEqual(true)
+        for (const value:any of [null, {}, browser])
+            expect(Tools.isWindow(value)).toStrictEqual(false)
     })
-    this.test(`isWindow (${roundType})`, (assert:Object):void => {
-        assert.ok($.Tools.class.isWindow(browser.window))
-        for (const test:any of [null, {}, browser])
-            assert.notOk($.Tools.class.isWindow(test))
-    })
-    this.test(`isArrayLike (${roundType})`, (assert:Object):void => {
-        for (const test:Array<any> of [
-            [], window.document.querySelectorAll('*')
+    test('isArrayLike', async ():Promise<void> => {
+        const browser:Browser = await getInitializedBrowser()
+        for (const value:Array<any> of [
+            [], browser.window.document.querySelectorAll('*')
         ])
-            assert.ok($.Tools.class.isArrayLike(test))
-        for (const test:any of [{}, null, undefined, false, true, /a/])
-            assert.notOk($.Tools.class.isArrayLike(test))
+            expect(Tools.isArrayLike(value)).toStrictEqual(true)
     })
-    this.test(`isAnyMatching (${roundType})`, (assert:Object):void => {
-        for (const test:Array<any> of [
-            ['', ['']],
-            ['test', [/test/]],
-            ['test', [/a/, /b/, /es/]],
-            ['test', ['', 'test']]
-        ])
-            assert.ok($.Tools.class.isAnyMatching(...test))
-        for (const test:Array<any> of [
-            ['', []],
-            ['test', [/tes$/]],
-            ['test', [/^est/]],
-            ['test', [/^est$/]],
-            ['test', ['a']]
-        ])
-            assert.notOk($.Tools.class.isAnyMatching(...test))
-    })
-    this.test(`isPlainObject (${roundType})`, (assert:Object):void => {
+    test.each([{}, null, undefined, false, true, /a/])(
+        '.isArrayLike(%p) === false',
+        (value:any):void =>
+            expect(Tools.isArrayLike(value)).toStrictEqual(false)
+    )
+    test.each([
+        ['', ['']],
+        ['test', [/test/]],
+        ['test', [/a/, /b/, /es/]],
+        ['test', ['', 'test']]
+    ])(
+        `.isAnyMatching('%s', %p) === true`,
+        (target:string, pattern:Array<string|RegExp>):void =>
+            expect(Tools.isAnyMatching(target, pattern)).toStrictEqual(true)
+    )
+    test.each([
+        ['', []],
+        ['test', [/tes$/]],
+        ['test', [/^est/]],
+        ['test', [/^est$/]],
+        ['test', ['a']]
+    ])(
+        `.isAnyMatching('%s', %p) === false`,
+        (target:string, pattern:Array<string|RegExp>):void =>
+            expect(Tools.isAnyMatching(target, pattern)).toStrictEqual(false)
+    )
+    // TODO migrate to each
+    test('isPlainObject', ():void => {
         for (const okValue:any of [
             {},
             {a: 1},
             /* eslint-disable no-new-object */
-            // TODO new Object()
+            new Object()
             /* eslint-enable no-new-object */
-    /*
         ])
-            assert.ok($.Tools.class.isPlainObject(okValue))
+            expect(Tools.isPlainObject(okValue)).toStrictEqual(true)
         for (const notOkValue:any of [
             new String(), Object, null, 0, 1, true, undefined
         ])
-            assert.notOk($.Tools.class.isPlainObject(notOkValue))
+            expect(Tools.isPlainObject(notOkValue)).toStrictEqual(false)
     })
-    this.test(`isFunction (${roundType})`, (assert:Object):void => {
-        for (const okValue:any of [
+    test('isFunction', ():void => {
+        for (const value:any of [
             Object,
             new Function('return 1'),
             function():void {},
             ():void => {},
             async ():Promise<void> => {}
         ])
-            assert.ok($.Tools.class.isFunction(okValue))
-        for (const notOkValue:any of [
+            expect(Tools.isFunction(value)).toStrictEqual(true)
+        for (const value:any of [
             null, false, 0, 1, undefined, {}, new Boolean()
         ])
-            assert.notOk($.Tools.class.isFunction(notOkValue))
+            expect(Tools.isFunction(value)).toStrictEqual(false)
     })
     // / endregion
     // / region language fixes
-    this.test(`mouseOutEventHandlerFix (${roundType})`, (assert:Object):void =>
-        assert.ok($.Tools.class.mouseOutEventHandlerFix(():void => {})))
+    test('mouseOutEventHandlerFix', ():void =>
+        expect(Tools.mouseOutEventHandlerFix(():void => {})).toBeTruthy()
+    )
     // / endregion
     // / region logging
-    this.test(`log (${roundType})`, (assert:Object):void => assert.strictEqual(
-        tools.log('test'), tools))
-    this.test(`info (${roundType})`, (assert:Object):void =>
-        assert.strictEqual(tools.info('test {0}'), tools))
-    this.test(`debug (${roundType})`, (assert:Object):void =>
-        assert.strictEqual(tools.debug('test'), tools))
+    test('log', ():void => expect(tools.log('test')).toStrictEqual(tools))
+    test('info', ():void =>
+        expect(tools.info('test {0}')).toStrictEqual(tools)
+    )
+    test('debug', ():void => expect(tools.debug('test')).toStrictEqual(tools))
     // NOTE: This test breaks javaScript modules in strict mode.
-    this.skip(`${roundType}-error`, (assert:Object):void => assert.strictEqual(
-        tools.error('ignore this error, it is only a {1}', 'test'), tools))
-    this.test(`warn (${roundType})`, (assert:Object):void =>
-        assert.strictEqual(tools.warn('test'), tools))
-    this.test(`show (${roundType})`, (assert:Object):void => {
+    test.skip(`${testEnvironment}-error`, ():void =>
+        expect(tools.error('ignore this error, it is only a {1}', 'test'))
+            .toStrictEqual(tools)
+    )
+    test('warn', ():void => expect(tools.warn('test')).toStrictEqual(tools))
+    test('show', ():void => {
         for (const test:Array<any> of [
             [1, '1 (Type: "number")'],
             [null, 'null (Type: "null")'],
@@ -277,116 +317,142 @@ describe('clientNode.Tools', ():void => {
             ['hans', 'hans (Type: "string")'],
             [{A: 'a', B: 'b'}, 'A: a (Type: "string")\nB: b (Type: "string")']
         ])
-            assert.strictEqual($.Tools.class.show(test[0]), test[1])
+            expect(Tools.show(test[0])).toStrictEqual(test[1])
         /* eslint-disable no-control-regex */
-        /* TODO
-        assert.ok(/^.+\(Type: "function"\)$/su.test(
-            $.Tools.class.show($.Tools.class.noop)
-        ))
+        expect(/^.+\(Type: "function"\)$/su.test(Tools.show(Tools.noop)))
+            .toStrictEqual(true)
         /* eslint-enable no-control-regex */
-    /*TODO
     })
     // / endregion
     // / region dom node handling
-    if (roundType === 'full') {
+    if (hasDOM) {
         // region getter
-        this.test(`get normalizedClassNames (${roundType})`, (
-            assert:Object
-        ):void => {
-            assert.strictEqual($('<div>').Tools(
-                'normalizedClassNames'
-            ).$domNode.prop('outerHTML'), $('<div>').prop('outerHTML'))
-            assert.strictEqual($('<div class>').Tools(
-                'normalizedClassNames'
-            ).$domNode.html(), $('<div>').html())
-            assert.strictEqual($('<div class="">').Tools(
-                'normalizedClassNames'
-            ).$domNode.html(), $('<div>').html())
-            assert.strictEqual($('<div class="a">').Tools(
-                'normalizedClassNames'
-            ).$domNode.prop('outerHTML'), $('<div class="a">').prop(
-                'outerHTML'))
-            assert.strictEqual($('<div class="b a">').Tools(
-                'normalizedClassNames'
-            ).$domNode.prop('outerHTML'), $('<div class="a b">').prop(
-                'outerHTML'))
-            assert.strictEqual($(
-                '<div class="b a"><pre class="c b a"></pre></div>'
-            ).Tools('normalizedClassNames').$domNode.prop('outerHTML'),
-            $('<div class="a b"><pre class="a b c"></pre></div>').prop(
-                'outerHTML'))
+        test(`get normalizedClassNames (${testEnvironment})`, async (
+        ):Promise<void> => {
+            await getInitializedBrowser()
+            expect(
+                $('<div>')
+                    .Tools('normalizedClassNames')
+                    .$domNode.prop('outerHTML')
+            ).toStrictEqual($('<div>').prop('outerHTML'))
+            expect(
+                $('<div class>').Tools('normalizedClassNames').$domNode.html()
+            ).toStrictEqual($('<div>').html())
+            expect(
+                $('<div class="">')
+                    .Tools('normalizedClassNames')
+                    .$domNode
+                    .html()
+            ).toStrictEqual($('<div>').html())
+            expect(
+                $('<div class="a">')
+                    .Tools('normalizedClassNames')
+                    .$domNode
+                    .prop('outerHTML')
+            ).toStrictEqual($('<div class="a">').prop('outerHTML'))
+            expect(
+                $('<div class="b a">')
+                    .Tools('normalizedClassNames')
+                    .$domNode
+                    .prop('outerHTML')
+            ).toStrictEqual($('<div class="a b">').prop('outerHTML'))
+            expect(
+                $('<div class="b a"><pre class="c b a"></pre></div>')
+                    .Tools('normalizedClassNames')
+                    .$domNode
+                    .prop('outerHTML')
+            ).toStrictEqual(
+                $('<div class="a b"><pre class="a b c"></pre></div>')
+                    .prop('outerHTML')
+            )
         })
-        this.test(`get normalizedStyles (${roundType})`, (
-            assert:Object
-        ):void => {
-            assert.strictEqual($('<div>').Tools(
-                'normalizedStyles'
-            ).$domNode.prop('outerHTML'), $('<div>').prop('outerHTML'))
-            assert.strictEqual($('<div style>').Tools(
-                'normalizedStyles'
-            ).$domNode.html(), $('<div>').html())
-            assert.strictEqual($('<div style="">').Tools(
-                'normalizedStyles'
-            ).$domNode.html(), $('<div>').html())
-            assert.strictEqual($(
-                '<div style="border: 1px solid  red ;">'
-            ).Tools('normalizedStyles').$domNode.prop('outerHTML'), $(
-                '<div style="border:1px solid red">'
-            ).prop('outerHTML'))
-            assert.strictEqual($(
-                '<div style="width: 50px;height: 100px;">'
-            ).Tools('normalizedStyles').$domNode.prop('outerHTML'), $(
-                '<div style="height:100px;width:50px">'
-            ).prop('outerHTML'))
-            assert.strictEqual($(
-                '<div style=";width: 50px ; height:100px">'
-            ).Tools('normalizedStyles').$domNode.prop('outerHTML'), $(
-                '<div style="height:100px;width:50px">'
-            ).prop('outerHTML'))
-            assert.strictEqual($(
-                '<div style="width:10px;height:50px">' +
-                '    <pre style=";;width:2px;height:1px; color: red; ">' +
-                    '</pre>' +
-                '</div>'
-            ).Tools('normalizedStyles').$domNode.prop('outerHTML'),
-            $(
-                '<div style="height:50px;width:10px">' +
-                '    <pre style="color:red;height:1px;width:2px"></pre>' +
-                '</div>'
-            ).prop('outerHTML'))
+        test(`get normalizedStyles (${testEnvironment})`, ():void => {
+            expect(
+                $('<div>').Tools('normalizedStyles').$domNode.prop('outerHTML')
+            ).toStrictEqual($('<div>').prop('outerHTML'))
+            expect(
+                $('<div style>').Tools('normalizedStyles').$domNode.html()
+            ).toStrictEqual($('<div>').html())
+            expect(
+                $('<div style="">').Tools('normalizedStyles').$domNode.html()
+            ).toStrictEqual($('<div>').html())
+            expect(
+                $('<div style="border: 1px solid  red ;">')
+                    .Tools('normalizedStyles')
+                    .$domNode
+                    .prop('outerHTML')
+            ).toStrictEqual(
+                $('<div style="border:1px solid red">').prop('outerHTML')
+            )
+            expect(
+                $('<div style="width: 50px;height: 100px;">')
+                    .Tools('normalizedStyles')
+                    .$domNode
+                    .prop('outerHTML')
+            ).toStrictEqual(
+                $('<div style="height:100px;width:50px">').prop('outerHTML')
+            )
+            expect(
+                $('<div style=";width: 50px ; height:100px">')
+                    .Tools('normalizedStyles')
+                    .$domNode
+                    .prop('outerHTML'),
+            ).toStrictEqual(
+                $('<div style="height:100px;width:50px">').prop('outerHTML')
+            )
+            expect(
+                $(
+                    '<div style="width:10px;height:50px">' +
+                    '    <pre style=";;width:2px;height:1px; color: red; ">' +
+                        '</pre>' +
+                    '</div>'
+                )
+                    .Tools('normalizedStyles')
+                    .$domNode
+                    .prop('outerHTML')
+            ).toStrictEqual(
+                $(
+                    '<div style="height:50px;width:10px">' +
+                    '    <pre style="color:red;height:1px;width:2px"></pre>' +
+                    '</div>'
+                )
+                    .prop('outerHTML')
+            )
         })
-        this.test(`get style (${roundType})`, (assert:Object):void => {
+        test(`get style (${testEnvironment})`, ():void => {
             for (const test:Array<any> of [
                 ['<span>', {}],
                 ['<span>hans</span>', {}],
                 ['<span style="display:block"></span>', {display: 'block'}],
-                ['<span style="display:block;height:100px;"></span>', {
-                    display: 'block', height: '100px'
-                }]
+                [
+                    '<span style="display:block;height:100px;"></span>',
+                    {display: 'block', height: '100px'}
+                ]
             ]) {
                 const $domNode:$DomNode = $(test[0])
-                $bodyDomNode.append($domNode)
+                $('body').append($domNode)
                 const styles:PlainObject = $domNode.Tools('style')
                 for (const propertyName:string in test[1])
                     if (test[1].hasOwnProperty(propertyName)) {
-                        assert.ok(styles.hasOwnProperty(propertyName))
-                        assert.strictEqual(
-                            styles[propertyName], test[1][propertyName])
+                        expect(styles.hasOwnProperty(propertyName))
+                            .toStrictEqual(true)
+                        expect(styles[propertyName])
+                            .toStrictEqual(test[1][propertyName])
                     }
                 $domNode.remove()
             }
         })
-        this.test(`get text (${roundType})`, (assert:Object):void => {
+        test(`get text (${testEnvironment})`, ():void => {
             for (const test:Array<string> of [
                 ['<div>', ''],
                 ['<div>hans</div>', 'hans'],
                 ['<div><div>hans</div</div>', ''],
                 ['<div>hans<div>peter</div></div>', 'hans']
             ])
-                assert.strictEqual($(test[0]).Tools('text'), test[1])
+                expect($(test[0]).Tools('text')).toStrictEqual(test[1])
         })
         // endregion
-        this.test(`isEquivalentDOM (${roundType})`, (assert:Object):void => {
+        test('isEquivalentDOM', ():void => {
             for (const test:Array<any> of [
                 ['test', 'test'],
                 ['test test', 'test test'],
@@ -407,16 +473,19 @@ describe('clientNode.Tools', ():void => {
                 ],
                 [
                     '<a target="_blank" class="a"><div b="3" a="2"></div></a>',
-                    '<a class="a" target="_blank"><div a="2" b="3">' +
-                    '</div></a>'
+                    '<a class="a" target="_blank"><div a="2" b="3"></div></a>'
                 ],
                 [
-                    '<a target="_blank" class="b a">' +
-                    '   <div b="3" a="2"></div>' +
-                    '</a>',
-                    '<a class="a b" target="_blank">' +
-                    '   <div a="2" b="3"></div>' +
-                    '</a>'
+                    `
+                        <a target="_blank" class="b a">
+                            <div b="3" a="2"></div>
+                        </a>
+                    `,
+                    `
+                        <a class="a b" target="_blank">
+                            <div a="2" b="3"></div>
+                        </a>
+                    `
                 ],
                 ['<div>a</div><div>b</div>', '<div>a</div><div>b</div>'],
                 ['<div>a</div>b', '<div>a</div>b'],
@@ -430,7 +499,7 @@ describe('clientNode.Tools', ():void => {
                 ],
                 ['a<br>', 'a<br />', true]
             ])
-                assert.ok($.Tools.class.isEquivalentDOM(...test))
+                expect(Tools.isEquivalentDOM(...test)).toStrictEqual(true)
             for (const test:Array<any> of [
                 ['test', ''],
                 ['test', 'hans'],
@@ -449,18 +518,14 @@ describe('clientNode.Tools', ():void => {
                 ['text', 'text a'],
                 ['text', 'text a & +']
             ])
-                assert.notOk($.Tools.class.isEquivalentDOM(...test))
+                expect(Tools.isEquivalentDOM(...test)).toStrictEqual(false)
         })
+        test('getPositionRelativeToViewport', ():void =>
+            expect(['above', 'left', 'right', 'below', 'in'])
+                .toContain(tools.getPositionRelativeToViewport())
+        )
     }
-    if (roundType === 'full')
-        this.test(`getPositionRelativeToViewport (${roundType})`, (
-            assert:Object
-        ):void => assert.ok([
-            'above', 'left', 'right', 'below', 'in'
-        ].includes(tools.getPositionRelativeToViewport())))
-    this.test(`generateDirectiveSelector (${roundType})`, (
-        assert:Object
-    ):void => {
+    test('generateDirectiveSelector', ():void => {
         for (const test:Array<string> of [
             ['a-b', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
             ['aB', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
@@ -483,45 +548,45 @@ describe('clientNode.Tools', ():void => {
                 '[x-mce-href], [mce\\:href], [mce_href]'
             ]
         ])
-            assert.strictEqual($.Tools.class.generateDirectiveSelector(
-                test[0]
-            ), test[1])
+            expect(Tools.generateDirectiveSelector(test[0]))
+                .toStrictEqual(test[1])
     })
-    if (roundType === 'full')
-        this.test(`removeDirective (${roundType})`, (assert:Object):void => {
-            const $localBodyDomNode = $bodyDomNode.Tools(
-                'removeDirective', 'a')
-            assert.equal($localBodyDomNode.Tools().removeDirective(
-                'a'
-            ), $localBodyDomNode)
+    if (hasDOM)
+        test('removeDirective', async ():Promise<void> => {
+            await getInitializedBrowser()
+            const $localBodyDomNode = $('body').Tools('removeDirective', 'a')
+            expect($localBodyDomNode.Tools().removeDirective('a'))
+                .toStrictEqual($localBodyDomNode)
         })
-    this.test(`getNormalizedDirectiveName (${roundType})`, (
-        assert:Object
-    ):void => {
+    test('getNormalizedDirectiveName', ():void => {
         for (const test:Array<string> of [
             ['data-a', 'a'],
             ['x-a', 'a'],
             ['data-a-bb', 'aBb'],
             ['x:a:b', 'aB']
         ])
-            assert.equal(
-                $.Tools.class.getNormalizedDirectiveName(test[0]), test[1])
+            expect(Tools.getNormalizedDirectiveName(test[0]))
+                .toStrictEqual(test[1])
     })
-    if (roundType === 'full')
-        this.test(`getDirectiveValue (${roundType})`, (assert:Object):void =>
-            assert.equal($('body').Tools('getDirectiveValue', 'a'), null))
-    this.test(`sliceDomNodeSelectorPrefix (${roundType})`, (
-        assert:Object
-    ):void => {
-        assert.strictEqual(tools.sliceDomNodeSelectorPrefix('body div'), 'div')
-        assert.strictEqual($.Tools({
-            domNodeSelectorPrefix: 'body div'
-        }).sliceDomNodeSelectorPrefix('body div'), '')
-        assert.strictEqual($.Tools({
-            domNodeSelectorPrefix: ''
-        }).sliceDomNodeSelectorPrefix('body div'), 'body div')
+    if (hasDOM)
+        test('getDirectiveValue', async ():Promise<void> => {
+            await getInitializedBrowser()
+            expect($('body').Tools('getDirectiveValue', 'a'))
+                .toStrictEqual(null)
+        })
+    test('sliceDomNodeSelectorPrefix', ():void => {
+        expect(tools.sliceDomNodeSelectorPrefix('body div'))
+            .toStrictEqual('div')
+        expect(
+            $.Tools({domNodeSelectorPrefix: 'body div'})
+                .sliceDomNodeSelectorPrefix('body div')
+        ).toStrictEqual('')
+        expect(
+            $.Tools({domNodeSelectorPrefix: ''})
+                .sliceDomNodeSelectorPrefix('body div')
+        ).toStrictEqual('body div')
     })
-    this.test(`getDomNodeName (${roundType})`, (assert:Object):void => {
+    test('getDomNodeName', ():void => {
         for (const test:Array<string> of [
             ['div', 'div'],
             ['<div>', 'div'],
@@ -532,106 +597,75 @@ describe('clientNode.Tools', ():void => {
             ['<a />', 'a'],
             ['<a></a>', 'a']
         ])
-            assert.strictEqual($.Tools.class.getDomNodeName(test[0]), test[1])
+            expect(Tools.getDomNodeName(test[0])).toStrictEqual(test[1])
     })
-    if (roundType === 'full')
-        this.test(`grabDomNode (${roundType})`, (assert:Object):void => {
+    if (hasDOM)
+        test('grabDomNode', async ():Promise<void> => {
+            const browser:Browser = await getInitializedBrowser()
             for (const test:Array<any> of [
+                [[{a: 'div'}], {a: $('div'), parent: $('body')}],
                 [
-                    [{
-                        qunit: 'body div#qunit',
-                        qunitFixture: 'body div#qunit-fixture'
-                    }],
-                    {
-                        qunit: $('body div#qunit'),
-                        qunitFixture: $('body div#qunit-fixture'),
-                        parent: $('body')
-                    }
-                ],
-                [
-                    [{
-                        qunit: 'div#qunit',
-                        qunitFixture: 'div#qunit-fixture'
-                    }],
-                    {
-                        parent: $('body'),
-                        qunit: $('body div#qunit'),
-                        qunitFixture: $('body div#qunit-fixture')
-                    }
-                ],
-                [
-                    [
-                        {
-                            qunit: 'div#qunit',
-                            qunitFixture: 'div#qunit-fixture'
-                        },
-                        'body'
-                    ],
-                    {
-                        parent: $('body'),
-                        qunit: $('body').find('div#qunit'),
-                        qunitFixture: $('body').find('div#qunit-fixture')
-                    }
+                    [{a: 'script'}, 'body'],
+                    {a: $('body').find('script'), parent: $('body')}
                 ]
             ]) {
                 const $domNodes = tools.grabDomNode(...test[0])
                 delete $domNodes.window
                 delete $domNodes.document
-                assert.deepEqual($domNodes, test[1])
+                expect($domNodes).toEqual(test[1])
             }
         })
     // / endregion
     // / region scope
-    this.test(`isolateScope (${roundType})`, (assert:Object):void => {
-        assert.deepEqual($.Tools.class.isolateScope({}), {})
-        assert.deepEqual($.Tools.class.isolateScope({a: 2}), {a: 2})
-        assert.deepEqual($.Tools.class.isolateScope({
-            a: 2, b: {a: [1, 2]}
-        }), {a: 2, b: {a: [1, 2]}})
-        let scope = function():void {
+    test('isolateScope', ():void => {
+        expect(Tools.isolateScope({})).toEqual({})
+        expect(Tools.isolateScope({a: 2})).toEqual({a: 2})
+        expect(Tools.isolateScope({a: 2, b: {a: [1, 2]}}))
+            .toEqual({a: 2, b: {a: [1, 2]}})
+        let Scope:Function = function():void {
             this.a = 2
         }
-        scope.prototype = {b: 2, _a: 5}
-        scope = new scope()
-        assert.deepEqual($.Tools.class.isolateScope(scope, ['_']), {
-            _a: 5, a: 2, b: undefined
-        })
+        Scope.prototype = {_a: 5, b: 2}
+        let scope:Scope = new Scope()
+        Tools.isolateScope(scope, ['_'])
+        let finalScope:PlainObject = {}
+        for (const name:string in scope)
+            finalScope[name] = scope[name]
+        expect(finalScope).toEqual({_a: 5, a: 2, b: undefined})
         scope.b = 3
-        assert.deepEqual(
-            $.Tools.class.isolateScope(scope, ['_']), {_a: 5, a: 2, b: 3})
-        assert.deepEqual($.Tools.class.isolateScope(scope), {
-            _a: undefined, a: 2, b: 3})
+        Tools.isolateScope(scope, ['_'])
+        finalScope = {}
+        for (const name:string in scope)
+            finalScope[name] = scope[name]
+        expect(finalScope).toEqual({_a: 5, a: 2, b: 3})
+        expect(Tools.isolateScope(scope)).toEqual({_a: undefined, a: 2, b: 3})
         scope._a = 6
-        assert.deepEqual(
-            $.Tools.class.isolateScope(scope, ['_']), {_a: 6, a: 2, b: 3})
-        scope = function():void {
+        expect(Tools.isolateScope(scope, ['_'])).toEqual({_a: 6, a: 2, b: 3})
+        Scope = function():void {
             this.a = 2
         }
-        scope.prototype = {b: 3}
-        assert.deepEqual($.Tools.class.isolateScope(
-            new scope(), ['b']
-        ), {a: 2, b: 3})
-        assert.deepEqual($.Tools.class.isolateScope(new scope()), {
-            a: 2, b: undefined
-        })
+        Scope.prototype = {b: 3}
+        scope = Tools.isolateScope(new Scope(), ['b'])
+        finalScope = {}
+        for (const name:string in scope)
+            finalScope[name] = scope[name]
+        expect(finalScope).toEqual({a: 2, b: 3})
+        expect(Tools.isolateScope(new Scope())).toEqual({a: 2, b: undefined})
     })
-    this.test(`determineUniqueScopeName (${roundType})`, (
+    /* TODO
+    test('determineUniqueScopeName', (
         assert:Object
     ):void => {
-        assert.ok($.Tools.class.determineUniqueScopeName().startsWith(
-            'callback'))
-        assert.ok($.Tools.class.determineUniqueScopeName('hans').startsWith(
-            'hans'))
-        assert.ok($.Tools.class.determineUniqueScopeName(
-            'hans', '', {}
-        ).startsWith('hans'))
-        assert.strictEqual($.Tools.class.determineUniqueScopeName(
+        assert.ok(Tools.determineUniqueScopeName().startsWith('callback'))
+        assert.ok(Tools.determineUniqueScopeName('hans').startsWith('hans'))
+        assert.ok(Tools.determineUniqueScopeName('hans', '', {}).startsWith('hans'))
+        assert.strictEqual(Tools.determineUniqueScopeName(
             'hans', '', {}, 'peter'
         ), 'peter')
-        assert.ok($.Tools.class.determineUniqueScopeName(
+        assert.ok(Tools.determineUniqueScopeName(
             'hans', '', {peter: 2}, 'peter'
         ).startsWith('hans'))
-        const name:string = $.Tools.class.determineUniqueScopeName(
+        const name:string = Tools.determineUniqueScopeName(
             'hans', 'klaus', {peter: 2}, 'peter')
         assert.ok(name.startsWith('hans'))
         assert.ok(name.endsWith('klaus'))
@@ -639,7 +673,7 @@ describe('clientNode.Tools', ():void => {
     })
     // / endregion
     // / region function handling
-    this.test(`getParameterNames (${roundType})`, (assert:Object):void => {
+    test('getParameterNames', ():void => {
         for (const test:Array<any> of [
             [function():void {}, []],
             ['function() {}', []],
@@ -656,9 +690,9 @@ describe('clientNode.Tools', ():void => {
                 a() {}
             }`, ['a', 'b', 'c']]
         ])
-            assert.deepEqual($.Tools.class.getParameterNames(test[0]), test[1])
+            assert.deepEqual(Tools.getParameterNames(test[0]), test[1])
     })
-    this.test(`identity (${roundType})`, (assert:Object):void => {
+    test('identity', ():void => {
         for (const test:Array<any> of [
             [2, 2],
             ['', ''],
@@ -666,37 +700,37 @@ describe('clientNode.Tools', ():void => {
             [null, null],
             ['hans', 'hans']
         ])
-            assert.strictEqual($.Tools.class.identity(test[0]), test[1])
-        assert.ok($.Tools.class.identity({}) !== {})
+            assert.strictEqual(Tools.identity(test[0]), test[1])
+        assert.ok(Tools.identity({}) !== {})
         const testObject = {}
-        assert.strictEqual($.Tools.class.identity(testObject), testObject)
+        assert.strictEqual(Tools.identity(testObject), testObject)
     })
-    this.test(`invertArrayFilter (${roundType})`, (assert:Object):void => {
-        assert.deepEqual($.Tools.class.invertArrayFilter(
-            $.Tools.class.arrayDeleteEmptyItems
+    test('invertArrayFilter', ():void => {
+        assert.deepEqual(Tools.invertArrayFilter(
+            Tools.arrayDeleteEmptyItems
         )([{a: null}]), [{a: null}])
-        assert.deepEqual($.Tools.class.invertArrayFilter(
-            $.Tools.class.arrayExtractIfMatches
+        assert.deepEqual(Tools.invertArrayFilter(
+            Tools.arrayExtractIfMatches
         )(['a', 'b'], '^a$'), ['b'])
     })
-    this.test(`timeout (${roundType})`, async (
+    test('timeout', async (
         assert:Object
     ):Promise<void> => {
         const done:Function = assert.async()
-        assert.notOk(await $.Tools.class.timeout())
-        assert.notOk(await $.Tools.class.timeout(0))
-        assert.notOk(await $.Tools.class.timeout(1))
-        assert.ok($.Tools.class.timeout() instanceof Promise)
-        assert.ok($.Tools.class.timeout().hasOwnProperty('clear'))
+        assert.notOk(await Tools.timeout())
+        assert.notOk(await Tools.timeout(0))
+        assert.notOk(await Tools.timeout(1))
+        assert.ok(Tools.timeout() instanceof Promise)
+        assert.ok(Tools.timeout().hasOwnProperty('clear'))
         let test:boolean = false
-        const result:Promise<boolean> = $.Tools.class.timeout(10 ** 20, true)
+        const result:Promise<boolean> = Tools.timeout(10 ** 20, true)
         result.catch(():void => {
             test = true
         })
         // IgnoreTypeCheck
         result.clear()
         let test2:boolean = false
-        assert.notOk(await $.Tools.class.timeout(():void => {
+        assert.notOk(await Tools.timeout(():void => {
             test2 = true
         }))
         assert.ok(test)
@@ -705,20 +739,20 @@ describe('clientNode.Tools', ():void => {
     })
     // / endregion
     // / region event
-    this.test(`debounce (${roundType})`, (assert:Object):void => {
+    test('debounce', ():void => {
         let testValue = false
-        $.Tools.class.debounce(():void => {
+        Tools.debounce(():void => {
             testValue = true
         })()
         assert.ok(testValue)
-        const callback:Function = $.Tools.class.debounce(():void => {
+        const callback:Function = Tools.debounce(():void => {
             testValue = !testValue
         }, 1000)
         callback()
         callback()
         assert.notOk(testValue)
     })
-    this.test(`fireEvent (${roundType})`, (assert:Object):void => {
+    test('fireEvent', ():void => {
         assert.strictEqual($.Tools({onClick: ():2 => 2}).fireEvent(
             'click', true
         ), 2)
@@ -729,8 +763,8 @@ describe('clientNode.Tools', ():void => {
         assert.strictEqual(tools.fireEvent('click'), true)
         assert.strictEqual(tools.fireEvent('click', true), true)
     })
-    if (roundType === 'full') {
-        this.test(`on (${roundType})`, (assert:Object):void => {
+    if (testEnvironment === 'full') {
+        test('on', ():void => {
             let testValue = false
             assert.strictEqual(tools.on('body', 'click', ():void => {
                 testValue = true
@@ -739,7 +773,7 @@ describe('clientNode.Tools', ():void => {
             $('body').trigger('click')
             assert.ok(testValue)
         })
-        this.test(`off (${roundType})`, (assert:Object):void => {
+        test('off', ():void => {
             let testValue = false
             assert.strictEqual(tools.on('body', 'click', ():void => {
                 testValue = true
@@ -752,55 +786,52 @@ describe('clientNode.Tools', ():void => {
     }
     // / endregion
     // / region object
-    this.test(`addDynamicGetterAndSetter (${roundType})`, (
+    test('addDynamicGetterAndSetter', (
         assert:Object
     ):void => {
-        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(null), null)
-        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(true), true)
-        assert.deepEqual(
-            $.Tools.class.addDynamicGetterAndSetter({a: 2}), {a: 2})
-        assert.notOk($.Tools.class.addDynamicGetterAndSetter({
+        assert.strictEqual(Tools.addDynamicGetterAndSetter(null), null)
+        assert.strictEqual(Tools.addDynamicGetterAndSetter(true), true)
+        assert.deepEqual(Tools.addDynamicGetterAndSetter({a: 2}), {a: 2})
+        assert.notOk(Tools.addDynamicGetterAndSetter({
         }).__target__ instanceof Object)
-        assert.ok($.Tools.class.addDynamicGetterAndSetter({}, (
+        assert.ok(Tools.addDynamicGetterAndSetter({}, (
             value:any
         ):any => value).__target__ instanceof Object)
         const mockup = {}
-        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(
-            mockup
-        ), mockup)
-        assert.strictEqual($.Tools.class.addDynamicGetterAndSetter(
+        assert.strictEqual(Tools.addDynamicGetterAndSetter(mockup), mockup)
+        assert.strictEqual(Tools.addDynamicGetterAndSetter(
             mockup, (value:any):any => value
         ).__target__, mockup)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter({a: 1}, (
+        assert.deepEqual(Tools.addDynamicGetterAndSetter({a: 1}, (
             value:any
         ):any => value + 2).a, 3)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
+        assert.deepEqual(Tools.addDynamicGetterAndSetter(
             {a: {a: 1}}, (value:any):any => (
                 value instanceof Object
             ) ? value : value + 2).a.a, 3)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter({a: {a: [{
+        assert.deepEqual(Tools.addDynamicGetterAndSetter({a: {a: [{
             a: 1
         }]}}, (value:any):any => (
             value instanceof Object
         ) ? value : value + 2).a.a[0].a, 3)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
+        assert.deepEqual(Tools.addDynamicGetterAndSetter(
             {a: {a: 1}}, (value:any):any =>
                 (value instanceof Object) ? value : value + 2,
             null, {has: 'hasOwnProperty'}, false
         ).a.a, 1)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
+        assert.deepEqual(Tools.addDynamicGetterAndSetter(
             {a: 1}, (value:any):any =>
                 (value instanceof Object) ? value : value + 2,
             null, {has: 'hasOwnProperty'}, false, []
         ).a, 1)
-        assert.deepEqual($.Tools.class.addDynamicGetterAndSetter(
+        assert.deepEqual(Tools.addDynamicGetterAndSetter(
             {a: new Map([['a', 1]])}, (value:any):any =>
                 (value instanceof Object) ? value : value + 2,
             null, {delete: 'delete', get: 'get', set: 'set', has: 'has'}, true,
             [Map]
         ).a.a, 3)
     })
-    this.test(`convertCircularObjectToJSON (${roundType})`, (
+    test('convertCircularObjectToJSON', (
         assert:Object
     ):void => {
         const testObject1:Object = {}
@@ -814,9 +845,9 @@ describe('clientNode.Tools', ():void => {
             [testObject1, '{"a":{"a":"__circularReference__"}}']
         ])
             assert.deepEqual(
-                $.Tools.class.convertCircularObjectToJSON(test[0]), test[1])
+                Tools.convertCircularObjectToJSON(test[0]), test[1])
     })
-    this.test(`convertMapToPlainObject (${roundType})`, (
+    test('convertMapToPlainObject', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -836,9 +867,9 @@ describe('clientNode.Tools', ():void => {
             ]
         ])
             assert.deepEqual(
-                $.Tools.class.convertMapToPlainObject(...test[0]), test[1])
+                Tools.convertMapToPlainObject(...test[0]), test[1])
     })
-    this.test(`convertPlainObjectToMap (${roundType})`, (
+    test('convertPlainObjectToMap', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -866,9 +897,9 @@ describe('clientNode.Tools', ():void => {
             ]
         ])
             assert.deepEqual(
-                $.Tools.class.convertPlainObjectToMap(...test[0]), test[1])
+                Tools.convertPlainObjectToMap(...test[0]), test[1])
     })
-    this.test(`convertSubstringInPlainObject (${roundType})`, (
+    test('convertSubstringInPlainObject', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -878,11 +909,11 @@ describe('clientNode.Tools', ():void => {
             [{a: 'aa'}, /a/g, 'b', {a: 'bb'}],
             [{a: {a: 'aa'}}, /a/g, 'b', {a: {a: 'bb'}}]
         ])
-            assert.deepEqual($.Tools.class.convertSubstringInPlainObject(
+            assert.deepEqual(Tools.convertSubstringInPlainObject(
                 test[0], test[1], test[2]
             ), test[3])
     })
-    this.test(`copy (${roundType})`, (assert:Object):void => {
+    test('copy', ():void => {
         for (const test:Array<any> of [
             [[21], 21],
             [[0, -1], 0],
@@ -955,10 +986,10 @@ describe('clientNode.Tools', ():void => {
                 new Set(['a', new Set(['a', 2])])
             ]
         ])
-            assert.deepEqual($.Tools.class.copy(...test[0]), test[1])
+            assert.deepEqual(Tools.copy(...test[0]), test[1])
     })
-    this.test(`determineType (${roundType})`, (assert:Object):void => {
-        assert.strictEqual($.Tools.class.determineType(), 'undefined')
+    test('determineType', ():void => {
+        assert.strictEqual(Tools.determineType(), 'undefined')
         for (const test:Array<any> of [
             [undefined, 'undefined'],
             [{}.notDefined, 'undefined'],
@@ -985,9 +1016,9 @@ describe('clientNode.Tools', ():void => {
             [new Set(), 'set'],
             [/test/, 'regexp']
         ])
-            assert.strictEqual($.Tools.class.determineType(test[0]), test[1])
+            assert.strictEqual(Tools.determineType(test[0]), test[1])
     })
-    this.test(`equals (${roundType})`, async (assert:Object):Promise<void> => {
+    test('equals', async ():Promise<void> => {
         const done:Function = assert.async()
         const testFunction:Function = ():void => {}
         for (const test:Array<any> of [
@@ -1021,9 +1052,9 @@ describe('clientNode.Tools', ():void => {
             ],
             [testFunction, testFunction]
         ])
-            assert.ok($.Tools.class.equals(...test))
+            assert.ok(Tools.equals(...test))
         if (TARGET_TECHNOLOGY === 'node')
-            assert.ok($.Tools.class.equals(
+            assert.ok(Tools.equals(
                 Buffer.from('a'), Buffer.from('a'),
                 null, -1, [], true, true))
         else {
@@ -1063,7 +1094,7 @@ describe('clientNode.Tools', ():void => {
                     }
                 ]
             ])
-                assert.ok(await $.Tools.class.equals(
+                assert.ok(await Tools.equals(
                     ...test, null, -1, [], true, true))
             for (const test:Array<any> of [
                 [
@@ -1101,7 +1132,7 @@ describe('clientNode.Tools', ():void => {
                     }
                 ]
             ])
-                assert.notOk(await $.Tools.class.equals(
+                assert.notOk(await Tools.equals(
                     ...test, null, -1, [], true, true))
         }
         for (const test:Array<any> of [
@@ -1125,12 +1156,12 @@ describe('clientNode.Tools', ():void => {
             [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
             [():void => {}, ():void => {}, null, -1, [], false]
         ])
-            assert.notOk($.Tools.class.equals(...test))
+            assert.notOk(Tools.equals(...test))
         const test = ():void => {}
-        assert.ok($.Tools.class.equals(test, test, null, -1, [], false))
+        assert.ok(Tools.equals(test, test, null, -1, [], false))
         done()
     })
-    this.test(`evaluateDynamicDataStructure (${roundType})`, (
+    test('evaluateDynamicDataStructure', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -1292,12 +1323,12 @@ describe('clientNode.Tools', ():void => {
                 b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
             }], {a: ['a', 'b', 'c'], b: {a: 1, b: 2, c: 3}}]
         ])
-            assert.deepEqual($.Tools.class.copy(
-                $.Tools.class.evaluateDynamicDataStructure(...test[0]), -1,
+            assert.deepEqual(Tools.copy(
+                Tools.evaluateDynamicDataStructure(...test[0]), -1,
                 true
             ), test[1])
     })
-    this.test(`extend (${roundType})`, (assert:Object):void => {
+    test('extend', ():void => {
         for (const test:any of [
             [[[]], []],
             [[{}], {}],
@@ -1374,14 +1405,14 @@ describe('clientNode.Tools', ():void => {
                 new Map([['a', new Map([['a', [3, 4]]])]])
             ]
         ])
-            assert.deepEqual($.Tools.class.extend(...test[0]), test[1])
-        assert.strictEqual($.Tools.class.extend([1, 2], undefined), undefined)
-        assert.strictEqual($.Tools.class.extend([1, 2], null), null)
+            assert.deepEqual(Tools.extend(...test[0]), test[1])
+        assert.strictEqual(Tools.extend([1, 2], undefined), undefined)
+        assert.strictEqual(Tools.extend([1, 2], null), null)
         const target:Object = {a: [1, 2]}
-        $.Tools.class.extend(true, target, {a: [3, 4]})
+        Tools.extend(true, target, {a: [3, 4]})
         assert.deepEqual(target, {a: [3, 4]})
     })
-    this.test(`getSubstructure (${roundType})`, (assert:Object):void => {
+    test('getSubstructure', ():void => {
         for (const test:any of [
             [[{}, []], {}],
             [[{a: 1}, ['a']], 1],
@@ -1390,15 +1421,15 @@ describe('clientNode.Tools', ():void => {
             [[{a: {b: {c: 3}}}, ['a', 'b.c']], 3]
         ])
             assert.deepEqual(
-                $.Tools.class.getSubstructure(...test[0]), test[1])
+                Tools.getSubstructure(...test[0]), test[1])
     })
-    this.test(`getProxyHandler (${roundType})`, (assert:Object):void => {
-        assert.ok($.Tools.class.isPlainObject($.Tools.class.getProxyHandler(
+    test('getProxyHandler', ():void => {
+        assert.ok(Tools.isPlainObject(Tools.getProxyHandler(
             {})))
-        assert.ok($.Tools.class.isPlainObject($.Tools.class.getProxyHandler(
+        assert.ok(Tools.isPlainObject(Tools.getProxyHandler(
             new Map(), {get: 'get'})))
     })
-    this.test(`modifyObject (${roundType})`, (assert:Object):void => {
+    test('modifyObject', ():void => {
         for (const test:any of [
             [[{}, {}], {}, {}],
             [[{a: 2}, {}], {a: 2}, {}],
@@ -1443,12 +1474,12 @@ describe('clientNode.Tools', ():void => {
                 {a: {__prepend__: 's', __remove__: [2, 2], __append__: 'a'}}
             ], {a: ['s', 1, 'a']}, {}]
         ]) {
-            assert.deepEqual($.Tools.class.modifyObject(...test[0]), test[1])
+            assert.deepEqual(Tools.modifyObject(...test[0]), test[1])
             assert.deepEqual(test[0][1], test[2])
         }
     })
-    this.test('normalizeDateTime', (assert:Object):void => {
-        assert.equal(typeof $.Tools.class.normalizeDateTime(), 'object')
+    test('normalizeDateTime', ():void => {
+        assert.equal(typeof Tools.normalizeDateTime(), 'object')
         const now:Date = new Date()
         for (const test:Array<any> of [
             [now, now],
@@ -1462,12 +1493,12 @@ describe('clientNode.Tools', ():void => {
             ['abc', null],
             ['1+1+1970 08+30+00', null]
         ])
-            assert.ok($.Tools.class.equals(
-                $.Tools.class.normalizeDateTime(test[0], false),
+            assert.ok(Tools.equals(
+                Tools.normalizeDateTime(test[0], false),
                 test[1]
             ))
     })
-    this.test('removeKeys', (assert:Object):void => {
+    test('removeKeys', ():void => {
         for (const test:Array<any> of [
             [{}, [], {}],
             [new Set(), '#', new Set()],
@@ -1501,9 +1532,9 @@ describe('clientNode.Tools', ():void => {
             ]
         ])
             assert.deepEqual(
-                $.Tools.class.removeKeys(test[0], test[1]), test[2])
+                Tools.removeKeys(test[0], test[1]), test[2])
     })
-    this.test('represent', (assert:Object):void => {
+    test('represent', ():void => {
         for (const test:Array<any> of [
             [[''], '""'],
             [
@@ -1525,9 +1556,9 @@ describe('clientNode.Tools', ():void => {
                 }`.replace(/(\n) {16}/g, '$1')
             ]
         ])
-            assert.deepEqual($.Tools.class.represent(...test[0]), test[1])
+            assert.deepEqual(Tools.represent(...test[0]), test[1])
     })
-    this.test(`sort (${roundType})`, (assert:Object):void => {
+    test('sort', ():void => {
         for (const test:Array<any> of [
             [[], []],
             [{}, []],
@@ -1542,20 +1573,20 @@ describe('clientNode.Tools', ():void => {
             [{c: 2, b: 5, a: 'a'}, ['a', 'b', 'c']],
             [{b: 2, c: 5, z: 'a'}, ['b', 'c', 'z']]
         ])
-            assert.deepEqual($.Tools.class.sort(test[0]), test[1])
+            assert.deepEqual(Tools.sort(test[0]), test[1])
     })
-    this.test(`unwrapProxy (${roundType})`, (assert:Object):void => {
+    test('unwrapProxy', ():void => {
         for (const test:Array<any> of [
             [{}, {}],
             [{a: 'a'}, {a: 'a'}],
             [{a: 'aa'}, {a: 'aa'}],
             [{a: {__target__: 2, __revoke__: ():void => {}}}, {a: 2}]
         ])
-            assert.deepEqual($.Tools.class.unwrapProxy(test[0]), test[1])
+            assert.deepEqual(Tools.unwrapProxy(test[0]), test[1])
     })
     // / endregion
     // / region array
-    this.test(`arrayAggregatePropertyIfEqual (${roundType})`, (
+    test('arrayAggregatePropertyIfEqual', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -1564,11 +1595,11 @@ describe('clientNode.Tools', ():void => {
             [[[{a: 'b'}, {a: 'c'}], 'a'], ''],
             [[[{a: 'b'}, {a: 'c'}], 'a', false], false]
         ])
-            assert.strictEqual($.Tools.class.arrayAggregatePropertyIfEqual(
+            assert.strictEqual(Tools.arrayAggregatePropertyIfEqual(
                 ...test[0]
             ), test[1])
     })
-    this.test(`arrayDeleteEmptyItems (${roundType})`, (assert:Object):void => {
+    test('arrayDeleteEmptyItems', ():void => {
         for (const test:Array<any> of [
             [[[{a: null}]], []],
             [[[{a: null, b: 2}]], [{a: null, b: 2}]],
@@ -1577,9 +1608,9 @@ describe('clientNode.Tools', ():void => {
             [[[]], []]
         ])
             assert.deepEqual(
-                $.Tools.class.arrayDeleteEmptyItems(...test[0]), test[1])
+                Tools.arrayDeleteEmptyItems(...test[0]), test[1])
     })
-    this.test(`arrayExtract (${roundType})`, (assert:Object):void => {
+    test('arrayExtract', ():void => {
         for (const test:Array<any> of [
             [[[{a: 'b', c: 'd'}], ['a']], [{a: 'b'}]],
             [[[{a: 'b', c: 'd'}], ['b']], [{}]],
@@ -1588,9 +1619,9 @@ describe('clientNode.Tools', ():void => {
             [[[{a: 'b', c: 'd'}, {c: 3}], ['c']], [{c: 'd'}, {c: 3}]]
         ])
             assert.deepEqual(
-                $.Tools.class.arrayExtract(...test[0]), test[1])
+                Tools.arrayExtract(...test[0]), test[1])
     })
-    this.test(`arrayExtractIfMatches (${roundType})`, (assert:Object):void => {
+    test('arrayExtractIfMatches', ():void => {
         for (const test:Array<any> of [
             [['b'], /b/, ['b']],
             [['b'], 'b', ['b']],
@@ -1601,11 +1632,11 @@ describe('clientNode.Tools', ():void => {
             [['a', 'b'], 'b', ['b']],
             [['a', 'b'], '[ab]', ['a', 'b']]
         ])
-            assert.deepEqual($.Tools.class.arrayExtractIfMatches(
+            assert.deepEqual(Tools.arrayExtractIfMatches(
                 test[0], test[1]
             ), test[2])
     })
-    this.test(`arrayExtractIfPropertyExists (${roundType})`, (
+    test('arrayExtractIfPropertyExists', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -1614,11 +1645,11 @@ describe('clientNode.Tools', ():void => {
             [[], 'b', []],
             [[{a: 2}, {b: 3}], 'a', [{a: 2}]]
         ])
-            assert.deepEqual($.Tools.class.arrayExtractIfPropertyExists(
+            assert.deepEqual(Tools.arrayExtractIfPropertyExists(
                 test[0], test[1]
             ), test[2])
     })
-    this.test(`arrayExtractIfPropertyMatches (${roundType})`, (
+    test('arrayExtractIfPropertyMatches', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -1633,11 +1664,11 @@ describe('clientNode.Tools', ():void => {
                 [{mimeType: 'text/x-webm'}]
             ]
         ])
-            assert.deepEqual($.Tools.class.arrayExtractIfPropertyMatches(
+            assert.deepEqual(Tools.arrayExtractIfPropertyMatches(
                 test[0], test[1]
             ), test[2])
     })
-    this.test(`arrayIntersect (${roundType})`, (assert:Object):void => {
+    test('arrayIntersect', ():void => {
         for (const test:Array<any> of [
             [[['A'], ['A']], ['A']],
             [[['A', 'B'], ['A']], ['A']],
@@ -1658,9 +1689,9 @@ describe('clientNode.Tools', ():void => {
             [[[{b: undefined}], [{}], ['b'], true], [{b: undefined}]],
             [[[{b: 1}], [{a: 1}], {b: 'a'}, true], [{b: 1}]]
         ])
-            assert.deepEqual($.Tools.class.arrayIntersect(...test[0]), test[1])
+            assert.deepEqual(Tools.arrayIntersect(...test[0]), test[1])
     })
-    this.test(`arrayMakeRange (${roundType})`, (assert:Object):void => {
+    test('arrayMakeRange', ():void => {
         for (const test:Array<any> of [
             [[[0]], [0]],
             [[[5]], [0, 1, 2, 3, 4, 5]],
@@ -1668,9 +1699,9 @@ describe('clientNode.Tools', ():void => {
             [[[2, 5]], [2, 3, 4, 5]],
             [[[2, 10], 2], [2, 4, 6, 8, 10]]
         ])
-            assert.deepEqual($.Tools.class.arrayMakeRange(...test[0]), test[1])
+            assert.deepEqual(Tools.arrayMakeRange(...test[0]), test[1])
     })
-    this.test(`arrayMerge (${roundType})`, (assert:Object):void => {
+    test('arrayMerge', ():void => {
         for (const test:Array<any> of [
             [[], [], []],
             [[1], [], [1]],
@@ -1679,17 +1710,17 @@ describe('clientNode.Tools', ():void => {
             [[1, 2, 3, 1], [1, 2, 3], [1, 2, 3, 1, 1, 2, 3]]
         ])
             assert.deepEqual(
-                $.Tools.class.arrayMerge(test[0], test[1]), test[2])
+                Tools.arrayMerge(test[0], test[1]), test[2])
     })
-    this.test(`arrayMake (${roundType})`, (assert:Object):void => {
+    test('arrayMake', ():void => {
         for (const test:Array<any> of [
             [[], []],
             [[1, 2, 3], [1, 2, 3]],
             [1, [1]]
         ])
-            assert.deepEqual($.Tools.class.arrayMake(test[0]), test[1])
+            assert.deepEqual(Tools.arrayMake(test[0]), test[1])
     })
-    this.test(`arrayPermutate (${roundType})`, (assert:Object):void => {
+    test('arrayPermutate', ():void => {
         for (const test:Array<any> of [
             [[], [[]]],
             [[1], [[1]]],
@@ -1717,9 +1748,9 @@ describe('clientNode.Tools', ():void => {
                 ]
             ]
         ])
-            assert.deepEqual($.Tools.class.arrayPermutate(test[0]), test[1])
+            assert.deepEqual(Tools.arrayPermutate(test[0]), test[1])
     })
-    this.test(`arrayPermutateLength (${roundType})`, (assert:Object):void => {
+    test('arrayPermutateLength', ():void => {
         for (const test:Array<any> of [
             [[], []],
             [[1], [[1]]],
@@ -1750,27 +1781,27 @@ describe('clientNode.Tools', ():void => {
             ]
         ])
             assert.deepEqual(
-                $.Tools.class.arrayPermutateLength(test[0]), test[1])
+                Tools.arrayPermutateLength(test[0]), test[1])
     })
-    this.test(`arrayUnique (${roundType})`, (assert:Object):void => {
+    test('arrayUnique', ():void => {
         for (const test:Array<any> of [
             [[1, 2, 3, 1], [1, 2, 3]],
             [[1, 2, 3, 1, 2, 3], [1, 2, 3]],
             [[], []],
             [[1, 2, 3], [1, 2, 3]]
         ])
-            assert.deepEqual($.Tools.class.arrayUnique(test[0]), test[1])
+            assert.deepEqual(Tools.arrayUnique(test[0]), test[1])
     })
-    this.test(`arraySumUpProperty (${roundType})`, (assert:Object):void => {
+    test('arraySumUpProperty', ():void => {
         for (const test:Array<any> of [
             [[[{a: 2}, {a: 3}], 'a'], 5],
             [[[{a: 2}, {b: 3}], 'a'], 2],
             [[[{a: 2}, {b: 3}], 'c'], 0]
         ])
             assert.strictEqual(
-                $.Tools.class.arraySumUpProperty(...test[0]), test[1])
+                Tools.arraySumUpProperty(...test[0]), test[1])
     })
-    this.test(`arrayAppendAdd (${roundType})`, (assert:Object):void => {
+    test('arrayAppendAdd', ():void => {
         const testObject:Object = {}
         for (const test:Array<any> of [
             [[{}, {}, 'b'], {b: [{}]}],
@@ -1779,9 +1810,9 @@ describe('clientNode.Tools', ():void => {
             [[{b: [2]}, 2, 'b', false], {b: [2, 2]}],
             [[{b: [2]}, 2, 'b'], {b: [2]}]
         ])
-            assert.deepEqual($.Tools.class.arrayAppendAdd(...test[0]), test[1])
+            assert.deepEqual(Tools.arrayAppendAdd(...test[0]), test[1])
     })
-    this.test(`arrayRemove (${roundType})`, (assert:Object):void => {
+    test('arrayRemove', ():void => {
         for (const test:Array<any> of [
             [[[], 2], []],
             [[[2], 2], []],
@@ -1789,12 +1820,12 @@ describe('clientNode.Tools', ():void => {
             [[[1, 2], 2], [1]],
             [[[1, 2], 2, true], [1]]
         ])
-            assert.deepEqual($.Tools.class.arrayRemove(...test[0]), test[1])
-        assert.throws(():?Array<any> => $.Tools.class.arrayRemove(
+            assert.deepEqual(Tools.arrayRemove(...test[0]), test[1])
+        assert.throws(():?Array<any> => Tools.arrayRemove(
             [], 2, true
         ), new Error(`Given target doesn't exists in given list.`))
     })
-    this.test(`arraySortTopological (${roundType})`, (assert:Object):void => {
+    test('arraySortTopological', ():void => {
         for (const test:Array<any> of [
             [{}, []],
             [{a: []}, ['a']],
@@ -1806,17 +1837,17 @@ describe('clientNode.Tools', ():void => {
             [{b: ['a'], a: [], c: ['a', 'b']}, ['a', 'b', 'c']]
         ])
             assert.deepEqual(
-                $.Tools.class.arraySortTopological(test[0]), test[1])
+                Tools.arraySortTopological(test[0]), test[1])
         for (const test:any of [
             {a: 'a'},
             {a: 'b', b: 'a'},
             {a: 'b', b: 'c', c: 'a'}
         ])
-            assert.throws(():void => $.Tools.class.arraySortTopological(test))
+            assert.throws(():void => Tools.arraySortTopological(test))
     })
     // / endregion
     // / region string
-    this.test('stringEscapeRegularExpressions', (
+    test('stringEscapeRegularExpressions', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -1833,10 +1864,10 @@ describe('clientNode.Tools', ():void => {
             [['-', '\\'], '\\-']
         ])
             assert.strictEqual(
-                $.Tools.class.stringEscapeRegularExpressions(...test[0]),
+                Tools.stringEscapeRegularExpressions(...test[0]),
                 test[1])
     })
-    this.test('stringConvertToValidVariableName', (assert:Object):void => {
+    test('stringConvertToValidVariableName', ():void => {
         for (const test:Array<string> of [
             ['', ''],
             ['a', 'a'],
@@ -1848,12 +1879,12 @@ describe('clientNode.Tools', ():void => {
             ['--a--a', 'aA']
         ])
             assert.strictEqual(
-                $.Tools.class.stringConvertToValidVariableName(
+                Tools.stringConvertToValidVariableName(
                     test[0]
                 ), test[1])
     })
     // // region url handling
-    this.test(`stringEncodeURIComponent (${roundType})`, (
+    test('stringEncodeURIComponent', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -1864,9 +1895,9 @@ describe('clientNode.Tools', ():void => {
             [['+'], '%2B']
         ])
             assert.strictEqual(
-                $.Tools.class.stringEncodeURIComponent(...test[0]), test[1])
+                Tools.stringEncodeURIComponent(...test[0]), test[1])
     })
-    this.test(`stringAddSeparatorToPath (${roundType})`, (
+    test('stringAddSeparatorToPath', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -1879,9 +1910,9 @@ describe('clientNode.Tools', ():void => {
             [['/a/bb/', '|'], '/a/bb/|']
         ])
             assert.strictEqual(
-                $.Tools.class.stringAddSeparatorToPath(...test[0]), test[1])
+                Tools.stringAddSeparatorToPath(...test[0]), test[1])
     })
-    this.test(`stringHasPathPrefix (${roundType})`, (assert:Object):void => {
+    test('stringHasPathPrefix', ():void => {
         for (const test:Array<any> of [
             ['/admin', '/admin'],
             ['test', 'test'],
@@ -1890,16 +1921,16 @@ describe('clientNode.Tools', ():void => {
             ['a/', 'a/b'],
             ['/admin', '/admin#test', '#']
         ])
-            assert.ok($.Tools.class.stringHasPathPrefix(...test))
+            assert.ok(Tools.stringHasPathPrefix(...test))
         for (const test:Array<any> of [
             ['b', 'a/b'],
             ['b/', 'a/b'],
             ['/admin/', '/admin/test', '#'],
             ['/admin', '/admin/test', '#']
         ])
-            assert.notOk($.Tools.class.stringHasPathPrefix(...test))
+            assert.notOk(Tools.stringHasPathPrefix(...test))
     })
-    this.test(`stringGetDomainName (${roundType})`, (assert:Object):void => {
+    test('stringGetDomainName', ():void => {
         for (const test:Array<any> of [
             [
                 ['https://www.test.de/site/subSite?param=value#hash'],
@@ -1933,9 +1964,9 @@ describe('clientNode.Tools', ():void => {
             [['//alternate.local/'], 'alternate.local']
         ])
             assert.strictEqual(
-                $.Tools.class.stringGetDomainName(...test[0]), test[1])
+                Tools.stringGetDomainName(...test[0]), test[1])
     })
-    this.test(`stringGetPortNumber (${roundType})`, (assert:Object):void => {
+    test('stringGetPortNumber', ():void => {
         for (const test:Array<any> of [
             [['https://www.test.de/site/subSite?param=value#hash'], 443],
             [['http://www.test.de'], 80],
@@ -1950,9 +1981,9 @@ describe('clientNode.Tools', ():void => {
             [['https://localhost:89'], 89]
         ])
             assert.strictEqual(
-                $.Tools.class.stringGetPortNumber(...test[0]), test[1])
+                Tools.stringGetPortNumber(...test[0]), test[1])
     })
-    this.test(`stringGetProtocolName (${roundType})`, (assert:Object):void => {
+    test('stringGetProtocolName', ():void => {
         for (const test:Array<any> of [
             [
                 ['https://www.test.de/site/subSite?param=value#hash'],
@@ -1998,12 +2029,12 @@ describe('clientNode.Tools', ():void => {
             ]
         ])
             assert.strictEqual(
-                $.Tools.class.stringGetProtocolName(...test[0]), test[1])
+                Tools.stringGetProtocolName(...test[0]), test[1])
     })
-    this.test(`stringGetURLVariable (${roundType})`, (assert:Object):void => {
-        assert.ok(Array.isArray($.Tools.class.stringGetURLVariable()))
-        assert.ok(Array.isArray($.Tools.class.stringGetURLVariable(null, '&')))
-        assert.ok(Array.isArray($.Tools.class.stringGetURLVariable(null, '#')))
+    test('stringGetURLVariable', ():void => {
+        assert.ok(Array.isArray(Tools.stringGetURLVariable()))
+        assert.ok(Array.isArray(Tools.stringGetURLVariable(null, '&')))
+        assert.ok(Array.isArray(Tools.stringGetURLVariable(null, '#')))
         for (const test:Array<any> of [
             [['notExisting'], null],
             [['notExisting', '&'], null],
@@ -2029,9 +2060,9 @@ describe('clientNode.Tools', ():void => {
             [['test', '&', '$', '!', null, '#!test?test=3#$test=4'], '4']
         ])
             assert.strictEqual(
-                $.Tools.class.stringGetURLVariable(...test[0]), test[1])
+                Tools.stringGetURLVariable(...test[0]), test[1])
     })
-    this.test(`stringIsInternalURL (${roundType})`, (assert:Object):void => {
+    test('stringIsInternalURL', ():void => {
         for (const test:Array<any> of [
             [
                 'https://www.test.de/site/subSite?param=value#hash',
@@ -2060,7 +2091,7 @@ describe('clientNode.Tools', ():void => {
             ['#1', $.global.location.href],
             ['/a', $.global.location.href]
         ])
-            assert.ok($.Tools.class.stringIsInternalURL(...test))
+            assert.ok(Tools.stringIsInternalURL(...test))
         for (const test:Array<any> of [
             [
                 `${$.global.location.protocol}//www.test.de/site/subSite` +
@@ -2086,9 +2117,9 @@ describe('clientNode.Tools', ():void => {
                 'https://www.test.de/site/subSite?param=value#hash'
             ]
         ])
-            assert.notOk($.Tools.class.stringIsInternalURL(...test))
+            assert.notOk(Tools.stringIsInternalURL(...test))
     })
-    this.test(`stringNormalizeURL (${roundType})`, (assert:Object):void => {
+    test('stringNormalizeURL', ():void => {
         for (const test:Array<any> of [
             ['www.test.com', 'http://www.test.com'],
             ['test', 'http://test'],
@@ -2096,9 +2127,9 @@ describe('clientNode.Tools', ():void => {
             ['https://test', 'https://test']
         ])
             assert.strictEqual(
-                $.Tools.class.stringNormalizeURL(test[0]), test[1])
+                Tools.stringNormalizeURL(test[0]), test[1])
     })
-    this.test(`stringRepresentURL (${roundType})`, (assert:Object):void => {
+    test('stringRepresentURL', ():void => {
         for (const test:Array<any> of [
             ['http://www.test.com', 'www.test.com'],
             ['ftp://www.test.com', 'ftp://www.test.com'],
@@ -2111,10 +2142,10 @@ describe('clientNode.Tools', ():void => {
             [' ', '']
         ])
             assert.strictEqual(
-                $.Tools.class.stringRepresentURL(test[0]), test[1])
+                Tools.stringRepresentURL(test[0]), test[1])
     })
     // // endregion
-    this.test(`stringCamelCaseToDelimited (${roundType})`, (
+    test('stringCamelCaseToDelimited', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -2132,9 +2163,9 @@ describe('clientNode.Tools', ():void => {
             [['hansPeter', '-', []], 'hans-peter']
         ])
             assert.strictEqual(
-                $.Tools.class.stringCamelCaseToDelimited(...test[0]), test[1])
+                Tools.stringCamelCaseToDelimited(...test[0]), test[1])
     })
-    this.test(`stringCapitalize (${roundType})`, (assert:Object):void => {
+    test('stringCapitalize', ():void => {
         for (const test:Array<any> of [
             ['hansPeter', 'HansPeter'],
             ['', ''],
@@ -2145,9 +2176,9 @@ describe('clientNode.Tools', ():void => {
             ['aa', 'Aa']
         ])
             assert.strictEqual(
-                $.Tools.class.stringCapitalize(test[0]), test[1])
+                Tools.stringCapitalize(test[0]), test[1])
     })
-    this.test(`stringCompressStyleValue (${roundType})`, (
+    test('stringCompressStyleValue', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -2162,9 +2193,9 @@ describe('clientNode.Tools', ():void => {
             [';height: 1px ; width:2px ; ', 'height:1px;width:2px']
         ])
             assert.strictEqual(
-                $.Tools.class.stringCompressStyleValue(test[0]), test[1])
+                Tools.stringCompressStyleValue(test[0]), test[1])
     })
-    this.test(`stringDecodeHTMLEntities (${roundType})`, (
+    test('stringDecodeHTMLEntities', (
         assert:Object
     ):void => {
         for (const test:Array<string> of [
@@ -2177,9 +2208,9 @@ describe('clientNode.Tools', ():void => {
             ]
         ])
             assert.equal(
-                $.Tools.class.stringDecodeHTMLEntities(test[0]), test[1])
+                Tools.stringDecodeHTMLEntities(test[0]), test[1])
     })
-    this.test(`stringDelimitedToCamelCase (${roundType})`, (
+    test('stringDelimitedToCamelCase', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -2205,9 +2236,9 @@ describe('clientNode.Tools', ():void => {
             [['hans--Url', '-', [], false, true], 'hansUrl']
         ])
             assert.strictEqual(
-                $.Tools.class.stringDelimitedToCamelCase(...test[0]), test[1])
+                Tools.stringDelimitedToCamelCase(...test[0]), test[1])
     })
-    this.test(`stringFindNormalizedMatchRange (${roundType})`, (
+    test('stringFindNormalizedMatchRange', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -2242,11 +2273,11 @@ describe('clientNode.Tools', ():void => {
                 [2, 9]
             ]
         ])
-            assert.deepEqual($.Tools.class.stringFindNormalizedMatchRange(
+            assert.deepEqual(Tools.stringFindNormalizedMatchRange(
                 ...test[0]
             ), test[1])
     })
-    this.test(`stringFormat (${roundType})`, (assert:Object):void => {
+    test('stringFormat', ():void => {
         for (const test:Array<any> of [
             [['{1}', 'test'], 'test'],
             [['', 'test'], ''],
@@ -2254,9 +2285,9 @@ describe('clientNode.Tools', ():void => {
             [['{1} test {2} - {2}', 1, 2], '1 test 2 - 2']
         ])
             assert.strictEqual(
-                $.Tools.class.stringFormat(...test[0]), test[1])
+                Tools.stringFormat(...test[0]), test[1])
     })
-    this.test(`stringGetEditDistance (${roundType})`, (assert:Object):void => {
+    test('stringGetEditDistance', ():void => {
         for (const test:Array<any> of [
             ['', '', 0],
             ['h', 'h', 0],
@@ -2269,9 +2300,9 @@ describe('clientNode.Tools', ():void => {
             ['beer', 'hans', 4]
         ])
             assert.strictEqual(
-                $.Tools.class.stringGetEditDistance(test[0], test[1]), test[2])
+                Tools.stringGetEditDistance(test[0], test[1]), test[2])
     })
-    this.test(`stringGetRegularExpressionValidated (${roundType})`, (
+    test('stringGetRegularExpressionValidated', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -2281,10 +2312,10 @@ describe('clientNode.Tools', ():void => {
             ['-', '\\-']
         ])
             assert.strictEqual(
-                $.Tools.class.stringGetRegularExpressionValidated(test[0]),
+                Tools.stringGetRegularExpressionValidated(test[0]),
                 test[1])
     })
-    this.test(`stringInterpretDateTime (${roundType})`, (
+    test('stringInterpretDateTime', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -2328,11 +2359,11 @@ describe('clientNode.Tools', ():void => {
             ['3. märz 1970', new Date(1970, 3 - 1, 3)],
             ['3. Dezember 1970', new Date(1970, 12 - 1, 3)]
         ])
-            assert.ok($.Tools.class.equals(
-                $.Tools.class.stringInterpretDateTime(test[0], false), test[1]
+            assert.ok(Tools.equals(
+                Tools.stringInterpretDateTime(test[0], false), test[1]
             ))
     })
-    this.test(`stringLowerCase (${roundType})`, (assert:Object):void => {
+    test('stringLowerCase', ():void => {
         for (const test:Array<any> of [
             ['HansPeter', 'hansPeter'],
             ['', ''],
@@ -2342,9 +2373,9 @@ describe('clientNode.Tools', ():void => {
             ['Aa', 'aa'],
             ['aa', 'aa']
         ])
-            assert.strictEqual($.Tools.class.stringLowerCase(test[0]), test[1])
+            assert.strictEqual(Tools.stringLowerCase(test[0]), test[1])
     })
-    this.test(`stringMark (${roundType})`, (assert:Object):void => {
+    test('stringMark', ():void => {
         for (const test:Array<any> of [
             [[''], ''],
             [['test', 'e'], 't<span class="tools-mark">e</span>st'],
@@ -2425,9 +2456,9 @@ describe('clientNode.Tools', ():void => {
                 '<a>str.</a>A <a>strasse</a> B <a>straße</a> C <a>str.</a> D'
             ]
         ])
-            assert.strictEqual($.Tools.class.stringMark(...test[0]), test[1])
+            assert.strictEqual(Tools.stringMark(...test[0]), test[1])
     })
-    this.test(`stringMD5 (${roundType})`, (assert:Object):void => {
+    test(`stringMD5 (${testEnvironment})`, ():void => {
         for (const test:Array<any> of [
             [[''], 'd41d8cd98f00b204e9800998ecf8427e'],
             [['test'], '098f6bcd4621d373cade4e832627b4f6'],
@@ -2435,9 +2466,9 @@ describe('clientNode.Tools', ():void => {
             [['test', true], '098f6bcd4621d373cade4e832627b4f6'],
             [['ä', true], 'c15bcc5577f9fade4b4a3256190a59b0']
         ])
-            assert.strictEqual($.Tools.class.stringMD5(...test[0]), test[1])
+            assert.strictEqual(Tools.stringMD5(...test[0]), test[1])
     })
-    this.test(`stringNormalizePhoneNumber (${roundType})`, (
+    test('stringNormalizePhoneNumber', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -2448,7 +2479,7 @@ describe('clientNode.Tools', ():void => {
             ['+49 172 (0) / 0212 - 3', '0049172002123']
         ])
             assert.strictEqual(
-                $.Tools.class.stringNormalizePhoneNumber(test[0]), test[1])
+                Tools.stringNormalizePhoneNumber(test[0]), test[1])
         for (const test:Array<any> of [
             ['0', '0'],
             [' 0  ', '0'],
@@ -2483,11 +2514,11 @@ describe('clientNode.Tools', ():void => {
             ['03677842375', '03677842375']
         ])
             assert.strictEqual(
-                $.Tools.class.stringNormalizePhoneNumber(test[0], false),
+                Tools.stringNormalizePhoneNumber(test[0], false),
                 test[1]
             )
     })
-    this.test(`stringNormalizeZipCode (${roundType})`, (
+    test('stringNormalizeZipCode', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -2500,10 +2531,10 @@ describe('clientNode.Tools', ():void => {
             [' 1B23A45 ', '12345']
         ])
             assert.strictEqual(
-                $.Tools.class.stringNormalizeZipCode(test[0]), test[1])
+                Tools.stringNormalizeZipCode(test[0]), test[1])
     })
     if (TARGET_TECHNOLOGY === 'node')
-        this.test('stringParseEncodedObject', (assert:Object):void => {
+        test('stringParseEncodedObject', ():void => {
             for (const test:Array<any> of [
                 [[''], null],
                 [['null'], null],
@@ -2527,10 +2558,10 @@ describe('clientNode.Tools', ():void => {
                 ]
             ])
                 assert.deepEqual(
-                    $.Tools.class.stringParseEncodedObject(...test[0]), test[1]
+                    Tools.stringParseEncodedObject(...test[0]), test[1]
                 )
         })
-    this.test(`stringSliceAllExceptNumberAndLastSeperator (${roundType})`, (
+    test('stringSliceAllExceptNumberAndLastSeperator', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -2539,12 +2570,12 @@ describe('clientNode.Tools', ():void => {
             ['123456', '123456']
         ])
             assert.strictEqual(
-                $.Tools.class.stringSliceAllExceptNumberAndLastSeperator(
+                Tools.stringSliceAllExceptNumberAndLastSeperator(
                     test[0]),
                 test[1]
             )
     })
-    this.test(`stringRepresentPhoneNumber (${roundType})`, (
+    test('stringRepresentPhoneNumber', (
         assert:Object
     ):void => {
         for (const test:Array<any> of [
@@ -2560,9 +2591,9 @@ describe('clientNode.Tools', ():void => {
             [' ', '']
         ])
             assert.strictEqual(
-                $.Tools.class.stringRepresentPhoneNumber(test[0]), test[1])
+                Tools.stringRepresentPhoneNumber(test[0]), test[1])
     })
-    this.test(`stringSliceWeekday (${roundType})`, (assert:Object):void => {
+    test('stringSliceWeekday', ():void => {
         for (const test:Array<string> of [
             ['', ''],
             ['a', 'a'],
@@ -2574,10 +2605,10 @@ describe('clientNode.Tools', ():void => {
             ['Mo. ', 'Mo. ']
         ])
             assert.strictEqual(
-                $.Tools.class.stringSliceWeekday(test[0]), test[1]
+                Tools.stringSliceWeekday(test[0]), test[1]
             )
     })
-    this.test(`stringNormalizeDomNodeSelector (${roundType})`, (
+    test('stringNormalizeDomNodeSelector', (
         assert:Object
     ):void => {
         for (const test:Array<string> of [
@@ -2600,7 +2631,7 @@ describe('clientNode.Tools', ():void => {
     })
     // / endregion
     // / region number
-    this.test(`numberGetUTCTimestamp (${roundType})`, (assert:Object):void => {
+    test('numberGetUTCTimestamp', ():void => {
         for (const test:Array<any> of [
             [[new Date(0)], 0],
             [[new Date(1)], 0.001],
@@ -2610,9 +2641,9 @@ describe('clientNode.Tools', ():void => {
             [[new Date(0), false], 0]
         ])
             assert.strictEqual(
-                $.Tools.class.numberGetUTCTimestamp(...test[0]), test[1])
+                Tools.numberGetUTCTimestamp(...test[0]), test[1])
     })
-    this.test(`numberIsNotANumber (${roundType})`, (assert:Object):void => {
+    test('numberIsNotANumber', ():void => {
         for (const test:Array<any> of [
             [NaN, true],
             [{}, false],
@@ -2624,9 +2655,9 @@ describe('clientNode.Tools', ():void => {
             [0, false]
         ])
             assert.strictEqual(
-                $.Tools.class.numberIsNotANumber(test[0]), test[1])
+                Tools.numberIsNotANumber(test[0]), test[1])
     })
-    this.test(`numberRound (${roundType})`, (assert:Object):void => {
+    test('numberRound', ():void => {
         for (const test:Array<any> of [
             [[1.5, 0], 2],
             [[1.4, 0], 1],
@@ -2643,11 +2674,11 @@ describe('clientNode.Tools', ():void => {
             [[650, -2], 700],
             [[649, -2], 600]
         ])
-            assert.strictEqual($.Tools.class.numberRound(...test[0]), test[1])
+            assert.strictEqual(Tools.numberRound(...test[0]), test[1])
     })
     // / endregion
     // / region data transnfer
-    this.test('checkReachability', async (assert:Object):Promise<void> => {
+    test('checkReachability', async ():Promise<void> => {
         const done:Function = assert.async()
         for (const test:Array<any> of [
             ['unknownURL', false],
@@ -2657,14 +2688,14 @@ describe('clientNode.Tools', ():void => {
             ['http://unknownHostName', true, [200, 301], 0.025]
         ])
             try {
-                await $.Tools.class.checkReachability(...test)
+                await Tools.checkReachability(...test)
                 assert.ok(false)
             } catch (error) {
                 assert.ok(true)
             }
         done()
     })
-    this.test('checkUnreachability', async (assert:Object):Promise<void> => {
+    test('checkUnreachability', async ():Promise<void> => {
         const done:Function = assert.async()
         for (const test:Array<any> of [
             ['unknownURL', false, 10, 0.1, 200],
@@ -2674,7 +2705,7 @@ describe('clientNode.Tools', ():void => {
             ['http://unknownHostName', true]
         ])
             try {
-                await $.Tools.class.checkUnreachability(...test)
+                await Tools.checkUnreachability(...test)
                 assert.ok(true)
             } catch (error) {
                 assert.ok(false)
@@ -2684,15 +2715,15 @@ describe('clientNode.Tools', ():void => {
     if (
         typeof targetTechnology !== 'undefined' &&
         targetTechnology === 'web' &&
-        roundType === 'full'
+        testEnvironment === 'full'
     ) {
-        this.test(`sendToIFrame (${roundType})`, (assert:Object):void => {
+        test('sendToIFrame', ():void => {
             const iFrame = $('<iframe>').hide().attr('name', 'test')
             $('body').append(iFrame)
-            assert.ok($.Tools.class.sendToIFrame(
+            assert.ok(Tools.sendToIFrame(
                 iFrame, window.document.URL, {test: 5}, 'get', true))
         })
-        this.test(`sendToExternalURL (${roundType})`, (
+        test('sendToExternalURL', (
             assert:Object
         ):void => assert.ok(tools.sendToExternalURL(
             window.document.URL, {test: 5})))
@@ -2700,68 +2731,68 @@ describe('clientNode.Tools', ():void => {
     // / endregion
     // / region file
     if (TARGET_TECHNOLOGY === 'node') {
-        this.test(`copyDirectoryRecursive (${roundType})`, async (
+        test('copyDirectoryRecursive', async (
             assert:Object
         ):Promise<void> => {
             const done:Function = assert.async()
-            assert.ok((await $.Tools.class.copyDirectoryRecursive(
+            assert.ok((await Tools.copyDirectoryRecursive(
                 './node_modules/.bin',
                 './copyDirectoryRecursiveTest.compiled',
-                $.Tools.class.noop
+                Tools.noop
             )).endsWith('/copyDirectoryRecursiveTest.compiled'))
             removeDirectoryRecursivelySync(
                 './copyDirectoryRecursiveTest.compiled')
             done()
         })
-        this.test(`copyDirectoryRecursiveSync (${roundType})`, (
+        test('copyDirectoryRecursiveSync', (
             assert:Object
         ):void => {
-            assert.ok($.Tools.class.copyDirectoryRecursiveSync(
+            assert.ok(Tools.copyDirectoryRecursiveSync(
                 './node_modules/.bin',
                 './copyDirectoryRecursiveTestSync.compiled',
-                $.Tools.class.noop
+                Tools.noop
             ).endsWith('/copyDirectoryRecursiveTestSync.compiled'))
             removeDirectoryRecursivelySync(
                 './copyDirectoryRecursiveTestSync.compiled')
         })
-        this.test(`copyFile (${roundType})`, async (
+        test('copyFile', async (
             assert:Object
         ):Promise<void> => {
             const done:Function = assert.async()
             let result:string = ''
             try {
-                result = await $.Tools.class.copyFile(
+                result = await Tools.copyFile(
                     path.resolve('./', path.basename(__filename)),
-                    `./test.${roundType}.compiled.js`
+                    `./test.${testEnvironment}.compiled.js`
                 )
             } catch (error) {
                 console.error(error)
             }
-            assert.ok(result.endsWith(`./test.${roundType}.compiled.js`))
+            assert.ok(result.endsWith(`./test.${testEnvironment}.compiled.js`))
             /*
                 NOTE: A race condition was identified here. So we need an
                 additional digest loop to have this test artefact placed here.
             */
     /*
             await Tools.timeout()
-            synchronousFileSystem.unlinkSync(`./test.${roundType}.compiled.js`)
+            synchronousFileSystem.unlinkSync(`./test.${testEnvironment}.compiled.js`)
             done()
         })
-        this.test(`copyFileSync (${roundType})`, (assert:Object):void => {
-            assert.ok($.Tools.class.copyFileSync(
+        test('copyFileSync', ():void => {
+            assert.ok(Tools.copyFileSync(
                 path.resolve('./', path.basename(__filename)),
                 './synctest.compiled.js'
             ).endsWith('/synctest.compiled.js'))
             synchronousFileSystem.unlinkSync('./synctest.compiled.js')
         })
-        this.test(`isDirectory (${roundType})`, async (
+        test('isDirectory', async (
             assert:Object
         ):Promise<void> => {
             const done:Function = assert.async()
             for (const filePath:string of ['./', '../']) {
                 let result:boolean
                 try {
-                    result = await $.Tools.class.isDirectory(filePath)
+                    result = await Tools.isDirectory(filePath)
                 } catch (error) {
                     console.error(error)
                 }
@@ -2772,7 +2803,7 @@ describe('clientNode.Tools', ():void => {
             ]) {
                 let result:boolean
                 try {
-                    result = await $.Tools.class.isDirectory(filePath)
+                    result = await Tools.isDirectory(filePath)
                 } catch (error) {
                     console.error(error)
                 }
@@ -2780,15 +2811,15 @@ describe('clientNode.Tools', ():void => {
             }
             done()
         })
-        this.test(`isDirectorySync (${roundType})`, (assert:Object):void => {
+        test('isDirectorySync', ():void => {
             for (const filePath:string of ['./', '../'])
-                assert.ok($.Tools.class.isDirectorySync(filePath))
+                assert.ok(Tools.isDirectorySync(filePath))
             for (const filePath:string of [
                 path.resolve('./', path.basename(__filename))
             ])
-                assert.notOk($.Tools.class.isDirectorySync(filePath))
+                assert.notOk(Tools.isDirectorySync(filePath))
         })
-        this.test(`isFile (${roundType})`, async (
+        test('isFile', async (
             assert:Object
         ):Promise<void> => {
             const done:Function = assert.async()
@@ -2797,7 +2828,7 @@ describe('clientNode.Tools', ():void => {
             ]) {
                 let result:boolean
                 try {
-                    result = await $.Tools.class.isFile(filePath)
+                    result = await Tools.isFile(filePath)
                 } catch (error) {
                     console.error(error)
                 }
@@ -2806,7 +2837,7 @@ describe('clientNode.Tools', ():void => {
             for (const filePath:string of ['./', '../']) {
                 let result:boolean
                 try {
-                    result = await $.Tools.class.isFile(filePath)
+                    result = await Tools.isFile(filePath)
                 } catch (error) {
                     console.error(error)
                 }
@@ -2814,15 +2845,15 @@ describe('clientNode.Tools', ():void => {
             }
             done()
         })
-        this.test(`isFileSync (${roundType})`, (assert:Object):void => {
+        test('isFileSync', ():void => {
             for (const filePath:string of [
                 path.resolve('./', path.basename(__filename))
             ])
-                assert.ok($.Tools.class.isFileSync(filePath))
+                assert.ok(Tools.isFileSync(filePath))
             for (const filePath:string of ['./', '../'])
-                assert.notOk($.Tools.class.isFileSync(filePath))
+                assert.notOk(Tools.isFileSync(filePath))
         })
-        this.test(`walkDirectoryRecursively (${roundType})`, async (
+        test('walkDirectoryRecursively', async (
             assert:Object
         ):Promise<void> => {
             const done:Function = assert.async()
@@ -2833,7 +2864,7 @@ describe('clientNode.Tools', ():void => {
             }
             let files:Array<File> = []
             try {
-                files = await $.Tools.class.walkDirectoryRecursively(
+                files = await Tools.walkDirectoryRecursively(
                     './', callback)
             } catch (error) {
                 console.error(error)
@@ -2844,7 +2875,7 @@ describe('clientNode.Tools', ():void => {
             assert.strictEqual(filePaths.length, 1)
             done()
         })
-        this.test(`walkDirectoryRecursivelySync (${roundType})`, (
+        test('walkDirectoryRecursivelySync', (
             assert:Object
         ):void => {
             const filePaths:Array<string> = []
@@ -2853,7 +2884,7 @@ describe('clientNode.Tools', ():void => {
                 return null
             }
             const files:Array<File> =
-                $.Tools.class.walkDirectoryRecursivelySync('./', callback)
+                Tools.walkDirectoryRecursivelySync('./', callback)
             assert.strictEqual(files.length, 1)
             assert.ok(files[0].hasOwnProperty('path'))
             assert.ok(files[0].hasOwnProperty('stats'))
@@ -2863,13 +2894,13 @@ describe('clientNode.Tools', ():void => {
     // / endregion
     // / region process handler
     if (TARGET_TECHNOLOGY === 'node') {
-        this.test(`getProcessCloseHandler (${roundType})`, (
+        test('getProcessCloseHandler', (
             assert:Object
         ):void => assert.strictEqual(
-            typeof $.Tools.class.getProcessCloseHandler(
+            typeof Tools.getProcessCloseHandler(
                 ():void => {}, ():void => {}
             ), 'function'))
-        this.test(`handleChildProcess (${roundType})`, (
+        test('handleChildProcess', (
             assert:Object
         ):void => {
             /**
@@ -2907,14 +2938,14 @@ describe('clientNode.Tools', ():void => {
             childProcess.stderr = stderrMockupDuplexStream
 
             assert.strictEqual(
-                $.Tools.class.handleChildProcess(childProcess), childProcess)
+                Tools.handleChildProcess(childProcess), childProcess)
         })
     }
     // / endregion
     // endregion
     // region protected
-    if (roundType === 'full')
-        this.test(`_bindEventHelper (${roundType})`, (
+    if (testEnvironment === 'full')
+        test(`_bindEventHelper (${testEnvironment})`, (
             assert:Object
         ):void => {
             for (const test:Array<any> of [
@@ -2927,7 +2958,7 @@ describe('clientNode.Tools', ():void => {
     // endregion
     */
 })
-// endregionendregion
+// endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:

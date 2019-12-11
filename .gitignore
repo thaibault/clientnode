@@ -17,6 +17,7 @@ __pycache__
 # Runtime data
 .cache
 .config
+.goutputstream-*
 .local
 .node-gyp
 .node-xmlhttprequest-sync*
@@ -95,6 +96,9 @@ nosetests.xml
 .project
 .pydevproject
 .settings
+*.iml
+**/.idea/sonarIssues.xml
+**/.idea/sonarlint-state.xml
 **/.idea/workspace.xml
 
 # Gedit autosave backups.
@@ -113,6 +117,7 @@ nosetests.xml
 .npm/
 .npm-debug.log
 .v8flags.*
+.yarnrc
 node_modules/
 npm-debug.log
 yarn-error.log
