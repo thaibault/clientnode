@@ -262,35 +262,33 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         (target:string, pattern:Array<string|RegExp>):void =>
             expect(Tools.isAnyMatching(target, pattern)).toStrictEqual(false)
     )
-    // TODO migrate to each
-    test('isPlainObject', ():void => {
-        for (const okValue:any of [
-            {},
-            {a: 1},
-            /* eslint-disable no-new-object */
-            new Object()
-            /* eslint-enable no-new-object */
-        ])
-            expect(Tools.isPlainObject(okValue)).toStrictEqual(true)
-        for (const notOkValue:any of [
-            new String(), Object, null, 0, 1, true, undefined
-        ])
-            expect(Tools.isPlainObject(notOkValue)).toStrictEqual(false)
-    })
-    test('isFunction', ():void => {
-        for (const value:any of [
-            Object,
-            new Function('return 1'),
-            function():void {},
-            ():void => {},
-            async ():Promise<void> => {}
-        ])
-            expect(Tools.isFunction(value)).toStrictEqual(true)
-        for (const value:any of [
-            null, false, 0, 1, undefined, {}, new Boolean()
-        ])
+    test.each([
+        {},
+        {a: 1},
+        /* eslint-disable no-new-object */
+        new Object()
+        /* eslint-enable no-new-object */
+    ])('.isPlainObject(%p) === true', (value:any):void =>
+        expect(Tools.isPlainObject(value)).toStrictEqual(true)
+    )
+    test.each([new String(), Object, null, 0, 1, true, undefined])(
+        '.isPlainObject(%p) === false',
+        (value:any):void =>
+            expect(Tools.isPlainObject(value)).toStrictEqual(false)
+    )
+    test.each([
+        Object,
+        new Function('return 1'),
+        function():void {},
+        ():void => {},
+        async ():Promise<void> => {}
+    ])('.isFunction(%p) === true', (value:any):void =>
+        expect(Tools.isFunction(value)).toStrictEqual(true)
+    )
+    test.each([null, false, 0, 1, undefined, {}, new Boolean()])(
+        '.isFunction(%p) === false', (value:any):void =>
             expect(Tools.isFunction(value)).toStrictEqual(false)
-    })
+    )
     // / endregion
     // / region language fixes
     test('mouseOutEventHandlerFix', ():void =>
@@ -309,20 +307,21 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             .toStrictEqual(tools)
     )
     test('warn', ():void => expect(tools.warn('test')).toStrictEqual(tools))
-    test('show', ():void => {
-        for (const test:Array<any> of [
-            [1, '1 (Type: "number")'],
-            [null, 'null (Type: "null")'],
-            [/a/, '/a/ (Type: "regexp")'],
-            ['hans', 'hans (Type: "string")'],
-            [{A: 'a', B: 'b'}, 'A: a (Type: "string")\nB: b (Type: "string")']
-        ])
-            expect(Tools.show(test[0])).toStrictEqual(test[1])
+    test('show', ():void =>
         /* eslint-disable no-control-regex */
         expect(/^.+\(Type: "function"\)$/su.test(Tools.show(Tools.noop)))
             .toStrictEqual(true)
         /* eslint-enable no-control-regex */
-    })
+    )
+    test.each([
+        [1, '1 (Type: "number")'],
+        [null, 'null (Type: "null")'],
+        [/a/, '/a/ (Type: "regexp")'],
+        ['hans', 'hans (Type: "string")'],
+        [{A: 'a', B: 'b'}, 'A: a (Type: "string")\nB: b (Type: "string")']
+    ])('.show(%p) === %s', (value:any, expected:string):void =>
+        expect(Tools.show(value)).toStrictEqual(expected)
+    )
     // / endregion
     // / region dom node handling
     if (hasDOM) {
@@ -333,7 +332,8 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             expect(
                 $('<div>')
                     .Tools('normalizedClassNames')
-                    .$domNode.prop('outerHTML')
+                    .$domNode
+                    .prop('outerHTML')
             ).toStrictEqual($('<div>').prop('outerHTML'))
             expect(
                 $('<div class>').Tools('normalizedClassNames').$domNode.html()
@@ -419,138 +419,152 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                     .prop('outerHTML')
             )
         })
-        test(`get style (${testEnvironment})`, ():void => {
-            for (const test:Array<any> of [
-                ['<span>', {}],
-                ['<span>hans</span>', {}],
-                ['<span style="display:block"></span>', {display: 'block'}],
-                [
-                    '<span style="display:block;height:100px;"></span>',
-                    {display: 'block', height: '100px'}
-                ]
-            ]) {
-                const $domNode:$DomNode = $(test[0])
+        test.each([
+            ['<span>', {}],
+            ['<span>hans</span>', {}],
+            ['<span style="display:block"></span>', {display: 'block'}],
+            [
+                '<span style="display:block;height:100px;"></span>',
+                {display: 'block', height: '100px'}
+            ]
+        ])(
+            `get style '%s' => %p (${testEnvironment})`,
+            (html:string, css:PlainObject):void => {
+                const $domNode:$DomNode = $(html)
                 $('body').append($domNode)
                 const styles:PlainObject = $domNode.Tools('style')
-                for (const propertyName:string in test[1])
-                    if (test[1].hasOwnProperty(propertyName)) {
+                for (const propertyName:string in css)
+                    if (css.hasOwnProperty(propertyName)) {
                         expect(styles.hasOwnProperty(propertyName))
                             .toStrictEqual(true)
                         expect(styles[propertyName])
-                            .toStrictEqual(test[1][propertyName])
+                            .toStrictEqual(css[propertyName])
                     }
                 $domNode.remove()
             }
-        })
-        test(`get text (${testEnvironment})`, ():void => {
-            for (const test:Array<string> of [
-                ['<div>', ''],
-                ['<div>hans</div>', 'hans'],
-                ['<div><div>hans</div</div>', ''],
-                ['<div>hans<div>peter</div></div>', 'hans']
-            ])
-                expect($(test[0]).Tools('text')).toStrictEqual(test[1])
-        })
+        )
+        test.each([
+            ['<div>', ''],
+            ['<div>hans</div>', 'hans'],
+            ['<div><div>hans</div</div>', ''],
+            ['<div>hans<div>peter</div></div>', 'hans']
+        ])(
+            `get text '%s' => '%s' (${testEnvironment})`,
+            (html:string, text:string):void =>
+                expect($(html).Tools('text')).toStrictEqual(text)
+        )
         // endregion
-        test('isEquivalentDOM', ():void => {
-            for (const test:Array<any> of [
-                ['test', 'test'],
-                ['test test', 'test test'],
-                ['<div>', '<div>'],
-                ['<div class>', '<div>'],
-                ['<div class="">', '<div>'],
-                ['<div style>', '<div>'],
-                ['<div style="">', '<div>'],
-                ['<div></div>', '<div>'],
-                ['<div class="a"></div>', '<div class="a"></div>'],
-                [
-                    $('<a target="_blank" class="a"></a>'),
-                    '<a class="a" target="_blank"></a>'
-                ],
-                [
-                    '<a target="_blank" class="a"></a>',
-                    '<a class="a" target="_blank"></a>'
-                ],
-                [
-                    '<a target="_blank" class="a"><div b="3" a="2"></div></a>',
-                    '<a class="a" target="_blank"><div a="2" b="3"></div></a>'
-                ],
-                [
-                    `
-                        <a target="_blank" class="b a">
-                            <div b="3" a="2"></div>
-                        </a>
-                    `,
-                    `
-                        <a class="a b" target="_blank">
-                            <div a="2" b="3"></div>
-                        </a>
-                    `
-                ],
-                ['<div>a</div><div>b</div>', '<div>a</div><div>b</div>'],
-                ['<div>a</div>b', '<div>a</div>b'],
-                ['<br>', '<br />'],
-                ['<div><br><br /></div>', '<div><br /><br /></div>'],
-                [
-                    ' <div style="">' +
-                    'german<!--deDE--><!--enUS: english --> </div>',
-                    ' <div style="">german<!--deDE--><!--enUS: english --> ' +
-                    '</div>'
-                ],
-                ['a<br>', 'a<br />', true]
-            ])
-                expect(Tools.isEquivalentDOM(...test)).toStrictEqual(true)
-            for (const test:Array<any> of [
-                ['test', ''],
-                ['test', 'hans'],
-                ['test test', 'testtest'],
-                ['test test:', ''],
-                ['<div class="a"></div>', '<div>'],
-                [$('<a class="a"></a>'), '<a class="a" target="_blank"></a>'],
-                [
-                    '<a target="_blank" class="a"><div a="2"></div></a>',
-                    '<a class="a" target="_blank"></a>'
-                ],
-                ['<div>a</div>b', '<div>a</div>c'],
-                [' <div>a</div>', '<div>a</div>'],
-                ['<div>a</div><div>bc</div>', '<div>a</div><div>b</div>'],
-                ['text', 'text a'],
-                ['text', 'text a'],
-                ['text', 'text a & +']
-            ])
-                expect(Tools.isEquivalentDOM(...test)).toStrictEqual(false)
-        })
+        test.each([
+            ['test', 'test'],
+            ['test test', 'test test'],
+            ['<div>', '<div>'],
+            ['<div class>', '<div>'],
+            ['<div class="">', '<div>'],
+            ['<div style>', '<div>'],
+            ['<div style="">', '<div>'],
+            ['<div></div>', '<div>'],
+            ['<div class="a"></div>', '<div class="a"></div>'],
+            [
+                $('<a target="_blank" class="a"></a>'),
+                '<a class="a" target="_blank"></a>'
+            ],
+            [
+                '<a target="_blank" class="a"></a>',
+                '<a class="a" target="_blank"></a>'
+            ],
+            [
+                '<a target="_blank" class="a"><div b="3" a="2"></div></a>',
+                '<a class="a" target="_blank"><div a="2" b="3"></div></a>'
+            ],
+            [
+                `
+                    <a target="_blank" class="b a">
+                        <div b="3" a="2"></div>
+                    </a>
+                `,
+                `
+                    <a class="a b" target="_blank">
+                        <div a="2" b="3"></div>
+                    </a>
+                `
+            ],
+            ['<div>a</div><div>b</div>', '<div>a</div><div>b</div>'],
+            ['<div>a</div>b', '<div>a</div>b'],
+            ['<br>', '<br />'],
+            ['<div><br><br /></div>', '<div><br /><br /></div>'],
+            [
+                ' <div style="">' +
+                'german<!--deDE--><!--enUS: english --> </div>',
+                ' <div style="">german<!--deDE--><!--enUS: english --> ' +
+                '</div>'
+            ],
+            ['a<br>', 'a<br />', true]
+        ])(
+            `.isEquivalentDOM('%s', '%s') === true`,
+            (
+                first:string,
+                second:string,
+                forceHTMLString:boolean = false
+            ):void =>
+                expect(Tools.isEquivalentDOM(first, second, forceHTMLString))
+                    .toStrictEqual(true)
+        )
+        test.each([
+            ['test', ''],
+            ['test', 'hans'],
+            ['test test', 'testtest'],
+            ['test test:', ''],
+            ['<div class="a"></div>', '<div>'],
+            [$('<a class="a"></a>'), '<a class="a" target="_blank"></a>'],
+            [
+                '<a target="_blank" class="a"><div a="2"></div></a>',
+                '<a class="a" target="_blank"></a>'
+            ],
+            ['<div>a</div>b', '<div>a</div>c'],
+            [' <div>a</div>', '<div>a</div>'],
+            ['<div>a</div><div>bc</div>', '<div>a</div><div>b</div>'],
+            ['text', 'text a'],
+            ['text', 'text a'],
+            ['text', 'text a & +']
+        ])(
+            `.isEquivalentDOM('%s', '%s') === false`,
+            (first:string, second:string):void =>
+                expect(Tools.isEquivalentDOM(first, second))
+                    .toStrictEqual(false)
+        )
         test('getPositionRelativeToViewport', ():void =>
             expect(['above', 'left', 'right', 'below', 'in'])
                 .toContain(tools.getPositionRelativeToViewport())
         )
     }
-    test('generateDirectiveSelector', ():void => {
-        for (const test:Array<string> of [
-            ['a-b', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
-            ['aB', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
-            ['a', 'a, .a, [a], [data-a], [x-a]'],
-            ['aa', 'aa, .aa, [aa], [data-aa], [x-aa]'],
-            [
-                'aaBB',
-                'aa-bb, .aa-bb, [aa-bb], [data-aa-bb], [x-aa-bb], [aa\\:bb],' +
-                ' [aa_bb]'
-            ],
-            [
-                'aaBbCcDd',
-                'aa-bb-cc-dd, .aa-bb-cc-dd, [aa-bb-cc-dd], ' +
-                '[data-aa-bb-cc-dd], [x-aa-bb-cc-dd], ' +
-                '[aa\\:bb\\:cc\\:dd], [aa_bb_cc_dd]'
-            ],
-            [
-                'mceHREF',
-                'mce-href, .mce-href, [mce-href], [data-mce-href], ' +
-                '[x-mce-href], [mce\\:href], [mce_href]'
-            ]
-        ])
-            expect(Tools.generateDirectiveSelector(test[0]))
-                .toStrictEqual(test[1])
-    })
+    test.each([
+        ['a-b', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
+        ['aB', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
+        ['a', 'a, .a, [a], [data-a], [x-a]'],
+        ['aa', 'aa, .aa, [aa], [data-aa], [x-aa]'],
+        [
+            'aaBB',
+            'aa-bb, .aa-bb, ' +
+            '[aa-bb], [data-aa-bb], [x-aa-bb], [aa\\:bb], [aa_bb]'
+        ],
+        [
+            'aaBbCcDd',
+            'aa-bb-cc-dd, .aa-bb-cc-dd, ' +
+            '[aa-bb-cc-dd], [data-aa-bb-cc-dd], [x-aa-bb-cc-dd], ' +
+            '[aa\\:bb\\:cc\\:dd], [aa_bb_cc_dd]'
+        ],
+        [
+            'mceHREF',
+            'mce-href, .mce-href, ' +
+            '[mce-href], [data-mce-href], [x-mce-href], [mce\\:href], ' +
+            '[mce_href]'
+        ]
+    ])(
+        `.generateDirectiveSelector('%s') === '%s'`,
+        (name:string, selector:string):void =>
+            expect(Tools.generateDirectiveSelector(name))
+                .toStrictEqual(selector)
+    )
     if (hasDOM)
         test('removeDirective', async ():Promise<void> => {
             await getInitializedBrowser()
@@ -558,16 +572,14 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             expect($localBodyDomNode.Tools().removeDirective('a'))
                 .toStrictEqual($localBodyDomNode)
         })
-    test('getNormalizedDirectiveName', ():void => {
-        for (const test:Array<string> of [
-            ['data-a', 'a'],
-            ['x-a', 'a'],
-            ['data-a-bb', 'aBb'],
-            ['x:a:b', 'aB']
-        ])
-            expect(Tools.getNormalizedDirectiveName(test[0]))
-                .toStrictEqual(test[1])
-    })
+    test.each([
+        ['data-a', 'a'], ['x-a', 'a'], ['data-a-bb', 'aBb'], ['x:a:b', 'aB']
+    ])(
+        `.getNormalizedDirectiveName('%s') === '%s'`,
+        (directive:string, name:string):void =>
+            expect(Tools.getNormalizedDirectiveName(directive))
+                .toStrictEqual(name)
+    )
     if (hasDOM)
         test('getDirectiveValue', async ():Promise<void> => {
             await getInitializedBrowser()
@@ -586,19 +598,18 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 .sliceDomNodeSelectorPrefix('body div')
         ).toStrictEqual('body div')
     })
-    test('getDomNodeName', ():void => {
-        for (const test:Array<string> of [
-            ['div', 'div'],
-            ['<div>', 'div'],
-            ['<div />', 'div'],
-            ['<div></div>', 'div'],
-            ['a', 'a'],
-            ['<a>', 'a'],
-            ['<a />', 'a'],
-            ['<a></a>', 'a']
-        ])
-            expect(Tools.getDomNodeName(test[0])).toStrictEqual(test[1])
-    })
+    test.each([
+        ['div', 'div'],
+        ['<div>', 'div'],
+        ['<div />', 'div'],
+        ['<div></div>', 'div'],
+        ['a', 'a'],
+        ['<a>', 'a'],
+        ['<a />', 'a'],
+        ['<a></a>', 'a']
+    ])(`.getDomNodeName('%s') === '%s'`, (html:string, name:string):void =>
+        expect(Tools.getDomNodeName(html)).toStrictEqual(name)
+    )
     if (hasDOM)
         test('grabDomNode', async ():Promise<void> => {
             const browser:Browser = await getInitializedBrowser()
@@ -652,26 +663,29 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         expect(finalScope).toEqual({a: 2, b: 3})
         expect(Tools.isolateScope(new Scope())).toEqual({a: 2, b: undefined})
     })
-    /* TODO
-    test('determineUniqueScopeName', (
-        assert:Object
-    ):void => {
-        assert.ok(Tools.determineUniqueScopeName().startsWith('callback'))
-        assert.ok(Tools.determineUniqueScopeName('hans').startsWith('hans'))
-        assert.ok(Tools.determineUniqueScopeName('hans', '', {}).startsWith('hans'))
-        assert.strictEqual(Tools.determineUniqueScopeName(
-            'hans', '', {}, 'peter'
-        ), 'peter')
-        assert.ok(Tools.determineUniqueScopeName(
-            'hans', '', {peter: 2}, 'peter'
-        ).startsWith('hans'))
+    test('determineUniqueScopeName', ():void => {
+        expect(Tools.determineUniqueScopeName()).toEqual(
+            expect.stringMatching(/^callback/)
+        )
+        expect(Tools.determineUniqueScopeName('hans')).toEqual(
+            expect.stringMatching(/^hans/)
+        )
+        expect(Tools.determineUniqueScopeName('hans', '', {})).toEqual(
+            expect.stringMatching(/^hans/)
+        )
+        expect(Tools.determineUniqueScopeName('hans', '', {}, 'peter'))
+            .toStrictEqual('peter')
+        expect(
+            Tools.determineUniqueScopeName('hans', '', {peter: 2}, 'peter')
+        ).toEqual(expect.stringMatching(/^hans/))
         const name:string = Tools.determineUniqueScopeName(
             'hans', 'klaus', {peter: 2}, 'peter')
-        assert.ok(name.startsWith('hans'))
-        assert.ok(name.endsWith('klaus'))
-        assert.ok(name.length > 'hans'.length + 'klaus'.length)
+        expect(name).toEqual(expect.stringMatching(/^hans/))
+        expect(name).toEqual(expect.stringMatching(/klaus$/))
+        expect(name.length).toBeGreaterThan('hans'.length + 'klaus'.length)
     })
     // / endregion
+    /* TODO
     // / region function handling
     test('getParameterNames', ():void => {
         for (const test:Array<any> of [
