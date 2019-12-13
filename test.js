@@ -685,40 +685,47 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         expect(name.length).toBeGreaterThan('hans'.length + 'klaus'.length)
     })
     // / endregion
-    /* TODO
     // / region function handling
-    test('getParameterNames', ():void => {
-        for (const test:Array<any> of [
-            [function():void {}, []],
-            ['function() {}', []],
-            ['function(a, /* dummy*TODO/ b, c/**TODO/) {}', ['a', 'b', 'c']],
-            ['(a, /*dummy*TODO/b, c/**TODO/) => {}', ['a', 'b', 'c']],
-            [`(a, /*dummy*TODO/b, c/**TODO/) => {
+    test.each([
+        [function():void {}, []],
+        ['function() {}', []],
+        ['function(a, /* dummy*/ b, c/**/) {}', ['a', 'b', 'c']],
+        ['(a, /*dummy*/b, c/**/) => {}', ['a', 'b', 'c']],
+        [
+            `(a, /*dummy*/b, c/**/) => {
                 return 2
-            }`, ['a', 'b', 'c']],
-            ['(a, /* dummy*TODO/b, c/* *TODO/) => 2', ['a', 'b', 'c']],
-            ['(a, /* dummy*TODO/b = 2, c/* *TODO/) => 2', ['a', 'b', 'c']],
-            ['a => 2', ['a']],
-            [`class A {
+            }`,
+            ['a', 'b', 'c']
+        ],
+        ['(a, /* dummy*/b, c/* */) => 2', ['a', 'b', 'c']],
+        ['(a, /* dummy*/b = 2, c/* */) => 2', ['a', 'b', 'c']],
+        ['a => 2', ['a']],
+        [
+            `class A {
                 constructor(a, b, c) {}
                 a() {}
-            }`, ['a', 'b', 'c']]
-        ])
-            assert.deepEqual(Tools.getParameterNames(test[0]), test[1])
-    })
+            }`,
+            ['a', 'b', 'c']
+        ]
+    ])(`.getParameterNames('%s') === %p`, (code:string, parameterNames:Array<string>):void =>
+        expect(Tools.getParameterNames(code)).toEqual(parameterNames)
+    )
     test('identity', ():void => {
-        for (const test:Array<any> of [
-            [2, 2],
-            ['', ''],
-            [undefined, undefined],
-            [null, null],
-            ['hans', 'hans']
-        ])
-            assert.strictEqual(Tools.identity(test[0]), test[1])
-        assert.ok(Tools.identity({}) !== {})
+        expect(Tools.identity({})).not.toStrictEqual({})
         const testObject = {}
-        assert.strictEqual(Tools.identity(testObject), testObject)
+        expect(Tools.identity(testObject)).toStrictEqual(testObject)
     })
+    test.each([
+        [2, 2],
+        ['', ''],
+        [undefined, undefined],
+        [null, null],
+        ['hans', 'hans']
+    ])('.identity(%p) === %p', (given:any, expected:any):void =>
+        expect(Tools.identity(given)).toStrictEqual(expected)
+    )
+
+    /* TODO
     test('invertArrayFilter', ():void => {
         assert.deepEqual(Tools.invertArrayFilter(
             Tools.arrayDeleteEmptyItems
