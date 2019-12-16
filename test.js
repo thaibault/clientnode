@@ -809,54 +809,84 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             expect(testValue).toStrictEqual(false)
         })
     }
-    /*
     // / endregion
     // / region object
     test('addDynamicGetterAndSetter', (
         assert:Object
     ):void => {
-        assert.strictEqual(Tools.addDynamicGetterAndSetter(null), null)
-        assert.strictEqual(Tools.addDynamicGetterAndSetter(true), true)
-        assert.deepEqual(Tools.addDynamicGetterAndSetter({a: 2}), {a: 2})
-        assert.notOk(Tools.addDynamicGetterAndSetter({
-        }).__target__ instanceof Object)
-        assert.ok(Tools.addDynamicGetterAndSetter({}, (
-            value:any
-        ):any => value).__target__ instanceof Object)
+        expect(Tools.addDynamicGetterAndSetter(null)).toStrictEqual(null)
+        expect(Tools.addDynamicGetterAndSetter(true)).toStrictEqual(true)
+        expect(Tools.addDynamicGetterAndSetter({a: 2})).toStrictEqual({a: 2})
+        expect(Tools.addDynamicGetterAndSetter({}).__target__)
+            .not.toBeInstanceOf(Object)
+        expect(
+            Tools.addDynamicGetterAndSetter(
+                {}, (value:any):any => value
+            ).__target__
+        ).toBeInstanceOf(Object)
         const mockup = {}
-        assert.strictEqual(Tools.addDynamicGetterAndSetter(mockup), mockup)
-        assert.strictEqual(Tools.addDynamicGetterAndSetter(
-            mockup, (value:any):any => value
-        ).__target__, mockup)
-        assert.deepEqual(Tools.addDynamicGetterAndSetter({a: 1}, (
-            value:any
-        ):any => value + 2).a, 3)
-        assert.deepEqual(Tools.addDynamicGetterAndSetter(
-            {a: {a: 1}}, (value:any):any => (
-                value instanceof Object
-            ) ? value : value + 2).a.a, 3)
-        assert.deepEqual(Tools.addDynamicGetterAndSetter({a: {a: [{
-            a: 1
-        }]}}, (value:any):any => (
-            value instanceof Object
-        ) ? value : value + 2).a.a[0].a, 3)
-        assert.deepEqual(Tools.addDynamicGetterAndSetter(
-            {a: {a: 1}}, (value:any):any =>
-                (value instanceof Object) ? value : value + 2,
-            null, {has: 'hasOwnProperty'}, false
-        ).a.a, 1)
-        assert.deepEqual(Tools.addDynamicGetterAndSetter(
-            {a: 1}, (value:any):any =>
-                (value instanceof Object) ? value : value + 2,
-            null, {has: 'hasOwnProperty'}, false, []
-        ).a, 1)
-        assert.deepEqual(Tools.addDynamicGetterAndSetter(
-            {a: new Map([['a', 1]])}, (value:any):any =>
-                (value instanceof Object) ? value : value + 2,
-            null, {delete: 'delete', get: 'get', set: 'set', has: 'has'}, true,
-            [Map]
-        ).a.a, 3)
+        expect(Tools.addDynamicGetterAndSetter(mockup)).toStrictEqual(mockup)
+        expect(
+            Tools.addDynamicGetterAndSetter(
+                mockup, (value:any):any => value
+            ).__target__
+        ).toStrictEqual(mockup)
+        expect(
+            Tools.addDynamicGetterAndSetter(
+                {a: 1}, (value:any):any => value + 2
+            ).a
+        ).toStrictEqual(3)
+        expect(
+            Tools.addDynamicGetterAndSetter(
+                {a: {a: 1}},
+                (value:any):any => (value instanceof Object) ?
+                    value :
+                    value + 2
+            ).a.a
+        ).toStrictEqual(3)
+        expect(
+            Tools.addDynamicGetterAndSetter(
+                {a: {a: [{a: 1}]}},
+                (value:any):any => (value instanceof Object) ?
+                    value :
+                    value + 2
+            ).a.a[0].a
+        ).toStrictEqual(3)
+        expect(
+            Tools.addDynamicGetterAndSetter(
+                {a: {a: 1}},
+                (value:any):any => (value instanceof Object) ?
+                    value :
+                    value + 2,
+                null,
+                {has: 'hasOwnProperty'},
+                false
+            ).a.a
+        ).toStrictEqual(1)
+        expect(
+            Tools.addDynamicGetterAndSetter(
+                {a: 1},
+                (value:any):any =>
+                    (value instanceof Object) ? value : value + 2,
+                null,
+                {has: 'hasOwnProperty'},
+                false,
+                []
+            ).a
+        ).toStrictEqual(1)
+        expect(
+            Tools.addDynamicGetterAndSetter(
+                {a: new Map([['a', 1]])},
+                (value:any):any =>
+                    (value instanceof Object) ? value : value + 2,
+                null,
+                {delete: 'delete', get: 'get', set: 'set', has: 'has'},
+                true,
+                [Map]
+            ).a.a
+        ).toStrictEqual(3)
     })
+    /* TODO
     test('convertCircularObjectToJSON', (
         assert:Object
     ):void => {
