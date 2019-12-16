@@ -623,16 +623,16 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 const $domNodes = tools.grabDomNode(...test[0])
                 delete $domNodes.window
                 delete $domNodes.document
-                expect($domNodes).toEqual(test[1])
+                expect($domNodes).toStrictEqual(test[1])
             }
         })
     // / endregion
     // / region scope
     test('isolateScope', ():void => {
-        expect(Tools.isolateScope({})).toEqual({})
-        expect(Tools.isolateScope({a: 2})).toEqual({a: 2})
+        expect(Tools.isolateScope({})).toStrictEqual({})
+        expect(Tools.isolateScope({a: 2})).toStrictEqual({a: 2})
         expect(Tools.isolateScope({a: 2, b: {a: [1, 2]}}))
-            .toEqual({a: 2, b: {a: [1, 2]}})
+            .toStrictEqual({a: 2, b: {a: [1, 2]}})
         let Scope:Function = function():void {
             this.a = 2
         }
@@ -642,16 +642,18 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         let finalScope:PlainObject = {}
         for (const name:string in scope)
             finalScope[name] = scope[name]
-        expect(finalScope).toEqual({_a: 5, a: 2, b: undefined})
+        expect(finalScope).toStrictEqual({_a: 5, a: 2, b: undefined})
         scope.b = 3
         Tools.isolateScope(scope, ['_'])
         finalScope = {}
         for (const name:string in scope)
             finalScope[name] = scope[name]
-        expect(finalScope).toEqual({_a: 5, a: 2, b: 3})
-        expect(Tools.isolateScope(scope)).toEqual({_a: undefined, a: 2, b: 3})
+        expect(finalScope).toStrictEqual({_a: 5, a: 2, b: 3})
+        expect(Tools.isolateScope(scope))
+            .toStrictEqual({_a: undefined, a: 2, b: 3})
         scope._a = 6
-        expect(Tools.isolateScope(scope, ['_'])).toEqual({_a: 6, a: 2, b: 3})
+        expect(Tools.isolateScope(scope, ['_']))
+            .toStrictEqual({_a: 6, a: 2, b: 3})
         Scope = function():void {
             this.a = 2
         }
@@ -660,28 +662,26 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         finalScope = {}
         for (const name:string in scope)
             finalScope[name] = scope[name]
-        expect(finalScope).toEqual({a: 2, b: 3})
-        expect(Tools.isolateScope(new Scope())).toEqual({a: 2, b: undefined})
+        expect(finalScope).toStrictEqual({a: 2, b: 3})
+        expect(Tools.isolateScope(new Scope()))
+            .toStrictEqual({a: 2, b: undefined})
     })
     test('determineUniqueScopeName', ():void => {
-        expect(Tools.determineUniqueScopeName()).toEqual(
-            expect.stringMatching(/^callback/)
-        )
-        expect(Tools.determineUniqueScopeName('hans')).toEqual(
-            expect.stringMatching(/^hans/)
-        )
-        expect(Tools.determineUniqueScopeName('hans', '', {})).toEqual(
-            expect.stringMatching(/^hans/)
-        )
+        expect(Tools.determineUniqueScopeName())
+            .toStrictEqual(expect.stringMatching(/^callback/))
+        expect(Tools.determineUniqueScopeName('hans'))
+            .toStrictEqual(expect.stringMatching(/^hans/))
+        expect(Tools.determineUniqueScopeName('hans', '', {}))
+            .toStrictEqual(expect.stringMatching(/^hans/))
         expect(Tools.determineUniqueScopeName('hans', '', {}, 'peter'))
             .toStrictEqual('peter')
         expect(
             Tools.determineUniqueScopeName('hans', '', {peter: 2}, 'peter')
-        ).toEqual(expect.stringMatching(/^hans/))
+        ).toStrictEqual(expect.stringMatching(/^hans/))
         const name:string = Tools.determineUniqueScopeName(
             'hans', 'klaus', {peter: 2}, 'peter')
-        expect(name).toEqual(expect.stringMatching(/^hans/))
-        expect(name).toEqual(expect.stringMatching(/klaus$/))
+        expect(name).toStrictEqual(expect.stringMatching(/^hans/))
+        expect(name).toStrictEqual(expect.stringMatching(/klaus$/))
         expect(name.length).toBeGreaterThan('hans'.length + 'klaus'.length)
     })
     // / endregion
@@ -707,11 +707,13 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             }`,
             ['a', 'b', 'c']
         ]
-    ])(`.getParameterNames('%s') === %p`, (code:string, parameterNames:Array<string>):void =>
-        expect(Tools.getParameterNames(code)).toEqual(parameterNames)
+    ])(
+        `.getParameterNames('%s') === %p`,
+        (code:string, parameterNames:Array<string>):void =>
+            expect(Tools.getParameterNames(code)).toStrictEqual(parameterNames)
     )
     test('identity', ():void => {
-        expect(Tools.identity({})).not.toStrictEqual({})
+        expect(Tools.identity({}) === {}).toStrictEqual(false)
         const testObject = {}
         expect(Tools.identity(testObject)).toStrictEqual(testObject)
     })
@@ -724,16 +726,15 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     ])('.identity(%p) === %p', (given:any, expected:any):void =>
         expect(Tools.identity(given)).toStrictEqual(expected)
     )
-
-    /* TODO
     test('invertArrayFilter', ():void => {
-        assert.deepEqual(Tools.invertArrayFilter(
-            Tools.arrayDeleteEmptyItems
-        )([{a: null}]), [{a: null}])
-        assert.deepEqual(Tools.invertArrayFilter(
-            Tools.arrayExtractIfMatches
-        )(['a', 'b'], '^a$'), ['b'])
+        expect(
+            Tools.invertArrayFilter(Tools.arrayDeleteEmptyItems)([{a: null}])
+        ).toStrictEqual([{a: null}])
+        expect(Tools.invertArrayFilter(Tools.arrayExtractIfMatches)(
+            ['a', 'b'], '^a$'
+        )).toStrictEqual(['b'])
     })
+    /* TODO
     test('timeout', async (
         assert:Object
     ):Promise<void> => {
