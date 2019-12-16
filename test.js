@@ -734,16 +734,12 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['a', 'b'], '^a$'
         )).toStrictEqual(['b'])
     })
-    /* TODO
-    test('timeout', async (
-        assert:Object
-    ):Promise<void> => {
-        const done:Function = assert.async()
-        assert.notOk(await Tools.timeout())
-        assert.notOk(await Tools.timeout(0))
-        assert.notOk(await Tools.timeout(1))
-        assert.ok(Tools.timeout() instanceof Promise)
-        assert.ok(Tools.timeout().hasOwnProperty('clear'))
+    test('timeout', async ():Promise<void> => {
+        expect(await Tools.timeout()).toStrictEqual(false)
+        expect(await Tools.timeout(0)).toStrictEqual(false)
+        expect(await Tools.timeout(1)).toStrictEqual(false)
+        expect(Tools.timeout()).toBeInstanceOf(Promise)
+        expect(Tools.timeout().hasOwnProperty('clear')).toStrictEqual(true)
         let test:boolean = false
         const result:Promise<boolean> = Tools.timeout(10 ** 20, true)
         result.catch(():void => {
@@ -752,12 +748,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         // IgnoreTypeCheck
         result.clear()
         let test2:boolean = false
-        assert.notOk(await Tools.timeout(():void => {
+        expect(await Tools.timeout(():void => {
             test2 = true
-        }))
-        assert.ok(test)
-        assert.ok(test2)
-        done()
+        })).toStrictEqual(false)
+        expect(test).toStrictEqual(true)
+        expect(test2).toStrictEqual(true)
     })
     // / endregion
     // / region event
@@ -766,46 +761,55 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         Tools.debounce(():void => {
             testValue = true
         })()
-        assert.ok(testValue)
-        const callback:Function = Tools.debounce(():void => {
-            testValue = !testValue
-        }, 1000)
+        expect(testValue).toStrictEqual(true)
+        const callback:Function = Tools.debounce(
+            ():void => {
+                testValue = !testValue
+            },
+            1000
+        )
         callback()
         callback()
-        assert.notOk(testValue)
+        expect(testValue).toStrictEqual(false)
     })
     test('fireEvent', ():void => {
-        assert.strictEqual($.Tools({onClick: ():2 => 2}).fireEvent(
-            'click', true
-        ), 2)
-        assert.notOk($.Tools({onClick: ():false => false}).fireEvent(
-            'click', true))
-        assert.ok(tools.fireEvent('click'))
+        expect(
+            $.Tools({onClick: ():2 => 2}).fireEvent('click', true)
+        ).toStrictEqual(2)
+        expect(
+            $.Tools({onClick: ():false => false}).fireEvent('click', true)
+        ).toStrictEqual(false)
+        expect(tools.fireEvent('click')).toStrictEqual(true)
         tools.onClick = ():3 => 3
-        assert.strictEqual(tools.fireEvent('click'), true)
-        assert.strictEqual(tools.fireEvent('click', true), true)
+        expect(tools.fireEvent('click')).toStrictEqual(true)
+        expect(tools.fireEvent('click')).toStrictEqual(true)
     })
-    if (testEnvironment === 'full') {
+    if (hasDOM) {
         test('on', ():void => {
             let testValue = false
-            assert.strictEqual(tools.on('body', 'click', ():void => {
-                testValue = true
-            })[0], $('body')[0])
+            expect(
+                tools.on('body', 'click', ():void => {
+                    testValue = true
+                })[0]
+            ).toStrictEqual($('body')[0])
 
             $('body').trigger('click')
-            assert.ok(testValue)
+            expect(testValue).toStrictEqual(true)
         })
         test('off', ():void => {
             let testValue = false
-            assert.strictEqual(tools.on('body', 'click', ():void => {
-                testValue = true
-            })[0], $('body')[0])
-            assert.strictEqual(tools.off('body', 'click')[0], $('body')[0])
+            expect(
+                tools.on('body', 'click', ():void => {
+                    testValue = true
+                })[0]
+            ).toStrictEqual($('body')[0])
+            expect(tools.off('body', 'click')[0]).toStrictEqual($('body')[0])
 
             $('body').trigger('click')
-            assert.notOk(testValue)
+            expect(testValue).toStrictEqual(false)
         })
     }
+    /*
     // / endregion
     // / region object
     test('addDynamicGetterAndSetter', (
