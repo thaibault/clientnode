@@ -886,194 +886,199 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ).a.a
         ).toStrictEqual(3)
     })
+    test('convertCircularObjectToJSON', ():void => {
+        const object1:Object = {}
+        const object2:Object = {a: object1}
+        object1.a = object2
+        expect(Tools.convertCircularObjectToJSON(object1))
+            .toStrictEqual('{"a":{"a":"__circularReference__"}}')
+    })
+    test.each([
+        [{}, '{}'],
+        [{a: null}, '{"a":null}'],
+        [{a: {a: 2}}, '{"a":{"a":2}}'],
+        [{a: {a: Infinity}}, '{"a":{"a":null}}']
+    ])(
+        `.convertCircularObjectToJSON(%p) === '%s'`,
+        (value:any, expected:string):void =>
+            expect(Tools.convertCircularObjectToJSON(value))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        [[null], null],
+        [[true], true],
+        [[0], 0],
+        [[2], 2],
+        [['a'], 'a'],
+        [[new Map()], {}],
+        [[[new Map()]], [{}]],
+        [[[new Map()], false], [new Map()]],
+        [[[new Map([['a', 2], [2, 2]])]], [{a: 2, '2': 2}]],
+        [[[new Map([['a', new Map()], [2, 2]])]], [{a: {}, '2': 2}]],
+        [
+            [[new Map([['a', new Map([['a', 2]])], [2, 2]])]],
+            [{a: {a: 2}, '2': 2}]
+        ]
+    ])(
+        '.convertMapToPlainObject(...%p) === %p',
+        (values:Array<any>, expected:any):void =>
+            expect(Tools.convertMapToPlainObject(...values))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        [[null], null],
+        [[true], true],
+        [[0], 0],
+        [[2], 2],
+        [['a'], 'a'],
+        [[{}], new Map()],
+        [[[{}]], [new Map()]],
+        [[[{}], false], [{}]],
+        [[[{a: {}, b: 2}]], [new Map([['a', new Map()], ['b', 2]])]],
+        [[[{b: 2, a: {}}]], [new Map([['a', new Map()], ['b', 2]])]],
+        [
+            [[{b: 2, a: new Map()}]],
+            [new Map([['a', new Map()], ['b', 2]])]
+        ],
+        [
+            [[{b: 2, a: [{}]}]],
+            [new Map([['a', [new Map()]], ['b', 2]])]
+        ],
+        [
+            [[{b: 2, a: new Set([{}])}]],
+            [new Map([['a', new Set([new Map()])], ['b', 2]])]
+        ]
+    ])(
+        '.convertPlainObjectToMap(...%p) === %p',
+        (values:Array<any>, expected:any):void =>
+            expect(Tools.convertPlainObjectToMap(...values))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        [{}, /a/, '', {}],
+        [{a: 'a'}, /a/, 'b', {a: 'b'}],
+        [{a: 'aa'}, /a/, 'b', {a: 'ba'}],
+        [{a: 'aa'}, /a/g, 'b', {a: 'bb'}],
+        [{a: {a: 'aa'}}, /a/g, 'b', {a: {a: 'bb'}}]
+    ])(
+        `.convertSubstringInPlainObject(%p, %p, '%s') === %p`,
+        (
+            object:PlainObject,
+            pattern:RegExp|string,
+            replacement:string,
+            expected:PlainObject
+        ):void =>
+            expect(
+                Tools.convertSubstringInPlainObject(
+                    object, pattern, replacement
+                )
+            ).toStrictEqual(expected)
+    )
+    test.each([
+        [[21], 21],
+        [[0, -1], 0],
+        [[0, 1], 0],
+        [[0, 10], 0],
+        [[new Date(0)], new Date(0)],
+        [[/a/], /a/],
+        [[{}], {}],
+        [[{}, -1], {}],
+        [[[]], []],
+        [[new Map(), -1], new Map()],
+        [[new Set(), -1], new Set()],
+        [[{a: 2}, 0], {a: 2}],
+        [[{a: {a: 2}}, 0], {a: null}],
+        [[{a: {a: 2}}, 1], {a: {a: 2}}],
+        [[{a: {a: 2}}, 2], {a: {a: 2}}],
+        [[{a: [{a: 2}]}, 1], {a: [null]}],
+        [[{a: [{a: 2}]}, 2], {a: [{a: 2}]}],
+        [[{a: {a: 2}}, 10], {a: {a: 2}}],
+        [[new Map([['a', 2]]), 0], new Map([['a', 2]])],
+        [
+            [new Map([['a', new Map([['a', 2]])]]), 0],
+            new Map([['a', null]])
+        ],
+        [
+            [new Map([['a', new Map([['a', 2]])]]), 1],
+            new Map([['a', new Map([['a', 2]])]])
+        ],
+        [
+            [new Map([['a', new Map([['a', 2]])]]), 2],
+            new Map([['a', new Map([['a', 2]])]])
+        ],
+        [
+            [new Map([['a', [new Map([['a', 2]])]]]), 1],
+            new Map([['a', [null]]])
+        ],
+        [
+            [new Map([['a', [new Map([['a', 2]])]]]), 2],
+            new Map([['a', [new Map([['a', 2]])]]])
+        ],
+        [
+            [new Map([['a', new Map([['a', 2]])]]), 10],
+            new Map([['a', new Map([['a', 2]])]])
+        ],
+        [
+            [new Map([['a', new Map([['a', 2]])]]), 10],
+            new Map([['a', new Map([['a', 2]])]])
+        ],
+        [[new Set(['a', 2]), 0], new Set(['a', 2])],
+        [[new Set(['a', new Set(['a', 2])]), 0], new Set(['a', null])],
+        [
+            [new Set(['a', new Set(['a', 2])]), 1],
+            new Set(['a', new Set(['a', 2])])
+        ],
+        [
+            [new Set(['a', new Set(['a', 2])]), 2],
+            new Set(['a', new Set(['a', 2])])
+        ],
+        [[new Set(['a', [new Set(['a', 2])]]), 1], new Set(['a', [null]])],
+        [
+            [new Set(['a', [new Set(['a', 2])]]), 2],
+            new Set(['a', [new Set(['a', 2])]])
+        ],
+        [
+            [new Set(['a', new Set(['a', 2])]), 10],
+            new Set(['a', new Set(['a', 2])])
+        ],
+        [
+            [new Set(['a', new Set(['a', 2])]), 10],
+            new Set(['a', new Set(['a', 2])])
+        ]
+    ])('.copy(...%p) === %p', (values:Array<any>, expected:any):void =>
+        expect(Tools.copy(...values)).toStrictEqual(expected)
+    )
+    test('determineType', ():void =>
+        expect(Tools.determineType()).toStrictEqual('undefined')
+    )
+    test.each([
+        [undefined, 'undefined'],
+        [{}.notDefined, 'undefined'],
+        [null, 'null'],
+        [true, 'boolean'],
+        [new Boolean(), 'boolean'],
+        [3, 'number'],
+        [new Number(3), 'number'],
+        ['', 'string'],
+        [new String(''), 'string'],
+        ['test', 'string'],
+        [new String('test'), 'string'],
+        [function():void {}, 'function'],
+        [():void => {}, 'function'],
+        [[], 'array'],
+        /* eslint-disable no-array-constructor */
+        // IgnoreTypeCheck
+        // TODO [new Array(), 'array'],
+        /* eslint-enable no-array-constructor */
+        [new Date(), 'date'],
+        [new Error(), 'error'],
+        [new Map(), 'map'],
+        [new Set(), 'set'],
+        [/test/, 'regexp']
+    ])(`.determineType(%p) === '%s'`, (object:any, expected:string):void =>
+        expect(Tools.determineType(object)).toStrictEqual(expected)
+    )
     /* TODO
-    test('convertCircularObjectToJSON', (
-        assert:Object
-    ):void => {
-        const testObject1:Object = {}
-        const testObject2:Object = {a: testObject1}
-        testObject1.a = testObject2
-        for (const test:Array<any> of [
-            [{}, '{}'],
-            [{a: null}, '{"a":null}'],
-            [{a: {a: 2}}, '{"a":{"a":2}}'],
-            [{a: {a: Infinity}}, '{"a":{"a":null}}'],
-            [testObject1, '{"a":{"a":"__circularReference__"}}']
-        ])
-            assert.deepEqual(
-                Tools.convertCircularObjectToJSON(test[0]), test[1])
-    })
-    test('convertMapToPlainObject', (
-        assert:Object
-    ):void => {
-        for (const test:Array<any> of [
-            [[null], null],
-            [[true], true],
-            [[0], 0],
-            [[2], 2],
-            [['a'], 'a'],
-            [[new Map()], {}],
-            [[[new Map()]], [{}]],
-            [[[new Map()], false], [new Map()]],
-            [[[new Map([['a', 2], [2, 2]])]], [{a: 2, '2': 2}]],
-            [[[new Map([['a', new Map()], [2, 2]])]], [{a: {}, '2': 2}]],
-            [
-                [[new Map([['a', new Map([['a', 2]])], [2, 2]])]],
-                [{a: {a: 2}, '2': 2}]
-            ]
-        ])
-            assert.deepEqual(
-                Tools.convertMapToPlainObject(...test[0]), test[1])
-    })
-    test('convertPlainObjectToMap', (
-        assert:Object
-    ):void => {
-        for (const test:Array<any> of [
-            [[null], null],
-            [[true], true],
-            [[0], 0],
-            [[2], 2],
-            [['a'], 'a'],
-            [[{}], new Map()],
-            [[[{}]], [new Map()]],
-            [[[{}], false], [{}]],
-            [[[{a: {}, b: 2}]], [new Map([['a', new Map()], ['b', 2]])]],
-            [[[{b: 2, a: {}}]], [new Map([['a', new Map()], ['b', 2]])]],
-            [
-                [[{b: 2, a: new Map()}]],
-                [new Map([['a', new Map()], ['b', 2]])]
-            ],
-            [
-                [[{b: 2, a: [{}]}]],
-                [new Map([['a', [new Map()]], ['b', 2]])]
-            ],
-            [
-                [[{b: 2, a: new Set([{}])}]],
-                [new Map([['a', new Set([new Map()])], ['b', 2]])]
-            ]
-        ])
-            assert.deepEqual(
-                Tools.convertPlainObjectToMap(...test[0]), test[1])
-    })
-    test('convertSubstringInPlainObject', (
-        assert:Object
-    ):void => {
-        for (const test:Array<any> of [
-            [{}, /a/, '', {}],
-            [{a: 'a'}, /a/, 'b', {a: 'b'}],
-            [{a: 'aa'}, /a/, 'b', {a: 'ba'}],
-            [{a: 'aa'}, /a/g, 'b', {a: 'bb'}],
-            [{a: {a: 'aa'}}, /a/g, 'b', {a: {a: 'bb'}}]
-        ])
-            assert.deepEqual(Tools.convertSubstringInPlainObject(
-                test[0], test[1], test[2]
-            ), test[3])
-    })
-    test('copy', ():void => {
-        for (const test:Array<any> of [
-            [[21], 21],
-            [[0, -1], 0],
-            [[0, 1], 0],
-            [[0, 10], 0],
-            [[new Date(0)], new Date(0)],
-            [[/a/], /a/],
-            [[{}], {}],
-            [[{}, -1], {}],
-            [[[]], []],
-            [[new Map(), -1], new Map()],
-            [[new Set(), -1], new Set()],
-            [[{a: 2}, 0], {a: 2}],
-            [[{a: {a: 2}}, 0], {a: null}],
-            [[{a: {a: 2}}, 1], {a: {a: 2}}],
-            [[{a: {a: 2}}, 2], {a: {a: 2}}],
-            [[{a: [{a: 2}]}, 1], {a: [null]}],
-            [[{a: [{a: 2}]}, 2], {a: [{a: 2}]}],
-            [[{a: {a: 2}}, 10], {a: {a: 2}}],
-            [[new Map([['a', 2]]), 0], new Map([['a', 2]])],
-            [
-                [new Map([['a', new Map([['a', 2]])]]), 0],
-                new Map([['a', null]])
-            ],
-            [
-                [new Map([['a', new Map([['a', 2]])]]), 1],
-                new Map([['a', new Map([['a', 2]])]])
-            ],
-            [
-                [new Map([['a', new Map([['a', 2]])]]), 2],
-                new Map([['a', new Map([['a', 2]])]])
-            ],
-            [
-                [new Map([['a', [new Map([['a', 2]])]]]), 1],
-                new Map([['a', [null]]])
-            ],
-            [
-                [new Map([['a', [new Map([['a', 2]])]]]), 2],
-                new Map([['a', [new Map([['a', 2]])]]])
-            ],
-            [
-                [new Map([['a', new Map([['a', 2]])]]), 10],
-                new Map([['a', new Map([['a', 2]])]])
-            ],
-            [
-                [new Map([['a', new Map([['a', 2]])]]), 10],
-                new Map([['a', new Map([['a', 2]])]])
-            ],
-            [[new Set(['a', 2]), 0], new Set(['a', 2])],
-            [[new Set(['a', new Set(['a', 2])]), 0], new Set(['a', null])],
-            [
-                [new Set(['a', new Set(['a', 2])]), 1],
-                new Set(['a', new Set(['a', 2])])
-            ],
-            [
-                [new Set(['a', new Set(['a', 2])]), 2],
-                new Set(['a', new Set(['a', 2])])
-            ],
-            [[new Set(['a', [new Set(['a', 2])]]), 1], new Set(['a', [null]])],
-            [
-                [new Set(['a', [new Set(['a', 2])]]), 2],
-                new Set(['a', [new Set(['a', 2])]])
-            ],
-            [
-                [new Set(['a', new Set(['a', 2])]), 10],
-                new Set(['a', new Set(['a', 2])])
-            ],
-            [
-                [new Set(['a', new Set(['a', 2])]), 10],
-                new Set(['a', new Set(['a', 2])])
-            ]
-        ])
-            assert.deepEqual(Tools.copy(...test[0]), test[1])
-    })
-    test('determineType', ():void => {
-        assert.strictEqual(Tools.determineType(), 'undefined')
-        for (const test:Array<any> of [
-            [undefined, 'undefined'],
-            [{}.notDefined, 'undefined'],
-            [null, 'null'],
-            [true, 'boolean'],
-            [new Boolean(), 'boolean'],
-            [3, 'number'],
-            [new Number(3), 'number'],
-            ['', 'string'],
-            [new String(''), 'string'],
-            ['test', 'string'],
-            [new String('test'), 'string'],
-            [function():void {}, 'function'],
-            [():void => {}, 'function'],
-            [[], 'array'],
-            /* eslint-disable no-array-constructor */
-            // IgnoreTypeCheck
-            // TODO [new Array(), 'array'],
-            /* eslint-enable no-array-constructor */
-    /* TODO
-            [new Date(), 'date'],
-            [new Error(), 'error'],
-            [new Map(), 'map'],
-            [new Set(), 'set'],
-            [/test/, 'regexp']
-        ])
-            assert.strictEqual(Tools.determineType(test[0]), test[1])
-    })
     test('equals', async ():Promise<void> => {
         const done:Function = assert.async()
         const testFunction:Function = ():void => {}

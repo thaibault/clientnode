@@ -1818,7 +1818,7 @@ export class Tools {
      * @returns Converted object with replaced patterns.
      */
     static convertSubstringInPlainObject(
-        object:PlainObject, pattern:RegExp, replacement:string
+        object:PlainObject, pattern:RegExp|string, replacement:string
     ):PlainObject {
         for (const key:string in object)
             if (object.hasOwnProperty(key))
