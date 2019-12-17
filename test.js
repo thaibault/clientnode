@@ -70,6 +70,7 @@ describe(`clientNode.Semaphore (${testEnvironment})`, ():void => {
 // endregion
 // region tools
 describe(`clientNode.Tools (${testEnvironment})`, ():void => {
+    const now:Date = new Date()
     const tools:Tools = new Tools()
     // region public methods
     // / region special
@@ -1070,7 +1071,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         // IgnoreTypeCheck
         // TODO [new Array(), 'array'],
         /* eslint-enable no-array-constructor */
-        [new Date(), 'date'],
+        [now, 'date'],
         [new Error(), 'error'],
         [new Map(), 'map'],
         [new Set(), 'set'],
@@ -1078,153 +1079,160 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     ])(`.determineType(%p) === '%s'`, (object:any, expected:string):void =>
         expect(Tools.determineType(object)).toStrictEqual(expected)
     )
-    /* TODO
-    test('equals', async ():Promise<void> => {
-        const done:Function = assert.async()
-        const testFunction:Function = ():void => {}
-        for (const test:Array<any> of [
-            [1, 1],
-            [new Date(), new Date()],
-            [new Date(1995, 11, 17), new Date(1995, 11, 17)],
-            [/a/, /a/],
-            [{a: 2}, {a: 2}],
-            [{a: 2, b: 3}, {a: 2, b: 3}],
-            [[1, 2, 3], [1, 2, 3]],
-            [[], []],
-            [{}, {}],
-            [new Map(), new Map()],
-            [new Set(), new Set()],
-            [[1, 2, 3, {a: 2}], [1, 2, 3, {a: 2}]],
-            [[1, 2, 3, new Map([['a', 2]])], [1, 2, 3, new Map([['a', 2]])]],
-            [[1, 2, 3, new Set(['a', 2])], [1, 2, 3, new Set(['a', 2])]],
-            [[1, 2, 3, [1, 2]], [1, 2, 3, [1, 2]]],
-            [[{a: 1}], [{a: 1}]],
-            [[{a: 1, b: 1}], [{a: 1}], []],
-            [[{a: 1, b: 1}], [{a: 1}], ['a']],
-            [2, 2, 0],
-            [[{a: 1, b: 1}], [{a: 1}], null, 0],
-            [[{a: 1}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
-            [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
-            [[{a: {b: 1}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 2],
-            [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 2],
+    test.each([
+        [1, 1],
+        [now, now],
+        [new Date(1995, 11, 17), new Date(1995, 11, 17)],
+        [/a/, /a/],
+        [{a: 2}, {a: 2}],
+        [{a: 2, b: 3}, {a: 2, b: 3}],
+        [[1, 2, 3], [1, 2, 3]],
+        [[], []],
+        [{}, {}],
+        [new Map(), new Map()],
+        [new Set(), new Set()],
+        [[1, 2, 3, {a: 2}], [1, 2, 3, {a: 2}]],
+        [[1, 2, 3, new Map([['a', 2]])], [1, 2, 3, new Map([['a', 2]])]],
+        [[1, 2, 3, new Set(['a', 2])], [1, 2, 3, new Set(['a', 2])]],
+        [[1, 2, 3, [1, 2]], [1, 2, 3, [1, 2]]],
+        [[{a: 1}], [{a: 1}]],
+        [[{a: 1, b: 1}], [{a: 1}], []],
+        [[{a: 1, b: 1}], [{a: 1}], ['a']],
+        [2, 2, 0],
+        [[{a: 1, b: 1}], [{a: 1}], null, 0],
+        [[{a: 1}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
+        [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
+        [[{a: {b: 1}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 2],
+        [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 2],
+        [
+            [{a: {b: {c: 1}}}, {b: 1}],
+            [{a: {b: 1}}, {b: 1}],
+            null,
+            3,
+            ['b']
+        ],
+        [Tools.noop, Tools.noop],
+        [Tools.noop, Tools.noop, null, -1, [], false]
+    ])('.equals(...%p) === true', (...values:Array<any>):void =>
+        expect(Tools.equals(...values)).toStrictEqual(true)
+    )
+    if (TARGET_TECHNOLOGY === 'node')
+        test('equals', ():void =>
+            expect(Tools.equals(
+                Buffer.from('a'), Buffer.from('a'), null, -1, [], true, true
+            )).toStrictEqual(true)
+        )
+    else {
+        test.each([
             [
-                [{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3,
-                ['b']
+                new Blob(['a'], {type: 'text/plain'}),
+                new Blob(['a'], {type: 'text/plain'})
             ],
-            [testFunction, testFunction]
-        ])
-            assert.ok(Tools.equals(...test))
-        if (TARGET_TECHNOLOGY === 'node')
-            assert.ok(Tools.equals(
-                Buffer.from('a'), Buffer.from('a'),
-                null, -1, [], true, true))
-        else {
-            for (const test:Array<any> of [
-                [
-                    new Blob(['a'], {type: 'text/plain'}),
-                    new Blob(['a'], {type: 'text/plain'})
-                ],
-                [
-                    [new Blob(['a'], {type: 'text/plain'})],
-                    [new Blob(['a'], {type: 'text/plain'})]
-                ],
-                [
-                    {a: new Blob(['a'], {type: 'text/plain'})},
-                    {a: new Blob(['a'], {type: 'text/plain'})}
-                ],
-                [
-                    new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
-                    new Map([['a', new Blob(['a'], {type: 'text/plain'})]])
-                ],
-                [
-                    new Set([new Blob(['a'], {type: 'text/plain'})]),
-                    new Set([new Blob(['a'], {type: 'text/plain'})])
-                ],
-                [
-                    {
-                        a: new Set([[new Map([['a', new Blob(['a'], {
-                            type: 'text/plain'
-                        })]])]]),
-                        b: 2
-                    },
-                    {
-                        a: new Set([[new Map([['a', new Blob(['a'], {
-                            type: 'text/plain'
-                        })]])]]),
-                        b: 2
-                    }
-                ]
-            ])
-                assert.ok(await Tools.equals(
-                    ...test, null, -1, [], true, true))
-            for (const test:Array<any> of [
-                [
-                    new Blob(['a'], {type: 'text/plain'}),
-                    new Blob(['b'], {type: 'text/plain'})
-                ],
-                [
-                    [new Blob(['a'], {type: 'text/plain'})],
-                    [new Blob(['b'], {type: 'text/plain'})]
-                ],
-                [
-                    {a: new Blob(['a'], {type: 'text/plain'})},
-                    {a: new Blob(['b'], {type: 'text/plain'})}
-                ],
-                [
-                    new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
-                    new Map([['a', new Blob(['b'], {type: 'text/plain'})]])
-                ],
-                [
-                    new Set([new Blob(['a'], {type: 'text/plain'})]),
-                    new Set([new Blob(['b'], {type: 'text/plain'})])
-                ],
-                [
-                    {
-                        a: new Set([[new Map([['a', new Blob(['a'], {
-                            type: 'text/plain'
-                        })]])]]),
-                        b: 2
-                    },
-                    {
-                        a: new Set([[new Map([['a', new Blob(['b'], {
-                            type: 'text/plain'
-                        })]])]]),
-                        b: 2
-                    }
-                ]
-            ])
-                assert.notOk(await Tools.equals(
-                    ...test, null, -1, [], true, true))
-        }
-        for (const test:Array<any> of [
-            [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 2],
-            [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3],
-            [new Date(1995, 11, 17), new Date(1995, 11, 16)],
-            [/a/i, /a/],
-            [1, 2],
-            [{a: 2, b: 3}, {a: 2}],
-            [[1, 2, 3, 4], [1, 2, 3, 5]],
-            [[1, 2, 3, 4], [1, 2, 3]],
-            [[1, 2, 3, {a: 2}], [1, 2, 3, {b: 2}]],
-            [[1, 2, 3, new Map([['a', 2]])], [1, 2, 3, new Map([['b', 2]])]],
-            [[1, 2, 3, new Set(['a', 2])], [1, 2, 3, new Set(['b', 2])]],
-            [[1, 2, 3, [1, 2]], [1, 2, 3, [1, 2, 3]]],
-            [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2]]],
-            [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2, {}]]],
-            [[{a: 1, b: 1}], [{a: 1}]],
-            [[{a: 1, b: 1}], [{a: 1}], ['a', 'b']],
-            [1, 2, 0],
-            [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
-            [():void => {}, ():void => {}, null, -1, [], false]
-        ])
-            assert.notOk(Tools.equals(...test))
-        const test = ():void => {}
-        assert.ok(Tools.equals(test, test, null, -1, [], false))
-        done()
-    })
-    test('evaluateDynamicDataStructure', (
-        assert:Object
-    ):void => {
+            [
+                [new Blob(['a'], {type: 'text/plain'})],
+                [new Blob(['a'], {type: 'text/plain'})]
+            ],
+            [
+                {a: new Blob(['a'], {type: 'text/plain'})},
+                {a: new Blob(['a'], {type: 'text/plain'})}
+            ],
+            [
+                new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
+                new Map([['a', new Blob(['a'], {type: 'text/plain'})]])
+            ],
+            [
+                new Set([new Blob(['a'], {type: 'text/plain'})]),
+                new Set([new Blob(['a'], {type: 'text/plain'})])
+            ],
+            [
+                {
+                    a: new Set([[new Map([['a', new Blob(['a'], {
+                        type: 'text/plain'
+                    })]])]]),
+                    b: 2
+                },
+                {
+                    a: new Set([[new Map([['a', new Blob(['a'], {
+                        type: 'text/plain'
+                    })]])]]),
+                    b: 2
+                }
+            ]
+        ])(
+            '.equals(%p, %p) === true',
+            async (first:any, target:any):Promise<void> =>
+                expect(
+                    await Tools.equals(first, second, null, -1, [], true, true)
+                ).toStrictEqual(true)
+        )
+        test.each([
+            [
+                new Blob(['a'], {type: 'text/plain'}),
+                new Blob(['b'], {type: 'text/plain'})
+            ],
+            [
+                [new Blob(['a'], {type: 'text/plain'})],
+                [new Blob(['b'], {type: 'text/plain'})]
+            ],
+            [
+                {a: new Blob(['a'], {type: 'text/plain'})},
+                {a: new Blob(['b'], {type: 'text/plain'})}
+            ],
+            [
+                new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
+                new Map([['a', new Blob(['b'], {type: 'text/plain'})]])
+            ],
+            [
+                new Set([new Blob(['a'], {type: 'text/plain'})]),
+                new Set([new Blob(['b'], {type: 'text/plain'})])
+            ],
+            [
+                {
+                    a: new Set([[new Map([['a', new Blob(['a'], {
+                        type: 'text/plain'
+                    })]])]]),
+                    b: 2
+                },
+                {
+                    a: new Set([[new Map([['a', new Blob(['b'], {
+                        type: 'text/plain'
+                    })]])]]),
+                    b: 2
+                }
+            ]
+        ])(
+            '.equals(%p, %p) === false',
+            async (first:any, second:any):Promise<void> =>
+                expect(await Tools.equals(
+                    first, second, null, -1, [], true, true
+                )).toStrictEqual(false)
+        )
+    }
+    test.each([
+        [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 2],
+        [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3],
+        [new Date(1995, 11, 17), new Date(1995, 11, 16)],
+        [/a/i, /a/],
+        [1, 2],
+        [{a: 2, b: 3}, {a: 2}],
+        [[1, 2, 3, 4], [1, 2, 3, 5]],
+        [[1, 2, 3, 4], [1, 2, 3]],
+        [[1, 2, 3, {a: 2}], [1, 2, 3, {b: 2}]],
+        [[1, 2, 3, new Map([['a', 2]])], [1, 2, 3, new Map([['b', 2]])]],
+        [[1, 2, 3, new Set(['a', 2])], [1, 2, 3, new Set(['b', 2])]],
+        [[1, 2, 3, [1, 2]], [1, 2, 3, [1, 2, 3]]],
+        [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2]]],
+        [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2, {}]]],
+        [[{a: 1, b: 1}], [{a: 1}]],
+        [[{a: 1, b: 1}], [{a: 1}], ['a', 'b']],
+        [1, 2, 0],
+        [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
+        [():void => {}, ():void => {}, null, -1, [], false]
+    ])('.equals(...%p) === false', (...values:Array<any>):void =>
+        expect(Tools.equals(...values)).toStrictEqual(false)
+    )
+    /* TODO
+    test('evaluateDynamicDataStructure', ():void => {
         for (const test:Array<any> of [
             [[null], null],
             [[false], false],
@@ -1541,7 +1549,6 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     })
     test('normalizeDateTime', ():void => {
         assert.equal(typeof Tools.normalizeDateTime(), 'object')
-        const now:Date = new Date()
         for (const test:Array<any> of [
             [now, now],
             [1.2, new Date(1.2 * 1000)],
@@ -2709,7 +2716,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [NaN, true],
             [{}, false],
             [undefined, false],
-            [new Date().toString(), false],
+            [now.toString(), false],
             [null, false],
             [false, false],
             [true, false],
