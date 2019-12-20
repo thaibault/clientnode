@@ -55,6 +55,7 @@
   },
   "devDependencies": {
     "@babel/cli": "*",
+    "@babel/core": "*",
     "@babel/plugin-transform-proto-to-assign": "*",
     "@typescript-eslint/eslint-plugin": "*",
     "babel-eslint": "*",
@@ -79,7 +80,6 @@
       "module": {
         "optimizer": {
           "babelMinify": {
-            "bundle": null,
             "module": null
           }
         }
@@ -98,12 +98,6 @@
       },
       "optimizer": {
         "babelMinify": {
-          "bundle": {
-            "transform": {
-              "#": "To provide a generic logging mechanism we need this feature to be exported.",
-              "removeConsole": false
-            }
-          },
           "module": {
             "#": "For Task \"test\", this module would produce this error \"ERROR in ./test.ts Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: clientNode/test.ts: Cannot read property 'end' of null\".",
             "evaluate": false,
