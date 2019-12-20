@@ -1,4 +1,3 @@
-// @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
 'use strict'
@@ -746,7 +745,6 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         result.catch(():void => {
             test = true
         })
-        // IgnoreTypeCheck
         result.clear()
         let test2:boolean = false
         expect(await Tools.timeout(():void => {
@@ -1068,7 +1066,6 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [():void => {}, 'function'],
         [[], 'array'],
         /* eslint-disable no-array-constructor */
-        // IgnoreTypeCheck
         // TODO [new Array(), 'array'],
         /* eslint-enable no-array-constructor */
         [now, 'date'],

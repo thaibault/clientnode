@@ -21,7 +21,8 @@
     "jquery"
   ],
   "files": [
-    "index.ts"
+    "index.ts",
+    "type.ts"
   ],
   "main": "index.compiled.js",
   "repository": {

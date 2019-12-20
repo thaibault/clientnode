@@ -1,4 +1,3 @@
-// @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
 /** @module clientnode */
@@ -18,7 +17,7 @@
     endregion
 */
 // region imports
-import type {ChildProcess} from 'child_process'
+import {ChildProcess} from 'child_process'
 let fileSystem:Object = {}
 try {
     fileSystem = eval('require')('fs').promises
@@ -31,101 +30,8 @@ let path:Object = {}
 try {
     path = eval('require')('path')
 } catch (error) {}
-// endregion
-// region types
-export type PlainObject = {[key:string]:any}
-export type ProcedureFunction = () => void|Promise<void>
-export type File = {
-    directoryPath:string;
-    error:Error|null;
-    name:string;
-    path:string;
-    stats:Object|null;
-}
-export type GetterFunction = (keyOrValue:any, key:?any, target:?any) => any
-export type SetterFunction = (key:any, value:any, target:?any) => any
-export type Position = {
-    top?:number;
-    left?:number;
-    right?:number;
-    bottom?:number;
-}
-export type RelativePosition = 'in'|'above'|'left'|'below'|'right'
-export type Options = {
-    domNodeSelectorPrefix:string;
-    [key:string]:any;
-}
-export type LockCallbackFunction = (description:string) => ?Promise<any>
-export type $DomNode = {
-    [key:number|string]:DomNode;
-    addClass(className:string):$DomNode;
-    addBack():$DomNode;
-    after(domNode:any):$DomNode;
-    append(domNode:any):$DomNode;
-    attr(attributeName:string|{[key:string]:string}, value:any):any;
-    data(key:string, value:any):any;
-    each():$DomNode;
-    find(filter:any):$DomNode;
-    height():number;
-    is(selector:string):boolean;
-    remove():$DomNode;
-    removeAttr(attributeName:string):$DomNode;
-    removeClass(className:string|Array<string>):$DomNode;
-    submit():$DomNode;
-    width():number;
-    Tools(functionName:string, ...additionalArguments:Array<any>):any;
-}
-export type $Deferred<Type> = {
-    always:() => $Deferred<Type>;
-    resolve:() => $Deferred<Type>;
-    done:() => $Deferred<Type>;
-    fail:() => $Deferred<Type>;
-    isRejected:() => $Deferred<Type>;
-    isResolved:() => $Deferred<Type>;
-    notify:() => $Deferred<Type>;
-    notifyWith:() => $Deferred<Type>;
-    progress:() => $Deferred<Type>;
-    promise:() => $Deferred<Type>;
-    reject:() => $Deferred<Type>;
-    rejectWith:() => $Deferred<Type>;
-    resolveWith:() => $Deferred<Type>;
-    state:() => $Deferred<Type>;
-    then:() => $Deferred<Type>;
-}
-// / region browser
-export type DomNode = any
-export type Location = {
-    hash:string;
-    search:string;
-    pathname:string;
-    port:string;
-    hostname:string;
-    host:string;
-    protocol:string;
-    origin:string;
-    href:string;
-    username:string;
-    password:string;
-    assign:Function;
-    reload:Function;
-    replace:Function;
-    toString:() => string
-}
-export type Storage = {
-    getItem(key:string):any;
-    setItem(key:string, value:any):void;
-    removeItem(key:string, value:any):void;
-}
-export type Window = {
-    addEventListener:(type:string, callback:Function) => void;
-    close:() => void;
-    document:Object;
-    location:Location;
-    localStorage:Storage;
-    sessionStorage:Storage;
-    $:Object;
-}
-// / endregion
+
+import {PlainObject} from './type'
 // endregion
 // region determine context
 export const globalContext:Object = (():Object => {
@@ -158,12 +64,11 @@ export const $:any = (():any => {
             ) : ():null => null
         $ = (parameter:any, ...additionalArguments:Array<any>):any => {
             if (typeof parameter === 'string') {
-                const $domNodes:?Array<any> = selector(
+                const $domNodes:NodeList = selector(
                     parameter, ...additionalArguments)
                 if ($domNodes && 'fn' in $)
                     for (const key:string in $.fn)
                         if ($.fn.hasOwnProperty(key))
-                            // IgnoreTypeCheck
                             $domNodes[key] = $.fn[key].bind($domNodes)
                 return $domNodes
             }
@@ -579,7 +484,7 @@ export class Tools {
         return new Promise((resolve:Function):void => {
             const wrappedCallbackFunction:LockCallbackFunction = (
                 description:string
-            ):?Promise<any> => {
+            ):Promise<any>|undefined => {
                 const result:any = callbackFunction(description)
                 const finish:Function = (value:any):void => {
                     if (autoRelease)
@@ -958,7 +863,6 @@ export class Tools {
     get normalizedClassNames():Tools {
         if (this.$domNode) {
             const className:string = 'class'
-            // IgnoreTypeCheck
             this.$domNode.find('*').addBack().each(function():void {
                 const $thisDomNode:$DomNode = $(this)
                 if ($thisDomNode.attr(className))
@@ -983,10 +887,10 @@ export class Tools {
         if (this.$domNode) {
             const self:Tools = this
             const styleName:string = 'style'
-            // IgnoreTypeCheck
             this.$domNode.find('*').addBack().each(function():void {
                 const $thisDomNode:$DomNode = $(this)
-                const serializedStyles:?string = $thisDomNode.attr(styleName)
+                const serializedStyles:string|undefined =
+                    $thisDomNode.attr(styleName)
                 if (serializedStyles)
                     $thisDomNode.attr(
                         styleName,
@@ -1013,8 +917,8 @@ export class Tools {
     get style():PlainObject {
         const result:PlainObject = {}
         if ('window' in $.global && $.global.window.getComputedStyle) {
-            const styleProperties:?any = $.global.window.getComputedStyle(
-                this.$domNode[0], null)
+            const styleProperties:CSSStyleDeclaration|undefined =
+                $.global.window.getComputedStyle(this.$domNode[0], null)
             if (styleProperties) {
                 if ('length' in styleProperties)
                     for (
@@ -1037,7 +941,8 @@ export class Tools {
                 return result
             }
         }
-        let styleProperties:?PlainObject = this.$domNode[0].currentStyle
+        let styleProperties:PlainObject|undefined =
+            this.$domNode[0].currentStyle
         if (styleProperties) {
             for (const propertyName:string in styleProperties)
                 if (styleProperties.hasOwnProperty(propertyName))
@@ -1213,7 +1118,7 @@ export class Tools {
      * @returns Returns the corresponding attribute value or "null" if no
      * attribute value exists.
      */
-    getDirectiveValue(directiveName:string):?string {
+    getDirectiveValue(directiveName:string):null|string {
         const delimitedName:string =
             this.constructor.stringCamelCaseToDelimited(directiveName)
         for (const attributeName:string of [
@@ -1257,9 +1162,10 @@ export class Tools {
      * // returns 'br'
      * $.Tools.getDomNodeName('&lt;br/&gt;')
      */
-    static getDomNodeName(domNodeSelector:string):?string {
-        const match:?Array<string> = domNodeSelector.match(
-            new RegExp('^<?([a-zA-Z]+).*>?.*'))
+    static getDomNodeName(domNodeSelector:string):null|string {
+        const match:Array<string>|null = domNodeSelector.match(
+            new RegExp('^<?([a-zA-Z]+).*>?.*')
+        )
         if (match)
             return match[1]
         return null
@@ -1290,17 +1196,19 @@ export class Tools {
             } else
                 for (const name:string in domNodeSelectors)
                     if (domNodeSelectors.hasOwnProperty(name)) {
-                        const match:?Array<string> =
+                        const match:Array<string>|null =
                             domNodeSelectors[name].match(', *')
                         if (match)
-                            domNodeSelectors[name] += domNodeSelectors[
-                                name
-                            ].split(match[0]).map((
-                                selectorPart:string
-                            ):string =>
-                                ', ' + this.stringNormalizeDomNodeSelector(
-                                    selectorPart)
-                            ).join('')
+                            domNodeSelectors[name] +=
+                                domNodeSelectors[name]
+                                    .split(match[0])
+                                    .map((selectorPart:string):string =>
+                                        ', ' +
+                                        this.stringNormalizeDomNodeSelector(
+                                            selectorPart
+                                        )
+                                    )
+                                    .join('')
                         domNodes[name] = $(this.stringNormalizeDomNodeSelector(
                             domNodeSelectors[name]))
                     }
@@ -1379,7 +1287,7 @@ export class Tools {
             return Tools.getParameterNames('function ' + functionCode.replace(
                 /.*(constructor\([^)]+\))/m, '$1'))
         // Try classic function declaration.
-        let parameter:?Array<string> = functionCode.match(
+        let parameter:Array<string>|null = functionCode.match(
             /^function\s*[^\(]*\(\s*([^\)]*)\)/m)
         if (parameter === null)
             // Try arrow function declaration.
@@ -1469,7 +1377,6 @@ export class Tools {
         }
         const maximumTimeoutDelayInMilliseconds:number = 2147483647
         if (delayInMilliseconds <= maximumTimeoutDelayInMilliseconds)
-            // IgnoreTypeCheck
             result.timeoutID = setTimeout(wrappedCallback, delayInMilliseconds)
         else {
             /*
@@ -1483,21 +1390,16 @@ export class Tools {
             const delay:Function = ():void => {
                 if (numberOfRemainingTimeouts > 0) {
                     numberOfRemainingTimeouts -= 1
-                    // IgnoreTypeCheck
                     result.timeoutID = setTimeout(
                         delay, maximumTimeoutDelayInMilliseconds)
                 } else
-                    // IgnoreTypeCheck
                     result.timeoutID = setTimeout(
                         wrappedCallback, finalTimeoutDuration)
             }
             delay()
         }
-        // IgnoreTypeCheck
         result.clear = ():void => {
-            // IgnoreTypeCheck
             if (result.timeoutID) {
-                // IgnoreTypeCheck
                 clearTimeout(result.timeoutID);
                 (throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)
             }
@@ -1525,9 +1427,9 @@ export class Tools {
         ...additionalArguments:Array<any>
     ):Function {
         let lock:boolean = false
-        let waitingCallArguments:?Array<any> = null
-        let timer:?Promise<boolean> = null
-        return (...parameter:Array<any>):?Promise<boolean> => {
+        let waitingCallArguments:Array<any>|null = null
+        let timer:null|Promise<boolean> = null
+        return (...parameter:Array<any>):null|Promise<boolean> => {
             parameter = parameter.concat(additionalArguments || [])
             if (lock)
                 waitingCallArguments = parameter
@@ -1622,8 +1524,8 @@ export class Tools {
      */
     static addDynamicGetterAndSetter(
         object:any,
-        getterWrapper:?GetterFunction = null,
-        setterWrapper:?SetterFunction = null,
+        getterWrapper:GetterFunction|null = null,
+        setterWrapper:null|SetterFunction = null,
         methodNames:PlainObject = {},
         deep:boolean = true,
         typesToExtend:Array<mixed> = [Object]
@@ -1680,14 +1582,12 @@ export class Tools {
                                 }
                             if (typeof object[name] === 'function')
                                 return object[name]
-                            // IgnoreTypeCheck
                             return getterWrapper(
                                 defaultHandler.get(proxy, name), name, object)
                         }
                     if (setterWrapper)
                         handler.set = (
                             proxy:Proxy<any>, name:string, value:any
-                        // IgnoreTypeCheck
                         ):any => defaultHandler.set(proxy, name, setterWrapper(
                             name, value, object))
                     const {proxy, revoke} = Proxy.revocable({}, handler)
@@ -1993,7 +1893,7 @@ export class Tools {
     static equals(
         firstValue:any,
         secondValue:any,
-        properties:?Array<any> = null,
+        properties:Array<any>|null = null,
         deep:number = -1,
         exceptionPrefixes:Array<string> = [],
         ignoreFunctions:boolean = true,
@@ -2241,7 +2141,6 @@ export class Tools {
             let compiledFunction:Function
             try {
                 /* eslint-disable new-parens */
-                // IgnoreTypeCheck
                 compiledFunction = new (Function.prototype.bind.call(
                 /* eslint-enable new-parens */
                     Function, null, ...Object.keys(scope), code
@@ -2654,9 +2553,7 @@ export class Tools {
                         if (parentSource && parentKey)
                             delete parentSource[parentKey]
                     } else if (target !== null && target.hasOwnProperty(key))
-                        // IgnoreTypeCheck
                         target[key] = Tools.modifyObject(
-                            // IgnoreTypeCheck
                             target[key],
                             source[key],
                             removeIndicatorKey,
@@ -2678,7 +2575,7 @@ export class Tools {
      * interpret.
      */
     static normalizeDateTime(
-        value:?string|?number|?Date = null, interpretAsUTC:boolean = true
+        value:string|null|number|Date = null, interpretAsUTC:boolean = true
     ):Date|null {
         if (value === null)
             return new Date()
@@ -2701,7 +2598,6 @@ export class Tools {
             }
         if (typeof value === 'number')
             return new Date(value * 1000)
-        // IgnoreTypeCheck
         const result:Date = new Date(value)
         if (isNaN(result.getDate()))
             return null
@@ -3004,8 +2900,8 @@ export class Tools {
      * @returns Given data without empty items.
      */
     static arrayDeleteEmptyItems(
-        data:?Array<Object>, propertyNames:Array<string> = []
-    ):?Array<Object> {
+        data:any, propertyNames:Array<string> = []
+    ):any {
         if (!data)
             return data
         const result:Array<any> = []
@@ -3060,9 +2956,12 @@ export class Tools {
             return Tools.arrayMake(data)
         const result:Array<string> = []
         for (const value:string of Tools.arrayMake(data))
-            if (((typeof regularExpression === 'string') ? new RegExp(
-                regularExpression
-            ) : regularExpression).test(value))
+            if (
+                ((typeof regularExpression === 'string') ?
+                    new RegExp(regularExpression) :
+                    regularExpression
+                ).test(value)
+            )
                 result.push(value)
         return result
     }
@@ -3073,9 +2972,7 @@ export class Tools {
      * @returns Given data without the items which doesn't have specified
      * property.
      */
-    static arrayExtractIfPropertyExists(
-        data:?Array<Object>, propertyName:string
-    ):?Array<Object> {
+    static arrayExtractIfPropertyExists(data:any, propertyName:string):any {
         if (data && propertyName) {
             const result:Array<Object> = []
             for (const item:Object of Tools.arrayMake(data)) {
@@ -3102,8 +2999,8 @@ export class Tools {
      * @returns Filtered data.
      */
     static arrayExtractIfPropertyMatches(
-        data:?Array<Object>, propertyPattern:{[key:string]:string|RegExp}
-    ):?Array<Object> {
+        data:any, propertyPattern:{[key:string]:string|RegExp}
+    ):any {
         if (data && propertyPattern) {
             const result:Array<Object> = []
             for (const item:Object of Tools.arrayMake(data)) {
@@ -3140,7 +3037,6 @@ export class Tools {
     static arrayIntersect(
         first:Array<any>,
         second:Array<any>,
-        // IgnoreTypeCheck
         keys:Object|Array<string> = [],
         strict:boolean = true
     ):Array<any> {
@@ -3153,7 +3049,7 @@ export class Tools {
             secondKey:string|number,
             keysAreAnArray:boolean,
             iterateGivenKeys:boolean
-        ):?false => {
+        ):false|undefined => {
             if (iterateGivenKeys) {
                 if (keysAreAnArray)
                     firstKey = secondKey
@@ -3365,9 +3261,7 @@ export class Tools {
      * @param propertyName - Property name to sum up its value.
      * @returns The aggregated value.
      */
-    static arraySumUpProperty(
-        data:?Array<Object>, propertyName:string
-    ):number {
+    static arraySumUpProperty(data:any, propertyName:string):number {
         let result:number = 0
         if (Array.isArray(data) && data.length)
             for (const item:Object of data)
@@ -3402,9 +3296,7 @@ export class Tools {
      * doesn't exists given list.
      * @returns Item with the appended target.
      */
-    static arrayRemove(
-        list:?Array<any>, target:any, strict:boolean = false
-    ):?Array<any> {
+    static arrayRemove(list:any, target:any, strict:boolean = false):any {
         if (Array.isArray(list)) {
             const index:number = list.indexOf(target)
             if (index === -1) {
@@ -3440,7 +3332,7 @@ export class Tools {
                 else
                     edges.push([name])
             }
-        const nodes:Array<?string> = []
+        const nodes:Array<string> = []
         // Accumulate unique nodes into a large list.
         for (const edge:Array<string> of edges)
             for (const node:string of edge)
@@ -3462,7 +3354,7 @@ export class Tools {
             const index = nodes.indexOf(node)
             // If the node still exists, traverse its dependencies.
             if (index !== -1) {
-                let copy:?Array<string>
+                let copy:Array<string>|undefined
                 // Mark the node to exclude it from future iterations.
                 nodes[index] = null
                 /*
@@ -3483,7 +3375,7 @@ export class Tools {
             }
         }
         for (let index = 0; index < nodes.length; index++) {
-            const node:?string = nodes[index]
+            const node:string = nodes[index]
             // Ignore nodes that have been excluded.
             if (node) {
                 // Mark the node to exclude it from future iterations.
@@ -3583,7 +3475,7 @@ export class Tools {
      * @returns Value "true" if given prefix occur and "false" otherwise.
      */
     static stringHasPathPrefix(
-        prefix:?string = '/admin',
+        prefix:any|string = '/admin',
         path:string = (
             'location' in $.global && $.global.location.pathname || ''
         ),
@@ -3592,9 +3484,12 @@ export class Tools {
         if (typeof prefix === 'string') {
             if (!prefix.endsWith(separator))
                 prefix += separator
-            return path === prefix.substring(
-                0, prefix.length - separator.length
-            ) || path.startsWith(prefix)
+            return (
+                path === prefix.substring(
+                    0, prefix.length - separator.length
+                ) ||
+                path.startsWith(prefix)
+            )
         }
         return false
     }
@@ -3613,7 +3508,7 @@ export class Tools {
             'location' in $.global && $.global.location.hostname || ''
         )
     ):any {
-        const result:?Array<string> =
+        const result:Array<string>|null =
             /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
         if (result && result.length > 2 && result[1] && result[2])
             return result[2]
@@ -3637,7 +3532,7 @@ export class Tools {
         fallback:any = null,
         parameter:Array<string> = []
     ):number {
-        const result:?Array<string> =
+        const result:Array<string>|null =
             /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec(url)
         if (result && result.length > 1)
             return parseInt(result[1], 10)
@@ -3669,7 +3564,7 @@ export class Tools {
         ) ||
         ''
     ):any {
-        const result:?Array<string> = /^([a-z]+):\/\//i.exec(url)
+        const result:Array<string>|null = /^([a-z]+):\/\//i.exec(url)
         if (result && result.length > 1 && result[1])
             return result[1]
         return fallback
@@ -3698,12 +3593,12 @@ export class Tools {
      * key doesn't exist "undefined" is returned.
      */
     static stringGetURLVariable(
-        keyToGet:?string,
-        givenInput:?string,
+        keyToGet:string|undefined,
+        givenInput:string|undefined,
         subDelimiter:string = '$',
         hashedPathIndicator:string = '!',
-        givenSearch:?string,
-        givenHash:?string = (
+        givenSearch:string|undefined,
+        givenHash:string|undefined = (
             'location' in $.global && $.global.location.hash || ''
         )
     ):Array<string>|string|null {
@@ -3768,13 +3663,11 @@ export class Tools {
                 value = ''
             }
             variables.push(key)
-            // IgnoreTypeCheck
             variables[key] = value
         }
         // endregion
         if (keyToGet) {
             if (variables.hasOwnProperty(keyToGet))
-                // IgnoreTypeCheck
                 return variables[keyToGet]
             return null
         }
@@ -3819,8 +3712,8 @@ export class Tools {
      * @param url - Uniform resource locator to normalize.
      * @returns Normalized result.
      */
-    static stringNormalizeURL(url:?string):string {
-        if (url) {
+    static stringNormalizeURL(url:any):string {
+        if (typeof url === 'string') {
             url = url.replace(/^:?\/+/, '').replace(/\/+$/, '').trim()
             if (url.startsWith('http'))
                 return url
@@ -3833,7 +3726,7 @@ export class Tools {
      * @param url - Uniform resource locator to represent.
      * @returns Represented result.
      */
-    static stringRepresentURL(url:?string):string {
+    static stringRepresentURL(url:any):string {
         if (typeof url === 'string')
             return url.replace(/^(https?)?:?\/+/, '').replace(
                 /\/+$/, ''
@@ -3853,7 +3746,7 @@ export class Tools {
     static stringCamelCaseToDelimited(
         string:string,
         delimiter:string = '-',
-        abbreviations:?Array<string> = null
+        abbreviations:Array<string>|null = null
     ):string {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (!abbreviations)
@@ -3907,7 +3800,7 @@ export class Tools {
      * @param htmlString - HTML string to decode.
      * @returns Decoded html string.
      */
-    static stringDecodeHTMLEntities(htmlString:string):?string {
+    static stringDecodeHTMLEntities(htmlString:string):null|string {
         if ('document' in $.global) {
             const textareaDomNode = $.global.document.createElement('textarea')
             textareaDomNode.innerHTML = htmlString
@@ -3930,7 +3823,7 @@ export class Tools {
     static stringDelimitedToCamelCase(
         string:string,
         delimiter:string = '-',
-        abbreviations:?Array<string> = null,
+        abbreviations:Array<string>|null = null,
         preserveWrongFormattedAbbreviations:boolean = false,
         removeMultipleDelimiter:boolean = false
     ):string {
@@ -3991,7 +3884,7 @@ export class Tools {
         target:any,
         query:any,
         normalizer:Function = (value:any):string => `${value}`.toLowerCase()
-    ):?Array<number> {
+    ):Array<number>|null {
         query = normalizer(query)
         if (normalizer(target) && query)
             for (let index = 0; index < target.length; index += 1)
@@ -4348,7 +4241,6 @@ export class Tools {
                                 for (let pattern:string of [].concat(
                                     dateTimeFormat.pattern
                                 )) {
-                                    // IgnoreTypeCheck
                                     pattern = (new Function(
                                         'delimiter', `return \`^${pattern}$\``
                                     ))(`${delimiter}+`)
@@ -4356,14 +4248,12 @@ export class Tools {
                                         dateTimeFormat.hasOwnProperty(
                                             'flags'
                                         ) ? dateTimeFormat.flags : ''
-                                    // IgnoreTypeCheck
                                     const key:string = pattern + flags
                                     if (!patternPresenceCache.hasOwnProperty(
                                         key
                                     )) {
                                         patternPresenceCache[key] = true
                                         Tools._dateTimePatternCache.push(
-                                            // IgnoreTypeCheck
                                             new RegExp(pattern, flags))
                                     }
                                 }
@@ -4419,9 +4309,7 @@ export class Tools {
             if (match) {
                 const get:Function = (
                     name:string, fallback:number = 0
-                // IgnoreTypeCheck
                 ):number => name in match.groups ?
-                    // IgnoreTypeCheck
                     parseInt(match.groups[name]) :
                     fallback
                 const parameter:Array<number> = [
@@ -4467,12 +4355,12 @@ export class Tools {
      * @returns Processed result.
      */
     static stringMark(
-        target:?string,
-        words:?string|?Array<string>,
+        target:any,
+        words:any,
         marker:string = '<span class="tools-mark">{1}</span>',
         normalizer:Function = (value:any):string => `${value}`.toLowerCase()
-    ):?string {
-        if (target && words && words.length) {
+    ):any {
+        if (typeof target === 'string' && words && words.length) {
             target = target.trim()
             if (!Array.isArray(words))
                 words = [words]
@@ -4484,8 +4372,8 @@ export class Tools {
             let restTarget:string = target
             let offset:number = 0
             while (true) {
-                let nearestRange:?Array<number>
-                let currentRange:?Array<number>
+                let nearestRange:Array<number>|undefined
+                let currentRange:Array<number>|undefined
                 for (const word:string of words) {
                     currentRange = Tools.stringFindNormalizedMatchRange(
                         restTarget, word, normalizer)
@@ -4855,7 +4743,7 @@ export class Tools {
      * @returns Normalized number.
      */
     static stringNormalizePhoneNumber(
-        value:?string|?number, dialable:boolean=true
+        value:any, dialable:boolean=true
     ):string {
         if (typeof value === 'string' || typeof value === 'number') {
             value = `${value}`.trim()
@@ -4931,7 +4819,7 @@ export class Tools {
      * @param value - Number to normalize.
      * @returns Normalized number.
      */
-    static stringNormalizeZipCode(value:?string|?number):string {
+    static stringNormalizeZipCode(value:any):string {
         if (typeof value === 'string' || typeof value === 'number')
             return `${value}`.trim().replace(/[^0-9]+/g, '')
         return ''
@@ -4947,7 +4835,7 @@ export class Tools {
      */
     static stringParseEncodedObject(
         serializedObject:string, scope:Object = {}, name:string = 'scope'
-    ):?PlainObject {
+    ):null|PlainObject {
         if (
             serializedObject.endsWith('.json') &&
             Tools.isFileSync(serializedObject)
@@ -4961,7 +4849,6 @@ export class Tools {
                 .toString('utf8')
         let result:any
         try {
-            // IgnoreTypeCheck
             result = (new Function(name, `return ${serializedObject}`))(scope)
         } catch (error) {}
         if (typeof result === 'object')
@@ -4974,7 +4861,7 @@ export class Tools {
      * @param value - Number to format.
      * @returns Formatted number.
      */
-    static stringRepresentPhoneNumber(value:?string|?number):string {
+    static stringRepresentPhoneNumber(value:any):string {
         if (
             ['number', 'string'].includes(Tools.determineType(value)) &&
             value
@@ -5131,18 +5018,17 @@ export class Tools {
         expectedIntermediateStatusCodes = [].concat(
             expectedIntermediateStatusCodes)
         const isStatusCodeExpected:Function = (
-            response:?Object, expectedStatusCodes:Array<number>
+            response:any, expectedStatusCodes:Array<number>
         ):boolean => Boolean(
-            response &&
+            response !== null &&
+            typeof response === 'object' &&
             'status' in response &&
             expectedStatusCodes.includes(response.status)
         )
-        const checkAndThrow:Function = (response:?Object):?Object => {
+        const checkAndThrow:Function = (response:any):any => {
             if (!isStatusCodeExpected(response, expectedStatusCodes))
                 throw new Error(
-                    // IgnoreTypeCheck
                     `Given status code ${response.status} differs from ` +
-                    // IgnoreTypeCheck
                     `${expectedStatusCodes.join(', ')}.`
                 )
             return response
@@ -5169,7 +5055,7 @@ export class Tools {
                     }
                     return error
                 }
-                const wrapper:Function = async ():Promise<?Object> => {
+                const wrapper:Function = async ():Promise<any> => {
                     let response:Object
                     try {
                         response = await fetch(url, options)
@@ -5178,7 +5064,6 @@ export class Tools {
                     }
                     try {
                         resolve(checkAndThrow(response))
-                        // IgnoreTypeCheck
                         timer.clear()
                     } catch (error) {
                         if (isStatusCodeExpected(
@@ -5186,7 +5071,6 @@ export class Tools {
                         ))
                             return retryErrorHandler(error)
                         reject(error)
-                        // IgnoreTypeCheck
                         timer.clear()
                     }
                     return response
@@ -5196,10 +5080,10 @@ export class Tools {
                     await timer
                 } catch (error) {}
                 timedOut = true
-                // IgnoreTypeCheck
                 currentlyRunningTimer.clear()
                 reject(new Error(
-                    `Timeout of ${timeoutInSeconds} seconds reached.`))
+                    `Timeout of ${timeoutInSeconds} seconds reached.`
+                ))
             })
         return checkAndThrow(await fetch(url, options))
     }
@@ -5222,14 +5106,15 @@ export class Tools {
         wait:boolean = false,
         timeoutInSeconds:number = 10,
         pollIntervallInSeconds:number = 0.1,
-        unexpectedStatusCodes:?number|Array<number> = null,
+        unexpectedStatusCodes:null|number|Array<number> = null,
         options:PlainObject = {}
     ):Promise<Object> {
-        const check:Function = (response:?Object):?Error => {
+        const check:Function = (response:any):Error => {
             if (unexpectedStatusCodes) {
                 unexpectedStatusCodes = [].concat(unexpectedStatusCodes)
                 if (
-                    response &&
+                    response !== null &&
+                    typeof response === 'object' &&
                     'status' in response &&
                     unexpectedStatusCodes.includes(response.status)
                 )
@@ -5248,14 +5133,13 @@ export class Tools {
                 resolve:Function, reject:Function
             ):Promise<void> => {
                 let timedOut:boolean = false
-                const wrapper:Function = async ():Promise<?Object> => {
+                const wrapper:Function = async ():Promise<any> => {
                     try {
                         const response:Object = await fetch(url, options)
                         if (timedOut)
                             return response
                         const result:Error = check(response)
                         if (result) {
-                            // IgnoreTypeCheck
                             timer.clear()
                             resolve(result)
                             return result
@@ -5271,7 +5155,6 @@ export class Tools {
                         currentlyRunningTimer.catch(Tools.noop)
                     } catch (error) {
                         /* eslint-disable no-use-before-define */
-                        // IgnoreTypeCheck
                         timer.clear()
                         /* eslint-enable no-use-before-define */
                         resolve(error)
@@ -5285,7 +5168,6 @@ export class Tools {
                     await timer
                 } catch (error) {}
                 timedOut = true
-                // IgnoreTypeCheck
                 currentlyRunningTimer.clear()
                 reject(new Error(
                     `Timeout of ${timeoutInSeconds} seconds reached.`))
@@ -5778,9 +5660,9 @@ export class Tools {
     static getProcessCloseHandler(
         resolve:Function, reject:Function, reason:any = null,
         callback:Function = ():void => {}
-    ):((returnCode:?number) => void) {
+    ):((returnCode:any) => void) {
         let finished:boolean = false
-        return (returnCode:?number, ...parameter:Array<any>):void => {
+        return (returnCode:any, ...parameter:Array<any>):void => {
             if (finished)
                 finished = true
             else {
@@ -5791,9 +5673,7 @@ export class Tools {
                 } else {
                     const error:Error = new Error(
                         `Task exited with error code ${returnCode}`)
-                    // IgnoreTypeCheck
                     error.returnCode = returnCode
-                    // IgnoreTypeCheck
                     error.parameter = parameter
                     reject(error)
                 }
@@ -5841,7 +5721,6 @@ export class Tools {
         ) {
             for (const eventType:string in parameter[1])
                 if (parameter[1].hasOwnProperty(eventType))
-                    // IgnoreTypeCheck
                     this[eventFunctionName](
                         $domNode, eventType, parameter[1][eventType])
             return $domNode
