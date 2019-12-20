@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.376",
+  "version": "3.0.377",
   "license": "CC-BY-3.0",
   "description": "upgrade to object orientated rock solid plugins",
   "homepage": "https://torben.website/clientNode",
@@ -21,7 +21,7 @@
     "jquery"
   ],
   "files": [
-    "index.js"
+    "index.ts"
   ],
   "main": "index.compiled.js",
   "repository": {
@@ -30,12 +30,14 @@
   },
   "scripts": {
     "build": "webOptimizer build",
-    "build:alternatively": "babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/env,@babel/preset-typescript --source-maps inline --out-file index.compiled.js index.js",
-    "build:export": "webOptimizer build '{__reference__: \"target:export\"}' && yarn build:test",
-    "build:export:compatible": "webOptimizer build '{__reference__: [\"target:export\", \"target:compatible\"]}' && yarn build:test",
+    "build:alternatively": "babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/env,@babel/preset-typescript --source-maps inline --out-file index.compiled.js index.ts",
+    "build:export": "webOptimizer build '{__reference__: \"target:export\"}'",
+    "build:export:compatible": "webOptimizer build '{__reference__: [\"target:export\", \"target:compatible\"]}'",
+    "check": "yarn check:types; yarn lint",
+    "check:types": "webOptimizer check:types",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
-    "lint": "webOptimizer check:type; webOptimizer lint",
+    "lint": "webOptimizer lint",
     "prepare": "if ! yarn build; then echo You should rerun install procedure to resolve dependency cycle. && yarn buildAlternatively; fi",
     "report:coverage": "nyc report --reporter=text-lcov | coveralls",
     "serve": "webOptimizer serve",
@@ -102,7 +104,7 @@
             }
           },
           "module": {
-            "#": "For Task \"test\", this module would produce this error \"ERROR in ./test.js Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: clientNode/test.js: Cannot read property 'end' of null\".",
+            "#": "For Task \"test\", this module would produce this error \"ERROR in ./test.ts Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: clientNode/test.ts: Cannot read property 'end' of null\".",
             "evaluate": false,
             "#0": "For external task \"clear\", this module would produce this error \"UnhandledPromiseRejectionWarning: TypeError: Cannot create property 'next' on string '.dynamicConfiguration-0.json' at Function.<anonymous> (clientNode/index.compiled.js:1:80221)\".",
             "mangle": false,
