@@ -39,7 +39,8 @@ export type Options = {
     domNodeSelectorPrefix:string;
     [key:string]:any;
 }
-export type LockCallbackFunction = (description:string) => undefined|Promise<any>
+export type LockCallbackFunction = (description:string) =>
+    Promise<any>|undefined
 export type $DomNode = {
     [key:number|string]:DomNode;
     addClass(className:string):$DomNode;

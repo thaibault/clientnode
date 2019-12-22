@@ -1278,11 +1278,12 @@ export class Tools {
      * @returns List of parameter names.
      */
     static getParameterNames(callable:Function|string):Array<string> {
-        const functionCode:string = ((typeof callable === 'string') ?
-            callable :
-            // Strip comments.
-            callable.toString()).replace(
-                /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg, '')
+        const functionCode:string = (
+            (typeof callable === 'string') ?
+                callable :
+                // Strip comments.
+                callable.toString()
+        ).replace(/((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg, '')
         if (functionCode.startsWith('class'))
             return Tools.getParameterNames('function ' + functionCode.replace(
                 /.*(constructor\([^)]+\))/m, '$1'))
