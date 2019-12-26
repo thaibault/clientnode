@@ -1338,7 +1338,7 @@ export class Tools {
         while (true) {
             uniqueName =
                 prefix +
-                `${parseInt(Math.random() * Math.pow(10, 10), 10)}` +
+                `${Math.round(Math.random() * Math.pow(10, 10))}` +
                 suffix
             if (!(uniqueName in scope))
                 break
@@ -1394,10 +1394,12 @@ export class Tools {
      * @param filter - A function that filters an array.
      * @returns The inverted filter.
      */
-    static invertArrayFilter(filter:Function):Function {
-        return function(data:any, ...additionalParameter:Array<any>):any {
+    static invertArrayFilter(
+        filter:(this:any, data:any, ...additionalParameter:Array<any>) => any
+    ):(data:any, ...additionalParameter:Array<any>) => any {
+        return function(this:any, data:any, ...additionalParameter:Array<any>):any {
             if (data) {
-                const filteredData:any = filter.call(
+                const filteredData:any = filter(
                     this, data, ...additionalParameter)
                 let result:Array<any> = []
                 /* eslint-disable curly */
