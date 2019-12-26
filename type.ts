@@ -17,6 +17,8 @@
     endregion
 */
 // region exports
+export type DomCallbackFunction = (index:number, $domNode:$DomNode) =>
+    false|undefined
 export type PlainObject = {[key:string]:any}
 export type ProcedureFunction = () => void|Promise<void>
 export type File = {
@@ -28,28 +30,29 @@ export type File = {
 }
 export type GetterFunction = (keyOrValue:any, key:any, target:any) => any
 export type SetterFunction = (key:any, value:any, target:any) => any
-export type Position = {
-    top:number|undefined;
-    left:number|undefined;
-    right:number|undefined;
-    bottom:number|undefined;
-}
+export type Position = {bottom:number;left:number;right:number;top:number}
 export type RelativePosition = 'in'|'above'|'left'|'below'|'right'
 export type Options = {
+    domNode:{
+        hideJavaScriptEnabled:string;
+        showJavaScriptEnabled:string;
+    };
     domNodeSelectorPrefix:string;
-    [key:string]:any;
+    logging:boolean;
 }
 export type LockCallbackFunction = (description:string) =>
     Promise<any>|undefined
 export type $DomNode = {
-    [key:number|string]:DomNode;
-    addClass(className:string):$DomNode;
     addBack():$DomNode;
+    addClass(className:string):$DomNode;
     after(domNode:any):$DomNode;
     append(domNode:any):$DomNode;
-    attr(attributeName:string|{[key:string]:string}, value:any):any;
-    data(key:string, value:any):any;
-    each():$DomNode;
+    attr(attributeName:string|{[key:string]:string}, value?:any):any;
+    children():$DomNode;
+    clone():$DomNode;
+    data(key:string, value?:any):any;
+    each(callback:DomCallbackFunction):$DomNode;
+    end():$DomNode;
     find(filter:any):$DomNode;
     height():number;
     is(selector:string):boolean;
@@ -57,8 +60,10 @@ export type $DomNode = {
     removeAttr(attributeName:string):$DomNode;
     removeClass(className:string|Array<string>):$DomNode;
     submit():$DomNode;
+    text():string;
     width():number;
     Tools(functionName:string, ...additionalArguments:Array<any>):any;
+    [key:number|string]:DomNode;
 }
 export type $Deferred<Type> = {
     always:() => $Deferred<Type>;
