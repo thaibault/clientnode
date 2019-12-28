@@ -33,11 +33,14 @@ try {
 
 import {
     DomNode,
+    GetterFunction,
     LockCallbackFunction,
     Options,
     PlainObject,
     Position,
     RelativePosition,
+    SetterFunction,
+    TimeoutPromise,
     $DomNode
 } from './type'
 // endregion
@@ -1431,7 +1434,7 @@ export class Tools {
      * holds a boolean indicating whether timeout has been canceled or
      * resolved.
      */
-    static timeout(...parameter:Array<any>):Promise<boolean> {
+    static timeout(...parameter:Array<any>):TimeoutPromise {
         let callback:Function = Tools.noop
         let delayInMilliseconds:number = 0
         let throwOnTimeoutClear:boolean = false
@@ -1444,7 +1447,8 @@ export class Tools {
                 callback = value
         let rejectCallback:Function
         let resolveCallback:Function
-        const result:Promise<boolean> = new Promise((
+        // @ts-ignore: Object will be extended before returning.
+        const result:TimeoutPromise = new Promise((
             resolve:Function, reject:Function
         ):void => {
             rejectCallback = reject
