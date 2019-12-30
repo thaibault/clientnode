@@ -14,8 +14,9 @@
     endregion
 */
 // region imports
-import Tools, {globalContext, Semaphore, $} from './index'
-import type {DomNode, File, PlainObject, $DomNode} from './index'
+import Tools, {
+    DomNode, File, globalContext, PlainObject, $DomNode, Semaphore, $
+} from './index'
 if (!('fetch' in globalContext))
     try {
         globalContext.fetch = eval('require')('node-fetch')
@@ -27,7 +28,7 @@ try {
     /* eslint-enable no-var */
 } catch (error) {}
 import {getInitializedBrowser} from 'weboptimizer/browser'
-import type {Browser} from 'weboptimizer/type'
+import {Browser} from 'weboptimizer/type'
 // endregion
 // region declaration
 declare function describe(description:string, test:Function):void
