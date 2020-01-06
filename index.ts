@@ -472,10 +472,6 @@ export class Tools {
             // Attach extended object to the associated dom node.
             $domNode.data(name, object)
         if (parameter.length && parameter[0] in object) {
-            const descriptor = Object.getOwnPropertyDescriptor(
-                Object.getPrototypeOf(object), parameter[0])
-            if (descriptor && descriptor.get && parameter.length === 1)
-                return descriptor.get.call(object)
             if (Tools.isFunction(object[parameter[0]]))
                 return object[parameter[0]](...parameter.slice(1))
             return object[parameter[0]]
