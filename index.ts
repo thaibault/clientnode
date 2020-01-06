@@ -471,7 +471,11 @@ export class Tools {
         if ($domNode && 'data' in $domNode && !$domNode.data(name))
             // Attach extended object to the associated dom node.
             $domNode.data(name, object)
-        if (parameter[0] in object) {
+        if (parameter.length && parameter[0] in object) {
+            const descriptor = Object.getOwnPropertyDescriptor(
+                Object.getPrototypeOf(object), parameter[0])
+            if (descriptor && descriptor.get && parameter.length === 1)
+                return descriptor.get.call(object)
             if (Tools.isFunction(object[parameter[0]]))
                 return object[parameter[0]](...parameter.slice(1))
             return object[parameter[0]]
@@ -483,7 +487,8 @@ export class Tools {
             return object.initialize(...parameter)
         throw new Error(
             `Method "${parameter[0]}" does not exist on $-extended dom node ` +
-            `"${name}".`)
+            `"${name}".`
+        )
     }
     // / endregion
     // / region mutual exclusion
@@ -899,7 +904,8 @@ export class Tools {
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, $domNode:$DomNode):any => {
+                .each((index:number, domNode:DomNode):any => {
+                    const $domNode:$DomNode = $(domNode)
                     if ($domNode.attr(className))
                         $domNode.attr(
                             className,
@@ -924,7 +930,8 @@ export class Tools {
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, $domNode:$DomNode):any => {
+                .each((index:number, domNode:DomNode):any => {
+                    const $domNode:$DomNode = $(domNode)
                     const serializedStyles:string|undefined = $domNode.attr(
                         styleName)
                     if (serializedStyles)
@@ -1402,8 +1409,7 @@ export class Tools {
     ):(data:any, ...additionalParameter:Array<any>) => any {
         return function(this:any, data:any, ...additionalParameter:Array<any>):any {
             if (data) {
-                const filteredData:any = filter(
-                    this, data, ...additionalParameter)
+                const filteredData:any = filter(data, ...additionalParameter)
                 let result:Array<any> = []
                 /* eslint-disable curly */
                 if (filteredData.length) {
@@ -2997,9 +3003,11 @@ export class Tools {
                 if (item.hasOwnProperty(propertyName))
                     if (
                         !['', null, undefined].includes(item[propertyName]) &&
-                        (!propertyNames.length || Tools.arrayMake(
-                            propertyNames
-                        ).includes(propertyName))
+                        (
+                            !propertyNames.length ||
+                            Tools.arrayMake(propertyNames).includes(
+                                propertyName)
+                        )
                     ) {
                         empty = false
                         break

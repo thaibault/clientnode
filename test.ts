@@ -84,9 +84,10 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     test('initialize', ():void => {
         const secondToolsInstance:Tools = $.Tools({logging: true})
         const thirdToolsInstance:Tools = $.Tools({
-            domNodeSelectorPrefix: 'body.{1} div.{1}'})
+            domNodeSelectorPrefix: 'body.{1} div.{1}'
+        })
 
-        expect(tools._options).not.toHaveProperty('logging')
+        expect(tools._options).toHaveProperty('logging', false)
         expect(secondToolsInstance._options).toHaveProperty('logging', true)
         expect(thirdToolsInstance._options.domNodeSelectorPrefix)
             .toStrictEqual('body.tools div.tools')
