@@ -1,4 +1,3 @@
-// @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
 'use strict'
@@ -15,8 +14,9 @@
     endregion
 */
 // region imports
-import Tools, {globalContext, Semaphore, $} from './index'
-import type {DomNode, File, PlainObject, $DomNode} from './index'
+import Tools, {
+    DomNode, File, globalContext, PlainObject, $DomNode, Semaphore, $
+} from './index'
 if (!('fetch' in globalContext))
     try {
         globalContext.fetch = eval('require')('node-fetch')
@@ -28,7 +28,7 @@ try {
     /* eslint-enable no-var */
 } catch (error) {}
 import {getInitializedBrowser} from 'weboptimizer/browser'
-import type {Browser} from 'weboptimizer/type'
+import {Browser} from 'weboptimizer/type'
 // endregion
 // region declaration
 declare function describe(description:string, test:Function):void
@@ -84,9 +84,10 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     test('initialize', ():void => {
         const secondToolsInstance:Tools = $.Tools({logging: true})
         const thirdToolsInstance:Tools = $.Tools({
-            domNodeSelectorPrefix: 'body.{1} div.{1}'})
+            domNodeSelectorPrefix: 'body.{1} div.{1}'
+        })
 
-        expect(tools._options).not.toHaveProperty('logging')
+        expect(tools._options).toHaveProperty('logging', false)
         expect(secondToolsInstance._options).toHaveProperty('logging', true)
         expect(thirdToolsInstance._options.domNodeSelectorPrefix)
             .toStrictEqual('body.tools div.tools')
@@ -746,7 +747,6 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         result.catch(():void => {
             test = true
         })
-        // IgnoreTypeCheck
         result.clear()
         let test2:boolean = false
         expect(await Tools.timeout(():void => {
@@ -1068,7 +1068,6 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [():void => {}, 'function'],
         [[], 'array'],
         /* eslint-disable no-array-constructor */
-        // IgnoreTypeCheck
         // TODO [new Array(), 'array'],
         /* eslint-enable no-array-constructor */
         [now, 'date'],

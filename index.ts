@@ -1,4 +1,3 @@
-// @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
 /** @module clientnode */
@@ -18,7 +17,7 @@
     endregion
 */
 // region imports
-import type {ChildProcess} from 'child_process'
+import {ChildProcess} from 'child_process'
 let fileSystem:Object = {}
 try {
     fileSystem = eval('require')('fs').promises
@@ -31,104 +30,22 @@ let path:Object = {}
 try {
     path = eval('require')('path')
 } catch (error) {}
+
+import {
+    GetterFunction,
+    LockCallbackFunction,
+    Options,
+    PlainObject,
+    Position,
+    RelativePosition,
+    SetterFunction,
+    TimeoutPromise,
+    $DomNode
+} from './type'
 // endregion
-// region types
-export type PlainObject = {[key:string]:any}
-export type ProcedureFunction = () => void|Promise<void>
-export type File = {
-    directoryPath:string;
-    error:Error|null;
-    name:string;
-    path:string;
-    stats:Object|null;
-}
-export type GetterFunction = (keyOrValue:any, key:?any, target:?any) => any
-export type SetterFunction = (key:any, value:any, target:?any) => any
-export type Position = {
-    top?:number;
-    left?:number;
-    right?:number;
-    bottom?:number;
-}
-export type RelativePosition = 'in'|'above'|'left'|'below'|'right'
-export type Options = {
-    domNodeSelectorPrefix:string;
-    [key:string]:any;
-}
-export type LockCallbackFunction = (description:string) => ?Promise<any>
-export type $DomNode = {
-    [key:number|string]:DomNode;
-    addClass(className:string):$DomNode;
-    addBack():$DomNode;
-    after(domNode:any):$DomNode;
-    append(domNode:any):$DomNode;
-    attr(attributeName:string|{[key:string]:string}, value:any):any;
-    data(key:string, value:any):any;
-    each():$DomNode;
-    find(filter:any):$DomNode;
-    height():number;
-    is(selector:string):boolean;
-    remove():$DomNode;
-    removeAttr(attributeName:string):$DomNode;
-    removeClass(className:string|Array<string>):$DomNode;
-    submit():$DomNode;
-    width():number;
-    Tools(functionName:string, ...additionalArguments:Array<any>):any;
-}
-export type $Deferred<Type> = {
-    always:() => $Deferred<Type>;
-    resolve:() => $Deferred<Type>;
-    done:() => $Deferred<Type>;
-    fail:() => $Deferred<Type>;
-    isRejected:() => $Deferred<Type>;
-    isResolved:() => $Deferred<Type>;
-    notify:() => $Deferred<Type>;
-    notifyWith:() => $Deferred<Type>;
-    progress:() => $Deferred<Type>;
-    promise:() => $Deferred<Type>;
-    reject:() => $Deferred<Type>;
-    rejectWith:() => $Deferred<Type>;
-    resolveWith:() => $Deferred<Type>;
-    state:() => $Deferred<Type>;
-    then:() => $Deferred<Type>;
-}
-// / region browser
-export type DomNode = any
-export type Location = {
-    hash:string;
-    search:string;
-    pathname:string;
-    port:string;
-    hostname:string;
-    host:string;
-    protocol:string;
-    origin:string;
-    href:string;
-    username:string;
-    password:string;
-    assign:Function;
-    reload:Function;
-    replace:Function;
-    toString:() => string
-}
-export type Storage = {
-    getItem(key:string):any;
-    setItem(key:string, value:any):void;
-    removeItem(key:string, value:any):void;
-}
-export type Window = {
-    addEventListener:(type:string, callback:Function) => void;
-    close:() => void;
-    document:Object;
-    location:Location;
-    localStorage:Storage;
-    sessionStorage:Storage;
-    $:Object;
-}
-// / endregion
-// endregion
+declare var global:any
 // region determine context
-export const globalContext:Object = (():Object => {
+export const globalContext:any = (():Object => {
     if (typeof window === 'undefined') {
         if (typeof global === 'undefined')
             return (typeof module === 'undefined') ? {} : module
@@ -158,12 +75,11 @@ export const $:any = (():any => {
             ) : ():null => null
         $ = (parameter:any, ...additionalArguments:Array<any>):any => {
             if (typeof parameter === 'string') {
-                const $domNodes:?Array<any> = selector(
+                const $domNodes:any = selector(
                     parameter, ...additionalArguments)
                 if ($domNodes && 'fn' in $)
-                    for (const key:string in $.fn)
+                    for (const key in $.fn)
                         if ($.fn.hasOwnProperty(key))
-                            // IgnoreTypeCheck
                             $domNodes[key] = $.fn[key].bind($domNodes)
                 return $domNodes
             }
@@ -224,10 +140,11 @@ export class Semaphore {
      * @returns Nothing.
      */
     release():void {
-        if (this.queue.length === 0)
+        const callback:Function|undefined = this.queue.pop()
+        if (callback === undefined)
             this.numberOfFreeResources += 1
         else
-            this.queue.pop()(this.numberOfFreeResources)
+            callback(this.numberOfFreeResources)
     }
 }
 /**
@@ -414,10 +331,11 @@ export class Tools {
     static _name:string = 'tools'
     // endregion
     // region dynamic properties
-    $domNode:$DomNode
-    locks:{[key:string]:Array<LockCallbackFunction>};
+    $domNode:null|$DomNode = null
+    locks:{[key:string]:Array<LockCallbackFunction>}
+    self:typeof Tools
     _options:Options
-    _defaultOptions:PlainObject
+    _defaultOptions:Options
     // endregion
     // region public methods
     // / region special
@@ -440,9 +358,9 @@ export class Tools {
      * class will be given back.
      */
     constructor(
-        $domNode:null|$DomNode = null,
-        options:Object = {},
-        defaultOptions:PlainObject = {
+        $domNode?:$DomNode,
+        options?:Options,
+        defaultOptions:Options = {
             domNode: {
                 hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
                 showJavaScriptEnabled: '.tools-visible-on-javascript-enabled'
@@ -451,38 +369,48 @@ export class Tools {
             logging: false
         },
         locks:{[key:string]:Array<LockCallbackFunction>} = {}
-    ):void {
+    ) {
         if ($domNode)
             this.$domNode = $domNode
-        this._options = options
         this._defaultOptions = defaultOptions
+        if (options)
+            this._options = options
+        else
+            this._options = this._defaultOptions
         this.locks = locks
         // Avoid errors in browsers that lack a console.
         if (!('console' in $.global))
             $.global.console = {}
-        for (const methodName:string of this.constructor.consoleMethodNames)
+        this.self = this.constructor as typeof Tools
+        for (const methodName of this.self.consoleMethodNames)
             if (!(methodName in $.global.console))
-                $.global.console[methodName] = this.constructor.noop
+                $.global.console[methodName] = this.self.noop
         if (
-            !this.constructor._javaScriptDependentContentHandled &&
+            !this.self._javaScriptDependentContentHandled &&
             'document' in $.global &&
             'filter' in $ &&
             'hide' in $ &&
             'show' in $
         ) {
-            this.constructor._javaScriptDependentContentHandled = true
+            this.self._javaScriptDependentContentHandled = true
             $(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNode.hideJavaScriptEnabled
-            ).filter(function():boolean {
-                return !$(this).data('javaScriptDependentContentHide')
-            }).data('javaScriptDependentContentHide', true).hide()
+            )
+                .filter((index:number, $domNode:$DomNode):boolean =>
+                    !$domNode.data('javaScriptDependentContentHide')
+                )
+                .data('javaScriptDependentContentHide', true)
+                .hide()
             $(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNode.showJavaScriptEnabled
-            ).filter(function():boolean {
-                return !$(this).data('javaScriptDependentContentShow')
-            }).data('javaScriptDependentContentShow', true).show()
+            )
+                .filter((index:number, $domNode:$DomNode):boolean =>
+                    !$domNode.data('javaScriptDependentContentShow')
+                )
+                .data('javaScriptDependentContentShow', true)
+                .show()
         }
     }
     /**
@@ -505,16 +433,16 @@ export class Tools {
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
         */
-        this._options = this.constructor.extend(
+        this._options = this.self.extend(
             true, {}, this._defaultOptions, this._options, options)
         /*
             The selector prefix should be parsed after extending options
             because the selector would be overwritten otherwise.
         */
-        this._options.domNodeSelectorPrefix = this.constructor.stringFormat(
+        this._options.domNodeSelectorPrefix = this.self.stringFormat(
             this._options.domNodeSelectorPrefix,
-            this.constructor.stringCamelCaseToDelimited(
-                this.constructor._name))
+            this.self.stringCamelCaseToDelimited(this.self._name)
+        )
         return this
     }
     // / endregion
@@ -529,21 +457,20 @@ export class Tools {
      * @returns Returns whatever the initializer method returns.
      */
     controller(
-        object:Object, parameter:Array<any>, $domNode:null|$DomNode = null
+        object:any, parameter:Array<any>, $domNode:null|$DomNode = null
     ):any {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
             object = new object($domNode)
             if (!(object instanceof Tools))
-                object = this.constructor.extend(
-                    true, new Tools(), object)
+                object = this.self.extend(true, new Tools(), object)
         }
         const name:string = object.constructor._name || object.constructor.name
-        parameter = this.constructor.arrayMake(parameter)
+        parameter = this.self.arrayMake(parameter)
         if ($domNode && 'data' in $domNode && !$domNode.data(name))
             // Attach extended object to the associated dom node.
             $domNode.data(name, object)
-        if (parameter[0] in object) {
+        if (parameter.length && parameter[0] in object) {
             if (Tools.isFunction(object[parameter[0]]))
                 return object[parameter[0]](...parameter.slice(1))
             return object[parameter[0]]
@@ -555,7 +482,8 @@ export class Tools {
             return object.initialize(...parameter)
         throw new Error(
             `Method "${parameter[0]}" does not exist on $-extended dom node ` +
-            `"${name}".`)
+            `"${name}".`
+        )
     }
     // / endregion
     // / region mutual exclusion
@@ -573,14 +501,16 @@ export class Tools {
      */
     acquireLock(
         description:string,
-        callbackFunction:LockCallbackFunction = Tools.noop,
+        callback?:LockCallbackFunction,
         autoRelease:boolean = false
     ):Promise<any> {
         return new Promise((resolve:Function):void => {
-            const wrappedCallbackFunction:LockCallbackFunction = (
+            const wrappedCallback:LockCallbackFunction = (
                 description:string
-            ):?Promise<any> => {
-                const result:any = callbackFunction(description)
+            ):Promise<any>|undefined => {
+                let result:any
+                if (callback)
+                    result = callback(description)
                 const finish:Function = (value:any):void => {
                     if (autoRelease)
                         this.releaseLock(description)
@@ -592,10 +522,10 @@ export class Tools {
                 finish(description)
             }
             if (this.locks.hasOwnProperty(description))
-                this.locks[description].push(wrappedCallbackFunction)
+                this.locks[description].push(wrappedCallback)
             else {
                 this.locks[description] = []
-                wrappedCallbackFunction(description)
+                wrappedCallback(description)
             }
         })
     }
@@ -609,11 +539,14 @@ export class Tools {
      */
     async releaseLock(description:string):Promise<any> {
         let result:any
-        if (this.locks.hasOwnProperty(description))
-            if (this.locks[description].length)
-                result = await this.locks[description].shift()(description)
-            else
+        if (this.locks.hasOwnProperty(description)) {
+            const callback:LockCallbackFunction|undefined =
+                this.locks[description].shift()
+            if (callback === undefined)
                 delete this.locks[description]
+            else
+                result = await callback(description)
+        }
         return result
     }
     /**
@@ -690,7 +623,7 @@ export class Tools {
      * given pattern and "false" otherwise.
      */
     static isAnyMatching(target:string, pattern:Array<string|RegExp>):boolean {
-        for (const currentPattern:RegExp|string of pattern)
+        for (const currentPattern of pattern)
             if (typeof currentPattern === 'string') {
                 if (currentPattern === target)
                     return true
@@ -704,7 +637,7 @@ export class Tools {
      * @returns Value "true" if given object is a plain javaScript object and
      * "false" otherwise.
      */
-    static isPlainObject(object:mixed):boolean {
+    static isPlainObject(object:any):boolean {
         return (
             typeof object === 'object' &&
             object !== null &&
@@ -717,7 +650,7 @@ export class Tools {
      * @returns Value "true" if given object is a function and "false"
      * otherwise.
      */
-    static isFunction(object:mixed):boolean {
+    static isFunction(object:any):boolean {
         return (
             Boolean(object) &&
             ['[object AsyncFunction]', '[object Function]'].includes(
@@ -737,7 +670,7 @@ export class Tools {
      * @returns Returns the given function wrapped by the workaround logic.
      */
     static mouseOutEventHandlerFix(eventHandler:Function):Function {
-        return (event:Object, ...additionalParameter:Array<any>):any => {
+        return (event:any, ...additionalParameter:Array<any>):any => {
             let relatedTarget:DomNode = event.toElement
             if ('relatedTarget' in event)
                 relatedTarget = event.relatedTarget
@@ -766,33 +699,38 @@ export class Tools {
      * @returns Returns the current instance.
      */
     log(
-        object:any, force:boolean = false, avoidAnnotation:boolean = false,
-        level:string = 'info', ...additionalArguments:Array<any>
+        object:any,
+        force:boolean = false,
+        avoidAnnotation:boolean = false,
+        level:string = 'info',
+        ...additionalArguments:Array<any>
     ):Tools {
-        if (this._options.logging || force || ['error', 'critical'].includes(
-            level
-        )) {
+        if (
+            this._options.logging ||
+            force ||
+            ['error', 'critical'].includes(level)
+        ) {
             let message:any
             if (avoidAnnotation)
                 message = object
-            else if (typeof object === 'string') {
-                additionalArguments.unshift(object)
-                message = `${this.constructor._name} (${level}): ` +
-                    this.constructor.stringFormat(...additionalArguments)
-            } else if (this.constructor.isNumeric(
-                object
-            ) || typeof object === 'boolean')
-                message = `${this.constructor._name} (${level}): ` +
-                    object.toString()
+            else if (typeof object === 'string')
+                message =
+                    `${this.self._name} (${level}): ` +
+                    this.self.stringFormat(object, ...additionalArguments)
+            else if (
+                this.self.isNumeric(object) || typeof object === 'boolean'
+            )
+                message = `${this.self._name} (${level}): ${object.toString()}`
             else {
                 this.log(',--------------------------------------------,')
                 this.log(object, force, true)
                 this.log(`'--------------------------------------------'`)
             }
             if (message)
-                if (!('console' in $.global && level in $.global.console) || (
-                    $.global.console[level] === this.constructor.noop
-                )) {
+                if (
+                    !('console' in $.global && level in $.global.console) ||
+                    ($.global.console[level] === this.self.noop)
+                ) {
                     if ('alert' in $.global)
                         $.global.alert(message)
                 } else
@@ -866,7 +804,7 @@ export class Tools {
     static show(object:any, level:number = 3, currentLevel:number = 0):string {
         let output:string = ''
         if (Tools.determineType(object) === 'object') {
-            for (const key:string in object)
+            for (const key in object)
                 if (object.hasOwnProperty(key)) {
                     output += `${key.toString()}: `
                     if (currentLevel <= level)
@@ -902,7 +840,7 @@ export class Tools {
             const key:string = `${name}=`
             const decodedCookie:string = decodeURIComponent(
                 $.global.document.cookie)
-            for (let date:string of decodedCookie.split(';')) {
+            for (let date of decodedCookie.split(';')) {
                 while (date.charAt(0) === ' ')
                     date = date.substring(1)
                 if (date.indexOf(key) === 0)
@@ -916,17 +854,25 @@ export class Tools {
      * @param name - Name to identify given value.
      * @param value - Value to set.
      * @param domain - Domain to reference with given key-value-pair.
+     * @param sameSite - Set same site policy to "Lax", "None" or "Strict".
      * @param numberOfDaysUntilExpiration - Number of days until given key
      * shouldn't be deleted.
      * @param path - Path to reference with given key-value-pair.
+     * @param secure - Indicates if this cookie is only valid for "https"
+     * connections.
+     * @param httpOnly - Indicates if this cookie should be accessible from
+     * client or not.
      * @returns A boolean indicating whether cookie could be set or not.
      */
     static setCookie(
         name:string,
         value:string,
         domain:string = '',
+        sameSite:'Lax'|'None'|'Strict'|'' = 'Lax',
         numberOfDaysUntilExpiration:number = 365,
-        path:string = '/'
+        path:string = '/',
+        secure:boolean = true,
+        httpOnly:boolean = false
     ):boolean {
         if ('document' in $.global) {
             const now:Date = new Date()
@@ -942,9 +888,12 @@ export class Tools {
                 domain = $.global.location.hostname
             $.global.document.cookie =
                 `${name}=${value};` +
-                `expires="${now.toUTCString()};` +
-                `path=${path};` +
-                `domain=${domain}`
+                `Expires="${now.toUTCString()};` +
+                `Path=${path};` +
+                `Domain=${domain}` +
+                (sameSite ? `;SameSite=${sameSite}` : '') +
+                (secure ? ';Secure' : '') +
+                (httpOnly = ';HttpOnly' + '')
             return true
         }
         return false
@@ -958,20 +907,22 @@ export class Tools {
     get normalizedClassNames():Tools {
         if (this.$domNode) {
             const className:string = 'class'
-            // IgnoreTypeCheck
-            this.$domNode.find('*').addBack().each(function():void {
-                const $thisDomNode:$DomNode = $(this)
-                if ($thisDomNode.attr(className))
-                    $thisDomNode.attr(
-                        className,
-                        (
-                            $thisDomNode.attr(className).split(' ').sort() ||
-                            []
-                        ).join(' ')
-                    )
-                else if ($thisDomNode.is(`[${className}]`))
-                    $thisDomNode.removeAttr(className)
-            })
+            this.$domNode
+                .find('*')
+                .addBack()
+                .each((index:number, domNode:DomNode):any => {
+                    const $domNode:$DomNode = $(domNode)
+                    if ($domNode.attr(className))
+                        $domNode.attr(
+                            className,
+                            (
+                                $domNode.attr(className).split(' ').sort() ||
+                                []
+                            ).join(' ')
+                        )
+                    else if ($domNode.is(`[${className}]`))
+                        $domNode.removeAttr(className)
+                })
         }
         return this
     }
@@ -981,27 +932,33 @@ export class Tools {
      */
     get normalizedStyles():Tools {
         if (this.$domNode) {
-            const self:Tools = this
             const styleName:string = 'style'
-            // IgnoreTypeCheck
-            this.$domNode.find('*').addBack().each(function():void {
-                const $thisDomNode:$DomNode = $(this)
-                const serializedStyles:?string = $thisDomNode.attr(styleName)
-                if (serializedStyles)
-                    $thisDomNode.attr(
-                        styleName,
-                        self.constructor.stringCompressStyleValue((
-                            self.constructor
-                                .stringCompressStyleValue(serializedStyles)
-                                .split(';')
-                                .sort() ||
-                            []
-                        ).map((style:string):string =>
-                            style.trim()).join(';'))
-                    )
-                else if ($thisDomNode.is(`[${styleName}]`))
-                    $thisDomNode.removeAttr(styleName)
-            })
+            this.$domNode
+                .find('*')
+                .addBack()
+                .each((index:number, domNode:DomNode):any => {
+                    const $domNode:$DomNode = $(domNode)
+                    const serializedStyles:string|undefined = $domNode.attr(
+                        styleName)
+                    if (serializedStyles)
+                        $domNode.attr(
+                            styleName,
+                            this.self.stringCompressStyleValue(
+                                (
+                                    this.self
+                                        .stringCompressStyleValue(
+                                            serializedStyles)
+                                        .split(';')
+                                        .sort() ||
+                                    []
+                                )
+                                    .map((style:string):string => style.trim())
+                                    .join(';')
+                            )
+                        )
+                    else if ($domNode.is(`[${styleName}]`))
+                        $domNode.removeAttr(styleName)
+                })
         }
         return this
     }
@@ -1012,43 +969,50 @@ export class Tools {
      */
     get style():PlainObject {
         const result:PlainObject = {}
-        if ('window' in $.global && $.global.window.getComputedStyle) {
-            const styleProperties:?any = $.global.window.getComputedStyle(
-                this.$domNode[0], null)
+        const $domNode:Array<DomNode> =
+            this.$domNode as unknown as Array<DomNode>
+        if ($domNode && $domNode.length) {
+            let styleProperties:any
+            if ('window' in $.global && $.global.window.getComputedStyle) {
+                styleProperties = $.global.window.getComputedStyle(
+                    $domNode[0], null)
+                if (styleProperties) {
+                    if ('length' in styleProperties)
+                        for (
+                            let index:number = 0;
+                            index < styleProperties.length;
+                            index += 1
+                        )
+                            result[this.self.stringDelimitedToCamelCase(
+                                styleProperties[index]
+                            )] =
+                                styleProperties.getPropertyValue(
+                                    styleProperties[index])
+                    else
+                        for (const propertyName in styleProperties)
+                            if (styleProperties.hasOwnProperty(propertyName))
+                                result[this.self.stringDelimitedToCamelCase(
+                                    propertyName
+                                )] =
+                                    propertyName in styleProperties &&
+                                    styleProperties[propertyName] ||
+                                    styleProperties.getPropertyValue(propertyName)
+                    return result
+                }
+            }
+            styleProperties = $domNode[0].currentStyle
             if (styleProperties) {
-                if ('length' in styleProperties)
-                    for (
-                        let index:number = 0; index < styleProperties.length;
-                        index += 1
-                    )
-                        result[this.constructor.stringDelimitedToCamelCase(
-                            styleProperties[index]
-                        )] = styleProperties.getPropertyValue(
-                            styleProperties[index])
-                else
-                    for (const propertyName:string in styleProperties)
-                        if (styleProperties.hasOwnProperty(propertyName))
-                            result[this.constructor.stringDelimitedToCamelCase(
-                                propertyName
-                            )] = propertyName in styleProperties &&
-                            styleProperties[
-                                propertyName
-                            ] || styleProperties.getPropertyValue(propertyName)
+                for (const propertyName in styleProperties)
+                    if (styleProperties.hasOwnProperty(propertyName))
+                        result[propertyName] = styleProperties[propertyName]
                 return result
             }
+            styleProperties = $domNode[0].style
+            if (styleProperties)
+                for (const propertyName in styleProperties)
+                    if (typeof styleProperties[propertyName] !== 'function')
+                        result[propertyName] = styleProperties[propertyName]
         }
-        let styleProperties:?PlainObject = this.$domNode[0].currentStyle
-        if (styleProperties) {
-            for (const propertyName:string in styleProperties)
-                if (styleProperties.hasOwnProperty(propertyName))
-                    result[propertyName] = styleProperties[propertyName]
-            return result
-        }
-        styleProperties = this.$domNode[0].style
-        if (styleProperties)
-            for (const propertyName:string in styleProperties)
-                if (typeof styleProperties[propertyName] !== 'function')
-                    result[propertyName] = styleProperties[propertyName]
         return result
     }
     /**
@@ -1056,7 +1020,9 @@ export class Tools {
      * @returns The text string.
      */
     get text():string {
-        return this.$domNode.clone().children().remove().end().text()
+        if (this.$domNode)
+            return this.$domNode.clone().children().remove().end().text()
+        return ''
     }
     /**
      * Checks whether given html or text strings are equal.
@@ -1075,16 +1041,17 @@ export class Tools {
         if (first && second) {
             const detemermineHTMLPattern:RegExp =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
-            const inputs:{first:any;second:any} = {first, second}
-            const $domNodes:{first:$DomNode;second:$DomNode} = {
+            const inputs:{[key:string]:any} = {first, second}
+            const $domNodes:{[key:string]:$DomNode} = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
             /*
                 NOTE: Assume that strings that start "<" and end with ">" are
                 markup and skip the more expensive regular expression check.
             */
-            for (const type:string of ['first', 'second'])
+            for (const type in inputs)
                 if (
+                    inputs.hasOwnProperty(type) &&
                     typeof inputs[type] === 'string' &&
                     (
                         forceHTMLString ||
@@ -1099,28 +1066,39 @@ export class Tools {
                     $domNodes[type] = $(`<div>${inputs[type]}</div>`)
                 else
                     try {
-                        const $selectedDomNode:$DomNode = $(inputs[type])
-                        if ($selectedDomNode.length)
-                            $domNodes[type] = $('<div>').append(
-                                $selectedDomNode.clone())
+                        const $copiedDomNode:Array<DomNode> =
+                            $(inputs[type]).clone() as Array<DomNode>
+                        if ($copiedDomNode.length)
+                            $domNodes[type] = $('<div>').append($copiedDomNode)
                         else
                             return false
                     } catch (error) {
                         return false
                     }
             if (
-                $domNodes.first.length &&
-                $domNodes.first.length === $domNodes.second.length
+                ($domNodes.first as unknown as Array<DomNode>).length &&
+                ($domNodes.first as unknown as Array<DomNode>).length ===
+                ($domNodes.second as unknown as Array<DomNode>).length
             ) {
-                $domNodes.first = $domNodes.first.Tools(
-                    'normalizedClassNames'
-                ).$domNode.Tools('normalizedStyles').$domNode
-                $domNodes.second = $domNodes.second.Tools(
-                    'normalizedClassNames'
-                ).$domNode.Tools('normalizedStyles').$domNode
+                $domNodes.first = $domNodes
+                    .first
+                    .Tools('normalizedClassNames')
+                    .$domNode
+                    .Tools('normalizedStyles')
+                    .$domNode
+                $domNodes.second = $domNodes
+                    .second
+                    .Tools('normalizedClassNames')
+                    .$domNode
+                    .Tools('normalizedStyles')
+                    .$domNode
                 let index:number = 0
-                for (const domNode:DomNode of $domNodes.first) {
-                    if (!domNode.isEqualNode($domNodes.second[index]))
+                for (const domNode of (
+                    $domNodes.first as unknown as Array<DomNode>
+                )) {
+                    if (!domNode.isEqualNode((
+                        $domNodes.second as unknown as Array<DomNode>
+                    )[index]))
                         return false
                     index += 1
                 }
@@ -1136,23 +1114,32 @@ export class Tools {
      * determining positions.
      * @returns Returns one of "above", "left", "below", "right" or "in".
      */
-    getPositionRelativeToViewport(delta:Position = {}):RelativePosition {
-        delta = this.constructor.extend(
-            {top: 0, left: 0, bottom: 0, right: 0}, delta)
+    getPositionRelativeToViewport(
+        givenDelta:{bottom?:number;left?:number;right?:number;top?:number} = {}
+    ):RelativePosition {
+        const delta:Position = this.self.extend(
+            {bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
+        const $domNode:Array<DomNode> =
+            this.$domNode as unknown as Array<DomNode>
         if (
-            'window' in $.global && this.$domNode && this.$domNode.length &&
-            this.$domNode[0]
+            'window' in $.global &&
+            $domNode &&
+            $domNode.length &&
+            $domNode[0] &&
+            'getBoundingClientRect' in $domNode[0]
         ) {
             const $window:$DomNode = $($.global.window)
-            const rectangle:Position = this.$domNode[0].getBoundingClientRect()
-            if ((rectangle.top + delta.top) < 0)
-                return 'above'
-            if ((rectangle.left + delta.left) < 0)
-                return 'left'
-            if ($window.height() < (rectangle.bottom + delta.bottom))
-                return 'below'
-            if ($window.width() < (rectangle.right + delta.right))
-                return 'right'
+            const rectangle:Position = $domNode[0].getBoundingClientRect()
+            if (rectangle) {
+                if (rectangle.top && (rectangle.top + delta.top) < 0)
+                    return 'above'
+                if ((rectangle.left + delta.left) < 0)
+                    return 'left'
+                if ($window.height() < (rectangle.bottom + delta.bottom))
+                    return 'below'
+                if ($window.width() < (rectangle.right + delta.right))
+                    return 'right'
+            }
         }
         return 'in'
     }
@@ -1175,15 +1162,18 @@ export class Tools {
      * @param directiveName - The directive name.
      * @returns Returns current dom node.
      */
-    removeDirective(directiveName:string):$DomNode {
+    removeDirective(directiveName:string):null|$DomNode {
+        if (this.$domNode === null)
+            return null
         const delimitedName:string =
-            this.constructor.stringCamelCaseToDelimited(directiveName)
-        return this.$domNode.removeClass(delimitedName).removeAttr(
-            delimitedName
-        ).removeAttr(`data-${delimitedName}`).removeAttr(
-            `x-${delimitedName}`
-        ).removeAttr(delimitedName.replace('-', ':')).removeAttr(
-            delimitedName.replace('-', '_'))
+            this.self.stringCamelCaseToDelimited(directiveName)
+        return this.$domNode
+            .removeClass(delimitedName)
+            .removeAttr(delimitedName)
+            .removeAttr(`data-${delimitedName}`)
+            .removeAttr(`x-${delimitedName}`)
+            .removeAttr(delimitedName.replace('-', ':'))
+            .removeAttr(delimitedName.replace('-', '_'))
     }
     /**
      * Determines a normalized camel case directive name representation.
@@ -1191,9 +1181,9 @@ export class Tools {
      * @returns Returns the corresponding name.
      */
     static getNormalizedDirectiveName(directiveName:string):string {
-        for (const delimiter:string of ['-', ':', '_']) {
+        for (const delimiter of ['-', ':', '_']) {
             let prefixFound:boolean = false
-            for (const prefix:string of [`data${delimiter}`, `x${delimiter}`])
+            for (const prefix of [`data${delimiter}`, `x${delimiter}`])
                 if (directiveName.startsWith(prefix)) {
                     directiveName = directiveName.substring(prefix.length)
                     prefixFound = true
@@ -1202,7 +1192,7 @@ export class Tools {
             if (prefixFound)
                 break
         }
-        for (const delimiter:string of ['-', ':', '_'])
+        for (const delimiter of ['-', ':', '_'])
             directiveName = Tools.stringDelimitedToCamelCase(
                 directiveName, delimiter)
         return directiveName
@@ -1213,11 +1203,15 @@ export class Tools {
      * @returns Returns the corresponding attribute value or "null" if no
      * attribute value exists.
      */
-    getDirectiveValue(directiveName:string):?string {
+    getDirectiveValue(directiveName:string):null|string {
+        if (this.$domNode === null)
+            return null
         const delimitedName:string =
-            this.constructor.stringCamelCaseToDelimited(directiveName)
-        for (const attributeName:string of [
-            delimitedName, `data-${delimitedName}`, `x-${delimitedName}`,
+            this.self.stringCamelCaseToDelimited(directiveName)
+        for (const attributeName of [
+            delimitedName,
+            `data-${delimitedName}`,
+            `x-${delimitedName}`,
             delimitedName.replace('-', '\\:')
         ]) {
             const value:string = this.$domNode.attr(attributeName)
@@ -1237,9 +1231,9 @@ export class Tools {
             'domNodeSelectorPrefix' in this._options &&
             domNodeSelector.startsWith(this._options.domNodeSelectorPrefix)
         )
-            return domNodeSelector.substring(
-                this._options.domNodeSelectorPrefix.length
-            ).trim()
+            return domNodeSelector
+                .substring(this._options.domNodeSelectorPrefix.length)
+                .trim()
         return domNodeSelector
     }
     /**
@@ -1257,9 +1251,10 @@ export class Tools {
      * // returns 'br'
      * $.Tools.getDomNodeName('&lt;br/&gt;')
      */
-    static getDomNodeName(domNodeSelector:string):?string {
-        const match:?Array<string> = domNodeSelector.match(
-            new RegExp('^<?([a-zA-Z]+).*>?.*'))
+    static getDomNodeName(domNodeSelector:string):null|string {
+        const match:Array<string>|null = domNodeSelector.match(
+            new RegExp('^<?([a-zA-Z]+).*>?.*')
+        )
         if (match)
             return match[1]
         return null
@@ -1283,24 +1278,26 @@ export class Tools {
         if (domNodeSelectors)
             if (wrapperDomNode) {
                 const $wrapperDomNode:$DomNode = $(wrapperDomNode)
-                for (const name:string in domNodeSelectors)
+                for (const name in domNodeSelectors)
                     if (domNodeSelectors.hasOwnProperty(name))
                         domNodes[name] = $wrapperDomNode.find(
                             domNodeSelectors[name])
             } else
-                for (const name:string in domNodeSelectors)
+                for (const name in domNodeSelectors)
                     if (domNodeSelectors.hasOwnProperty(name)) {
-                        const match:?Array<string> =
+                        const match:Array<string>|null =
                             domNodeSelectors[name].match(', *')
                         if (match)
-                            domNodeSelectors[name] += domNodeSelectors[
-                                name
-                            ].split(match[0]).map((
-                                selectorPart:string
-                            ):string =>
-                                ', ' + this.stringNormalizeDomNodeSelector(
-                                    selectorPart)
-                            ).join('')
+                            domNodeSelectors[name] +=
+                                domNodeSelectors[name]
+                                    .split(match[0])
+                                    .map((selectorPart:string):string =>
+                                        ', ' +
+                                        this.stringNormalizeDomNodeSelector(
+                                            selectorPart
+                                        )
+                                    )
+                                    .join('')
                         domNodes[name] = $(this.stringNormalizeDomNodeSelector(
                             domNodeSelectors[name]))
                     }
@@ -1322,9 +1319,9 @@ export class Tools {
      * @returns The isolated scope.
      */
     static isolateScope(
-        scope:Object, prefixesToIgnore:Array<string> = []
+        scope:{[key:string]:any}, prefixesToIgnore:Array<string> = []
     ):Object {
-        for (const name:string in scope)
+        for (const name in scope)
             if (!(
                 prefixesToIgnore.includes(name.charAt(0)) ||
                 ['constructor', 'prototype', 'this'].includes(name) ||
@@ -1346,16 +1343,19 @@ export class Tools {
      * @returns The function name.
      */
     static determineUniqueScopeName(
-        prefix:string = 'callback', suffix:string = '',
-        scope:Object = $.global, initialUniqueName:string = ''
+        prefix:string = 'callback',
+        suffix:string = '',
+        scope:Object = $.global,
+        initialUniqueName:string = ''
     ):string {
         if (initialUniqueName.length && !(initialUniqueName in scope))
             return initialUniqueName
         let uniqueName:string = prefix + suffix
         while (true) {
-            uniqueName = prefix + parseInt(Math.random() * Math.pow(
-                10, 10
-            ), 10) + suffix
+            uniqueName =
+                prefix +
+                `${Math.round(Math.random() * Math.pow(10, 10))}` +
+                suffix
             if (!(uniqueName in scope))
                 break
         }
@@ -1370,16 +1370,17 @@ export class Tools {
      * @returns List of parameter names.
      */
     static getParameterNames(callable:Function|string):Array<string> {
-        const functionCode:string = ((typeof callable === 'string') ?
-            callable :
-            // Strip comments.
-            callable.toString()).replace(
-                /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg, '')
+        const functionCode:string = (
+            (typeof callable === 'string') ?
+                callable :
+                // Strip comments.
+                callable.toString()
+        ).replace(/((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg, '')
         if (functionCode.startsWith('class'))
             return Tools.getParameterNames('function ' + functionCode.replace(
                 /.*(constructor\([^)]+\))/m, '$1'))
         // Try classic function declaration.
-        let parameter:?Array<string> = functionCode.match(
+        let parameter:Array<string>|null = functionCode.match(
             /^function\s*[^\(]*\(\s*([^\)]*)\)/m)
         if (parameter === null)
             // Try arrow function declaration.
@@ -1389,7 +1390,7 @@ export class Tools {
             parameter = functionCode.match(/([^= ]+) *=>.*/m)
         const names:Array<string> = []
         if (parameter && parameter.length > 1 && parameter[1].trim().length) {
-            for (const name:string of parameter[1].split(','))
+            for (const name of parameter[1].split(','))
                 // Remove default parameter values.
                 names.push(name.replace(/=.+$/g, '').trim())
             return names
@@ -1409,15 +1410,16 @@ export class Tools {
      * @param filter - A function that filters an array.
      * @returns The inverted filter.
      */
-    static invertArrayFilter(filter:Function):Function {
-        return function(data:any, ...additionalParameter:Array<any>):any {
+    static invertArrayFilter(
+        filter:(this:any, data:any, ...additionalParameter:Array<any>) => any
+    ):(data:any, ...additionalParameter:Array<any>) => any {
+        return function(this:any, data:any, ...additionalParameter:Array<any>):any {
             if (data) {
-                const filteredData:any = filter.call(
-                    this, data, ...additionalParameter)
+                const filteredData:any = filter(data, ...additionalParameter)
                 let result:Array<any> = []
                 /* eslint-disable curly */
                 if (filteredData.length) {
-                    for (const date:any of data)
+                    for (const date of data)
                         if (!filteredData.includes(date))
                             result.push(date)
                 } else
@@ -1444,11 +1446,11 @@ export class Tools {
      * holds a boolean indicating whether timeout has been canceled or
      * resolved.
      */
-    static timeout(...parameter:Array<any>):Promise<boolean> {
+    static timeout(...parameter:Array<any>):TimeoutPromise {
         let callback:Function = Tools.noop
         let delayInMilliseconds:number = 0
         let throwOnTimeoutClear:boolean = false
-        for (const value:any of parameter)
+        for (const value of parameter)
             if (typeof value === 'number' && !Number.isNaN(value))
                 delayInMilliseconds = value
             else if (typeof value === 'boolean')
@@ -1457,7 +1459,8 @@ export class Tools {
                 callback = value
         let rejectCallback:Function
         let resolveCallback:Function
-        const result:Promise<boolean> = new Promise((
+        // @ts-ignore: Object will be extended before returning.
+        const result:TimeoutPromise = new Promise((
             resolve:Function, reject:Function
         ):void => {
             rejectCallback = reject
@@ -1469,7 +1472,6 @@ export class Tools {
         }
         const maximumTimeoutDelayInMilliseconds:number = 2147483647
         if (delayInMilliseconds <= maximumTimeoutDelayInMilliseconds)
-            // IgnoreTypeCheck
             result.timeoutID = setTimeout(wrappedCallback, delayInMilliseconds)
         else {
             /*
@@ -1483,21 +1485,16 @@ export class Tools {
             const delay:Function = ():void => {
                 if (numberOfRemainingTimeouts > 0) {
                     numberOfRemainingTimeouts -= 1
-                    // IgnoreTypeCheck
                     result.timeoutID = setTimeout(
                         delay, maximumTimeoutDelayInMilliseconds)
                 } else
-                    // IgnoreTypeCheck
                     result.timeoutID = setTimeout(
                         wrappedCallback, finalTimeoutDuration)
             }
             delay()
         }
-        // IgnoreTypeCheck
         result.clear = ():void => {
-            // IgnoreTypeCheck
             if (result.timeoutID) {
-                // IgnoreTypeCheck
                 clearTimeout(result.timeoutID);
                 (throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)
             }
@@ -1525,9 +1522,9 @@ export class Tools {
         ...additionalArguments:Array<any>
     ):Function {
         let lock:boolean = false
-        let waitingCallArguments:?Array<any> = null
-        let timer:?Promise<boolean> = null
-        return (...parameter:Array<any>):?Promise<boolean> => {
+        let waitingCallArguments:Array<any>|null = null
+        let timer:null|Promise<boolean> = null
+        return (...parameter:Array<any>):null|Promise<boolean> => {
             parameter = parameter.concat(additionalArguments || [])
             if (lock)
                 waitingCallArguments = parameter
@@ -1567,7 +1564,7 @@ export class Tools {
         ...additionalArguments:Array<any>
     ):any {
         const eventHandlerName:string =
-            `on${this.constructor.stringCapitalize(eventName)}`
+            `on${this.self.stringCapitalize(eventName)}`
         if (!callOnlyOptionsMethod)
             if (eventHandlerName in scope)
                 scope[eventHandlerName](...additionalArguments)
@@ -1576,7 +1573,7 @@ export class Tools {
         if (
             scope._options &&
             eventHandlerName in scope._options &&
-            scope._options[eventHandlerName] !== this.constructor.noop
+            scope._options[eventHandlerName] !== this.self.noop
         )
             return scope._options[eventHandlerName].call(
                 this, ...additionalArguments)
@@ -1622,44 +1619,44 @@ export class Tools {
      */
     static addDynamicGetterAndSetter(
         object:any,
-        getterWrapper:?GetterFunction = null,
-        setterWrapper:?SetterFunction = null,
+        getterWrapper:GetterFunction|null = null,
+        setterWrapper:null|SetterFunction = null,
         methodNames:PlainObject = {},
         deep:boolean = true,
-        typesToExtend:Array<mixed> = [Object]
+        typesToExtend:Array<any> = [Object]
     ):any {
         if (deep && typeof object === 'object')
             if (Array.isArray(object)) {
                 let index:number = 0
-                for (const value:any of object) {
+                for (const value of object) {
                     object[index] = Tools.addDynamicGetterAndSetter(
                         value, getterWrapper, setterWrapper, methodNames, deep)
                     index += 1
                 }
             } else if (Tools.determineType(object) === 'map')
-                for (const [key:any, value:any] of object)
+                for (const [key, value] of object)
                     object.set(key, Tools.addDynamicGetterAndSetter(
                         value, getterWrapper, setterWrapper, methodNames, deep)
                     )
             else if (Tools.determineType(object) === 'set') {
                 const cache:Array<any> = []
-                for (const value:any of object) {
+                for (const value of object) {
                     object.delete(value)
                     cache.push(Tools.addDynamicGetterAndSetter(
                         value, getterWrapper, setterWrapper, methodNames, deep)
                     )
                 }
-                for (const value:any of cache)
+                for (const value of cache)
                     object.add(value)
             } else if (object !== null) {
-                for (const key:string in object)
+                for (const key in object)
                     if (object.hasOwnProperty(key))
                         object[key] = Tools.addDynamicGetterAndSetter(
                             object[key], getterWrapper, setterWrapper,
                             methodNames, deep)
             }
         if (getterWrapper || setterWrapper)
-            for (const type:mixed of typesToExtend)
+            for (const type of typesToExtend)
                 if (
                     typeof object === 'object' &&
                     object instanceof type &&
@@ -1680,14 +1677,12 @@ export class Tools {
                                 }
                             if (typeof object[name] === 'function')
                                 return object[name]
-                            // IgnoreTypeCheck
                             return getterWrapper(
                                 defaultHandler.get(proxy, name), name, object)
                         }
                     if (setterWrapper)
                         handler.set = (
                             proxy:Proxy<any>, name:string, value:any
-                        // IgnoreTypeCheck
                         ):any => defaultHandler.set(proxy, name, setterWrapper(
                             name, value, object))
                     const {proxy, revoke} = Proxy.revocable({}, handler)
@@ -1711,16 +1706,20 @@ export class Tools {
         numberOfSpaces:number = 0
     ):string {
         const seenObjects:Array<any> = []
-        return JSON.stringify(object, (key:string, value:any):any => {
-            if (typeof value === 'object' && value !== null) {
-                if (seenObjects.includes(value))
-                    return determineCicularReferenceValue(
-                        key, value, seenObjects)
-                seenObjects.push(value)
+        return JSON.stringify(
+            object,
+            (key:string, value:any):any => {
+                if (typeof value === 'object' && value !== null) {
+                    if (seenObjects.includes(value))
+                        return determineCicularReferenceValue(
+                            key, value, seenObjects)
+                    seenObjects.push(value)
+                    return value
+                }
                 return value
-            }
-            return value
-        }, numberOfSpaces)
+            },
+            numberOfSpaces
+        )
     }
     /**
      * Converts given map and all nested found maps objects to corresponding
@@ -1733,7 +1732,7 @@ export class Tools {
         if (typeof object === 'object') {
             if (Tools.determineType(object) === 'map') {
                 const newObject:PlainObject = {}
-                for (let [key:any, value:any] of object) {
+                for (let [key, value] of object) {
                     if (deep)
                         value = Tools.convertMapToPlainObject(value, deep)
                     newObject[`${key}`] = value
@@ -1742,24 +1741,24 @@ export class Tools {
             }
             if (deep)
                 if (Tools.isPlainObject(object)) {
-                    for (const key:string in object)
+                    for (const key in object)
                         if (object.hasOwnProperty(key))
                             object[key] = Tools.convertMapToPlainObject(
                                 object[key], deep)
                 } else if (Array.isArray(object)) {
                     let index:number = 0
-                    for (const value:any of object) {
+                    for (const value of object) {
                         object[index] = Tools.convertMapToPlainObject(
                             value, deep)
                         index += 1
                     }
                 } else if (Tools.determineType(object) === 'set') {
                     const cache:Array<any> = []
-                    for (const value:any of object) {
+                    for (const value of object) {
                         object.delete(value)
                         cache.push(Tools.convertMapToPlainObject(value, deep))
                     }
-                    for (const value:any of cache)
+                    for (const value of cache)
                         object.add(value)
                 }
         }
@@ -1776,7 +1775,7 @@ export class Tools {
         if (typeof object === 'object') {
             if (Tools.isPlainObject(object)) {
                 const newObject:Map<any, any> = new Map()
-                for (const key:string in object)
+                for (const key in object)
                     if (object.hasOwnProperty(key)) {
                         if (deep)
                             object[key] = Tools.convertPlainObjectToMap(
@@ -1788,22 +1787,23 @@ export class Tools {
             if (deep)
                 if (Array.isArray(object)) {
                     let index:number = 0
-                    for (const value:any of object) {
+                    for (const value of object) {
                         object[index] = Tools.convertPlainObjectToMap(
                             value, deep)
                         index += 1
                     }
                 } else if (Tools.determineType(object) === 'map')
-                    for (const [key:any, value:any] of object)
-                        object.set(key, Tools.convertPlainObjectToMap(
-                            value, deep))
+                    for (const [key, value] of object)
+                        object.set(
+                            key, Tools.convertPlainObjectToMap(value, deep)
+                        )
                 else if (Tools.determineType(object) === 'set') {
                     const cache:Array<any> = []
-                    for (const value:any of object) {
+                    for (const value of object) {
                         object.delete(value)
                         cache.push(Tools.convertPlainObjectToMap(value, deep))
                     }
-                    for (const value:any of cache)
+                    for (const value of cache)
                         object.add(value)
                 }
         }
@@ -1820,7 +1820,7 @@ export class Tools {
     static convertSubstringInPlainObject(
         object:PlainObject, pattern:RegExp|string, replacement:string
     ):PlainObject {
-        for (const key:string in object)
+        for (const key in object)
             if (object.hasOwnProperty(key))
                 if (Tools.isPlainObject(object[key]))
                     object[key] = Tools.convertSubstringInPlainObject(
@@ -1885,16 +1885,16 @@ export class Tools {
                     return result
                 }
                 if (Array.isArray(source))
-                    for (const item:any of source)
+                    for (const item of source)
                         destination.push(copyValue(item))
                 else if (Tools.determineType(source) === 'map')
-                    for (const [key:any, value:any] of source)
+                    for (const [key, value] of source)
                         destination.set(key, copyValue(value))
                 else if (Tools.determineType(source) === 'set')
-                    for (const value:any of source)
+                    for (const value of source)
                         destination.add(copyValue(value))
                 else if (source !== null && 'hasOwnProperty' in source)
-                    for (const key:string in source)
+                    for (const key in source)
                         if (source.hasOwnProperty(key))
                             destination[key] = copyValue(source[key])
             } else if (source) {
@@ -1993,7 +1993,7 @@ export class Tools {
     static equals(
         firstValue:any,
         secondValue:any,
-        properties:?Array<any> = null,
+        properties:Array<any>|null = null,
         deep:number = -1,
         exceptionPrefixes:Array<string> = [],
         ignoreFunctions:boolean = true,
@@ -2031,7 +2031,7 @@ export class Tools {
         )
             return new Promise((resolve:Function):void => {
                 const values:Array<string> = []
-                for (const value:any of [firstValue, secondValue]) {
+                for (const value of [firstValue, secondValue]) {
                     const fileReader:FileReader = new FileReader()
                     fileReader.onload = (event:Object):void => {
                         values.push(event.target.result)
@@ -2091,7 +2091,7 @@ export class Tools {
                     return false
                 if (firstIsArray) {
                     let index:number = 0
-                    for (const value:any of first) {
+                    for (const value of first) {
                         if (deep !== 0) {
                             const result:any = Tools.equals(
                                 value,
@@ -2113,7 +2113,7 @@ export class Tools {
                     }
                 /* eslint-disable curly */
                 } else if (firstIsMap) {
-                    for (const [key:any, value:any] of first)
+                    for (const [key, value] of first)
                         if (deep !== 0) {
                             const result:any = Tools.equals(
                                 value,
@@ -2133,11 +2133,11 @@ export class Tools {
                         }
                 } else if (firstIsSet) {
                 /* eslint-enable curly */
-                    for (const value:any of first)
+                    for (const value of first)
                         if (deep !== 0) {
                             let equal:boolean = false
                             const subPromises:Array<Promise<boolean>> = []
-                            for (const secondValue:any of second) {
+                            for (const secondValue of second) {
                                 const result:any = Tools.equals(
                                     value,
                                     secondValue,
@@ -2165,15 +2165,12 @@ export class Tools {
                                 return false
                         }
                 } else
-                    for (const key:string in first)
+                    for (const key in first)
                         if (first.hasOwnProperty(key)) {
                             if (properties && !properties.includes(key))
                                 break
                             let doBreak:boolean = false
-                            for (
-                                const exceptionPrefix:string of
-                                exceptionPrefixes
-                            )
+                            for (const exceptionPrefix of exceptionPrefixes)
                                 if (key.toString().startsWith(
                                     exceptionPrefix
                                 )) {
@@ -2241,7 +2238,6 @@ export class Tools {
             let compiledFunction:Function
             try {
                 /* eslint-disable new-parens */
-                // IgnoreTypeCheck
                 compiledFunction = new (Function.prototype.bind.call(
                 /* eslint-enable new-parens */
                     Function, null, ...Object.keys(scope), code
@@ -2269,7 +2265,7 @@ export class Tools {
                 typeof Proxy === 'undefined'
             )
                 return data
-            for (const key:string in data)
+            for (const key in data)
                 if (
                     data.hasOwnProperty(key) &&
                     key !== '__target__' &&
@@ -2296,7 +2292,7 @@ export class Tools {
                                     NOTE: Very complicated stuff section, only
                                     change while doing a lot of tests.
                                 */
-                                for (const type:string of [
+                                for (const type of [
                                     expressionIndicatorKey,
                                     executionIndicatorKey
                                 ])
@@ -2314,7 +2310,7 @@ export class Tools {
                                         return result[key].bind(result)
                                     return result[key]
                                 }
-                                for (const type:string of [
+                                for (const type of [
                                     expressionIndicatorKey,
                                     executionIndicatorKey
                                 ])
@@ -2326,7 +2322,7 @@ export class Tools {
                                 // End of complicated stuff.
                             },
                             ownKeys: (target:any):Array<string> => {
-                                for (const type:string of [
+                                for (const type of [
                                     expressionIndicatorKey,
                                     executionIndicatorKey
                                 ])
@@ -2351,14 +2347,14 @@ export class Tools {
             if (typeof data === 'object' && data !== null) {
                 if (data.__target__) {
                     // NOTE: We have to skip "ownKeys" proxy trap here.
-                    for (const type:string of [
+                    for (const type of [
                         expressionIndicatorKey, executionIndicatorKey
                     ])
                         if (data.hasOwnProperty(type))
                             return data[type]
                     data = data.__target__
                 }
-                for (const key:string in data)
+                for (const key in data)
                     if (data.hasOwnProperty(key)) {
                         if ([
                             expressionIndicatorKey, executionIndicatorKey
@@ -2375,7 +2371,7 @@ export class Tools {
         scope.resolve = resolve
         const removeProxyRecursively:Function = (data:any):any => {
             if (typeof data === 'object' && data !== null)
-                for (const key:string in data)
+                for (const key in data)
                     if (
                         data.hasOwnProperty(key) &&
                         key !== '__target__' &&
@@ -2410,7 +2406,7 @@ export class Tools {
     ):any {
         let index:number = 0
         let deep:boolean = false
-        let target:mixed
+        let target:any
         if (typeof targetOrDeepIndicator === 'boolean') {
             // Handle a deep copy situation and skip deep indicator and target.
             deep = targetOrDeepIndicator
@@ -2453,7 +2449,7 @@ export class Tools {
                     Tools.determineType(target) === 'map' &&
                     Tools.determineType(source) === 'map'
                 )
-                    for (const [key:any, value:any] of source)
+                    for (const [key, value] of source)
                         target.set(key, mergeValue(target.get(key), value))
                 else if (
                     target !== null &&
@@ -2463,7 +2459,7 @@ export class Tools {
                     !Array.isArray(source) &&
                     typeof source === 'object'
                 ) {
-                    for (const key:string in source)
+                    for (const key in source)
                         if (source.hasOwnProperty(key))
                             target[key] = mergeValue(target[key], source[key])
                 } else
@@ -2490,10 +2486,10 @@ export class Tools {
         skipMissingLevel:boolean = false
     ):any {
         let path:Array<string> = []
-        for (const component:string of [].concat(selector))
+        for (const component of [].concat(selector))
             path = path.concat(component.split(delimiter))
         let result:any = target
-        for (const name:string of path)
+        for (const name of path)
             if (
                 result !== null &&
                 typeof result === 'object' &&
@@ -2586,7 +2582,7 @@ export class Tools {
             Tools.determineType(source) === 'map' &&
             Tools.determineType(target) === 'map'
         ) {
-            for (const [key:string, value:any] of source)
+            for (const [key, value] of source)
                 if (target.has(key))
                     Tools.modifyObject(
                         target.get(key),
@@ -2606,7 +2602,7 @@ export class Tools {
             target !== null &&
             typeof target === 'object'
         )
-            for (const key:string in source)
+            for (const key in source)
                 if (source.hasOwnProperty(key))
                     if ([
                         removeIndicatorKey,
@@ -2615,7 +2611,7 @@ export class Tools {
                     ].includes(key)) {
                         if (Array.isArray(target))
                             if (key === removeIndicatorKey) {
-                                for (const valueToModify:any of [].concat(
+                                for (const valueToModify of [].concat(
                                     source[key]
                                 ))
                                     if (
@@ -2625,11 +2621,14 @@ export class Tools {
                                         valueToModify.endsWith(positionSuffix)
                                     )
                                         target.splice(
-                                            parseInt(valueToModify.substring(
-                                                positionPrefix.length,
-                                                valueToModify.length -
-                                                positionSuffix.length
-                                            )),
+                                            parseInt(
+                                                valueToModify.substring(
+                                                    positionPrefix.length,
+                                                    valueToModify.length -
+                                                    positionSuffix.length
+                                                ),
+                                                10
+                                            ),
                                             1
                                         )
                                     else if (target.includes(valueToModify))
@@ -2645,18 +2644,14 @@ export class Tools {
                             else
                                 target = target.concat(source[key])
                         else if (key === removeIndicatorKey)
-                            for (const valueToModify:any of [].concat(
-                                source[key]
-                            ))
+                            for (const valueToModify of [].concat(source[key]))
                                 if (target.hasOwnProperty(valueToModify))
                                     delete target[valueToModify]
                         delete source[key]
                         if (parentSource && parentKey)
                             delete parentSource[parentKey]
                     } else if (target !== null && target.hasOwnProperty(key))
-                        // IgnoreTypeCheck
                         target[key] = Tools.modifyObject(
-                            // IgnoreTypeCheck
                             target[key],
                             source[key],
                             removeIndicatorKey,
@@ -2678,7 +2673,7 @@ export class Tools {
      * interpret.
      */
     static normalizeDateTime(
-        value:?string|?number|?Date = null, interpretAsUTC:boolean = true
+        value:string|null|number|Date = null, interpretAsUTC:boolean = true
     ):Date|null {
         if (value === null)
             return new Date()
@@ -2701,7 +2696,6 @@ export class Tools {
             }
         if (typeof value === 'number')
             return new Date(value * 1000)
-        // IgnoreTypeCheck
         const result:Date = new Date(value)
         if (isNaN(result.getDate()))
             return null
@@ -2717,10 +2711,10 @@ export class Tools {
         const resolvedKeys:Array<string> = [].concat(keys)
         if (Array.isArray(object)) {
             let index:number = 0
-            for (const subObject:any of object.slice()) {
+            for (const subObject of object.slice()) {
                 let skip:boolean = false
                 if (typeof subObject === 'string') {
-                    for (const key:string of resolvedKeys)
+                    for (const key of resolvedKeys)
                         if (subObject.startsWith(`${key}:`)) {
                             object.splice(index, 1)
                             skip = true
@@ -2733,10 +2727,10 @@ export class Tools {
                 index += 1
             }
         } else if (Tools.determineType(object) === 'set')
-            for (const subObject:any of new Set(object)) {
+            for (const subObject of new Set(object)) {
                 let skip:boolean = false
                 if (typeof subObject === 'string') {
-                    for (const key:string of resolvedKeys)
+                    for (const key of resolvedKeys)
                         if (subObject.startsWith(`${key}:`)) {
                             object.delete(subObject)
                             skip = true
@@ -2748,10 +2742,10 @@ export class Tools {
                 Tools.removeKeys(subObject, resolvedKeys)
             }
         else if (Tools.determineType(object) === 'map')
-            for (const [key:any, subObject:any] of new Map(object)) {
+            for (const [key, subObject] of new Map(object)) {
                 let skip:boolean = false
                 if (typeof key === 'string') {
-                    for (const resolvedKey:string of resolvedKeys) {
+                    for (const resolvedKey of resolvedKeys) {
                         const escapedKey:string =
                             Tools.stringEscapeRegularExpressions(resolvedKey)
                         if (new RegExp(`^${escapedKey}[0-9]*$`).test(key)) {
@@ -2766,10 +2760,10 @@ export class Tools {
                 object.set(key, Tools.removeKeys(subObject, resolvedKeys))
             }
         else if (object !== null && typeof object === 'object')
-            for (const key:string in Object.assign({}, object))
+            for (const key in Object.assign({}, object))
                 if (object.hasOwnProperty(key)) {
                     let skip:boolean = false
-                    for (const resolvedKey:string of resolvedKeys) {
+                    for (const resolvedKey of resolvedKeys) {
                         const escapedKey:string =
                             Tools.stringEscapeRegularExpressions(resolvedKey)
                         if (new RegExp(`^${escapedKey}[0-9]*$`).test(key)) {
@@ -2817,7 +2811,7 @@ export class Tools {
         if (Array.isArray(object)) {
             let result:string = '['
             let firstSeen:boolean = false
-            for (const item:any of object) {
+            for (const item of object) {
                 if (firstSeen)
                     result += ','
                 result += `\n${initialIndention}${indention}` +
@@ -2838,7 +2832,7 @@ export class Tools {
         if (Tools.determineType(object) === 'map') {
             let result:string = ''
             let firstSeen:boolean = false
-            for (const [key:any, item:any] of object) {
+            for (const [key, item] of object) {
                 if (firstSeen)
                     result += `,\n${initialIndention}${indention}`
                 result +=
@@ -2866,7 +2860,7 @@ export class Tools {
         if (Tools.determineType(object) === 'set') {
             let result:string = '{'
             let firstSeen:boolean = false
-            for (const item:any of object) {
+            for (const item of object) {
                 if (firstSeen)
                     result += ','
                 result +=
@@ -2889,7 +2883,7 @@ export class Tools {
         let result:string = '{'
         const keys:Array<string> = Object.getOwnPropertyNames(object).sort()
         let firstSeen:boolean = false
-        for (const key:string of keys) {
+        for (const key of keys) {
             if (firstSeen)
                 result += ','
             result += `\n${initialIndention}${indention}${key}: ` +
@@ -2919,10 +2913,10 @@ export class Tools {
                 keys.push(index)
         else if (typeof object === 'object')
             if (Tools.determineType(object) === 'map')
-                for (const keyValuePair:Array<any> of object)
+                for (const keyValuePair of object)
                     keys.push(keyValuePair[0])
             else if (object !== null)
-                for (const key:string in object)
+                for (const key in object)
                     if (object.hasOwnProperty(key))
                         keys.push(key)
         return keys.sort()
@@ -2950,23 +2944,23 @@ export class Tools {
             }
             if (Array.isArray(object)) {
                 let index:number = 0
-                for (const value:any of object) {
+                for (const value of object) {
                     object[index] = Tools.unwrapProxy(value, seenObjects)
                     index += 1
                 }
             } else if (Tools.determineType(object) === 'map')
-                for (const [key:any, value:any] of object)
+                for (const [key, value] of object)
                     object.set(key, Tools.unwrapProxy(value, seenObjects))
             else if (Tools.determineType(object) === 'set') {
                 const cache:Array<any> = []
-                for (const value:any of object) {
+                for (const value of object) {
                     object.delete(value)
                     cache.push(Tools.unwrapProxy(value, seenObjects))
                 }
-                for (const value:any of cache)
+                for (const value of cache)
                     object.add(value)
             } else
-                for (const key:string in object)
+                for (const key in object)
                     if (object.hasOwnProperty(key))
                         object[key] = Tools.unwrapProxy(
                             object[key], seenObjects)
@@ -3004,20 +2998,22 @@ export class Tools {
      * @returns Given data without empty items.
      */
     static arrayDeleteEmptyItems(
-        data:?Array<Object>, propertyNames:Array<string> = []
-    ):?Array<Object> {
+        data:any, propertyNames:Array<string> = []
+    ):any {
         if (!data)
             return data
         const result:Array<any> = []
-        for (const item:any of Tools.arrayMake(data)) {
+        for (const item of Tools.arrayMake(data)) {
             let empty:boolean = true
-            for (const propertyName:string in item)
+            for (const propertyName in item)
                 if (item.hasOwnProperty(propertyName))
                     if (
                         !['', null, undefined].includes(item[propertyName]) &&
-                        (!propertyNames.length || Tools.arrayMake(
-                            propertyNames
-                        ).includes(propertyName))
+                        (
+                            !propertyNames.length ||
+                            Tools.arrayMake(propertyNames).includes(
+                                propertyName)
+                        )
                     ) {
                         empty = false
                         break
@@ -3038,9 +3034,9 @@ export class Tools {
         data:Array<Object>, propertyNames:Array<string>
     ):Array<Object> {
         const result:Array<Object> = []
-        for (const item:Object of Tools.arrayMake(data)) {
+        for (const item of Tools.arrayMake(data)) {
             const newItem:Object = {}
-            for (const propertyName:string of Tools.arrayMake(propertyNames))
+            for (const propertyName of Tools.arrayMake(propertyNames))
                 if (item.hasOwnProperty(propertyName))
                     newItem[propertyName] = item[propertyName]
             result.push(newItem)
@@ -3059,10 +3055,13 @@ export class Tools {
         if (!regularExpression)
             return Tools.arrayMake(data)
         const result:Array<string> = []
-        for (const value:string of Tools.arrayMake(data))
-            if (((typeof regularExpression === 'string') ? new RegExp(
-                regularExpression
-            ) : regularExpression).test(value))
+        for (const value of Tools.arrayMake(data))
+            if (
+                ((typeof regularExpression === 'string') ?
+                    new RegExp(regularExpression) :
+                    regularExpression
+                ).test(value)
+            )
                 result.push(value)
         return result
     }
@@ -3073,14 +3072,12 @@ export class Tools {
      * @returns Given data without the items which doesn't have specified
      * property.
      */
-    static arrayExtractIfPropertyExists(
-        data:?Array<Object>, propertyName:string
-    ):?Array<Object> {
+    static arrayExtractIfPropertyExists(data:any, propertyName:string):any {
         if (data && propertyName) {
             const result:Array<Object> = []
-            for (const item:Object of Tools.arrayMake(data)) {
+            for (const item of Tools.arrayMake(data)) {
                 let exists:boolean = false
-                for (const key:string in item)
+                for (const key in item)
                     if (key === propertyName && item.hasOwnProperty(key) && ![
                         undefined, null
                     ].includes(item[key])) {
@@ -3102,13 +3099,13 @@ export class Tools {
      * @returns Filtered data.
      */
     static arrayExtractIfPropertyMatches(
-        data:?Array<Object>, propertyPattern:{[key:string]:string|RegExp}
-    ):?Array<Object> {
+        data:any, propertyPattern:{[key:string]:string|RegExp}
+    ):any {
         if (data && propertyPattern) {
             const result:Array<Object> = []
-            for (const item:Object of Tools.arrayMake(data)) {
+            for (const item of Tools.arrayMake(data)) {
                 let matches:boolean = true
-                for (const propertyName:string in propertyPattern)
+                for (const propertyName in propertyPattern)
                     if (!(propertyPattern[propertyName] && (
                         (typeof propertyPattern[propertyName] === 'string') ?
                             new RegExp(propertyPattern[propertyName]) :
@@ -3140,7 +3137,6 @@ export class Tools {
     static arrayIntersect(
         first:Array<any>,
         second:Array<any>,
-        // IgnoreTypeCheck
         keys:Object|Array<string> = [],
         strict:boolean = true
     ):Array<any> {
@@ -3153,7 +3149,7 @@ export class Tools {
             secondKey:string|number,
             keysAreAnArray:boolean,
             iterateGivenKeys:boolean
-        ):?false => {
+        ):false|undefined => {
             if (iterateGivenKeys) {
                 if (keysAreAnArray)
                     firstKey = secondKey
@@ -3171,9 +3167,9 @@ export class Tools {
             )
                 return false
         }
-        for (const firstItem:any of Tools.arrayMake(first))
+        for (const firstItem of Tools.arrayMake(first))
             if (Tools.isPlainObject(firstItem))
-                for (const secondItem:any of second) {
+                for (const secondItem of second) {
                     let exists:boolean = true
                     let iterateGivenKeys:boolean
                     const keysAreAnArray:boolean = Array.isArray(keys)
@@ -3189,7 +3185,7 @@ export class Tools {
                     }
                     if (Array.isArray(keys)) {
                         let index:number = 0
-                        for (const key:string of keys) {
+                        for (const key of keys) {
                             if (intersectItem(
                                 firstItem,
                                 secondItem,
@@ -3204,7 +3200,7 @@ export class Tools {
                             index += 1
                         }
                     } else
-                        for (const key:string in keys)
+                        for (const key in keys)
                             if (keys.hasOwnProperty(key))
                                 if (intersectItem(
                                     firstItem,
@@ -3261,7 +3257,7 @@ export class Tools {
     static arrayMerge(target:Array<any>, source:Array<any>):Array<any> {
         if (!Array.isArray(source))
             source = Array.prototype.slice.call(source)
-        for (const value:any of source)
+        for (const value of source)
             target.push(value)
         return target
     }
@@ -3288,7 +3284,7 @@ export class Tools {
      */
     static arrayUnique(data:Array<any>):Array<any> {
         const result:Array<any> = []
-        for (const value:any of Tools.arrayMake(data))
+        for (const value of Tools.arrayMake(data))
             if (!result.includes(value))
                 result.push(value)
         return result
@@ -3365,12 +3361,10 @@ export class Tools {
      * @param propertyName - Property name to sum up its value.
      * @returns The aggregated value.
      */
-    static arraySumUpProperty(
-        data:?Array<Object>, propertyName:string
-    ):number {
+    static arraySumUpProperty(data:any, propertyName:string):number {
         let result:number = 0
         if (Array.isArray(data) && data.length)
-            for (const item:Object of data)
+            for (const item of data)
                 if (item.hasOwnProperty(propertyName))
                     result += parseFloat(item[propertyName] || 0)
         return result
@@ -3402,9 +3396,7 @@ export class Tools {
      * doesn't exists given list.
      * @returns Item with the appended target.
      */
-    static arrayRemove(
-        list:?Array<any>, target:any, strict:boolean = false
-    ):?Array<any> {
+    static arrayRemove(list:any, target:any, strict:boolean = false):any {
         if (Array.isArray(list)) {
             const index:number = list.indexOf(target)
             if (index === -1) {
@@ -3428,22 +3420,20 @@ export class Tools {
         items:{[key:string]:Array<string>}
     ):Array<string> {
         const edges:Array<Array<string>> = []
-        for (const name:string in items)
+        for (const name in items)
             if (items.hasOwnProperty(name)) {
                 if (!Array.isArray(items[name]))
                     items[name] = [items[name]]
                 if (items[name].length > 0)
-                    for (const dependencyName:string of Tools.arrayMake(
-                        items[name]
-                    ))
+                    for (const dependencyName of Tools.arrayMake(items[name]))
                         edges.push([name, dependencyName])
                 else
                     edges.push([name])
             }
-        const nodes:Array<?string> = []
+        const nodes:Array<string> = []
         // Accumulate unique nodes into a large list.
-        for (const edge:Array<string> of edges)
-            for (const node:string of edge)
+        for (const edge of edges)
+            for (const node of edge)
                 if (!nodes.includes(node))
                     nodes.push(node)
         const sorted:Array<string> = []
@@ -3462,14 +3452,14 @@ export class Tools {
             const index = nodes.indexOf(node)
             // If the node still exists, traverse its dependencies.
             if (index !== -1) {
-                let copy:?Array<string>
+                let copy:Array<string>|undefined
                 // Mark the node to exclude it from future iterations.
                 nodes[index] = null
                 /*
                     Loop through all edges and follow dependencies of the
                     current node
                 */
-                for (const edge:Array<string> of edges)
+                for (const edge of edges)
                     if (edge[0] === node) {
                         /*
                             Lazily create a copy of predecessors with the
@@ -3483,7 +3473,7 @@ export class Tools {
             }
         }
         for (let index = 0; index < nodes.length; index++) {
-            const node:?string = nodes[index]
+            const node:string = nodes[index]
             // Ignore nodes that have been excluded.
             if (node) {
                 // Mark the node to exclude it from future iterations.
@@ -3492,7 +3482,7 @@ export class Tools {
                     Loop through all edges and follow dependencies of the
                     current node.
                 */
-                for (const edge:Array<string> of edges)
+                for (const edge of edges)
                     if (edge[0] === node)
                         // Recurse to node dependencies.
                         visit(edge[1], [node])
@@ -3520,7 +3510,7 @@ export class Tools {
         // The escape sequence must also be escaped; but at first.
         if (!excludeSymbols.includes('\\'))
             value.replace(/\\/g, '\\\\')
-        for (const replace:string of Tools.specialRegexSequences)
+        for (const replace of Tools.specialRegexSequences)
             if (!excludeSymbols.includes(replace))
                 value = value.replace(
                     new RegExp(`\\${replace}`, 'g'), `\\${replace}`)
@@ -3583,7 +3573,7 @@ export class Tools {
      * @returns Value "true" if given prefix occur and "false" otherwise.
      */
     static stringHasPathPrefix(
-        prefix:?string = '/admin',
+        prefix:any|string = '/admin',
         path:string = (
             'location' in $.global && $.global.location.pathname || ''
         ),
@@ -3592,9 +3582,12 @@ export class Tools {
         if (typeof prefix === 'string') {
             if (!prefix.endsWith(separator))
                 prefix += separator
-            return path === prefix.substring(
-                0, prefix.length - separator.length
-            ) || path.startsWith(prefix)
+            return (
+                path === prefix.substring(
+                    0, prefix.length - separator.length
+                ) ||
+                path.startsWith(prefix)
+            )
         }
         return false
     }
@@ -3613,7 +3606,7 @@ export class Tools {
             'location' in $.global && $.global.location.hostname || ''
         )
     ):any {
-        const result:?Array<string> =
+        const result:Array<string>|null =
             /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
         if (result && result.length > 2 && result[1] && result[2])
             return result[2]
@@ -3637,7 +3630,7 @@ export class Tools {
         fallback:any = null,
         parameter:Array<string> = []
     ):number {
-        const result:?Array<string> =
+        const result:Array<string>|null =
             /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec(url)
         if (result && result.length > 1)
             return parseInt(result[1], 10)
@@ -3669,7 +3662,7 @@ export class Tools {
         ) ||
         ''
     ):any {
-        const result:?Array<string> = /^([a-z]+):\/\//i.exec(url)
+        const result:Array<string>|null = /^([a-z]+):\/\//i.exec(url)
         if (result && result.length > 1 && result[1])
             return result[1]
         return fallback
@@ -3698,12 +3691,12 @@ export class Tools {
      * key doesn't exist "undefined" is returned.
      */
     static stringGetURLVariable(
-        keyToGet:?string,
-        givenInput:?string,
+        keyToGet:string|undefined,
+        givenInput:string|undefined,
         subDelimiter:string = '$',
         hashedPathIndicator:string = '!',
-        givenSearch:?string,
-        givenHash:?string = (
+        givenSearch:string|undefined,
+        givenHash:string|undefined = (
             'location' in $.global && $.global.location.hash || ''
         )
     ):Array<string>|string|null {
@@ -3754,7 +3747,7 @@ export class Tools {
         // endregion
         // region construct data structure
         const variables:Array<string> = []
-        for (let value:string of data) {
+        for (let value of data) {
             const keyValuePair:Array<string> = value.split('=')
             let key:string
             try {
@@ -3768,13 +3761,11 @@ export class Tools {
                 value = ''
             }
             variables.push(key)
-            // IgnoreTypeCheck
             variables[key] = value
         }
         // endregion
         if (keyToGet) {
             if (variables.hasOwnProperty(keyToGet))
-                // IgnoreTypeCheck
                 return variables[keyToGet]
             return null
         }
@@ -3819,8 +3810,8 @@ export class Tools {
      * @param url - Uniform resource locator to normalize.
      * @returns Normalized result.
      */
-    static stringNormalizeURL(url:?string):string {
-        if (url) {
+    static stringNormalizeURL(url:any):string {
+        if (typeof url === 'string') {
             url = url.replace(/^:?\/+/, '').replace(/\/+$/, '').trim()
             if (url.startsWith('http'))
                 return url
@@ -3833,7 +3824,7 @@ export class Tools {
      * @param url - Uniform resource locator to represent.
      * @returns Represented result.
      */
-    static stringRepresentURL(url:?string):string {
+    static stringRepresentURL(url:any):string {
         if (typeof url === 'string')
             return url.replace(/^(https?)?:?\/+/, '').replace(
                 /\/+$/, ''
@@ -3853,7 +3844,7 @@ export class Tools {
     static stringCamelCaseToDelimited(
         string:string,
         delimiter:string = '-',
-        abbreviations:?Array<string> = null
+        abbreviations:Array<string>|null = null
     ):string {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (!abbreviations)
@@ -3862,14 +3853,17 @@ export class Tools {
             Tools.stringGetRegularExpressionValidated(delimiter)
         if (abbreviations.length) {
             let abbreviationPattern:string = ''
-            for (const abbreviation:string of abbreviations) {
+            for (const abbreviation of abbreviations) {
                 if (abbreviationPattern)
                     abbreviationPattern += '|'
                 abbreviationPattern += abbreviation.toUpperCase()
             }
-            string = string.replace(new RegExp(
-                `(${abbreviationPattern})(${abbreviationPattern})`, 'g'
-            ), `$1${delimiter}$2`)
+            string = string.replace(
+                new RegExp(
+                    `(${abbreviationPattern})(${abbreviationPattern})`, 'g'
+                ),
+                `$1${delimiter}$2`
+            )
         }
         string = string.replace(
             new RegExp(`([^${escapedDelimiter}])([A-Z][a-z]+)`, 'g'),
@@ -3907,7 +3901,7 @@ export class Tools {
      * @param htmlString - HTML string to decode.
      * @returns Decoded html string.
      */
-    static stringDecodeHTMLEntities(htmlString:string):?string {
+    static stringDecodeHTMLEntities(htmlString:string):null|string {
         if ('document' in $.global) {
             const textareaDomNode = $.global.document.createElement('textarea')
             textareaDomNode.innerHTML = htmlString
@@ -3930,7 +3924,7 @@ export class Tools {
     static stringDelimitedToCamelCase(
         string:string,
         delimiter:string = '-',
-        abbreviations:?Array<string> = null,
+        abbreviations:Array<string>|null = null,
         preserveWrongFormattedAbbreviations:boolean = false,
         removeMultipleDelimiter:boolean = false
     ):string {
@@ -3943,7 +3937,7 @@ export class Tools {
             abbreviationPattern = abbreviations.join('|')
         else {
             abbreviationPattern = ''
-            for (const abbreviation:string of abbreviations) {
+            for (const abbreviation of abbreviations) {
                 if (abbreviationPattern)
                     abbreviationPattern += '|'
                 abbreviationPattern +=
@@ -3991,7 +3985,7 @@ export class Tools {
         target:any,
         query:any,
         normalizer:Function = (value:any):string => `${value}`.toLowerCase()
-    ):?Array<number> {
+    ):Array<number>|null {
         query = normalizer(query)
         if (normalizer(target) && query)
             for (let index = 0; index < target.length; index += 1)
@@ -4023,7 +4017,7 @@ export class Tools {
     ):string {
         additionalArguments.unshift(string)
         let index:number = 0
-        for (const value:string|number of additionalArguments) {
+        for (const value of additionalArguments) {
             string = string.replace(
                 new RegExp(`\\{${index}\\}`, 'gm'), `${value}`
             )
@@ -4127,11 +4121,9 @@ export class Tools {
             const yearPattern:string = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
             // / endregion
             const patternPresenceCache:{[key:string]:true} = {}
-            for (const timeDelimiter:string of ['t', ' '])
-                for (const timeComponentDelimiter:string of [
-                    ':', '/', '-', ' '
-                ])
-                    for (const timeFormat:string of [
+            for (const timeDelimiter of ['t', ' '])
+                for (const timeComponentDelimiter of [':', '/', '-', ' '])
+                    for (const timeFormat of [
                         hourPattern +
                         `${timeComponentDelimiter}+` +
                         minutePattern,
@@ -4152,7 +4144,7 @@ export class Tools {
 
                         hourPattern
                     ])
-                        for (const dateTimeFormat:PlainObject of [
+                        for (const dateTimeFormat of [
                             {
                                 delimiter: ['/', '-', ' '],
                                 pattern: [
@@ -4340,15 +4332,17 @@ export class Tools {
                             {pattern: timeFormat}
                         ])
                             for (
-                                const delimiter:string of
+                                const delimiter of
                                 [].concat(dateTimeFormat.hasOwnProperty(
                                     'delimiter'
-                                ) ? dateTimeFormat.delimiter : '-')
+                                ) ?
+                                    dateTimeFormat.delimiter :
+                                    '-'
+                                )
                             )
-                                for (let pattern:string of [].concat(
+                                for (let pattern of [].concat(
                                     dateTimeFormat.pattern
                                 )) {
-                                    // IgnoreTypeCheck
                                     pattern = (new Function(
                                         'delimiter', `return \`^${pattern}$\``
                                     ))(`${delimiter}+`)
@@ -4356,14 +4350,12 @@ export class Tools {
                                         dateTimeFormat.hasOwnProperty(
                                             'flags'
                                         ) ? dateTimeFormat.flags : ''
-                                    // IgnoreTypeCheck
                                     const key:string = pattern + flags
                                     if (!patternPresenceCache.hasOwnProperty(
                                         key
                                     )) {
                                         patternPresenceCache[key] = true
                                         Tools._dateTimePatternCache.push(
-                                            // IgnoreTypeCheck
                                             new RegExp(pattern, flags))
                                     }
                                 }
@@ -4374,7 +4366,7 @@ export class Tools {
         // Reduce each none alphanumeric symbol to a single one.
         value = value.replace(/([^0-9a-z])[^0-9a-z]+/g, '$1')
         let monthNumber:number = 1
-        for (const monthVariation:Array<string> of [
+        for (const monthVariation of [
             ['jan', 'january?', 'janvier'],
             ['feb', 'february?', 'février'],
             ['m(?:a|ae|ä)r', 'm(?:a|ae|ä)r(?:ch|s|z)'],
@@ -4389,7 +4381,7 @@ export class Tools {
             ['de[cz]', 'd[eé][cz]emb(?:er|re)']
         ]) {
             let matched:boolean = false
-            for (const name:string of monthVariation) {
+            for (const name of monthVariation) {
                 const pattern:RegExp = new RegExp(
                     `(^|[^a-z])${name}([^a-z]|$)`)
                 if (pattern.test(value)) {
@@ -4407,11 +4399,11 @@ export class Tools {
         const timezoneMatch:Array<any>|null = value.match(timezonePattern)
         if (timezoneMatch)
             value = value.replace(timezonePattern, '$1')
-        for (const wordToSlice:string of ['', 'Uhr', `o'clock`])
+        for (const wordToSlice of ['', 'Uhr', `o'clock`])
             value = value.replace(wordToSlice, '')
         value = value.trim()
         // endregion
-        for (const dateTimePattern:RegExp of Tools._dateTimePatternCache) {
+        for (const dateTimePattern of Tools._dateTimePatternCache) {
             let match:Array<any>|null = null
             try {
                 match = value.match(dateTimePattern)
@@ -4419,10 +4411,8 @@ export class Tools {
             if (match) {
                 const get:Function = (
                     name:string, fallback:number = 0
-                // IgnoreTypeCheck
                 ):number => name in match.groups ?
-                    // IgnoreTypeCheck
-                    parseInt(match.groups[name]) :
+                    parseInt(match.groups[name], 10) :
                     fallback
                 const parameter:Array<number> = [
                     get('year', 1970), get('month', 1) - 1, get('day', 1),
@@ -4467,26 +4457,26 @@ export class Tools {
      * @returns Processed result.
      */
     static stringMark(
-        target:?string,
-        words:?string|?Array<string>,
+        target:any,
+        words:any,
         marker:string = '<span class="tools-mark">{1}</span>',
         normalizer:Function = (value:any):string => `${value}`.toLowerCase()
-    ):?string {
-        if (target && words && words.length) {
+    ):any {
+        if (typeof target === 'string' && words && words.length) {
             target = target.trim()
             if (!Array.isArray(words))
                 words = [words]
             let index:number = 0
-            for (const word:string of words) {
+            for (const word of words) {
                 words[index] = normalizer(word).trim()
                 index += 1
             }
             let restTarget:string = target
             let offset:number = 0
             while (true) {
-                let nearestRange:?Array<number>
-                let currentRange:?Array<number>
-                for (const word:string of words) {
+                let nearestRange:Array<number>|undefined
+                let currentRange:Array<number>|undefined
+                for (const word of words) {
                     currentRange = Tools.stringFindNormalizedMatchRange(
                         restTarget, word, normalizer)
                     if (
@@ -4855,7 +4845,7 @@ export class Tools {
      * @returns Normalized number.
      */
     static stringNormalizePhoneNumber(
-        value:?string|?number, dialable:boolean=true
+        value:any, dialable:boolean=true
     ):string {
         if (typeof value === 'string' || typeof value === 'number') {
             value = `${value}`.trim()
@@ -4931,7 +4921,7 @@ export class Tools {
      * @param value - Number to normalize.
      * @returns Normalized number.
      */
-    static stringNormalizeZipCode(value:?string|?number):string {
+    static stringNormalizeZipCode(value:any):string {
         if (typeof value === 'string' || typeof value === 'number')
             return `${value}`.trim().replace(/[^0-9]+/g, '')
         return ''
@@ -4947,7 +4937,7 @@ export class Tools {
      */
     static stringParseEncodedObject(
         serializedObject:string, scope:Object = {}, name:string = 'scope'
-    ):?PlainObject {
+    ):null|PlainObject {
         if (
             serializedObject.endsWith('.json') &&
             Tools.isFileSync(serializedObject)
@@ -4961,7 +4951,6 @@ export class Tools {
                 .toString('utf8')
         let result:any
         try {
-            // IgnoreTypeCheck
             result = (new Function(name, `return ${serializedObject}`))(scope)
         } catch (error) {}
         if (typeof result === 'object')
@@ -4974,7 +4963,7 @@ export class Tools {
      * @param value - Number to format.
      * @returns Formatted number.
      */
-    static stringRepresentPhoneNumber(value:?string|?number):string {
+    static stringRepresentPhoneNumber(value:any):string {
         if (
             ['number', 'string'].includes(Tools.determineType(value)) &&
             value
@@ -5131,18 +5120,17 @@ export class Tools {
         expectedIntermediateStatusCodes = [].concat(
             expectedIntermediateStatusCodes)
         const isStatusCodeExpected:Function = (
-            response:?Object, expectedStatusCodes:Array<number>
+            response:any, expectedStatusCodes:Array<number>
         ):boolean => Boolean(
-            response &&
+            response !== null &&
+            typeof response === 'object' &&
             'status' in response &&
             expectedStatusCodes.includes(response.status)
         )
-        const checkAndThrow:Function = (response:?Object):?Object => {
+        const checkAndThrow:Function = (response:any):any => {
             if (!isStatusCodeExpected(response, expectedStatusCodes))
                 throw new Error(
-                    // IgnoreTypeCheck
                     `Given status code ${response.status} differs from ` +
-                    // IgnoreTypeCheck
                     `${expectedStatusCodes.join(', ')}.`
                 )
             return response
@@ -5169,7 +5157,7 @@ export class Tools {
                     }
                     return error
                 }
-                const wrapper:Function = async ():Promise<?Object> => {
+                const wrapper:Function = async ():Promise<any> => {
                     let response:Object
                     try {
                         response = await fetch(url, options)
@@ -5178,7 +5166,6 @@ export class Tools {
                     }
                     try {
                         resolve(checkAndThrow(response))
-                        // IgnoreTypeCheck
                         timer.clear()
                     } catch (error) {
                         if (isStatusCodeExpected(
@@ -5186,7 +5173,6 @@ export class Tools {
                         ))
                             return retryErrorHandler(error)
                         reject(error)
-                        // IgnoreTypeCheck
                         timer.clear()
                     }
                     return response
@@ -5196,10 +5182,10 @@ export class Tools {
                     await timer
                 } catch (error) {}
                 timedOut = true
-                // IgnoreTypeCheck
                 currentlyRunningTimer.clear()
                 reject(new Error(
-                    `Timeout of ${timeoutInSeconds} seconds reached.`))
+                    `Timeout of ${timeoutInSeconds} seconds reached.`
+                ))
             })
         return checkAndThrow(await fetch(url, options))
     }
@@ -5222,14 +5208,15 @@ export class Tools {
         wait:boolean = false,
         timeoutInSeconds:number = 10,
         pollIntervallInSeconds:number = 0.1,
-        unexpectedStatusCodes:?number|Array<number> = null,
+        unexpectedStatusCodes:null|number|Array<number> = null,
         options:PlainObject = {}
     ):Promise<Object> {
-        const check:Function = (response:?Object):?Error => {
+        const check:Function = (response:any):Error => {
             if (unexpectedStatusCodes) {
                 unexpectedStatusCodes = [].concat(unexpectedStatusCodes)
                 if (
-                    response &&
+                    response !== null &&
+                    typeof response === 'object' &&
                     'status' in response &&
                     unexpectedStatusCodes.includes(response.status)
                 )
@@ -5248,14 +5235,13 @@ export class Tools {
                 resolve:Function, reject:Function
             ):Promise<void> => {
                 let timedOut:boolean = false
-                const wrapper:Function = async ():Promise<?Object> => {
+                const wrapper:Function = async ():Promise<any> => {
                     try {
                         const response:Object = await fetch(url, options)
                         if (timedOut)
                             return response
                         const result:Error = check(response)
                         if (result) {
-                            // IgnoreTypeCheck
                             timer.clear()
                             resolve(result)
                             return result
@@ -5271,7 +5257,6 @@ export class Tools {
                         currentlyRunningTimer.catch(Tools.noop)
                     } catch (error) {
                         /* eslint-disable no-use-before-define */
-                        // IgnoreTypeCheck
                         timer.clear()
                         /* eslint-enable no-use-before-define */
                         resolve(error)
@@ -5285,7 +5270,6 @@ export class Tools {
                     await timer
                 } catch (error) {}
                 timedOut = true
-                // IgnoreTypeCheck
                 currentlyRunningTimer.clear()
                 reject(new Error(
                     `Timeout of ${timeoutInSeconds} seconds reached.`))
@@ -5324,7 +5308,7 @@ export class Tools {
         const $formDomNode:$DomNode = $('<form>').attr({
             action: url, method: requestType, target: $targetDomNode.attr(
                 'name')})
-        for (const name:string in data)
+        for (const name in data)
             if (data.hasOwnProperty(name))
                 $formDomNode.append($('<input>').attr({
                     type: 'hidden', name, value: data[name]}))
@@ -5357,12 +5341,12 @@ export class Tools {
     ):$DomNode {
         const $iFrameDomNode:$DomNode = $('<iframe>').attr(
             'name',
-            this.constructor._name.charAt(0).toLowerCase() +
-                this.constructor._name.substring(1) +
+            this.self._name.charAt(0).toLowerCase() +
+            this.self._name.substring(1) +
             (new Date()).getTime()
         ).hide()
         this.$domNode.append($iFrameDomNode)
-        this.constructor.sendToIFrame(
+        this.self.sendToIFrame(
             $iFrameDomNode, url, data, requestType, removeAfterLoad)
         return $iFrameDomNode
     }
@@ -5398,7 +5382,7 @@ export class Tools {
                 throw error
         }
         for (
-            const currentSourceFile:File of
+            const currentSourceFile of
             await Tools.walkDirectoryRecursively(sourcePath, callback)
         ) {
             const currentTargetPath:string = path.join(
@@ -5454,8 +5438,8 @@ export class Tools {
                 throw error
         }
         for (
-            const currentSourceFile:File of Tools.walkDirectoryRecursivelySync(
-                sourcePath, callback)
+            const currentSourceFile of
+            Tools.walkDirectoryRecursivelySync(sourcePath, callback)
         ) {
             const currentTargetPath:string = path.join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
@@ -5625,7 +5609,7 @@ export class Tools {
     ):Promise<Array<File>> {
         const files:Array<File> = []
         // TODO use (everywhere) direct with "withFileTypes" option.
-        for (const fileName:string of await fileSystem.readdir(
+        for (const fileName of await fileSystem.readdir(
             directoryPath, options
         )) {
             const filePath:string = path.resolve(directoryPath, fileName)
@@ -5670,7 +5654,7 @@ export class Tools {
                 return 0
             })
         let finalFiles:Array<File> = []
-        for (const file:File of files) {
+        for (const file of files) {
             finalFiles.push(file)
             const result:any = callback(file)
             if (result === null)
@@ -5700,7 +5684,7 @@ export class Tools {
         options:PlainObject|string = 'utf8'
     ):Array<File> {
         const files:Array<File> = []
-        for (const fileName:string of synchronousFileSystem.readdirSync(
+        for (const fileName of synchronousFileSystem.readdirSync(
             directoryPath, options
         )) {
             const filePath:string = path.resolve(directoryPath, fileName)
@@ -5745,7 +5729,7 @@ export class Tools {
                 return 0
             })
         let finalFiles:Array<File> = []
-        for (const file:File of files) {
+        for (const file of files) {
             finalFiles.push(file)
             const result:any = callback(file)
             if (result === null)
@@ -5778,9 +5762,9 @@ export class Tools {
     static getProcessCloseHandler(
         resolve:Function, reject:Function, reason:any = null,
         callback:Function = ():void => {}
-    ):((returnCode:?number) => void) {
+    ):((returnCode:any) => void) {
         let finished:boolean = false
-        return (returnCode:?number, ...parameter:Array<any>):void => {
+        return (returnCode:any, ...parameter:Array<any>):void => {
             if (finished)
                 finished = true
             else {
@@ -5791,9 +5775,7 @@ export class Tools {
                 } else {
                     const error:Error = new Error(
                         `Task exited with error code ${returnCode}`)
-                    // IgnoreTypeCheck
                     error.returnCode = returnCode
-                    // IgnoreTypeCheck
                     error.parameter = parameter
                     reject(error)
                 }
@@ -5836,21 +5818,20 @@ export class Tools {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         const $domNode:$DomNode = $(parameter[0])
         if (
-            this.constructor.determineType(parameter[1]) === 'object' &&
+            this.self.determineType(parameter[1]) === 'object' &&
             !removeEvent
         ) {
-            for (const eventType:string in parameter[1])
+            for (const eventType in parameter[1])
                 if (parameter[1].hasOwnProperty(eventType))
-                    // IgnoreTypeCheck
                     this[eventFunctionName](
                         $domNode, eventType, parameter[1][eventType])
             return $domNode
         }
-        parameter = this.constructor.arrayMake(parameter).slice(1)
+        parameter = this.self.arrayMake(parameter).slice(1)
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
-            parameter[0] += `.${this.constructor._name}`
+            parameter[0] += `.${this.self._name}`
         if (removeEvent)
             return $domNode[eventFunctionName](...parameter)
         return $domNode[eventFunctionName](...parameter)
