@@ -86,40 +86,6 @@ export type $Deferred<Type> = {
     state:() => $Deferred<Type>;
     then:() => $Deferred<Type>;
 }
-// / region browser
-export type DomNode = any
-export type Location = {
-    hash:string;
-    search:string;
-    pathname:string;
-    port:string;
-    hostname:string;
-    host:string;
-    protocol:string;
-    origin:string;
-    href:string;
-    username:string;
-    password:string;
-    assign:Function;
-    reload:Function;
-    replace:Function;
-    toString:() => string
-}
-export type Storage = {
-    getItem(key:string):any;
-    setItem(key:string, value:any):void;
-    removeItem(key:string, value:any):void;
-}
-export type Window = {
-    addEventListener:(type:string, callback:Function) => void;
-    close:() => void;
-    document:Object;
-    location:Location;
-    localStorage:Storage;
-    sessionStorage:Storage;
-    $:Object;
-}
-// / endregion
 // endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:

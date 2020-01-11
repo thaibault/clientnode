@@ -32,7 +32,6 @@ try {
 } catch (error) {}
 
 import {
-    DomNode,
     GetterFunction,
     LockCallbackFunction,
     Options,
@@ -855,17 +854,25 @@ export class Tools {
      * @param name - Name to identify given value.
      * @param value - Value to set.
      * @param domain - Domain to reference with given key-value-pair.
+     * @param sameSite - Set same site policy to "Lax", "None" or "Strict".
      * @param numberOfDaysUntilExpiration - Number of days until given key
      * shouldn't be deleted.
      * @param path - Path to reference with given key-value-pair.
+     * @param secure - Indicates if this cookie is only valid for "https"
+     * connections.
+     * @param httpOnly - Indicates if this cookie should be accessible from
+     * client or not.
      * @returns A boolean indicating whether cookie could be set or not.
      */
     static setCookie(
         name:string,
         value:string,
         domain:string = '',
+        sameSite:'Lax'|'None'|'Strict'|'' = 'Lax',
         numberOfDaysUntilExpiration:number = 365,
-        path:string = '/'
+        path:string = '/',
+        secure:boolean = true,
+        httpOnly:boolean = false
     ):boolean {
         if ('document' in $.global) {
             const now:Date = new Date()
@@ -881,9 +888,12 @@ export class Tools {
                 domain = $.global.location.hostname
             $.global.document.cookie =
                 `${name}=${value};` +
-                `expires="${now.toUTCString()};` +
-                `path=${path};` +
-                `domain=${domain}`
+                `Expires="${now.toUTCString()};` +
+                `Path=${path};` +
+                `Domain=${domain}` +
+                (sameSite ? `;SameSite=${sameSite}` : '') +
+                (secure ? ';Secure' : '') +
+                (httpOnly = ';HttpOnly' + '')
             return true
         }
         return false
