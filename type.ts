@@ -67,7 +67,7 @@ export type $DomNode = {
     text():string;
     width():number;
     Tools(functionName:string, ...additionalArguments:Array<any>):any;
-    [key:number|string]:DomNode;
+    [key:number|string]:HTMLElement
 }
 export type $Deferred<Type> = {
     always:() => $Deferred<Type>;
