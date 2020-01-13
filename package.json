@@ -93,6 +93,7 @@
       "aliases": {
         "#": "Ensure that dependent modules uses latest version.",
         "clientnode$": "../../index",
+        "clientnode/type$": "../../type",
         "jquery$": "jquery/dist/jquery.min"
       },
       "optimizer": {
