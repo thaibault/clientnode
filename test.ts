@@ -31,9 +31,6 @@ import {getInitializedBrowser} from 'weboptimizer/browser'
 import {Browser} from 'weboptimizer/type'
 // endregion
 // region declaration
-declare function describe(description:string, test:Function):void
-declare function expect(subject:any):any
-declare function test(description:string, test:Function):Promise<void>|void
 declare var TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
@@ -78,9 +75,9 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         expect(Tools).toHaveProperty('abbreviations')
         expect(new Tools()).toHaveProperty('_options')
     })
-    test('destructor', ():void => {
+    test('destructor', ():void =>
         expect(tools.destructor()).toStrictEqual(tools)
-    })
+    )
     test('initialize', ():void => {
         const secondToolsInstance:Tools = $.Tools({logging: true})
         const thirdToolsInstance:Tools = $.Tools({
