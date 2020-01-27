@@ -17,7 +17,7 @@
     endregion
 */
 // region exports
-export type DomCallbackFunction = (index:number, $domNode:$DomNode) =>
+export type DomCallbackFunction = (index:number, $domNode:Node) =>
     false|undefined
 export type PlainObject = {[key:string]:any}
 export type ProcedureFunction = () => void|Promise<void>
@@ -60,6 +60,7 @@ export type $DomNode = {
     find(filter:any):$DomNode;
     height():number;
     is(selector:string):boolean;
+    length:number;
     remove():$DomNode;
     removeAttr(attributeName:string):$DomNode;
     removeClass(className:string|Array<string>):$DomNode;
@@ -67,7 +68,7 @@ export type $DomNode = {
     text():string;
     width():number;
     Tools(functionName:string, ...additionalArguments:Array<any>):any;
-    [key:number|string]:HTMLElement
+    [key:number]:any;
 }
 export type $Deferred<Type> = {
     always:() => $Deferred<Type>;
