@@ -670,14 +670,18 @@ export class Tools {
      * @returns Returns the given function wrapped by the workaround logic.
      */
     static mouseOutEventHandlerFix(eventHandler:Function):Function {
-        return (event:any, ...additionalParameter:Array<any>):any => {
-            let relatedTarget:DomNode = event.toElement
+        return function(
+            this:any, event:any, ...additionalParameter:Array<any>
+        ):any {
+            let relatedTarget:Element = event.toElement
             if ('relatedTarget' in event)
                 relatedTarget = event.relatedTarget
             while (relatedTarget && relatedTarget.tagName !== 'BODY') {
-                if (relatedTarget === this)
+                if (
+                    relatedTarget === this || relatedTarget.parentNode === null
+                )
                     return
-                relatedTarget = relatedTarget.parentNode
+                relatedTarget = relatedTarget.parentNode as Element
             }
             return eventHandler.call(this, ...additionalParameter)
         }
@@ -893,7 +897,7 @@ export class Tools {
                 `Domain=${domain}` +
                 (sameSite ? `;SameSite=${sameSite}` : '') +
                 (secure ? ';Secure' : '') +
-                (httpOnly = ';HttpOnly' + '')
+                (httpOnly ? ';HttpOnly' : '')
             return true
         }
         return false
@@ -910,7 +914,7 @@ export class Tools {
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, domNode:DomNode):any => {
+                .each((index:number, domNode:Node):any => {
                     const $domNode:$DomNode = $(domNode)
                     if ($domNode.attr(className))
                         $domNode.attr(
@@ -936,7 +940,7 @@ export class Tools {
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, domNode:DomNode):any => {
+                .each((index:number, domNode:Node):any => {
                     const $domNode:$DomNode = $(domNode)
                     const serializedStyles:string|undefined = $domNode.attr(
                         styleName)
@@ -969,8 +973,7 @@ export class Tools {
      */
     get style():PlainObject {
         const result:PlainObject = {}
-        const $domNode:Array<DomNode> =
-            this.$domNode as unknown as Array<DomNode>
+        const $domNode:null|$DomNode = this.$domNode
         if ($domNode && $domNode.length) {
             let styleProperties:any
             if ('window' in $.global && $.global.window.getComputedStyle) {
@@ -1066,8 +1069,7 @@ export class Tools {
                     $domNodes[type] = $(`<div>${inputs[type]}</div>`)
                 else
                     try {
-                        const $copiedDomNode:Array<DomNode> =
-                            $(inputs[type]).clone() as Array<DomNode>
+                        const $copiedDomNode:$DomNode = $(inputs[type]).clone()
                         if ($copiedDomNode.length)
                             $domNodes[type] = $('<div>').append($copiedDomNode)
                         else
@@ -1076,9 +1078,9 @@ export class Tools {
                         return false
                     }
             if (
-                ($domNodes.first as unknown as Array<DomNode>).length &&
-                ($domNodes.first as unknown as Array<DomNode>).length ===
-                ($domNodes.second as unknown as Array<DomNode>).length
+                ($domNodes.first as unknown as Array<Node>).length &&
+                ($domNodes.first as unknown as Array<Node>).length ===
+                ($domNodes.second as unknown as Array<Node>).length
             ) {
                 $domNodes.first = $domNodes
                     .first
@@ -1094,10 +1096,10 @@ export class Tools {
                     .$domNode
                 let index:number = 0
                 for (const domNode of (
-                    $domNodes.first as unknown as Array<DomNode>
+                    $domNodes.first as unknown as Array<Node>
                 )) {
                     if (!domNode.isEqualNode((
-                        $domNodes.second as unknown as Array<DomNode>
+                        $domNodes.second as unknown as Array<Node>
                     )[index]))
                         return false
                     index += 1
@@ -1119,8 +1121,7 @@ export class Tools {
     ):RelativePosition {
         const delta:Position = this.self.extend(
             {bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
-        const $domNode:Array<DomNode> =
-            this.$domNode as unknown as Array<DomNode>
+        const $domNode:$DomNode = this.$domNode
         if (
             'window' in $.global &&
             $domNode &&
