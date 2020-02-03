@@ -16,8 +16,27 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+// region imports
+import JQuery from 'jquery'
+import {Stats} from 'fs'
+// endregion
 // region exports
-export type DomCallbackFunction = (index:number, $domNode:Node) =>
+// / region interfaces
+export interface $DomNode extends JQuery {
+    Tools(functionName:string, ...additionalArguments:Array<any>):any;
+    [key:number]:any;
+}
+export interface ProcessError extends Error {
+    parameter:Array<any>;
+    returnCode:number;
+}
+export interface TimeoutPromise extends Promise<boolean> {
+    clear:() => void;
+    timeoutID:number;
+}
+// / endregion
+export type DomEventCallbackFunction = (event:Event|null) => any
+export type DomIterationCallbackFunction = (index:number, $domNode:Node) =>
     false|undefined
 export type PlainObject = {[key:string]:any}
 export type ProcedureFunction = () => void|Promise<void>
@@ -26,14 +45,11 @@ export type File = {
     error:Error|null;
     name:string;
     path:string;
-    stats:Object|null;
+    stats:Stats|null;
 }
 export type GetterFunction = (keyOrValue:any, key:any, target:any) => any
 export type SetterFunction = (key:any, value:any, target:any) => any
-export type TimeoutPromise = Promise<boolean> & {
-    clear:Function;
-    timeoutID:number;
-}
+
 export type Position = {bottom:number;left:number;right:number;top:number}
 export type RelativePosition = 'in'|'above'|'left'|'below'|'right'
 export type Options = {
@@ -52,30 +68,6 @@ export type ProxyHandler = {
 }
 export type LockCallbackFunction = (description:string) =>
     Promise<any>|undefined
-export type $DomNode = {
-    addBack():$DomNode;
-    addClass(className:string):$DomNode;
-    after(domNode:any):$DomNode;
-    append(domNode:any):$DomNode;
-    attr(attributeName:string|{[key:string]:string}, value?:any):any;
-    children():$DomNode;
-    clone():$DomNode;
-    data(key:string, value?:any):any;
-    each(callback:DomCallbackFunction):$DomNode;
-    end():$DomNode;
-    find(filter:any):$DomNode;
-    height():number;
-    is(selector:string):boolean;
-    length:number;
-    remove():$DomNode;
-    removeAttr(attributeName:string):$DomNode;
-    removeClass(className:string|Array<string>):$DomNode;
-    submit():$DomNode;
-    text():string;
-    width():number;
-    Tools(functionName:string, ...additionalArguments:Array<any>):any;
-    [key:number]:any;
-}
 export type $Deferred<Type> = {
     always:() => $Deferred<Type>;
     resolve:() => $Deferred<Type>;

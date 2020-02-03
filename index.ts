@@ -26,17 +26,19 @@ let synchronousFileSystem:any
 try {
     synchronousFileSystem = eval('require')('fs')
 } catch (error) {}
-let path:Object = {}
+let path:any
 try {
     path = eval('require')('path')
 } catch (error) {}
 
 import {
+    File,
     GetterFunction,
     LockCallbackFunction,
     Options,
     PlainObject,
     Position,
+    ProcessError,
     ProxyHandler,
     RelativePosition,
     SetterFunction,
@@ -320,7 +322,9 @@ export class Tools {
                 return 11
         return version
     })()
-    static noop:Function = ('noop' in $) ? $.noop : ():void => {}
+    static noop:(...parameter:Array<any>) => any = ('noop' in $) ?
+        $.noop :
+        ():void => {}
     static plainObjectPrototypes:Array<any> = [Object.prototype]
     static specialRegexSequences:Array<string> = [
         '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}']
@@ -917,13 +921,12 @@ export class Tools {
                 .addBack()
                 .each((index:number, domNode:Node):any => {
                     const $domNode:$DomNode = $(domNode)
-                    if ($domNode.attr(className))
+                    const classValue:string|undefined = $domNode.attr(
+                        className)
+                    if (classValue)
                         $domNode.attr(
                             className,
-                            (
-                                $domNode.attr(className).split(' ').sort() ||
-                                []
-                            ).join(' ')
+                            (classValue.split(' ').sort() || []).join(' ')
                         )
                     else if ($domNode.is(`[${className}]`))
                         $domNode.removeAttr(className)
@@ -1137,9 +1140,17 @@ export class Tools {
                     return 'above'
                 if ((rectangle.left + delta.left) < 0)
                     return 'left'
-                if ($window.height() < (rectangle.bottom + delta.bottom))
+                const windowHeight:number|undefined = $window.height()
+                if (
+                    typeof windowHeight === 'number' &&
+                    windowHeight < (rectangle.bottom + delta.bottom)
+                )
                     return 'below'
-                if ($window.width() < (rectangle.right + delta.right))
+                const windowWidth:number|undefined = $window.width()
+                if (
+                    typeof windowWidth === 'number' &&
+                    windowWidth < (rectangle.right + delta.right)
+                )
                     return 'right'
             }
         }
@@ -1216,8 +1227,8 @@ export class Tools {
             `x-${delimitedName}`,
             delimitedName.replace('-', '\\:')
         ]) {
-            const value:string = this.$domNode.attr(attributeName)
-            if (value !== undefined)
+            const value:string|undefined = this.$domNode.attr(attributeName)
+            if (typeof value === 'string')
                 return value
         }
         return null
@@ -5168,9 +5179,9 @@ export class Tools {
                 resolve:Function, reject:Function
             ):Promise<void> => {
                 let timedOut:boolean = false
-                const timer:Promise<boolean> = Tools.timeout(
+                const timer:TimeoutPromise = Tools.timeout(
                     timeoutInSeconds * 1000)
-                const retryErrorHandler:Function = (error:Object):Object => {
+                const retryErrorHandler = (error:Object):Object => {
                     if (!timedOut) {
                         /* eslint-disable no-use-before-define */
                         currentlyRunningTimer = Tools.timeout(
@@ -5185,7 +5196,7 @@ export class Tools {
                     }
                     return error
                 }
-                const wrapper:Function = async ():Promise<any> => {
+                const wrapper = async ():Promise<any> => {
                     let response:Object
                     try {
                         response = await fetch(url, options)
@@ -5241,12 +5252,14 @@ export class Tools {
     ):Promise<Object> {
         const check = (response:any):Error|null => {
             if (unexpectedStatusCodes) {
+                // @ts-ignore: Workaround to ensure having an array.
                 unexpectedStatusCodes = [].concat(unexpectedStatusCodes)
                 if (
                     response !== null &&
                     typeof response === 'object' &&
                     'status' in response &&
-                    unexpectedStatusCodes.includes(response.status)
+                    (unexpectedStatusCodes as Array<number>).includes(
+                        response.status)
                 )
                     throw new Error(
                         `Given url "${url}" is reachable and responses with ` +
@@ -5254,7 +5267,7 @@ export class Tools {
                     )
                 return new Error(
                     'Given status code is not "' +
-                    `${unexpectedStatusCodes.join(', ')}".`
+                    `${(unexpectedStatusCodes as Array<number>).join(', ')}".`
                 )
             }
             return null
@@ -5293,7 +5306,7 @@ export class Tools {
                     }
                 }
                 let currentlyRunningTimer = Tools.timeout(wrapper)
-                const timer:Promise<boolean> = Tools.timeout(
+                const timer:TimeoutPromise = Tools.timeout(
                     timeoutInSeconds * 1000)
                 try {
                     await timer
@@ -5304,7 +5317,7 @@ export class Tools {
                     `Timeout of ${timeoutInSeconds} seconds reached.`))
             })
         try {
-            const result:Error = check(await fetch(url, options))
+            const result:Error|null = check(await fetch(url, options))
             if (result)
                 return result
         } catch (error) {
@@ -5325,22 +5338,25 @@ export class Tools {
      * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
-        target:$DomNode|DomNode|string,
+        target:$DomNode|Node|string,
         url:string,
         data:{[key:string]:any},
         requestType:string = 'post',
         removeAfterLoad:boolean = false
     ):$DomNode {
-        const $targetDomNode:$DomNode = (typeof target === 'string') ? $(
-            `iframe[name"${target}"]`
-        ) : $(target)
+        const $targetDomNode:$DomNode = (typeof target === 'string') ?
+            $(`iframe[name"${target}"]`) :
+            $(target)
         const $formDomNode:$DomNode = $('<form>').attr({
-            action: url, method: requestType, target: $targetDomNode.attr(
-                'name')})
+            action: url,
+            method: requestType,
+            target: $targetDomNode.attr('name')
+        })
         for (const name in data)
             if (data.hasOwnProperty(name))
                 $formDomNode.append($('<input>').attr({
-                    type: 'hidden', name, value: data[name]}))
+                    name, type: 'hidden', value: data[name]
+                }))
         /*
             NOTE: The given target form have to be injected into document
             object model to successfully submit.
@@ -5368,13 +5384,16 @@ export class Tools {
         requestType:string = 'post',
         removeAfterLoad:boolean = true
     ):$DomNode {
-        const $iFrameDomNode:$DomNode = $('<iframe>').attr(
-            'name',
-            this.self._name.charAt(0).toLowerCase() +
-            this.self._name.substring(1) +
-            (new Date()).getTime()
-        ).hide()
-        this.$domNode.append($iFrameDomNode)
+        const $iFrameDomNode:$DomNode = $('<iframe>')
+            .attr(
+                'name',
+                this.self._name.charAt(0).toLowerCase() +
+                this.self._name.substring(1) +
+                (new Date()).getTime()
+            )
+            .hide()
+        if (this.$domNode)
+            this.$domNode.append($iFrameDomNode)
         this.self.sendToIFrame(
             $iFrameDomNode, url, data, requestType, removeAfterLoad)
         return $iFrameDomNode
@@ -5789,8 +5808,10 @@ export class Tools {
      * @returns Process close handler function.
      */
     static getProcessCloseHandler(
-        resolve:Function, reject:Function, reason:any = null,
-        callback:Function = ():void => {}
+        resolve:Function,
+        reject:Function,
+        reason:any = null,
+        callback:Function = Tools.noop
     ):((returnCode:any) => void) {
         let finished:boolean = false
         return (returnCode:any, ...parameter:Array<any>):void => {
@@ -5802,8 +5823,9 @@ export class Tools {
                     callback()
                     resolve({reason, parameter})
                 } else {
-                    const error:Error = new Error(
-                        `Task exited with error code ${returnCode}`)
+                    const error:ProcessError = new Error(
+                        `Task exited with error code ${returnCode}`
+                    ) as ProcessError
                     error.returnCode = returnCode
                     error.parameter = parameter
                     reject(error)
@@ -5818,8 +5840,10 @@ export class Tools {
      * @returns Given child process meta data.
      */
     static handleChildProcess(childProcess:ChildProcess):ChildProcess {
-        childProcess.stdout.pipe(process.stdout)
-        childProcess.stderr.pipe(process.stderr)
+        if (childProcess.stdout)
+            childProcess.stdout.pipe(process.stdout)
+        if (childProcess.stderr)
+            childProcess.stderr.pipe(process.stderr)
         childProcess.on('close', (returnCode:number):void => {
             if (returnCode !== 0)
                 console.error(`Task exited with error code ${returnCode}`)
@@ -5852,6 +5876,7 @@ export class Tools {
         ) {
             for (const eventType in parameter[1])
                 if (parameter[1].hasOwnProperty(eventType))
+                    // @ts-ignore: Dynamically accessing attributes is allowed.
                     this[eventFunctionName](
                         $domNode, eventType, parameter[1][eventType])
             return $domNode
@@ -5862,7 +5887,9 @@ export class Tools {
         if (!parameter[0].includes('.'))
             parameter[0] += `.${this.self._name}`
         if (removeEvent)
+            // @ts-ignore: Dynamically accessing attributes is allowed.
             return $domNode[eventFunctionName](...parameter)
+        // @ts-ignore: Dynamically accessing attributes is allowed.
         return $domNode[eventFunctionName](...parameter)
     }
     // endregion

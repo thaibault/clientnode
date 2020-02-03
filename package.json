@@ -57,6 +57,7 @@
     "@babel/cli": "*",
     "@babel/plugin-transform-proto-to-assign": "*",
     "@typescript-eslint/eslint-plugin": "*",
+    "@types/jquery": "*",
     "babel-eslint": "*",
     "babel-plugin-transform-modern-regexp": "*",
     "documentation-website": "*",
