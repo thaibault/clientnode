@@ -18,11 +18,11 @@
 */
 // region imports
 import {ChildProcess} from 'child_process'
-let fileSystem:Object = {}
+let fileSystem:any
 try {
     fileSystem = eval('require')('fs').promises
 } catch (error) {}
-let synchronousFileSystem:Object = {}
+let synchronousFileSystem:any
 try {
     synchronousFileSystem = eval('require')('fs')
 } catch (error) {}
@@ -37,6 +37,7 @@ import {
     Options,
     PlainObject,
     Position,
+    ProxyHandler,
     RelativePosition,
     SetterFunction,
     TimeoutPromise,
@@ -1121,7 +1122,7 @@ export class Tools {
     ):RelativePosition {
         const delta:Position = this.self.extend(
             {bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
-        const $domNode:$DomNode = this.$domNode
+        const $domNode:null|$DomNode = this.$domNode
         if (
             'window' in $.global &&
             $domNode &&
@@ -1272,7 +1273,7 @@ export class Tools {
      * selectors.
      */
     grabDomNode(
-        domNodeSelectors:PlainObject, wrapperDomNode:DomNode|$DomNode
+        domNodeSelectors:PlainObject, wrapperDomNode:Node|null|$DomNode = null
     ):{[key:string]:$DomNode} {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         const domNodes:{[key:string]:$DomNode} = {}
@@ -1663,12 +1664,12 @@ export class Tools {
                     object instanceof type &&
                     object !== null
                 ) {
-                    const defaultHandler = Tools.getProxyHandler(
+                    const defaultHandler:ProxyHandler = Tools.getProxyHandler(
                         object, methodNames)
-                    const handler:Object = Tools.getProxyHandler(
+                    const handler:ProxyHandler = Tools.getProxyHandler(
                         object, methodNames)
                     if (getterWrapper)
-                        handler.get = (proxy:Proxy<any>, name:string):any => {
+                        handler.get = (target:any, name:string):any => {
                             if (name === '__target__')
                                 return object
                             if (name === '__revoke__')
@@ -1683,7 +1684,7 @@ export class Tools {
                         }
                     if (setterWrapper)
                         handler.set = (
-                            proxy:Proxy<any>, name:string, value:any
+                            target:any, name:string, value:any
                         ):any => defaultHandler.set(proxy, name, setterWrapper(
                             name, value, object))
                     const {proxy, revoke} = Proxy.revocable({}, handler)
@@ -2031,11 +2032,14 @@ export class Tools {
             firstValue instanceof Blob && secondValue instanceof Blob
         )
             return new Promise((resolve:Function):void => {
-                const values:Array<string> = []
+                const values:Array<ArrayBuffer|null|string> = []
                 for (const value of [firstValue, secondValue]) {
                     const fileReader:FileReader = new FileReader()
-                    fileReader.onload = (event:Object):void => {
-                        values.push(event.target.result)
+                    fileReader.onload = (event:Event):void => {
+                        if (event.target === null)
+                            values.push(null)
+                        else
+                            values.push((event.target as FileReader).result)
                         if (values.length === 2)
                             resolve(values[0] === values[1])
                     }
@@ -2487,6 +2491,7 @@ export class Tools {
         skipMissingLevel:boolean = false
     ):any {
         let path:Array<string> = []
+        // @ts-ignore: Workaround to ensure having an array.
         for (const component of [].concat(selector))
             path = path.concat(component.split(delimiter))
         let result:any = target
@@ -2511,7 +2516,7 @@ export class Tools {
      */
     static getProxyHandler(
         target:any, methodNames:{[key:string]:string} = {}
-    ):Object {
+    ):ProxyHandler {
         methodNames = Tools.extend(
             {
                 delete: '[]',
@@ -2522,27 +2527,29 @@ export class Tools {
             methodNames
         )
         return {
-            deleteProperty: (proxy:Proxy<any>, key:any):any => {
-                if (methodNames.delete === '[]')
+            deleteProperty: (targetObject:any, key:string|Symbol):boolean => {
+                if (methodNames.delete === '[]' && typeof key === 'string')
                     delete target[key]
                 else
                     return target[methodNames.delete](key)
+                return true
             },
-            get: (proxy:Proxy<any>, key:any):any => {
-                if (methodNames.get === '[]')
+            get: (targetObject:any, key:string|Symbol):any => {
+                if (methodNames.get === '[]' && typeof key === 'string')
                     return target[key]
                 return target[methodNames.get](key)
             },
-            has: (proxy:Proxy<any>, key:any):any => {
+            has: (targetObject:any, key:string|Symbol):boolean => {
                 if (methodNames.has === '[]')
                     return key in target
                 return target[methodNames.has](key)
             },
-            set: (proxy:Proxy<any>, key:any, value:any):any => {
-                if (methodNames.set === '[]')
+            set: (targetObject:any, key:string|Symbol, value:any):boolean => {
+                if (methodNames.set === '[]' && typeof key === 'string')
                     target[key] = value
                 else
                     return target[methodNames.set](value)
+                return true
             }
         }
     }
@@ -2612,42 +2619,42 @@ export class Tools {
                     ].includes(key)) {
                         if (Array.isArray(target))
                             if (key === removeIndicatorKey) {
-                                for (const valueToModify of [].concat(
-                                    source[key]
-                                ))
+                                const values:Array<any> = [].concat(
+                                    source[key])
+                                for (const value of values)
                                     if (
-                                        typeof valueToModify === 'string' &&
-                                        valueToModify.startsWith(
-                                            positionPrefix) &&
-                                        valueToModify.endsWith(positionSuffix)
+                                        typeof value === 'string' &&
+                                        value.startsWith(positionPrefix) &&
+                                        value.endsWith(positionSuffix)
                                     )
                                         target.splice(
                                             parseInt(
-                                                valueToModify.substring(
+                                                value.substring(
                                                     positionPrefix.length,
-                                                    valueToModify.length -
+                                                    value.length -
                                                     positionSuffix.length
                                                 ),
                                                 10
                                             ),
                                             1
                                         )
-                                    else if (target.includes(valueToModify))
-                                        target.splice(
-                                            target.indexOf(valueToModify), 1)
+                                    else if (target.includes(value))
+                                        target.splice(target.indexOf(value), 1)
                                     else if (
-                                        typeof valueToModify === 'number' &&
-                                        valueToModify < target.length
+                                        typeof value === 'number' &&
+                                        value < target.length
                                     )
-                                        target.splice(valueToModify, 1)
+                                        target.splice(value, 1)
                             } else if (key === prependIndicatorKey)
+                                // @ts-ignore: Workaround to ensure having an
+                                // array.
                                 target = [].concat(source[key]).concat(target)
                             else
                                 target = target.concat(source[key])
                         else if (key === removeIndicatorKey)
-                            for (const valueToModify of [].concat(source[key]))
-                                if (target.hasOwnProperty(valueToModify))
-                                    delete target[valueToModify]
+                            for (const value of [].concat(source[key]))
+                                if (target.hasOwnProperty(value))
+                                    delete target[value]
                         delete source[key]
                         if (parentSource && parentKey)
                             delete parentSource[parentKey]
@@ -2709,6 +2716,7 @@ export class Tools {
      * @returns Processed given object.
      */
     static removeKeys(object:any, keys:Array<string>|string = '#'):any {
+        // @ts-ignore: Workaround to ensure having an array.
         const resolvedKeys:Array<string> = [].concat(keys)
         if (Array.isArray(object)) {
             let index:number = 0
@@ -2978,7 +2986,9 @@ export class Tools {
      * @returns Summarized array.
      */
     static arrayAggregatePropertyIfEqual(
-        data:Array<Object>, propertyName:string, defaultValue:any = ''
+        data:Array<{[key:string]:any}>,
+        propertyName:string,
+        defaultValue:any = ''
     ):any {
         let result:any = defaultValue
         if (data && data.length && data[0].hasOwnProperty(propertyName)) {
@@ -3032,11 +3042,11 @@ export class Tools {
      * @returns Data with sliced items.
      */
     static arrayExtract(
-        data:Array<Object>, propertyNames:Array<string>
+        data:Array<{[key:string]:any}>, propertyNames:Array<string>
     ):Array<Object> {
-        const result:Array<Object> = []
+        const result:Array<{[key:string]:any}> = []
         for (const item of Tools.arrayMake(data)) {
-            const newItem:Object = {}
+            const newItem:{[key:string]:any} = {}
             for (const propertyName of Tools.arrayMake(propertyNames))
                 if (item.hasOwnProperty(propertyName))
                     newItem[propertyName] = item[propertyName]
@@ -3107,11 +3117,16 @@ export class Tools {
             for (const item of Tools.arrayMake(data)) {
                 let matches:boolean = true
                 for (const propertyName in propertyPattern)
-                    if (!(propertyPattern[propertyName] && (
-                        (typeof propertyPattern[propertyName] === 'string') ?
-                            new RegExp(propertyPattern[propertyName]) :
-                            propertyPattern[propertyName]
-                    ).test(item[propertyName]))) {
+                    if (
+                        !(
+                            propertyPattern[propertyName] &&
+                            (
+                                (typeof propertyPattern[propertyName] ===
+                                    'string'
+                                ) ?
+                                    new RegExp(propertyPattern[propertyName]) :
+                                    propertyPattern[propertyName] as RegExp
+                            ).test(item[propertyName]))) {
                         matches = false
                         break
                     }
@@ -3138,7 +3153,7 @@ export class Tools {
     static arrayIntersect(
         first:Array<any>,
         second:Array<any>,
-        keys:Object|Array<string> = [],
+        keys:any|Array<string> = [],
         strict:boolean = true
     ):Array<any> {
         const containingData:Array<any> = []
@@ -3236,10 +3251,10 @@ export class Tools {
         let higherBound:number
         if (range.length === 1) {
             index = 0
-            higherBound = parseInt(range[0], 10)
+            higherBound = parseInt(`${range[0]}`, 10)
         } else if (range.length === 2) {
-            index = parseInt(range[0], 10)
-            higherBound = parseInt(range[1], 10)
+            index = parseInt(`${range[0]}`, 10)
+            higherBound = parseInt(`${range[1]}`, 10)
         } else
             return range
         const result = [index]
@@ -3269,7 +3284,7 @@ export class Tools {
      */
     static arrayMake(object:any):Array<any> {
         const result:Array<any> = []
-        if (![null, undefined].includes(result))
+        if (![null, undefined].includes(object))
             if (Tools.isArrayLike(Object(object)))
                 Tools.arrayMerge(
                     result, typeof object === 'string' ? [object] : object)
@@ -3380,7 +3395,10 @@ export class Tools {
      * @returns Item with the appended target.
      */
     static arrayAppendAdd(
-        item:Object, target:any, name:string, checkIfExists:boolean = true
+        item:{[key:string]:any},
+        target:any,
+        name:string,
+        checkIfExists:boolean = true
     ):Object {
         if (item.hasOwnProperty(name)) {
             if (!(checkIfExists && item[name].includes(target)))
@@ -3418,20 +3436,20 @@ export class Tools {
      * @returns Sorted array of given items respecting their dependencies.
      */
     static arraySortTopological(
-        items:{[key:string]:Array<string>}
+        items:{[key:string]:Array<string>|string}
     ):Array<string> {
         const edges:Array<Array<string>> = []
         for (const name in items)
             if (items.hasOwnProperty(name)) {
-                if (!Array.isArray(items[name]))
-                    items[name] = [items[name]]
+                // @ts-ignore: Workaround to ensure having an array.
+                items[name] = [].concat(items[name])
                 if (items[name].length > 0)
                     for (const dependencyName of Tools.arrayMake(items[name]))
                         edges.push([name, dependencyName])
                 else
                     edges.push([name])
             }
-        const nodes:Array<string> = []
+        const nodes:Array<null|string> = []
         // Accumulate unique nodes into a large list.
         for (const edge of edges)
             for (const node of edge)
@@ -3474,7 +3492,7 @@ export class Tools {
             }
         }
         for (let index = 0; index < nodes.length; index++) {
-            const node:string = nodes[index]
+            const node:null|string = nodes[index]
             // Ignore nodes that have been excluded.
             if (node) {
                 // Mark the node to exclude it from future iterations.
@@ -3692,15 +3710,18 @@ export class Tools {
      * key doesn't exist "undefined" is returned.
      */
     static stringGetURLVariable(
-        keyToGet:string|undefined,
-        givenInput:string|undefined,
+        keyToGet:null|string = null,
+        givenInput:null|string = null,
         subDelimiter:string = '$',
         hashedPathIndicator:string = '!',
-        givenSearch:string|undefined,
-        givenHash:string|undefined = (
-            'location' in $.global && $.global.location.hash || ''
-        )
-    ):Array<string>|string|null {
+        givenSearch:null|string = null,
+        givenHash:string = (
+            'location' in $.global &&
+            typeof $.global.location.hash === 'string'
+        ) ?
+            $.global.location.hash :
+            ''
+    ):Array<string>|null|string {
         // region set search and hash
         let hash:string = (givenHash) ? givenHash : '#'
         let search:string = ''
@@ -3722,7 +3743,7 @@ export class Tools {
                 search = pathAndSearch.substring(subSearchStartIndex)
         } else if ('location' in $.global)
             search = $.global.location.search || ''
-        let input:string = (givenInput) ? givenInput : search
+        let input:string = givenInput ? givenInput : search
         // endregion
         // region determine data from search and hash if specified
         const both:boolean = input === '&'
@@ -3762,11 +3783,13 @@ export class Tools {
                 value = ''
             }
             variables.push(key)
+            // @ts-ignore: Mixed type: using an array as object also.
             variables[key] = value
         }
         // endregion
         if (keyToGet) {
             if (variables.hasOwnProperty(keyToGet))
+                // @ts-ignore: Mixed type: using an array as object also.
                 return variables[keyToGet]
             return null
         }
@@ -4334,6 +4357,8 @@ export class Tools {
                         ])
                             for (
                                 const delimiter of
+                                // @ts-ignore: Workaround to ensure having an
+                                // array.
                                 [].concat(dateTimeFormat.hasOwnProperty(
                                     'delimiter'
                                 ) ?
@@ -4342,22 +4367,19 @@ export class Tools {
                                 )
                             )
                                 for (let pattern of [].concat(
+                                    // @ts-ignore: Workaround to ensure having
+                                    // an array.
                                     dateTimeFormat.pattern
                                 )) {
                                     pattern = (new Function(
                                         'delimiter', `return \`^${pattern}$\``
                                     ))(`${delimiter}+`)
-                                    const flags:string =
-                                        dateTimeFormat.hasOwnProperty(
-                                            'flags'
-                                        ) ? dateTimeFormat.flags : ''
-                                    const key:string = pattern + flags
                                     if (!patternPresenceCache.hasOwnProperty(
-                                        key
+                                        pattern
                                     )) {
-                                        patternPresenceCache[key] = true
+                                        patternPresenceCache[pattern] = true
                                         Tools._dateTimePatternCache.push(
-                                            new RegExp(pattern, flags))
+                                            new RegExp(pattern))
                                     }
                                 }
             // endregion
@@ -4405,17 +4427,20 @@ export class Tools {
         value = value.trim()
         // endregion
         for (const dateTimePattern of Tools._dateTimePatternCache) {
-            let match:Array<any>|null = null
+            let match:any = null
             try {
                 match = value.match(dateTimePattern)
             } catch (error) {}
             if (match) {
                 const get:Function = (
                     name:string, fallback:number = 0
-                ):number => name in match.groups ?
-                    parseInt(match.groups[name], 10) :
-                    fallback
-                const parameter:Array<number> = [
+                ):number =>
+                    name in match.groups ?
+                        parseInt(match.groups[name], 10) :
+                        fallback
+                const parameter:[
+                    number, number, number, number, number, number, number
+                ] = [
                     get('year', 1970), get('month', 1) - 1, get('day', 1),
                     get('hour'), get('minute'), get('second'),
                     get('millisecond')
@@ -4475,8 +4500,8 @@ export class Tools {
             let restTarget:string = target
             let offset:number = 0
             while (true) {
-                let nearestRange:Array<number>|undefined
-                let currentRange:Array<number>|undefined
+                let nearestRange:Array<number>|null = null
+                let currentRange:Array<number>|null = null
                 for (const word of words) {
                     currentRange = Tools.stringFindNormalizedMatchRange(
                         restTarget, word, normalizer)
@@ -5111,15 +5136,17 @@ export class Tools {
     static async checkReachability(
         url:string,
         wait:boolean = false,
-        expectedStatusCodes:number|Array<number> = 200,
+        givenExpectedStatusCodes:number|Array<number> = 200,
         timeoutInSeconds:number = 10,
         pollIntervallInSeconds:number = 0.1,
         options:PlainObject = {},
-        expectedIntermediateStatusCodes:number|Array<number> = []
+        givenExpectedIntermediateStatusCodes:number|Array<number> = []
     ):Promise<Object> {
-        expectedStatusCodes = [].concat(expectedStatusCodes)
-        expectedIntermediateStatusCodes = [].concat(
-            expectedIntermediateStatusCodes)
+        // @ts-ignore: Workaround to ensure having an array.
+        const expectedStatusCodes:Array<number> = [].concat(givenExpectedStatusCodes)
+        const expectedIntermediateStatusCodes:Array<number> = [].concat(
+            // @ts-ignore: Workaround to ensure having an array.
+            givenExpectedIntermediateStatusCodes)
         const isStatusCodeExpected:Function = (
             response:any, expectedStatusCodes:Array<number>
         ):boolean => Boolean(
@@ -5212,7 +5239,7 @@ export class Tools {
         unexpectedStatusCodes:null|number|Array<number> = null,
         options:PlainObject = {}
     ):Promise<Object> {
-        const check:Function = (response:any):Error => {
+        const check = (response:any):Error|null => {
             if (unexpectedStatusCodes) {
                 unexpectedStatusCodes = [].concat(unexpectedStatusCodes)
                 if (
@@ -5230,6 +5257,7 @@ export class Tools {
                     `${unexpectedStatusCodes.join(', ')}".`
                 )
             }
+            return null
         }
         if (wait)
             return new Promise(async (
@@ -5241,7 +5269,7 @@ export class Tools {
                         const response:Object = await fetch(url, options)
                         if (timedOut)
                             return response
-                        const result:Error = check(response)
+                        const result:Error|null = check(response)
                         if (result) {
                             timer.clear()
                             resolve(result)

@@ -44,6 +44,12 @@ export type Options = {
     domNodeSelectorPrefix:string;
     logging:boolean;
 }
+export type ProxyHandler = {
+    deleteProperty:(target:any, key:any) => boolean;
+    get:(target:any, key:string) => any;
+    has:(target:any, key:string) => boolean;
+    set:(target:any, key:string, value:any) => boolean;
+}
 export type LockCallbackFunction = (description:string) =>
     Promise<any>|undefined
 export type $DomNode = {
