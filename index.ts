@@ -39,6 +39,7 @@ import {
     PlainObject,
     Position,
     ProcessError,
+    ProcessHandler,
     ProxyHandler,
     RelativePosition,
     SetterFunction,
@@ -5812,7 +5813,7 @@ export class Tools {
         reject:Function,
         reason:any = null,
         callback:Function = Tools.noop
-    ):((returnCode:any) => void) {
+    ):ProcessHandler {
         let finished:boolean = false
         return (returnCode:any, ...parameter:Array<any>):void => {
             if (finished)
