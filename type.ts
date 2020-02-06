@@ -39,7 +39,7 @@ export type DomEventCallbackFunction = (event:Event|null) => any
 export type DomIterationCallbackFunction = (index:number, $domNode:Node) =>
     false|undefined
 export type PlainObject = {[key:string]:any}
-export type ProcedureFunction = () => void|Promise<void>
+export type ProcedureFunction = (...parameter:Array<any>) => void|Promise<void>
 export type File = {
     directoryPath:string;
     error:Error|null;
