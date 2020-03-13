@@ -39,7 +39,7 @@ export type DomEventCallbackFunction = (event:Event|null) => any
 export type DomIterationCallbackFunction = (index:number, $domNode:Node) =>
     false|undefined
 export type PlainObject = {
-    [key:string]:PlainObject|number|string|null|undefined
+    [key:string]:boolean|null|number|PlainObject|string|undefined
 }
 export type PlainStringObject = {[key:string]:PlainStringObject|string}
 export type ProcedureFunction = (...parameter:Array<any>) => void|Promise<void>
