@@ -1900,7 +1900,7 @@ export class Tools {
         stackSource:Array<any> = [],
         stackDestination:Array<any> = [],
         recursionLevel:number = 0
-    ):null|T {
+    ):T {
         if (source !== null && typeof source === 'object')
             if (destination) {
                 if (source === destination)
@@ -1908,8 +1908,6 @@ export class Tools {
                         `Can't copy because source and destination are ` +
                         `identical.`
                     )
-                if (recursionLimit !== -1 && recursionLimit < recursionLevel)
-                    return null
                 if (!cyclic && ![undefined, null].includes(source as any)) {
                     const index:number = stackSource.indexOf(source)
                     if (index !== -1)
@@ -1917,13 +1915,24 @@ export class Tools {
                     stackSource.push(source)
                     stackDestination.push(destination)
                 }
-                const copyValue:Function = (value:any):any => {
+                const copyValue:Function = <V>(value:V):null|V => {
+                    if (
+                        recursionLimit !== -1 &&
+                        recursionLimit < recursionLevel + 1
+                    )
+                        return null
                     const result:any = Tools.copy(
-                        value, recursionLimit, cyclic, null, stackSource,
-                        stackDestination, recursionLevel + 1)
+                        value,
+                        recursionLimit,
+                        cyclic,
+                        null,
+                        stackSource,
+                        stackDestination,
+                        recursionLevel + 1
+                    )
                     if (
                         !cyclic &&
-                        ![undefined, null].includes(value) &&
+                        ![undefined, null].includes(value as any) &&
                         typeof value === 'object'
                     ) {
                         stackSource.push(value)
