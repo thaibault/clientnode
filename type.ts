@@ -38,6 +38,7 @@ export interface TimeoutPromise extends Promise<boolean> {
 export type DomEventCallbackFunction = (event:Event|null) => any
 export type DomIterationCallbackFunction = (index:number, $domNode:Node) =>
     false|undefined
+export type Mapping = {[key:string]:string}
 export type Primitive = boolean|null|number|string|undefined
 export type PlainObject = {
     [key:string]:Array<PlainObject|Primitive>|PlainObject|Primitive
