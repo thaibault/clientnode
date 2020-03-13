@@ -1411,8 +1411,10 @@ export class Tools {
                 callable.toString()
         ).replace(/((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg, '')
         if (functionCode.startsWith('class'))
-            return Tools.getParameterNames('function ' + functionCode.replace(
-                /.*(constructor\([^)]+\))/m, '$1'))
+            return Tools.getParameterNames(
+                'function ' +
+                functionCode.replace(/.*(constructor\([^)]+\))/m, '$1')
+            )
         // Try classic function declaration.
         let parameter:Array<string>|null = functionCode.match(
             /^function\s*[^\(]*\(\s*([^\)]*)\)/m)
