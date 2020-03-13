@@ -37,6 +37,7 @@ import {
     LockCallbackFunction,
     Options,
     PlainObject,
+    PlainStringObject,
     Position,
     ProcessError,
     ProcessHandler,
@@ -571,26 +572,30 @@ export class Tools {
      * @returns A boolean value indicating whether given object is numeric
      * like.
      */
-    static isNumeric(object:any):boolean {
+    static isNumeric(object:any):object is number {
         const type:string = Tools.determineType(object)
         /*
             NOTE: "parseFloat" "NaNs" numeric-cast false positives ("") but
             misinterprets leading-number strings, particularly hex literals
             ("0x...") subtraction forces infinities to NaN.
         */
-        return ['number', 'string'].includes(type) && !isNaN(
-            object - parseFloat(object))
+        return (
+            ['number', 'string'].includes(type) &&
+            !isNaN(object - parseFloat(object))
+        )
     }
     /**
      * Determine whether the argument is a window.
      * @param object - Object to check for.
      * @returns Boolean value indicating the result.
      */
-    static isWindow(object:any):boolean {
+    static isWindow(object:any):object is Window {
         return (
             ![undefined, null].includes(object) &&
-            typeof object === 'object' && 'window' in object &&
-            object === object.window)
+            typeof object === 'object' &&
+            'window' in object &&
+            object === object.window
+        )
     }
     /**
      * Checks if given object is similar to an array and can be handled like an
@@ -601,9 +606,7 @@ export class Tools {
     static isArrayLike(object:any):boolean {
         let length:number|boolean
         try {
-            length = Boolean(
-                object
-            ) && 'length' in object && object.length
+            length = Boolean(object) && 'length' in object && object.length
         } catch (error) {
             return false
         }
@@ -643,7 +646,7 @@ export class Tools {
      * @returns Value "true" if given object is a plain javaScript object and
      * "false" otherwise.
      */
-    static isPlainObject(object:any):boolean {
+    static isPlainObject(object:any):object is PlainObject {
         return (
             typeof object === 'object' &&
             object !== null &&
@@ -651,12 +654,28 @@ export class Tools {
         )
     }
     /**
+     * Checks whether given object is a set.
+     * @param object - Object to check.
+     * @returns Value "true" if given object is a set and "false" otherwise.
+     */
+    static isSet(object:any):object is Set<unknown> {
+        return Tools.determineType(object) === 'set'
+    }
+    /**
+     * Checks whether given object is a map.
+     * @param object - Object to check.
+     * @returns Value "true" if given object is a map and "false" otherwise.
+     */
+    static isMap(object:any):object is Map<unknown, unknown> {
+        return Tools.determineType(object) === 'map'
+    }
+    /**
      * Checks whether given object is a function.
      * @param object - Object to check.
      * @returns Value "true" if given object is a function and "false"
      * otherwise.
      */
-    static isFunction(object:any):boolean {
+    static isFunction(object:any):object is Function {
         return (
             Boolean(object) &&
             ['[object AsyncFunction]', '[object Function]'].includes(
@@ -1285,7 +1304,8 @@ export class Tools {
      * selectors.
      */
     grabDomNode(
-        domNodeSelectors:PlainObject, wrapperDomNode:Node|null|$DomNode = null
+        domNodeSelectors:{[key:string]:string},
+        wrapperDomNode:Node|null|$DomNode = null
     ):{[key:string]:$DomNode} {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         const domNodes:{[key:string]:$DomNode} = {}
@@ -1332,9 +1352,9 @@ export class Tools {
      * in given scope.
      * @returns The isolated scope.
      */
-    static isolateScope(
-        scope:{[key:string]:any}, prefixesToIgnore:Array<string> = []
-    ):Object {
+    static isolateScope<T extends Object>(
+        scope:T, prefixesToIgnore:Array<string> = []
+    ):T {
         for (const name in scope)
             if (!(
                 prefixesToIgnore.includes(name.charAt(0)) ||
@@ -1345,7 +1365,7 @@ export class Tools {
                     NOTE: Delete ("delete $scope[name]") doesn't destroy the
                     automatic lookup to parent scope.
                 */
-                scope[name] = undefined
+                (scope[name] as any) = undefined
         return scope
     }
     /**
@@ -1416,7 +1436,7 @@ export class Tools {
      * @param value - A value to return.
      * @returns Returns the given value.
      */
-    static identity(value:any):any {
+    static identity<T>(value:T):T {
         return value
     }
     /**
@@ -1427,7 +1447,9 @@ export class Tools {
     static invertArrayFilter(
         filter:(this:any, data:any, ...additionalParameter:Array<any>) => any
     ):(data:any, ...additionalParameter:Array<any>) => any {
-        return function(this:any, data:any, ...additionalParameter:Array<any>):any {
+        return function(
+            this:any, data:any, ...additionalParameter:Array<any>
+        ):any {
             if (data) {
                 const filteredData:any = filter(data, ...additionalParameter)
                 let result:Array<any> = []
@@ -1635,7 +1657,7 @@ export class Tools {
         object:any,
         getterWrapper:GetterFunction|null = null,
         setterWrapper:null|SetterFunction = null,
-        methodNames:PlainObject = {},
+        methodNames:{[key:string]:string} = {},
         deep:boolean = true,
         typesToExtend:Array<any> = [Object]
     ):any {
@@ -1647,12 +1669,12 @@ export class Tools {
                         value, getterWrapper, setterWrapper, methodNames, deep)
                     index += 1
                 }
-            } else if (Tools.determineType(object) === 'map')
+            } else if (Tools.isMap(object))
                 for (const [key, value] of object)
                     object.set(key, Tools.addDynamicGetterAndSetter(
                         value, getterWrapper, setterWrapper, methodNames, deep)
                     )
-            else if (Tools.determineType(object) === 'set') {
+            else if (Tools.isSet(object)) {
                 const cache:Array<any> = []
                 for (const value of object) {
                     object.delete(value)
@@ -1666,8 +1688,12 @@ export class Tools {
                 for (const key in object)
                     if (object.hasOwnProperty(key))
                         object[key] = Tools.addDynamicGetterAndSetter(
-                            object[key], getterWrapper, setterWrapper,
-                            methodNames, deep)
+                            object[key],
+                            getterWrapper,
+                            setterWrapper,
+                            methodNames,
+                            deep
+                        )
             }
         if (getterWrapper || setterWrapper)
             for (const type of typesToExtend)
@@ -1692,13 +1718,16 @@ export class Tools {
                             if (typeof object[name] === 'function')
                                 return object[name]
                             return getterWrapper(
-                                defaultHandler.get(proxy, name), name, object)
+                                defaultHandler.get(proxy, name), name, object
+                            )
                         }
                     if (setterWrapper)
                         handler.set = (
                             target:any, name:string, value:any
-                        ):any => defaultHandler.set(proxy, name, setterWrapper(
-                            name, value, object))
+                        ):any =>
+                            defaultHandler.set(
+                                proxy, name, setterWrapper(name, value, object)
+                            )
                     const {proxy, revoke} = Proxy.revocable({}, handler)
                     return proxy
                 }
@@ -1714,7 +1743,8 @@ export class Tools {
      * @returns The formatted json string.
      */
     static convertCircularObjectToJSON(
-        object:Object, determineCicularReferenceValue:((
+        object:Object,
+        determineCicularReferenceValue:((
             key:string, value:any, seenObjects:Array<any>
         ) => any) = ():string => '__circularReference__',
         numberOfSpaces:number = 0
@@ -1744,12 +1774,13 @@ export class Tools {
      */
     static convertMapToPlainObject(object:any, deep:boolean = true):any {
         if (typeof object === 'object') {
-            if (Tools.determineType(object) === 'map') {
-                const newObject:PlainObject = {}
+            if (Tools.isMap(object)) {
+                const newObject:{[key:string]:any} = {}
                 for (let [key, value] of object) {
                     if (deep)
                         value = Tools.convertMapToPlainObject(value, deep)
-                    newObject[`${key}`] = value
+                    if (['number', 'string'].includes(typeof key))
+                        newObject[`${key}`] = value
                 }
                 return newObject
             }
@@ -1766,7 +1797,7 @@ export class Tools {
                             value, deep)
                         index += 1
                     }
-                } else if (Tools.determineType(object) === 'set') {
+                } else if (Tools.isSet(object)) {
                     const cache:Array<any> = []
                     for (const value of object) {
                         object.delete(value)
@@ -1788,7 +1819,7 @@ export class Tools {
     static convertPlainObjectToMap(object:any, deep:boolean = true):any {
         if (typeof object === 'object') {
             if (Tools.isPlainObject(object)) {
-                const newObject:Map<any, any> = new Map()
+                const newObject:Map<number|string, any> = new Map()
                 for (const key in object)
                     if (object.hasOwnProperty(key)) {
                         if (deep)
@@ -1806,12 +1837,12 @@ export class Tools {
                             value, deep)
                         index += 1
                     }
-                } else if (Tools.determineType(object) === 'map')
+                } else if (Tools.isMap(object))
                     for (const [key, value] of object)
                         object.set(
                             key, Tools.convertPlainObjectToMap(value, deep)
                         )
-                else if (Tools.determineType(object) === 'set') {
+                else if (Tools.isSet(object)) {
                     const cache:Array<any> = []
                     for (const value of object) {
                         object.delete(value)
@@ -1831,16 +1862,18 @@ export class Tools {
      * @param replacement - String to use as replacement for found patterns.
      * @returns Converted object with replaced patterns.
      */
-    static convertSubstringInPlainObject(
-        object:PlainObject, pattern:RegExp|string, replacement:string
-    ):PlainObject {
+    static convertSubstringInPlainObject<T extends Object>(
+        object:T, pattern:RegExp|string, replacement:string
+    ):T {
         for (const key in object)
             if (object.hasOwnProperty(key))
                 if (Tools.isPlainObject(object[key]))
                     object[key] = Tools.convertSubstringInPlainObject(
                         object[key], pattern, replacement)
                 else if (typeof object[key] === 'string')
-                    object[key] = object[key].replace(pattern, replacement)
+                    (object[key] as unknown as string) =
+                        (object[key] as unknown as string).replace(
+                            pattern, replacement)
         return object
     }
     /**
@@ -1859,16 +1892,16 @@ export class Tools {
      * level in given source data structure.
      * @returns Value "true" if both objects are equal and "false" otherwise.
      */
-    static copy(
-        source:any,
+    static copy<T>(
+        source:T,
         recursionLimit:number = -1,
         cyclic:boolean = false,
-        destination:any = null,
+        destination:null|T = null,
         stackSource:Array<any> = [],
         stackDestination:Array<any> = [],
         recursionLevel:number = 0
-    ):any {
-        if (typeof source === 'object')
+    ):null|T {
+        if (source !== null && typeof source === 'object')
             if (destination) {
                 if (source === destination)
                     throw new Error(
@@ -1877,7 +1910,7 @@ export class Tools {
                     )
                 if (recursionLimit !== -1 && recursionLimit < recursionLevel)
                     return null
-                if (!cyclic && ![undefined, null].includes(source)) {
+                if (!cyclic && ![undefined, null].includes(source as any)) {
                     const index:number = stackSource.indexOf(source)
                     if (index !== -1)
                         return stackDestination[index]
@@ -1900,16 +1933,22 @@ export class Tools {
                 }
                 if (Array.isArray(source))
                     for (const item of source)
-                        destination.push(copyValue(item))
-                else if (Tools.determineType(source) === 'map')
+                        (destination as unknown as Array<any>).push(
+                            copyValue(item)
+                        )
+                else if (source instanceof Map)
                     for (const [key, value] of source)
-                        destination.set(key, copyValue(value))
-                else if (Tools.determineType(source) === 'set')
+                        (destination as unknown as Map<any, any>).set(
+                            key, copyValue(value)
+                        )
+                else if (source instanceof Set)
                     for (const value of source)
-                        destination.add(copyValue(value))
-                else if (source !== null && 'hasOwnProperty' in source)
+                        (destination as unknown as Set<any>).add(
+                            copyValue(value)
+                        )
+                else
                     for (const key in source)
-                        if (source.hasOwnProperty(key))
+                        if ((source as Object).hasOwnProperty(key))
                             destination[key] = copyValue(source[key])
             } else if (source) {
                 if (Array.isArray(source))
@@ -1917,44 +1956,48 @@ export class Tools {
                         source,
                         recursionLimit,
                         cyclic,
-                        [],
+                        ([] as unknown as T),
                         stackSource,
                         stackDestination,
                         recursionLevel
                     )
-                if (Tools.determineType(source) === 'map')
+                if (source instanceof Map)
                     return Tools.copy(
                         source,
                         recursionLimit,
                         cyclic,
-                        new Map(),
+                        (new Map() as unknown as T),
                         stackSource,
                         stackDestination,
                         recursionLevel
                     )
-                if (Tools.determineType(source) === 'set')
+                if (source instanceof Set)
                     return Tools.copy(
                         source,
                         recursionLimit,
                         cyclic,
-                        new Set(),
+                        (new Set() as unknown as T),
                         stackSource,
                         stackDestination,
                         recursionLevel
                     )
-                if (Tools.determineType(source) === 'date')
-                    return new Date(source.getTime())
-                if (Tools.determineType(source) === 'regexp') {
+                if (source instanceof Date)
+                    return new Date(source.getTime()) as unknown as T
+                if (source instanceof RegExp) {
+                    const modifier =
+                        (source as RegExp).toString().match(/[^\/]*$/)
                     destination = new RegExp(
-                        source.source, source.toString().match(/[^\/]*$/)[0])
-                    destination.lastIndex = source.lastIndex
+                        source.source,
+                        modifier ? modifier[0] : undefined
+                    ) as unknown as T
+                    (destination as unknown as RegExp).lastIndex = source.lastIndex
                     return destination
                 }
                 return Tools.copy(
                     source,
                     recursionLimit,
                     cyclic,
-                    {},
+                    ({} as unknown as T),
                     stackSource,
                     stackDestination,
                     recursionLevel
@@ -2040,8 +2083,10 @@ export class Tools {
         )
             return true
         if (
-            compareBlobs && typeof Blob !== 'undefined' &&
-            firstValue instanceof Blob && secondValue instanceof Blob
+            compareBlobs &&
+            typeof Blob !== 'undefined' &&
+            firstValue instanceof Blob &&
+            secondValue instanceof Blob
         )
             return new Promise((resolve:Function):void => {
                 const values:Array<ArrayBuffer|null|string> = []
@@ -2069,10 +2114,9 @@ export class Tools {
             firstValue.length === secondValue.length ||
             (
                 (
-                    Tools.determineType(firstValue) === 'map' &&
-                    Tools.determineType(secondValue) === 'map' ||
-                    Tools.determineType(firstValue) === 'set' &&
-                    Tools.determineType(secondValue) === 'set'
+                    Tools.determineType(firstValue) ===
+                        Tools.determineType(secondValue) &&
+                    ['map', 'set'].includes(Tools.determineType(firstValue))
                 ) &&
                 firstValue.size === secondValue.size
             )
@@ -2088,22 +2132,16 @@ export class Tools {
                     (!Array.isArray(second) || first.length !== second.length)
                 )
                     return false
-                const firstIsMap:boolean = Tools.determineType(first) === 'map'
+                const firstIsMap:boolean = Tools.isMap(first)
                 if (
                     firstIsMap &&
-                    (
-                        Tools.determineType(second) !== 'map' ||
-                        first.size !== second.size
-                    )
+                    (!Tools.isMap(second) || first.size !== second.size)
                 )
                     return false
-                const firstIsSet:boolean = Tools.determineType(first) === 'set'
+                const firstIsSet:boolean = Tools.isSet(first)
                 if (
                     firstIsSet &&
-                    (
-                        Tools.determineType(second) !== 'set' ||
-                        first.size !== second.size
-                    )
+                    (!Tools.isSet(second) || first.size !== second.size)
                 )
                     return false
                 if (firstIsArray) {
@@ -2175,9 +2213,10 @@ export class Tools {
                             if (subPromises.length)
                                 promises.push(new Promise(async (
                                     resolve:Function
-                                ):Promise<void> => resolve((await Promise.all(
-                                    subPromises
-                                )).some(Tools.identity))))
+                                ):Promise<void> => resolve(
+                                    (await Promise.all(subPromises))
+                                        .some(Tools.identity)
+                                )))
                             else if (!equal)
                                 return false
                         }
@@ -2435,15 +2474,16 @@ export class Tools {
             if (value === targetValue)
                 return targetValue
             // Recurse if we're merging plain objects or maps.
-            if (deep && value && (Tools.isPlainObject(
-                value
-            ) || Tools.determineType(value) === 'map')) {
+            if (
+                deep &&
+                value &&
+                (Tools.isPlainObject(value) || Tools.isMap(value))
+            ) {
                 let clone:any
-                if (Tools.determineType(value) === 'map')
-                    clone = (
-                        targetValue &&
-                        Tools.determineType(targetValue) === 'map'
-                    ) ? targetValue : new Map()
+                if (Tools.isMap(value))
+                    clone = (targetValue && Tools.isMap(targetValue)) ?
+                        targetValue :
+                        new Map()
                 else
                     clone = (
                         targetValue &&
@@ -2457,15 +2497,12 @@ export class Tools {
             const source:any = targetAndOrSources[index]
             let targetType:string = typeof target
             let sourceType:string = typeof source
-            if (Tools.determineType(target) === 'map')
+            if (Tools.isMap(target))
                 targetType += ' Map'
-            if (Tools.determineType(source) === 'map')
+            if (Tools.isMap(source))
                 sourceType += ' Map'
             if (targetType === sourceType && target !== source)
-                if (
-                    Tools.determineType(target) === 'map' &&
-                    Tools.determineType(source) === 'map'
-                )
+                if (Tools.isMap(target) && Tools.isMap(source))
                     for (const [key, value] of source)
                         target.set(key, mergeValue(target.get(key), value))
                 else if (
@@ -2598,10 +2635,7 @@ export class Tools {
         parentKey:any = null
     ):any {
         /* eslint-disable curly */
-        if (
-            Tools.determineType(source) === 'map' &&
-            Tools.determineType(target) === 'map'
-        ) {
+        if (Tools.isMap(source) && Tools.isMap(target)) {
             for (const [key, value] of source)
                 if (target.has(key))
                     Tools.modifyObject(
@@ -2727,7 +2761,7 @@ export class Tools {
      * @param keys - List of keys to remove.
      * @returns Processed given object.
      */
-    static removeKeys(object:any, keys:Array<string>|string = '#'):any {
+    static removeKeys<T>(object:T, keys:Array<string>|string = '#'):T {
         // @ts-ignore: Workaround to ensure having an array.
         const resolvedKeys:Array<string> = [].concat(keys)
         if (Array.isArray(object)) {
@@ -2747,7 +2781,7 @@ export class Tools {
                 object[index] = Tools.removeKeys(subObject, resolvedKeys)
                 index += 1
             }
-        } else if (Tools.determineType(object) === 'set')
+        } else if (Tools.isSet(object))
             for (const subObject of new Set(object)) {
                 let skip:boolean = false
                 if (typeof subObject === 'string') {
@@ -2762,7 +2796,7 @@ export class Tools {
                 }
                 Tools.removeKeys(subObject, resolvedKeys)
             }
-        else if (Tools.determineType(object) === 'map')
+        else if (Tools.isMap(object))
             for (const [key, subObject] of new Map(object)) {
                 let skip:boolean = false
                 if (typeof key === 'string') {
@@ -2782,7 +2816,7 @@ export class Tools {
             }
         else if (object !== null && typeof object === 'object')
             for (const key in Object.assign({}, object))
-                if (object.hasOwnProperty(key)) {
+                if ((object as Object).hasOwnProperty(key)) {
                     let skip:boolean = false
                     for (const resolvedKey of resolvedKeys) {
                         const escapedKey:string =
@@ -2850,7 +2884,7 @@ export class Tools {
             result += ']'
             return result
         }
-        if (Tools.determineType(object) === 'map') {
+        if (Tools.isMap(object)) {
             let result:string = ''
             let firstSeen:boolean = false
             for (const [key, item] of object) {
@@ -2878,7 +2912,7 @@ export class Tools {
                 result = 'EmptyMap'
             return result
         }
-        if (Tools.determineType(object) === 'set') {
+        if (Tools.isSet(object)) {
             let result:string = '{'
             let firstSeen:boolean = false
             for (const item of object) {
@@ -2933,7 +2967,7 @@ export class Tools {
             for (let index:number = 0; index < object.length; index++)
                 keys.push(index)
         else if (typeof object === 'object')
-            if (Tools.determineType(object) === 'map')
+            if (Tools.isMap(object))
                 for (const keyValuePair of object)
                     keys.push(keyValuePair[0])
             else if (object !== null)
@@ -2969,10 +3003,10 @@ export class Tools {
                     object[index] = Tools.unwrapProxy(value, seenObjects)
                     index += 1
                 }
-            } else if (Tools.determineType(object) === 'map')
+            } else if (Tools.isMap(object))
                 for (const [key, value] of object)
                     object.set(key, Tools.unwrapProxy(value, seenObjects))
-            else if (Tools.determineType(object) === 'set') {
+            else if (Tools.isSet(object)) {
                 const cache:Array<any> = []
                 for (const value of object) {
                     object.delete(value)
@@ -3101,9 +3135,11 @@ export class Tools {
             for (const item of Tools.arrayMake(data)) {
                 let exists:boolean = false
                 for (const key in item)
-                    if (key === propertyName && item.hasOwnProperty(key) && ![
-                        undefined, null
-                    ].includes(item[key])) {
+                    if (
+                        key === propertyName &&
+                        item.hasOwnProperty(key) &&
+                        ![null, undefined].includes(item[key])
+                    ) {
                         exists = true
                         break
                     }
@@ -3129,16 +3165,16 @@ export class Tools {
             for (const item of Tools.arrayMake(data)) {
                 let matches:boolean = true
                 for (const propertyName in propertyPattern)
-                    if (
-                        !(
-                            propertyPattern[propertyName] &&
-                            (
-                                (typeof propertyPattern[propertyName] ===
-                                    'string'
-                                ) ?
-                                    new RegExp(propertyPattern[propertyName]) :
-                                    propertyPattern[propertyName] as RegExp
-                            ).test(item[propertyName]))) {
+                    if (!(
+                        propertyPattern[propertyName] &&
+                        (
+                            (typeof propertyPattern[propertyName] ===
+                                'string'
+                            ) ?
+                                new RegExp(propertyPattern[propertyName]) :
+                                propertyPattern[propertyName] as RegExp
+                        ).test(item[propertyName])
+                    )) {
                         matches = false
                         break
                     }
@@ -3427,7 +3463,7 @@ export class Tools {
      * doesn't exists given list.
      * @returns Item with the appended target.
      */
-    static arrayRemove(list:any, target:any, strict:boolean = false):any {
+    static arrayRemove<T>(list:T, target:any, strict:boolean = false):T {
         if (Array.isArray(list)) {
             const index:number = list.indexOf(target)
             if (index === -1) {
@@ -5098,15 +5134,18 @@ export class Tools {
     ):number {
         const date:Date =
             [undefined, null].includes(value) ? new Date() : new Date(value)
-        return Date.UTC(
-            date.getUTCFullYear(),
-            date.getUTCMonth(),
-            date.getUTCDate(),
-            date.getUTCHours(),
-            date.getUTCMinutes(),
-            date.getUTCSeconds(),
-            date.getUTCMilliseconds()
-        ) / (inMilliseconds ? 1 : 1000)
+        return (
+            Date.UTC(
+                date.getUTCFullYear(),
+                date.getUTCMonth(),
+                date.getUTCDate(),
+                date.getUTCHours(),
+                date.getUTCMinutes(),
+                date.getUTCSeconds(),
+                date.getUTCMilliseconds()
+            ) /
+            (inMilliseconds ? 1 : 1000)
+        )
     }
     /**
      * Checks if given object is java scripts native "Number.NaN" object.
@@ -5851,7 +5890,7 @@ export class Tools {
         })
         return childProcess
     }
-    // endregion
+    // / endregion
     // endregion
     // region protected methods
     /* eslint-disable jsdoc/require-description-complete-sentence */
