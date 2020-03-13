@@ -38,8 +38,10 @@ export interface TimeoutPromise extends Promise<boolean> {
 export type DomEventCallbackFunction = (event:Event|null) => any
 export type DomIterationCallbackFunction = (index:number, $domNode:Node) =>
     false|undefined
+export type Mapping = {[key:string]:string}
+export type Primitive = boolean|null|number|string|undefined
 export type PlainObject = {
-    [key:string]:PlainObject|number|string|null|undefined
+    [key:string]:Array<PlainObject|Primitive>|PlainObject|Primitive
 }
 export type PlainStringObject = {[key:string]:PlainStringObject|string}
 export type ProcedureFunction = (...parameter:Array<any>) => void|Promise<void>
