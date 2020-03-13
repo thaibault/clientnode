@@ -38,7 +38,10 @@ export interface TimeoutPromise extends Promise<boolean> {
 export type DomEventCallbackFunction = (event:Event|null) => any
 export type DomIterationCallbackFunction = (index:number, $domNode:Node) =>
     false|undefined
-export type PlainObject = {[key:string]:any}
+export type PlainObject = {
+    [key:string]:PlainObject|number|string|null|undefined
+}
+export type PlainStringObject = {[key:string]:PlainStringObject|string}
 export type ProcedureFunction = (...parameter:Array<any>) => void|Promise<void>
 export type File = {
     directoryPath:string;
