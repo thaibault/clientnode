@@ -39,7 +39,7 @@
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "lint": "webOptimizer lint",
-    "prepare": "if ! yarn build; then echo You should rerun install procedure to resolve dependency cycle. && yarn buildAlternatively; fi",
+    "prepare": "if ! yarn build; then echo You should rerun install procedure to resolve dependency cycle. && yarn build:alternatively; fi",
     "report:coverage": "nyc report --reporter=text-lcov | coveralls",
     "serve": "webOptimizer serve",
     "start": "yarn serve",
