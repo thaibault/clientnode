@@ -24,14 +24,14 @@
     "index.ts",
     "type.ts"
   ],
-  "main": "index.compiled.js",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/thaibault/clientNode"
   },
   "scripts": {
     "build": "webOptimizer build",
-    "build:alternatively": "babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/env,@babel/preset-typescript --source-maps inline --out-file index.compiled.js index.ts",
+    "build:alternatively": "babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/env,@babel/preset-typescript --source-maps inline --out-file index.js index.ts",
     "build:export": "webOptimizer build '{__reference__: \"target:export\"}'",
     "build:export:compatible": "webOptimizer build '{__reference__: [\"target:export\", \"target:compatible\"]}'",
     "check": "yarn check:types; yarn lint",
@@ -102,7 +102,7 @@
           "module": {
             "#": "For Task \"test\", this module would produce this error \"ERROR in ./test.ts Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: clientNode/test.ts: Cannot read property 'end' of null\".",
             "evaluate": false,
-            "#0": "For external task \"clear\", this module would produce this error \"UnhandledPromiseRejectionWarning: TypeError: Cannot create property 'next' on string '.dynamicConfiguration-0.json' at Function.<anonymous> (clientNode/index.compiled.js:1:80221)\".",
+            "#0": "For external task \"clear\", this module would produce this error \"UnhandledPromiseRejectionWarning: TypeError: Cannot create property 'next' on string '.dynamicConfiguration-0.json' at Function.<anonymous> (clientNode/index.js:1:80221)\".",
             "mangle": false,
             "#1": "To provide a generic logging mechanism we need this feature to be exported.",
             "removeConsole": false
