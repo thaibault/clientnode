@@ -2940,9 +2940,9 @@ cli-width@^2.0.0:
   integrity sha1-/xnt6Kml5XkyQUewwR8PvLq+1jk=
 
 clientnode@*:
-  version "3.0.392"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.392.tgz#6be319072b0da921c31ec4099f845aa59d36836c"
-  integrity sha512-VZI6OXNUsJ+WA+fMO3usz67kdxvjUtEpwL2lwL2lDukNe516TmeSSdjSTF/cfs+rO1mL6SOOoCzibUiAXUOcFQ==
+  version "3.0.393"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.393.tgz#c596f42640fe7152fae419d134ef783755610734"
+  integrity sha512-WlhZ+Dw2ZXnxM6WL46/+w5awgpfTN9IZ1LYB9wQFgRSun02TDFHGWpi8prXH5mzKdoevNGkqUm3kj+vnAnfe6w==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -5392,9 +5392,9 @@ istanbul-lib-source-maps@^4.0.0:
     source-map "^0.6.1"
 
 istanbul-reports@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/istanbul-reports/-/istanbul-reports-3.0.0.tgz#d4d16d035db99581b6194e119bbf36c963c5eb70"
-  integrity sha512-2osTcC8zcOSUkImzN2EWQta3Vdi4WjjKw99P2yWx5mLnigAM0Rd5uYFn1cf2i/Ois45GkNjaoTqc5CxgMSX80A==
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/istanbul-reports/-/istanbul-reports-3.0.1.tgz#1343217244ad637e0c3b18e7f6b746941a9b5e9a"
+  integrity sha512-Vm9xwCiQ8t2cNNnckyeAV0UdxKpcQUz4nMxsBvIu8n2kmPSiyb5uaF/8LpmKr+yqL/MdOXaX2Nmdo4Qyxium9Q==
   dependencies:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
@@ -9015,9 +9015,9 @@ webidl-conversions@^5.0.0:
   integrity sha512-VlZwKPCkYKxQgeSbH5EyngOmRp7Ww7I9rQLERETtf5ofd9pGeswWiOtogpEO850jziPRarreGxn5QIiTqpb2wA==
 
 weboptimizer@*:
-  version "2.0.597"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.597.tgz#05fd65ef604d5212fa2e917f1b1b8cac94b127d1"
-  integrity sha512-6Ps7sQJGHLs4NbImnX7zwdfdX9x7eH3/I/ASYjtlBdkJGZIKlut8KyW3gltFh5tezb7/u9mXsmzh4+wyFar59A==
+  version "2.0.599"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.599.tgz#ae957da3ed67226b31b55473b5ca7933185b8d9e"
+  integrity sha512-XoAU5Y7W+ibikhbOxZ3R2mdn+hNkog5zs/sb6QHmN+RPVwxoeOs9EHpfRbz+BzHk4nZckVUhXU898AslMs8A3Q==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
@@ -9369,9 +9369,9 @@ yargs-parser@^13.1.0:
     decamelize "^1.2.0"
 
 yargs-parser@^18.1.1:
-  version "18.1.1"
-  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-18.1.1.tgz#bf7407b915427fc760fcbbccc6c82b4f0ffcbd37"
-  integrity sha512-KRHEsOM16IX7XuLnMOqImcPNbLVXMNHYAoFc3BKR8Ortl5gzDbtXvvEoGx9imk5E+X1VeNKNlcHr8B8vi+7ipA==
+  version "18.1.2"
+  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-18.1.2.tgz#2f482bea2136dbde0861683abea7756d30b504f1"
+  integrity sha512-hlIPNR3IzC1YuL1c2UwwDKpXlNFBqD1Fswwh1khz5+d8Cq/8yc/Mn0i+rQXduu8hcrFKvO7Eryk+09NecTQAAQ==
   dependencies:
     camelcase "^5.0.0"
     decamelize "^1.2.0"
