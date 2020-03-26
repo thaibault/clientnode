@@ -48,7 +48,16 @@ import {
     $DomNode
 } from './type'
 // endregion
-declare var global:any
+export const ConsoleOutputMethods = [
+    'assert',
+    'dir',
+    'info',
+    'log',
+    'time',
+    'timeEnd',
+    'trace',
+    'warn'
+] as const
 // region determine context
 export const globalContext:any = (():Object => {
     if (typeof window === 'undefined') {

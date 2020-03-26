@@ -35,16 +35,6 @@ export interface TimeoutPromise extends Promise<boolean> {
     timeoutID:number;
 }
 // / endregion
-export const ConsoleOutputMethods = [
-    'assert',
-    'dir',
-    'info',
-    'log',
-    'time',
-    'timeEnd',
-    'trace',
-    'warn'
-] as const
 export type DomEventCallbackFunction = (event:Event|null) => any
 export type DomIterationCallbackFunction = (index:number, $domNode:Node) =>
     false|undefined
