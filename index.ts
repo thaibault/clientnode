@@ -59,20 +59,23 @@ export const ConsoleOutputMethods = [
     'warn'
 ] as const
 // region determine context
-export const globalContext:any = (():Object => {
+export type $Function = (parameter:any, ...additionalArguments:Array<any>) =>
+    any
+export type $Window = Window & {$:$Function}
+export const globalContext:$Window = (():$Window => {
     if (typeof window === 'undefined') {
         if (typeof global === 'undefined')
-            return (typeof module === 'undefined') ? {} : module
+            return ((typeof module === 'undefined') ? {} : module) as $Window
         if ('window' in global)
-            return global.window
-        return global
+            return (global as Window).window as unknown as $Window
+        return global as unknown as $Window
     }
-    return window
+    return window as unknown as $Window
 })()
 /* eslint-disable no-use-before-define */
-export const $:any = (():any => {
+export const $:$Function = (():$Function => {
 /* eslint-enable no-use-before-define */
-    let $:any
+    let $:$Function
     if ('$' in globalContext && globalContext.$ !== null)
         $ = globalContext.$
     else {
