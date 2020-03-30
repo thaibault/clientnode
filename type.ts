@@ -26,6 +26,16 @@ export interface $DomNode extends JQuery {
     Tools(functionName:string, ...additionalArguments:Array<any>):any;
     [key:number]:any;
 }
+export type $Function =
+    ((parameter:any, ...additionalArguments:Array<any>) => any) &
+    {
+        context?:Document;
+        fn:{[key:string]:Function};
+        global:$Window;
+        noop?:(...parameter:Array<any>) => any;
+    }
+export type $Window = Window & {$:$Function}
+export type Noop = (...parameter:Array<any>) => any
 export interface ProcessError extends Error {
     parameter:Array<any>;
     returnCode:number;

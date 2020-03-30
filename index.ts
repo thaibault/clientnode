@@ -35,6 +35,7 @@ import {
     File,
     GetterFunction,
     LockCallbackFunction,
+    Noop,
     Options,
     PlainObject,
     PlainStringObject,
@@ -45,7 +46,9 @@ import {
     RelativePosition,
     SetterFunction,
     TimeoutPromise,
-    $DomNode
+    $DomNode,
+    $Function,
+    $Window
 } from './type'
 // endregion
 export const ConsoleOutputMethods = [
@@ -59,9 +62,6 @@ export const ConsoleOutputMethods = [
     'warn'
 ] as const
 // region determine context
-export type $Function = (parameter:any, ...additionalArguments:Array<any>) =>
-    any
-export type $Window = Window & {$:$Function}
 export const globalContext:$Window = (():$Window => {
     if (typeof window === 'undefined') {
         if (typeof global === 'undefined')
@@ -88,8 +88,9 @@ export const $:$Function = (():$Function => {
             'querySelectorAll' in globalContext.document
         ) ?
             globalContext.document.querySelectorAll.bind(
-                globalContext.document
-            ) : ():null => null
+                globalContext.document) :
+            ():null => null
+        // @ts-ignore: Object will be extended in next statement.
         $ = (parameter:any, ...additionalArguments:Array<any>):any => {
             if (typeof parameter === 'string') {
                 const $domNodes:any = selector(
@@ -113,7 +114,7 @@ export const $:$Function = (():$Function => {
 })()
 if (!('global' in $))
     $.global = globalContext
-if (!('context' in $) && 'document' in $.global)
+if (!('context' in $) && 'document' in $.global && $.global.document)
     $.context = $.global.document
 // endregion
 // region plugins/classes
@@ -302,10 +303,7 @@ export class Tools {
             NOTE: This method uses "Array.indexOf" instead of "Array.includes"
             since this function could be crucial in wide browser support.
         */
-        if (
-            !('document' in $.global) ||
-            [null, undefined].indexOf($.global.document) !== -1
-        )
+        if (!('document' in $.global && $.global.document))
             return 0
         const div = $.global.document.createElement('div')
         let version:number
@@ -336,9 +334,7 @@ export class Tools {
                 return 11
         return version
     })()
-    static noop:(...parameter:Array<any>) => any = ('noop' in $) ?
-        $.noop :
-        ():void => {}
+    static noop:Noop = ('noop' in $) ? $.noop as Noop: ():void => {}
     static plainObjectPrototypes:Array<any> = [Object.prototype]
     static specialRegexSequences:Array<string> = [
         '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}']
