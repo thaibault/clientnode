@@ -51,15 +51,11 @@ import {
     $Window
 } from './type'
 // endregion
+export const CloseEventNames = [
+    'close', 'exit', 'SIGINT', 'SIGTERM', 'SIGQUIT', 'uncaughtException'
+] as const
 export const ConsoleOutputMethods = [
-    'assert',
-    'dir',
-    'info',
-    'log',
-    'time',
-    'timeEnd',
-    'trace',
-    'warn'
+    'debug', 'error', 'info', 'log', 'warn'
 ] as const
 // region determine context
 export const globalContext:$Window = (():$Window => {
@@ -177,10 +173,6 @@ export class Semaphore {
  * browser specific animation end event names.
  * @property static:classToTypeMapping - String representation to object type
  * name mapping.
- * @property static:closeEventNames - Process event names which indicates that
- * a process has finished.
- * @property static:consoleMethodNames - This variable contains a collection of
- * methods usually binded to the console object.
  * @property static:keyCode - Saves a mapping from key codes to their
  * corresponding name.
  * @property static:maximalSupportedInternetExplorerVersion - Saves currently
@@ -236,32 +228,6 @@ export class Tools {
         '[object Set]': 'set',
         '[object String]': 'string'
     }
-    static closeEventNames:Array<string> = [
-        'exit', 'close', 'uncaughtException', 'SIGINT', 'SIGTERM', 'SIGQUIT']
-    static consoleMethodNames:Array<string> = [
-        'assert',
-        'clear',
-        'count',
-        'debug',
-        'dir',
-        'dirxml',
-        'error',
-        'exception',
-        'group',
-        'groupCollapsed',
-        'groupEnd',
-        'info',
-        'log',
-        'markTimeline',
-        'profile',
-        'profileEnd',
-        'table',
-        'time',
-        'timeEnd',
-        'timeStamp',
-        'trace',
-        'warn'
-    ]
     static keyCode:{[key:string]:number} = {
         BACKSPACE: 8,
         COMMA: 188,
@@ -346,7 +312,7 @@ export class Tools {
     static _name:string = 'tools'
     // endregion
     // region dynamic properties
-    $domNode:null|$DomNode = null
+    $domNode:null|$DomNode<HTMLElement> = null
     locks:{[key:string]:Array<LockCallbackFunction>}
     self:typeof Tools
     _options:Options
@@ -373,7 +339,7 @@ export class Tools {
      * class will be given back.
      */
     constructor(
-        $domNode?:$DomNode,
+        $domNode?:$DomNode<HTMLElement>,
         options?:Options,
         defaultOptions:Options = {
             domNode: {
@@ -395,11 +361,11 @@ export class Tools {
         this.locks = locks
         // Avoid errors in browsers that lack a console.
         if (!('console' in $.global))
-            $.global.console = {}
+            ($.global as {console:Object}).console = {}
         this.self = this.constructor as typeof Tools
-        for (const methodName of this.self.consoleMethodNames)
+        for (const methodName in Console)
             if (!(methodName in $.global.console))
-                $.global.console[methodName] = this.self.noop
+                $.global.console[methodName as keyof Console] = this.self.noop
         if (
             !this.self._javaScriptDependentContentHandled &&
             'document' in $.global &&
@@ -412,8 +378,9 @@ export class Tools {
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNode.hideJavaScriptEnabled
             )
-                .filter((index:number, $domNode:$DomNode):boolean =>
-                    !$domNode.data('javaScriptDependentContentHide')
+                .filter(
+                    (index:number, $domNode:$DomNode<HTMLElement>):boolean =>
+                        !$domNode.data('javaScriptDependentContentHide')
                 )
                 .data('javaScriptDependentContentHide', true)
                 .hide()
@@ -421,8 +388,9 @@ export class Tools {
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNode.showJavaScriptEnabled
             )
-                .filter((index:number, $domNode:$DomNode):boolean =>
-                    !$domNode.data('javaScriptDependentContentShow')
+                .filter(
+                    (index:number, $domNode:$DomNode<HTMLElement>):boolean =>
+                        !$domNode.data('javaScriptDependentContentShow')
                 )
                 .data('javaScriptDependentContentShow', true)
                 .show()
@@ -472,7 +440,9 @@ export class Tools {
      * @returns Returns whatever the initializer method returns.
      */
     controller(
-        object:any, parameter:Array<any>, $domNode:null|$DomNode = null
+        object:any,
+        parameter:Array<any>,
+        $domNode:null|$DomNode<HTMLElement> = null
     ):any {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
@@ -739,7 +709,7 @@ export class Tools {
         object:any,
         force:boolean = false,
         avoidAnnotation:boolean = false,
-        level:string = 'info',
+        level:keyof Console = 'info',
         ...additionalArguments:Array<any>
     ):Tools {
         if (
@@ -947,8 +917,8 @@ export class Tools {
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, domNode:Node):any => {
-                    const $domNode:$DomNode = $(domNode)
+                .each((index:number, domNode:HTMLElement):any => {
+                    const $domNode:$DomNode<HTMLElement> = $(domNode)
                     const classValue:string|undefined = $domNode.attr(
                         className)
                     if (classValue)
@@ -972,8 +942,8 @@ export class Tools {
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, domNode:Node):any => {
-                    const $domNode:$DomNode = $(domNode)
+                .each((index:number, domNode:HTMLElement):any => {
+                    const $domNode:$DomNode<HTMLElement> = $(domNode)
                     const serializedStyles:string|undefined = $domNode.attr(
                         styleName)
                     if (serializedStyles)
@@ -1005,7 +975,7 @@ export class Tools {
      */
     get style():PlainObject {
         const result:PlainObject = {}
-        const $domNode:null|$DomNode = this.$domNode
+        const $domNode:null|$DomNode<HTMLElement> = this.$domNode
         if ($domNode && $domNode.length) {
             let styleProperties:any
             if ('window' in $.global && $.global.window.getComputedStyle) {
@@ -1035,6 +1005,7 @@ export class Tools {
                     return result
                 }
             }
+            // @ts-ignore: Non-Standard to support old internet explorer.
             styleProperties = $domNode[0].currentStyle
             if (styleProperties) {
                 for (const propertyName in styleProperties)
@@ -1077,7 +1048,7 @@ export class Tools {
             const detemermineHTMLPattern:RegExp =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
             const inputs:{[key:string]:any} = {first, second}
-            const $domNodes:{[key:string]:$DomNode} = {
+            const $domNodes:{[key:string]:$DomNode<HTMLElement>} = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
             /*
@@ -1101,7 +1072,8 @@ export class Tools {
                     $domNodes[type] = $(`<div>${inputs[type]}</div>`)
                 else
                     try {
-                        const $copiedDomNode:$DomNode = $(inputs[type]).clone()
+                        const $copiedDomNode:$DomNode<HTMLElement> =
+                            $(inputs[type]).clone()
                         if ($copiedDomNode.length)
                             $domNodes[type] = $('<div>').append($copiedDomNode)
                         else
@@ -1153,7 +1125,7 @@ export class Tools {
     ):RelativePosition {
         const delta:Position = this.self.extend(
             {bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
-        const $domNode:null|$DomNode = this.$domNode
+        const $domNode:null|$DomNode<HTMLElement> = this.$domNode
         if (
             'window' in $.global &&
             $domNode &&
@@ -1161,7 +1133,7 @@ export class Tools {
             $domNode[0] &&
             'getBoundingClientRect' in $domNode[0]
         ) {
-            const $window:$DomNode = $($.global.window)
+            const $window:$DomNode<Window> = $($.global.window)
             const rectangle:Position = $domNode[0].getBoundingClientRect()
             if (rectangle) {
                 if (rectangle.top && (rectangle.top + delta.top) < 0)
@@ -1203,7 +1175,7 @@ export class Tools {
      * @param directiveName - The directive name.
      * @returns Returns current dom node.
      */
-    removeDirective(directiveName:string):null|$DomNode {
+    removeDirective(directiveName:string):null|$DomNode<HTMLElement> {
         if (this.$domNode === null)
             return null
         const delimitedName:string =
@@ -1313,13 +1285,13 @@ export class Tools {
      */
     grabDomNode(
         domNodeSelectors:{[key:string]:string},
-        wrapperDomNode:Node|null|$DomNode = null
-    ):{[key:string]:$DomNode} {
+        wrapperDomNode:Node|null|$DomNode<HTMLElement> = null
+    ):{[key:string]:$DomNode<HTMLElement>} {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        const domNodes:{[key:string]:$DomNode} = {}
+        const domNodes:{[key:string]:$DomNode<HTMLElement>} = {}
         if (domNodeSelectors)
             if (wrapperDomNode) {
-                const $wrapperDomNode:$DomNode = $(wrapperDomNode)
+                const $wrapperDomNode:$DomNode<HTMLElement> = $(wrapperDomNode)
                 for (const name in domNodeSelectors)
                     if (domNodeSelectors.hasOwnProperty(name))
                         domNodes[name] = $wrapperDomNode.find(
@@ -1633,7 +1605,7 @@ export class Tools {
      * @param parameter - Parameter to forward.
      * @returns Returns $'s grabbed dom node.
      */
-    on(...parameter:Array<any>):$DomNode {
+    on(...parameter:Array<any>):$DomNode<HTMLElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper(parameter, false)
     }
@@ -1645,7 +1617,7 @@ export class Tools {
      * @param parameter - Parameter to forward.
      * @returns Returns $'s grabbed dom node.
      */
-    off(...parameter:Array<any>):$DomNode {
+    off(...parameter:Array<any>):$DomNode<HTMLElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper(parameter, true, 'off')
     }
@@ -5397,16 +5369,17 @@ export class Tools {
      * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
-        target:$DomNode|Node|string,
+        target:$DomNode<HTMLElement>|HTMLElement|string,
         url:string,
         data:{[key:string]:any},
         requestType:string = 'post',
         removeAfterLoad:boolean = false
-    ):$DomNode {
-        const $targetDomNode:$DomNode = (typeof target === 'string') ?
-            $(`iframe[name"${target}"]`) :
-            $(target)
-        const $formDomNode:$DomNode = $('<form>').attr({
+    ):$DomNode<HTMLElement> {
+        const $targetDomNode:$DomNode<HTMLIFrameElement> =
+            (typeof target === 'string') ?
+                $(`iframe[name"${target}"]`) :
+                $(target)
+        const $formDomNode:$DomNode<HTMLFormElement> = $('<form>').attr({
             action: url,
             method: requestType,
             target: $targetDomNode.attr('name')
@@ -5421,7 +5394,9 @@ export class Tools {
             object model to successfully submit.
         */
         if (removeAfterLoad)
-            $targetDomNode.on('load', ():$DomNode => $targetDomNode.remove())
+            $targetDomNode.on('load', ():$DomNode<HTMLIFrameElement> =>
+                $targetDomNode.remove()
+            )
         $formDomNode.insertAfter($targetDomNode)
         $formDomNode[0].submit()
         $formDomNode.remove()
@@ -5442,8 +5417,8 @@ export class Tools {
         data:{[key:string]:any},
         requestType:string = 'post',
         removeAfterLoad:boolean = true
-    ):$DomNode {
-        const $iFrameDomNode:$DomNode = $('<iframe>')
+    ):$DomNode<HTMLIFrameElement> {
+        const $iFrameDomNode:$DomNode<HTMLIFrameElement> = $('<iframe>')
             .attr(
                 'name',
                 this.self._name.charAt(0).toLowerCase() +
@@ -5926,9 +5901,9 @@ export class Tools {
         parameter:Array<any>,
         removeEvent:boolean = false,
         eventFunctionName:string = 'on'
-    ):$DomNode {
+    ):$DomNode<HTMLElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        const $domNode:$DomNode = $(parameter[0])
+        const $domNode:$DomNode<HTMLElement> = $(parameter[0])
         if (
             this.self.determineType(parameter[1]) === 'object' &&
             !removeEvent
@@ -5958,10 +5933,12 @@ export default Tools
 // region handle $ extending
 if ('fn' in $)
     $.fn.Tools = function(...parameter:Array<any>):any {
-        return (new Tools()).controller(Tools, parameter, this)
+        return (new Tools()).controller(
+            Tools, parameter, this as unknown as $DomNode<HTMLElement>)
     }
-$.Tools = (...parameter:Array<any>):any => (new Tools()).controller(
-    Tools, parameter)
+// @ts-ignore: Missing "class" property will be added in next statement.
+$.Tools = (...parameter:Array<any>):any =>
+    (new Tools()).controller(Tools, parameter)
 $.Tools.class = Tools
 if ('fn' in $) {
     // region prop fix for comments and text nodes
@@ -5975,7 +5952,11 @@ if ('fn' in $) {
      * @returns Returns value if used as getter or current dom node if used as
      * setter.
      */
-    $.fn.prop = function(key:string, ...additionalParameter:Array<any>):any {
+    $.fn.prop = function(
+        this:Array<Element>,
+        key:keyof Element,
+        ...additionalParameter:Array<any>
+    ):any {
         if (
             additionalParameter.length < 2 &&
             this.length &&
@@ -5985,7 +5966,8 @@ if ('fn' in $) {
             if (additionalParameter.length === 0)
                 return this[0][key]
             if (additionalParameter.length === 1) {
-                this[0][key] = additionalParameter[0]
+                // NOTE: "textContent" represents a writable element property.
+                this[0][key as 'textContent'] = additionalParameter[0]
                 return this
             }
         }

@@ -19,12 +19,17 @@
 // region imports
 import JQuery from 'jquery'
 import {Stats} from 'fs'
+
+import Tools from './index'
 // endregion
 // region exports
 // / region interfaces
-export interface $DomNode extends JQuery {
-    Tools(functionName:string, ...additionalArguments:Array<any>):any;
-    [key:number]:any;
+export type ToolsFunction =
+    ((functionName:string, ...additionalArguments:Array<any>) => any) &
+    {class:typeof Tools}
+export interface $DomNode<T> extends JQuery<T> {
+    Tools:ToolsFunction;
+    [key:number]:T;
 }
 export type $Function =
     ((parameter:any, ...additionalArguments:Array<any>) => any) &
@@ -33,6 +38,8 @@ export type $Function =
         fn:{[key:string]:Function};
         global:$Window;
         noop?:(...parameter:Array<any>) => any;
+        readyException:(error:Error|string) => void;
+        Tools:ToolsFunction;
     }
 export type $Window = Window & {$:$Function}
 export type Noop = (...parameter:Array<any>) => any
