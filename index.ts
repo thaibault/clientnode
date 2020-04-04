@@ -38,7 +38,6 @@ import {
     Noop,
     Options,
     PlainObject,
-    PlainStringObject,
     Position,
     ProcessError,
     ProcessHandler,
