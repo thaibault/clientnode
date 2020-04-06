@@ -52,15 +52,6 @@ export interface TimeoutPromise extends Promise<boolean> {
     timeoutID:number;
 }
 // / endregion
-export type ChildProcessOptions = {
-    cwd:string;
-    env:Mapping;
-    shell:boolean;
-    stdio:string;
-}
-export type DomEventCallbackFunction = (event:Event|null) => any
-export type DomIterationCallbackFunction = (index:number, $domNode:Node) =>
-    false|undefined
 export type Mapping<T=string> = {[key:string]:T}
 export type Primitive = boolean|null|number|string|undefined
 export type PlainObject<T=Primitive> = {
@@ -96,23 +87,6 @@ export type ProxyHandler = {
 }
 export type LockCallbackFunction = (description:string) =>
     Promise<any>|undefined
-export type $Deferred<Type> = {
-    always:() => $Deferred<Type>;
-    resolve:() => $Deferred<Type>;
-    done:() => $Deferred<Type>;
-    fail:() => $Deferred<Type>;
-    isRejected:() => $Deferred<Type>;
-    isResolved:() => $Deferred<Type>;
-    notify:() => $Deferred<Type>;
-    notifyWith:() => $Deferred<Type>;
-    progress:() => $Deferred<Type>;
-    promise:() => $Deferred<Type>;
-    reject:() => $Deferred<Type>;
-    rejectWith:() => $Deferred<Type>;
-    resolveWith:() => $Deferred<Type>;
-    state:() => $Deferred<Type>;
-    then:() => $Deferred<Type>;
-}
 // endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
