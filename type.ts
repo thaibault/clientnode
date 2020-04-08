@@ -55,7 +55,7 @@ export interface TimeoutPromise extends Promise<boolean> {
 export type Mapping<T=string> = {[key:string]:T}
 export type Primitive = boolean|null|number|string|undefined
 export type PlainObject<T=Primitive> = {
-    [key:string]:Array<PlainObject<T>|T>|PlainObject<T>|T
+    [key:string]:Array<PlainObject<T>|T>|PlainObject<T>|T;
 }
 export type ProcedureFunction = (...parameter:Array<any>) => void|Promise<void>
 export type File = {

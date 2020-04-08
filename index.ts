@@ -18,18 +18,17 @@
 */
 // region imports
 import {ChildProcess} from 'child_process'
-let fileSystem:any
+/* eslint-disable no-empty,no-var,@typescript-eslint/no-var-requires */
 try {
-    fileSystem = eval('require')('fs').promises
+    var fileSystem = eval('require')('fs').promises
 } catch (error) {}
-let synchronousFileSystem:any
 try {
-    synchronousFileSystem = eval('require')('fs')
+    var synchronousFileSystem = eval('require')('fs')
 } catch (error) {}
-let path:any
 try {
-    path = eval('require')('path')
+    var path = eval('require')('path')
 } catch (error) {}
+/* eslint-enable no-empty,no-var,@typescript-eslint/no-var-requires */
 
 import {
     File,
@@ -56,7 +55,7 @@ export const CloseEventNames = [
 export const ConsoleOutputMethods = [
     'debug', 'error', 'info', 'log', 'warn'
 ] as const
-export const ValueCopySymbol:Symbol = Symbol('Value')
+export const ValueCopySymbol = Symbol('Value')
 // region determine context
 export const globalContext:$Window = (():$Window => {
     if (typeof window === 'undefined') {
@@ -76,9 +75,11 @@ export const $:$Function = (():$Function => {
         $ = globalContext.$
     else {
         if (!('$' in globalContext) && 'document' in globalContext)
+            /* eslint-disable no-empty */
             try {
                 return require('jquery')
             } catch (error) {}
+            /* eslint-enable no-empty */
         const selector:any = (
             'document' in globalContext &&
             'querySelectorAll' in globalContext.document
@@ -93,13 +94,13 @@ export const $:$Function = (():$Function => {
                     parameter, ...additionalArguments)
                 if ($domNodes && 'fn' in $)
                     for (const key in $.fn)
-                        if ($.fn.hasOwnProperty(key))
+                        if (Object.prototype.hasOwnProperty.call($.fn, key))
                             $domNodes[key] = $.fn[key].bind($domNodes)
                 return $domNodes
             }
-            /* eslint-disable no-use-before-define */
+            /* eslint-disable @typescript-eslint/no-use-before-define */
             if (Tools.isFunction(parameter) && 'document' in globalContext)
-            /* eslint-enable no-use-before-define */
+            /* eslint-enable @typescript-eslint/no-use-before-define */
                 globalContext.document.addEventListener(
                     'DOMContentLoaded', parameter)
             return parameter
@@ -130,7 +131,7 @@ export class Semaphore {
      * @param numberOfResources - Number of resources to manage.
      * @returns Nothing.
      */
-    constructor(numberOfResources:number = 2) {
+    constructor(numberOfResources = 2) {
         this.numberOfResources = numberOfResources
         this.numberOfFreeResources = numberOfResources
     }
@@ -213,7 +214,7 @@ export class Tools {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
-    static animationEndEventNames:string =
+    static animationEndEventNames =
         'animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd'
     static classToTypeMapping:{[key:string]:string} = {
         '[object Array]': 'array',
@@ -291,6 +292,7 @@ export class Tools {
         }
         // Try special detection for internet explorer 10 and 11.
         if (version === 0 && 'navigator' in $.global)
+            /* eslint-disable @typescript-eslint/prefer-includes */
             if ($.global.navigator.appVersion.indexOf('MSIE 10') !== -1)
                 return 10
             else if (
@@ -298,9 +300,12 @@ export class Tools {
                 $.global.navigator.userAgent.indexOf('rv:11') !== -1
             )
                 return 11
+            /* eslint-enable @typescript-eslint/prefer-includes */
         return version
     })()
+    /* eslint-disable @typescript-eslint/no-empty-function */
     static noop:Noop = ('noop' in $) ? $.noop as Noop: ():void => {}
+    /* eslint-enable @typescript-eslint/no-empty-function */
     static plainObjectPrototypes:Array<any> = [Object.prototype]
     static specialRegexSequences:Array<string> = [
         '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}']
@@ -308,8 +313,8 @@ export class Tools {
         'webkitTransitionEnd oTransitionEnd MSTransitionEnd'
 
     static _dateTimePatternCache:Array<RegExp> = []
-    static _javaScriptDependentContentHandled:boolean = false
-    static _name:string = 'tools'
+    static _javaScriptDependentContentHandled = false
+    static _name = 'tools'
     // endregion
     // region dynamic properties
     $domNode:null|$DomNode<HTMLElement> = null
@@ -361,7 +366,7 @@ export class Tools {
         this.locks = locks
         // Avoid errors in browsers that lack a console.
         if (!('console' in $.global))
-            ($.global as {console:Object}).console = {}
+            ($.global as {console:{}}).console = {}
         this.self = this.constructor as typeof Tools
         for (const methodName of ConsoleOutputMethods)
             if (!(methodName in $.global.console))
@@ -478,16 +483,14 @@ export class Tools {
      * string. So don't use same names for different areas.
      * @param description - A short string describing the critical areas
      * properties.
-     * @param callbackFunction - A procedure which should only be executed if
-     * the interpreter isn't in the given critical area. The lock description
+     * @param callback - A procedure which should only be executed if the
+     * interpreter isn't in the given critical area. The lock description
      * string will be given to the callback function.
      * @param autoRelease - Release the lock after execution of given callback.
      * @returns Returns a promise which will be resolved after releasing lock.
      */
     acquireLock(
-        description:string,
-        callback?:LockCallbackFunction,
-        autoRelease:boolean = false
+        description:string, callback?:LockCallbackFunction, autoRelease = false
     ):Promise<any> {
         return new Promise((resolve:Function):void => {
             const wrappedCallback:LockCallbackFunction = (
@@ -501,12 +504,14 @@ export class Tools {
                         this.releaseLock(description)
                     resolve(value)
                 }
+                /* eslint-disable no-empty */
                 try {
                     return result.then(finish)
                 } catch (error) {}
+                /* eslint-enable no-empty */
                 finish(description)
             }
-            if (this.locks.hasOwnProperty(description))
+            if (Object.prototype.hasOwnProperty.call(this.locks, description))
                 this.locks[description].push(wrappedCallback)
             else {
                 this.locks[description] = []
@@ -524,7 +529,7 @@ export class Tools {
      */
     async releaseLock(description:string):Promise<any> {
         let result:any
-        if (this.locks.hasOwnProperty(description)) {
+        if (Object.prototype.hasOwnProperty.call(this.locks, description)) {
             const callback:LockCallbackFunction|undefined =
                 this.locks[description].shift()
             if (callback === undefined)
@@ -539,7 +544,7 @@ export class Tools {
      * @param numberOfResources - Number of allowed concurrent resource uses.
      * @returns The requested semaphore instance.
      */
-    static getSemaphore(numberOfResources:number = 2):Semaphore {
+    static getSemaphore(numberOfResources = 2):Semaphore {
         return new Semaphore(numberOfResources)
     }
     // / endregion
@@ -707,8 +712,8 @@ export class Tools {
      */
     log(
         object:any,
-        force:boolean = false,
-        avoidAnnotation:boolean = false,
+        force = false,
+        avoidAnnotation = false,
         level:keyof Console = 'info',
         ...additionalArguments:Array<any>
     ):Tools {
@@ -808,11 +813,11 @@ export class Tools {
      * represent given object.
      * @returns Returns the serialized version of given object.
      */
-    static show(object:any, level:number = 3, currentLevel:number = 0):string {
-        let output:string = ''
+    static show(object:any, level = 3, currentLevel = 0):string {
+        let output = ''
         if (Tools.determineType(object) === 'object') {
             for (const key in object)
-                if (object.hasOwnProperty(key)) {
+                if (Object.prototype.hasOwnProperty.call(object, key)) {
                     output += `${key.toString()}: `
                     if (currentLevel <= level)
                         output += Tools.show(
@@ -844,13 +849,13 @@ export class Tools {
      */
     static getCookie(name:string):string|null {
         if ('document' in $.global) {
-            const key:string = `${name}=`
+            const key = `${name}=`
             const decodedCookie:string = decodeURIComponent(
                 $.global.document.cookie)
             for (let date of decodedCookie.split(';')) {
-                while (date.charAt(0) === ' ')
+                while (date.startsWith(' '))
                     date = date.substring(1)
-                if (date.indexOf(key) === 0)
+                if (date.startsWith(key))
                     return date.substring(key.length, date.length)
             }
         }
@@ -874,12 +879,12 @@ export class Tools {
     static setCookie(
         name:string,
         value:string,
-        domain:string = '',
+        domain = '',
         sameSite:'Lax'|'None'|'Strict'|'' = 'Lax',
-        numberOfDaysUntilExpiration:number = 365,
-        path:string = '/',
-        secure:boolean = true,
-        httpOnly:boolean = false
+        numberOfDaysUntilExpiration = 365,
+        path = '/',
+        secure = true,
+        httpOnly = false
     ):boolean {
         if ('document' in $.global) {
             const now:Date = new Date()
@@ -913,7 +918,7 @@ export class Tools {
      */
     get normalizedClassNames():Tools {
         if (this.$domNode) {
-            const className:string = 'class'
+            const className = 'class'
             this.$domNode
                 .find('*')
                 .addBack()
@@ -938,7 +943,7 @@ export class Tools {
      */
     get normalizedStyles():Tools {
         if (this.$domNode) {
-            const styleName:string = 'style'
+            const styleName = 'style'
             this.$domNode
                 .find('*')
                 .addBack()
@@ -984,7 +989,7 @@ export class Tools {
                 if (styleProperties) {
                     if ('length' in styleProperties)
                         for (
-                            let index:number = 0;
+                            let index = 0;
                             index < styleProperties.length;
                             index += 1
                         )
@@ -995,13 +1000,16 @@ export class Tools {
                                     styleProperties[index])
                     else
                         for (const propertyName in styleProperties)
-                            if (styleProperties.hasOwnProperty(propertyName))
+                            if (Object.prototype.hasOwnProperty.call(
+                                styleProperties, propertyName
+                            ))
                                 result[this.self.stringDelimitedToCamelCase(
                                     propertyName
                                 )] =
                                     propertyName in styleProperties &&
                                     styleProperties[propertyName] ||
-                                    styleProperties.getPropertyValue(propertyName)
+                                    styleProperties.getPropertyValue(
+                                        propertyName)
                     return result
                 }
             }
@@ -1009,7 +1017,9 @@ export class Tools {
             styleProperties = $domNode[0].currentStyle
             if (styleProperties) {
                 for (const propertyName in styleProperties)
-                    if (styleProperties.hasOwnProperty(propertyName))
+                    if (Object.prototype.hasOwnProperty.call(
+                        styleProperties, propertyName
+                    ))
                         result[propertyName] = styleProperties[propertyName]
                 return result
             }
@@ -1040,12 +1050,12 @@ export class Tools {
      * @returns Returns true if both dom representations are equivalent.
      */
     static isEquivalentDOM(
-        first:any, second:any, forceHTMLString:boolean = false
+        first:any, second:any, forceHTMLString = false
     ):boolean {
         if (first === second)
             return true
         if (first && second) {
-            const detemermineHTMLPattern:RegExp =
+            const detemermineHTMLPattern =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
             const inputs:{[key:string]:any} = {first, second}
             const $domNodes:{[key:string]:$DomNode<HTMLElement>} = {
@@ -1057,7 +1067,7 @@ export class Tools {
             */
             for (const type in inputs)
                 if (
-                    inputs.hasOwnProperty(type) &&
+                    Object.prototype.hasOwnProperty.call(inputs, type) &&
                     typeof inputs[type] === 'string' &&
                     (
                         forceHTMLString ||
@@ -1098,7 +1108,7 @@ export class Tools {
                     .$domNode
                     .Tools('normalizedStyles')
                     .$domNode
-                let index:number = 0
+                let index = 0
                 for (const domNode of (
                     $domNodes.first as unknown as Array<Node>
                 )) {
@@ -1116,8 +1126,8 @@ export class Tools {
     /**
      * Determines where current dom node is relative to current view port
      * position.
-     * @param delta - Allows deltas for "top", "left", "bottom" and "right" for
-     * determining positions.
+     * @param givenDelta - Allows deltas for "top", "left", "bottom" and
+     * "right" for determining positions.
      * @returns Returns one of "above", "left", "below", "right" or "in".
      */
     getPositionRelativeToViewport(
@@ -1195,7 +1205,7 @@ export class Tools {
      */
     static getNormalizedDirectiveName(directiveName:string):string {
         for (const delimiter of ['-', ':', '_']) {
-            let prefixFound:boolean = false
+            let prefixFound = false
             for (const prefix of [`data${delimiter}`, `x${delimiter}`])
                 if (directiveName.startsWith(prefix)) {
                     directiveName = directiveName.substring(prefix.length)
@@ -1265,9 +1275,8 @@ export class Tools {
      * $.Tools.getDomNodeName('&lt;br/&gt;')
      */
     static getDomNodeName(domNodeSelector:string):null|string {
-        const match:Array<string>|null = domNodeSelector.match(
-            new RegExp('^<?([a-zA-Z]+).*>?.*')
-        )
+        const match:Array<string>|null = /^<?([a-zA-Z]+).*>?.*/.exec(
+            domNodeSelector)
         if (match)
             return match[1]
         return null
@@ -1293,12 +1302,16 @@ export class Tools {
             if (wrapperDomNode) {
                 const $wrapperDomNode:$DomNode<HTMLElement> = $(wrapperDomNode)
                 for (const name in domNodeSelectors)
-                    if (domNodeSelectors.hasOwnProperty(name))
+                    if (Object.prototype.hasOwnProperty.call(
+                        domNodeSelectors, name
+                    ))
                         domNodes[name] = $wrapperDomNode.find(
                             domNodeSelectors[name])
             } else
                 for (const name in domNodeSelectors)
-                    if (domNodeSelectors.hasOwnProperty(name)) {
+                    if (Object.prototype.hasOwnProperty.call(
+                        domNodeSelectors, name
+                    )) {
                         const match:Array<string>|null =
                             domNodeSelectors[name].match(', *')
                         if (match)
@@ -1339,7 +1352,7 @@ export class Tools {
             if (!(
                 prefixesToIgnore.includes(name.charAt(0)) ||
                 ['constructor', 'prototype', 'this'].includes(name) ||
-                scope.hasOwnProperty(name)
+                Object.prototype.hasOwnProperty.call(scope, name)
             ))
                 /*
                     NOTE: Delete ("delete $scope[name]") doesn't destroy the
@@ -1668,7 +1681,7 @@ export class Tools {
                     object.add(value)
             } else if (object !== null) {
                 for (const key in object)
-                    if (object.hasOwnProperty(key))
+                    if (Object.prototype.hasOwnProperty.call(object, key))
                         object[key] = Tools.addDynamicGetterAndSetter(
                             object[key],
                             getterWrapper,
@@ -1769,7 +1782,7 @@ export class Tools {
             if (deep)
                 if (Tools.isPlainObject(object)) {
                     for (const key in object)
-                        if (object.hasOwnProperty(key))
+                        if (Object.prototype.hasOwnProperty.call(object, key))
                             object[key] = Tools.convertMapToPlainObject(
                                 object[key], deep)
                 } else if (Array.isArray(object)) {
@@ -1803,7 +1816,7 @@ export class Tools {
             if (Tools.isPlainObject(object)) {
                 const newObject:Map<number|string, any> = new Map()
                 for (const key in object)
-                    if (object.hasOwnProperty(key)) {
+                    if (Object.prototype.hasOwnProperty.call(object, key)) {
                         if (deep)
                             object[key] = Tools.convertPlainObjectToMap(
                                 object[key], deep)
@@ -1848,7 +1861,7 @@ export class Tools {
         object:T, pattern:RegExp|string, replacement:string
     ):T {
         for (const key in object)
-            if (object.hasOwnProperty(key))
+            if (Object.prototype.hasOwnProperty.call(object, key))
                 if (Tools.isPlainObject(object[key]))
                     object[key] = Tools.convertSubstringInPlainObject(
                         object[key], pattern, replacement)
@@ -1945,7 +1958,7 @@ export class Tools {
                         )
                 else
                     for (const key in source)
-                        if ((source as Object).hasOwnProperty(key))
+                        if (Object.prototype.hasOwnProperty.call(source, key))
                             destination[key] = copyValue(source[key])
             } else if (source) {
                 if (Array.isArray(source))
@@ -2020,7 +2033,9 @@ export class Tools {
         ) {
             const stringRepresentation:string =
                 Tools.classToTypeMapping.toString.call(object)
-            if (Tools.classToTypeMapping.hasOwnProperty(stringRepresentation))
+            if (Object.prototype.hasOwnProperty.call(
+                Tools.classToTypeMapping, stringRepresentation
+            ))
                 return Tools.classToTypeMapping[stringRepresentation]
         }
         return typeof object
@@ -2223,7 +2238,7 @@ export class Tools {
                         }
                 } else
                     for (const key in first)
-                        if (first.hasOwnProperty(key)) {
+                        if (Object.prototype.hasOwnProperty.call(first, key)) {
                             if (properties && !properties.includes(key))
                                 break
                             let doBreak:boolean = false
@@ -2324,7 +2339,7 @@ export class Tools {
                 return data
             for (const key in data)
                 if (
-                    data.hasOwnProperty(key) &&
+                    Object.prototype.hasOwnProperty.call(data, key) &&
                     key !== '__target__' &&
                     typeof data[key] === 'object' &&
                     data[key] !== null
@@ -2335,8 +2350,10 @@ export class Tools {
                         reasons.
                     */
                     if (
-                        data[key].hasOwnProperty(expressionIndicatorKey) ||
-                        data[key].hasOwnProperty(executionIndicatorKey)
+                        Object.prototype.hasOwnProperty.call(
+                            data[key], expressionIndicatorKey) ||
+                        Object.prototype.hasOwnProperty.call(
+                            data[key], executionIndicatorKey)
                     ) {
                         const backup:Object = data[key]
                         data[key] = new Proxy(data[key], {
@@ -2371,7 +2388,9 @@ export class Tools {
                                     expressionIndicatorKey,
                                     executionIndicatorKey
                                 ])
-                                    if (target.hasOwnProperty(type))
+                                    if (Object.prototype.hasOwnProperty.call(
+                                        target, type
+                                    ))
                                         return evaluate(
                                             resolvedTarget, type
                                         )[key]
@@ -2383,7 +2402,9 @@ export class Tools {
                                     expressionIndicatorKey,
                                     executionIndicatorKey
                                 ])
-                                    if (target.hasOwnProperty(type))
+                                    if (Object.prototype.hasOwnProperty.call(
+                                        target, type
+                                    ))
                                         return Object.getOwnPropertyNames(
                                             resolve(evaluate(
                                                 target[type], type)))
@@ -2407,12 +2428,12 @@ export class Tools {
                     for (const type of [
                         expressionIndicatorKey, executionIndicatorKey
                     ])
-                        if (data.hasOwnProperty(type))
+                        if (Object.prototype.hasOwnProperty.call(data, type))
                             return data[type]
                     data = data.__target__
                 }
                 for (const key in data)
-                    if (data.hasOwnProperty(key)) {
+                    if (Object.prototype.hasOwnProperty.call(data, key)) {
                         if ([
                             expressionIndicatorKey, executionIndicatorKey
                         ].includes(key)) {
@@ -2430,7 +2451,7 @@ export class Tools {
             if (typeof data === 'object' && data !== null)
                 for (const key in data)
                     if (
-                        data.hasOwnProperty(key) &&
+                        Object.prototype.hasOwnProperty.call(data, key) &&
                         key !== '__target__' &&
                         ['function', 'undefined'].includes(typeof data[key]) &&
                         data[key] !== null
@@ -2443,9 +2464,13 @@ export class Tools {
             return data
         }
         if (typeof object === 'object' && object !== null)
-            if (object.hasOwnProperty(expressionIndicatorKey))
+            if (Object.prototype.hasOwnProperty.call(
+                object, expressionIndicatorKey
+            ))
                 return evaluate(object[expressionIndicatorKey])
-            else if (object.hasOwnProperty(executionIndicatorKey))
+            else if (Object.prototype.hasOwnProperty.call(
+                object, executionIndicatorKey
+            ))
                 return evaluate(
                     object[executionIndicatorKey], executionIndicatorKey)
         return removeProxyRecursively(resolve(addProxyRecursively(object)))
@@ -2515,7 +2540,7 @@ export class Tools {
                     typeof source === 'object'
                 ) {
                     for (const key in source)
-                        if (source.hasOwnProperty(key))
+                        if (Object.prototype.hasOwnProperty.call(source, key))
                             target[key] = mergeValue(target[key], source[key])
                 } else
                     target = source
@@ -2549,7 +2574,7 @@ export class Tools {
             if (
                 result !== null &&
                 typeof result === 'object' &&
-                result.hasOwnProperty(name)
+                Object.prototype.hasOwnProperty.call(result, name)
             )
                 result = result[name]
             else if (!skipMissingLevel)
@@ -2658,7 +2683,7 @@ export class Tools {
             typeof target === 'object'
         )
             for (const key in source)
-                if (source.hasOwnProperty(key))
+                if (Object.prototype.hasOwnProperty.call(source, key))
                     if ([
                         removeIndicatorKey,
                         prependIndicatorKey,
@@ -2700,12 +2725,17 @@ export class Tools {
                                 target = target.concat(source[key])
                         else if (key === removeIndicatorKey)
                             for (const value of [].concat(source[key]))
-                                if (target.hasOwnProperty(value))
+                                if (Object.prototype.hasOwnProperty.call(
+                                    target, value
+                                ))
                                     delete target[value]
                         delete source[key]
                         if (parentSource && parentKey)
                             delete parentSource[parentKey]
-                    } else if (target !== null && target.hasOwnProperty(key))
+                    } else if (
+                        target !== null &&
+                        Object.prototype.hasOwnProperty.call(target, key)
+                    )
                         target[key] = Tools.modifyObject(
                             target[key],
                             source[key],
@@ -2817,7 +2847,7 @@ export class Tools {
             }
         else if (object !== null && typeof object === 'object')
             for (const key in Object.assign({}, object))
-                if ((object as Object).hasOwnProperty(key)) {
+                if (Object.prototype.hasOwnProperty.call(object, key)) {
                     let skip:boolean = false
                     for (const resolvedKey of resolvedKeys) {
                         const escapedKey:string =
@@ -2973,7 +3003,7 @@ export class Tools {
                     keys.push(keyValuePair[0])
             else if (object !== null)
                 for (const key in object)
-                    if (object.hasOwnProperty(key))
+                    if (Object.prototype.hasOwnProperty.call(object, key))
                         keys.push(key)
         return keys.sort()
     }
@@ -3017,7 +3047,7 @@ export class Tools {
                     object.add(value)
             } else
                 for (const key in object)
-                    if (object.hasOwnProperty(key))
+                    if (Object.prototype.hasOwnProperty.call(object, key))
                         object[key] = Tools.unwrapProxy(
                             object[key], seenObjects)
         }
@@ -3038,7 +3068,11 @@ export class Tools {
         defaultValue:any = ''
     ):any {
         let result:any = defaultValue
-        if (data && data.length && data[0].hasOwnProperty(propertyName)) {
+        if (
+            data &&
+            data.length &&
+            Object.prototype.hasOwnProperty.call(data[0], propertyName)
+        ) {
             result = data[0][propertyName]
             for (const item of Tools.arrayMake(data))
                 if (item[propertyName] !== result)
@@ -3064,7 +3098,7 @@ export class Tools {
         for (const item of Tools.arrayMake(data)) {
             let empty:boolean = true
             for (const propertyName in item)
-                if (item.hasOwnProperty(propertyName))
+                if (Object.prototype.hasOwnProperty.call(item, propertyName))
                     if (
                         !['', null, undefined].includes(item[propertyName]) &&
                         (
@@ -3095,7 +3129,7 @@ export class Tools {
         for (const item of Tools.arrayMake(data)) {
             const newItem:{[key:string]:any} = {}
             for (const propertyName of Tools.arrayMake(propertyNames))
-                if (item.hasOwnProperty(propertyName))
+                if (Object.prototype.hasOwnProperty.call(item, propertyName))
                     newItem[propertyName] = item[propertyName]
             result.push(newItem)
         }
@@ -3138,7 +3172,7 @@ export class Tools {
                 for (const key in item)
                     if (
                         key === propertyName &&
-                        item.hasOwnProperty(key) &&
+                        Object.prototype.hasOwnProperty.call(item, key) &&
                         ![null, undefined].includes(item[key])
                     ) {
                         exists = true
@@ -3266,7 +3300,9 @@ export class Tools {
                         }
                     } else
                         for (const key in keys)
-                            if (keys.hasOwnProperty(key))
+                            if (
+                                Object.prototype.hasOwnProperty.call(keys, key)
+                            )
                                 if (intersectItem(
                                     firstItem,
                                     secondItem,
@@ -3430,7 +3466,7 @@ export class Tools {
         let result:number = 0
         if (Array.isArray(data) && data.length)
             for (const item of data)
-                if (item.hasOwnProperty(propertyName))
+                if (Object.prototype.hasOwnProperty.call(item, propertyName))
                     result += parseFloat(item[propertyName] || 0)
         return result
     }
@@ -3449,7 +3485,7 @@ export class Tools {
         name:string,
         checkIfExists:boolean = true
     ):Object {
-        if (item.hasOwnProperty(name)) {
+        if (Object.prototype.hasOwnProperty.call(item, name)) {
             if (!(checkIfExists && item[name].includes(target)))
                 item[name].push(target)
         } else
@@ -3489,7 +3525,7 @@ export class Tools {
     ):Array<string> {
         const edges:Array<Array<string>> = []
         for (const name in items)
-            if (items.hasOwnProperty(name)) {
+            if (Object.prototype.hasOwnProperty.call(items, name)) {
                 // @ts-ignore: Workaround to ensure having an array.
                 items[name] = [].concat(items[name])
                 if (items[name].length > 0)
@@ -3837,7 +3873,7 @@ export class Tools {
         }
         // endregion
         if (keyToGet) {
-            if (variables.hasOwnProperty(keyToGet))
+            if (Object.prototype.hasOwnProperty.call(variables, keyToGet))
                 // @ts-ignore: Mixed type: using an array as object also.
                 return variables[keyToGet]
             return null
@@ -4408,8 +4444,8 @@ export class Tools {
                                 const delimiter of
                                 // @ts-ignore: Workaround to ensure having an
                                 // array.
-                                [].concat(dateTimeFormat.hasOwnProperty(
-                                    'delimiter'
+                                [].concat(Object.prototype.hasOwnProperty.call(
+                                    dateTimeFormat, 'delimiter'
                                 ) ?
                                     dateTimeFormat.delimiter :
                                     '-'
@@ -4423,8 +4459,8 @@ export class Tools {
                                     pattern = (new Function(
                                         'delimiter', `return \`^${pattern}$\``
                                     ))(`${delimiter}+`)
-                                    if (!patternPresenceCache.hasOwnProperty(
-                                        pattern
+                                    if (!Object.prototype.hasOwnProperty.call(
+                                        patternPresenceCache, pattern
                                     )) {
                                         patternPresenceCache[pattern] = true
                                         Tools._dateTimePatternCache.push(
@@ -5395,7 +5431,7 @@ export class Tools {
             target: $targetDomNode.attr('name')
         })
         for (const name in data)
-            if (data.hasOwnProperty(name))
+            if (Object.prototype.hasOwnProperty.call(data, name))
                 $formDomNode.append($('<input>').attr({
                     name, type: 'hidden', value: data[name]
                 }))
@@ -5625,7 +5661,7 @@ export class Tools {
             return (await fileSystem.stat(filePath)).isDirectory()
         } catch (error) {
             if (
-                error.hasOwnProperty('code') &&
+                Object.prototype.hasOwnProperty.call(error, 'code') &&
                 ['ENOENT', 'ENOTDIR'].includes(error.code)
             )
                 return false
@@ -5642,7 +5678,7 @@ export class Tools {
             return synchronousFileSystem.statSync(filePath).isDirectory()
         } catch (error) {
             if (
-                error.hasOwnProperty('code') &&
+                Object.prototype.hasOwnProperty.call(error, 'code') &&
                 ['ENOENT', 'ENOTDIR'].includes(error.code)
             )
                 return false
@@ -5660,7 +5696,7 @@ export class Tools {
             return (await fileSystem.stat(filePath)).isFile()
         } catch (error) {
             if (
-                error.hasOwnProperty('code') &&
+                Object.prototype.hasOwnProperty.call(error, 'code') &&
                 ['ENOENT', 'ENOTDIR'].includes(error.code)
             )
                 return false
@@ -5677,7 +5713,7 @@ export class Tools {
             return synchronousFileSystem.statSync(filePath).isFile()
         } catch (error) {
             if (
-                error.hasOwnProperty('code') &&
+                Object.prototype.hasOwnProperty.call(error, 'code') &&
                 ['ENOENT', 'ENOTDIR'].includes(error.code)
             )
                 return false
@@ -5919,7 +5955,9 @@ export class Tools {
             !removeEvent
         ) {
             for (const eventType in parameter[1])
-                if (parameter[1].hasOwnProperty(eventType))
+                if (Object.prototype.hasOwnProperty.call(
+                    parameter[1], eventType
+                ))
                     // @ts-ignore: Dynamically accessing attributes is allowed.
                     this[eventFunctionName](
                         $domNode, eventType, parameter[1][eventType])
