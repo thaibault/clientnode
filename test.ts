@@ -985,16 +985,21 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [[new Map(), -1], new Map()],
         [[new Set(), -1], new Set()],
         [[{a: 2}, 0], {a: 2}],
-        [[{a: {a: 2}}, 0], {a: null}],
+        [[{a: {a: 2}}, 0, null], {a: null}],
+        [[{a: {a: 2}}, 0], {a: {a: 2}}],
         [[{a: {a: 2}}, 1], {a: {a: 2}}],
         [[{a: {a: 2}}, 2], {a: {a: 2}}],
-        [[{a: [{a: 2}]}, 1], {a: [null]}],
+        [[{a: [{a: 2}]}, 1, null], {a: [null]}],
         [[{a: [{a: 2}]}, 2], {a: [{a: 2}]}],
         [[{a: {a: 2}}, 10], {a: {a: 2}}],
         [[new Map([['a', 2]]), 0], new Map([['a', 2]])],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 0],
+            [new Map([['a', new Map([['a', 2]])]]), 0, null],
             new Map([['a', null]])
+        ],
+        [
+            [new Map([['a', new Map([['a', 2]])]]), 0],
+            new Map([['a', new Map([['a', 2]])]])
         ],
         [
             [new Map([['a', new Map([['a', 2]])]]), 1],
@@ -1005,7 +1010,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             new Map([['a', new Map([['a', 2]])]])
         ],
         [
-            [new Map([['a', [new Map([['a', 2]])]]]), 1],
+            [new Map([['a', [new Map([['a', 2]])]]]), 1, null],
             new Map([['a', [null]]])
         ],
         [
@@ -1021,7 +1026,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             new Map([['a', new Map([['a', 2]])]])
         ],
         [[new Set(['a', 2]), 0], new Set(['a', 2])],
-        [[new Set(['a', new Set(['a', 2])]), 0], new Set(['a', null])],
+        [[new Set(['a', new Set(['a', 2])]), 0, null], new Set([null, null])],
+        [
+            [new Set(['a', new Set(['a', 2])]), 1, null],
+            new Set(['a', new Set([null, null])])
+        ],
         [
             [new Set(['a', new Set(['a', 2])]), 1],
             new Set(['a', new Set(['a', 2])])
@@ -1030,7 +1039,10 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [new Set(['a', new Set(['a', 2])]), 2],
             new Set(['a', new Set(['a', 2])])
         ],
-        [[new Set(['a', [new Set(['a', 2])]]), 1], new Set(['a', [null]])],
+        [
+            [new Set(['a', [new Set(['a', 2])]]), 1, null],
+            new Set(['a', [null]])
+        ],
         [
             [new Set(['a', [new Set(['a', 2])]]), 2],
             new Set(['a', [new Set(['a', 2])]])
@@ -1043,9 +1055,10 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [new Set(['a', new Set(['a', 2])]), 10],
             new Set(['a', new Set(['a', 2])])
         ]
-    ])('.copy(...%p) === %p', (values:Array<any>, expected:any):void =>
+    ])('.copy(...%p) === %p', (values:Array<any>, expected:any):void => {
+        console.log(Tools.copy(...values))
         expect(Tools.copy(...values)).toStrictEqual(expected)
-    )
+    })
     test('determineType', ():void =>
         expect(Tools.determineType()).toStrictEqual('undefined')
     )

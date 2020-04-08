@@ -56,6 +56,7 @@ export const CloseEventNames = [
 export const ConsoleOutputMethods = [
     'debug', 'error', 'info', 'log', 'warn'
 ] as const
+export const ValueCopySymbol:Symbol = Symbol('Value')
 // region determine context
 export const globalContext:$Window = (():$Window => {
     if (typeof window === 'undefined') {
@@ -362,7 +363,7 @@ export class Tools {
         if (!('console' in $.global))
             ($.global as {console:Object}).console = {}
         this.self = this.constructor as typeof Tools
-        for (const methodName in Console)
+        for (const methodName of ConsoleOutputMethods)
             if (!(methodName in $.global.console))
                 $.global.console[methodName as keyof Console] = this.self.noop
         if (
@@ -1862,10 +1863,12 @@ export class Tools {
      * @param source - Object to copy.
      * @param recursionLimit - Specifies how deep we should traverse into given
      * object recursively.
-     * @param cyclic - Indicates whether known sub structures should be copied
-     * or referenced (if "true" endless loops can occur of source has cyclic
-     * structures).
+     * @param recursionEndValue - Indicates which value to use for recursion
+     * ends. Usually a reference to corresponding source value will be used.
      * @param destination - Target to copy source to.
+     * @param cyclic - Indicates whether known sub structures should be copied
+     * or referenced (if "true" endless loops can occur if source has cyclic
+     * structures).
      * @param stackSource - Internally used to avoid traversing loops.
      * @param stackDestination - Internally used to avoid traversing loops and
      * referencing them correctly.
@@ -1876,8 +1879,9 @@ export class Tools {
     static copy<T>(
         source:T,
         recursionLimit:number = -1,
-        cyclic:boolean = false,
+        recursionEndValue:any = ValueCopySymbol,
         destination:null|T = null,
+        cyclic:boolean = false,
         stackSource:Array<any> = [],
         stackDestination:Array<any> = [],
         recursionLevel:number = 0
@@ -1901,12 +1905,15 @@ export class Tools {
                         recursionLimit !== -1 &&
                         recursionLimit < recursionLevel + 1
                     )
-                        return null
+                        return recursionEndValue === ValueCopySymbol ?
+                            value :
+                            recursionEndValue
                     const result:any = Tools.copy(
                         value,
                         recursionLimit,
-                        cyclic,
+                        recursionEndValue,
                         null,
+                        cyclic,
                         stackSource,
                         stackDestination,
                         recursionLevel + 1
@@ -1945,8 +1952,9 @@ export class Tools {
                     return Tools.copy(
                         source,
                         recursionLimit,
-                        cyclic,
+                        recursionEndValue,
                         ([] as unknown as T),
+                        cyclic,
                         stackSource,
                         stackDestination,
                         recursionLevel
@@ -1955,8 +1963,9 @@ export class Tools {
                     return Tools.copy(
                         source,
                         recursionLimit,
-                        cyclic,
+                        recursionEndValue,
                         (new Map() as unknown as T),
+                        cyclic,
                         stackSource,
                         stackDestination,
                         recursionLevel
@@ -1965,8 +1974,9 @@ export class Tools {
                     return Tools.copy(
                         source,
                         recursionLimit,
-                        cyclic,
+                        recursionEndValue,
                         (new Set() as unknown as T),
+                        cyclic,
                         stackSource,
                         stackDestination,
                         recursionLevel
@@ -1986,8 +1996,9 @@ export class Tools {
                 return Tools.copy(
                     source,
                     recursionLimit,
-                    cyclic,
+                    recursionEndValue,
                     ({} as unknown as T),
+                    cyclic,
                     stackSource,
                     stackDestination,
                     recursionLevel
