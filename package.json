@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.398",
+  "version": "3.0.399",
   "license": "CC-BY-3.0",
   "description": "upgrade to object orientated rock solid plugins",
   "homepage": "https://torben.website/clientNode",
@@ -57,8 +57,8 @@
     "@babel/cli": "*",
     "@babel/plugin-transform-proto-to-assign": "*",
     "@types/jquery": "*",
-    "@typescript-eslint/parser": "*",
     "@typescript-eslint/eslint-plugin": "*",
+    "@typescript-eslint/parser": "*",
     "babel-eslint": "*",
     "babel-plugin-transform-modern-regexp": "*",
     "documentation-website": "*",
