@@ -14,9 +14,8 @@
     endregion
 */
 // region imports
-import Tools, {
-    DomNode, File, globalContext, PlainObject, $DomNode, Semaphore, $
-} from './index'
+import Tools, {File, globalContext, $DomNode, Semaphore, $} from './index'
+import {Mapping, PlainObject} from './type'
 if (!('fetch' in globalContext))
     try {
         globalContext.fetch = eval('require')('node-fetch')
@@ -428,10 +427,10 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ]
         ])(
             `get style '%s' => %p (${testEnvironment})`,
-            (html:string, css:PlainObject):void => {
+            (html:string, css:Mapping):void => {
                 const $domNode:$DomNode = $(html)
                 $('body').append($domNode)
-                const styles:PlainObject = $domNode.Tools('style')
+                const styles:Mapping = $domNode.Tools('style')
                 for (const propertyName:string in css)
                     if (css.hasOwnProperty(propertyName)) {
                         expect(styles.hasOwnProperty(propertyName))
