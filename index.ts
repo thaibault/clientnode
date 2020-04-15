@@ -460,7 +460,11 @@ export class Tools {
         if ($domNode && 'data' in $domNode && !$domNode.data(name))
             // Attach extended object to the associated dom node.
             $domNode.data(name, object)
-        if (parameter.length && parameter[0] in object) {
+        if (
+            parameter.length &&
+            typeof parameter[0] === 'string' &&
+            parameter[0] in object
+        ) {
             if (Tools.isFunction(object[parameter[0]]))
                 return object[parameter[0]](...parameter.slice(1))
             return object[parameter[0]]
@@ -470,10 +474,11 @@ export class Tools {
                 will be called.
             */
             return object.initialize(...parameter)
-        throw new Error(
-            `Method "${parameter[0]}" does not exist on $-extended dom node ` +
-            `"${name}".`
-        )
+        if (parameter.length && typeof parameter[0] === 'string')
+            throw new Error(
+                `Method "${parameter[0]}" does not exist on $-extended dom ` +
+                `node "${name}".`
+            )
     }
     // / endregion
     // / region mutual exclusion
@@ -495,7 +500,7 @@ export class Tools {
         return new Promise((resolve:Function):void => {
             const wrappedCallback:LockCallbackFunction = (
                 description:string
-            ):Promise<any>|undefined => {
+            ):Promise<any>|void => {
                 let result:any
                 if (callback)
                     result = callback(description)

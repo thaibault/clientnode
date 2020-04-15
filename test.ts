@@ -14,16 +14,15 @@
     endregion
 */
 // region imports
-import Tools, {File, globalContext, $DomNode, Semaphore, $} from './index'
-import {Mapping, PlainObject} from './type'
+import Tools, {globalContext, Semaphore, $} from './index'
+import {File, Mapping, PlainObject, $DomNode} from './type'
 if (!('fetch' in globalContext))
     try {
         globalContext.fetch = eval('require')('node-fetch')
     } catch (error) {}
 try {
     /* eslint-disable no-var */
-    var ChildProcess:ChildProcess =
-        eval('require')('child_process').ChildProcess
+    var ChildProcess = eval('require')('child_process').ChildProcess
     /* eslint-enable no-var */
 } catch (error) {}
 import {getInitializedBrowser} from 'weboptimizer/browser'
@@ -144,12 +143,12 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         expect(testValue).toStrictEqual(true)
         tools.acquireLock('test').then(async (result:string):Promise<void> => {
             expect(result).toStrictEqual('test')
-            Tools.timeout(():tools.constructor =>
+            Tools.timeout(():Promise<void> =>
                 tools.releaseLock('test')
             )
             result = await tools.acquireLock('test')
             expect(result).toStrictEqual('test')
-            Tools.timeout(():tools.constructor =>
+            Tools.timeout(():Promise<void> =>
                 tools.releaseLock('test')
             )
             result = await tools.acquireLock('test', ():Promise<boolean> => {
@@ -165,7 +164,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         tools.releaseLock('test')
     })
     test('getSemaphore', async ():Promise<void> => {
-        const semaphore:Object = Tools.getSemaphore(2)
+        const semaphore:Semaphore = Tools.getSemaphore(2)
         expect(semaphore.queue.length).toStrictEqual(0)
         expect(semaphore.numberOfFreeResources).toStrictEqual(2)
         expect(semaphore.numberOfResources).toStrictEqual(2)
@@ -224,12 +223,12 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     test('isWindow', async ():Promise<void> => {
         const browser:Browser = await getInitializedBrowser()
         expect(Tools.isWindow(browser.window)).toStrictEqual(true)
-        for (const value:any of [null, {}, browser])
+        for (const value of [null, {}, browser])
             expect(Tools.isWindow(value)).toStrictEqual(false)
     })
     test('isArrayLike', async ():Promise<void> => {
         const browser:Browser = await getInitializedBrowser()
-        for (const value:Array<any> of [
+        for (const value of [
             [], browser.window.document.querySelectorAll('*')
         ])
             expect(Tools.isArrayLike(value)).toStrictEqual(true)
@@ -431,7 +430,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 const $domNode:$DomNode = $(html)
                 $('body').append($domNode)
                 const styles:Mapping = $domNode.Tools('style')
-                for (const propertyName:string in css)
+                for (const propertyName in css)
                     if (css.hasOwnProperty(propertyName)) {
                         expect(styles.hasOwnProperty(propertyName))
                             .toStrictEqual(true)
@@ -611,7 +610,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     if (hasDOM)
         test('grabDomNode', async ():Promise<void> => {
             const browser:Browser = await getInitializedBrowser()
-            for (const test:Array<any> of [
+            for (const test of [
                 [[{a: 'div'}], {a: $('div'), parent: $('body')}],
                 [
                     [{a: 'script'}, 'body'],
@@ -638,13 +637,13 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         let scope:Scope = new Scope()
         Tools.isolateScope(scope, ['_'])
         let finalScope:PlainObject = {}
-        for (const name:string in scope)
+        for (const name in scope)
             finalScope[name] = scope[name]
         expect(finalScope).toStrictEqual({_a: 5, a: 2, b: undefined})
         scope.b = 3
         Tools.isolateScope(scope, ['_'])
         finalScope = {}
-        for (const name:string in scope)
+        for (const name in scope)
             finalScope[name] = scope[name]
         expect(finalScope).toStrictEqual({_a: 5, a: 2, b: 3})
         expect(Tools.isolateScope(scope))
@@ -658,7 +657,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         Scope.prototype = {b: 3}
         scope = Tools.isolateScope(new Scope(), ['b'])
         finalScope = {}
-        for (const name:string in scope)
+        for (const name in scope)
             finalScope[name] = scope[name]
         expect(finalScope).toStrictEqual({a: 2, b: 3})
         expect(Tools.isolateScope(new Scope()))
@@ -1721,7 +1720,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     test('arrayAggregatePropertyIfEqual', (
         assert:Object
     ):void => {
-        for (const test:Array<any> of [
+        for (const test of [
             [[[{a: 'b'}], 'a'], 'b'],
             [[[{a: 'b'}, {a: 'b'}], 'a'], 'b'],
             [[[{a: 'b'}, {a: 'c'}], 'a'], ''],
@@ -1732,7 +1731,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ), test[1])
     })
     test('arrayDeleteEmptyItems', ():void => {
-        for (const test:Array<any> of [
+        for (const test of [
             [[[{a: null}]], []],
             [[[{a: null, b: 2}]], [{a: null, b: 2}]],
             [[[{a: null, b: 2}], ['a']], []],
@@ -1743,7 +1742,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 Tools.arrayDeleteEmptyItems(...test[0]), test[1])
     })
     test('arrayExtract', ():void => {
-        for (const test:Array<any> of [
+        for (const test of [
             [[[{a: 'b', c: 'd'}], ['a']], [{a: 'b'}]],
             [[[{a: 'b', c: 'd'}], ['b']], [{}]],
             [[[{a: 'b', c: 'd'}], ['c']], [{c: 'd'}]],
@@ -1754,7 +1753,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 Tools.arrayExtract(...test[0]), test[1])
     })
     test('arrayExtractIfMatches', ():void => {
-        for (const test:Array<any> of [
+        for (const test of [
             [['b'], /b/, ['b']],
             [['b'], 'b', ['b']],
             [['b'], 'a', []],
@@ -1771,7 +1770,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     test('arrayExtractIfPropertyExists', (
         assert:Object
     ):void => {
-        for (const test:Array<any> of [
+        for (const test of [
             [[{a: 2}], 'a', [{a: 2}]],
             [[{a: 2}], 'b', []],
             [[], 'b', []],
@@ -1784,7 +1783,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     test('arrayExtractIfPropertyMatches', (
         assert:Object
     ):void => {
-        for (const test:Array<any> of [
+        for (const test of [
             [[{a: 'b'}], {a: 'b'}, [{a: 'b'}]],
             [[{a: 'b'}], {a: '.'}, [{a: 'b'}]],
             [[{a: 'b'}], {a: 'a'}, []],
@@ -1801,7 +1800,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ), test[2])
     })
     test('arrayIntersect', ():void => {
-        for (const test:Array<any> of [
+        for (const test of [
             [[['A'], ['A']], ['A']],
             [[['A', 'B'], ['A']], ['A']],
             [[[], []], []],
