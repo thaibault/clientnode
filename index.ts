@@ -210,7 +210,7 @@ export class Semaphore {
  * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
  * to dom nodes which should be visible if javaScript is available.
  */
-export class Tools {
+export class Tools<TElement = HTMLElement> {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
@@ -317,7 +317,7 @@ export class Tools {
     static _name = 'tools'
     // endregion
     // region dynamic properties
-    $domNode:null|$DomNode<HTMLElement> = null
+    $domNode:null|$DomNode<TElement> = null
     locks:{[key:string]:Array<LockCallbackFunction>}
     self:typeof Tools
     _options:Options
@@ -344,7 +344,7 @@ export class Tools {
      * class will be given back.
      */
     constructor(
-        $domNode?:$DomNode<HTMLElement>,
+        $domNode?:$DomNode<TElement>,
         options?:Options,
         defaultOptions:Options = {
             domNode: {
@@ -384,7 +384,7 @@ export class Tools {
                 this._defaultOptions.domNode.hideJavaScriptEnabled
             )
                 .filter(
-                    (index:number, $domNode:$DomNode<HTMLElement>):boolean =>
+                    (index:number, $domNode:$DomNode<TElement>):boolean =>
                         !$domNode.data('javaScriptDependentContentHide')
                 )
                 .data('javaScriptDependentContentHide', true)
@@ -394,7 +394,7 @@ export class Tools {
                 this._defaultOptions.domNode.showJavaScriptEnabled
             )
                 .filter(
-                    (index:number, $domNode:$DomNode<HTMLElement>):boolean =>
+                    (index:number, $domNode:$DomNode<TElement>):boolean =>
                         !$domNode.data('javaScriptDependentContentShow')
                 )
                 .data('javaScriptDependentContentShow', true)
@@ -405,7 +405,7 @@ export class Tools {
      * This method could be overwritten normally. It acts like a destructor.
      * @returns Returns the current instance.
      */
-    destructor():Tools {
+    destructor():Tools<TElement> {
         if ('off' in $.fn)
             this.off('*')
         return this
@@ -447,7 +447,7 @@ export class Tools {
     controller(
         object:any,
         parameter:Array<any>,
-        $domNode:null|$DomNode<HTMLElement> = null
+        $domNode:null|$DomNode<TElement> = null
     ):any {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
@@ -927,8 +927,8 @@ export class Tools {
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, domNode:HTMLElement):any => {
-                    const $domNode:$DomNode<HTMLElement> = $(domNode)
+                .each((index:number, domNode:TElement):any => {
+                    const $domNode:$DomNode<TElement> = $(domNode)
                     const classValue:string|undefined = $domNode.attr(
                         className)
                     if (classValue)
@@ -952,8 +952,8 @@ export class Tools {
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, domNode:HTMLElement):any => {
-                    const $domNode:$DomNode<HTMLElement> = $(domNode)
+                .each((index:number, domNode:TElement):any => {
+                    const $domNode:$DomNode<TElement> = $(domNode)
                     const serializedStyles:string|undefined = $domNode.attr(
                         styleName)
                     if (serializedStyles)
@@ -985,7 +985,7 @@ export class Tools {
      */
     get style():PlainObject {
         const result:PlainObject = {}
-        const $domNode:null|$DomNode<HTMLElement> = this.$domNode
+        const $domNode:null|$DomNode<TElement> = this.$domNode
         if ($domNode && $domNode.length) {
             let styleProperties:any
             if ('window' in $.global && $.global.window.getComputedStyle) {
@@ -1063,7 +1063,7 @@ export class Tools {
             const detemermineHTMLPattern =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
             const inputs:{[key:string]:any} = {first, second}
-            const $domNodes:{[key:string]:$DomNode<HTMLElement>} = {
+            const $domNodes:{[key:string]:$DomNode<TElement>} = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
             /*
@@ -1087,7 +1087,7 @@ export class Tools {
                     $domNodes[type] = $(`<div>${inputs[type]}</div>`)
                 else
                     try {
-                        const $copiedDomNode:$DomNode<HTMLElement> =
+                        const $copiedDomNode:$DomNode<TElement> =
                             $(inputs[type]).clone()
                         if ($copiedDomNode.length)
                             $domNodes[type] = $('<div>').append($copiedDomNode)
@@ -1140,7 +1140,7 @@ export class Tools {
     ):RelativePosition {
         const delta:Position = this.self.extend(
             {bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
-        const $domNode:null|$DomNode<HTMLElement> = this.$domNode
+        const $domNode:null|$DomNode<TElement> = this.$domNode
         if (
             'window' in $.global &&
             $domNode &&
@@ -1190,7 +1190,7 @@ export class Tools {
      * @param directiveName - The directive name.
      * @returns Returns current dom node.
      */
-    removeDirective(directiveName:string):null|$DomNode<HTMLElement> {
+    removeDirective(directiveName:string):null|$DomNode<TElement> {
         if (this.$domNode === null)
             return null
         const delimitedName:string =
@@ -1299,13 +1299,13 @@ export class Tools {
      */
     grabDomNode(
         domNodeSelectors:{[key:string]:string},
-        wrapperDomNode:Node|null|$DomNode<HTMLElement> = null
-    ):{[key:string]:$DomNode<HTMLElement>} {
+        wrapperDomNode:Node|null|$DomNode<TElement> = null
+    ):{[key:string]:$DomNode<TElement>} {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        const domNodes:{[key:string]:$DomNode<HTMLElement>} = {}
+        const domNodes:{[key:string]:$DomNode<TElement>} = {}
         if (domNodeSelectors)
             if (wrapperDomNode) {
-                const $wrapperDomNode:$DomNode<HTMLElement> = $(wrapperDomNode)
+                const $wrapperDomNode:$DomNode<TElement> = $(wrapperDomNode)
                 for (const name in domNodeSelectors)
                     if (Object.prototype.hasOwnProperty.call(
                         domNodeSelectors, name
@@ -1624,7 +1624,7 @@ export class Tools {
      * @param parameter - Parameter to forward.
      * @returns Returns $'s grabbed dom node.
      */
-    on(...parameter:Array<any>):$DomNode<HTMLElement> {
+    on(...parameter:Array<any>):$DomNode<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper(parameter, false)
     }
@@ -1636,7 +1636,7 @@ export class Tools {
      * @param parameter - Parameter to forward.
      * @returns Returns $'s grabbed dom node.
      */
-    off(...parameter:Array<any>):$DomNode<HTMLElement> {
+    off(...parameter:Array<any>):$DomNode<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper(parameter, true, 'off')
     }
@@ -5421,12 +5421,12 @@ export class Tools {
      * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
-        target:$DomNode<HTMLElement>|HTMLElement|string,
+        target:$DomNode<TElement>|TElement|string,
         url:string,
         data:{[key:string]:any},
         requestType:string = 'post',
         removeAfterLoad:boolean = false
-    ):$DomNode<HTMLElement> {
+    ):$DomNode<TElement> {
         const $targetDomNode:$DomNode<HTMLIFrameElement> =
             (typeof target === 'string') ?
                 $(`iframe[name"${target}"]`) :
@@ -5953,9 +5953,9 @@ export class Tools {
         parameter:Array<any>,
         removeEvent:boolean = false,
         eventFunctionName:string = 'on'
-    ):$DomNode<HTMLElement> {
+    ):$DomNode<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        const $domNode:$DomNode<HTMLElement> = $(parameter[0])
+        const $domNode:$DomNode<TElement> = $(parameter[0])
         if (
             this.self.determineType(parameter[1]) === 'object' &&
             !removeEvent
@@ -5988,7 +5988,7 @@ export default Tools
 if ('fn' in $)
     $.fn.Tools = function(...parameter:Array<any>):any {
         return (new Tools()).controller(
-            Tools, parameter, this as unknown as $DomNode<HTMLElement>)
+            Tools, parameter, this as unknown as $DomNode<TElement>)
     }
 // @ts-ignore: Missing "class" property will be added in next statement.
 $.Tools = (...parameter:Array<any>):any =>

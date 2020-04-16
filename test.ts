@@ -26,7 +26,7 @@ try {
     /* eslint-enable no-var */
 } catch (error) {}
 import {getInitializedBrowser} from 'weboptimizer/browser'
-import {Browser} from 'weboptimizer/type'
+import {InitializedBrowser} from 'weboptimizer/type'
 // endregion
 // region declaration
 declare var TARGET_TECHNOLOGY:string
@@ -221,13 +221,13 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         (value:any):void => expect(Tools.isNumeric(value)).toStrictEqual(false)
     )
     test('isWindow', async ():Promise<void> => {
-        const browser:Browser = await getInitializedBrowser()
+        const browser:InitializedBrowser = await getInitializedBrowser()
         expect(Tools.isWindow(browser.window)).toStrictEqual(true)
         for (const value of [null, {}, browser])
             expect(Tools.isWindow(value)).toStrictEqual(false)
     })
     test('isArrayLike', async ():Promise<void> => {
-        const browser:Browser = await getInitializedBrowser()
+        const browser:InitializedBrowser = await getInitializedBrowser()
         for (const value of [
             [], browser.window.document.querySelectorAll('*')
         ])
@@ -609,7 +609,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     )
     if (hasDOM)
         test('grabDomNode', async ():Promise<void> => {
-            const browser:Browser = await getInitializedBrowser()
+            const browser:InitializedBrowser = await getInitializedBrowser()
             for (const test of [
                 [[{a: 'div'}], {a: $('div'), parent: $('body')}],
                 [
