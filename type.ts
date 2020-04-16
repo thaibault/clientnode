@@ -25,12 +25,13 @@ import Tools from './index'
 // region exports
 // / region interfaces
 export type ToolsFunction =
-    ((functionName:string, ...additionalArguments:Array<any>) => any) &
-    {class:typeof Tools}
-export interface $DomNode<T> extends JQuery<T> {
-    Tools:ToolsFunction;
-    [key:number]:T;
+    ((...parameter:Array<any>) => any) & {class:typeof Tools}
+declare global {
+    interface JQuery<TElement = HTMLElement> extends Iterable<TElement> {
+        Tools:ToolsFunction;
+    }
 }
+export type $DomNode<T> = JQuery<T>
 export type $Function =
     ((parameter:any, ...additionalArguments:Array<any>) => any) &
     {
@@ -85,8 +86,7 @@ export type ProxyHandler = {
     has:(target:any, key:string) => boolean;
     set:(target:any, key:string, value:any) => boolean;
 }
-export type LockCallbackFunction = (description:string) =>
-    Promise<any>|undefined
+export type LockCallbackFunction = (description:string) => Promise<any>|void
 // endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
