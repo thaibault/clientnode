@@ -1331,7 +1331,8 @@ export class Tools {
                                     )
                                     .join('')
                         domNodes[name] = $(this.stringNormalizeDomNodeSelector(
-                            domNodeSelectors[name]))
+                            domNodeSelectors[name]
+                        ))
                     }
         if (this._options.domNodeSelectorPrefix)
             domNodes.parent = $(this._options.domNodeSelectorPrefix)

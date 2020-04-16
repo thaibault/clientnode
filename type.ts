@@ -26,10 +26,12 @@ import Tools from './index'
 // / region interfaces
 export type ToolsFunction =
     ((...parameter:Array<any>) => any) & {class:typeof Tools}
-export interface $DomNode<T> extends JQuery<T> {
-    Tools:ToolsFunction;
-    [key:number]:T;
+declare global {
+    interface JQuery<TElement = HTMLElement> extends Iterable<TElement> {
+        Tools:ToolsFunction;
+    }
 }
+export type $DomNode<T> = JQuery<T>
 export type $Function =
     ((parameter:any, ...additionalArguments:Array<any>) => any) &
     {
