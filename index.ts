@@ -210,7 +210,7 @@ export class Semaphore {
  * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
  * to dom nodes which should be visible if javaScript is available.
  */
-export class Tools {
+export class Tools<TElement extends HTMLElement = HTMLElement> {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
@@ -317,7 +317,7 @@ export class Tools {
     static _name = 'tools'
     // endregion
     // region dynamic properties
-    $domNode:null|$DomNode<HTMLElement> = null
+    $domNode:null|$DomNode<TElement> = null
     locks:{[key:string]:Array<LockCallbackFunction>}
     self:typeof Tools
     _options:Options
@@ -344,7 +344,7 @@ export class Tools {
      * class will be given back.
      */
     constructor(
-        $domNode?:$DomNode<HTMLElement>,
+        $domNode?:$DomNode<TElement>,
         options?:Options,
         defaultOptions:Options = {
             domNode: {
@@ -384,7 +384,7 @@ export class Tools {
                 this._defaultOptions.domNode.hideJavaScriptEnabled
             )
                 .filter(
-                    (index:number, $domNode:$DomNode<HTMLElement>):boolean =>
+                    (index:number, $domNode:$DomNode<TElement>):boolean =>
                         !$domNode.data('javaScriptDependentContentHide')
                 )
                 .data('javaScriptDependentContentHide', true)
@@ -394,7 +394,7 @@ export class Tools {
                 this._defaultOptions.domNode.showJavaScriptEnabled
             )
                 .filter(
-                    (index:number, $domNode:$DomNode<HTMLElement>):boolean =>
+                    (index:number, $domNode:$DomNode<TElement>):boolean =>
                         !$domNode.data('javaScriptDependentContentShow')
                 )
                 .data('javaScriptDependentContentShow', true)
@@ -405,7 +405,7 @@ export class Tools {
      * This method could be overwritten normally. It acts like a destructor.
      * @returns Returns the current instance.
      */
-    destructor():Tools {
+    destructor():Tools<TElement> {
         if ('off' in $.fn)
             this.off('*')
         return this
@@ -416,7 +416,7 @@ export class Tools {
      * @param options - An options object.
      * @returns Returns the current instance.
      */
-    initialize(options:PlainObject = {}):Tools {
+    initialize(options:PlainObject = {}):Tools<TElement> {
         /*
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
@@ -447,7 +447,7 @@ export class Tools {
     controller(
         object:any,
         parameter:Array<any>,
-        $domNode:null|$DomNode<HTMLElement> = null
+        $domNode:null|$DomNode<TElement> = null
     ):any {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
@@ -721,7 +721,7 @@ export class Tools {
         avoidAnnotation = false,
         level:keyof Console = 'info',
         ...additionalArguments:Array<any>
-    ):Tools {
+    ):Tools<TElement> {
         if (
             this._options.logging ||
             force ||
@@ -763,7 +763,7 @@ export class Tools {
      * formating.
      * @returns Returns the current instance.
      */
-    info(object:any, ...additionalArguments:Array<any>):Tools {
+    info(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
         return this.log(object, false, false, 'info', ...additionalArguments)
     }
     /**
@@ -774,7 +774,7 @@ export class Tools {
      * formating.
      * @returns Returns the current instance.
      */
-    debug(object:any, ...additionalArguments:Array<any>):Tools {
+    debug(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
         return this.log(object, false, false, 'debug', ...additionalArguments)
     }
     /**
@@ -785,7 +785,7 @@ export class Tools {
      * formating.
      * @returns Returns the current instance.
      */
-    error(object:any, ...additionalArguments:Array<any>):Tools {
+    error(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
         return this.log(object, true, false, 'error', ...additionalArguments)
     }
     /**
@@ -796,7 +796,7 @@ export class Tools {
      * formating.
      * @returns Returns the current instance.
      */
-    critical(object:any, ...additionalArguments:Array<any>):Tools {
+    critical(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
         return this.log(object, true, false, 'warn', ...additionalArguments)
     }
     /**
@@ -807,7 +807,7 @@ export class Tools {
      * formating.
      * @returns Returns the current instance.
      */
-    warn(object:any, ...additionalArguments:Array<any>):Tools {
+    warn(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
         return this.log(object, false, false, 'warn', ...additionalArguments)
     }
     /**
@@ -921,13 +921,13 @@ export class Tools {
      * Normalizes class name order of current dom node.
      * @returns Current instance.
      */
-    get normalizedClassNames():Tools {
+    get normalizedClassNames():Tools<TElement> {
         if (this.$domNode) {
             const className = 'class'
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, domNode:HTMLElement):any => {
+                .each((index:number, domNode:HTMLElement):void => {
                     const $domNode:$DomNode<HTMLElement> = $(domNode)
                     const classValue:string|undefined = $domNode.attr(
                         className)
@@ -946,7 +946,7 @@ export class Tools {
      * Normalizes style attributes order of current dom node.
      * @returns Returns current instance.
      */
-    get normalizedStyles():Tools {
+    get normalizedStyles():Tools<TElement> {
         if (this.$domNode) {
             const styleName = 'style'
             this.$domNode
@@ -985,7 +985,7 @@ export class Tools {
      */
     get style():PlainObject {
         const result:PlainObject = {}
-        const $domNode:null|$DomNode<HTMLElement> = this.$domNode
+        const $domNode:null|$DomNode<TElement> = this.$domNode
         if ($domNode && $domNode.length) {
             let styleProperties:any
             if ('window' in $.global && $.global.window.getComputedStyle) {
@@ -1140,7 +1140,7 @@ export class Tools {
     ):RelativePosition {
         const delta:Position = this.self.extend(
             {bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
-        const $domNode:null|$DomNode<HTMLElement> = this.$domNode
+        const $domNode:null|$DomNode<TElement> = this.$domNode
         if (
             'window' in $.global &&
             $domNode &&
@@ -1190,7 +1190,7 @@ export class Tools {
      * @param directiveName - The directive name.
      * @returns Returns current dom node.
      */
-    removeDirective(directiveName:string):null|$DomNode<HTMLElement> {
+    removeDirective(directiveName:string):null|$DomNode<TElement> {
         if (this.$domNode === null)
             return null
         const delimitedName:string =
@@ -1624,7 +1624,7 @@ export class Tools {
      * @param parameter - Parameter to forward.
      * @returns Returns $'s grabbed dom node.
      */
-    on(...parameter:Array<any>):$DomNode<HTMLElement> {
+    on(...parameter:Array<any>):$DomNode<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper(parameter, false)
     }
@@ -1636,7 +1636,7 @@ export class Tools {
      * @param parameter - Parameter to forward.
      * @returns Returns $'s grabbed dom node.
      */
-    off(...parameter:Array<any>):$DomNode<HTMLElement> {
+    off(...parameter:Array<any>):$DomNode<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper(parameter, true, 'off')
     }
@@ -5953,9 +5953,9 @@ export class Tools {
         parameter:Array<any>,
         removeEvent:boolean = false,
         eventFunctionName:string = 'on'
-    ):$DomNode<HTMLElement> {
+    ):$DomNode<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        const $domNode:$DomNode<HTMLElement> = $(parameter[0])
+        const $domNode:$DomNode<TElement> = $(parameter[0])
         if (
             this.self.determineType(parameter[1]) === 'object' &&
             !removeEvent
@@ -5988,7 +5988,8 @@ export default Tools
 if ('fn' in $)
     $.fn.Tools = function(...parameter:Array<any>):any {
         return (new Tools()).controller(
-            Tools, parameter, this as unknown as $DomNode<HTMLElement>)
+            Tools, parameter, this as unknown as $DomNode<HTMLElement>
+        )
     }
 // @ts-ignore: Missing "class" property will be added in next statement.
 $.Tools = (...parameter:Array<any>):any =>
