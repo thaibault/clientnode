@@ -31,7 +31,7 @@ declare global {
         Tools:ToolsFunction<TElement>;
     }
 }
-export type $DomNode<T = HTMLElement> = JQuery<T>
+export type $DomNode<TElement = HTMLElement> = JQuery<TElement>
 export type $Function =
     ((parameter:any, ...additionalArguments:Array<any>) => any) &
     {

@@ -210,7 +210,7 @@ export class Semaphore {
  * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
  * to dom nodes which should be visible if javaScript is available.
  */
-export class Tools<TElement = HTMLElement> {
+export class Tools<TElement extends HTMLElement = HTMLElement> {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
@@ -416,7 +416,7 @@ export class Tools<TElement = HTMLElement> {
      * @param options - An options object.
      * @returns Returns the current instance.
      */
-    initialize(options:PlainObject = {}):Tools {
+    initialize(options:PlainObject = {}):Tools<TElement> {
         /*
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
@@ -721,7 +721,7 @@ export class Tools<TElement = HTMLElement> {
         avoidAnnotation = false,
         level:keyof Console = 'info',
         ...additionalArguments:Array<any>
-    ):Tools {
+    ):Tools<TElement> {
         if (
             this._options.logging ||
             force ||
@@ -763,7 +763,7 @@ export class Tools<TElement = HTMLElement> {
      * formating.
      * @returns Returns the current instance.
      */
-    info(object:any, ...additionalArguments:Array<any>):Tools {
+    info(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
         return this.log(object, false, false, 'info', ...additionalArguments)
     }
     /**
@@ -774,7 +774,7 @@ export class Tools<TElement = HTMLElement> {
      * formating.
      * @returns Returns the current instance.
      */
-    debug(object:any, ...additionalArguments:Array<any>):Tools {
+    debug(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
         return this.log(object, false, false, 'debug', ...additionalArguments)
     }
     /**
@@ -785,7 +785,7 @@ export class Tools<TElement = HTMLElement> {
      * formating.
      * @returns Returns the current instance.
      */
-    error(object:any, ...additionalArguments:Array<any>):Tools {
+    error(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
         return this.log(object, true, false, 'error', ...additionalArguments)
     }
     /**
@@ -796,7 +796,7 @@ export class Tools<TElement = HTMLElement> {
      * formating.
      * @returns Returns the current instance.
      */
-    critical(object:any, ...additionalArguments:Array<any>):Tools {
+    critical(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
         return this.log(object, true, false, 'warn', ...additionalArguments)
     }
     /**
@@ -807,7 +807,7 @@ export class Tools<TElement = HTMLElement> {
      * formating.
      * @returns Returns the current instance.
      */
-    warn(object:any, ...additionalArguments:Array<any>):Tools {
+    warn(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
         return this.log(object, false, false, 'warn', ...additionalArguments)
     }
     /**
@@ -921,14 +921,14 @@ export class Tools<TElement = HTMLElement> {
      * Normalizes class name order of current dom node.
      * @returns Current instance.
      */
-    get normalizedClassNames():Tools {
+    get normalizedClassNames():Tools<TElement> {
         if (this.$domNode) {
             const className = 'class'
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, domNode:TElement):any => {
-                    const $domNode:$DomNode<TElement> = $(domNode)
+                .each((index:number, domNode:HTMLElement):void => {
+                    const $domNode:$DomNode<HTMLElement> = $(domNode)
                     const classValue:string|undefined = $domNode.attr(
                         className)
                     if (classValue)
@@ -946,14 +946,14 @@ export class Tools<TElement = HTMLElement> {
      * Normalizes style attributes order of current dom node.
      * @returns Returns current instance.
      */
-    get normalizedStyles():Tools {
+    get normalizedStyles():Tools<TElement> {
         if (this.$domNode) {
             const styleName = 'style'
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, domNode:TElement):any => {
-                    const $domNode:$DomNode<TElement> = $(domNode)
+                .each((index:number, domNode:HTMLElement):any => {
+                    const $domNode:$DomNode<HTMLElement> = $(domNode)
                     const serializedStyles:string|undefined = $domNode.attr(
                         styleName)
                     if (serializedStyles)
@@ -1063,7 +1063,7 @@ export class Tools<TElement = HTMLElement> {
             const detemermineHTMLPattern =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
             const inputs:{[key:string]:any} = {first, second}
-            const $domNodes:{[key:string]:$DomNode<TElement>} = {
+            const $domNodes:{[key:string]:$DomNode<HTMLElement>} = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
             /*
@@ -1087,7 +1087,7 @@ export class Tools<TElement = HTMLElement> {
                     $domNodes[type] = $(`<div>${inputs[type]}</div>`)
                 else
                     try {
-                        const $copiedDomNode:$DomNode<TElement> =
+                        const $copiedDomNode:$DomNode<HTMLElement> =
                             $(inputs[type]).clone()
                         if ($copiedDomNode.length)
                             $domNodes[type] = $('<div>').append($copiedDomNode)
@@ -1299,13 +1299,13 @@ export class Tools<TElement = HTMLElement> {
      */
     grabDomNode(
         domNodeSelectors:{[key:string]:string},
-        wrapperDomNode:Node|null|$DomNode<TElement> = null
-    ):{[key:string]:$DomNode<TElement>} {
+        wrapperDomNode:Node|null|$DomNode<HTMLElement> = null
+    ):{[key:string]:$DomNode<HTMLElement>} {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        const domNodes:{[key:string]:$DomNode<TElement>} = {}
+        const domNodes:{[key:string]:$DomNode<HTMLElement>} = {}
         if (domNodeSelectors)
             if (wrapperDomNode) {
-                const $wrapperDomNode:$DomNode<TElement> = $(wrapperDomNode)
+                const $wrapperDomNode:$DomNode<HTMLElement> = $(wrapperDomNode)
                 for (const name in domNodeSelectors)
                     if (Object.prototype.hasOwnProperty.call(
                         domNodeSelectors, name
@@ -5421,12 +5421,12 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
-        target:$DomNode<TElement>|TElement|string,
+        target:$DomNode<HTMLElement>|HTMLElement|string,
         url:string,
         data:{[key:string]:any},
         requestType:string = 'post',
         removeAfterLoad:boolean = false
-    ):$DomNode<TElement> {
+    ):$DomNode<HTMLElement> {
         const $targetDomNode:$DomNode<HTMLIFrameElement> =
             (typeof target === 'string') ?
                 $(`iframe[name"${target}"]`) :
@@ -5988,7 +5988,8 @@ export default Tools
 if ('fn' in $)
     $.fn.Tools = function(...parameter:Array<any>):any {
         return (new Tools()).controller(
-            Tools, parameter, this as unknown as $DomNode<TElement>)
+            Tools, parameter, this as unknown as $DomNode<HTMLElement>
+        )
     }
 // @ts-ignore: Missing "class" property will be added in next statement.
 $.Tools = (...parameter:Array<any>):any =>
