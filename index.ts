@@ -2561,15 +2561,15 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * path.
      * @param target - Object to search in.
      * @param selector - Selector path.
-     * @param delimiter - Delimiter to delimit given selector components.
      * @param skipMissingLevel - Indicates to skip missing level in given path.
+     * @param delimiter - Delimiter to delimit given selector components.
      * @returns Determined sub structure of given data or "undefined".
      */
     static getSubstructure(
         target:any,
         selector:Array<string>|string,
-        delimiter:string = '.',
-        skipMissingLevel:boolean = false
+        skipMissingLevel:boolean = false,
+        delimiter:string = '.'
     ):any {
         let path:Array<string> = []
         // @ts-ignore: Workaround to ensure having an array.
@@ -2584,7 +2584,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             )
                 result = result[name]
             else if (!skipMissingLevel)
-                break
+                return undefined
         return result
     }
     /**
