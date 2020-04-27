@@ -2568,7 +2568,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
     static getSubstructure(
         target:any,
         selector:Array<string>|string,
-        skipMissingLevel:boolean = false,
+        skipMissingLevel:boolean = true,
         delimiter:string = '.'
     ):any {
         let path:Array<string> = []
