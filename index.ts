@@ -2636,9 +2636,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         }
     }
     // TODO
-    static maskObject(
-        object:object, mask:ObjectMaskConfiguration
-    ):PlainObject {
+    static maskObject(object:object, mask:ObjectMaskConfiguration):object {
         mask = Tools.extend({exclude: false, include: true}, mask)
         if (
             mask.exclude === true ||
@@ -2646,8 +2644,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             typeof object !== 'object'
         )
             return {}
-        const result = {}
-        if (Tools.isPlainObject(mask.include))
+        let result:object = {}
+        if (Tools.isPlainObject(mask.include)) {
             for (const key in mask.include)
                 if (
                     mask.include.hasOwnProperty(key) &&
@@ -2662,6 +2660,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                         result[key] = this.maskObject(
                             object[key], {include: mask.include[key]}
                         )
+        } else
+            result = object
         if (Tools.isPlainObject(mask.exclude))
             for (const key in mask.exclude)
                 if (
