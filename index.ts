@@ -35,6 +35,7 @@ import {
     GetterFunction,
     LockCallbackFunction,
     Noop,
+    ObjectMaskConfiguration,
     Options,
     PlainObject,
     Position,
@@ -2633,6 +2634,50 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 return true
             }
         }
+    }
+    // TODO
+    static maskObject(
+        object:object, mask:ObjectMaskConfiguration
+    ):PlainObject {
+        mask = Tools.extend({exclude: false, include: true}, mask)
+        if (
+            mask.exclude === true ||
+            mask.include === false ||
+            typeof object !== 'object'
+        )
+            return {}
+        const result = {}
+        if (Tools.isPlainObject(mask.include))
+            for (const key in mask.include)
+                if (
+                    mask.include.hasOwnProperty(key) &&
+                    object.hasOwnProperty(key)
+                )
+                    if (mask.include[key] === true)
+                        result[key] = object[key]
+                    else if (
+                        Tools.isPlainObject(mask.include[key]) &&
+                        typeof object[key] === 'object'
+                    )
+                        result[key] = this.maskObject(
+                            object[key], {include: mask.include[key]}
+                        )
+        if (Tools.isPlainObject(mask.exclude))
+            for (const key in mask.exclude)
+                if (
+                    mask.exclude.hasOwnProperty(key) &&
+                    result.hasOwnProperty(key)
+                )
+                    if (mask.exclude[key] === true)
+                        delete result[key]
+                    else if (
+                        Tools.isPlainObject(mask.exclude[key]) &&
+                        typeof result[key] === 'object'
+                    )
+                        result[key] = this.maskObject(
+                            result[key], {exclude: mask.exclude[key]}
+                        )
+        return result
     }
     /**
      * Modifies given target corresponding to given source and removes source

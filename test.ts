@@ -15,7 +15,9 @@
 */
 // region imports
 import Tools, {globalContext, Semaphore, $} from './index'
-import {File, Mapping, PlainObject, $DomNode} from './type'
+import {
+    File, Mapping, ObjectMaskConfiguration, PlainObject, $DomNode
+} from './type'
 if (!('fetch' in globalContext))
     try {
         globalContext.fetch = eval('require')('node-fetch')
@@ -807,9 +809,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     }
     // / endregion
     // / region object
-    test('addDynamicGetterAndSetter', (
-        assert:Object
-    ):void => {
+    test('addDynamicGetterAndSetter', (assert:Object):void => {
         expect(Tools.addDynamicGetterAndSetter(null)).toStrictEqual(null)
         expect(Tools.addDynamicGetterAndSetter(true)).toStrictEqual(true)
         expect(Tools.addDynamicGetterAndSetter({a: 2})).toStrictEqual({a: 2})
@@ -1551,6 +1551,17 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             Tools.isPlainObject(Tools.getProxyHandler(new Map(), {get: 'get'}))
         ).toStrictEqual(true)
     })
+    test.each([
+        [{}, {}, {}]
+    ])(
+        '.maskObject(%p, %p) === %p',
+        (
+            object:object, mask:ObjectMaskConfiguration, expected:PlainObject
+        ):void => {
+            expect(Tools.maskObject(object, mask)).toStrictEqual(expected)
+            // TODO
+        }
+    )
     test.each([
         [[{}, {}], {}, {}],
         [[{a: 2}, {}], {a: 2}, {}],
