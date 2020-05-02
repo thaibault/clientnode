@@ -15,7 +15,9 @@
 */
 // region imports
 import Tools, {globalContext, Semaphore, $} from './index'
-import {File, Mapping, PlainObject, $DomNode} from './type'
+import {
+    File, Mapping, ObjectMaskConfiguration, PlainObject, $DomNode
+} from './type'
 if (!('fetch' in globalContext))
     try {
         globalContext.fetch = eval('require')('node-fetch')
@@ -807,9 +809,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     }
     // / endregion
     // / region object
-    test('addDynamicGetterAndSetter', (
-        assert:Object
-    ):void => {
+    test('addDynamicGetterAndSetter', (assert:Object):void => {
         expect(Tools.addDynamicGetterAndSetter(null)).toStrictEqual(null)
         expect(Tools.addDynamicGetterAndSetter(true)).toStrictEqual(true)
         expect(Tools.addDynamicGetterAndSetter({a: 2})).toStrictEqual({a: 2})
@@ -1053,10 +1053,9 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [new Set(['a', new Set(['a', 2])]), 10],
             new Set(['a', new Set(['a', 2])])
         ]
-    ])('.copy(...%p) === %p', (values:Array<any>, expected:any):void => {
-        console.log(Tools.copy(...values))
+    ])('.copy(...%p) === %p', (values:Array<any>, expected:any):void =>
         expect(Tools.copy(...values)).toStrictEqual(expected)
-    })
+    )
     test('determineType', ():void =>
         expect(Tools.determineType()).toStrictEqual('undefined')
     )
@@ -1551,6 +1550,74 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             Tools.isPlainObject(Tools.getProxyHandler(new Map(), {get: 'get'}))
         ).toStrictEqual(true)
     })
+    test.each([
+        [{}, {}, {}],
+        [{a: 2}, {}, {a: 2}],
+        [{a: 2}, {include: false}, {}],
+        [{a: 2}, {include: true}, {a: 2}],
+        [{a: 2}, {include: {a: true}}, {a: 2}],
+        [{a: 2}, {include: {b: true}}, {}],
+        [{a: 2}, {include: {a: false}}, {}],
+        [{a: 2}, {include: {b: false}}, {}],
+        [{a: 2, b: 3}, {include: {a: true}}, {a: 2}],
+        [{a: 2, b: 3}, {include: {}}, {}],
+        [{a: 2, b: 3}, {include: {a: false, b: true}}, {b: 3}],
+        [{a: 2, b: {a: 2}}, {include: {a: false, b: true}}, {b: {a: 2}}],
+        [{a: 2, b: {a: 2}}, {include: {a: false, b: {}}}, {b: {}}],
+        [{a: 2, b: {a: 2}}, {include: {a: false, b: {a: true}}}, {b: {a: 2}}],
+        [
+            {a: 2, b: {a: 2}},
+            {include: {a: true, b: {a: false}}},
+            {a: 2, b: {}}
+        ],
+        [
+            {a: 2, b: {a: 2}},
+            {include: {a: true, b: {a: false}, c: true}},
+            {a: 2, b: {}}
+        ],
+        [
+            {a: 2, b: {a: 2}},
+            {include: {a: true, b: {a: true}}},
+            {a: 2, b: {a: 2}}
+        ],
+        [
+            {a: {a: {a: {a: 2, b: 3}}}},
+            {include: {a: {a: {a: {a: true}}}}},
+            {a: {a: {a: {a: 2}}}},
+        ],
+        [
+            {a: {a: {a: {a: 2, b: 3}}}},
+            {include: {a: {a: {a: true}}}},
+            {a: {a: {a: {a: 2, b: 3}}}},
+        ],
+        [{a: 2}, {exclude: true}, {}],
+        [{a: 2}, {exclude: false}, {a: 2}],
+        [{a: 2}, {exclude: {a: true}}, {}],
+        [{a: 2}, {exclude: {b: true}}, {a: 2}],
+        [{a: 2}, {exclude: {b: true}}, {a: 2}],
+        [{a: 2, b: 3}, {exclude: {b: true}}, {a: 2}],
+        [{a: 2, b: 3}, {exclude: {b: false}}, {a: 2, b: 3}],
+        [{a: 2, b: {a: 2}}, {exclude: {b: {}}}, {a: 2, b: {a: 2}}],
+        [{a: 2, b: {a: 2}}, {exclude: {b: {a: true}}}, {a: 2, b: {}}],
+        [{a: 2, b: {a: 2}}, {exclude: {b: true}}, {a: 2}],
+        [{a: 2, b: {a: 2}}, {exclude: {b: {a: false}}}, {a: 2, b: {a: 2}}],
+        [
+            {a: {a: {a: {a: 2, b: 3}}}},
+            {exclude: {a: {a: {a: {a: true}}}}},
+            {a: {a: {a: {b: 3}}}},
+        ],
+        [
+            {a: {a: {a: {a: 2, b: 3}}}},
+            {exclude: {a: {a: {a: true}}}},
+            {a: {a: {}}},
+        ]
+    ])(
+        '.maskObject(%p, %p) === %p',
+        (
+            object:object, mask:ObjectMaskConfiguration, expected:object
+        ):void =>
+            expect(Tools.maskObject(object, mask)).toStrictEqual(expected)
+    )
     test.each([
         [[{}, {}], {}, {}],
         [[{a: 2}, {}], {a: 2}, {}],

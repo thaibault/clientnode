@@ -35,6 +35,7 @@ import {
     GetterFunction,
     LockCallbackFunction,
     Noop,
+    ObjectMaskConfiguration,
     Options,
     PlainObject,
     Position,
@@ -2561,15 +2562,15 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * path.
      * @param target - Object to search in.
      * @param selector - Selector path.
-     * @param delimiter - Delimiter to delimit given selector components.
      * @param skipMissingLevel - Indicates to skip missing level in given path.
+     * @param delimiter - Delimiter to delimit given selector components.
      * @returns Determined sub structure of given data or "undefined".
      */
     static getSubstructure(
         target:any,
         selector:Array<string>|string,
-        delimiter:string = '.',
-        skipMissingLevel:boolean = false
+        skipMissingLevel:boolean = true,
+        delimiter:string = '.'
     ):any {
         let path:Array<string> = []
         // @ts-ignore: Workaround to ensure having an array.
@@ -2584,7 +2585,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             )
                 result = result[name]
             else if (!skipMissingLevel)
-                break
+                return undefined
         return result
     }
     /**
@@ -2633,6 +2634,50 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 return true
             }
         }
+    }
+    // TODO
+    static maskObject(object:object, mask:ObjectMaskConfiguration):object {
+        mask = Tools.extend({exclude: false, include: true}, mask)
+        if (
+            mask.exclude === true ||
+            mask.include === false ||
+            typeof object !== 'object'
+        )
+            return {}
+        let result:object = {}
+        if (Tools.isPlainObject(mask.include)) {
+            for (const key in mask.include)
+                if (
+                    mask.include.hasOwnProperty(key) &&
+                    object.hasOwnProperty(key)
+                )
+                    if (mask.include[key] === true)
+                        result[key] = object[key]
+                    else if (
+                        Tools.isPlainObject(mask.include[key]) &&
+                        typeof object[key] === 'object'
+                    )
+                        result[key] = this.maskObject(
+                            object[key], {include: mask.include[key]}
+                        )
+        } else
+            result = object
+        if (Tools.isPlainObject(mask.exclude))
+            for (const key in mask.exclude)
+                if (
+                    mask.exclude.hasOwnProperty(key) &&
+                    result.hasOwnProperty(key)
+                )
+                    if (mask.exclude[key] === true)
+                        delete result[key]
+                    else if (
+                        Tools.isPlainObject(mask.exclude[key]) &&
+                        typeof result[key] === 'object'
+                    )
+                        result[key] = this.maskObject(
+                            result[key], {exclude: mask.exclude[key]}
+                        )
+        return result
     }
     /**
      * Modifies given target corresponding to given source and removes source
