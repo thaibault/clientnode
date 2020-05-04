@@ -2635,7 +2635,15 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             }
         }
     }
-    // TODO
+    /**
+     * Slices all properties from given object which does not match provided
+     * object mask. Items can be explicitly white listed via "include" mask
+     * configuration or black listed via "exclude" mask configuration.
+     * @param object - Object to slice.
+     * @param mask - Mask configuration.
+     * @returns Given but sliced object. If object will be modified a flat
+     * copy will be returned.
+     */
     static maskObject(object:object, mask:ObjectMaskConfiguration):object {
         mask = Tools.extend({exclude: false, include: true}, mask)
         if (
@@ -2652,14 +2660,17 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                     object.hasOwnProperty(key)
                 )
                     if (mask.include[key] === true)
-                        result[key] = object[key]
+                        result[key as keyof object] =
+                            object[key as keyof object]
                     else if (
                         Tools.isPlainObject(mask.include[key]) &&
-                        typeof object[key] === 'object'
+                        typeof object[key as keyof object] === 'object'
                     )
-                        result[key] = this.maskObject(
-                            object[key], {include: mask.include[key]}
-                        )
+                        (result[key as keyof object] as object) =
+                            this.maskObject(
+                                object[key as keyof object],
+                                {include: mask.include[key]}
+                            )
         } else
             result = object
         if (Tools.isPlainObject(mask.exclude))
@@ -2669,14 +2680,16 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                     result.hasOwnProperty(key)
                 )
                     if (mask.exclude[key] === true)
-                        delete result[key]
+                        delete result[key as keyof object]
                     else if (
                         Tools.isPlainObject(mask.exclude[key]) &&
-                        typeof result[key] === 'object'
+                        typeof result[key as keyof object] === 'object'
                     )
-                        result[key] = this.maskObject(
-                            result[key], {exclude: mask.exclude[key]}
-                        )
+                        (result[key as keyof object] as object) =
+                            this.maskObject(
+                                result[key as keyof object],
+                                {exclude: mask.exclude[key]}
+                            )
         return result
     }
     /**
