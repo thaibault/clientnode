@@ -16,7 +16,12 @@
 // region imports
 import Tools, {globalContext, Semaphore, $} from './index'
 import {
-    File, Mapping, ObjectMaskConfiguration, PlainObject, $DomNode
+    File,
+    Mapping,
+    ObjectMaskConfiguration,
+    PlainObject,
+    TimeoutPromise,
+    $DomNode
 } from './type'
 if (!('fetch' in globalContext))
     try {
@@ -618,7 +623,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                     [{a: 'script'}, 'body'],
                     {a: $('body').find('script'), parent: $('body')}
                 ]
-            ]) {
+            ] as Array<[[Mapping, string?], Mapping<$DomNode>]>) {
                 const $domNodes = tools.grabDomNode(...test[0])
                 delete $domNodes.window
                 delete $domNodes.document
@@ -632,13 +637,13 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         expect(Tools.isolateScope({a: 2})).toStrictEqual({a: 2})
         expect(Tools.isolateScope({a: 2, b: {a: [1, 2]}}))
             .toStrictEqual({a: 2, b: {a: [1, 2]}})
-        let Scope:Function = function():void {
+        let Scope:Function = function(this:Mapping<number>):void {
             this.a = 2
         }
         Scope.prototype = {_a: 5, b: 2}
-        let scope:Scope = new Scope()
+        let scope:Mapping<number> = new (Scope as (new () => Mapping<number>))()
         Tools.isolateScope(scope, ['_'])
-        let finalScope:PlainObject = {}
+        let finalScope:Mapping<number> = {}
         for (const name in scope)
             finalScope[name] = scope[name]
         expect(finalScope).toStrictEqual({_a: 5, a: 2, b: undefined})
@@ -653,16 +658,18 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         scope._a = 6
         expect(Tools.isolateScope(scope, ['_']))
             .toStrictEqual({_a: 6, a: 2, b: 3})
-        Scope = function():void {
+        Scope = function(this:Mapping<number>):void {
             this.a = 2
         }
         Scope.prototype = {b: 3}
-        scope = Tools.isolateScope(new Scope(), ['b'])
+        scope = Tools.isolateScope(
+            new (Scope as (new () => Mapping<number>))(), ['b']
+        )
         finalScope = {}
         for (const name in scope)
             finalScope[name] = scope[name]
         expect(finalScope).toStrictEqual({a: 2, b: 3})
-        expect(Tools.isolateScope(new Scope()))
+        expect(Tools.isolateScope(new (Scope as (new () => Mapping<number>))()))
             .toStrictEqual({a: 2, b: undefined})
     })
     test('determineUniqueScopeName', ():void => {
@@ -708,7 +715,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         ]
     ])(
         `.getParameterNames('%s') === %p`,
-        (code:string, parameterNames:Array<string>):void =>
+        (code:Function|string, parameterNames:Array<string>):void =>
             expect(Tools.getParameterNames(code)).toStrictEqual(parameterNames)
     )
     test('identity', ():void => {
@@ -740,7 +747,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         expect(Tools.timeout()).toBeInstanceOf(Promise)
         expect(Tools.timeout().hasOwnProperty('clear')).toStrictEqual(true)
         let test:boolean = false
-        const result:Promise<boolean> = Tools.timeout(10 ** 20, true)
+        const result:TimeoutPromise = Tools.timeout(10 ** 20, true)
         result.catch(():void => {
             test = true
         })
@@ -778,9 +785,14 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             $.Tools({onClick: ():false => false}).fireEvent('click', true)
         ).toStrictEqual(false)
         expect(tools.fireEvent('click')).toStrictEqual(true)
-        tools.onClick = ():3 => 3
-        expect(tools.fireEvent('click')).toStrictEqual(true)
-        expect(tools.fireEvent('click')).toStrictEqual(true)
+        class Plugin extends Tools {
+            onClick():3 {
+                return 3
+            }
+        }
+        const plugin:Plugin = new Plugin()
+        expect(plugin.fireEvent('click')).toStrictEqual(true)
+        expect(plugin.fireEvent('click')).toStrictEqual(true)
     })
     if (hasDOM) {
         test('on', ():void => {
@@ -883,8 +895,8 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         ).toStrictEqual(3)
     })
     test('convertCircularObjectToJSON', ():void => {
-        const object1:Object = {}
-        const object2:Object = {a: object1}
+        const object1:{a?:object} = {}
+        const object2:{a:object} = {a: object1}
         object1.a = object2
         expect(Tools.convertCircularObjectToJSON(object1))
             .toStrictEqual('{"a":{"a":"__circularReference__"}}')
@@ -901,53 +913,76 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 .toStrictEqual(expected)
     )
     test.each([
-        [[null], null],
-        [[true], true],
-        [[0], 0],
-        [[2], 2],
-        [['a'], 'a'],
-        [[new Map()], {}],
-        [[[new Map()]], [{}]],
-        [[[new Map()], false], [new Map()]],
-        [[[new Map([['a', 2], [2, 2]])]], [{a: 2, '2': 2}]],
-        [[[new Map([['a', new Map()], [2, 2]])]], [{a: {}, '2': 2}]],
+        [null, null],
+        [true, true],
+        [0, 0],
+        [2, 2],
+        ['a', 'a'],
+        [{}, new Map()],
+        [[{}], [new Map()]],
+        [[new Map()], [new Map()], false],
+        [[{a: 2, '2': 2}], [new Map<string, number>([['a', 2], ['2', 2]])]],
         [
-            [[new Map([['a', new Map([['a', 2]])], [2, 2]])]],
-            [{a: {a: 2}, '2': 2}]
+            [[{a: {}, '2': 2}]],
+            [[new Map<string, Map<string, string>|number>(
+                [['a', new Map()], ['2', 2]]
+            )]]
+        ],
+        [
+            [[{a: {a: 2}, '2': 2}]],
+            [[new Map<string, Map<string, number>|number>(
+                [['a', new Map([['a', 2]])], ['2', 2]]
+            )]]
         ]
     ])(
-        '.convertMapToPlainObject(...%p) === %p',
-        (values:Array<any>, expected:any):void =>
-            expect(Tools.convertMapToPlainObject(...values))
+        '%p === .convertMapToPlainObject(%p, %p)',
+        (expected:any, object:any, deep:boolean = true):void =>
+            expect(Tools.convertMapToPlainObject(object, deep))
                 .toStrictEqual(expected)
     )
     test.each([
-        [[null], null],
-        [[true], true],
-        [[0], 0],
-        [[2], 2],
-        [['a'], 'a'],
-        [[{}], new Map()],
-        [[[{}]], [new Map()]],
-        [[[{}], false], [{}]],
-        [[[{a: {}, b: 2}]], [new Map([['a', new Map()], ['b', 2]])]],
-        [[[{b: 2, a: {}}]], [new Map([['a', new Map()], ['b', 2]])]],
+        [null, null],
+        [true, true],
+        [0, 0],
+        [2, 2],
+        ['a', 'a'],
+        [new Map(), {}],
+        [[new Map()], [{}]],
+        [[{}], [{}], false],
         [
-            [[{b: 2, a: new Map()}]],
-            [new Map([['a', new Map()], ['b', 2]])]
+            [new Map<string, Map<string, string>|number>(
+                [['a', new Map()], ['b', 2]]
+            )],
+            [{a: {}, b: 2}]
         ],
         [
-            [[{b: 2, a: [{}]}]],
-            [new Map([['a', [new Map()]], ['b', 2]])]
+            [new Map<string, Map<string, string>|number>(
+                [['a', new Map()], ['b', 2]]
+            )],
+            [{b: 2, a: {}}]
         ],
         [
-            [[{b: 2, a: new Set([{}])}]],
-            [new Map([['a', new Set([new Map()])], ['b', 2]])]
+            [new Map<string, Map<string, string>|number>(
+                [['a', new Map()], ['b', 2]]
+            )],
+            [{b: 2, a: new Map()}]
+        ],
+        [
+            [new Map<string, [Map<string, string>]|number>(
+                [['a', [new Map()]], ['b', 2]]
+            )],
+            [{b: 2, a: [{}]}]
+        ],
+        [
+            [new Map<string, Set<Map<string, string>>|number>(
+                [['a', new Set([new Map()])], ['b', 2]]
+            )],
+            [{b: 2, a: new Set([{}])}]
         ]
     ])(
-        '.convertPlainObjectToMap(...%p) === %p',
-        (values:Array<any>, expected:any):void =>
-            expect(Tools.convertPlainObjectToMap(...values))
+        '%p === .convertPlainObjectToMap(%p, %p)',
+        (expected:any, object:any, deep:boolean = true):void =>
+            expect(Tools.convertPlainObjectToMap(object, deep))
                 .toStrictEqual(expected)
     )
     test.each([
@@ -971,96 +1006,120 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ).toStrictEqual(expected)
     )
     test.each([
-        [[21], 21],
-        [[0, -1], 0],
-        [[0, 1], 0],
-        [[0, 10], 0],
-        [[new Date(0)], new Date(0)],
-        [[/a/], /a/],
-        [[{}], {}],
-        [[{}, -1], {}],
-        [[[]], []],
-        [[new Map(), -1], new Map()],
-        [[new Set(), -1], new Set()],
-        [[{a: 2}, 0], {a: 2}],
-        [[{a: {a: 2}}, 0, null], {a: null}],
-        [[{a: {a: 2}}, 0], {a: {a: 2}}],
-        [[{a: {a: 2}}, 1], {a: {a: 2}}],
-        [[{a: {a: 2}}, 2], {a: {a: 2}}],
-        [[{a: [{a: 2}]}, 1, null], {a: [null]}],
-        [[{a: [{a: 2}]}, 2], {a: [{a: 2}]}],
-        [[{a: {a: 2}}, 10], {a: {a: 2}}],
-        [[new Map([['a', 2]]), 0], new Map([['a', 2]])],
+        [21, 21],
+        [0, 0],
+        [0, 0, -1],
+        [0, 0, 1],
+        [0, 0, 10],
+        [new Date(0), new Date(0)],
+        [/a/, /a/],
+        [{}, {}],
+        [{}, {}, -1],
+        [[], []],
+        [new Map(), new Map()],
+        [new Set(), new Set()],
+        [{a: 2}, {a: 2}, 0],
+        [{a: null}, {a: {a: 2}}, 0, null],
+        [{a: {a: 2}}, {a: {a: 2}}, 0],
+        [{a: {a: 2}}, {a: {a: 2}}, 1],
+        [{a: {a: 2}}, {a: {a: 2}}, 2],
+        [{a: [null]}, {a: [{a: 2}]}, 1, null],
+        [{a: [{a: 2}]}, {a: [{a: 2}]}, 2],
+        [{a: {a: 2}}, {a: {a: 2}}, 10],
+        [new Map([['a', 2]]), new Map([['a', 2]]), 0],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 0, null],
-            new Map([['a', null]])
+            new Map([['a', null]]),
+            new Map([['a', new Map([['a', 2]])]]),
+            0,
+            null
         ],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 0],
-            new Map([['a', new Map([['a', 2]])]])
+            new Map([['a', new Map([['a', 2]])]]),
+            new Map([['a', new Map([['a', 2]])]]),
+            0
         ],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 1],
-            new Map([['a', new Map([['a', 2]])]])
+            new Map([['a', new Map([['a', 2]])]]),
+            new Map([['a', new Map([['a', 2]])]]),
+            1
         ],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 2],
-            new Map([['a', new Map([['a', 2]])]])
+            new Map([['a', new Map([['a', 2]])]]),
+            new Map([['a', new Map([['a', 2]])]]),
+            2
         ],
         [
-            [new Map([['a', [new Map([['a', 2]])]]]), 1, null],
-            new Map([['a', [null]]])
+            new Map([['a', [null]]]),
+            new Map([['a', [new Map([['a', 2]])]]]),
+            1,
+            null
         ],
         [
-            [new Map([['a', [new Map([['a', 2]])]]]), 2],
-            new Map([['a', [new Map([['a', 2]])]]])
+            new Map([['a', [new Map([['a', 2]])]]]),
+            new Map([['a', [new Map([['a', 2]])]]]),
+            2
         ],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 10],
-            new Map([['a', new Map([['a', 2]])]])
+            new Map([['a', new Map([['a', 2]])]]),
+            new Map([['a', new Map([['a', 2]])]]),
+            10
         ],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 10],
-            new Map([['a', new Map([['a', 2]])]])
+            new Map([['a', new Map([['a', 2]])]]),
+            new Map([['a', new Map([['a', 2]])]]),
+            10
         ],
-        [[new Set(['a', 2]), 0], new Set(['a', 2])],
-        [[new Set(['a', new Set(['a', 2])]), 0, null], new Set([null, null])],
+        [new Set(['a', 2]), new Set(['a', 2]), 0],
+        [new Set([null, null]), new Set(['a', new Set(['a', 2])]), 0, null],
         [
-            [new Set(['a', new Set(['a', 2])]), 1, null],
-            new Set(['a', new Set([null, null])])
-        ],
-        [
-            [new Set(['a', new Set(['a', 2])]), 1],
-            new Set(['a', new Set(['a', 2])])
-        ],
-        [
-            [new Set(['a', new Set(['a', 2])]), 2],
-            new Set(['a', new Set(['a', 2])])
+            new Set(['a', new Set([null, null])]),
+            new Set(['a', new Set(['a', 2])]),
+            1,
+            null
         ],
         [
-            [new Set(['a', [new Set(['a', 2])]]), 1, null],
-            new Set(['a', [null]])
+            new Set(['a', new Set(['a', 2])]),
+            new Set(['a', new Set(['a', 2])]),
+            1
         ],
         [
-            [new Set(['a', [new Set(['a', 2])]]), 2],
-            new Set(['a', [new Set(['a', 2])]])
+            new Set(['a', new Set(['a', 2])]),
+            new Set(['a', new Set(['a', 2])]),
+            2
         ],
         [
-            [new Set(['a', new Set(['a', 2])]), 10],
-            new Set(['a', new Set(['a', 2])])
+            new Set(['a', [null]]),
+            new Set(['a', [new Set(['a', 2])]]),
+            1,
+            null
         ],
         [
-            [new Set(['a', new Set(['a', 2])]), 10],
-            new Set(['a', new Set(['a', 2])])
+            new Set(['a', [new Set(['a', 2])]]),
+            new Set(['a', [new Set(['a', 2])]]),
+            2
+        ],
+        [
+            new Set(['a', new Set(['a', 2])]),
+            new Set(['a', new Set(['a', 2])]),
+            10
+        ],
+        [
+            new Set(['a', new Set(['a', 2])]),
+            new Set(['a', new Set(['a', 2])]),
+            10
         ]
-    ])('.copy(...%p) === %p', (values:Array<any>, expected:any):void =>
-        expect(Tools.copy(...values)).toStrictEqual(expected)
+    ])(
+        '%p === .copy(...%p)',
+        (expected:any, object:any, ...parameter:Array<any>):void =>
+            expect(Tools.copy<any>(object, ...parameter))
+                .toStrictEqual(expected)
     )
     test('determineType', ():void =>
         expect(Tools.determineType()).toStrictEqual('undefined')
     )
     test.each([
         [undefined, 'undefined'],
+        // @ts-ignore: Expected.
         [{}.notDefined, 'undefined'],
         [null, 'null'],
         [true, 'boolean'],
@@ -1119,8 +1178,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         ],
         [Tools.noop, Tools.noop],
         [Tools.noop, Tools.noop, null, -1, [], false]
-    ])('.equals(...%p) === true', (...values:Array<any>):void =>
-        expect(Tools.equals(...values)).toStrictEqual(true)
+    ])(
+        '.equals(%p, %p, ...%p) === true',
+        (first:any, second:any, ...parameter:Array<any>):void =>
+            expect(Tools.equals(first, second, ...parameter))
+                .toStrictEqual(true)
     )
     if (TARGET_TECHNOLOGY === 'node')
         test('equals', ():void =>
@@ -1165,8 +1227,8 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 }
             ]
         ])(
-            '.equals(%p, %p) === true',
-            async (first:any, target:any):Promise<void> =>
+            '.equals(%p, %p, null, -1, [], true, true) === true',
+            async (first:any, second:any):Promise<void> =>
                 expect(
                     await Tools.equals(first, second, null, -1, [], true, true)
                 ).toStrictEqual(true)
@@ -1234,75 +1296,69 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [1, 2, 0],
         [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
         [():void => {}, ():void => {}, null, -1, [], false]
-    ])('.equals(...%p) === false', (...values:Array<any>):void =>
-        expect(Tools.equals(...values)).toStrictEqual(false)
+    ])(
+        '.equals(%p, %p, ...%p) === false',
+        (first:any, second:any, ...parameter:Array<any>):void =>
+            expect(Tools.equals(first, second, ...parameter))
+                .toStrictEqual(false)
     )
     test.each([
-        [[null], null],
-        [[false], false],
-        [['1'], '1'],
-        [[3], 3],
-        [[{}], {}],
-        [[{a: null}], {a: null}],
-        [[{__evaluate__: '1 + 3'}], 4],
-        [[[{__evaluate__: '1'}]], [1]],
-        [[[{__evaluate__: `'1'`}]], ['1']],
-        [[{a: {__evaluate__: `'a'`}}], {a: 'a'}],
-        [[{a: {__evaluate__: '1'}}], {a: 1}],
+        [null, null],
+        [false, false],
+        ['1', '1'],
+        [3, 3],
+        [{}, {}],
+        [{a: null}, {a: null}],
+        [4, {__evaluate__: '1 + 3'}],
+        [[1], [{__evaluate__: '1'}]],
+        [['1'], [{__evaluate__: `'1'`}]],
+        [{a: 'a'}, {a: {__evaluate__: `'a'`}}],
+        [{a: 1}, {a: {__evaluate__: '1'}}],
         [
-            [{a: {__evaluate__: 'self.b'}, b: 2}, {}, 'self', '__run__'],
-            {a: {__evaluate__: 'self.b'}, b: 2}
+            {a: {__evaluate__: 'self.b'}, b: 2},
+            {a: {__evaluate__: 'self.b'}, b: 2},
+            {},
+            'self',
+            '__run__'
         ],
-        [[{a: {__run: '_.b'}, b: 1}, {}, '_', '__run'], {a: 1, b: 1}],
+        [{a: 1, b: 1}, {a: {__run: '_.b'}, b: 1}, {}, '_', '__run'],
         [
-            [{a: [{__run: 'self.b'}], b: 1}, {}, 'self', '__run'],
-            {a: [1], b: 1}
+            {a: [1], b: 1},
+            {a: [{__run: 'self.b'}], b: 1},
+            {},
+            'self',
+            '__run'
         ],
-        [[{a: {__evaluate__: 'self.b'}, b: 2}], {a: 2, b: 2}],
-        [[{a: {__evaluate__: 'c.b'}, b: 2}, {}, 'c'], {a: 2, b: 2}],
+        [{a: 2, b: 2}, {a: {__evaluate__: 'self.b'}, b: 2}],
+        [{a: 2, b: 2}, {a: {__evaluate__: 'c.b'}, b: 2}, {}, 'c'],
         [
-            [{
+            {a: 2, b: 2, c: 2},
+            {
                 a: {__evaluate__: 'self.b'},
                 b: {__evaluate__: 'self.c'},
                 c: 2
-            }],
-            {a: 2, b: 2, c: 2}
+            }
         ],
         [
-            [{
+            {a: 3, b: 3, c: 3, d: 3, e: 3, f: 3},
+            {
                 a: {__execute__: 'return self.b'},
                 b: {__execute__: 'return self.c'},
                 c: {__execute__: 'return self.d'},
                 d: {__execute__: 'return self.e'},
                 e: {__execute__: 'return self.f'},
                 f: 3
-            }],
-            {a: 3, b: 3, c: 3, d: 3, e: 3, f: 3}
+            }
         ],
         [
-            [{
+            {a: 3, b: {d: {e: 3}}, c: {d: {e: 3}}},
+            {
                 a: {__evaluate__: 'self.b.d.e'},
                 b: {__evaluate__: 'self.c'},
                 c: {d: {e: 3}}
-            }],
-            {a: 3, b: {d: {e: 3}}, c: {d: {e: 3}}}
+            }
         ],
         [
-            [{
-                n: {__evaluate__: '{a: [1, 2, 3]}'},
-                b: {__evaluate__: 'self.c'},
-                f: {__evaluate__: 'self.g.h'},
-                d: {__evaluate__: 'self.e'},
-                a: {__evaluate__: 'self.b'},
-                e: {__evaluate__: 'self.f.i'},
-                k: {__evaluate__: '`kk <-> "${self.l.join(\'", "\')}"`'},
-                c: {__evaluate__: 'self.d'},
-                o: [{a: 2, b: [[[{__evaluate__: '10 ** 2'}]]]}],
-                l: {__evaluate__: 'self.m.a'},
-                g: {h: {i: {__evaluate__: '`${self.k} <-> ${self.j}`'}}},
-                m: {a: [1, 2, {__evaluate__: '3'}]},
-                j: 'jj'
-            }],
             {
                 a: 'kk <-> "1", "2", "3" <-> jj',
                 b: 'kk <-> "1", "2", "3" <-> jj',
@@ -1317,119 +1373,121 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 m: {a: [1, 2, 3]},
                 n: {a: [1, 2, 3]},
                 o: [{a: 2, b: [[[100]]]}]
+            },
+            {
+                n: {__evaluate__: '{a: [1, 2, 3]}'},
+                b: {__evaluate__: 'self.c'},
+                f: {__evaluate__: 'self.g.h'},
+                d: {__evaluate__: 'self.e'},
+                a: {__evaluate__: 'self.b'},
+                e: {__evaluate__: 'self.f.i'},
+                k: {__evaluate__: '`kk <-> "${self.l.join(\'", "\')}"`'},
+                c: {__evaluate__: 'self.d'},
+                o: [{a: 2, b: [[[{__evaluate__: '10 ** 2'}]]]}],
+                l: {__evaluate__: 'self.m.a'},
+                g: {h: {i: {__evaluate__: '`${self.k} <-> ${self.j}`'}}},
+                m: {a: [1, 2, {__evaluate__: '3'}]},
+                j: 'jj'
             }
         ],
         [
-            [
-                {
-                    a: {__evaluate__: '_.b.d.e'},
-                    b: {__evaluate__: '_.c'},
-                    c: {d: {e: {__evaluate__: 'tools.copy([2])'}}}
-                },
-                {tools: $.Tools.class}, '_'
-            ],
-            {a: [2], b: {d: {e: [2]}}, c: {d: {e: [2]}}}
+            {a: [2], b: {d: {e: [2]}}, c: {d: {e: [2]}}},
+            {
+                a: {__evaluate__: '_.b.d.e'},
+                b: {__evaluate__: '_.c'},
+                c: {d: {e: {__evaluate__: 'tools.copy([2])'}}}
+            },
+            {tools: $.Tools.class}, '_'
         ],
         [
-            [{a: {
+            {a: {b: 1, c: 1}},
+            {a: {
                 b: 1,
                 c: {__evaluate__: 'self.a.b'}
-            }}],
-            {a: {b: 1, c: 1}}
+            }}
         ],
         [
-            [{a: {
+            {a: {b: null, c: null}},
+            {a: {
                 b: null,
                 c: {__evaluate__: 'self.a.b'}
-            }}],
-            {a: {b: null, c: null}}
+            }}
         ],
         [
-            [{a: {
+            {a: {b: undefined, c: undefined}},
+            {a: {
                 b: undefined,
                 c: {__evaluate__: 'self.a.b'}
-            }}],
-            {a: {b: undefined, c: undefined}}
+            }}
         ],
         [
-            [{a: {
+            {a: {b: 'jau', c: 'jau'}},
+            {a: {
                 b: 'jau',
                 c: {__evaluate__: 'self.a.b'}
-            }}],
-            {a: {b: 'jau', c: 'jau'}}
+            }}
         ],
         [
-            [{a: {
+            {a: {b: {c: 'jau', d: 'jau'}}},
+            {a: {
                 b: {
                     c: 'jau',
                     d: {__evaluate__: 'self.a.b.c'}
                 }
-            }}],
-            {a: {b: {c: 'jau', d: 'jau'}}}
+            }}
         ],
         [
-            [
-                [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5],
-                [26, 5], [3, 10], [1, 11], [25, 12], [26, 12]
-            ],
-            [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5],
-            [26, 5], [3, 10], [1, 11], [25, 12], [26, 12]
+            {a: {b: 'test', c: 'tet'}},
+            {a: {
+                b: {__evaluate__: '"t" + "es" + "t"'},
+                c: {__evaluate__: 'removeS(self.a.b)'}
+            }},
+            {removeS: (value:string):string => value.replace('s', '')},
         ],
         [
-            [
-                {a: {
-                    b: {__evaluate__: '"t" + "es" + "t"'},
-                    c: {__evaluate__: 'removeS(self.a.b)'}
-                }},
-                {removeS: (value:string):string => value.replace('s', '')}
-            ],
-            {a: {b: 'test', c: 'tet'}}
+            {a: 'a', b: 'a'},
+            {
+                a: {__evaluate__: 'toString(self.b)'},
+                b: {__evaluate__: `'a'`}
+            },
+            {toString: (value:any):string => value.toString()}
         ],
         [
-            [
-                {
-                    a: {__evaluate__: 'toString(self.b)'},
-                    b: {__evaluate__: `'a'`}
-                },
-                {toString: (value:any):string => value.toString()}
-            ],
-            {a: 'a', b: 'a'}
-        ],
-        [
-            [{
+            {a: ['a'], b: {a: 2}},
+            {
                 a: {__evaluate__: 'Object.getOwnPropertyNames(self.b)'},
                 b: {__evaluate__: '{a: 2}'}
-            }],
-            {a: ['a'], b: {a: 2}}
+            }
         ],
         [
-            [{
+            {a: ['a'], b: {a: 2}},
+            {
                 a: {__evaluate__: 'Reflect.ownKeys(self.b)'},
                 b: {__evaluate__: '{a: 2}'}
-            }],
-            {a: ['a'], b: {a: 2}}
+            }
         ],
         [
-            [{
+            {a: ['a', 'b'], b: {a: 1, b: 2}, c: {a: 1, b: 2}},
+            {
                 a: {__evaluate__: 'Object.getOwnPropertyNames(self.b)'},
                 b: {__evaluate__: 'self.c'},
                 c: {__execute__: 'return {a: 1, b: 2}'}
-            }],
-            {a: ['a', 'b'], b: {a: 1, b: 2}, c: {a: 1, b: 2}}
+            }
         ],
         /*
-            NOTE: This describes a workaround until the "ownKeys" proxy
-            trap works for this use cases.
+            NOTE: This describes a workaround until the "ownKeys" proxy trap
+            works for this use cases.
         */
         [
-            [{
+            {a: ['a'], b: {a: 2}},
+            {
                 a: {__evaluate__: 'Object.keys(resolve(self.b))'},
                 b: {__evaluate__: '{a: 2}'}
-            }],
-            {a: ['a'], b: {a: 2}}
+            }
         ],
         [
-            [{
+            {a: ['a', 'b', 'c'], b: {a: 1, b: 2, c: 3}},
+            {
                 a: {__evaluate__: `(() => {
                     const result = []
                     for (const key in resolve(self.b))
@@ -1437,14 +1495,13 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                     return result
                 })()`},
                 b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
-            }],
-            {a: ['a', 'b', 'c'], b: {a: 1, b: 2, c: 3}}
+            }
         ]
     ])(
-        '.evaluateDynamicDataStructure(...%p) === %p',
-        (parameter:Array<any>, expected:any):void =>
+        '%p === .evaluateDynamicDataStructure(%p, ...%p)',
+        (expected:any, object:any, ...parameter:Array<any>):void =>
             expect(Tools.copy(
-                Tools.evaluateDynamicDataStructure(...parameter), -1, true
+                Tools.evaluateDynamicDataStructure(object, ...parameter), -1, true
             )).toStrictEqual(expected)
     )
     test('extend', ():void => {
@@ -1453,95 +1510,129 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         expect(target).toStrictEqual({a: [3, 4]})
     })
     test.each([
-        [[[]], []],
-        [[{}], {}],
-        [[{a: 1}], {a: 1}],
-        [[{a: 1}, {a: 2}], {a: 2}],
-        [[{}, {a: 1}, {a: 2}], {a: 2}],
-        [[{}, {a: 1}, {a: 2}], {a: 2}],
-        [[{a: 1, b: {a: 1}}, {a: 2, b: {b: 1}}], {a: 2, b: {b: 1}}],
-        [[[1, 2], [1]], [1]],
-        [[new Map()], new Map()],
-        [[new Set()], new Set()],
-        [[new Map([['a', 1]])], new Map([['a', 1]])],
+        [[], []],
+        [{}, {}],
+        [{a: 1}, {a: 1}],
+        [{a: 2}, {a: 1}, {a: 2}],
+        [{a: 2}, {}, {a: 1}, {a: 2}],
+        [{a: 2}, {}, {a: 1}, {a: 2}],
+        [{a: 2, b: {b: 1}}, {a: 1, b: {a: 1}}, {a: 2, b: {b: 1}}],
+        [[1], [1, 2], [1]],
+        [new Map(), new Map()],
+        [new Set(), new Set()],
+        [new Map([['a', 1]]), new Map([['a', 1]])],
+        [new Map([['a', 2]]), new Map([['a', 1]]), new Map([['a', 2]])],
         [
-            [new Map([['a', 1]]), new Map([['a', 2]])],
+            new Map([['a', 2]]),
+            new Map(),
+            new Map([['a', 1]]),
             new Map([['a', 2]])
         ],
         [
-            [new Map(), new Map([['a', 1]]), new Map([['a', 2]])],
+            new Map([['a', 2]]),
+            new Map(),
+            new Map([['a', 1]]),
             new Map([['a', 2]])
         ],
         [
-            [new Map(), new Map([['a', 1]]), new Map([['a', 2]])],
-            new Map([['a', 2]])
+            new Map<string, Map<string, number>|number>(
+                [['a', 2], ['b', new Map([['b', 1]])]]
+            ),
+            new Map<string, Map<string, number>|number>(
+                [['a', 1], ['b', new Map<string, number>([['a', 1]])]]
+            ),
+            new Map<string, Map<string, number>|number>(
+                [['a', 2], ['b', new Map<string, number>([['b', 1]])]]
+            )
+        ],
+        [{}, true, {}],
+        [
+            {a: 2, b: {a: 1, b: 1}},
+            true,
+            {a: 1, b: {a: 1}},
+            {a: 2, b: {b: 1}}
         ],
         [
-            [
-                new Map([['a', 1], ['b', new Map([['a', 1]])]]),
-                new Map([['a', 2], ['b', new Map([['b', 1]])]])
-            ],
-            new Map([['a', 2], ['b', new Map([['b', 1]])]])
+            {a: 2, b: {a: [], b: 1}},
+            true,
+            {a: 1, b: {a: []}},
+            {a: 2, b: {b: 1}}
         ],
-        [[true, {}], {}],
+        [{a: {a: [3, 4]}}, true, {a: {a: [1, 2]}}, {a: {a: [3, 4]}}],
         [
-            [true, {a: 1, b: {a: 1}}, {a: 2, b: {b: 1}}],
-            {a: 2, b: {a: 1, b: 1}}
+            {a: {a: null}}, true, {a: {a: [1, 2]}}, {a: {a: null}},
         ],
+        [{a: true}, true, {a: {a: [1, 2]}}, {a: true}],
+        [{a: {_a: 1, b: 2}}, true, {a: {_a: 1}}, {a: {b: 2}}],
+        [{a: 2, _a: 1}, false, {_a: 1}, {a: 2}],
+        [false, true, {a: {a: [1, 2]}}, false],
+        [undefined, true, {a: {a: [1, 2]}}, undefined],
+        [{a: 3}, true, {a: 1}, {a: 2}, {a: 3}],
+        [[1, 2], true, [1], [1, 2]],
+        [[1], true, [1, 2], [1]],
+        [new Map(), true, new Map()],
         [
-            [true, {a: 1, b: {a: []}}, {a: 2, b: {b: 1}}],
-            {a: 2, b: {a: [], b: 1}}
-        ],
-        [[true, {a: {a: [1, 2]}}, {a: {a: [3, 4]}}], {a: {a: [3, 4]}}],
-        [
-            [true, {a: {a: [1, 2]}}, {a: {a: null}}],
-            {a: {a: null}}
-        ],
-        [[true, {a: {a: [1, 2]}}, {a: true}], {a: true}],
-        [[true, {a: {_a: 1}}, {a: {b: 2}}], {a: {_a: 1, b: 2}}],
-        [[false, {_a: 1}, {a: 2}], {a: 2, _a: 1}],
-        [[true, {a: {a: [1, 2]}}, false], false],
-        [[true, {a: {a: [1, 2]}}, undefined], undefined],
-        [[true, {a: 1}, {a: 2}, {a: 3}], {a: 3}],
-        [[true, [1], [1, 2]], [1, 2]],
-        [[true, [1, 2], [1]], [1]],
-        [[true, new Map()], new Map()],
-        [
-            [
-                true, new Map([['a', 1], ['b', new Map([['a', 1]])]]),
-                new Map([['a', 2], ['b', new Map([['b', 1]])]])
-            ],
-            new Map([['a', 2], ['b', new Map([['a', 1], ['b', 1]])]])
+            new Map<string, Map<string, number>|number>(
+                [['a', 2], ['b', new Map([['a', 1], ['b', 1]])]]
+            ),
+            true,
+            new Map<string, Map<string, number>|number>(
+                [['a', 1], ['b', new Map([['a', 1]])]]
+            ),
+            new Map<string, Map<string, number>|number>(
+                [['a', 2], ['b', new Map([['b', 1]])]]
+            )
         ],
         [
-            [
-                true, new Map([['a', 1], ['b', new Map([['a', []]])]]),
-                new Map([['a', 2], ['b', new Map([['b', 1]])]])
-            ],
-            new Map([['a', 2], ['b', new Map([['a', []], ['b', 1]])]])
+            new Map<string, Map<string, []|number>|number>(
+                [
+                    ['a', 2],
+                    ['b', new Map<string, []|number>([['a', []], ['b', 1]])]
+                ]
+            ),
+            true,
+            new Map<string, Map<string, []>|number>(
+                [['a', 1], ['b', new Map([['a', []]])]]
+            ),
+            new Map<string, Map<string, number>|number>(
+                [['a', 2], ['b', new Map([['b', 1]])]]
+            )
         ],
         [
-            [
-                true, new Map([['a', new Map([['a', [1, 2]]])]]),
-                new Map([['a', new Map([['a', [3, 4]]])]])
-            ],
-            new Map([['a', new Map([['a', [3, 4]]])]])
+            new Map<string, Map<string, Array<number>>>(
+                [['a', new Map<string, Array<number>>([['a', [3, 4]]])]]
+            ),
+            true,
+            new Map<string, Map<string, Array<number>>>(
+                [['a', new Map([['a', [1, 2]]])]]
+            ),
+            new Map<string, Map<string, Array<number>>>(
+                [['a', new Map([['a', [3, 4]]])]]
+            )
         ],
-        [[[1, 2], undefined], undefined],
-        [[[1, 2], null], null]
-    ])('.extend(...%p) === %p', (parameter:Array<any>, expected:any):void =>
-        expect(Tools.extend(...parameter)).toStrictEqual(expected)
+        [undefined, [1, 2], undefined],
+        [null, [1, 2], null]
+    ])(
+        '%p === .extend(%p, ...%p)',
+        (expected:any, first:any, ...parameter:Array<any>):void =>
+            expect(Tools.extend(first, ...parameter)).toStrictEqual(expected)
     )
     test.each([
-        [[{}, []], {}],
-        [[{a: 1}, ['a']], 1],
-        [[{a: {a: null}}, 'a.a'], null],
-        [[{a: {a: []}}, 'a.a'], []],
-        [[{a: {b: {c: 3}}}, ['a', 'b.c']], 3]
+        [{}, {}, []],
+        [1, {a: 1}, ['a']],
+        [null, {a: {a: null}}, 'a.a'],
+        [[], {a: {a: []}}, 'a.a'],
+        [3, {a: {b: {c: 3}}}, ['a', 'b.c']]
     ])(
-        '.getSubstructure(...%p) === %p',
-        (parameter:Array<any>, expected:any):void =>
-            expect(Tools.getSubstructure(...parameter)).toStrictEqual(expected)
+        '%p === .getSubstructure(%p, %p, ...%p)',
+        (
+            expected:any,
+            target:any,
+            selector:Array<string>|string,
+            ...parameter:Array<any>
+        ):void =>
+            expect(Tools.getSubstructure(target, selector, ...parameter))
+                .toStrictEqual(expected)
     )
     test('getProxyHandler', ():void => {
         expect(Tools.isPlainObject(Tools.getProxyHandler({})))
@@ -1619,61 +1710,79 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             expect(Tools.maskObject(object, mask)).toStrictEqual(expected)
     )
     test.each([
-        [[{}, {}], {}, {}],
-        [[{a: 2}, {}], {a: 2}, {}],
-        [[{a: 2}, {b: 1}], {a: 2}, {b: 1}],
-        [[{a: 2}, {__remove__: 'a'}], {}, {}],
-        [[{a: 2}, {__remove__: ['a']}], {}, {}],
-        [[{a: [2]}, {a: {__prepend__: 1}}], {a: [1, 2]}, {}],
-        [[{a: [2]}, {a: {__remove__: 1}}], {a: [2]}, {}],
-        [[{a: [2, 1]}, {a: {__remove__: 1}}], {a: [2]}, {}],
-        [[{a: [2, 1]}, {a: {__remove__: [1, 2]}}], {a: []}, {}],
-        [[{a: [1]}, {a: {__remove__: 1}}], {a: []}, {}],
-        [[{a: [1]}, {a: {__remove__: [1, 2]}}], {a: []}, {}],
-        [[{a: [2]}, {a: {__append__: 1}}], {a: [2, 1]}, {}],
-        [[{a: [2]}, {a: {__append__: [1, 2]}}], {a: [2, 1, 2]}, {}],
+        [{}, {}, {}, {}],
+        [{a: 2}, {}, {a: 2}, {}],
+        [{a: 2}, {b: 1}, {a: 2}, {b: 1}],
+        [{}, {}, {a: 2}, {__remove__: 'a'}],
+        [{}, {}, {a: 2}, {__remove__: ['a']}],
+        [{a: [1, 2]}, {}, {a: [2]}, {a: {__prepend__: 1}}],
+        [{a: [2]}, {}, {a: [2]}, {a: {__remove__: 1}}],
+        [{a: [2]}, {}, {a: [2, 1]}, {a: {__remove__: 1}}],
+        [{a: []}, {}, {a: [2, 1]}, {a: {__remove__: [1, 2]}}],
+        [{a: []}, {}, {a: [1]}, {a: {__remove__: 1}}],
+        [{a: []}, {}, {a: [1]}, {a: {__remove__: [1, 2]}}],
+        [{a: [2, 1]}, {}, {a: [2]}, {a: {__append__: 1}}],
+        [{a: [2, 1, 2]}, {}, {a: [2]}, {a: {__append__: [1, 2]}}],
         [
-            [{a: [2]}, {a: {__append__: [1, 2]}, b: 1}],
-            {a: [2, 1, 2]}, {b: 1}
+            {a: [2, 1, 2]},
+            {b: 1},
+            {a: [2]},
+            {a: {__append__: [1, 2]}, b: 1}
         ],
         [
-            [{a: [2]}, {a: {add: [1, 2]}, b: 1}, 'rm', 'unshift', 'add'],
-            {a: [2, 1, 2]}, {b: 1}
+            {a: [2, 1, 2]},
+            {b: 1},
+            {a: [2]},
+            {a: {add: [1, 2]}, b: 1},
+            'rm',
+            'unshift',
+            'add'
         ],
         [
-            [{a: [2]}, {a: {__prepend__: 1}}, '_r', '_p'],
-            {a: [2]}, {a: {__prepend__: 1}}
+            {a: [2]},
+            {a: {__prepend__: 1}},
+            {a: [2]},
+            {a: {__prepend__: 1}},
+            '_r',
+            '_p'
         ],
-        [[{a: [2]}, {a: {__prepend__: [1, 3]}}], {a: [1, 3, 2]}, {}],
+        [{a: [1, 3, 2]}, {}, {a: [2]}, {a: {__prepend__: [1, 3]}}],
         [
-            [{a: [2]}, {a: {__append__: [1, 2], __prepend__: 's'}}],
-            {a: ['s', 2, 1, 2]}, {}
-        ],
-        [
-            [{a: [2, 2]}, {a: {__prepend__: 's', __remove__: 2}}],
-            {a: ['s', 2]}, {}
-        ],
-        [
-            [{a: [2, 2]}, {a: {__prepend__: 's', __remove__: [2, 2]}}],
-            {a: ['s']}, {}
+            {a: ['s', 2, 1, 2]},
+            {},
+            {a: [2]},
+            {a: {__append__: [1, 2], __prepend__: 's'}}
         ],
         [
-            [
-                {a: [2, 1, 2]},
-                {a: {__prepend__: 's', __remove__: [2, 2], __append__: 'a'}}
-            ],
+            {a: ['s', 2]},
+            {},
+            {a: [2, 2]},
+            {a: {__prepend__: 's', __remove__: 2}}
+        ],
+        [
+            {a: ['s']},
+            {},
+            {a: [2, 2]},
+            {a: {__prepend__: 's', __remove__: [2, 2]}},
+        ],
+        [
             {a: ['s', 1, 'a']},
-            {}
+            {},
+            {a: [2, 1, 2]},
+            {a: {__prepend__: 's', __remove__: [2, 2], __append__: 'a'}}
         ]
     ])(
-        '.modifyObject(...%p) === %p => %p',
+        '%p (=> %p) === .modifyObject(%p, %p, ...%p)',
         (
-            parameter:Array<PlainObject>,
             sliced:PlainObject,
-            modified:PlainObject
+            modified:PlainObject,
+            target:any,
+            source:any,
+            ...parameter:Array<any>
         ):void => {
-            expect(Tools.modifyObject(...parameter)).toStrictEqual(sliced)
-            expect(parameter[1]).toStrictEqual(modified)
+            expect(Tools.modifyObject(target, source, ...parameter))
+                .toStrictEqual(sliced)
+            expect(source).toStrictEqual(modified)
         }
     )
     test('normalizeDateTime', ():void =>
@@ -1705,7 +1814,9 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [{a: 2, b: 3}, ['a'], {b: 3}],
         [{a: 2, a0: 2, b: 3}, ['a'], {b: 3}],
         [
-            new Map([['3', ['a:to remove']], ['a', 3]]),
+            new Map<string, [string]|number>(
+                [['3', ['a:to remove']], ['a', 3]]
+            ),
             'a',
             new Map([['3', []]])
         ],
@@ -1729,7 +1840,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     ])(
         '.removeKeys(%p, %p) === %p',
         (source:any, keysToRemove:Array<string>|string, expected:any):void =>
-            expect(Tools.removeKeys(source, keysToRemove))
+            expect(Tools.removeKeys<any>(source, keysToRemove))
                 .toStrictEqual(expected)
     )
     test.each([
@@ -1768,17 +1879,17 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [{a: 2, b: 5, c: 'a'}, ['a', 'b', 'c']],
         [{c: 2, b: 5, a: 'a'}, ['a', 'b', 'c']],
         [{b: 2, c: 5, z: 'a'}, ['b', 'c', 'z']]
-    ])('.sort(%p) === %p', (source:Array<any>, expected:Array<any>):void =>
+    ])('.sort(%p) === %p', (source:any, expected:Array<any>):void =>
         expect(Tools.sort(source)).toStrictEqual(expected)
     )
     test.each([
         [{}, {}],
         [{a: 'a'}, {a: 'a'}],
         [{a: 'aa'}, {a: 'aa'}],
-        [{a: {__target__: 2, __revoke__: ():void => {}}}, {a: 2}]
+        [{a: {__revoke__: ():void => {}, __target__: 2}}, {a: 2}]
     ])(
         '.unwrapProxy(%p) === %p',
-        (source:PlainObject, expected:PlainObject):void =>
+        (source:any, expected:any):void =>
             expect(Tools.unwrapProxy(source)).toStrictEqual(expected)
     )
     // / endregion
