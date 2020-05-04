@@ -16,7 +16,12 @@
 // region imports
 import Tools, {globalContext, Semaphore, $} from './index'
 import {
-    File, Mapping, ObjectMaskConfiguration, PlainObject, $DomNode
+    File,
+    Mapping,
+    ObjectMaskConfiguration,
+    PlainObject,
+    TimeoutPromise,
+    $DomNode
 } from './type'
 if (!('fetch' in globalContext))
     try {
@@ -710,7 +715,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         ]
     ])(
         `.getParameterNames('%s') === %p`,
-        (code:string, parameterNames:Array<string>):void =>
+        (code:Function|string, parameterNames:Array<string>):void =>
             expect(Tools.getParameterNames(code)).toStrictEqual(parameterNames)
     )
     test('identity', ():void => {
@@ -742,7 +747,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         expect(Tools.timeout()).toBeInstanceOf(Promise)
         expect(Tools.timeout().hasOwnProperty('clear')).toStrictEqual(true)
         let test:boolean = false
-        const result:Promise<boolean> = Tools.timeout(10 ** 20, true)
+        const result:TimeoutPromise = Tools.timeout(10 ** 20, true)
         result.catch(():void => {
             test = true
         })
@@ -780,9 +785,14 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             $.Tools({onClick: ():false => false}).fireEvent('click', true)
         ).toStrictEqual(false)
         expect(tools.fireEvent('click')).toStrictEqual(true)
-        tools.onClick = ():3 => 3
-        expect(tools.fireEvent('click')).toStrictEqual(true)
-        expect(tools.fireEvent('click')).toStrictEqual(true)
+        class Plugin extends Tools {
+            onClick():3 {
+                return 3
+            }
+        }
+        const plugin:Plugin = new Plugin()
+        expect(plugin.fireEvent('click')).toStrictEqual(true)
+        expect(plugin.fireEvent('click')).toStrictEqual(true)
     })
     if (hasDOM) {
         test('on', ():void => {
@@ -885,8 +895,8 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         ).toStrictEqual(3)
     })
     test('convertCircularObjectToJSON', ():void => {
-        const object1:Object = {}
-        const object2:Object = {a: object1}
+        const object1:{a?:object} = {}
+        const object2:{a:object} = {a: object1}
         object1.a = object2
         expect(Tools.convertCircularObjectToJSON(object1))
             .toStrictEqual('{"a":{"a":"__circularReference__"}}')
@@ -903,24 +913,31 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 .toStrictEqual(expected)
     )
     test.each([
-        [[null], null],
-        [[true], true],
-        [[0], 0],
-        [[2], 2],
-        [['a'], 'a'],
-        [[new Map()], {}],
-        [[[new Map()]], [{}]],
-        [[[new Map()], false], [new Map()]],
-        [[[new Map([['a', 2], [2, 2]])]], [{a: 2, '2': 2}]],
-        [[[new Map([['a', new Map()], [2, 2]])]], [{a: {}, '2': 2}]],
+        [null, null],
+        [true, true],
+        [0, 0],
+        [2, 2],
+        ['a', 'a'],
+        [{}, new Map()],
+        [[{}], [new Map()]],
+        [[new Map()], [new Map()], false],
+        [[{a: 2, '2': 2}], [new Map<string, number>([['a', 2], ['2', 2]])]],
         [
-            [[new Map([['a', new Map([['a', 2]])], [2, 2]])]],
-            [{a: {a: 2}, '2': 2}]
+            [{a: {}, '2': 2}],
+            [[new Map<string, Map<string, string>|number>(
+                [['a', new = true Map()], ['2', 2]]
+            )]]
+        ],
+        [
+            [{a: {a: 2}, '2': 2}],
+            [[new Map<string, Map<string, number>|number>(
+                [['a', new Map([['a', 2]])], ['2', 2]]
+            )]]
         ]
     ])(
         '.convertMapToPlainObject(...%p) === %p',
-        (values:Array<any>, expected:any):void =>
-            expect(Tools.convertMapToPlainObject(...values))
+        (expected:any, object:any, deep:boolean = true):void =>
+            expect(Tools.convertMapToPlainObject(object, deep))
                 .toStrictEqual(expected)
     )
     test.each([
