@@ -55,7 +55,7 @@ export interface TimeoutPromise extends Promise<boolean> {
 // / endregion
 export type Mapping<T=string> = {[key:string]:T}
 export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
-export type ObjectMaskConfiguration = {exclude:ObjectMask;include:ObjectMask}
+export type ObjectMaskConfiguration = {exclude?:ObjectMask;include?:ObjectMask}
 export type Primitive = boolean|null|number|string|undefined
 export type PlainObject<T=Primitive> = {
     [key:string]:Array<PlainObject<T>|T>|PlainObject<T>|T;
