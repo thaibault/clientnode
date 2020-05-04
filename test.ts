@@ -923,13 +923,13 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [[new Map()], [new Map()], false],
         [[{a: 2, '2': 2}], [new Map<string, number>([['a', 2], ['2', 2]])]],
         [
-            [{a: {}, '2': 2}],
+            [[{a: {}, '2': 2}]],
             [[new Map<string, Map<string, string>|number>(
-                [['a', new = true Map()], ['2', 2]]
+                [['a', new Map()], ['2', 2]]
             )]]
         ],
         [
-            [{a: {a: 2}, '2': 2}],
+            [[{a: {a: 2}, '2': 2}]],
             [[new Map<string, Map<string, number>|number>(
                 [['a', new Map([['a', 2]])], ['2', 2]]
             )]]
@@ -941,32 +941,48 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 .toStrictEqual(expected)
     )
     test.each([
-        [[null], null],
-        [[true], true],
-        [[0], 0],
-        [[2], 2],
-        [['a'], 'a'],
-        [[{}], new Map()],
-        [[[{}]], [new Map()]],
-        [[[{}], false], [{}]],
-        [[[{a: {}, b: 2}]], [new Map([['a', new Map()], ['b', 2]])]],
-        [[[{b: 2, a: {}}]], [new Map([['a', new Map()], ['b', 2]])]],
+        [null, null],
+        [true, true],
+        [0, 0],
+        [2, 2],
+        ['a', 'a'],
+        [new Map(), {}],
+        [[new Map()], [{}]],
+        [[{}], [{}], false],
         [
-            [[{b: 2, a: new Map()}]],
-            [new Map([['a', new Map()], ['b', 2]])]
+            [new Map<string, Map<string, string>|number>(
+                [['a', new Map()], ['b', 2]]
+            )],
+            [{a: {}, b: 2}]
         ],
         [
-            [[{b: 2, a: [{}]}]],
-            [new Map([['a', [new Map()]], ['b', 2]])]
+            [new Map<string, Map<string, string>|number>(
+                [['a', new Map()], ['b', 2]]
+            )],
+            [{b: 2, a: {}}]
         ],
         [
-            [[{b: 2, a: new Set([{}])}]],
-            [new Map([['a', new Set([new Map()])], ['b', 2]])]
+            [new Map<string, Map<string, string>|number>(
+                [['a', new Map()], ['b', 2]]
+            )],
+            [{b: 2, a: new Map()}]
+        ],
+        [
+            [new Map<string, [Map<string, string>]|number>(
+                [['a', [new Map()]], ['b', 2]]
+            )],
+            [{b: 2, a: [{}]}]
+        ],
+        [
+            [new Map<string, Set<Map<string, string>>|number>(
+                [['a', new Set([new Map()])], ['b', 2]]
+            )],
+            [{b: 2, a: new Set([{}])}]
         ]
     ])(
         '.convertPlainObjectToMap(...%p) === %p',
-        (values:Array<any>, expected:any):void =>
-            expect(Tools.convertPlainObjectToMap(...values))
+        (expected:any, object:any, deep:boolean = true):void =>
+            expect(Tools.convertPlainObjectToMap(object, deep))
                 .toStrictEqual(expected)
     )
     test.each([
@@ -990,90 +1006,94 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ).toStrictEqual(expected)
     )
     test.each([
-        [[21], 21],
-        [[0, -1], 0],
-        [[0, 1], 0],
-        [[0, 10], 0],
-        [[new Date(0)], new Date(0)],
-        [[/a/], /a/],
-        [[{}], {}],
-        [[{}, -1], {}],
-        [[[]], []],
-        [[new Map(), -1], new Map()],
-        [[new Set(), -1], new Set()],
-        [[{a: 2}, 0], {a: 2}],
-        [[{a: {a: 2}}, 0, null], {a: null}],
-        [[{a: {a: 2}}, 0], {a: {a: 2}}],
-        [[{a: {a: 2}}, 1], {a: {a: 2}}],
-        [[{a: {a: 2}}, 2], {a: {a: 2}}],
-        [[{a: [{a: 2}]}, 1, null], {a: [null]}],
-        [[{a: [{a: 2}]}, 2], {a: [{a: 2}]}],
-        [[{a: {a: 2}}, 10], {a: {a: 2}}],
-        [[new Map([['a', 2]]), 0], new Map([['a', 2]])],
+        [21, 21],
+        [0, 0],
+        [0, 0, -1],
+        [0, 0, 1],
+        [0, 0, 10],
+        [new Date(0), new Date(0)],
+        [/a/, /a/],
+        [{}, {}],
+        [{}, {}, -1],
+        [[], []],
+        [new Map(), new Map()],
+        [new Set(), new Set()],
+        [{a: 2}, {a: 2}, 0],
+        [{a: null}, {a: {a: 2}}, 0, null],
+        [{a: {a: 2}}, {a: {a: 2}}, 0],
+        [{a: {a: 2}}, {a: {a: 2}}, 1],
+        [{a: {a: 2}}, {a: {a: 2}}, 2],
+        [{a: [null]}, {a: [{a: 2}]}, 1, null],
+        [{a: [{a: 2}]}, {a: [{a: 2}]}, 2],
+        [{a: {a: 2}}, {a: {a: 2}}, 10],
+        [new Map([['a', 2]]), new Map([['a', 2]]), 0],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 0, null],
-            new Map([['a', null]])
+            new Map([['a', null]]),
+            new Map([['a', new Map([['a', 2]])]]), 0, null
         ],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 0],
-            new Map([['a', new Map([['a', 2]])]])
+            new Map([['a', new Map([['a', 2]])]]),
+            new Map([['a', new Map([['a', 2]])]]), 0
         ],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 1],
-            new Map([['a', new Map([['a', 2]])]])
+            new Map([['a', new Map([['a', 2]])]]),
+            new Map([['a', new Map([['a', 2]])]]), 1
         ],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 2],
-            new Map([['a', new Map([['a', 2]])]])
+            new Map([['a', new Map([['a', 2]])]]),
+            new Map([['a', new Map([['a', 2]])]]), 2
         ],
         [
-            [new Map([['a', [new Map([['a', 2]])]]]), 1, null],
-            new Map([['a', [null]]])
+            new Map([['a', [null]]]),
+            new Map([['a', [new Map([['a', 2]])]]]), 1, null
         ],
         [
-            [new Map([['a', [new Map([['a', 2]])]]]), 2],
-            new Map([['a', [new Map([['a', 2]])]]])
+            new Map([['a', [new Map([['a', 2]])]]]),
+            new Map([['a', [new Map([['a', 2]])]]]), 2
         ],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 10],
-            new Map([['a', new Map([['a', 2]])]])
+            new Map([['a', new Map([['a', 2]])]]),
+            new Map([['a', new Map([['a', 2]])]]), 10
         ],
         [
-            [new Map([['a', new Map([['a', 2]])]]), 10],
-            new Map([['a', new Map([['a', 2]])]])
+            new Map([['a', new Map([['a', 2]])]]),
+            new Map([['a', new Map([['a', 2]])]]), 10
         ],
-        [[new Set(['a', 2]), 0], new Set(['a', 2])],
-        [[new Set(['a', new Set(['a', 2])]), 0, null], new Set([null, null])],
+        [new Set(['a', 2]), new Set(['a', 2]), 0],
+        [new Set([null, null]), new Set(['a', new Set(['a', 2])]), 0, null],
         [
-            [new Set(['a', new Set(['a', 2])]), 1, null],
-            new Set(['a', new Set([null, null])])
-        ],
-        [
-            [new Set(['a', new Set(['a', 2])]), 1],
-            new Set(['a', new Set(['a', 2])])
+            new Set(['a', new Set([null, null])]),
+            new Set(['a', new Set(['a', 2])]), 1, null
         ],
         [
-            [new Set(['a', new Set(['a', 2])]), 2],
-            new Set(['a', new Set(['a', 2])])
+            new Set(['a', new Set(['a', 2])]),
+            new Set(['a', new Set(['a', 2])]), 1
         ],
         [
-            [new Set(['a', [new Set(['a', 2])]]), 1, null],
-            new Set(['a', [null]])
+            new Set(['a', new Set(['a', 2])]),
+            new Set(['a', new Set(['a', 2])]), 2
         ],
         [
-            [new Set(['a', [new Set(['a', 2])]]), 2],
-            new Set(['a', [new Set(['a', 2])]])
+            new Set(['a', [null]]),
+            new Set(['a', [new Set(['a', 2])]]), 1, null
         ],
         [
-            [new Set(['a', new Set(['a', 2])]), 10],
-            new Set(['a', new Set(['a', 2])])
+            new Set(['a', [new Set(['a', 2])]]),
+            new Set(['a', [new Set(['a', 2])]]), 2
         ],
         [
-            [new Set(['a', new Set(['a', 2])]), 10],
-            new Set(['a', new Set(['a', 2])])
+            new Set(['a', new Set(['a', 2])]),
+            new Set(['a', new Set(['a', 2])]), 10
+        ],
+        [
+            new Set(['a', new Set(['a', 2])]),
+            new Set(['a', new Set(['a', 2])]), 10
         ]
-    ])('.copy(...%p) === %p', (values:Array<any>, expected:any):void =>
-        expect(Tools.copy(...values)).toStrictEqual(expected)
+    ])(
+        '.copy(...%p) === %p',
+        (expected:any, object:any, ...parameter:Array<any>):void =>
+            expect(Tools.copy<any>(object, ...parameter))
+                .toStrictEqual(expected)
     )
     test('determineType', ():void =>
         expect(Tools.determineType()).toStrictEqual('undefined')
