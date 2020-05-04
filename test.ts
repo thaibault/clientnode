@@ -1029,65 +1029,84 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [new Map([['a', 2]]), new Map([['a', 2]]), 0],
         [
             new Map([['a', null]]),
-            new Map([['a', new Map([['a', 2]])]]), 0, null
+            new Map([['a', new Map([['a', 2]])]]),
+            0,
+            null
         ],
         [
             new Map([['a', new Map([['a', 2]])]]),
-            new Map([['a', new Map([['a', 2]])]]), 0
+            new Map([['a', new Map([['a', 2]])]]),
+            0
         ],
         [
             new Map([['a', new Map([['a', 2]])]]),
-            new Map([['a', new Map([['a', 2]])]]), 1
+            new Map([['a', new Map([['a', 2]])]]),
+            1
         ],
         [
             new Map([['a', new Map([['a', 2]])]]),
-            new Map([['a', new Map([['a', 2]])]]), 2
+            new Map([['a', new Map([['a', 2]])]]),
+            2
         ],
         [
             new Map([['a', [null]]]),
-            new Map([['a', [new Map([['a', 2]])]]]), 1, null
+            new Map([['a', [new Map([['a', 2]])]]]),
+            1,
+            null
         ],
         [
             new Map([['a', [new Map([['a', 2]])]]]),
-            new Map([['a', [new Map([['a', 2]])]]]), 2
+            new Map([['a', [new Map([['a', 2]])]]]),
+            2
         ],
         [
             new Map([['a', new Map([['a', 2]])]]),
-            new Map([['a', new Map([['a', 2]])]]), 10
+            new Map([['a', new Map([['a', 2]])]]),
+            10
         ],
         [
             new Map([['a', new Map([['a', 2]])]]),
-            new Map([['a', new Map([['a', 2]])]]), 10
+            new Map([['a', new Map([['a', 2]])]]),
+            10
         ],
         [new Set(['a', 2]), new Set(['a', 2]), 0],
         [new Set([null, null]), new Set(['a', new Set(['a', 2])]), 0, null],
         [
             new Set(['a', new Set([null, null])]),
-            new Set(['a', new Set(['a', 2])]), 1, null
+            new Set(['a', new Set(['a', 2])]),
+            1,
+            null
         ],
         [
             new Set(['a', new Set(['a', 2])]),
-            new Set(['a', new Set(['a', 2])]), 1
+            new Set(['a', new Set(['a', 2])]),
+            1
         ],
         [
             new Set(['a', new Set(['a', 2])]),
-            new Set(['a', new Set(['a', 2])]), 2
+            new Set(['a', new Set(['a', 2])]),
+            2
         ],
         [
             new Set(['a', [null]]),
-            new Set(['a', [new Set(['a', 2])]]), 1, null
+            new Set(['a', [new Set(['a', 2])]]),
+            1,
+            null
         ],
         [
             new Set(['a', [new Set(['a', 2])]]),
-            new Set(['a', [new Set(['a', 2])]]), 2
+            new Set(['a', [new Set(['a', 2])]]),
+            2
         ],
         [
             new Set(['a', new Set(['a', 2])]),
-            new Set(['a', new Set(['a', 2])]), 10
+            new Set(['a', new Set(['a', 2])]),
+            10
         ],
         [
             new Set(['a', new Set(['a', 2])]),
-            new Set(['a', new Set(['a', 2])]), 10
+            new Set(['a', new Set(['a', 2])]),
+            10
         ]
     ])(
         '.copy(...%p) === %p',
@@ -1100,6 +1119,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     )
     test.each([
         [undefined, 'undefined'],
+        // @ts-ignore: Expected.
         [{}.notDefined, 'undefined'],
         [null, 'null'],
         [true, 'boolean'],
@@ -1158,8 +1178,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         ],
         [Tools.noop, Tools.noop],
         [Tools.noop, Tools.noop, null, -1, [], false]
-    ])('.equals(...%p) === true', (...values:Array<any>):void =>
-        expect(Tools.equals(...values)).toStrictEqual(true)
+    ])(
+        '.equals(%p, %p, ...%p) === true',
+        (first:any, second:any, ...parameter:Array<any>):void =>
+            expect(Tools.equals(first, second, ...parameter))
+                .toStrictEqual(true)
     )
     if (TARGET_TECHNOLOGY === 'node')
         test('equals', ():void =>
@@ -1204,8 +1227,8 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 }
             ]
         ])(
-            '.equals(%p, %p) === true',
-            async (first:any, target:any):Promise<void> =>
+            '.equals(%p, %p, null, -1, [], true, true) === true',
+            async (first:any, second:any):Promise<void> =>
                 expect(
                     await Tools.equals(first, second, null, -1, [], true, true)
                 ).toStrictEqual(true)
@@ -1273,75 +1296,69 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [1, 2, 0],
         [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
         [():void => {}, ():void => {}, null, -1, [], false]
-    ])('.equals(...%p) === false', (...values:Array<any>):void =>
-        expect(Tools.equals(...values)).toStrictEqual(false)
+    ])(
+        '.equals(%p, %p, ...%p) === false',
+        (first:any, second:any, ...parameter:Array<any>):void =>
+            expect(Tools.equals(first, second, ...parameter))
+                .toStrictEqual(false)
     )
     test.each([
-        [[null], null],
-        [[false], false],
-        [['1'], '1'],
-        [[3], 3],
-        [[{}], {}],
-        [[{a: null}], {a: null}],
-        [[{__evaluate__: '1 + 3'}], 4],
-        [[[{__evaluate__: '1'}]], [1]],
-        [[[{__evaluate__: `'1'`}]], ['1']],
-        [[{a: {__evaluate__: `'a'`}}], {a: 'a'}],
-        [[{a: {__evaluate__: '1'}}], {a: 1}],
+        [null, null],
+        [false, false],
+        ['1', '1'],
+        [3, 3],
+        [{}, {}],
+        [{a: null}, {a: null}],
+        [4, {__evaluate__: '1 + 3'}],
+        [[1], [{__evaluate__: '1'}]],
+        [['1'], [{__evaluate__: `'1'`}]],
+        [{a: 'a'}, {a: {__evaluate__: `'a'`}}],
+        [{a: 1}, {a: {__evaluate__: '1'}}],
         [
-            [{a: {__evaluate__: 'self.b'}, b: 2}, {}, 'self', '__run__'],
-            {a: {__evaluate__: 'self.b'}, b: 2}
+            {a: {__evaluate__: 'self.b'}, b: 2},
+            {a: {__evaluate__: 'self.b'}, b: 2},
+            {},
+            'self',
+            '__run__'
         ],
-        [[{a: {__run: '_.b'}, b: 1}, {}, '_', '__run'], {a: 1, b: 1}],
+        [{a: 1, b: 1}, {a: {__run: '_.b'}, b: 1}, {}, '_', '__run'],
         [
-            [{a: [{__run: 'self.b'}], b: 1}, {}, 'self', '__run'],
-            {a: [1], b: 1}
+            {a: [1], b: 1},
+            {a: [{__run: 'self.b'}], b: 1},
+            {},
+            'self',
+            '__run'
         ],
-        [[{a: {__evaluate__: 'self.b'}, b: 2}], {a: 2, b: 2}],
-        [[{a: {__evaluate__: 'c.b'}, b: 2}, {}, 'c'], {a: 2, b: 2}],
+        [{a: 2, b: 2}, {a: {__evaluate__: 'self.b'}, b: 2}],
+        [{a: 2, b: 2}, [{a: {__evaluate__: 'c.b'}, b: 2}, {}, 'c']],
         [
-            [{
+            {a: 2, b: 2, c: 2},
+            {
                 a: {__evaluate__: 'self.b'},
                 b: {__evaluate__: 'self.c'},
                 c: 2
-            }],
-            {a: 2, b: 2, c: 2}
+            }
         ],
         [
-            [{
+            {a: 3, b: 3, c: 3, d: 3, e: 3, f: 3},
+            {
                 a: {__execute__: 'return self.b'},
                 b: {__execute__: 'return self.c'},
                 c: {__execute__: 'return self.d'},
                 d: {__execute__: 'return self.e'},
                 e: {__execute__: 'return self.f'},
                 f: 3
-            }],
-            {a: 3, b: 3, c: 3, d: 3, e: 3, f: 3}
+            }
         ],
         [
-            [{
+            {a: 3, b: {d: {e: 3}}, c: {d: {e: 3}}},
+            {
                 a: {__evaluate__: 'self.b.d.e'},
                 b: {__evaluate__: 'self.c'},
                 c: {d: {e: 3}}
-            }],
-            {a: 3, b: {d: {e: 3}}, c: {d: {e: 3}}}
+            }
         ],
         [
-            [{
-                n: {__evaluate__: '{a: [1, 2, 3]}'},
-                b: {__evaluate__: 'self.c'},
-                f: {__evaluate__: 'self.g.h'},
-                d: {__evaluate__: 'self.e'},
-                a: {__evaluate__: 'self.b'},
-                e: {__evaluate__: 'self.f.i'},
-                k: {__evaluate__: '`kk <-> "${self.l.join(\'", "\')}"`'},
-                c: {__evaluate__: 'self.d'},
-                o: [{a: 2, b: [[[{__evaluate__: '10 ** 2'}]]]}],
-                l: {__evaluate__: 'self.m.a'},
-                g: {h: {i: {__evaluate__: '`${self.k} <-> ${self.j}`'}}},
-                m: {a: [1, 2, {__evaluate__: '3'}]},
-                j: 'jj'
-            }],
             {
                 a: 'kk <-> "1", "2", "3" <-> jj',
                 b: 'kk <-> "1", "2", "3" <-> jj',
@@ -1356,119 +1373,121 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 m: {a: [1, 2, 3]},
                 n: {a: [1, 2, 3]},
                 o: [{a: 2, b: [[[100]]]}]
+            },
+            {
+                n: {__evaluate__: '{a: [1, 2, 3]}'},
+                b: {__evaluate__: 'self.c'},
+                f: {__evaluate__: 'self.g.h'},
+                d: {__evaluate__: 'self.e'},
+                a: {__evaluate__: 'self.b'},
+                e: {__evaluate__: 'self.f.i'},
+                k: {__evaluate__: '`kk <-> "${self.l.join(\'", "\')}"`'},
+                c: {__evaluate__: 'self.d'},
+                o: [{a: 2, b: [[[{__evaluate__: '10 ** 2'}]]]}],
+                l: {__evaluate__: 'self.m.a'},
+                g: {h: {i: {__evaluate__: '`${self.k} <-> ${self.j}`'}}},
+                m: {a: [1, 2, {__evaluate__: '3'}]},
+                j: 'jj'
             }
         ],
         [
-            [
-                {
-                    a: {__evaluate__: '_.b.d.e'},
-                    b: {__evaluate__: '_.c'},
-                    c: {d: {e: {__evaluate__: 'tools.copy([2])'}}}
-                },
-                {tools: $.Tools.class}, '_'
-            ],
-            {a: [2], b: {d: {e: [2]}}, c: {d: {e: [2]}}}
+            {a: [2], b: {d: {e: [2]}}, c: {d: {e: [2]}}},
+            {
+                a: {__evaluate__: '_.b.d.e'},
+                b: {__evaluate__: '_.c'},
+                c: {d: {e: {__evaluate__: 'tools.copy([2])'}}}
+            },
+            {tools: $.Tools.class}, '_'
         ],
         [
-            [{a: {
+            {a: {b: 1, c: 1}},
+            {a: {
                 b: 1,
                 c: {__evaluate__: 'self.a.b'}
-            }}],
-            {a: {b: 1, c: 1}}
+            }}
         ],
         [
-            [{a: {
+            {a: {b: null, c: null}},
+            {a: {
                 b: null,
                 c: {__evaluate__: 'self.a.b'}
-            }}],
-            {a: {b: null, c: null}}
+            }}
         ],
         [
-            [{a: {
+            {a: {b: undefined, c: undefined}},
+            {a: {
                 b: undefined,
                 c: {__evaluate__: 'self.a.b'}
-            }}],
-            {a: {b: undefined, c: undefined}}
+            }}
         ],
         [
-            [{a: {
+            {a: {b: 'jau', c: 'jau'}},
+            {a: {
                 b: 'jau',
                 c: {__evaluate__: 'self.a.b'}
-            }}],
-            {a: {b: 'jau', c: 'jau'}}
+            }}
         ],
         [
-            [{a: {
+            {a: {b: {c: 'jau', d: 'jau'}}},
+            {a: {
                 b: {
                     c: 'jau',
                     d: {__evaluate__: 'self.a.b.c'}
                 }
-            }}],
-            {a: {b: {c: 'jau', d: 'jau'}}}
+            }}
         ],
         [
-            [
-                [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5],
-                [26, 5], [3, 10], [1, 11], [25, 12], [26, 12]
-            ],
-            [1, 1], [6, 1], [25, 3], [28, 3], [1, 5], [5, 5], [16, 5],
-            [26, 5], [3, 10], [1, 11], [25, 12], [26, 12]
+            {a: {b: 'test', c: 'tet'}},
+            {a: {
+                b: {__evaluate__: '"t" + "es" + "t"'},
+                c: {__evaluate__: 'removeS(self.a.b)'}
+            }},
+            {removeS: (value:string):string => value.replace('s', '')},
         ],
         [
-            [
-                {a: {
-                    b: {__evaluate__: '"t" + "es" + "t"'},
-                    c: {__evaluate__: 'removeS(self.a.b)'}
-                }},
-                {removeS: (value:string):string => value.replace('s', '')}
-            ],
-            {a: {b: 'test', c: 'tet'}}
+            {a: 'a', b: 'a'},
+            {
+                a: {__evaluate__: 'toString(self.b)'},
+                b: {__evaluate__: `'a'`}
+            },
+            {toString: (value:any):string => value.toString()}
         ],
         [
-            [
-                {
-                    a: {__evaluate__: 'toString(self.b)'},
-                    b: {__evaluate__: `'a'`}
-                },
-                {toString: (value:any):string => value.toString()}
-            ],
-            {a: 'a', b: 'a'}
-        ],
-        [
-            [{
+            {a: ['a'], b: {a: 2}},
+            {
                 a: {__evaluate__: 'Object.getOwnPropertyNames(self.b)'},
                 b: {__evaluate__: '{a: 2}'}
-            }],
-            {a: ['a'], b: {a: 2}}
+            }
         ],
         [
-            [{
+            {a: ['a'], b: {a: 2}},
+            {
                 a: {__evaluate__: 'Reflect.ownKeys(self.b)'},
                 b: {__evaluate__: '{a: 2}'}
-            }],
-            {a: ['a'], b: {a: 2}}
+            }
         ],
         [
-            [{
+            {a: ['a', 'b'], b: {a: 1, b: 2}, c: {a: 1, b: 2}},
+            {
                 a: {__evaluate__: 'Object.getOwnPropertyNames(self.b)'},
                 b: {__evaluate__: 'self.c'},
                 c: {__execute__: 'return {a: 1, b: 2}'}
-            }],
-            {a: ['a', 'b'], b: {a: 1, b: 2}, c: {a: 1, b: 2}}
+            }
         ],
         /*
             NOTE: This describes a workaround until the "ownKeys" proxy
             trap works for this use cases.
         */
         [
-            [{
+            {a: ['a'], b: {a: 2}},
+            {
                 a: {__evaluate__: 'Object.keys(resolve(self.b))'},
                 b: {__evaluate__: '{a: 2}'}
-            }],
-            {a: ['a'], b: {a: 2}}
+            }
         ],
         [
-            [{
+            {a: ['a', 'b', 'c'], b: {a: 1, b: 2, c: 3}},
+            {
                 a: {__evaluate__: `(() => {
                     const result = []
                     for (const key in resolve(self.b))
@@ -1476,12 +1495,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                     return result
                 })()`},
                 b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
-            }],
-            {a: ['a', 'b', 'c'], b: {a: 1, b: 2, c: 3}}
+            }
         ]
     ])(
         '.evaluateDynamicDataStructure(...%p) === %p',
-        (parameter:Array<any>, expected:any):void =>
+        (expected:any, ...parameter:Array<any>):void =>
             expect(Tools.copy(
                 Tools.evaluateDynamicDataStructure(...parameter), -1, true
             )).toStrictEqual(expected)
@@ -1673,28 +1691,34 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [[{a: [2]}, {a: {__append__: [1, 2]}}], {a: [2, 1, 2]}, {}],
         [
             [{a: [2]}, {a: {__append__: [1, 2]}, b: 1}],
-            {a: [2, 1, 2]}, {b: 1}
+            {a: [2, 1, 2]},
+            {b: 1}
         ],
         [
             [{a: [2]}, {a: {add: [1, 2]}, b: 1}, 'rm', 'unshift', 'add'],
-            {a: [2, 1, 2]}, {b: 1}
+            {a: [2, 1, 2]},
+            {b: 1}
         ],
         [
             [{a: [2]}, {a: {__prepend__: 1}}, '_r', '_p'],
-            {a: [2]}, {a: {__prepend__: 1}}
+            {a: [2]},
+            {a: {__prepend__: 1}}
         ],
         [[{a: [2]}, {a: {__prepend__: [1, 3]}}], {a: [1, 3, 2]}, {}],
         [
             [{a: [2]}, {a: {__append__: [1, 2], __prepend__: 's'}}],
-            {a: ['s', 2, 1, 2]}, {}
+            {a: ['s', 2, 1, 2]},
+            {}
         ],
         [
             [{a: [2, 2]}, {a: {__prepend__: 's', __remove__: 2}}],
-            {a: ['s', 2]}, {}
+            {a: ['s', 2]},
+            {}
         ],
         [
             [{a: [2, 2]}, {a: {__prepend__: 's', __remove__: [2, 2]}}],
-            {a: ['s']}, {}
+            {a: ['s']},
+            {}
         ],
         [
             [
