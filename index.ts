@@ -34,6 +34,7 @@ import {
     File,
     GetterFunction,
     LockCallbackFunction,
+    Mapping,
     Noop,
     ObjectMaskConfiguration,
     Options,
@@ -929,7 +930,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 .find('*')
                 .addBack()
                 .each((index:number, domNode:HTMLElement):void => {
-                    const $domNode:$DomNode<HTMLElement> = $(domNode)
+                    const $domNode:$DomNode = $(domNode)
                     const classValue:string|undefined = $domNode.attr(
                         className)
                     if (classValue)
@@ -954,7 +955,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 .find('*')
                 .addBack()
                 .each((index:number, domNode:HTMLElement):any => {
-                    const $domNode:$DomNode<HTMLElement> = $(domNode)
+                    const $domNode:$DomNode = $(domNode)
                     const serializedStyles:string|undefined = $domNode.attr(
                         styleName)
                     if (serializedStyles)
@@ -1064,7 +1065,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             const detemermineHTMLPattern =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
             const inputs:{[key:string]:any} = {first, second}
-            const $domNodes:{[key:string]:$DomNode<HTMLElement>} = {
+            const $domNodes:{[key:string]:$DomNode} = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
             /*
@@ -1088,7 +1089,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                     $domNodes[type] = $(`<div>${inputs[type]}</div>`)
                 else
                     try {
-                        const $copiedDomNode:$DomNode<HTMLElement> =
+                        const $copiedDomNode:$DomNode =
                             $(inputs[type]).clone()
                         if ($copiedDomNode.length)
                             $domNodes[type] = $('<div>').append($copiedDomNode)
@@ -1299,14 +1300,14 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * selectors.
      */
     grabDomNode(
-        domNodeSelectors:{[key:string]:string},
-        wrapperDomNode:Node|null|$DomNode<HTMLElement> = null
-    ):{[key:string]:$DomNode<HTMLElement>} {
+        domNodeSelectors:Mapping,
+        wrapperDomNode:Node|null|string|$DomNode = null
+    ):{[key:string]:$DomNode} {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        const domNodes:{[key:string]:$DomNode<HTMLElement>} = {}
+        const domNodes:{[key:string]:$DomNode} = {}
         if (domNodeSelectors)
             if (wrapperDomNode) {
-                const $wrapperDomNode:$DomNode<HTMLElement> = $(wrapperDomNode)
+                const $wrapperDomNode:$DomNode = $(wrapperDomNode)
                 for (const name in domNodeSelectors)
                     if (Object.prototype.hasOwnProperty.call(
                         domNodeSelectors, name
@@ -5479,12 +5480,12 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
-        target:$DomNode<HTMLElement>|HTMLElement|string,
+        target:$DomNode|HTMLElement|string,
         url:string,
         data:{[key:string]:any},
         requestType:string = 'post',
         removeAfterLoad:boolean = false
-    ):$DomNode<HTMLElement> {
+    ):$DomNode {
         const $targetDomNode:$DomNode<HTMLIFrameElement> =
             (typeof target === 'string') ?
                 $(`iframe[name"${target}"]`) :
@@ -6046,7 +6047,7 @@ export default Tools
 if ('fn' in $)
     $.fn.Tools = function(...parameter:Array<any>):any {
         return (new Tools()).controller(
-            Tools, parameter, this as unknown as $DomNode<HTMLElement>
+            Tools, parameter, this as unknown as $DomNode
         )
     }
 // @ts-ignore: Missing "class" property will be added in next statement.

@@ -618,7 +618,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                     [{a: 'script'}, 'body'],
                     {a: $('body').find('script'), parent: $('body')}
                 ]
-            ]) {
+            ] as Array<[[Mapping, string?], Mapping<$DomNode>]>) {
                 const $domNodes = tools.grabDomNode(...test[0])
                 delete $domNodes.window
                 delete $domNodes.document
@@ -632,13 +632,13 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         expect(Tools.isolateScope({a: 2})).toStrictEqual({a: 2})
         expect(Tools.isolateScope({a: 2, b: {a: [1, 2]}}))
             .toStrictEqual({a: 2, b: {a: [1, 2]}})
-        let Scope:Function = function():void {
+        let Scope:Function = function(this:Mapping<number>):void {
             this.a = 2
         }
         Scope.prototype = {_a: 5, b: 2}
-        let scope:Scope = new Scope()
+        let scope:Mapping<number> = new (Scope as (new () => Mapping<number>))()
         Tools.isolateScope(scope, ['_'])
-        let finalScope:PlainObject = {}
+        let finalScope:Mapping<number> = {}
         for (const name in scope)
             finalScope[name] = scope[name]
         expect(finalScope).toStrictEqual({_a: 5, a: 2, b: undefined})
@@ -653,16 +653,18 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         scope._a = 6
         expect(Tools.isolateScope(scope, ['_']))
             .toStrictEqual({_a: 6, a: 2, b: 3})
-        Scope = function():void {
+        Scope = function(this:Mapping<number>):void {
             this.a = 2
         }
         Scope.prototype = {b: 3}
-        scope = Tools.isolateScope(new Scope(), ['b'])
+        scope = Tools.isolateScope(
+            new (Scope as (new () => Mapping<number>))(), ['b']
+        )
         finalScope = {}
         for (const name in scope)
             finalScope[name] = scope[name]
         expect(finalScope).toStrictEqual({a: 2, b: 3})
-        expect(Tools.isolateScope(new Scope()))
+        expect(Tools.isolateScope(new (Scope as (new () => Mapping<number>))()))
             .toStrictEqual({a: 2, b: undefined})
     })
     test('determineUniqueScopeName', ():void => {
