@@ -3940,6 +3940,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             if (allowDuplicates)
                 if (
                     parameter.hasOwnProperty(key) &&
+                    // @ts-ignore: Mixed type: using an array as object also.
                     Array.isArray(parameter[key])
                 )
                     // @ts-ignore: Mixed type: using an array as object also.
