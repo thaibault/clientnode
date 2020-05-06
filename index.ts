@@ -3856,10 +3856,13 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * current url search part.
      * @param givenHash - Hash part to take into account defaults to current
      * url hash part.
+     * @param allowDuplicates - Indicates whether to return arrays of values or
+     * single values. If set to "false" (default) last values will overwrite
+     * preceding values.
      * @returns Returns the current get array or requested value. If requested
      * key doesn't exist "undefined" is returned.
      */
-    static stringGetURLVariable(
+    static stringGetURLParameter(
         keyToGet:null|string = null,
         givenInput:null|string = null,
         subDelimiter:string = '$',
@@ -3870,7 +3873,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             typeof $.global.location.hash === 'string'
         ) ?
             $.global.location.hash :
-            ''
+            '',
+        allowDuplicates:boolean = false
     ):Array<string>|null|string {
         // region set search and hash
         let hash:string = (givenHash) ? givenHash : '#'
@@ -3918,7 +3922,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             data = data.concat(search.split('&'))
         // endregion
         // region construct data structure
-        const variables:Array<string> = []
+        const parameter:Array<string> = []
         for (let value of data) {
             const keyValuePair:Array<string> = value.split('=')
             let key:string
@@ -3932,18 +3936,29 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             } catch (error) {
                 value = ''
             }
-            variables.push(key)
-            // @ts-ignore: Mixed type: using an array as object also.
-            variables[key] = value
+            parameter.push(key)
+            if (allowDuplicates)
+                if (
+                    parameter.hasOwnProperty(key) &&
+                    Array.isArray(parameter[key])
+                )
+                    // @ts-ignore: Mixed type: using an array as object also.
+                    parameter[key].push(value)
+                else
+                    // @ts-ignore: Mixed type: using an array as object also.
+                    parameter[key] = [value]
+            else
+                // @ts-ignore: Mixed type: using an array as object also.
+                parameter[key] = value
         }
         // endregion
         if (keyToGet) {
-            if (Object.prototype.hasOwnProperty.call(variables, keyToGet))
+            if (Object.prototype.hasOwnProperty.call(parameter, keyToGet))
                 // @ts-ignore: Mixed type: using an array as object also.
-                return variables[keyToGet]
+                return parameter[keyToGet]
             return null
         }
-        return variables
+        return parameter
     }
     /**
      * Checks if given url points to another domain than second given url. If
