@@ -2328,7 +2328,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 Tools.stringGetProtocolName(...test[0]), test[1])
     })
     */
-    test.each([[], [null, '&'], [null, '#']])(
+    test.each([[], [null, true, '&'], [null, false, '&'], [null, false, '#']])(
         'Array.isArray(stringGetURLParameter(...%p)) === true',
         (...parameter:Array<any>):void =>
             expect(Array.isArray(Tools.stringGetURLParameter(...parameter)))
@@ -2336,40 +2336,33 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     )
     test.each([
         [null, 'notExisting'],
-        [null, 'notExisting', '&'],
-        [null, 'notExisting', '#'],
-        ['2', 'test', '?test=2'],
-        ['2', 'test', 'test=2'],
-        ['2', 'test', 'test=2&a=2'],
-        ['2', 'test', 'b=3&test=2&a=2'],
-        ['2', 'test', '?b=3&test=2&a=2'],
-        ['2', 'test', '?b=3&test=2&a=2'],
-        [['2'], 'test', '?b=3&test=2&a=2', '$', '!', null, '', true],
-        [
-            ['1', '2'],
-            'test',
-            '?test=1&b=3&test=2&a=2',
-            '$',
-            '!',
-            null,
-            '',
-            true
-        ],
-        ['2', 'test', '&', '$', '!', '', '#$test=2'],
-        ['4', 'test', '&', '$', '!', '?test=4', '#$test=3'],
-        [null, 'a', '&', '$', '!', '?test=4', '#$test=3'],
-        ['3', 'test', '#', '$', '!', '?test=4', '#$test=3'],
-        ['4', 'test', '#', '$', '!', '', '#!test#$test=4'],
-        ['4', 'test', '#', '$', '!', '', '#!/test/a#$test=4'],
-        ['4', 'test', '#', '$', '!', '', '#!/test/a/#$test=4'],
-        ['4', 'test', '#', '$', '!', '', '#!test/a/#$test=4'],
-        ['4', 'test', '#', '$', '!', '', '#!/#$test=4'],
-        ['4', 'test', '#', '$', '!', '', '#!test?test=3#$test=4'],
-        ['3', 'test', '&', '?', '!', null, '#!a?test=3'],
-        ['4', 'test', '&', '$', '!', null, '#!test#$test=4'],
-        ['4', 'test', '&', '$', '!', null, '#!test?test=3#$test=4'],
-        [['4'], 'test', '&', '$', '!', null, '#!test?test=3#$test=4', true],
-        [['2', '4'], 'test', '&', '$', '!', null, '#!test?test=3#$test=2&test=4', true]
+        [null, 'notExisting', true],
+        [null, 'notExisting', false, '&'],
+        [null, 'notExisting', false, '#'],
+        [null, 'notExisting', true, '#'],
+        ['2', 'test', false, '?test=2'],
+        ['2', 'test', false, 'test=2'],
+        ['2', 'test', false, 'test=2&a=2'],
+        ['2', 'test', false, 'b=3&test=2&a=2'],
+        ['2', 'test', false, '?b=3&test=2&a=2'],
+        ['2', 'test', false, '?b=3&test=2&a=2'],
+        [['2'], 'test', true, '?b=3&test=2&a=2'],
+        [['1', '2'], 'test', true, '?test=1&b=3&test=2&a=2'],
+        ['2', 'test', false, '&', '$', '!', '', '#$test=2'],
+        ['4', 'test', false, '&', '$', '!', '?test=4', '#$test=3'],
+        [null, 'a', false, '&', '$', '!', '?test=4', '#$test=3'],
+        ['3', 'test', false, '#', '$', '!', '?test=4', '#$test=3'],
+        ['4', 'test', false, '#', '$', '!', '', '#!test#$test=4'],
+        ['4', 'test', false, '#', '$', '!', '', '#!/test/a#$test=4'],
+        ['4', 'test', false, '#', '$', '!', '', '#!/test/a/#$test=4'],
+        ['4', 'test', false, '#', '$', '!', '', '#!test/a/#$test=4'],
+        ['4', 'test', false, '#', '$', '!', '', '#!/#$test=4'],
+        ['4', 'test', false, '#', '$', '!', '', '#!test?test=3#$test=4'],
+        ['3', 'test', false, '&', '?', '!', null, '#!a?test=3'],
+        ['4', 'test', false, '&', '$', '!', null, '#!test#$test=4'],
+        ['4', 'test', false, '&', '$', '!', null, '#!test?test=3#$test=4'],
+        [['4'], 'test', true, '&', '$', '!', null, '#!test?test=3#$test=4'],
+        [['2', '4'], 'test', true, '&', '$', '!', null, '#!test?test=3#$test=2&test=4']
     ])(
         "%p === stringGetURLParameter('%s', ...%p)",
         (
