@@ -3126,9 +3126,9 @@ cli-width@^2.0.0:
   integrity sha512-GRMWDxpOB6Dgk2E5Uo+3eEBvtOOlimMmpbFiKuLFnQzYDavtLFY3K5ona41jgN/WdRZtG7utuVSVTL4HbZHGkw==
 
 clientnode@*:
-  version "3.0.409"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.409.tgz#d1f33469b58fe498637620074d6243c180125ffe"
-  integrity sha512-rQh3pUrgjGYdyd4ueqZIxoSvHpwFJscdm8r2Vo9filNnKYWwWiRv2CzOS7vjFsqeKB2mukbWPluNS9F+/Jg4kg==
+  version "3.0.413"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.413.tgz#32d1d7f245198204a547f42944f3ab2c50a272e4"
+  integrity sha512-v6ISe28D0Eu5N6attnohn2tO5bAdLEjGTSHec+AsvnQy/adCoLbKM5qTAde5dJEA+1N/uJKbDVrZxP8wXw2sjA==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3965,9 +3965,9 @@ eslint-config-google@*:
   integrity sha512-WsbX4WbjuMvTdeVL6+J3rK1RGhCTqjsFjX7UMSMgZiyxxaNLkoJENbrGExzERFeoTpGw3F3FypTiWAP9ZXzkEw==
 
 eslint-plugin-jsdoc@*:
-  version "24.0.4"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-24.0.4.tgz#84c67cae5f4c8126503224a293fcbad791bc26d2"
-  integrity sha512-FKjE8bHZkxKVq+SLUtNbLrJoy5epzS+p7Vh8i6tFzLm65htr+UgX/IR0ozaQ9tKoTfhIg04x3Ja5+4At9AZACw==
+  version "24.0.5"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-24.0.5.tgz#13fffd3e1fffecdb3c5b10e83fce5ed0cef59f98"
+  integrity sha512-H//NC6Wsxt9J1RbV64nvD38mlT1NbGIpHclet5m//Belz5uLlqcE126E1Thnu87fVQSF8gElgQWUjGGtQSNyfQ==
   dependencies:
     comment-parser "^0.7.4"
     debug "^4.1.1"
@@ -9095,9 +9095,9 @@ webidl-conversions@^6.0.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.637"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.637.tgz#82cf9c317a220049caf434b40be91a22d8233c01"
-  integrity sha512-p5c+oK8xFqQG8fq43SUZLxjypkcm5P9RcTGmrUtuhQcXfEqXhzRBHf+ml1Yun8WuQ7MCbyJR16jqEGkQCbcLDA==
+  version "2.0.638"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.638.tgz#f5b5e6be8bad5c901600bc29e67ae278ee7ea0a6"
+  integrity sha512-oowewd0A8jDHs93koQqfd+UED0yMoYrIKDhfLyWRz9swVOeooaAUOsFJst9evwuwRwCc71aV6qMOMlWo4wqmRQ==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
