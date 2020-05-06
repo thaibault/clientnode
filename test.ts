@@ -821,7 +821,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     }
     // / endregion
     // / region object
-    test('addDynamicGetterAndSetter', (assert:Object):void => {
+    test('addDynamicGetterAndSetter', ():void => {
         expect(Tools.addDynamicGetterAndSetter(null)).toStrictEqual(null)
         expect(Tools.addDynamicGetterAndSetter(true)).toStrictEqual(true)
         expect(Tools.addDynamicGetterAndSetter({a: 2})).toStrictEqual({a: 2})
@@ -1895,9 +1895,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     // / endregion
     /* TODO
     // / region array
-    test('arrayAggregatePropertyIfEqual', (
-        assert:Object
-    ):void => {
+    test('arrayAggregatePropertyIfEqual', ():void => {
         for (const test of [
             [[[{a: 'b'}], 'a'], 'b'],
             [[[{a: 'b'}, {a: 'b'}], 'a'], 'b'],
@@ -1945,9 +1943,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 test[0], test[1]
             ), test[2])
     })
-    test('arrayExtractIfPropertyExists', (
-        assert:Object
-    ):void => {
+    test('arrayExtractIfPropertyExists', ():void => {
         for (const test of [
             [[{a: 2}], 'a', [{a: 2}]],
             [[{a: 2}], 'b', []],
@@ -1958,9 +1954,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 test[0], test[1]
             ), test[2])
     })
-    test('arrayExtractIfPropertyMatches', (
-        assert:Object
-    ):void => {
+    test('arrayExtractIfPropertyMatches', ():void => {
         for (const test of [
             [[{a: 'b'}], {a: 'b'}, [{a: 'b'}]],
             [[{a: 'b'}], {a: '.'}, [{a: 'b'}]],
@@ -2156,9 +2150,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     })
     // / endregion
     // / region string
-    test('stringEscapeRegularExpressions', (
-        assert:Object
-    ):void => {
+    test('stringEscapeRegularExpressions', ():void => {
         for (const test:Array<any> of [
             [[''], ''],
             [[`that's no regex: .*$`], `that's no regex: \\.\\*\\$`],
@@ -2188,14 +2180,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['--a--a', 'aA']
         ])
             assert.strictEqual(
-                Tools.stringConvertToValidVariableName(
-                    test[0]
-                ), test[1])
+                Tools.stringConvertToValidVariableName(test[0]), test[1]
+            )
     })
-    // // region url handling
-    test('stringEncodeURIComponent', (
-        assert:Object
-    ):void => {
+    // // region url handling 
+    test('stringEncodeURIComponent', ():void => {
         for (const test:Array<any> of [
             [[''], ''],
             [[' '], '+'],
@@ -2206,9 +2195,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             assert.strictEqual(
                 Tools.stringEncodeURIComponent(...test[0]), test[1])
     })
-    test('stringAddSeparatorToPath', (
-        assert:Object
-    ):void => {
+    test('stringAddSeparatorToPath', ():void => {
         for (const test:Array<any> of [
             [[''], ''],
             [['/'], '/'],
@@ -2340,37 +2327,60 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             assert.strictEqual(
                 Tools.stringGetProtocolName(...test[0]), test[1])
     })
-    test('stringGetURLVariable', ():void => {
-        assert.ok(Array.isArray(Tools.stringGetURLVariable()))
-        assert.ok(Array.isArray(Tools.stringGetURLVariable(null, '&')))
-        assert.ok(Array.isArray(Tools.stringGetURLVariable(null, '#')))
-        for (const test:Array<any> of [
-            [['notExisting'], null],
-            [['notExisting', '&'], null],
-            [['notExisting', '#'], null],
-            [['test', '?test=2'], '2'],
-            [['test', 'test=2'], '2'],
-            [['test', 'test=2&a=2'], '2'],
-            [['test', 'b=3&test=2&a=2'], '2'],
-            [['test', '?b=3&test=2&a=2'], '2'],
-            [['test', '?b=3&test=2&a=2'], '2'],
-            [['test', '&', '$', '!', '', '#$test=2'], '2'],
-            [['test', '&', '$', '!', '?test=4', '#$test=3'], '4'],
-            [['a', '&', '$', '!', '?test=4', '#$test=3'], null],
-            [['test', '#', '$', '!', '?test=4', '#$test=3'], '3'],
-            [['test', '#', '$', '!', '', '#!test#$test=4'], '4'],
-            [['test', '#', '$', '!', '', '#!/test/a#$test=4'], '4'],
-            [['test', '#', '$', '!', '', '#!/test/a/#$test=4'], '4'],
-            [['test', '#', '$', '!', '', '#!test/a/#$test=4'], '4'],
-            [['test', '#', '$', '!', '', '#!/#$test=4'], '4'],
-            [['test', '#', '$', '!', '', '#!test?test=3#$test=4'], '4'],
-            [['test', '&', '?', '!', null, '#!a?test=3'], '3'],
-            [['test', '&', '$', '!', null, '#!test#$test=4'], '4'],
-            [['test', '&', '$', '!', null, '#!test?test=3#$test=4'], '4']
-        ])
-            assert.strictEqual(
-                Tools.stringGetURLVariable(...test[0]), test[1])
-    })
+    */
+    test.each([[], [null, '&'], [null, '#']])(
+        'Array.isArray(stringGetURLParameter(...%p)) === true',
+        (...parameter:Array<any>):void =>
+            expect(Array.isArray(Tools.stringGetURLParameter(...parameter)))
+                .toStrictEqual(true)
+    )
+    test.each([
+        [null, 'notExisting'],
+        [null, 'notExisting', '&'],
+        [null, 'notExisting', '#'],
+        ['2', 'test', '?test=2'],
+        ['2', 'test', 'test=2'],
+        ['2', 'test', 'test=2&a=2'],
+        ['2', 'test', 'b=3&test=2&a=2'],
+        ['2', 'test', '?b=3&test=2&a=2'],
+        ['2', 'test', '?b=3&test=2&a=2'],
+        [['2'], 'test', '?b=3&test=2&a=2', '$', '!', null, '', true],
+        [
+            ['1', '2'],
+            'test',
+            '?test=1&b=3&test=2&a=2',
+            '$',
+            '!',
+            null,
+            '',
+            true
+        ],
+        ['2', 'test', '&', '$', '!', '', '#$test=2'],
+        ['4', 'test', '&', '$', '!', '?test=4', '#$test=3'],
+        [null, 'a', '&', '$', '!', '?test=4', '#$test=3'],
+        ['3', 'test', '#', '$', '!', '?test=4', '#$test=3'],
+        ['4', 'test', '#', '$', '!', '', '#!test#$test=4'],
+        ['4', 'test', '#', '$', '!', '', '#!/test/a#$test=4'],
+        ['4', 'test', '#', '$', '!', '', '#!/test/a/#$test=4'],
+        ['4', 'test', '#', '$', '!', '', '#!test/a/#$test=4'],
+        ['4', 'test', '#', '$', '!', '', '#!/#$test=4'],
+        ['4', 'test', '#', '$', '!', '', '#!test?test=3#$test=4'],
+        ['3', 'test', '&', '?', '!', null, '#!a?test=3'],
+        ['4', 'test', '&', '$', '!', null, '#!test#$test=4'],
+        ['4', 'test', '&', '$', '!', null, '#!test?test=3#$test=4'],
+        [['4'], 'test', '&', '$', '!', null, '#!test?test=3#$test=4', true],
+        [['2', '4'], 'test', '&', '$', '!', null, '#!test?test=3#$test=2&test=4', true]
+    ])(
+        "%p === stringGetURLParameter('%s', ...%p)",
+        (
+            expected:Array<string>|null|string,
+            key:string,
+            ...parameter:Array<any>
+        ):void =>
+            expect(Tools.stringGetURLParameter(key, ...parameter)).
+                toStrictEqual(expected)
+    )
+    /* TODO
     test('stringIsInternalURL', ():void => {
         for (const test:Array<any> of [
             [
@@ -2454,9 +2464,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 Tools.stringRepresentURL(test[0]), test[1])
     })
     // // endregion
-    test('stringCamelCaseToDelimited', (
-        assert:Object
-    ):void => {
+    test('stringCamelCaseToDelimited', ():void => {
         for (const test:Array<any> of [
             [['hansPeter'], 'hans-peter'],
             [['hansPeter', '|'], 'hans|peter'],
@@ -2487,9 +2495,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             assert.strictEqual(
                 Tools.stringCapitalize(test[0]), test[1])
     })
-    test('stringCompressStyleValue', (
-        assert:Object
-    ):void => {
+    test('stringCompressStyleValue', ():void => {
         for (const test:Array<any> of [
             ['', ''],
             [' border: 1px  solid red;', 'border:1px solid red'],
@@ -2504,9 +2510,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             assert.strictEqual(
                 Tools.stringCompressStyleValue(test[0]), test[1])
     })
-    test('stringDecodeHTMLEntities', (
-        assert:Object
-    ):void => {
+    test('stringDecodeHTMLEntities', ():void => {
         for (const test:Array<string> of [
             ['', ''],
             ['<div></div>', '<div></div>'],
@@ -2519,9 +2523,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             assert.equal(
                 Tools.stringDecodeHTMLEntities(test[0]), test[1])
     })
-    test('stringDelimitedToCamelCase', (
-        assert:Object
-    ):void => {
+    test('stringDelimitedToCamelCase', ():void => {
         for (const test:Array<any> of [
             [['hans-peter'], 'hansPeter'],
             [['hans|peter', '|'], 'hansPeter'],
@@ -2547,9 +2549,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             assert.strictEqual(
                 Tools.stringDelimitedToCamelCase(...test[0]), test[1])
     })
-    test('stringFindNormalizedMatchRange', (
-        assert:Object
-    ):void => {
+    test('stringFindNormalizedMatchRange', ():void => {
         for (const test:Array<any> of [
             [['', ''], null],
             [['hans', ''], null],
@@ -2611,9 +2611,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             assert.strictEqual(
                 Tools.stringGetEditDistance(test[0], test[1]), test[2])
     })
-    test('stringGetRegularExpressionValidated', (
-        assert:Object
-    ):void => {
+    test('stringGetRegularExpressionValidated', ():void => {
         for (const test:Array<any> of [
             [`that's no regex: .*$`, `that's no regex: \\.\\*\\$`],
             ['', ''],
@@ -2624,9 +2622,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 Tools.stringGetRegularExpressionValidated(test[0]),
                 test[1])
     })
-    test('stringInterpretDateTime', (
-        assert:Object
-    ):void => {
+    test('stringInterpretDateTime', ():void => {
         for (const test:Array<any> of [
             ['', null],
             ['01:00', new Date(1970, 1 - 1, 1, 1)],
@@ -2777,9 +2773,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         ])
             assert.strictEqual(Tools.stringMD5(...test[0]), test[1])
     })
-    test('stringNormalizePhoneNumber', (
-        assert:Object
-    ):void => {
+    test('stringNormalizePhoneNumber', ():void => {
         for (const test:Array<any> of [
             ['0', '0'],
             [' 0  ', '0'],
@@ -2827,9 +2821,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 test[1]
             )
     })
-    test('stringNormalizeZipCode', (
-        assert:Object
-    ):void => {
+    test('stringNormalizeZipCode', ():void => {
         for (const test:Array<any> of [
             ['0', '0'],
             [' 0  ', '0'],
@@ -2870,9 +2862,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                     Tools.stringParseEncodedObject(...test[0]), test[1]
                 )
         })
-    test('stringSliceAllExceptNumberAndLastSeperator', (
-        assert:Object
-    ):void => {
+    test('stringSliceAllExceptNumberAndLastSeperator', ():void => {
         for (const test:Array<any> of [
             ['12-34-56', '1234-56'],
             ['12 34 56', '123456'],
@@ -2884,9 +2874,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 test[1]
             )
     })
-    test('stringRepresentPhoneNumber', (
-        assert:Object
-    ):void => {
+    test('stringRepresentPhoneNumber', ():void => {
         for (const test:Array<any> of [
             ['0', '0'],
             ['0172-12321-1', '+49 (0) 172 / 123 21-1'],
@@ -2913,13 +2901,9 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['Mo. 10', '10'],
             ['Mo. ', 'Mo. ']
         ])
-            assert.strictEqual(
-                Tools.stringSliceWeekday(test[0]), test[1]
-            )
+            assert.strictEqual(Tools.stringSliceWeekday(test[0]), test[1])
     })
-    test('stringNormalizeDomNodeSelector', (
-        assert:Object
-    ):void => {
+    test('stringNormalizeDomNodeSelector', ():void => {
         for (const test:Array<string> of [
             ['div', 'body div'],
             ['div p', 'body div p'],
@@ -3032,17 +3016,13 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             assert.ok(Tools.sendToIFrame(
                 iFrame, window.document.URL, {test: 5}, 'get', true))
         })
-        test('sendToExternalURL', (
-            assert:Object
-        ):void => assert.ok(tools.sendToExternalURL(
-            window.document.URL, {test: 5})))
+        test('sendToExternalURL', ():void =>
+            assert.ok(tools.sendToExternalURL(window.document.URL, {test: 5})))
     }
     // / endregion
     // / region file
     if (TARGET_TECHNOLOGY === 'node') {
-        test('copyDirectoryRecursive', async (
-            assert:Object
-        ):Promise<void> => {
+        test('copyDirectoryRecursive', async ():Promise<void> => {
             const done:Function = assert.async()
             assert.ok((await Tools.copyDirectoryRecursive(
                 './node_modules/.bin',
@@ -3053,9 +3033,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 './copyDirectoryRecursiveTest.compiled')
             done()
         })
-        test('copyDirectoryRecursiveSync', (
-            assert:Object
-        ):void => {
+        test('copyDirectoryRecursiveSync', ():void => {
             assert.ok(Tools.copyDirectoryRecursiveSync(
                 './node_modules/.bin',
                 './copyDirectoryRecursiveTestSync.compiled',
@@ -3064,9 +3042,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             removeDirectoryRecursivelySync(
                 './copyDirectoryRecursiveTestSync.compiled')
         })
-        test('copyFile', async (
-            assert:Object
-        ):Promise<void> => {
+        test('copyFile', async ():Promise<void> => {
             const done:Function = assert.async()
             let result:string = ''
             try {
@@ -3094,9 +3070,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ).endsWith('/synctest.compiled.js'))
             synchronousFileSystem.unlinkSync('./synctest.compiled.js')
         })
-        test('isDirectory', async (
-            assert:Object
-        ):Promise<void> => {
+        test('isDirectory', async ():Promise<void> => {
             const done:Function = assert.async()
             for (const filePath:string of ['./', '../']) {
                 let result:boolean
@@ -3128,9 +3102,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ])
                 assert.notOk(Tools.isDirectorySync(filePath))
         })
-        test('isFile', async (
-            assert:Object
-        ):Promise<void> => {
+        test('isFile', async ():Promise<void> => {
             const done:Function = assert.async()
             for (const filePath:string of [
                 path.resolve('./', path.basename(__filename))
@@ -3162,9 +3134,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             for (const filePath:string of ['./', '../'])
                 assert.notOk(Tools.isFileSync(filePath))
         })
-        test('walkDirectoryRecursively', async (
-            assert:Object
-        ):Promise<void> => {
+        test('walkDirectoryRecursively', async ():Promise<void> => {
             const done:Function = assert.async()
             const filePaths:Array<string> = []
             const callback:Function = (filePath:string):null => {
@@ -3184,9 +3154,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             assert.strictEqual(filePaths.length, 1)
             done()
         })
-        test('walkDirectoryRecursivelySync', (
-            assert:Object
-        ):void => {
+        test('walkDirectoryRecursivelySync', ():void => {
             const filePaths:Array<string> = []
             const callback:Function = (filePath:string):null => {
                 filePaths.push(filePath)
@@ -3203,15 +3171,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     // / endregion
     // / region process handler
     if (TARGET_TECHNOLOGY === 'node') {
-        test('getProcessCloseHandler', (
-            assert:Object
-        ):void => assert.strictEqual(
-            typeof Tools.getProcessCloseHandler(
+        test('getProcessCloseHandler', ():void =>
+            assert.strictEqual(typeof Tools.getProcessCloseHandler(
                 ():void => {}, ():void => {}
             ), 'function'))
-        test('handleChildProcess', (
-            assert:Object
-        ):void => {
+        test('handleChildProcess', ():void => {
             /**
              * A mockup duplex stream for mocking "stdout" and "strderr"
              * process connections.
@@ -3254,9 +3218,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     // endregion
     // region protected
     if (testEnvironment === 'full')
-        test(`_bindEventHelper (${testEnvironment})`, (
-            assert:Object
-        ):void => {
+        test(`_bindEventHelper (${testEnvironment})`, ():void => {
             for (const test:Array<any> of [
                 [['body']],
                 [['body'], true],
