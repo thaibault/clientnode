@@ -3841,6 +3841,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * and preserves ordering.
      * @param keyToGet - If key given the corresponding value is returned and
      * full object otherwise.
+     * @param allowDuplicates - Indicates whether to return arrays of values or
+     * single values. If set to "false" (default) last values will overwrite
+     * preceding values.
      * @param givenInput - An alternative input to the url search parameter. If
      * "#" is given the complete current hash tag will be interpreted as url
      * and search parameter will be extracted from there. If "&" is given
@@ -3856,14 +3859,12 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * current url search part.
      * @param givenHash - Hash part to take into account defaults to current
      * url hash part.
-     * @param allowDuplicates - Indicates whether to return arrays of values or
-     * single values. If set to "false" (default) last values will overwrite
-     * preceding values.
      * @returns Returns the current get array or requested value. If requested
      * key doesn't exist "undefined" is returned.
      */
     static stringGetURLParameter(
         keyToGet:null|string = null,
+        allowDuplicates:boolean = false,
         givenInput:null|string = null,
         subDelimiter:string = '$',
         hashedPathIndicator:string = '!',
@@ -3873,8 +3874,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             typeof $.global.location.hash === 'string'
         ) ?
             $.global.location.hash :
-            '',
-        allowDuplicates:boolean = false
+            ''
     ):Array<string>|null|string {
         // region set search and hash
         let hash:string = (givenHash) ? givenHash : '#'
