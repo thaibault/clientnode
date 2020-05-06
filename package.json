@@ -100,7 +100,7 @@
     },
     "module": {
       "aliases": {
-        "#": "Ensure that dependent modules uses latest version.",
+        "#": "Ensure that dependent modules uses latest clientnode version.",
         "clientnode$": "../../index",
         "clientnode/type$": "../../type",
         "jquery$": "jquery/dist/jquery.min"
