@@ -53,6 +53,7 @@ export interface TimeoutPromise extends Promise<boolean> {
     timeoutID:number;
 }
 // / endregion
+export type Encoding = 'ascii'|'base64'|'binary'|'hex'|'latin1'|'ucs2'|'ucs-2'|'utf8'|'utf16le'|'utf-8'
 export type Mapping<T=string> = {[key:string]:T}
 export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
 export type ObjectMaskConfiguration = {exclude?:ObjectMask;include?:ObjectMask}

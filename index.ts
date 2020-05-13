@@ -5135,7 +5135,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             Tools.isFileSync(serializedObject)
         )
             serializedObject = synchronousFileSystem.readFileSync(
-                serializedObject, {encoding: 'utf-8'})
+                serializedObject, {encoding: 'utf-8'}
+            )
         serializedObject = serializedObject.trim()
         if (!serializedObject.startsWith('{'))
             serializedObject = eval('Buffer')
@@ -6090,7 +6091,7 @@ if ('fn' in $) {
         if (
             additionalParameter.length < 2 &&
             this.length &&
-            ['#text', '#comment'].includes(this[0].nodeName) &&
+            ['#text', '#comment'].includes(this[0].nodeName.toLowerCase()) &&
             key in this[0]
         ) {
             if (additionalParameter.length === 0)
