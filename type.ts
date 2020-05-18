@@ -42,7 +42,7 @@ export type $Function =
         readyException:(error:Error|string) => void;
         Tools:ToolsFunction;
     }
-export type $Window = Window & {$:$Function}
+export type $Window = Window & {console:Console;$:$Function}
 export type Noop = (...parameter:Array<any>) => any
 export interface ProcessError extends Error {
     parameter:Array<any>;

@@ -368,7 +368,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         this.locks = locks
         // Avoid errors in browsers that lack a console.
         if (!('console' in $.global))
-            ($.global as {console:{}}).console = {}
+            ($.global as unknown as {console:{}}).console = {}
         this.self = this.constructor as typeof Tools
         for (const methodName of ConsoleOutputMethods)
             if (!(methodName in $.global.console))
@@ -2574,8 +2574,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         delimiter:string = '.'
     ):any {
         let path:Array<string> = []
-        // @ts-ignore: Workaround to ensure having an array.
-        for (const component of [].concat(selector))
+        for (const component of [].concat(
+            selector as unknown as ConcatArray<never>
+        ) as Array<string>)
             path = path.concat(component.split(delimiter))
         let result:any = target
         for (const name of path)
@@ -2783,9 +2784,17 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                                     )
                                         target.splice(value, 1)
                             } else if (key === prependIndicatorKey)
-                                // @ts-ignore: Workaround to ensure having an
-                                // array.
-                                target = [].concat(source[key]).concat(target)
+                                target = []
+                                    .concat(
+                                        source[key] as
+                                            unknown as
+                                            ConcatArray<never>
+                                    )
+                                    .concat(
+                                        target as
+                                        unknown as
+                                        ConcatArray<never>
+                                    )
                             else
                                 target = target.concat(source[key])
                         else if (key === removeIndicatorKey)
@@ -2858,8 +2867,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @returns Processed given object.
      */
     static removeKeys<T>(object:T, keys:Array<string>|string = '#'):T {
-        // @ts-ignore: Workaround to ensure having an array.
-        const resolvedKeys:Array<string> = [].concat(keys)
+        const resolvedKeys:Array<string> = [].concat(
+            keys as unknown as ConcatArray<never>
+        )
         if (Array.isArray(object)) {
             let index:number = 0
             for (const subObject of object.slice()) {
@@ -3591,8 +3601,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         const edges:Array<Array<string>> = []
         for (const name in items)
             if (Object.prototype.hasOwnProperty.call(items, name)) {
-                // @ts-ignore: Workaround to ensure having an array.
-                items[name] = [].concat(items[name])
+                items[name] = [].concat(
+                    items[name] as unknown as ConcatArray<never>
+                )
                 if (items[name].length > 0)
                     for (const dependencyName of Tools.arrayMake(items[name]))
                         edges.push([name, dependencyName])
@@ -4523,20 +4534,20 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                         ])
                             for (
                                 const delimiter of
-                                // @ts-ignore: Workaround to ensure having an
-                                // array.
-                                [].concat(Object.prototype.hasOwnProperty.call(
-                                    dateTimeFormat, 'delimiter'
-                                ) ?
-                                    dateTimeFormat.delimiter :
-                                    '-'
+                                [].concat(
+                                    (Object.prototype.hasOwnProperty.call(
+                                        dateTimeFormat, 'delimiter'
+                                    ) ?
+                                        dateTimeFormat.delimiter :
+                                        '-'
+                                    ) as unknown as ConcatArray<never>
                                 )
                             )
                                 for (let pattern of [].concat(
-                                    // @ts-ignore: Workaround to ensure having
-                                    // an array.
-                                    dateTimeFormat.pattern
-                                )) {
+                                    dateTimeFormat.pattern as
+                                        unknown as
+                                        ConcatArray<never>
+                                ) as Array<string>) {
                                     pattern = (new Function(
                                         'delimiter', `return \`^${pattern}$\``
                                     ))(`${delimiter}+`)
@@ -5312,11 +5323,14 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         options:PlainObject = {},
         givenExpectedIntermediateStatusCodes:number|Array<number> = []
     ):Promise<Object> {
-        // @ts-ignore: Workaround to ensure having an array.
-        const expectedStatusCodes:Array<number> = [].concat(givenExpectedStatusCodes)
+        const expectedStatusCodes:Array<number> = [].concat(
+            givenExpectedStatusCodes as unknown as ConcatArray<never>
+        )
         const expectedIntermediateStatusCodes:Array<number> = [].concat(
-            // @ts-ignore: Workaround to ensure having an array.
-            givenExpectedIntermediateStatusCodes)
+            givenExpectedIntermediateStatusCodes as
+                unknown as
+                ConcatArray<never>
+            )
         const isStatusCodeExpected:Function = (
             response:any, expectedStatusCodes:Array<number>
         ):boolean => Boolean(
@@ -5411,8 +5425,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
     ):Promise<Object> {
         const check = (response:any):Error|null => {
             if (unexpectedStatusCodes) {
-                // @ts-ignore: Workaround to ensure having an array.
-                unexpectedStatusCodes = [].concat(unexpectedStatusCodes)
+                unexpectedStatusCodes = [].concat(
+                    unexpectedStatusCodes as unknown as ConcatArray<never>
+                )
                 if (
                     response !== null &&
                     typeof response === 'object' &&
@@ -6042,7 +6057,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 ))
                     // @ts-ignore: Dynamically accessing attributes is allowed.
                     this[eventFunctionName](
-                        $domNode, eventType, parameter[1][eventType])
+                        $domNode, eventType, parameter[1][eventType]
+                    )
             return $domNode
         }
         parameter = this.self.arrayMake(parameter).slice(1)
