@@ -39,9 +39,9 @@ import {InitializedBrowser} from 'weboptimizer/type'
 declare var TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
-let path:Object
+let path:object
 let removeDirectoryRecursivelySync:Function
-let synchronousFileSystem:Object
+let synchronousFileSystem:object
 let testEnvironment:string = 'browser'
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     path = require('path')
@@ -1505,7 +1505,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             )).toStrictEqual(expected)
     )
     test('extend', ():void => {
-        const target:Object = {a: [1, 2]}
+        const target:PlainObject = {a: [1, 2]}
         Tools.extend(true, target, {a: [3, 4]})
         expect(target).toStrictEqual({a: [3, 4]})
     })
@@ -2105,7 +2105,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 Tools.arraySumUpProperty(...test[0]), test[1])
     })
     test('arrayAppendAdd', ():void => {
-        const testObject:Object = {}
+        const testObject:PlainObject = {}
         for (const test:Array<any> of [
             [[{}, {}, 'b'], {b: [{}]}],
             [[testObject, {a: 3}, 'b'], {b: [{a: 3}]}],
