@@ -1380,7 +1380,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
     static determineUniqueScopeName(
         prefix:string = 'callback',
         suffix:string = '',
-        scope:Object = $.global,
+        scope:object = $.global,
         initialUniqueName:string = ''
     ):string {
         if (initialUniqueName.length && !(initialUniqueName in scope))
@@ -1746,7 +1746,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @returns The formatted json string.
      */
     static convertCircularObjectToJSON(
-        object:Object,
+        object:object,
         determineCicularReferenceValue:((
             key:string, value:any, seenObjects:Array<any>
         ) => any) = ():string => '__circularReference__',
@@ -2363,7 +2363,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                         Object.prototype.hasOwnProperty.call(
                             data[key], executionIndicatorKey)
                     ) {
-                        const backup:Object = data[key]
+                        const backup:object = data[key]
                         data[key] = new Proxy(data[key], {
                             get: (target:any, key:any):any => {
                                 if (key === '__target__')
@@ -3559,7 +3559,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         target:any,
         name:string,
         checkIfExists:boolean = true
-    ):Object {
+    ):object {
         if (Object.prototype.hasOwnProperty.call(item, name)) {
             if (!(checkIfExists && item[name].includes(target)))
                 item[name].push(target)
@@ -5139,7 +5139,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @returns The parsed object if possible and null otherwise.
      */
     static stringParseEncodedObject(
-        serializedObject:string, scope:Object = {}, name:string = 'scope'
+        serializedObject:string, scope:object = {}, name:string = 'scope'
     ):null|PlainObject {
         if (
             serializedObject.endsWith('.json') &&
@@ -5354,7 +5354,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 let timedOut:boolean = false
                 const timer:TimeoutPromise = Tools.timeout(
                     timeoutInSeconds * 1000)
-                const retryErrorHandler = (error:Object):Object => {
+                const retryErrorHandler = <ErrorType=Error>(
+                    error:ErrorType
+                ):ErrorType => {
                     if (!timedOut) {
                         /* eslint-disable no-use-before-define */
                         currentlyRunningTimer = Tools.timeout(
@@ -5370,7 +5372,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                     return error
                 }
                 const wrapper = async ():Promise<any> => {
-                    let response:Object
+                    let response:object
                     try {
                         response = await fetch(url, options)
                     } catch (error) {
@@ -5453,7 +5455,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 let timedOut:boolean = false
                 const wrapper:Function = async ():Promise<any> => {
                     try {
-                        const response:Object = await fetch(url, options)
+                        const response:object = await fetch(url, options)
                         if (timedOut)
                             return response
                         const result:Error|null = check(response)
@@ -5712,8 +5714,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         */
         if (await Tools.isDirectory(targetPath))
             targetPath = path.resolve(targetPath, path.basename(sourcePath))
-        const data:Object|string = await fileSystem.readFile(
-            sourcePath, readOptions)
+        const data:object|string = await fileSystem.readFile(
+            sourcePath, readOptions
+        )
         fileSystem.writeFile(targetPath, data, writeOptions)
         return targetPath
     }
