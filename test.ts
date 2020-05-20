@@ -207,7 +207,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     // / endregion
     // / region boolean
     test.each([0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10])(
-        '.isNumeric(%s) === true',
+        'isNumeric(%s) === true',
         (value:any):void => expect(Tools.isNumeric(value)).toStrictEqual(true)
     )
     test.each([
@@ -224,7 +224,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         NaN,
         Infinity
     ])(
-        '.isNumeric(%p) === false',
+        'isNumeric(%p) === false',
         (value:any):void => expect(Tools.isNumeric(value)).toStrictEqual(false)
     )
     test('isWindow', async ():Promise<void> => {
@@ -241,7 +241,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             expect(Tools.isArrayLike(value)).toStrictEqual(true)
     })
     test.each([{}, null, undefined, false, true, /a/])(
-        '.isArrayLike(%p) === false',
+        'isArrayLike(%p) === false',
         (value:any):void =>
             expect(Tools.isArrayLike(value)).toStrictEqual(false)
     )
@@ -251,7 +251,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         ['test', [/a/, /b/, /es/]],
         ['test', ['', 'test']]
     ])(
-        `.isAnyMatching('%s', %p) === true`,
+        `isAnyMatching('%s', %p) === true`,
         (target:string, pattern:Array<string|RegExp>):void =>
             expect(Tools.isAnyMatching(target, pattern)).toStrictEqual(true)
     )
@@ -262,7 +262,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         ['test', [/^est$/]],
         ['test', ['a']]
     ])(
-        `.isAnyMatching('%s', %p) === false`,
+        `isAnyMatching('%s', %p) === false`,
         (target:string, pattern:Array<string|RegExp>):void =>
             expect(Tools.isAnyMatching(target, pattern)).toStrictEqual(false)
     )
@@ -272,11 +272,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         /* eslint-disable no-new-object */
         new Object()
         /* eslint-enable no-new-object */
-    ])('.isPlainObject(%p) === true', (value:any):void =>
+    ])('isPlainObject(%p) === true', (value:any):void =>
         expect(Tools.isPlainObject(value)).toStrictEqual(true)
     )
     test.each([new String(), Object, null, 0, 1, true, undefined])(
-        '.isPlainObject(%p) === false',
+        'isPlainObject(%p) === false',
         (value:any):void =>
             expect(Tools.isPlainObject(value)).toStrictEqual(false)
     )
@@ -286,11 +286,11 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         function():void {},
         ():void => {},
         async ():Promise<void> => {}
-    ])('.isFunction(%p) === true', (value:any):void =>
+    ])('isFunction(%p) === true', (value:any):void =>
         expect(Tools.isFunction(value)).toStrictEqual(true)
     )
     test.each([null, false, 0, 1, undefined, {}, new Boolean()])(
-        '.isFunction(%p) === false', (value:any):void =>
+        'isFunction(%p) === false', (value:any):void =>
             expect(Tools.isFunction(value)).toStrictEqual(false)
     )
     // / endregion
@@ -323,7 +323,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [/a/, '/a/ (Type: "regexp")'],
         ['hans', 'hans (Type: "string")'],
         [{A: 'a', B: 'b'}, 'A: a (Type: "string")\nB: b (Type: "string")']
-    ])('.show(%p) === %s', (value:any, expected:string):void =>
+    ])('show(%p) === %s', (value:any, expected:string):void =>
         expect(Tools.show(value)).toStrictEqual(expected)
     )
     // / endregion
@@ -504,7 +504,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ],
             ['a<br>', 'a<br />', true]
         ])(
-            `.isEquivalentDOM('%s', '%s') === true`,
+            `isEquivalentDOM('%s', '%s') === true`,
             (
                 first:string,
                 second:string,
@@ -531,7 +531,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['text', 'text a'],
             ['text', 'text a & +']
         ])(
-            `.isEquivalentDOM('%s', '%s') === false`,
+            `isEquivalentDOM('%s', '%s') === false`,
             (first:string, second:string):void =>
                 expect(Tools.isEquivalentDOM(first, second))
                     .toStrictEqual(false)
@@ -564,7 +564,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             '[mce_href]'
         ]
     ])(
-        `.generateDirectiveSelector('%s') === '%s'`,
+        `generateDirectiveSelector('%s') === '%s'`,
         (name:string, selector:string):void =>
             expect(Tools.generateDirectiveSelector(name))
                 .toStrictEqual(selector)
@@ -579,7 +579,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     test.each([
         ['data-a', 'a'], ['x-a', 'a'], ['data-a-bb', 'aBb'], ['x:a:b', 'aB']
     ])(
-        `.getNormalizedDirectiveName('%s') === '%s'`,
+        `getNormalizedDirectiveName('%s') === '%s'`,
         (directive:string, name:string):void =>
             expect(Tools.getNormalizedDirectiveName(directive))
                 .toStrictEqual(name)
@@ -611,7 +611,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         ['<a>', 'a'],
         ['<a />', 'a'],
         ['<a></a>', 'a']
-    ])(`.getDomNodeName('%s') === '%s'`, (html:string, name:string):void =>
+    ])(`getDomNodeName('%s') === '%s'`, (html:string, name:string):void =>
         expect(Tools.getDomNodeName(html)).toStrictEqual(name)
     )
     if (hasDOM)
@@ -714,7 +714,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['a', 'b', 'c']
         ]
     ])(
-        `.getParameterNames('%s') === %p`,
+        `getParameterNames('%s') === %p`,
         (code:Function|string, parameterNames:Array<string>):void =>
             expect(Tools.getParameterNames(code)).toStrictEqual(parameterNames)
     )
@@ -729,7 +729,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [undefined, undefined],
         [null, null],
         ['hans', 'hans']
-    ])('.identity(%p) === %p', (given:any, expected:any):void =>
+    ])('identity(%p) === %p', (given:any, expected:any):void =>
         expect(Tools.identity(given)).toStrictEqual(expected)
     )
     test('invertArrayFilter', ():void => {
@@ -907,7 +907,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [{a: {a: 2}}, '{"a":{"a":2}}'],
         [{a: {a: Infinity}}, '{"a":{"a":null}}']
     ])(
-        `.convertCircularObjectToJSON(%p) === '%s'`,
+        `convertCircularObjectToJSON(%p) === '%s'`,
         (value:any, expected:string):void =>
             expect(Tools.convertCircularObjectToJSON(value))
                 .toStrictEqual(expected)
@@ -935,7 +935,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             )]]
         ]
     ])(
-        '%p === .convertMapToPlainObject(%p, %p)',
+        '%p === convertMapToPlainObject(%p, %p)',
         (expected:any, object:any, deep:boolean = true):void =>
             expect(Tools.convertMapToPlainObject(object, deep))
                 .toStrictEqual(expected)
@@ -980,7 +980,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [{b: 2, a: new Set([{}])}]
         ]
     ])(
-        '%p === .convertPlainObjectToMap(%p, %p)',
+        '%p === convertPlainObjectToMap(%p, %p)',
         (expected:any, object:any, deep:boolean = true):void =>
             expect(Tools.convertPlainObjectToMap(object, deep))
                 .toStrictEqual(expected)
@@ -992,7 +992,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [{a: 'aa'}, /a/g, 'b', {a: 'bb'}],
         [{a: {a: 'aa'}}, /a/g, 'b', {a: {a: 'bb'}}]
     ])(
-        `.convertSubstringInPlainObject(%p, %p, '%s') === %p`,
+        `convertSubstringInPlainObject(%p, %p, '%s') === %p`,
         (
             object:PlainObject,
             pattern:RegExp|string,
@@ -1109,7 +1109,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             10
         ]
     ])(
-        '%p === .copy(...%p)',
+        '%p === copy(...%p)',
         (expected:any, object:any, ...parameter:Array<any>):void =>
             expect(Tools.copy<any>(object, ...parameter))
                 .toStrictEqual(expected)
@@ -1141,7 +1141,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [new Map(), 'map'],
         [new Set(), 'set'],
         [/test/, 'regexp']
-    ])(`.determineType(%p) === '%s'`, (object:any, expected:string):void =>
+    ])(`determineType(%p) === '%s'`, (object:any, expected:string):void =>
         expect(Tools.determineType(object)).toStrictEqual(expected)
     )
     test.each([
@@ -1179,7 +1179,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [Tools.noop, Tools.noop],
         [Tools.noop, Tools.noop, null, -1, [], false]
     ])(
-        '.equals(%p, %p, ...%p) === true',
+        'equals(%p, %p, ...%p) === true',
         (first:any, second:any, ...parameter:Array<any>):void =>
             expect(Tools.equals(first, second, ...parameter))
                 .toStrictEqual(true)
@@ -1227,7 +1227,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 }
             ]
         ])(
-            '.equals(%p, %p, null, -1, [], true, true) === true',
+            'equals(%p, %p, null, -1, [], true, true) === true',
             async (first:any, second:any):Promise<void> =>
                 expect(
                     await Tools.equals(first, second, null, -1, [], true, true)
@@ -1269,7 +1269,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 }
             ]
         ])(
-            '.equals(%p, %p) === false',
+            'equals(%p, %p) === false',
             async (first:any, second:any):Promise<void> =>
                 expect(await Tools.equals(
                     first, second, null, -1, [], true, true
@@ -1297,7 +1297,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
         [():void => {}, ():void => {}, null, -1, [], false]
     ])(
-        '.equals(%p, %p, ...%p) === false',
+        'equals(%p, %p, ...%p) === false',
         (first:any, second:any, ...parameter:Array<any>):void =>
             expect(Tools.equals(first, second, ...parameter))
                 .toStrictEqual(false)
@@ -1498,7 +1498,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             }
         ]
     ])(
-        '%p === .evaluateDynamicDataStructure(%p, ...%p)',
+        '%p === evaluateDynamicDataStructure(%p, ...%p)',
         (expected:any, object:any, ...parameter:Array<any>):void =>
             expect(Tools.copy(
                 Tools.evaluateDynamicDataStructure(object, ...parameter), -1, true
@@ -1613,7 +1613,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [undefined, [1, 2], undefined],
         [null, [1, 2], null]
     ])(
-        '%p === .extend(%p, ...%p)',
+        '%p === extend(%p, ...%p)',
         (expected:any, first:any, ...parameter:Array<any>):void =>
             expect(Tools.extend(first, ...parameter)).toStrictEqual(expected)
     )
@@ -1624,7 +1624,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [[], {a: {a: []}}, 'a.a'],
         [3, {a: {b: {c: 3}}}, ['a', 'b.c']]
     ])(
-        '%p === .getSubstructure(%p, %p, ...%p)',
+        '%p === getSubstructure(%p, %p, ...%p)',
         (
             expected:any,
             target:any,
@@ -1703,7 +1703,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             {a: {a: {}}},
         ]
     ])(
-        '.maskObject(%p, %p) === %p',
+        'maskObject(%p, %p) === %p',
         (
             object:object, mask:ObjectMaskConfiguration, expected:object
         ):void =>
@@ -1772,7 +1772,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             {a: {__prepend__: 's', __remove__: [2, 2], __append__: 'a'}}
         ]
     ])(
-        '%p (=> %p) === .modifyObject(%p, %p, ...%p)',
+        '%p (=> %p) === modifyObject(%p, %p, ...%p)',
         (
             sliced:PlainObject,
             modified:PlainObject,
@@ -1799,7 +1799,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [new Date(1970, 1 - 1, 1, 8, 30), new Date(1970, 1 - 1, 1, 8, 30)],
         ['abc', null],
         ['1+1+1970 08+30+00', null]
-    ])('.normalizeDateTime(%p) === %p', (value:any, expected:Date|null):void =>
+    ])('normalizeDateTime(%p) === %p', (value:any, expected:Date|null):void =>
         expect(Tools.equals(
             Tools.normalizeDateTime(value, false), expected
         )).toStrictEqual(true)
@@ -1838,7 +1838,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             [{a: new Map([['key', 'value']])}]
         ]
     ])(
-        '.removeKeys(%p, %p) === %p',
+        'removeKeys(%p, %p) === %p',
         (source:any, keysToRemove:Array<string>|string, expected:any):void =>
             expect(Tools.removeKeys<any>(source, keysToRemove))
                 .toStrictEqual(expected)
@@ -1863,7 +1863,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
                 ]
             }`.replace(/(\n) {12}/g, '$1')
         ]
-    ])(`.represent(%p) === '%s'`, (source:any, expected:string):void =>
+    ])(`represent(%p) === '%s'`, (source:any, expected:string):void =>
         expect(Tools.represent(source)).toStrictEqual(expected)
     )
     test.each([
@@ -1879,7 +1879,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [{a: 2, b: 5, c: 'a'}, ['a', 'b', 'c']],
         [{c: 2, b: 5, a: 'a'}, ['a', 'b', 'c']],
         [{b: 2, c: 5, z: 'a'}, ['b', 'c', 'z']]
-    ])('.sort(%p) === %p', (source:any, expected:Array<any>):void =>
+    ])('sort(%p) === %p', (source:any, expected:Array<any>):void =>
         expect(Tools.sort(source)).toStrictEqual(expected)
     )
     test.each([
@@ -1888,7 +1888,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [{a: 'aa'}, {a: 'aa'}],
         [{a: {__revoke__: ():void => {}, __target__: 2}}, {a: 2}]
     ])(
-        '.unwrapProxy(%p) === %p',
+        'unwrapProxy(%p) === %p',
         (source:any, expected:any):void =>
             expect(Tools.unwrapProxy(source)).toStrictEqual(expected)
     )
