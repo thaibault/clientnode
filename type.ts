@@ -90,6 +90,7 @@ export type ProxyHandler = {
     set:(target:any, key:string, value:any) => boolean;
 }
 export type LockCallbackFunction = (description:string) => Promise<any>|void
+export type ValueOf<Type> = Type[keyof Type]
 // endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:

@@ -2300,7 +2300,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * to evaluate.
      * @returns Evaluated given mapping.
      */
-    static evaluateDynamicDataStructure(
+    static evaluateDynamicData(
         object:any,
         scope:{[key:string]:any} = {},
         selfReferenceName:string = 'self',
@@ -2484,6 +2484,29 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         return removeProxyRecursively(resolve(addProxyRecursively(object)))
     }
     /**
+     * Removes properties in objects where a dynamic indicator lives.
+     * @param data - Object to traverse recursively.
+     * @param expressionIndicators - Property key to remove.
+     * @returns Given object with removed properties.
+     */
+    static removeEvaluationInDynamicData(
+        data:PlainObject,
+        expressionIndicators:Array<string> = ['__evaluate__', '__execute__']
+    ):PlainObject {
+        for (const key in data)
+            if (
+                data.hasOwnProperty(key) &&
+                !expressionIndicators.includes(key) &&
+                expressionIndicators.some((name:string):boolean =>
+                    data.hasOwnProperty(name)
+                )
+            )
+                delete data[key]
+            else if (Tools.isPlainObject(data[key]))
+                Tools.removeEvaluationInDynamicData(data[key] as PlainObject)
+        return data
+    }
+    /**
      * Extends given target object with given sources object. As target and
      * sources many expandable types are allowed but target and sources have to
      * to come from the same type.
@@ -2574,9 +2597,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         delimiter:string = '.'
     ):any {
         let path:Array<string> = []
-        for (const component of [].concat(
-            selector as unknown as ConcatArray<never>
-        ) as Array<string>)
+        for (const component of ([] as Array<string>).concat(
+            selector
+        ))
             path = path.concat(component.split(delimiter))
         let result:any = target
         for (const name of path)
@@ -2757,8 +2780,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                     ].includes(key)) {
                         if (Array.isArray(target))
                             if (key === removeIndicatorKey) {
-                                const values:Array<any> = [].concat(
-                                    source[key])
+                                const values:Array<any> =
+                                    [].concat(source[key])
                                 for (const value of values)
                                     if (
                                         typeof value === 'string' &&
@@ -2867,9 +2890,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @returns Processed given object.
      */
     static removeKeys<T>(object:T, keys:Array<string>|string = '#'):T {
-        const resolvedKeys:Array<string> = [].concat(
-            keys as unknown as ConcatArray<never>
-        )
+        const resolvedKeys:Array<string> = ([] as Array<string>).concat(keys)
         if (Array.isArray(object)) {
             let index:number = 0
             for (const subObject of object.slice()) {
@@ -3601,9 +3622,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         const edges:Array<Array<string>> = []
         for (const name in items)
             if (Object.prototype.hasOwnProperty.call(items, name)) {
-                items[name] = [].concat(
-                    items[name] as unknown as ConcatArray<never>
-                )
+                items[name] = ([] as Array<string>).concat(items[name])
                 if (items[name].length > 0)
                     for (const dependencyName of Tools.arrayMake(items[name]))
                         edges.push([name, dependencyName])
@@ -4533,21 +4552,20 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                             {pattern: timeFormat}
                         ])
                             for (
-                                const delimiter of
-                                [].concat(
-                                    (Object.prototype.hasOwnProperty.call(
-                                        dateTimeFormat, 'delimiter'
-                                    ) ?
-                                        dateTimeFormat.delimiter :
-                                        '-'
-                                    ) as unknown as ConcatArray<never>
-                                )
+                                const delimiter of ([] as Array<string>)
+                                    .concat(
+                                        Object.prototype.hasOwnProperty.call(
+                                            dateTimeFormat, 'delimiter'
+                                        ) ?
+                                            (dateTimeFormat.delimiter as
+                                                string
+                                            ) :
+                                            '-'
+                                    )
                             )
-                                for (let pattern of [].concat(
-                                    dateTimeFormat.pattern as
-                                        unknown as
-                                        ConcatArray<never>
-                                ) as Array<string>) {
+                                for (let pattern of ([] as Array<string>)
+                                    .concat(dateTimeFormat.pattern)
+                                ) {
                                     pattern = (new Function(
                                         'delimiter', `return \`^${pattern}$\``
                                     ))(`${delimiter}+`)
@@ -5323,14 +5341,10 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         options:PlainObject = {},
         givenExpectedIntermediateStatusCodes:number|Array<number> = []
     ):Promise<Object> {
-        const expectedStatusCodes:Array<number> = [].concat(
-            givenExpectedStatusCodes as unknown as ConcatArray<never>
-        )
-        const expectedIntermediateStatusCodes:Array<number> = [].concat(
-            givenExpectedIntermediateStatusCodes as
-                unknown as
-                ConcatArray<never>
-            )
+        const expectedStatusCodes:Array<number> =
+            ([] as Array<number>).concat(givenExpectedStatusCodes)
+        const expectedIntermediateStatusCodes:Array<number> =
+            ([] as Array<number>).concat(givenExpectedIntermediateStatusCodes)
         const isStatusCodeExpected:Function = (
             response:any, expectedStatusCodes:Array<number>
         ):boolean => Boolean(
@@ -5427,9 +5441,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
     ):Promise<Object> {
         const check = (response:any):Error|null => {
             if (unexpectedStatusCodes) {
-                unexpectedStatusCodes = [].concat(
-                    unexpectedStatusCodes as unknown as ConcatArray<never>
-                )
+                unexpectedStatusCodes =
+                    ([] as Array<number>).concat(unexpectedStatusCodes)
                 if (
                     response !== null &&
                     typeof response === 'object' &&
