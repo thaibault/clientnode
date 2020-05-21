@@ -1498,11 +1498,25 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             }
         ]
     ])(
-        '%p === evaluateDynamicDataStructure(%p, ...%p)',
+        '%p === evaluateDynamicData(%p, ...%p)',
         (expected:any, object:any, ...parameter:Array<any>):void =>
             expect(Tools.copy(
-                Tools.evaluateDynamicDataStructure(object, ...parameter), -1, true
+                Tools.evaluateDynamicData(object, ...parameter), -1, true
             )).toStrictEqual(expected)
+    )
+    test.each([
+        [{}, {}],
+        [{a: 2}, {a: 2}],
+        [{a: 2, __evaluate__: ''}, {__evaluate__: ''}],
+        [
+            {a: 2, b: {__evaluate__: '', c: 4}},
+            {a: 2, b: {__evaluate__: ''}}
+        ]
+    ])(
+        'removeEvaluationInDynamicData(%p) === %p',
+        (data:PlainObject, expected:PlainObject):void =>
+            expect(Tools.removeEvaluationInDynamicData(data))
+                .toStrictEqual(expected)
     )
     test('extend', ():void => {
         const target:PlainObject = {a: [1, 2]}

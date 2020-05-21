@@ -2300,7 +2300,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * to evaluate.
      * @returns Evaluated given mapping.
      */
-    static evaluateDynamicDataStructure(
+    static evaluateDynamicData(
         object:any,
         scope:{[key:string]:any} = {},
         selfReferenceName:string = 'self',
@@ -2482,6 +2482,29 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 return evaluate(
                     object[executionIndicatorKey], executionIndicatorKey)
         return removeProxyRecursively(resolve(addProxyRecursively(object)))
+    }
+    /**
+     * Removes properties in objects where a dynamic indicator lives.
+     * @param data - Object to traverse recursively.
+     * @param expressionIndicators - Property key to remove.
+     * @returns Given object with removed properties.
+     */
+    static removeEvaluationInDynamicData(
+        data:PlainObject,
+        expressionIndicators:Array<string> = ['__evaluate__', '__execute__']
+    ):PlainObject {
+        for (const key in data)
+            if (
+                data.hasOwnProperty(key) &&
+                !expressionIndicators.includes(key) &&
+                expressionIndicators.some((name:string):boolean =>
+                    data.hasOwnProperty(name)
+                )
+            )
+                delete data[key]
+            else if (Tools.isPlainObject(data[key]))
+                Tools.removeEvaluationInDynamicData(data[key] as PlainObject)
+        return data
     }
     /**
      * Extends given target object with given sources object. As target and
