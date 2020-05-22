@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.432",
+  "version": "3.0.433",
   "license": "CC-BY-3.0",
   "description": "upgrade to object orientated rock solid plugins",
   "homepage": "https://torben.website/clientNode",
@@ -95,7 +95,10 @@
     },
     "commandLine": {
       "test": {
-        "environments": ["node", "jsdom"]
+        "environments": [
+          "node",
+          "jsdom"
+        ]
       }
     },
     "files": {
