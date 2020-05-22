@@ -37,12 +37,12 @@ export type $Function =
     {
         context?:Document;
         fn:{[key:string]:Function};
-        global:$Window;
+        global:$Global;
         noop?:(...parameter:Array<any>) => any;
         readyException:(error:Error|string) => void;
         Tools:ToolsFunction;
     }
-export type $Window = Window & {console:Console;$:$Function}
+export type $Global = typeof globalThis & {console:Console;$:$Function}
 export type Noop = (...parameter:Array<any>) => any
 export interface ProcessError extends Error {
     parameter:Array<any>;

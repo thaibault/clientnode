@@ -48,7 +48,7 @@ import {
     TimeoutPromise,
     $DomNode,
     $Function,
-    $Window
+    $Global
 } from './type'
 // endregion
 export const CloseEventNames = [
@@ -59,15 +59,18 @@ export const ConsoleOutputMethods = [
 ] as const
 export const ValueCopySymbol = Symbol('Value')
 // region determine context
-export const globalContext:$Window = (():$Window => {
-    if (typeof window === 'undefined') {
-        if (typeof global === 'undefined')
-            return ((typeof module === 'undefined') ? {} : module) as $Window
-        if ('window' in global)
-            return (global as Window).window as unknown as $Window
-        return global as unknown as $Window
+export const globalContext:$Global = (():$Global => {
+    if (typeof globalThis === 'undefined') {
+        if (typeof window === 'undefined') {
+            if (typeof global === 'undefined')
+                return ((typeof module === 'undefined') ? {} : module) as $Global
+            if ('window' in global)
+                return (global as typeof globalThis).window as unknown as $Global
+            return global as unknown as $Global
+        }
+        return window as unknown as $Global
     }
-    return window as unknown as $Window
+    return globalThis as unknown as $Global
 })()
 /* eslint-disable no-use-before-define */
 export const $:$Function = (():$Function => {
