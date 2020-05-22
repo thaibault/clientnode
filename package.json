@@ -93,6 +93,11 @@
         }
       }
     },
+    "commandLine": {
+      "test": {
+        "environments": ["node", "jsdom"]
+      }
+    },
     "files": {
       "compose": {
         "cascadingStyleSheet": null
