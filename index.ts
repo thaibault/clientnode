@@ -40,6 +40,7 @@ import {
     Options,
     PlainObject,
     Position,
+    ProcessCloseReason,
     ProcessError,
     ProcessHandler,
     ProxyHandler,
@@ -6004,8 +6005,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @returns Process close handler function.
      */
     static getProcessCloseHandler(
-        resolve:Function,
-        reject:Function,
+        resolve:(reason:ProcessCloseReason) => void,
+        reject:(error:ProcessError) => void,
         reason:any = null,
         callback:Function = Tools.noop
     ):ProcessHandler {

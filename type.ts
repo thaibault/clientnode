@@ -74,6 +74,7 @@ export type SetterFunction = (key:any, value:any, target:any) => any
 
 export type Position = {bottom:number;left:number;right:number;top:number}
 export type ProcessHandler = (returnCode:any, ...parameter:Array<any>) => void
+export type ProcessCloseReason = {parameter:Array<any>;reason:any}
 export type RelativePosition = 'in'|'above'|'left'|'below'|'right'
 export type Options = {
     domNode:{

@@ -3180,7 +3180,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     if (TARGET_TECHNOLOGY === 'node') {
         test('getProcessCloseHandler', ():void =>
             assert.strictEqual(typeof Tools.getProcessCloseHandler(
-                ():void => {}, ():void => {}
+                (:ProcessCloseReason):void => {}, (:ProcessError):void => {}
             ), 'function'))
         test('handleChildProcess', ():void => {
             /**
