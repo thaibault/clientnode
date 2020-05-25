@@ -5344,7 +5344,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         pollIntervallInSeconds:number = 0.1,
         options:PlainObject = {},
         givenExpectedIntermediateStatusCodes:number|Array<number> = []
-    ):Promise<Object> {
+    ):Promise<object> {
         const expectedStatusCodes:Array<number> =
             ([] as Array<number>).concat(givenExpectedStatusCodes)
         const expectedIntermediateStatusCodes:Array<number> =
