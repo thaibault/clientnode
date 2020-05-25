@@ -5442,7 +5442,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         pollIntervallInSeconds:number = 0.1,
         unexpectedStatusCodes:null|number|Array<number> = null,
         options:PlainObject = {}
-    ):Promise<Object> {
+    ):Promise<object> {
         const check = (response:any):Error|null => {
             if (unexpectedStatusCodes) {
                 unexpectedStatusCodes =
