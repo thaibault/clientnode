@@ -50,10 +50,6 @@
     "update:documentation": "documentationWebsite --log-level info",
     "watch": "webOptimizer build --watch"
   },
-  "peerDependencies": {
-    "@babel/runtime": "*",
-    "jquery": "*"
-  },
   "devDependencies": {
     "@babel/cli": "*",
     "@babel/plugin-transform-proto-to-assign": "*",
@@ -81,6 +77,10 @@
     "webpack": "*",
     "webpack-cli": "*",
     "webpack-dev-server": "*"
+  },
+  "peerDependencies": {
+    "@babel/runtime": "*",
+    "jquery": "*"
   },
   "sideEffects": false,
   "webOptimizer": {
