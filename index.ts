@@ -2819,8 +2819,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                                     )
                                     .concat(
                                         target as
-                                        unknown as
-                                        ConcatArray<never>
+                                            unknown as
+                                            ConcatArray<never>
                                     )
                             else
                                 target = target.concat(source[key])
