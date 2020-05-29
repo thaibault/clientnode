@@ -2811,17 +2811,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                                     )
                                         target.splice(value, 1)
                             } else if (key === prependIndicatorKey)
-                                target = []
-                                    .concat(
-                                        source[key] as
-                                            unknown as
-                                            ConcatArray<never>
-                                    )
-                                    .concat(
-                                        target as
-                                            unknown as
-                                            ConcatArray<never>
-                                    )
+                                target = ([] as Array<any>)
+                                    .concat(source[key])
+                                    .concat(target)
                             else
                                 target = target.concat(source[key])
                         else if (key === removeIndicatorKey)
