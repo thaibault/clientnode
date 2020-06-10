@@ -2962,19 +2962,19 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @param indention - String (usually whitespaces) to use as indention.
      * @param initialIndention - String (usually whitespaces) to use as
      * additional indention for the first object traversing level.
-     * @param numberOfLevels - Specifies number of levels to traverse given
-     * data structure.
      * @param maximumNumberOfLevelsReachedIdentifier - Replacement for objects
      * which are out of specified bounds to traverse.
+     * @param numberOfLevels - Specifies number of levels to traverse given
+     * data structure.
      * @returns Representation string.
      */
     static represent(
         object:any,
         indention:string = '    ',
         initialIndention:string = '',
-        numberOfLevels:number = 8,
         maximumNumberOfLevelsReachedIdentifier:any =
-        '__maximum_number_of_levels_reached__'
+            '__maximum_number_of_levels_reached__',
+        numberOfLevels:number = 8
     ):string {
         if (numberOfLevels === 0)
             return maximumNumberOfLevelsReachedIdentifier
@@ -2997,8 +2997,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                         item,
                         indention,
                         `${initialIndention}${indention}`,
-                        numberOfLevels - 1,
-                        maximumNumberOfLevelsReachedIdentifier
+                        maximumNumberOfLevelsReachedIdentifier,
+                        numberOfLevels - 1
                     )
                 firstSeen = true
             }
@@ -3018,16 +3018,16 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                         key,
                         indention,
                         `${initialIndention}${indention}`,
-                        numberOfLevels - 1,
-                        maximumNumberOfLevelsReachedIdentifier
+                        maximumNumberOfLevelsReachedIdentifier,
+                        numberOfLevels - 1
                     ) +
                     ' -> ' +
                     Tools.represent(
                         item,
                         indention,
                         `${initialIndention}${indention}`,
-                        numberOfLevels - 1,
-                        maximumNumberOfLevelsReachedIdentifier
+                        maximumNumberOfLevelsReachedIdentifier,
+                        numberOfLevels - 1
                     )
                 firstSeen = true
             }
@@ -3047,8 +3047,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                         item,
                         indention,
                         `${initialIndention}${indention}`,
-                        numberOfLevels - 1,
-                        maximumNumberOfLevelsReachedIdentifier
+                        maximumNumberOfLevelsReachedIdentifier,
+                        numberOfLevels - 1
                     )
                 firstSeen = true
             }
@@ -3069,8 +3069,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                     object[key],
                     indention,
                     `${initialIndention}${indention}`,
-                    numberOfLevels - 1,
-                    maximumNumberOfLevelsReachedIdentifier
+                    maximumNumberOfLevelsReachedIdentifier,
+                    numberOfLevels - 1
                 )
             firstSeen = true
         }
