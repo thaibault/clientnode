@@ -19,7 +19,9 @@
 // region imports
 import {ChildProcess} from 'child_process'
 import {
-    Response as FetchResponse, RequestInit as FetchOptions
+    Response as FetchResponse,
+    RequestInit as FetchOptions,
+    RequestInfo as FetchURL
 } from 'node-fetch'
 /* eslint-disable no-empty,no-var,@typescript-eslint/no-var-requires */
 try {
@@ -57,6 +59,9 @@ import {
     $Global
 } from './type'
 // endregion
+declare function fetch(
+    url:FetchURL, options?:FetchOptions
+):Promise<FetchResponse>
 export const CloseEventNames = [
     'close', 'exit', 'SIGINT', 'SIGTERM', 'SIGQUIT', 'uncaughtException'
 ] as const
