@@ -18,6 +18,9 @@
 */
 // region imports
 import {ChildProcess} from 'child_process'
+import {
+    Response as FetchResponse, RequestInit as FetchOptions
+} from 'node-fetch'
 /* eslint-disable no-empty,no-var,@typescript-eslint/no-var-requires */
 try {
     var fileSystem = eval('require')('fs').promises
@@ -40,8 +43,10 @@ import {
     Options,
     PlainObject,
     Position,
+    ProcessCloseCallback,
     ProcessCloseReason,
     ProcessError,
+    ProcessErrorCallback,
     ProcessHandler,
     ProxyHandler,
     RelativePosition,
@@ -1008,7 +1013,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                                 styleProperties[index]
                             )] =
                                 styleProperties.getPropertyValue(
-                                    styleProperties[index])
+                                    styleProperties[index]
+                                )
                     else
                         for (const propertyName in styleProperties)
                             if (Object.prototype.hasOwnProperty.call(
@@ -5334,9 +5340,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         givenExpectedStatusCodes:number|Array<number> = 200,
         timeoutInSeconds:number = 10,
         pollIntervallInSeconds:number = 0.1,
-        options:PlainObject = {},
+        options:FetchOptions = {},
         givenExpectedIntermediateStatusCodes:number|Array<number> = []
-    ):Promise<object> {
+    ):Promise<FetchResponse> {
         const expectedStatusCodes:Array<number> =
             ([] as Array<number>).concat(givenExpectedStatusCodes)
         const expectedIntermediateStatusCodes:Array<number> =
@@ -5382,7 +5388,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                     return error
                 }
                 const wrapper = async ():Promise<any> => {
-                    let response:object
+                    let response:FetchResponse
                     try {
                         response = await fetch(url, options)
                     } catch (error) {
@@ -5433,7 +5439,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         timeoutInSeconds:number = 10,
         pollIntervallInSeconds:number = 0.1,
         unexpectedStatusCodes:null|number|Array<number> = null,
-        options:PlainObject = {}
+        options:FetchOptions = {}
     ):Promise<object> {
         const check = (response:any):Error|null => {
             if (unexpectedStatusCodes) {
@@ -5997,8 +6003,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @returns Process close handler function.
      */
     static getProcessCloseHandler(
-        resolve:(reason:ProcessCloseReason) => void,
-        reject:(error:ProcessError) => void,
+        resolve:ProcessCloseCallback,
+        reject:ProcessErrorCallback,
         reason:any = null,
         callback:Function = Tools.noop
     ):ProcessHandler {
