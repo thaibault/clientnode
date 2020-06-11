@@ -5510,7 +5510,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 timedOut = true
                 currentlyRunningTimer.clear()
                 reject(new Error(
-                    `Timeout of ${timeoutInSeconds} seconds reached.`))
+                    `Timeout of ${timeoutInSeconds} seconds reached.`
+                ))
             })
         try {
             const result:Error|null = check(await fetch(url, options))
