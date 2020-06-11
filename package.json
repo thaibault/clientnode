@@ -54,6 +54,7 @@
     "@babel/cli": "*",
     "@babel/plugin-transform-proto-to-assign": "*",
     "@types/ejs": "*",
+    "@types/node-fetch": "*",
     "@types/html-minifier": "*",
     "@types/jest": "*",
     "@types/jquery": "*",
