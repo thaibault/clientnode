@@ -5436,7 +5436,10 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @param unexpectedStatusCodes - Status codes to check for.
      * @param options - Fetch options to use.
      * @returns A promise which will be resolved if a request to given url
-     * couldn't finished. Otherwise returned promise will be rejected.
+     * couldn't finished. Otherwise returned promise will be rejected. If
+     * "wait" is set to "true" we will resolve to another promise still
+     * resolving when final timeout is reached or the endpoint is unreachable
+     * (after some tries).
      */
     static async checkUnreachability(
         url:string,
@@ -5445,8 +5448,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         pollIntervallInSeconds:number = 0.1,
         unexpectedStatusCodes:null|number|Array<number> = null,
         options:FetchOptions = {}
-    ):Promise<object> {
-        const check = (response:any):Error|null => {
+    ):Promise<Error|null|Promise<Error|null>> {
+        const check = (response:FetchResponse):Error|null => {
             if (unexpectedStatusCodes) {
                 unexpectedStatusCodes =
                     ([] as Array<number>).concat(unexpectedStatusCodes)
@@ -5455,7 +5458,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                     typeof response === 'object' &&
                     'status' in response &&
                     (unexpectedStatusCodes as Array<number>).includes(
-                        response.status)
+                        response.status
+                    )
                 )
                     throw new Error(
                         `Given url "${url}" is reachable and responses with ` +
@@ -5473,9 +5477,11 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 resolve:Function, reject:Function
             ):Promise<void> => {
                 let timedOut:boolean = false
-                const wrapper:Function = async ():Promise<any> => {
+                const wrapper:Function = async (
+                ):Promise<Error|FetchResponse|null> => {
                     try {
-                        const response:object = await fetch(url, options)
+                        const response:FetchResponse =
+                            await fetch(url, options)
                         if (timedOut)
                             return response
                         const result:Error|null = check(response)
@@ -5486,7 +5492,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                         }
                         /* eslint-disable no-use-before-define */
                         currentlyRunningTimer = Tools.timeout(
-                            pollIntervallInSeconds * 1000, wrapper)
+                            pollIntervallInSeconds * 1000, wrapper
+                        )
                         /* eslint-enable no-use-before-define */
                         /*
                             NOTE: A timer rejection is expected. Avoid throwing
@@ -5500,10 +5507,12 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                         resolve(error)
                         return error
                     }
+                    return null
                 }
                 let currentlyRunningTimer = Tools.timeout(wrapper)
                 const timer:TimeoutPromise = Tools.timeout(
-                    timeoutInSeconds * 1000)
+                    timeoutInSeconds * 1000
+                )
                 try {
                     await timer
                 } catch (error) {}
