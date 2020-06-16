@@ -97,8 +97,8 @@
     "commandLine": {
       "test": {
         "environments": [
-          "node",
-          "jsdom"
+          "jsdom",
+          "node"
         ]
       }
     },
