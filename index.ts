@@ -970,8 +970,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 .addBack()
                 .each((index:number, domNode:HTMLElement):any => {
                     const $domNode:$DomNode = $(domNode)
-                    const serializedStyles:string|undefined = $domNode.attr(
-                        styleName)
+                    const serializedStyles:string|undefined =
+                        $domNode.attr(styleName)
                     if (serializedStyles)
                         $domNode.attr(
                             styleName,
