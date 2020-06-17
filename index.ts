@@ -432,13 +432,14 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @param options - An options object.
      * @returns Returns the current instance.
      */
-    initialize(options:PlainObject = {}):Tools<TElement> {
+    initialize(options:object = {}):Tools<TElement> {
         /*
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
         */
         this._options = this.self.extend(
-            true, {}, this._defaultOptions, this._options, options)
+            true, {}, this._defaultOptions, this._options, options
+        )
         /*
             The selector prefix should be parsed after extending options
             because the selector would be overwritten otherwise.
