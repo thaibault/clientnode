@@ -58,7 +58,8 @@ describe(`clientNode.Semaphore (${testEnvironment})`, ():void => {
     test('constructor', ():void => {
         expect(new Semaphore()).toHaveProperty('numberOfResources', 2)
         expect(new Semaphore()).toHaveProperty(
-            'numberOfFreeResources', (new Semaphore()).numberOfResources)
+            'numberOfFreeResources', (new Semaphore()).numberOfResources
+        )
     })
     test('acquire/release', async ():Promise<void> => {
         const semaphore = new Semaphore()
