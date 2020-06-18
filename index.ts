@@ -434,7 +434,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @param options - An options object.
      * @returns Returns the current instance.
      */
-    initialize(options:object = {}):Promise<TElement>|Tools<TElement> {
+    initialize(
+        options:object = {}
+    ):Promise<$DomNode<TElement>>|Tools<TElement> {
         /*
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
