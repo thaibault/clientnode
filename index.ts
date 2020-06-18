@@ -1004,8 +1004,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * values.
      * @returns The computed style mapping.
      */
-    get style():PlainObject {
-        const result:PlainObject = {}
+    get style():Mapping<number|string> {
+        const result:Mapping<number|string> = {}
         const $domNode:null|$DomNode<TElement> = this.$domNode
         if ($domNode && $domNode.length) {
             let styleProperties:any
@@ -1041,7 +1041,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 }
             }
             styleProperties = (
-                $domNode[0] as unknown as {currentStyle:PlainObject}
+                $domNode[0] as unknown as {currentStyle:Mapping<number|string>}
             ).currentStyle
             if (styleProperties) {
                 for (const propertyName in styleProperties)
