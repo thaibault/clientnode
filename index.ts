@@ -54,6 +54,7 @@ import {
     RelativePosition,
     SetterFunction,
     TimeoutPromise,
+    ToolsFunction,
     $DomNode,
     $Function,
     $Global
@@ -103,11 +104,11 @@ export const $:$Function = (():$Function => {
             globalContext.document.querySelectorAll.bind(
                 globalContext.document) :
             ():null => null
-        // @ts-ignore: Object will be extended in next statement.
-        $ = (parameter:any, ...additionalArguments:Array<any>):any => {
+        $ = ((parameter:any, ...additionalArguments:Array<any>):any => {
             if (typeof parameter === 'string') {
                 const $domNodes:any = selector(
-                    parameter, ...additionalArguments)
+                    parameter, ...additionalArguments
+                )
                 if ($domNodes && 'fn' in $)
                     for (const key in $.fn)
                         if (Object.prototype.hasOwnProperty.call($.fn, key))
@@ -118,9 +119,10 @@ export const $:$Function = (():$Function => {
             if (Tools.isFunction(parameter) && 'document' in globalContext)
             /* eslint-enable @typescript-eslint/no-use-before-define */
                 globalContext.document.addEventListener(
-                    'DOMContentLoaded', parameter)
+                    'DOMContentLoaded', parameter
+                )
             return parameter
-        }
+        }) as $Function
         $.fn = {}
     }
     return $
@@ -1036,8 +1038,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                     return result
                 }
             }
-            // @ts-ignore: Non-Standard to support old internet explorer.
-            styleProperties = $domNode[0].currentStyle
+            styleProperties = (
+                $domNode[0] as unknown as {currentStyle:PlainObject}
+            ).currentStyle
             if (styleProperties) {
                 for (const propertyName in styleProperties)
                     if (Object.prototype.hasOwnProperty.call(
@@ -1514,13 +1517,12 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 callback = value
         let rejectCallback:Function
         let resolveCallback:Function
-        // @ts-ignore: Object will be extended before returning.
         const result:TimeoutPromise = new Promise((
             resolve:Function, reject:Function
         ):void => {
             rejectCallback = reject
             resolveCallback = resolve
-        })
+        }) as TimeoutPromise
         const wrappedCallback:Function = ():void => {
             callback.call(result, ...parameter)
             resolveCallback(false)
@@ -1657,7 +1659,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      */
     off(...parameter:Array<any>):$DomNode<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        return this._bindEventHelper(parameter, true, 'off')
+        return this._bindEventHelper(parameter, true)
     }
     // / endregion
     // / region object
@@ -3611,11 +3613,10 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             if (index === -1) {
                 if (strict)
                     throw new Error(
-                        `Given target doesn't exists in given list.`)
+                        `Given target doesn't exists in given list.`
+                    )
             } else
-                /* eslint-disable max-statements-per-line */
                 list.splice(index, 1)
-                /* eslint-enable max-statements-per-line */
         } else if (strict)
             throw new Error(`Given target isn't an array.`)
         return list
@@ -3979,23 +3980,23 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             if (allowDuplicates)
                 if (
                     parameter.hasOwnProperty(key) &&
-                    // @ts-ignore: Mixed type: using an array as object also.
-                    Array.isArray(parameter[key])
+                    Array.isArray(
+                        (parameter as unknown as Mapping<Array<string>>)[key]
+                    )
                 )
-                    // @ts-ignore: Mixed type: using an array as object also.
-                    parameter[key].push(value)
+                    (parameter as unknown as Mapping<Array<string>>)[key].push(
+                        value
+                    )
                 else
-                    // @ts-ignore: Mixed type: using an array as object also.
-                    parameter[key] = [value]
+                    (parameter as unknown as Mapping<Array<string>>)[key] =
+                        [value]
             else
-                // @ts-ignore: Mixed type: using an array as object also.
-                parameter[key] = value
+                (parameter as unknown as Mapping)[key] = value
         }
         // endregion
         if (keyToGet) {
             if (Object.prototype.hasOwnProperty.call(parameter, keyToGet))
-                // @ts-ignore: Mixed type: using an array as object also.
-                return parameter[keyToGet]
+                return (parameter as unknown as Mapping)[keyToGet]
             return null
         }
         return parameter
@@ -6067,33 +6068,33 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
     // region protected methods
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
-     * Helper method for attach event handler methods and their event handler
-     * remove pendants.
-     * @param parameter - Arguments object given to methods like "bind()" or
-     * "unbind()".
-     * @param removeEvent - Indicates if "unbind()" or "bind()" was given.
+     * Helper method for attach/remove event handler methods.
+     * @param parameter - Arguments object given to methods like "on()" or
+     * "off()".
+     * @param removeEvent - Indicates if handler should be attached or removed.
      * @param eventFunctionName - Name of function to wrap.
      * @returns Returns $'s wrapped dom node.
      */
     _bindEventHelper(
         parameter:Array<any>,
         removeEvent:boolean = false,
-        eventFunctionName:string = 'on'
+        eventFunctionName?:string
     ):$DomNode<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
+        if (!eventFunctionName)
+            eventFunctionName = removeEvent ? 'off' : 'on'
         const $domNode:$DomNode<TElement> = $(parameter[0])
         if (
-            this.self.determineType(parameter[1]) === 'object' &&
-            !removeEvent
+            this.self.determineType(parameter[1]) === 'object' && !removeEvent
         ) {
             for (const eventType in parameter[1])
                 if (Object.prototype.hasOwnProperty.call(
                     parameter[1], eventType
                 ))
-                    // @ts-ignore: Dynamically accessing attributes is allowed.
-                    this[eventFunctionName](
-                        $domNode, eventType, parameter[1][eventType]
-                    )
+                    (
+                        this[eventFunctionName as keyof Tools<TElement>] as
+                            Function
+                    )($domNode, eventType, parameter[1][eventType])
             return $domNode
         }
         parameter = this.self.arrayMake(parameter).slice(1)
@@ -6101,11 +6102,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             parameter.push('')
         if (!parameter[0].includes('.'))
             parameter[0] += `.${this.self._name}`
-        if (removeEvent)
-            // @ts-ignore: Dynamically accessing attributes is allowed.
-            return $domNode[eventFunctionName](...parameter)
-        // @ts-ignore: Dynamically accessing attributes is allowed.
-        return $domNode[eventFunctionName](...parameter)
+        return (
+            $domNode[eventFunctionName as keyof $DomNode] as Function
+        )(...parameter)
     }
     // endregion
 }
@@ -6118,9 +6117,9 @@ if ('fn' in $)
             Tools, parameter, this as unknown as $DomNode
         )
     }
-// @ts-ignore: Missing "class" property will be added in next statement.
-$.Tools = (...parameter:Array<any>):any =>
+$.Tools = ((...parameter:Array<any>):any =>
     (new Tools()).controller(Tools, parameter)
+) as ToolsFunction
 $.Tools.class = Tools
 if ('fn' in $) {
     // region prop fix for comments and text nodes
