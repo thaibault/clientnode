@@ -1631,7 +1631,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             scope._options[eventHandlerName] !== this.self.noop
         )
             return scope._options[eventHandlerName].call(
-                this, ...additionalArguments)
+                this, ...additionalArguments
+            )
         return true
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
