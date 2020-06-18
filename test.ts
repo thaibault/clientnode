@@ -1119,8 +1119,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     )
     test.each([
         [undefined, 'undefined'],
-        // @ts-ignore: Expected.
-        [{}.notDefined, 'undefined'],
+        [({} as {notDefined:undefined}).notDefined, 'undefined'],
         [null, 'null'],
         [true, 'boolean'],
         [new Boolean(), 'boolean'],
