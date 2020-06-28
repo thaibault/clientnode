@@ -112,7 +112,8 @@ export const $:$Function = (():$Function => {
                 if ($domNodes && 'fn' in $)
                     for (const key in $.fn)
                         if (Object.prototype.hasOwnProperty.call($.fn, key))
-                            $domNodes[key] = $.fn[key].bind($domNodes)
+                            $domNodes[key] = ($.fn[key] as unknown as Function)
+                                .bind($domNodes)
                 return $domNodes
             }
             /* eslint-disable @typescript-eslint/no-use-before-define */
@@ -123,7 +124,7 @@ export const $:$Function = (():$Function => {
                 )
             return parameter
         }) as $Function
-        $.fn = {}
+        ($.fn as object) = {}
     }
     return $
 })()
@@ -402,8 +403,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 this._defaultOptions.domNode.hideJavaScriptEnabled
             )
                 .filter(
-                    (index:number, $domNode:$DomNode<TElement>):boolean =>
-                        !$domNode.data('javaScriptDependentContentHide')
+                    (index:number, domNode:HTMLElement):boolean =>
+                        !$(domNode).data('javaScriptDependentContentHide')
                 )
                 .data('javaScriptDependentContentHide', true)
                 .hide()
@@ -412,8 +413,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 this._defaultOptions.domNode.showJavaScriptEnabled
             )
                 .filter(
-                    (index:number, $domNode:$DomNode<TElement>):boolean =>
-                        !$domNode.data('javaScriptDependentContentShow')
+                    (index:number, domNode:HTMLElement):boolean =>
+                        !$(domNode).data('javaScriptDependentContentShow')
                 )
                 .data('javaScriptDependentContentShow', true)
                 .show()
@@ -1360,9 +1361,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         if (this._options.domNodeSelectorPrefix)
             domNodes.parent = $(this._options.domNodeSelectorPrefix)
         if ('window' in $.global)
-            domNodes.window = $($.global.window)
+            domNodes.window = $($.global.window as unknown as HTMLElement)
         if ('document' in $.global)
-            domNodes.document = $($.global.document)
+            domNodes.document = $($.global.document as unknown as HTMLElement)
         return domNodes
     }
     // / endregion
@@ -5549,7 +5550,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
-        target:$DomNode|HTMLElement|string,
+        target:$DomNode|HTMLIFrameElement|string,
         url:string,
         data:{[key:string]:any},
         requestType:string = 'post',
@@ -5557,13 +5558,14 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
     ):$DomNode {
         const $targetDomNode:$DomNode<HTMLIFrameElement> =
             (typeof target === 'string') ?
-                $(`iframe[name"${target}"]`) :
-                $(target)
-        const $formDomNode:$DomNode<HTMLFormElement> = $('<form>').attr({
-            action: url,
-            method: requestType,
-            target: $targetDomNode.attr('name')
-        })
+                $<HTMLIFrameElement>(`iframe[name"${target}"]`) :
+                $(target as HTMLIFrameElement)
+        const $formDomNode:$DomNode<HTMLFormElement> =
+            $<HTMLFormElement>('<form>').attr({
+                action: url,
+                method: requestType,
+                target: $targetDomNode.attr('name')
+            })
         for (const name in data)
             if (Object.prototype.hasOwnProperty.call(data, name))
                 $formDomNode.append($('<input>').attr({
@@ -5598,14 +5600,15 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         requestType:string = 'post',
         removeAfterLoad:boolean = true
     ):$DomNode<HTMLIFrameElement> {
-        const $iFrameDomNode:$DomNode<HTMLIFrameElement> = $('<iframe>')
-            .attr(
-                'name',
-                this.self._name.charAt(0).toLowerCase() +
-                this.self._name.substring(1) +
-                (new Date()).getTime()
-            )
-            .hide()
+        const $iFrameDomNode:$DomNode<HTMLIFrameElement> =
+            $<HTMLIFrameElement>('<iframe>')
+                .attr(
+                    'name',
+                    this.self._name.charAt(0).toLowerCase() +
+                    this.self._name.substring(1) +
+                    (new Date()).getTime()
+                )
+                .hide()
         if (this.$domNode)
             this.$domNode.append($iFrameDomNode)
         this.self.sendToIFrame(

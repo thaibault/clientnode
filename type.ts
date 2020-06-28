@@ -33,13 +33,11 @@ declare global {
 }
 export type $DomNode<TElement = HTMLElement> = JQuery<TElement>
 export type $Function =
+    JQueryStatic &
     ((parameter:any, ...additionalArguments:Array<any>) => any) &
     {
         context?:Document;
-        fn:{[key:string]:Function};
         global:$Global;
-        noop?:(...parameter:Array<any>) => any;
-        readyException:(error:Error|string) => void;
         Tools:ToolsFunction;
     }
 export type $Global = typeof globalThis & {console:Console;$:$Function}
