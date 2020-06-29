@@ -112,7 +112,8 @@ export const $:$Function = (():$Function => {
                 if ($domNodes && 'fn' in $)
                     for (const key in $.fn)
                         if (Object.prototype.hasOwnProperty.call($.fn, key))
-                            $domNodes[key] = $.fn[key].bind($domNodes)
+                            $domNodes[key] = ($.fn[key] as unknown as Function)
+                                .bind($domNodes)
                 return $domNodes
             }
             /* eslint-disable @typescript-eslint/no-use-before-define */
@@ -123,7 +124,7 @@ export const $:$Function = (():$Function => {
                 )
             return parameter
         }) as $Function
-        $.fn = {}
+        ($.fn as object) = {}
     }
     return $
 })()
@@ -228,7 +229,7 @@ export class Semaphore {
  * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
  * to dom nodes which should be visible if javaScript is available.
  */
-export class Tools<TElement extends HTMLElement = HTMLElement> {
+export class Tools<TElement = HTMLElement> {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
@@ -402,8 +403,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 this._defaultOptions.domNode.hideJavaScriptEnabled
             )
                 .filter(
-                    (index:number, $domNode:$DomNode<TElement>):boolean =>
-                        !$domNode.data('javaScriptDependentContentHide')
+                    (index:number, domNode:HTMLElement):boolean =>
+                        !$(domNode).data('javaScriptDependentContentHide')
                 )
                 .data('javaScriptDependentContentHide', true)
                 .hide()
@@ -412,8 +413,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 this._defaultOptions.domNode.showJavaScriptEnabled
             )
                 .filter(
-                    (index:number, $domNode:$DomNode<TElement>):boolean =>
-                        !$domNode.data('javaScriptDependentContentShow')
+                    (index:number, domNode:HTMLElement):boolean =>
+                        !$(domNode).data('javaScriptDependentContentShow')
                 )
                 .data('javaScriptDependentContentShow', true)
                 .show()
@@ -434,7 +435,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @param options - An options object.
      * @returns Returns the current instance.
      */
-    initialize(options:object = {}):Tools<TElement> {
+    initialize(
+        options:object = {}
+    ):Promise<$DomNode<TElement>>|Tools<TElement> {
         /*
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
@@ -1002,14 +1005,15 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * values.
      * @returns The computed style mapping.
      */
-    get style():PlainObject {
-        const result:PlainObject = {}
+    get style():Mapping<number|string> {
+        const result:Mapping<number|string> = {}
         const $domNode:null|$DomNode<TElement> = this.$domNode
         if ($domNode && $domNode.length) {
             let styleProperties:any
             if ('window' in $.global && $.global.window.getComputedStyle) {
                 styleProperties = $.global.window.getComputedStyle(
-                    $domNode[0], null)
+                    $domNode[0] as unknown as Element, null
+                )
                 if (styleProperties) {
                     if ('length' in styleProperties)
                         for (
@@ -1039,7 +1043,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                 }
             }
             styleProperties = (
-                $domNode[0] as unknown as {currentStyle:PlainObject}
+                $domNode[0] as unknown as {currentStyle:Mapping<number|string>}
             ).currentStyle
             if (styleProperties) {
                 for (const propertyName in styleProperties)
@@ -1049,7 +1053,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                         result[propertyName] = styleProperties[propertyName]
                 return result
             }
-            styleProperties = $domNode[0].style
+            styleProperties = ($domNode[0] as unknown as HTMLElement).style
             if (styleProperties)
                 for (const propertyName in styleProperties)
                     if (typeof styleProperties[propertyName] !== 'function')
@@ -1170,7 +1174,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             'getBoundingClientRect' in $domNode[0]
         ) {
             const $window:$DomNode<Window> = $($.global.window)
-            const rectangle:Position = $domNode[0].getBoundingClientRect()
+            const rectangle:Position = ($domNode[0] as unknown as Element)
+                .getBoundingClientRect()
             if (rectangle) {
                 if (rectangle.top && (rectangle.top + delta.top) < 0)
                     return 'above'
@@ -1358,9 +1363,9 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         if (this._options.domNodeSelectorPrefix)
             domNodes.parent = $(this._options.domNodeSelectorPrefix)
         if ('window' in $.global)
-            domNodes.window = $($.global.window)
+            domNodes.window = $($.global.window as unknown as HTMLElement)
         if ('document' in $.global)
-            domNodes.document = $($.global.document)
+            domNodes.document = $($.global.document as unknown as HTMLElement)
         return domNodes
     }
     // / endregion
@@ -5547,7 +5552,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
      * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
-        target:$DomNode|HTMLElement|string,
+        target:$DomNode|HTMLIFrameElement|string,
         url:string,
         data:{[key:string]:any},
         requestType:string = 'post',
@@ -5555,13 +5560,14 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
     ):$DomNode {
         const $targetDomNode:$DomNode<HTMLIFrameElement> =
             (typeof target === 'string') ?
-                $(`iframe[name"${target}"]`) :
-                $(target)
-        const $formDomNode:$DomNode<HTMLFormElement> = $('<form>').attr({
-            action: url,
-            method: requestType,
-            target: $targetDomNode.attr('name')
-        })
+                $<HTMLIFrameElement>(`iframe[name"${target}"]`) :
+                $(target as HTMLIFrameElement)
+        const $formDomNode:$DomNode<HTMLFormElement> =
+            $<HTMLFormElement>('<form>').attr({
+                action: url,
+                method: requestType,
+                target: $targetDomNode.attr('name')
+            })
         for (const name in data)
             if (Object.prototype.hasOwnProperty.call(data, name))
                 $formDomNode.append($('<input>').attr({
@@ -5596,14 +5602,15 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
         requestType:string = 'post',
         removeAfterLoad:boolean = true
     ):$DomNode<HTMLIFrameElement> {
-        const $iFrameDomNode:$DomNode<HTMLIFrameElement> = $('<iframe>')
-            .attr(
-                'name',
-                this.self._name.charAt(0).toLowerCase() +
-                this.self._name.substring(1) +
-                (new Date()).getTime()
-            )
-            .hide()
+        const $iFrameDomNode:$DomNode<HTMLIFrameElement> =
+            $<HTMLIFrameElement>('<iframe>')
+                .attr(
+                    'name',
+                    this.self._name.charAt(0).toLowerCase() +
+                    this.self._name.substring(1) +
+                    (new Date()).getTime()
+                )
+                .hide()
         if (this.$domNode)
             this.$domNode.append($iFrameDomNode)
         this.self.sendToIFrame(
@@ -6112,11 +6119,13 @@ export default Tools
 // endregion
 // region handle $ extending
 if ('fn' in $)
-    $.fn.Tools = function(...parameter:Array<any>):any {
-        return (new Tools()).controller(
-            Tools, parameter, this as unknown as $DomNode
+    $.fn.Tools = function<TElement = HTMLElement>(
+        this:$DomNode<TElement>, ...parameter:Array<any>
+    ):any {
+        return (new Tools<TElement>()).controller(
+            Tools, parameter, this as $DomNode<TElement>
         )
-    }
+    } as ToolsFunction<HTMLElement>
 $.Tools = ((...parameter:Array<any>):any =>
     (new Tools()).controller(Tools, parameter)
 ) as ToolsFunction
@@ -6125,7 +6134,7 @@ if ('fn' in $) {
     // region prop fix for comments and text nodes
     const nativePropFunction = $.fn.prop
     /**
-     * JQuery's native prop implementation ignores properties for text nodes,
+     * Scopes native prop implementation ignores properties for text nodes,
      * comments and attribute nodes.
      * @param key - Name of property to retrieve from current dom node.
      * @param additionalParameter - Additional parameter will be forwarded to
@@ -6134,9 +6143,7 @@ if ('fn' in $) {
      * setter.
      */
     $.fn.prop = function(
-        this:Array<Element>,
-        key:keyof Element,
-        ...additionalParameter:Array<any>
+        this:Array<Element>, key:any, ...additionalParameter:Array<any>
     ):any {
         if (
             additionalParameter.length < 2 &&
@@ -6145,14 +6152,16 @@ if ('fn' in $) {
             key in this[0]
         ) {
             if (additionalParameter.length === 0)
-                return this[0][key]
+                return this[0][key as keyof Element]
             if (additionalParameter.length === 1) {
                 // NOTE: "textContent" represents a writable element property.
                 this[0][key as 'textContent'] = additionalParameter[0]
                 return this
             }
         }
-        return nativePropFunction.call(this, key, ...additionalParameter)
+        return nativePropFunction.call(
+            this, key, ...(additionalParameter as [])
+        )
     }
     // endregion
     // region fix script loading errors with canceling requests after dom ready

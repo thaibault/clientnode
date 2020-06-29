@@ -23,6 +23,9 @@ import {Stats} from 'fs'
 import Tools from './index'
 // endregion
 // region exports
+// / region scope implementation
+export type Scope<TElement = HTMLElement> = JQuery<TElement>
+export type StaticScope = JQueryStatic
 // / region interfaces
 export type ToolsFunction<TElement = HTMLElement> =
     ((...parameter:Array<any>) => any) & {class:typeof Tools}
@@ -31,15 +34,13 @@ declare global {
         Tools:ToolsFunction<TElement>;
     }
 }
-export type $DomNode<TElement = HTMLElement> = JQuery<TElement>
+export type $DomNode<TElement = HTMLElement> = Scope<TElement>
 export type $Function =
+    StaticScope &
     ((parameter:any, ...additionalArguments:Array<any>) => any) &
     {
         context?:Document;
-        fn:{[key:string]:Function};
         global:$Global;
-        noop?:(...parameter:Array<any>) => any;
-        readyException:(error:Error|string) => void;
         Tools:ToolsFunction;
     }
 export type $Global = typeof globalThis & {console:Console;$:$Function}
