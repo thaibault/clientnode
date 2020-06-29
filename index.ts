@@ -229,7 +229,7 @@ export class Semaphore {
  * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
  * to dom nodes which should be visible if javaScript is available.
  */
-export class Tools<TElement extends HTMLElement = HTMLElement> {
+export class Tools<TElement = HTMLElement> {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href']
@@ -1012,7 +1012,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             let styleProperties:any
             if ('window' in $.global && $.global.window.getComputedStyle) {
                 styleProperties = $.global.window.getComputedStyle(
-                    $domNode[0], null)
+                    $domNode[0] as unknown as Element, null
+                )
                 if (styleProperties) {
                     if ('length' in styleProperties)
                         for (
@@ -1052,7 +1053,7 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
                         result[propertyName] = styleProperties[propertyName]
                 return result
             }
-            styleProperties = $domNode[0].style
+            styleProperties = ($domNode[0] as unknown as HTMLElement).style
             if (styleProperties)
                 for (const propertyName in styleProperties)
                     if (typeof styleProperties[propertyName] !== 'function')
@@ -1173,7 +1174,8 @@ export class Tools<TElement extends HTMLElement = HTMLElement> {
             'getBoundingClientRect' in $domNode[0]
         ) {
             const $window:$DomNode<Window> = $($.global.window)
-            const rectangle:Position = $domNode[0].getBoundingClientRect()
+            const rectangle:Position = ($domNode[0] as unknown as Element)
+                .getBoundingClientRect()
             if (rectangle) {
                 if (rectangle.top && (rectangle.top + delta.top) < 0)
                     return 'above'
@@ -6117,7 +6119,7 @@ export default Tools
 // endregion
 // region handle $ extending
 if ('fn' in $)
-    $.fn.Tools = function<TElement extends HTMLElement = HTMLElement>(
+    $.fn.Tools = function<TElement = HTMLElement>(
         this:$DomNode<TElement>, ...parameter:Array<any>
     ):any {
         return (new Tools<TElement>()).controller(
@@ -6132,7 +6134,7 @@ if ('fn' in $) {
     // region prop fix for comments and text nodes
     const nativePropFunction = $.fn.prop
     /**
-     * JQuery's native prop implementation ignores properties for text nodes,
+     * Scopes native prop implementation ignores properties for text nodes,
      * comments and attribute nodes.
      * @param key - Name of property to retrieve from current dom node.
      * @param additionalParameter - Additional parameter will be forwarded to

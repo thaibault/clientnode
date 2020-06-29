@@ -23,17 +23,20 @@ import {Stats} from 'fs'
 import Tools from './index'
 // endregion
 // region exports
+// / region scope implementation
+export type Scope<TElement = HTMLElement> = JQuery<TElement>
+export type StaticScope = JQueryStatic
 // / region interfaces
-export type ToolsFunction<TElement extends HTMLElement = HTMLElement> =
+export type ToolsFunction<TElement = HTMLElement> =
     ((...parameter:Array<any>) => any) & {class:typeof Tools}
 declare global {
-    interface JQuery<TElement extends HTMLElement = HTMLElement> extends Iterable<TElement> {
+    interface JQuery<TElement = HTMLElement> extends Iterable<TElement> {
         Tools:ToolsFunction<TElement>;
     }
 }
-export type $DomNode<TElement = HTMLElement> = JQuery<TElement>
+export type $DomNode<TElement = HTMLElement> = Scope<TElement>
 export type $Function =
-    JQueryStatic &
+    StaticScope &
     ((parameter:any, ...additionalArguments:Array<any>) => any) &
     {
         context?:Document;
