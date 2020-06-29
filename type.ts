@@ -24,10 +24,10 @@ import Tools from './index'
 // endregion
 // region exports
 // / region interfaces
-export type ToolsFunction<TElement = HTMLElement> =
+export type ToolsFunction<TElement extends HTMLElement = HTMLElement> =
     ((...parameter:Array<any>) => any) & {class:typeof Tools}
 declare global {
-    interface JQuery<TElement = HTMLElement> extends Iterable<TElement> {
+    interface JQuery<TElement extends HTMLElement = HTMLElement> extends Iterable<TElement> {
         Tools:ToolsFunction<TElement>;
     }
 }

@@ -6117,11 +6117,13 @@ export default Tools
 // endregion
 // region handle $ extending
 if ('fn' in $)
-    $.fn.Tools = function(...parameter:Array<any>):any {
-        return (new Tools()).controller(
-            Tools, parameter, this as unknown as $DomNode
+    $.fn.Tools = function<TElement extends HTMLElement = HTMLElement>(
+        this:$DomNode<TElement>, ...parameter:Array<any>
+    ):any {
+        return (new Tools<TElement>()).controller(
+            Tools, parameter, this as $DomNode<TElement>
         )
-    }
+    } as ToolsFunction<HTMLElement>
 $.Tools = ((...parameter:Array<any>):any =>
     (new Tools()).controller(Tools, parameter)
 ) as ToolsFunction
@@ -6139,9 +6141,7 @@ if ('fn' in $) {
      * setter.
      */
     $.fn.prop = function(
-        this:Array<Element>,
-        key:keyof Element,
-        ...additionalParameter:Array<any>
+        this:Array<Element>, key:any, ...additionalParameter:Array<any>
     ):any {
         if (
             additionalParameter.length < 2 &&
@@ -6150,14 +6150,16 @@ if ('fn' in $) {
             key in this[0]
         ) {
             if (additionalParameter.length === 0)
-                return this[0][key]
+                return this[0][key as keyof Element]
             if (additionalParameter.length === 1) {
                 // NOTE: "textContent" represents a writable element property.
                 this[0][key as 'textContent'] = additionalParameter[0]
                 return this
             }
         }
-        return nativePropFunction.call(this, key, ...additionalParameter)
+        return nativePropFunction.call(
+            this, key, ...(additionalParameter as [])
+        )
     }
     // endregion
     // region fix script loading errors with canceling requests after dom ready
