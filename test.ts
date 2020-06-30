@@ -34,8 +34,6 @@ try {
 } catch (error) {}
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
-
-import {Scope} from './type'
 // endregion
 // region declaration
 declare var TARGET_TECHNOLOGY:string
@@ -509,7 +507,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         ])(
             `isEquivalentDOM('%s', '%s') === true`,
             (
-                first:Scope<HTMLElement>|string,
+                first:$DomNode<HTMLElement>|string,
                 second:string,
                 forceHTMLString:boolean = false
             ):void =>
@@ -535,7 +533,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
             ['text', 'text a & +']
         ])(
             `isEquivalentDOM('%s', '%s') === false`,
-            (first:Scope<HTMLElement>|string, second:string):void =>
+            (first:$DomNode<HTMLElement>|string, second:string):void =>
                 expect(Tools.isEquivalentDOM(first, second))
                     .toStrictEqual(false)
         )
