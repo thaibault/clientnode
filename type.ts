@@ -24,14 +24,24 @@ import Tools from './index'
 // endregion
 // region exports
 export type StaticScope = JQueryStatic
-// / region interfaces
 export type ToolsFunction<TElement = HTMLElement> =
-    ((...parameter:Array<any>) => any) & {class:typeof Tools}
-declare global {
-    interface JQuery<TElement = HTMLElement> extends Iterable<TElement> {
-        Tools:ToolsFunction<TElement>;
-    }
+    ((...parameter:Array<any>) => any|Tools<TElement>) & {class:typeof Tools}
+// / region interfaces
+export interface Scope<TElement = HTMLElement> extends Iterable<TElement> {
+    Tools:ToolsFunction<TElement>;
 }
+declare global {
+    interface JQuery<TElement = HTMLElement> extends Scope<TElement> {}
+}
+export interface ProcessError extends Error {
+    parameter:Array<any>;
+    returnCode:number;
+}
+export interface TimeoutPromise extends Promise<boolean> {
+    clear:() => void;
+    timeoutID:number;
+}
+// / endregion
 export type $DomNode<TElement = HTMLElement> = JQuery<TElement>
 export type $Function =
     StaticScope &
@@ -43,15 +53,6 @@ export type $Function =
     }
 export type $Global = typeof globalThis & {console:Console;$:$Function}
 export type Noop = (...parameter:Array<any>) => any
-export interface ProcessError extends Error {
-    parameter:Array<any>;
-    returnCode:number;
-}
-export interface TimeoutPromise extends Promise<boolean> {
-    clear:() => void;
-    timeoutID:number;
-}
-// / endregion
 export type Encoding = 'ascii'|'base64'|'binary'|'hex'|'latin1'|'ucs2'|'ucs-2'|'utf8'|'utf16le'|'utf-8'
 export type Mapping<T=string> = {[key:string]:T}
 export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
