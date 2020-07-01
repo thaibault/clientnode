@@ -23,7 +23,6 @@ import {Stats} from 'fs'
 import Tools from './index'
 // endregion
 // region exports
-// / region scope implementation
 export type StaticScope = JQueryStatic
 // / region interfaces
 export type ToolsFunction<TElement = HTMLElement> =
