@@ -233,7 +233,8 @@ export class Semaphore {
 export class Tools<TElement = HTMLElement> {
     // region static properties
     static abbreviations:Array<string> = [
-        'html', 'id', 'url', 'us', 'de', 'api', 'href']
+        'html', 'id', 'url', 'us', 'de', 'api', 'href'
+    ]
     static animationEndEventNames =
         'animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd'
     static classToTypeMapping:{[key:string]:string} = {
@@ -328,7 +329,8 @@ export class Tools<TElement = HTMLElement> {
     /* eslint-enable @typescript-eslint/no-empty-function */
     static plainObjectPrototypes:Array<any> = [Object.prototype]
     static specialRegexSequences:Array<string> = [
-        '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}']
+        '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}'
+    ]
     static transitionEndEventNames:string = 'transitionend ' +
         'webkitTransitionEnd oTransitionEnd MSTransitionEnd'
 
@@ -360,8 +362,7 @@ export class Tools<TElement = HTMLElement> {
      * options instance.
      * @param locks - Mapping of a lock description to callbacks for calling
      * when given lock should be released.
-     * @returns Returns nothing but if invoked with "new" an instance of this
-     * class will be given back.
+     * @returns Nothing.
      */
     constructor(
         $domNode?:$DomNode<TElement>,
@@ -6115,6 +6116,27 @@ export class Tools<TElement = HTMLElement> {
         )(...parameter)
     }
     // endregion
+}
+export class BoundTools<TElement extends HTMLElement = HTMLElement> extends
+    Tools<TElement> {
+    $domNode:$DomNode<TElement>
+    /**
+     * This method should be overwritten normally. It is triggered if current
+     * object is created via the "new" keyword. The dom node selector prefix
+     * enforces to not globally select any dom nodes which aren't in the
+     * expected scope of this plugin. "{1}" will be automatically replaced with
+     * this plugin name suffix ("tools"). You don't have to use "{1}" but it
+     * can help you to write code which is more reconcilable with the dry
+     * concept.
+     * @param $domNode - $-extended dom node to use as reference in various
+     * methods.
+     * @param options - Options to change runtime behavior.
+     * @returns Nothing.
+     */
+    constructor($domNode:$DomNode<TElement>, ...parameter:Array<any>) {
+        super($domNode, ...parameter)
+        this.$domNode = $domNode
+    }
 }
 export default Tools
 // endregion
