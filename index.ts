@@ -102,11 +102,12 @@ export const $:$Function = (():$Function => {
             'querySelectorAll' in globalContext.document
         ) ?
             globalContext.document.querySelectorAll.bind(
-                globalContext.document) :
+                globalContext.document
+            ) :
             ():null => null
         $ = ((parameter:any, ...additionalArguments:Array<any>):any => {
             if (typeof parameter === 'string') {
-                const $domNodes:any = selector(
+                const $domNodes:NodeList = selector(
                     parameter, ...additionalArguments
                 )
                 if ($domNodes && 'fn' in $)
