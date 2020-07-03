@@ -70,8 +70,9 @@ export const ConsoleOutputMethods = [
     'debug', 'error', 'info', 'log', 'warn'
 ] as const
 export const ValueCopySymbol = Symbol('Value')
-// region determine context
-export const globalContext:$Global = (():$Global => {
+// region determine environment
+// / region context
+export const determineGlobalContext:(() => $Global) = ():$Global => {
     if (typeof globalThis === 'undefined') {
         if (typeof window === 'undefined') {
             if (typeof global === 'undefined')
@@ -83,56 +84,68 @@ export const globalContext:$Global = (():$Global => {
         return window as unknown as $Global
     }
     return globalThis as unknown as $Global
-})()
-/* eslint-disable no-use-before-define */
-export const $:$Function = (():$Function => {
-/* eslint-enable no-use-before-define */
-    let $:$Function
+}
+export let globalContext:$Global = determineGlobalContext()
+export const setGlobalContext = (context:$Global):void => {
+    globalContext = context
+}
+// / endregion
+// / region $
+export const determine$:(() => $Function) = ():$Function => {
+    let $:$Function|undefined
     if ('$' in globalContext && globalContext.$ !== null)
         $ = globalContext.$
     else {
         if (!('$' in globalContext) && 'document' in globalContext)
             /* eslint-disable no-empty */
             try {
-                return require('jquery')
+                $ = require('jquery')
             } catch (error) {}
             /* eslint-enable no-empty */
-        const selector:any = (
-            'document' in globalContext &&
-            'querySelectorAll' in globalContext.document
-        ) ?
-            globalContext.document.querySelectorAll.bind(
-                globalContext.document
-            ) :
-            ():null => null
-        $ = ((parameter:any, ...additionalArguments:Array<any>):any => {
-            if (typeof parameter === 'string') {
-                const $domNodes:NodeList = selector(
-                    parameter, ...additionalArguments
-                )
-                if ($domNodes && 'fn' in $)
-                    for (const key in $.fn)
-                        if (Object.prototype.hasOwnProperty.call($.fn, key))
-                            $domNodes[key] = ($.fn[key] as unknown as Function)
-                                .bind($domNodes)
-                return $domNodes
-            }
-            /* eslint-disable @typescript-eslint/no-use-before-define */
-            if (Tools.isFunction(parameter) && 'document' in globalContext)
-            /* eslint-enable @typescript-eslint/no-use-before-define */
-                globalContext.document.addEventListener(
-                    'DOMContentLoaded', parameter
-                )
-            return parameter
-        }) as $Function
-        ($.fn as object) = {}
+        if (typeof $ === 'undefined') {
+            const selector:any = (
+                'document' in globalContext &&
+                'querySelectorAll' in globalContext.document
+            ) ?
+                globalContext.document.querySelectorAll.bind(
+                    globalContext.document
+                ) :
+                ():null => null
+            $ = ((parameter:any, ...additionalArguments:Array<any>):any => {
+                if (typeof parameter === 'string') {
+                    const $domNodes:NodeList = selector(
+                        parameter, ...additionalArguments
+                    )
+                    if ($domNodes && 'fn' in ($ as unknown as $Function))
+                        for (const key in ($ as unknown as $Function).fn)
+                            if (Object.prototype.hasOwnProperty.call(
+                                ($ as unknown as $Function).fn, key
+                            ))
+                                $domNodes[key] = (
+                                    ($ as unknown as $Function).fn[key] as
+                                        unknown as Function
+                                ).bind($domNodes)
+                    return $domNodes
+                }
+                /* eslint-disable @typescript-eslint/no-use-before-define */
+                if (Tools.isFunction(parameter) && 'document' in globalContext)
+                /* eslint-enable @typescript-eslint/no-use-before-define */
+                    globalContext.document.addEventListener(
+                        'DOMContentLoaded', parameter
+                    )
+                return parameter
+            }) as $Function
+            ($.fn as object) = {}
+        }
     }
+    if (!('global' in $))
+        $.global = globalContext
+    if (!('context' in $) && 'document' in $.global && $.global.document)
+        $.context = $.global.document
     return $
-})()
-if (!('global' in $))
-    $.global = globalContext
-if (!('context' in $) && 'document' in $.global && $.global.document)
-    $.context = $.global.document
+}
+export let $:$Function = determine$()
+// / endregion
 // endregion
 // region plugins/classes
 /**
@@ -6141,59 +6154,72 @@ export class BoundTools<TElement extends HTMLElement = HTMLElement> extends
 export default Tools
 // endregion
 // region handle $ extending
-if ('fn' in $)
-    $.fn.Tools = function<TElement = HTMLElement>(
-        this:$DomNode<TElement>, ...parameter:Array<any>
-    ):any {
-        return (new Tools<TElement>()).controller(
-            Tools, parameter, this as $DomNode<TElement>
-        )
-    } as ToolsFunction<HTMLElement>
-$.Tools = ((...parameter:Array<any>):any =>
-    (new Tools()).controller(Tools, parameter)
-) as ToolsFunction
-$.Tools.class = Tools
-if ('fn' in $) {
-    // region prop fix for comments and text nodes
-    const nativePropFunction = $.fn.prop
-    /**
-     * Scopes native prop implementation ignores properties for text nodes,
-     * comments and attribute nodes.
-     * @param key - Name of property to retrieve from current dom node.
-     * @param additionalParameter - Additional parameter will be forwarded to
-     * native prop function also.
-     * @returns Returns value if used as getter or current dom node if used as
-     * setter.
-     */
-    $.fn.prop = function(
-        this:Array<Element>, key:any, ...additionalParameter:Array<any>
-    ):any {
-        if (
-            additionalParameter.length < 2 &&
-            this.length &&
-            ['#text', '#comment'].includes(this[0].nodeName.toLowerCase()) &&
-            key in this[0]
-        ) {
-            if (additionalParameter.length === 0)
-                return this[0][key as keyof Element]
-            if (additionalParameter.length === 1) {
-                // NOTE: "textContent" represents a writable element property.
-                this[0][key as 'textContent'] = additionalParameter[0]
-                return this
+export const augment$ = (value:$Function):void => {
+    $ = value
+    if (!('global' in $))
+        $.global = globalContext
+    if (!('context' in $) && 'document' in $.global && $.global.document)
+        $.context = $.global.document
+    if ('fn' in $)
+        $.fn.Tools = function<TElement = HTMLElement>(
+            this:$DomNode<TElement>, ...parameter:Array<any>
+        ):any {
+            return (new Tools<TElement>()).controller(
+                Tools, parameter, this as $DomNode<TElement>
+            )
+        } as ToolsFunction<HTMLElement>
+    $.Tools = ((...parameter:Array<any>):any =>
+        (new Tools()).controller(Tools, parameter)
+    ) as ToolsFunction
+    $.Tools.class = Tools
+    if ('fn' in $) {
+        // region prop fix for comments and text nodes
+        const nativePropFunction = $.fn.prop
+        /**
+         * Scopes native prop implementation ignores properties for text nodes,
+         * comments and attribute nodes.
+         * @param key - Name of property to retrieve from current dom node.
+         * @param additionalParameter - Additional parameter will be forwarded
+         * to native prop function also.
+         * @returns Returns value if used as getter or current dom node if used
+         * as setter.
+         */
+        $.fn.prop = function(
+            this:Array<Element>, key:any, ...additionalParameter:Array<any>
+        ):any {
+            if (
+                additionalParameter.length < 2 &&
+                this.length &&
+                ['#text', '#comment'].includes(
+                    this[0].nodeName.toLowerCase()
+                ) &&
+                key in this[0]
+            ) {
+                if (additionalParameter.length === 0)
+                    return this[0][key as keyof Element]
+                if (additionalParameter.length === 1) {
+                    /*
+                        NOTE: "textContent" represents a writable element
+                        property.
+                    */
+                    this[0][key as 'textContent'] = additionalParameter[0]
+                    return this
+                }
             }
+            return nativePropFunction.call(
+                this, key, ...(additionalParameter as [])
+            )
         }
-        return nativePropFunction.call(
-            this, key, ...(additionalParameter as [])
-        )
+        // endregion
     }
-    // endregion
-    // region fix script loading errors with canceling requests after dom ready
-    $.readyException = (error:Error|string):void => {
-        if (!(typeof error === 'string' && error === 'canceled'))
-            throw error
-    }
-    // endregion
 }
+augment$($)
+// / region fix script loading errors with canceling requests
+$.readyException = (error:Error|string):void => {
+    if (!(typeof error === 'string' && error === 'canceled'))
+        throw error
+}
+// / endregion
 // endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
