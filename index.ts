@@ -1665,9 +1665,9 @@ export class Tools<TElement = HTMLElement> {
      * @param parameter - Parameter to forward.
      * @returns Returns $'s grabbed dom node.
      */
-    on(...parameter:Array<any>):$DomNode<TElement> {
+    on<TElement = HTMLElement>(...parameter:Array<any>):$DomNode<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        return this._bindEventHelper(parameter, false)
+        return this._bindEventHelper<TElement>(parameter, false)
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
@@ -1677,9 +1677,9 @@ export class Tools<TElement = HTMLElement> {
      * @param parameter - Parameter to forward.
      * @returns Returns $'s grabbed dom node.
      */
-    off(...parameter:Array<any>):$DomNode<TElement> {
+    off<TElement = HTMLElement>(...parameter:Array<any>):$DomNode<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        return this._bindEventHelper(parameter, true)
+        return this._bindEventHelper<TElement>(parameter, true)
     }
     // / endregion
     // / region object
@@ -6097,7 +6097,7 @@ export class Tools<TElement = HTMLElement> {
      * @param eventFunctionName - Name of function to wrap.
      * @returns Returns $'s wrapped dom node.
      */
-    _bindEventHelper(
+    _bindEventHelper<TElement = HTMLElement>(
         parameter:Array<any>,
         removeEvent:boolean = false,
         eventFunctionName?:string
@@ -6126,7 +6126,7 @@ export class Tools<TElement = HTMLElement> {
             parameter[0] += `.${this.self._name}`
         return (
             $domNode[eventFunctionName as keyof $DomNode] as Function
-        )(...parameter)
+        ).apply($domNode, parameter)
     }
     // endregion
 }
