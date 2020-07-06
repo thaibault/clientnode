@@ -2072,10 +2072,10 @@ export class Tools<TElement = HTMLElement> {
      * @returns Name of determined class.
      */
     static determineType(object:any = undefined):string {
-        if ([undefined, null].includes(object))
+        if ([null, undefined].includes(object))
             return `${object}`
         if (
-            ['object', 'function'].includes(typeof object) &&
+            ['function', 'object'].includes(typeof object) &&
             'toString' in object
         ) {
             const stringRepresentation:string =
