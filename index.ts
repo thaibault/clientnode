@@ -1951,7 +1951,7 @@ export class Tools<TElement = HTMLElement> {
                 if (source === destination)
                     throw new Error(
                         `Can't copy because source and destination are ` +
-                        `identical.`
+                        'identical.'
                     )
                 if (!cyclic && ![undefined, null].includes(source as any)) {
                     const index:number = stackSource.indexOf(source)
@@ -2006,7 +2006,14 @@ export class Tools<TElement = HTMLElement> {
                 else
                     for (const key in source)
                         if (Object.prototype.hasOwnProperty.call(source, key))
-                            destination[key] = copyValue(source[key])
+                            try {
+                                destination[key] = copyValue(source[key])
+                            } catch (error) {
+                                throw new Error(
+                                    'Failed to copy property value object "' +
+                                    `${key}": ${Tools.represent(error)}`
+                                )
+                            }
             } else if (source) {
                 if (Array.isArray(source))
                     return Tools.copy(
