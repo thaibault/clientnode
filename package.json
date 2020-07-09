@@ -3,13 +3,13 @@
   "version": "3.0.469",
   "license": "CC-BY-3.0",
   "description": "upgrade to object orientated rock solid plugins",
-  "homepage": "https://torben.website/clientNode",
+  "homepage": "https://torben.website/clientnode",
   "documentationWebsite": {
     "languages": [
       "deDE",
       "enUS"
     ],
-    "name": "clientNode",
+    "name": "clientnode",
     "tagline": "upgrade to object orientated rock solid plugins<!--deDE:Schreibe Objekt orientierte solide Plugins-->",
     "trackingCode": "UA-40192634-7"
   },
@@ -27,7 +27,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/thaibault/clientNode"
+    "url": "https://github.com/thaibault/clientnode"
   },
   "scripts": {
     "build": "webOptimizer build",
@@ -117,9 +117,9 @@
       "optimizer": {
         "babelMinify": {
           "module": {
-            "#": "For Task \"test\", this module would produce this error \"ERROR in ./test.ts Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: clientNode/test.ts: Cannot read property 'end' of null\".",
+            "#": "For Task \"test\", this module would produce this error \"ERROR in ./test.ts Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: clientnode/test.ts: Cannot read property 'end' of null\".",
             "evaluate": false,
-            "#0": "For external task \"clear\", this module would produce this error \"UnhandledPromiseRejectionWarning: TypeError: Cannot create property 'next' on string '.dynamicConfiguration-0.json' at Function.<anonymous> (clientNode/index.js:1:80221)\".",
+            "#0": "For external task \"clear\", this module would produce this error \"UnhandledPromiseRejectionWarning: TypeError: Cannot create property 'next' on string '.dynamicConfiguration-0.json' at Function.<anonymous> (clientnode/index.js:1:80221)\".",
             "mangle": false,
             "#1": "To provide a generic logging mechanism we need this feature to be exported.",
             "removeConsole": false
