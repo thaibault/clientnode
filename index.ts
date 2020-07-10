@@ -1347,7 +1347,7 @@ export class Tools<TElement = HTMLElement> {
         wrapperDomNode:Node|null|string|$DomNode = null
     ):{[key:string]:$DomNode} {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        const domNodes:{[key:string]:$DomNode} = {}
+        const domNodes:Mapping<$DomNode> = {}
         if (domNodeSelectors)
             if (wrapperDomNode) {
                 const $wrapperDomNode:$DomNode = $(wrapperDomNode)
@@ -1356,7 +1356,8 @@ export class Tools<TElement = HTMLElement> {
                         domNodeSelectors, name
                     ))
                         domNodes[name] = $wrapperDomNode.find(
-                            domNodeSelectors[name])
+                            domNodeSelectors[name]
+                        )
             } else
                 for (const name in domNodeSelectors)
                     if (Object.prototype.hasOwnProperty.call(
