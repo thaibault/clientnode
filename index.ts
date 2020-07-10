@@ -254,7 +254,7 @@ export class Tools<TElement = HTMLElement> {
     ]
     static animationEndEventNames =
         'animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd'
-    static classToTypeMapping:{[key:string]:string} = {
+    static classToTypeMapping:Mapping = {
         '[object Array]': 'array',
         '[object Boolean]': 'boolean',
         '[object Date]': 'date',
@@ -267,7 +267,7 @@ export class Tools<TElement = HTMLElement> {
         '[object Set]': 'set',
         '[object String]': 'string'
     }
-    static keyCode:{[key:string]:number} = {
+    static keyCode:Mapping<number> = {
         BACKSPACE: 8,
         COMMA: 188,
         DELETE: 46,
@@ -357,7 +357,7 @@ export class Tools<TElement = HTMLElement> {
     // endregion
     // region dynamic properties
     $domNode:null|$DomNode<TElement> = null
-    locks:{[key:string]:Array<LockCallbackFunction>}
+    locks:Mapping<Array<LockCallbackFunction>>
     self:typeof Tools
     _options:Options
     _defaultOptions:Options
@@ -392,7 +392,7 @@ export class Tools<TElement = HTMLElement> {
             domNodeSelectorPrefix: 'body',
             logging: false
         },
-        locks:{[key:string]:Array<LockCallbackFunction>} = {}
+        locks:Mapping<Array<LockCallbackFunction>> = {}
     ) {
         if ($domNode)
             this.$domNode = $domNode
@@ -1106,8 +1106,8 @@ export class Tools<TElement = HTMLElement> {
         if (first && second) {
             const detemermineHTMLPattern =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
-            const inputs:{[key:string]:any} = {first, second}
-            const $domNodes:{[key:string]:$DomNode} = {
+            const inputs:Mapping<any> = {first, second}
+            const $domNodes:Mapping<$DomNode> = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
             /*
@@ -1345,7 +1345,7 @@ export class Tools<TElement = HTMLElement> {
     grabDomNode(
         domNodeSelectors:Mapping,
         wrapperDomNode:Node|null|string|$DomNode = null
-    ):{[key:string]:$DomNode} {
+    ):Mapping<$DomNode> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         const domNodes:Mapping<$DomNode> = {}
         if (domNodeSelectors)
@@ -1704,7 +1704,7 @@ export class Tools<TElement = HTMLElement> {
         object:any,
         getterWrapper:GetterFunction|null = null,
         setterWrapper:null|SetterFunction = null,
-        methodNames:{[key:string]:string} = {},
+        methodNames:Mapping = {},
         deep:boolean = true,
         typesToExtend:Array<any> = [Object]
     ):any {
@@ -1822,7 +1822,7 @@ export class Tools<TElement = HTMLElement> {
     static convertMapToPlainObject(object:any, deep:boolean = true):any {
         if (typeof object === 'object') {
             if (Tools.isMap(object)) {
-                const newObject:{[key:string]:any} = {}
+                const newObject:Mapping<any> = {}
                 for (let [key, value] of object) {
                     if (deep)
                         value = Tools.convertMapToPlainObject(value, deep)
@@ -2353,7 +2353,7 @@ export class Tools<TElement = HTMLElement> {
      */
     static evaluateDynamicData(
         object:any,
-        scope:{[key:string]:any} = {},
+        scope:Mapping<any> = {},
         selfReferenceName:string = 'self',
         expressionIndicatorKey:string = '__evaluate__',
         executionIndicatorKey:string = '__execute__'
@@ -2672,9 +2672,7 @@ export class Tools<TElement = HTMLElement> {
      * name.
      * @returns Determined proxy handler.
      */
-    static getProxyHandler(
-        target:any, methodNames:{[key:string]:string} = {}
-    ):ProxyHandler {
+    static getProxyHandler(target:any, methodNames:Mapping = {}):ProxyHandler {
         methodNames = Tools.extend(
             {
                 delete: '[]',
@@ -3202,7 +3200,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Summarized array.
      */
     static arrayAggregatePropertyIfEqual(
-        data:Array<{[key:string]:any}>,
+        data:Array<Mapping<any>>,
         propertyName:string,
         defaultValue:any = ''
     ):any {
@@ -3262,11 +3260,11 @@ export class Tools<TElement = HTMLElement> {
      * @returns Data with sliced items.
      */
     static arrayExtract(
-        data:Array<{[key:string]:any}>, propertyNames:Array<string>
+        data:Array<Mapping<any>>, propertyNames:Array<string>
     ):Array<Object> {
-        const result:Array<{[key:string]:any}> = []
+        const result:Array<Mapping<any>> = []
         for (const item of Tools.arrayMake(data)) {
-            const newItem:{[key:string]:any} = {}
+            const newItem:Mapping<any> = {}
             for (const propertyName of Tools.arrayMake(propertyNames))
                 if (Object.prototype.hasOwnProperty.call(item, propertyName))
                     newItem[propertyName] = item[propertyName]
@@ -3332,7 +3330,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Filtered data.
      */
     static arrayExtractIfPropertyMatches(
-        data:any, propertyPattern:{[key:string]:string|RegExp}
+        data:any, propertyPattern:Mapping<RegExp|string>
     ):any {
         if (data && propertyPattern) {
             const result:Array<Object> = []
@@ -3619,11 +3617,11 @@ export class Tools<TElement = HTMLElement> {
      * @returns Item with the appended target.
      */
     static arrayAppendAdd(
-        item:{[key:string]:any},
+        item:Mapping<any>,
         target:any,
         name:string,
         checkIfExists:boolean = true
-    ):object {
+    ):Mapping<any> {
         if (Object.prototype.hasOwnProperty.call(item, name)) {
             if (!(checkIfExists && item[name].includes(target)))
                 item[name].push(target)
@@ -3659,7 +3657,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Sorted array of given items respecting their dependencies.
      */
     static arraySortTopological(
-        items:{[key:string]:Array<string>|string}
+        items:Mapping<Array<string>|string>
     ):Array<string> {
         const edges:Array<Array<string>> = []
         for (const name in items)
@@ -4382,7 +4380,7 @@ export class Tools<TElement = HTMLElement> {
             const monthPattern:string = '(?<month>(?:0?[1-9])|(?:1[0-2]))'
             const yearPattern:string = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
             // / endregion
-            const patternPresenceCache:{[key:string]:true} = {}
+            const patternPresenceCache:Mapping<true> = {}
             for (const timeDelimiter of ['t', ' '])
                 for (const timeComponentDelimiter of [':', '/', '-', ' '])
                     for (const timeFormat of [
@@ -5581,7 +5579,7 @@ export class Tools<TElement = HTMLElement> {
     static sendToIFrame(
         target:$DomNode|HTMLIFrameElement|string,
         url:string,
-        data:{[key:string]:any},
+        data:Mapping<any>,
         requestType:string = 'post',
         removeAfterLoad:boolean = false
     ):$DomNode {
@@ -5625,7 +5623,7 @@ export class Tools<TElement = HTMLElement> {
      */
     sendToExternalURL(
         url:string,
-        data:{[key:string]:any},
+        data:Mapping<any>,
         requestType:string = 'post',
         removeAfterLoad:boolean = true
     ):$DomNode<HTMLIFrameElement> {
