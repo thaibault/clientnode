@@ -24,14 +24,21 @@ import {
     RequestInfo as FetchURL
 } from 'node-fetch'
 /* eslint-disable no-empty,no-var,@typescript-eslint/no-var-requires */
+declare const __non_webpack_require__:typeof require
+export const dynamicRequire = typeof __non_webpack_require__ === 'function' ?
+    __non_webpack_require__ :
+    require
 try {
-    var fileSystem = eval('require')('fs').promises
+    var fetch = dynamicRequire('node-fetch').promises
 } catch (error) {}
 try {
-    var synchronousFileSystem = eval('require')('fs')
+    var fileSystem = dynamicRequire('fs').promises
 } catch (error) {}
 try {
-    var path = eval('require')('path')
+    var synchronousFileSystem = dynamicRequire('fs')
+} catch (error) {}
+try {
+    var path = dynamicRequire('path')
 } catch (error) {}
 /* eslint-enable no-empty,no-var,@typescript-eslint/no-var-requires */
 
@@ -60,9 +67,6 @@ import {
     $Global
 } from './type'
 // endregion
-declare function fetch(
-    url:FetchURL, options?:FetchOptions
-):Promise<FetchResponse>
 export const CloseEventNames = [
     'close', 'exit', 'SIGINT', 'SIGTERM', 'SIGQUIT', 'uncaughtException'
 ] as const
@@ -5372,11 +5376,11 @@ export class Tools<TElement = HTMLElement> {
     static async checkReachability(
         url:string,
         wait:boolean = false,
-        givenExpectedStatusCodes:number|Array<number> = 200,
+        givenExpectedStatusCodes:Array<number>|number = 200,
         timeoutInSeconds:number = 10,
         pollIntervallInSeconds:number = 0.1,
         options:FetchOptions = {},
-        givenExpectedIntermediateStatusCodes:number|Array<number> = []
+        givenExpectedIntermediateStatusCodes:Array<number>|number = []
     ):Promise<FetchResponse> {
         const expectedStatusCodes:Array<number> =
             ([] as Array<number>).concat(givenExpectedStatusCodes)
