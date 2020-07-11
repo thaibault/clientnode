@@ -23,24 +23,10 @@ import {
     RequestInit as FetchOptions,
     RequestInfo as FetchURL
 } from 'node-fetch'
-/* eslint-disable no-empty,no-var,@typescript-eslint/no-var-requires */
 declare const __non_webpack_require__:typeof require
 export const dynamicRequire = typeof __non_webpack_require__ === 'function' ?
     __non_webpack_require__ :
     require
-try {
-    var fetch = dynamicRequire('node-fetch').promises
-} catch (error) {}
-try {
-    var fileSystem = dynamicRequire('fs').promises
-} catch (error) {}
-try {
-    var synchronousFileSystem = dynamicRequire('fs')
-} catch (error) {}
-try {
-    var path = dynamicRequire('path')
-} catch (error) {}
-/* eslint-enable no-empty,no-var,@typescript-eslint/no-var-requires */
 
 import {
     File,
@@ -93,6 +79,22 @@ export let globalContext:$Global = determineGlobalContext()
 export const setGlobalContext = (context:$Global):void => {
     globalContext = context
 }
+const fetch = 'fetch' in globalContext ?
+    globalContext.fetch :
+    (
+        'require' in globalContext ?
+            dynamicRequire('node-fetch') :
+            undefined
+    )
+const fileSystem = 'require' in globalContext ?
+    dynamicRequire('fs').promises :
+    undefined
+const synchronousFileSystem = 'require' in globalContext ?
+    dynamicRequire('fs') :
+    undefined
+const path = 'require' in globalContext ?
+    dynamicRequire('path') :
+    undefined
 // / endregion
 // / region $
 export const determine$:(() => $Function) = ():$Function => {
