@@ -2343,7 +2343,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
     })
     */
     test.each([[], [null, true, '&'], [null, false, '&'], [null, false, '#']])(
-        'Array.isArray(stringGetURLParameter(...%p)) === true',
+        'Array.isArray(stringGetURLParameter(...)) === true',
         (...parameter:Array<any>):void =>
             expect(Array.isArray(Tools.stringGetURLParameter(...parameter)))
                 .toStrictEqual(true)
@@ -2378,7 +2378,7 @@ describe(`clientNode.Tools (${testEnvironment})`, ():void => {
         [['4'], 'test', true, '&', '$', '!', null, '#!test?test=3#$test=4'],
         [['2', '4'], 'test', true, '&', '$', '!', null, '#!test?test=3#$test=2&test=4']
     ])(
-        "%p === stringGetURLParameter('%s', ...%p)",
+        "%p === stringGetURLParameter('%s', ...)",
         (
             expected:Array<string>|null|string,
             key:string,
