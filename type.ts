@@ -79,7 +79,7 @@ export type ProcessCloseCallback = (reason:ProcessCloseReason) => void
 export type ProcessErrorCallback = (reason:ProcessError) => void
 export type RelativePosition = 'in'|'above'|'left'|'below'|'right'
 export type Options = {
-    domNode:{
+    domNode:Mapping & {
         hideJavaScriptEnabled:string;
         showJavaScriptEnabled:string;
     };
