@@ -86,11 +86,6 @@ export type Options = {
     domNodeSelectorPrefix:string;
     logging:boolean;
 }
-export type ExtendedOptions = {
-    domNode?:Mapping;
-    domNodeSelectorPrefix?:string;
-    logging?:boolean;
-}
 export type ProxyHandler = {
     deleteProperty:(target:any, key:any) => boolean;
     get:(target:any, key:string) => any;
