@@ -23,10 +23,6 @@ import {
     RequestInit as FetchOptions,
     RequestInfo as FetchURL
 } from 'node-fetch'
-declare const __non_webpack_require__:typeof require
-export const dynamicRequire = typeof __non_webpack_require__ === 'function' ?
-    __non_webpack_require__ :
-    require
 
 import {
     File,
@@ -53,6 +49,7 @@ import {
     $Global
 } from './type'
 // endregion
+export const dynamicRequire = eval('require') || (():void => undefined)
 export const CloseEventNames = [
     'close', 'exit', 'SIGINT', 'SIGTERM', 'SIGQUIT', 'uncaughtException'
 ] as const
@@ -81,20 +78,12 @@ export const setGlobalContext = (context:$Global):void => {
 }
 const fetch = 'fetch' in globalContext ?
     globalContext.fetch :
-    (
-        'require' in globalContext ?
-            dynamicRequire('node-fetch') :
-            undefined
-    )
-const fileSystem = 'require' in globalContext ?
-    dynamicRequire('fs').promises :
+    dynamicRequire('node-fetch')
+const synchronousFileSystem = dynamicRequire('fs')
+const fileSystem = synchronousFileSystem ?
+    synchronousFileSystem.promises :
     undefined
-const synchronousFileSystem = 'require' in globalContext ?
-    dynamicRequire('fs') :
-    undefined
-const path = 'require' in globalContext ?
-    dynamicRequire('path') :
-    undefined
+const path = dynamicRequire('path')
 // / endregion
 // / region $
 export const determine$:(() => $Function) = ():$Function => {
