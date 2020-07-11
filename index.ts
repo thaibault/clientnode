@@ -49,7 +49,17 @@ import {
     $Global
 } from './type'
 // endregion
-export const dynamicRequire = eval('require') || (():void => undefined)
+declare const __non_webpack_require__:typeof require
+export const currentRequire = typeof __non_webpack_require__ === 'function' ?
+    __non_webpack_require__ :
+    eval('require')
+export const optionalRequire = (...parameter:Array<any>):any => {
+    try {
+        return currentRequire(...parameter)
+    } catch (error) {
+        return
+    }
+}
 export const CloseEventNames = [
     'close', 'exit', 'SIGINT', 'SIGTERM', 'SIGQUIT', 'uncaughtException'
 ] as const
@@ -78,12 +88,12 @@ export const setGlobalContext = (context:$Global):void => {
 }
 const fetch = 'fetch' in globalContext ?
     globalContext.fetch :
-    dynamicRequire('node-fetch')
-const synchronousFileSystem = dynamicRequire('fs')
+    optionalRequire('node-fetch')
+const synchronousFileSystem = optionalRequire('fs')
 const fileSystem = synchronousFileSystem ?
     synchronousFileSystem.promises :
     undefined
-const path = dynamicRequire('path')
+const path = optionalRequire('path')
 // / endregion
 // / region $
 export const determine$:(() => $Function) = ():$Function => {
