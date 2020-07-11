@@ -79,12 +79,17 @@ export type ProcessCloseCallback = (reason:ProcessCloseReason) => void
 export type ProcessErrorCallback = (reason:ProcessError) => void
 export type RelativePosition = 'in'|'above'|'left'|'below'|'right'
 export type Options = {
-    domNode:Mapping & {
+    domNode:{
         hideJavaScriptEnabled:string;
         showJavaScriptEnabled:string;
     };
     domNodeSelectorPrefix:string;
     logging:boolean;
+}
+export type ExtendedOptions = {
+    domNode?:Mapping;
+    domNodeSelectorPrefix?:string;
+    logging?:boolean;
 }
 export type ProxyHandler = {
     deleteProperty:(target:any, key:any) => boolean;
