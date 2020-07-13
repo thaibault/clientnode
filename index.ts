@@ -217,6 +217,7 @@ export class Semaphore {
  * @property static:maximalSupportedInternetExplorerVersion - Saves currently
  * minimal supported internet explorer version. Saves zero if no internet
  * explorer present.
+ * @property static:name - Not minifyable class name.
  * @property static:noop - A no-op dummy function.
  * @property static:specialRegexSequences - A list of special regular
  * expression symbols.
@@ -225,7 +226,6 @@ export class Semaphore {
  *
  * @property static:_dateTimePatternCache - Caches compiled date tine pattern
  * regular expressions.
- * @property static:_name - Not minifyable class name.
  * @property static:_javaScriptDependentContentHandled - Indicates whether
  * javaScript dependent content where hide or shown.
  *
@@ -342,6 +342,7 @@ export class Tools<TElement = HTMLElement> {
             /* eslint-enable @typescript-eslint/prefer-includes */
         return version
     })()
+    static name:string = 'Tools'
     /* eslint-disable @typescript-eslint/no-empty-function */
     static noop:Noop = ('noop' in $) ? $.noop as Noop: ():void => {}
     /* eslint-enable @typescript-eslint/no-empty-function */
@@ -354,7 +355,6 @@ export class Tools<TElement = HTMLElement> {
 
     static _dateTimePatternCache:Array<RegExp> = []
     static _javaScriptDependentContentHandled = false
-    static _name = 'tools'
     // endregion
     // region dynamic properties
     $domNode:null|$DomNode<TElement> = null
@@ -471,7 +471,7 @@ export class Tools<TElement = HTMLElement> {
         */
         this._options.domNodeSelectorPrefix = this.self.stringFormat(
             this._options.domNodeSelectorPrefix,
-            this.self.stringCamelCaseToDelimited(this.self._name)
+            this.self.stringCamelCaseToDelimited(this.self.name)
         )
         return this
     }
@@ -774,12 +774,12 @@ export class Tools<TElement = HTMLElement> {
                 message = object
             else if (typeof object === 'string')
                 message =
-                    `${this.self._name} (${level}): ` +
+                    `${this.self.name} (${level}): ` +
                     this.self.stringFormat(object, ...additionalArguments)
             else if (
                 this.self.isNumeric(object) || typeof object === 'boolean'
             )
-                message = `${this.self._name} (${level}): ${object.toString()}`
+                message = `${this.self.name} (${level}): ${object.toString()}`
             else {
                 this.log(',--------------------------------------------,')
                 this.log(object, force, true)
@@ -5632,8 +5632,8 @@ export class Tools<TElement = HTMLElement> {
             $<HTMLIFrameElement>('<iframe>')
                 .attr(
                     'name',
-                    this.self._name.charAt(0).toLowerCase() +
-                    this.self._name.substring(1) +
+                    this.self.name.charAt(0).toLowerCase() +
+                    this.self.name.substring(1) +
                     (new Date()).getTime()
                 )
                 .hide()
@@ -6134,7 +6134,7 @@ export class Tools<TElement = HTMLElement> {
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
-            parameter[0] += `.${this.self._name}`
+            parameter[0] += `.${this.self.name}`
         return (
             $domNode[eventFunctionName as keyof $DomNode] as Function
         ).apply($domNode, parameter)
