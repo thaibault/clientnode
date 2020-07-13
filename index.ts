@@ -253,9 +253,9 @@ export class Tools<TElement = HTMLElement> {
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href'
     ]
-    static animationEndEventNames =
+    static readonly animationEndEventNames =
         'animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd'
-    static classToTypeMapping:Mapping = {
+    static readonly classToTypeMapping:Mapping = {
         '[object Array]': 'array',
         '[object Boolean]': 'boolean',
         '[object Date]': 'date',
@@ -268,7 +268,7 @@ export class Tools<TElement = HTMLElement> {
         '[object Set]': 'set',
         '[object String]': 'string'
     }
-    static keyCode:Mapping<number> = {
+    static readonly keyCode:Mapping<number> = {
         BACKSPACE: 8,
         COMMA: 188,
         DELETE: 46,
@@ -304,7 +304,8 @@ export class Tools<TElement = HTMLElement> {
         TAB: 9,
         UP: 38
     }
-    static maximalSupportedInternetExplorerVersion:number = (():number => {
+    static readonly maximalSupportedInternetExplorerVersion:number = ((
+    ):number => {
         /*
             NOTE: This method uses "Array.indexOf" instead of "Array.includes"
             since this function could be crucial in wide browser support.
@@ -342,19 +343,23 @@ export class Tools<TElement = HTMLElement> {
             /* eslint-enable @typescript-eslint/prefer-includes */
         return version
     })()
-    static name:string = 'Tools'
     /* eslint-disable @typescript-eslint/no-empty-function */
-    static noop:Noop = ('noop' in $) ? $.noop as Noop: ():void => {}
+    static noop:Noop = ('noop' in $) ? $.noop as Noop : ():void => {}
     /* eslint-enable @typescript-eslint/no-empty-function */
     static plainObjectPrototypes:Array<any> = [Object.prototype]
-    static specialRegexSequences:Array<string> = [
+    static readonly specialRegexSequences:Array<string> = [
         '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}'
     ]
-    static transitionEndEventNames:string = 'transitionend ' +
+    static readonly transitionEndEventNames:string = 'transitionend ' +
         'webkitTransitionEnd oTransitionEnd MSTransitionEnd'
 
     static _dateTimePatternCache:Array<RegExp> = []
     static _javaScriptDependentContentHandled = false
+    /*
+        NOTE: Cannot be "name" to avoid conflicts with native "Function.name"
+        property.
+    */
+    static readonly _name:'Tools' = 'Tools'
     // endregion
     // region dynamic properties
     $domNode:null|$DomNode<TElement> = null
@@ -471,7 +476,7 @@ export class Tools<TElement = HTMLElement> {
         */
         this._options.domNodeSelectorPrefix = this.self.stringFormat(
             this._options.domNodeSelectorPrefix,
-            this.self.stringCamelCaseToDelimited(this.self.name)
+            this.self.stringCamelCaseToDelimited(this.self._name)
         )
         return this
     }
@@ -774,12 +779,12 @@ export class Tools<TElement = HTMLElement> {
                 message = object
             else if (typeof object === 'string')
                 message =
-                    `${this.self.name} (${level}): ` +
+                    `${this.self._name} (${level}): ` +
                     this.self.stringFormat(object, ...additionalArguments)
             else if (
                 this.self.isNumeric(object) || typeof object === 'boolean'
             )
-                message = `${this.self.name} (${level}): ${object.toString()}`
+                message = `${this.self._name} (${level}): ${object.toString()}`
             else {
                 this.log(',--------------------------------------------,')
                 this.log(object, force, true)
@@ -5632,8 +5637,8 @@ export class Tools<TElement = HTMLElement> {
             $<HTMLIFrameElement>('<iframe>')
                 .attr(
                     'name',
-                    this.self.name.charAt(0).toLowerCase() +
-                    this.self.name.substring(1) +
+                    this.self._name.charAt(0).toLowerCase() +
+                    this.self._name.substring(1) +
                     (new Date()).getTime()
                 )
                 .hide()
@@ -6134,7 +6139,7 @@ export class Tools<TElement = HTMLElement> {
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
-            parameter[0] += `.${this.self.name}`
+            parameter[0] += `.${this.self._name}`
         return (
             $domNode[eventFunctionName as keyof $DomNode] as Function
         ).apply($domNode, parameter)
