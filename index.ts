@@ -364,10 +364,10 @@ export class Tools<TElement = HTMLElement> {
     // region dynamic properties
     $domNode:null|$DomNode<TElement> = null
     locks:Mapping<Array<LockCallbackFunction>>
-    readonly self:typeof Tools = Tools
 
-    _options:Options
     _defaultOptions:Options
+    _options:Options
+    readonly _self:typeof Tools = Tools
     // endregion
     // region public methods
     // / region special
@@ -414,15 +414,15 @@ export class Tools<TElement = HTMLElement> {
             ($.global as unknown as {console:{}}).console = {}
         for (const methodName of ConsoleOutputMethods)
             if (!(methodName in $.global.console))
-                $.global.console[methodName as keyof Console] = this.self.noop
+                $.global.console[methodName as keyof Console] = this._self.noop
         if (
-            !this.self._javaScriptDependentContentHandled &&
+            !this._self._javaScriptDependentContentHandled &&
             'document' in $.global &&
             'filter' in $ &&
             'hide' in $ &&
             'show' in $
         ) {
-            this.self._javaScriptDependentContentHandled = true
+            this._self._javaScriptDependentContentHandled = true
             $(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNode.hideJavaScriptEnabled
@@ -467,16 +467,16 @@ export class Tools<TElement = HTMLElement> {
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
         */
-        this._options = this.self.extend(
+        this._options = this._self.extend(
             true, {}, this._defaultOptions, this._options, options
         )
         /*
             The selector prefix should be parsed after extending options
             because the selector would be overwritten otherwise.
         */
-        this._options.domNodeSelectorPrefix = this.self.stringFormat(
+        this._options.domNodeSelectorPrefix = this._self.stringFormat(
             this._options.domNodeSelectorPrefix,
-            this.self.stringCamelCaseToDelimited(this.self._name)
+            this._self.stringCamelCaseToDelimited(this._self._name)
         )
         return this
     }
@@ -500,10 +500,10 @@ export class Tools<TElement = HTMLElement> {
         if (typeof object === 'function') {
             object = new object($domNode)
             if (!(object instanceof Tools))
-                object = this.self.extend(true, new Tools(), object)
+                object = this._self.extend(true, new Tools(), object)
         }
         const name:string = object.constructor._name || object.constructor.name
-        parameter = this.self.arrayMake(parameter)
+        parameter = this._self.arrayMake(parameter)
         if ($domNode && 'data' in $domNode && !$domNode.data(name))
             // Attach extended object to the associated dom node.
             $domNode.data(name, object)
@@ -779,12 +779,12 @@ export class Tools<TElement = HTMLElement> {
                 message = object
             else if (typeof object === 'string')
                 message =
-                    `${this.self._name} (${level}): ` +
-                    this.self.stringFormat(object, ...additionalArguments)
+                    `${this._self._name} (${level}): ` +
+                    this._self.stringFormat(object, ...additionalArguments)
             else if (
-                this.self.isNumeric(object) || typeof object === 'boolean'
+                this._self.isNumeric(object) || typeof object === 'boolean'
             )
-                message = `${this.self._name} (${level}): ${object.toString()}`
+                message = `${this._self._name} (${level}): ${object.toString()}`
             else {
                 this.log(',--------------------------------------------,')
                 this.log(object, force, true)
@@ -793,7 +793,7 @@ export class Tools<TElement = HTMLElement> {
             if (message)
                 if (
                     !('console' in $.global && level in $.global.console) ||
-                    ($.global.console[level] === this.self.noop)
+                    ($.global.console[level] === this._self.noop)
                 ) {
                     if ('alert' in $.global)
                         $.global.alert(message)
@@ -1006,11 +1006,12 @@ export class Tools<TElement = HTMLElement> {
                     if (serializedStyles)
                         $domNode.attr(
                             styleName,
-                            this.self.stringCompressStyleValue(
+                            this._self.stringCompressStyleValue(
                                 (
-                                    this.self
+                                    this._self
                                         .stringCompressStyleValue(
-                                            serializedStyles)
+                                            serializedStyles
+                                        )
                                         .split(';')
                                         .sort() ||
                                     []
@@ -1046,7 +1047,7 @@ export class Tools<TElement = HTMLElement> {
                             index < styleProperties.length;
                             index += 1
                         )
-                            result[this.self.stringDelimitedToCamelCase(
+                            result[this._self.stringDelimitedToCamelCase(
                                 styleProperties[index]
                             )] =
                                 styleProperties.getPropertyValue(
@@ -1057,7 +1058,7 @@ export class Tools<TElement = HTMLElement> {
                             if (Object.prototype.hasOwnProperty.call(
                                 styleProperties, propertyName
                             ))
-                                result[this.self.stringDelimitedToCamelCase(
+                                result[this._self.stringDelimitedToCamelCase(
                                     propertyName
                                 )] =
                                     propertyName in styleProperties &&
@@ -1188,7 +1189,7 @@ export class Tools<TElement = HTMLElement> {
     getPositionRelativeToViewport(
         givenDelta:{bottom?:number;left?:number;right?:number;top?:number} = {}
     ):RelativePosition {
-        const delta:Position = this.self.extend(
+        const delta:Position = this._self.extend(
             {bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
         const $domNode:null|$DomNode<TElement> = this.$domNode
         if (
@@ -1245,7 +1246,7 @@ export class Tools<TElement = HTMLElement> {
         if (this.$domNode === null)
             return null
         const delimitedName:string =
-            this.self.stringCamelCaseToDelimited(directiveName)
+            this._self.stringCamelCaseToDelimited(directiveName)
         return this.$domNode
             .removeClass(delimitedName)
             .removeAttr(delimitedName)
@@ -1286,7 +1287,7 @@ export class Tools<TElement = HTMLElement> {
         if (this.$domNode === null)
             return null
         const delimitedName:string =
-            this.self.stringCamelCaseToDelimited(directiveName)
+            this._self.stringCamelCaseToDelimited(directiveName)
         for (const attributeName of [
             delimitedName,
             `data-${delimitedName}`,
@@ -1652,7 +1653,7 @@ export class Tools<TElement = HTMLElement> {
         ...additionalArguments:Array<any>
     ):any {
         const eventHandlerName:string =
-            `on${this.self.stringCapitalize(eventName)}`
+            `on${this._self.stringCapitalize(eventName)}`
         if (!callOnlyOptionsMethod)
             if (eventHandlerName in scope)
                 scope[eventHandlerName](...additionalArguments)
@@ -1661,7 +1662,7 @@ export class Tools<TElement = HTMLElement> {
         if (
             scope._options &&
             eventHandlerName in scope._options &&
-            scope._options[eventHandlerName] !== this.self.noop
+            scope._options[eventHandlerName] !== this._self.noop
         )
             return scope._options[eventHandlerName].call(
                 this, ...additionalArguments
@@ -5637,14 +5638,14 @@ export class Tools<TElement = HTMLElement> {
             $<HTMLIFrameElement>('<iframe>')
                 .attr(
                     'name',
-                    this.self._name.charAt(0).toLowerCase() +
-                    this.self._name.substring(1) +
+                    this._self._name.charAt(0).toLowerCase() +
+                    this._self._name.substring(1) +
                     (new Date()).getTime()
                 )
                 .hide()
         if (this.$domNode)
             this.$domNode.append($iFrameDomNode)
-        this.self.sendToIFrame(
+        this._self.sendToIFrame(
             $iFrameDomNode, url, data, requestType, removeAfterLoad)
         return $iFrameDomNode
     }
@@ -6123,7 +6124,7 @@ export class Tools<TElement = HTMLElement> {
             eventFunctionName = removeEvent ? 'off' : 'on'
         const $domNode:$DomNode<TElement> = $(parameter[0])
         if (
-            this.self.determineType(parameter[1]) === 'object' && !removeEvent
+            this._self.determineType(parameter[1]) === 'object' && !removeEvent
         ) {
             for (const eventType in parameter[1])
                 if (Object.prototype.hasOwnProperty.call(
@@ -6135,11 +6136,11 @@ export class Tools<TElement = HTMLElement> {
                     )($domNode, eventType, parameter[1][eventType])
             return $domNode
         }
-        parameter = this.self.arrayMake(parameter).slice(1)
+        parameter = this._self.arrayMake(parameter).slice(1)
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
-            parameter[0] += `.${this.self._name}`
+            parameter[0] += `.${this._self._name}`
         return (
             $domNode[eventFunctionName as keyof $DomNode] as Function
         ).apply($domNode, parameter)
@@ -6148,8 +6149,8 @@ export class Tools<TElement = HTMLElement> {
 }
 export class BoundTools<TElement extends HTMLElement = HTMLElement> extends
     Tools<TElement> {
-    readonly self:typeof BoundTools = BoundTools
     $domNode:$DomNode<TElement>
+    readonly self:typeof BoundTools = BoundTools
     /**
      * This method should be overwritten normally. It is triggered if current
      * object is created via the "new" keyword. The dom node selector prefix
