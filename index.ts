@@ -412,7 +412,6 @@ export class Tools<TElement = HTMLElement> {
         // Avoid errors in browsers that lack a console.
         if (!('console' in $.global))
             ($.global as unknown as {console:{}}).console = {}
-        this.self = this.constructor as typeof Tools
         for (const methodName of ConsoleOutputMethods)
             if (!(methodName in $.global.console))
                 $.global.console[methodName as keyof Console] = this.self.noop
