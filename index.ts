@@ -358,8 +358,10 @@ export class Tools<TElement = HTMLElement> {
     /*
         NOTE: Cannot be "name" to avoid conflicts with native "Function.name"
         property.
+        NOTE: Type cannot be value type "Tools" to enable subclasses to
+        overwrite with their specific name.
     */
-    static readonly _name:'Tools' = 'Tools'
+    static readonly _name:string = 'Tools'
     // endregion
     // region dynamic properties
     $domNode:null|$DomNode<TElement> = null
@@ -372,13 +374,12 @@ export class Tools<TElement = HTMLElement> {
     // region public methods
     // / region special
     /**
-     * This method should be overwritten normally. It is triggered if current
-     * object is created via the "new" keyword. The dom node selector prefix
-     * enforces to not globally select any dom nodes which aren't in the
-     * expected scope of this plugin. "{1}" will be automatically replaced with
-     * this plugin name suffix ("tools"). You don't have to use "{1}" but it
-     * can help you to write code which is more reconcilable with the dry
-     * concept.
+     * Triggered if current object is created via the "new" keyword. The dom
+     * node selector prefix enforces to not globally select any dom nodes which
+     * aren't in the expected scope of this plugin. "{1}" will be automatically
+     * replaced with this plugin name suffix ("tools"). You don't have to use
+     * "{1}" but it can help you to write code which is more reconcilable with
+     * the dry concept.
      * @param $domNode - $-extended dom node to use as reference in various
      * methods.
      * @param options - Options to change runtime behavior.
