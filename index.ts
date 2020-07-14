@@ -364,7 +364,7 @@ export class Tools<TElement = HTMLElement> {
     // region dynamic properties
     $domNode:null|$DomNode<TElement> = null
     locks:Mapping<Array<LockCallbackFunction>>
-    self:typeof Tools
+    readonly self:typeof Tools = Tools
 
     _options:Options
     _defaultOptions:Options
@@ -6149,7 +6149,7 @@ export class Tools<TElement = HTMLElement> {
 }
 export class BoundTools<TElement extends HTMLElement = HTMLElement> extends
     Tools<TElement> {
-    self:typeof Tools
+    readonly self:typeof BoundTools = BoundTools
     $domNode:$DomNode<TElement>
     /**
      * This method should be overwritten normally. It is triggered if current
