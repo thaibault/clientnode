@@ -3183,9 +3183,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.478"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.478.tgz#3352c5bda1a3bc8fcdcff563ff3a5777015d1294"
-  integrity sha512-N4ijGWjba5csKRr7nGFFRX0zvtQ3snNYJL1M9h2bTUUL3aWC10W6biyJ4b0OZRbBCcyTwft27NGK3wtPlYvZqA==
+  version "3.0.480"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.480.tgz#c3aae2b3d0f6eb1403afc4840e9748c69d8185d7"
+  integrity sha512-z1KrmwN2tZzmUZoZPLcECx3Ksz4KVS5kq+x5fxGe5u44QlfhVYzw4cV2GFtt0pOwuVTnz8grWh3N4KbxMEcYWA==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3872,9 +3872,9 @@ ejs@*:
     jake "^10.6.1"
 
 electron-to-chromium@^1.3.47, electron-to-chromium@^1.3.488:
-  version "1.3.496"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.496.tgz#3f43d32930481d82ad3663d79658e7c59a58af0b"
-  integrity sha512-TXY4mwoyowwi4Lsrq9vcTUYBThyc1b2hXaTZI13p8/FRhY2CTaq5lK+DVjhYkKiTLsKt569Xes+0J5JsVXFurQ==
+  version "1.3.497"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.497.tgz#de00f2f2f44c258c4577fbfbd5124b94c18bfa44"
+  integrity sha512-sPdW5bUDZwiFtoonuZCUwRGzsZmKzcLM0bMVhp6SMCfUG+B3faENLx3cE+o+K0Jl+MPuNA9s9cScyFjOlixZpQ==
 
 elliptic@^6.0.0, elliptic@^6.5.2:
   version "6.5.3"
