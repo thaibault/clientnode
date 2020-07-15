@@ -25,6 +25,7 @@ import {
 } from 'node-fetch'
 
 import {
+    ExtendableOptions,
     File,
     GetterFunction,
     LockCallbackFunction,
@@ -368,7 +369,7 @@ export class Tools<TElement = HTMLElement> {
     locks:Mapping<Array<LockCallbackFunction>>
 
     _defaultOptions:Options
-    _options:Options
+    _options:ExtendableOptions
     readonly _self:typeof Tools = Tools
     // endregion
     // region public methods
@@ -476,7 +477,7 @@ export class Tools<TElement = HTMLElement> {
             because the selector would be overwritten otherwise.
         */
         this._options.domNodeSelectorPrefix = this._self.stringFormat(
-            this._options.domNodeSelectorPrefix,
+            this._options.domNodeSelectorPrefix as string,
             this._self.stringCamelCaseToDelimited(this._self._name)
         )
         return this
@@ -1310,10 +1311,14 @@ export class Tools<TElement = HTMLElement> {
     sliceDomNodeSelectorPrefix(domNodeSelector:string):string {
         if (
             'domNodeSelectorPrefix' in this._options &&
-            domNodeSelector.startsWith(this._options.domNodeSelectorPrefix)
+            domNodeSelector.startsWith(
+                this._options.domNodeSelectorPrefix as string
+            )
         )
             return domNodeSelector
-                .substring(this._options.domNodeSelectorPrefix.length)
+                .substring(
+                    (this._options.domNodeSelectorPrefix as string).length
+                )
                 .trim()
         return domNodeSelector
     }
