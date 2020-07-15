@@ -86,6 +86,14 @@ export type Options = {
     domNodeSelectorPrefix:string;
     logging:boolean;
 }
+export type ExtendableOptions = {
+    domNode?:{
+        hideJavaScriptEnabled?:string;
+        showJavaScriptEnabled?:string;
+    };
+    domNodeSelectorPrefix?:string;
+    logging?:boolean;
+}
 export type ProxyHandler = {
     deleteProperty:(target:any, key:any) => boolean;
     get:(target:any, key:string) => any;
