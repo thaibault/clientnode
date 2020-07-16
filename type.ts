@@ -1,6 +1,5 @@
-// #!/usr/bin/env node
 // -*- coding: utf-8 -*-
-/** @module clientnode */
+/** @module type */
 'use strict'
 /* !
     region header
