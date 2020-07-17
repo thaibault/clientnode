@@ -216,7 +216,7 @@ export class Semaphore {
  * @property static:keyCode - Saves a mapping from key codes to their
  * corresponding name.
  * @property static:maximalSupportedInternetExplorerVersion - Saves currently
- * minimal supported internet explorer version. Saves zero if no internet
+ * maximal supported internet explorer version. Saves zero if no internet
  * explorer present.
  * @property static:name - Not minifyable class name.
  * @property static:noop - A no-op dummy function.
