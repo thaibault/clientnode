@@ -1,6 +1,5 @@
-// #!/usr/bin/env node
 // -*- coding: utf-8 -*-
-/** @module clientnode */
+/** @module type */
 'use strict'
 /* !
     region header
@@ -42,6 +41,7 @@ export interface TimeoutPromise extends Promise<boolean> {
     timeoutID:number;
 }
 // / endregion
+export type HTMLItem = Comment|Document|HTMLElement|Text
 export type $DomNode<TElement = HTMLElement> = JQuery<TElement>
 export type $Function =
     StaticScope &
