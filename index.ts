@@ -74,9 +74,11 @@ export const determineGlobalContext:(() => $Global) = ():$Global => {
     if (typeof globalThis === 'undefined') {
         if (typeof window === 'undefined') {
             if (typeof global === 'undefined')
-                return ((typeof module === 'undefined') ? {} : module) as $Global
-            if ('window' in global)
-                return (global as typeof globalThis).window as unknown as $Global
+                return ((typeof module === 'undefined') ? {} : module) as
+                    $Global
+            if (global.window)
+                return (global as typeof globalThis).window as unknown as
+                    $Global
             return global as unknown as $Global
         }
         return window as unknown as $Global
@@ -96,13 +98,13 @@ const fileSystem = synchronousFileSystem ?
     undefined
 const path = optionalRequire('path')
 // / endregion
-// / region $
+// / region $ 
 export const determine$:(() => $Function) = ():$Function => {
     let $:$Function|undefined
-    if ('$' in globalContext && globalContext.$ !== null)
+    if (globalContext.$ && globalContext.$ !== null)
         $ = globalContext.$
     else {
-        if (!('$' in globalContext) && 'document' in globalContext)
+        if (!globalContext.$ && globalContext.document)
             /* eslint-disable no-empty */
             try {
                 $ = require('jquery')
@@ -110,8 +112,8 @@ export const determine$:(() => $Function) = ():$Function => {
             /* eslint-enable no-empty */
         if (typeof $ === 'undefined') {
             const selector:any = (
-                'document' in globalContext &&
-                'querySelectorAll' in globalContext.document
+                globalContext.document &&
+                globalContext.document.querySelectorAll
             ) ?
                 globalContext.document.querySelectorAll.bind(
                     globalContext.document
@@ -122,7 +124,7 @@ export const determine$:(() => $Function) = ():$Function => {
                     const $domNodes:NodeList = selector(
                         parameter, ...additionalArguments
                     )
-                    if ($domNodes && 'fn' in ($ as unknown as $Function))
+                    if ($domNodes && ($ as unknown as $Function).fn)
                         for (const key in ($ as unknown as $Function).fn)
                             if (Object.prototype.hasOwnProperty.call(
                                 ($ as unknown as $Function).fn, key
@@ -134,7 +136,7 @@ export const determine$:(() => $Function) = ():$Function => {
                     return $domNodes
                 }
                 /* eslint-disable @typescript-eslint/no-use-before-define */
-                if (Tools.isFunction(parameter) && 'document' in globalContext)
+                if (Tools.isFunction(parameter) && globalContext.document)
                 /* eslint-enable @typescript-eslint/no-use-before-define */
                     globalContext.document.addEventListener(
                         'DOMContentLoaded', parameter
@@ -144,9 +146,9 @@ export const determine$:(() => $Function) = ():$Function => {
             ($.fn as object) = {}
         }
     }
-    if (!('global' in $))
+    if (!$.global)
         $.global = globalContext
-    if (!('context' in $) && 'document' in $.global && $.global.document)
+    if (!$.context && $.global.document)
         $.context = $.global.document
     return $
 }
@@ -6182,11 +6184,11 @@ export default Tools
 // region handle $ extending
 export const augment$ = (value:$Function):void => {
     $ = value
-    if (!('global' in $))
+    if (!$.global)
         $.global = globalContext
-    if (!('context' in $) && 'document' in $.global && $.global.document)
+    if (!$.context && 'document' in $.global && $.global.document)
         $.context = $.global.document
-    if ('fn' in $)
+    if ($.fn)
         $.fn.Tools = function<TElement = HTMLElement>(
             this:$DomNode<TElement>, ...parameter:Array<any>
         ):any {
@@ -6198,7 +6200,7 @@ export const augment$ = (value:$Function):void => {
         (new Tools()).controller(Tools, parameter)
     ) as ToolsFunction
     $.Tools.class = Tools
-    if ('fn' in $) {
+    if ($.fn) {
         // region prop fix for comments and text nodes
         const nativePropFunction = $.fn.prop
         /**
