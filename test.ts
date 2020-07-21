@@ -54,7 +54,7 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
 const hasDOM:boolean = ['browser', 'node-with-dom'].includes(testEnvironment)
 // endregion
 // region semaphore
-describe(`clientNode.Semaphore (${testEnvironment})`, ():void => {
+describe(`${Semaphore._name} (${testEnvironment})`, ():void => {
     test('constructor', ():void => {
         expect(new Semaphore()).toHaveProperty('numberOfResources', 2)
         expect(new Semaphore()).toHaveProperty(
@@ -72,7 +72,7 @@ describe(`clientNode.Semaphore (${testEnvironment})`, ():void => {
 })
 // endregion
 // region tools
-describe(`clientNode.Tools (${testEnvironment})`, ():void => {
+describe(`${Tools._name} (${testEnvironment})`, ():void => {
     const now:Date = new Date()
     const tools:Tools = new Tools()
     // region public methods

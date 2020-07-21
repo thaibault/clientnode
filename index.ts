@@ -165,6 +165,8 @@ export class Semaphore {
     queue:Array<Function> = []
     numberOfResources:number
     numberOfFreeResources:number
+
+    static readonly _name:'Semaphore' = 'Semaphore'
     /**
      * Initializes number of resources.
      * @param numberOfResources - Number of resources to manage.
