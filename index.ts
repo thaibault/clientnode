@@ -89,7 +89,7 @@ export let globalContext:$Global = determineGlobalContext()
 export const setGlobalContext = (context:$Global):void => {
     globalContext = context
 }
-const fetch = 'fetch' in globalContext ?
+const fetch = globalContext.fetch ?
     globalContext.fetch :
     optionalRequire('node-fetch')
 const synchronousFileSystem = optionalRequire('fs')
@@ -148,8 +148,8 @@ export const determine$:(() => $Function) = ():$Function => {
     }
     if (!$.global)
         $.global = globalContext
-    if (!$.context && $.global.document)
-        $.context = $.global.document
+    if (!$.context && $.global.window && $.global.window.document)
+        $.context = $.global.window.document
     return $
 }
 export let $:$Function = determine$()
@@ -315,9 +315,9 @@ export class Tools<TElement = HTMLElement> {
             NOTE: This method uses "Array.indexOf" instead of "Array.includes"
             since this function could be crucial in wide browser support.
         */
-        if (!('document' in $.global && $.global.document))
+        if (!($.global.window && $.global.window.document))
             return 0
-        const div = $.global.document.createElement('div')
+        const div = $.global.window.document.createElement('div')
         let version:number
         for (version = 0; version < 10; version++) {
             /*
@@ -336,20 +336,21 @@ export class Tools<TElement = HTMLElement> {
                 break
         }
         // Try special detection for internet explorer 10 and 11.
-        if (version === 0 && 'navigator' in $.global)
+        if (version === 0 && $.global.window.navigator)
             /* eslint-disable @typescript-eslint/prefer-includes */
-            if ($.global.navigator.appVersion.indexOf('MSIE 10') !== -1)
+            if ($.global.window.navigator.appVersion.indexOf('MSIE 10') !== -1)
                 return 10
             else if (
-                $.global.navigator.userAgent.indexOf('Trident') !== -1 &&
-                $.global.navigator.userAgent.indexOf('rv:11') !== -1
+                $.global.window.navigator.userAgent.indexOf('Trident') !==
+                    -1 &&
+                $.global.window.navigator.userAgent.indexOf('rv:11') !== -1
             )
                 return 11
             /* eslint-enable @typescript-eslint/prefer-includes */
         return version
     })()
     /* eslint-disable @typescript-eslint/no-empty-function */
-    static noop:Noop = ('noop' in $) ? $.noop as Noop : ():void => {}
+    static noop:Noop = $.noop ? $.noop as Noop : ():void => {}
     /* eslint-enable @typescript-eslint/no-empty-function */
     static plainObjectPrototypes:Array<any> = [Object.prototype]
     static readonly specialRegexSequences:Array<string> = [
@@ -416,14 +417,15 @@ export class Tools<TElement = HTMLElement> {
             this._options = this._defaultOptions
         this.locks = locks
         // Avoid errors in browsers that lack a console.
-        if (!('console' in $.global))
+        if (!$.global.console)
             ($.global as unknown as {console:{}}).console = {}
         for (const methodName of ConsoleOutputMethods)
             if (!(methodName in $.global.console))
                 $.global.console[methodName as keyof Console] = this._self.noop
         if (
             !this._self._javaScriptDependentContentHandled &&
-            'document' in $.global &&
+            $.global.window &&
+            $.global.window.document &&
             'filter' in $ &&
             'hide' in $ &&
             'show' in $
@@ -456,7 +458,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns the current instance.
      */
     destructor():Tools<TElement> {
-        if ('off' in $.fn)
+        if ($.fn && $.fn.off)
             this.off('*')
         return this
     }
@@ -510,7 +512,7 @@ export class Tools<TElement = HTMLElement> {
         }
         const name:string = object.constructor._name || object.constructor.name
         parameter = this._self.arrayMake(parameter)
-        if ($domNode && 'data' in $domNode && !$domNode.data(name))
+        if ($domNode && $domNode.data && !$domNode.data(name))
             // Attach extended object to the associated dom node.
             $domNode.data(name, object)
         if (
@@ -632,7 +634,7 @@ export class Tools<TElement = HTMLElement> {
      */
     static isWindow(object:any):object is Window {
         return (
-            ![undefined, null].includes(object) &&
+            ![null, undefined].includes(object) &&
             typeof object === 'object' &&
             'window' in object &&
             object === object.window
@@ -647,7 +649,7 @@ export class Tools<TElement = HTMLElement> {
     static isArrayLike(object:any):boolean {
         let length:number|boolean
         try {
-            length = Boolean(object) && 'length' in object && object.length
+            length = Boolean(object) && object.length
         } catch (error) {
             return false
         }
@@ -740,7 +742,7 @@ export class Tools<TElement = HTMLElement> {
             this:any, event:any, ...additionalParameter:Array<any>
         ):any {
             let relatedTarget:Element = event.toElement
-            if ('relatedTarget' in event)
+            if (event.relatedTarget)
                 relatedTarget = event.relatedTarget
             while (relatedTarget && relatedTarget.tagName !== 'BODY') {
                 if (
@@ -798,11 +800,11 @@ export class Tools<TElement = HTMLElement> {
             }
             if (message)
                 if (
-                    !('console' in $.global && level in $.global.console) ||
+                    !($.global.console && level in $.global.console) ||
                     ($.global.console[level] === this._self.noop)
                 ) {
-                    if ('alert' in $.global)
-                        $.global.alert(message)
+                    if ($.global.window && $.global.window.alert)
+                        $.global.window.alert(message)
                 } else
                     $.global.console[level](message)
         }
@@ -897,8 +899,8 @@ export class Tools<TElement = HTMLElement> {
      * @returns Nothing.
      */
     static deleteCookie(name:string):void {
-        if ('document' in $.global)
-            $.global.document.cookie = `${name}=; Max-Age=-99999999;`
+        if ($.global.window && $.global.window.document)
+            $.global.window.document.cookie = `${name}=; Max-Age=-99999999;`
     }
     /**
      * Gets a cookie value by given name.
@@ -906,10 +908,10 @@ export class Tools<TElement = HTMLElement> {
      * @returns Requested value.
      */
     static getCookie(name:string):string|null {
-        if ('document' in $.global) {
+        if ($.global.window && $.global.window.document) {
             const key = `${name}=`
             const decodedCookie:string = decodeURIComponent(
-                $.global.document.cookie)
+                $.global.window.document.cookie)
             for (let date of decodedCookie.split(';')) {
                 while (date.startsWith(' '))
                     date = date.substring(1)
@@ -944,7 +946,7 @@ export class Tools<TElement = HTMLElement> {
         secure = true,
         httpOnly = false
     ):boolean {
-        if ('document' in $.global) {
+        if ($.global.window && $.global.window.document) {
             const now:Date = new Date()
             now.setTime(
                 now.getTime() +
@@ -952,11 +954,12 @@ export class Tools<TElement = HTMLElement> {
             )
             if (
                 domain === '' &&
-                'location' in $.global &&
-                'hostname' in $.global.location
+                $.global.window &&
+                $.global.window.location &&
+                $.global.window.location.hostname
             )
-                domain = $.global.location.hostname
-            $.global.document.cookie =
+                domain = $.global.window.location.hostname
+            $.global.window.document.cookie =
                 `${name}=${value};` +
                 `Expires="${now.toUTCString()};` +
                 `Path=${path};` +
@@ -1042,7 +1045,7 @@ export class Tools<TElement = HTMLElement> {
         const $domNode:null|$DomNode<TElement> = this.$domNode
         if ($domNode && $domNode.length) {
             let styleProperties:any
-            if ('window' in $.global && $.global.window.getComputedStyle) {
+            if ($.global.window && $.global.window.getComputedStyle) {
                 styleProperties = $.global.window.getComputedStyle(
                     $domNode[0] as unknown as Element, null
                 )
@@ -1199,7 +1202,7 @@ export class Tools<TElement = HTMLElement> {
             {bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
         const $domNode:null|$DomNode<TElement> = this.$domNode
         if (
-            'window' in $.global &&
+            $.global.window &&
             $domNode &&
             $domNode.length &&
             $domNode[0] &&
@@ -1314,10 +1317,8 @@ export class Tools<TElement = HTMLElement> {
      */
     sliceDomNodeSelectorPrefix(domNodeSelector:string):string {
         if (
-            'domNodeSelectorPrefix' in this._options &&
-            domNodeSelector.startsWith(
-                this._options.domNodeSelectorPrefix as string
-            )
+            this._options.domNodeSelectorPrefix &&
+            domNodeSelector.startsWith(this._options.domNodeSelectorPrefix)
         )
             return domNodeSelector
                 .substring(
@@ -1399,10 +1400,13 @@ export class Tools<TElement = HTMLElement> {
                     }
         if (this._options.domNodeSelectorPrefix)
             domNodes.parent = $(this._options.domNodeSelectorPrefix)
-        if ('window' in $.global)
+        if ($.global.window) {
             domNodes.window = $($.global.window as unknown as HTMLElement)
-        if ('document' in $.global)
-            domNodes.document = $($.global.document as unknown as HTMLElement)
+            if ($.global.window.document)
+                domNodes.document = $(
+                    $.global.window.document as unknown as HTMLElement
+                )
+        }
         return domNodes
     }
     // / endregion
@@ -2104,8 +2108,7 @@ export class Tools<TElement = HTMLElement> {
         if ([null, undefined].includes(object))
             return `${object}`
         if (
-            ['function', 'object'].includes(typeof object) &&
-            'toString' in object
+            ['function', 'object'].includes(typeof object) && object.toString
         ) {
             const stringRepresentation:string =
                 Tools.classToTypeMapping.toString.call(object)
@@ -2251,9 +2254,7 @@ export class Tools<TElement = HTMLElement> {
                             )
                             if (!result)
                                 return false
-                            else if (
-                                typeof result === 'object' && 'then' in result
-                            )
+                            else if (typeof result === 'object' && result.then)
                                 promises.push(result)
                         }
                         index += 1
@@ -2273,9 +2274,7 @@ export class Tools<TElement = HTMLElement> {
                             )
                             if (!result)
                                 return false
-                            else if (
-                                typeof result === 'object' && 'then' in result
-                            )
+                            else if (typeof result === 'object' && result.then)
                                 promises.push(result)
                         }
                 } else if (firstIsSet) {
@@ -2340,8 +2339,7 @@ export class Tools<TElement = HTMLElement> {
                                 if (!result)
                                     return false
                                 else if (
-                                    typeof result === 'object' &&
-                                    'then' in result
+                                    typeof result === 'object' && result.then
                                 )
                                     promises.push(result)
                             }
@@ -3831,7 +3829,10 @@ export class Tools<TElement = HTMLElement> {
     static stringHasPathPrefix(
         prefix:any|string = '/admin',
         path:string = (
-            'location' in $.global && $.global.location.pathname || ''
+            $.global.window &&
+            $.global.window.location &&
+            $.global.window.location.pathname ||
+            ''
         ),
         separator:string = '/'
     ):boolean {
@@ -3857,9 +3858,16 @@ export class Tools<TElement = HTMLElement> {
      * @returns Extracted domain.
      */
     static stringGetDomainName(
-        url:string = 'location' in $.global && $.global.location.href || '',
+        url:string =
+            $.global.window &&
+            $.global.window.location &&
+            $.global.window.location.href ||
+            '',
         fallback:any = (
-            'location' in $.global && $.global.location.hostname || ''
+            $.global.window &&
+            $.global.window.location &&
+            $.global.window.location.hostname ||
+            ''
         )
     ):any {
         const result:Array<string>|null =
@@ -3882,10 +3890,21 @@ export class Tools<TElement = HTMLElement> {
      * @returns Extracted port number.
      */
     static stringGetPortNumber(
-        url:string = 'location' in $.global && $.global.location.href || '',
-        fallback:any = null,
+        url:string =
+            $.global.window &&
+            $.global.window.location &&
+            $.global.window.location.href ||
+            '',
+        fallback:null|number = (
+            $.global.window &&
+            $.global.window.location &&
+            $.global.window.location.port &&
+            typeof $.global.window.location.port === 'string'
+        ) ?
+            parseInt($.global.window.location.port) :
+            null,
         parameter:Array<string> = []
-    ):number {
+    ):null|number {
         const result:Array<string>|null =
             /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec(url)
         if (result && result.length > 1)
@@ -3894,11 +3913,12 @@ export class Tools<TElement = HTMLElement> {
             return fallback
         if (
             Tools.stringIsInternalURL(url, ...parameter) &&
-            'location' in $.global &&
-            $.global.location.port &&
-            parseInt($.global.location.port, 10)
+            $.global.window &&
+            $.global.window.location &&
+            $.global.window.location.port &&
+            parseInt($.global.window.location.port, 10)
         )
-            return parseInt($.global.location.port, 10)
+            return parseInt($.global.window.location.port, 10)
         return (Tools.stringGetProtocolName(url) === 'https') ? 443 : 80
     }
     /**
@@ -3911,13 +3931,20 @@ export class Tools<TElement = HTMLElement> {
      * @returns Extracted protocol.
      */
     static stringGetProtocolName(
-        url:string = 'location' in $.global && $.global.location.href || '',
-        fallback:any = 'location' in $.global &&
-        $.global.location.protocol.substring(
-            0, $.global.location.protocol.length - 1
-        ) ||
-        ''
-    ):any {
+        url:string =
+            $.global.window &&
+            $.global.window.location &&
+            $.global.window.location.href ||
+            '',
+        fallback:string =
+            $.global.window &&
+            $.global.window.location &&
+            $.global.window.location.protocol &&
+            $.global.window.location.protocol.substring(
+                0, $.global.window.location.protocol.length - 1
+            ) ||
+            ''
+    ):string {
         const result:Array<string>|null = /^([a-z]+):\/\//i.exec(url)
         if (result && result.length > 1 && result[1])
             return result[1]
@@ -3957,10 +3984,11 @@ export class Tools<TElement = HTMLElement> {
         hashedPathIndicator:string = '!',
         givenSearch:null|string = null,
         givenHash:string = (
-            'location' in $.global &&
-            typeof $.global.location.hash === 'string'
+            $.global.window &&
+            $.global.window.location &&
+            typeof $.global.window.location.hash === 'string'
         ) ?
-            $.global.location.hash :
+            $.global.window.location.hash :
             ''
     ):Array<string>|null|string {
         // region set search and hash
@@ -3982,8 +4010,8 @@ export class Tools<TElement = HTMLElement> {
             const subSearchStartIndex:number = pathAndSearch.indexOf('?')
             if (subSearchStartIndex !== -1)
                 search = pathAndSearch.substring(subSearchStartIndex)
-        } else if ('location' in $.global)
-            search = $.global.location.search || ''
+        } else if ($.global.window && $.global.window.location)
+            search = $.global.window.location.search || ''
         let input:string = givenInput ? givenInput : search
         // endregion
         // region determine data from search and hash if specified
@@ -4058,26 +4086,28 @@ export class Tools<TElement = HTMLElement> {
      */
     static stringIsInternalURL(
         firstURL:string,
-        secondURL:string = (
-            'location' in $.global && $.global.location.href || ''
-        )
+        secondURL:string =
+            $.global.window &&
+            $.global.window.location &&
+            $.global.window.location.href ||
+            ''
     ):boolean {
-        const explicitDomainName:string = Tools.stringGetDomainName(
-            firstURL, false)
-        const explicitProtocolName:string = Tools.stringGetProtocolName(
-            firstURL, false)
-        const explicitPortNumber = Tools.stringGetPortNumber(firstURL, false)
+        const explicitDomainName:string =
+            Tools.stringGetDomainName(firstURL, '')
+        const explicitProtocolName:string =
+            Tools.stringGetProtocolName(firstURL, '')
+        const explicitPortNumber = Tools.stringGetPortNumber(firstURL)
         return (
             (
-                !explicitDomainName ||
+                explicitDomainName === '' ||
                 explicitDomainName === Tools.stringGetDomainName(secondURL)
             ) &&
             (
-                !explicitProtocolName ||
+                explicitProtocolName === '' ||
                 explicitProtocolName === Tools.stringGetProtocolName(secondURL)
             ) &&
             (
-                !explicitPortNumber ||
+                explicitPortNumber === null ||
                 explicitPortNumber === Tools.stringGetPortNumber(secondURL)
             )
         )
@@ -4087,7 +4117,7 @@ export class Tools<TElement = HTMLElement> {
      * @param url - Uniform resource locator to normalize.
      * @returns Normalized result.
      */
-    static stringNormalizeURL(url:any):string {
+    static stringNormalizeURL(url:string):string {
         if (typeof url === 'string') {
             url = url.replace(/^:?\/+/, '').replace(/\/+$/, '').trim()
             if (url.startsWith('http'))
@@ -4179,8 +4209,9 @@ export class Tools<TElement = HTMLElement> {
      * @returns Decoded html string.
      */
     static stringDecodeHTMLEntities(htmlString:string):null|string {
-        if ('document' in $.global) {
-            const textareaDomNode = $.global.document.createElement('textarea')
+        if ($.global.window && $.global.window.document) {
+            const textareaDomNode =
+                $.global.window.document.createElement('textarea')
             textareaDomNode.innerHTML = htmlString
             return textareaDomNode.value
         }
@@ -5687,7 +5718,7 @@ export class Tools<TElement = HTMLElement> {
         try {
             await fileSystem.mkdir(targetPath)
         } catch (error) {
-            if (!('code' in error && error.code === 'EEXIST'))
+            if (!('code' in error.code && error.code === 'EEXIST'))
                 throw error
         }
         for (
@@ -6186,8 +6217,8 @@ export const augment$ = (value:$Function):void => {
     $ = value
     if (!$.global)
         $.global = globalContext
-    if (!$.context && 'document' in $.global && $.global.document)
-        $.context = $.global.document
+    if (!$.context && $.global.window && $.global.window.document)
+        $.context = $.global.window.document
     if ($.fn)
         $.fn.Tools = function<TElement = HTMLElement>(
             this:$DomNode<TElement>, ...parameter:Array<any>
