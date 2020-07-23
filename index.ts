@@ -68,6 +68,7 @@ export const ConsoleOutputMethods = [
     'debug', 'error', 'info', 'log', 'warn'
 ] as const
 export const ValueCopySymbol = Symbol('Value')
+export const IgnoreNullAndUndefinedSymbol = Symbol('IgnoreNullAndUndefined')
 // region determine environment
 // / region context
 export const determineGlobalContext:(() => $Global) = ():$Global => {
@@ -2581,12 +2582,16 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns given target extended with all given sources.
      */
     static extend(
-        targetOrDeepIndicator:boolean|any, ...targetAndOrSources:Array<any>
+        targetOrDeepIndicator:typeof IgnoreNullAndUndefinedSymbol|boolean|any,
+        ...targetAndOrSources:Array<any>
     ):any {
         let index:number = 0
-        let deep:boolean = false
+        let deep:boolean|typeof IgnoreNullAndUndefinedSymbol = false
         let target:any
-        if (typeof targetOrDeepIndicator === 'boolean') {
+        if (
+            targetOrDeepIndicator === IgnoreNullAndUndefinedSymbol ||
+            typeof targetOrDeepIndicator === 'boolean'
+        ) {
             // Handle a deep copy situation and skip deep indicator and target.
             deep = targetOrDeepIndicator
             target = targetAndOrSources[index]
@@ -2637,7 +2642,16 @@ export class Tools<TElement = HTMLElement> {
                     typeof source === 'object'
                 ) {
                     for (const key in source)
-                        if (Object.prototype.hasOwnProperty.call(source, key))
+                        if (
+                            Object.prototype.hasOwnProperty.call(
+                                source, key
+                            ) &&
+                            !(
+                                targetOrDeepIndicator ===
+                                    IgnoreNullAndUndefinedSymbol &&
+                                [null, undefined].includes(source[key])
+                            )
+                        )
                             target[key] = mergeValue(target[key], source[key])
                 } else
                     target = source
