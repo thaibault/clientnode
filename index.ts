@@ -1938,11 +1938,13 @@ export class Tools<TElement = HTMLElement> {
             if (Object.prototype.hasOwnProperty.call(object, key))
                 if (Tools.isPlainObject(object[key]))
                     object[key] = Tools.convertSubstringInPlainObject(
-                        object[key], pattern, replacement)
+                        object[key], pattern, replacement
+                    )
                 else if (typeof object[key] === 'string')
                     (object[key] as unknown as string) =
                         (object[key] as unknown as string).replace(
-                            pattern, replacement)
+                            pattern, replacement
+                        )
         return object
     }
     /**
@@ -3215,7 +3217,8 @@ export class Tools<TElement = HTMLElement> {
                 for (const key in object)
                     if (Object.prototype.hasOwnProperty.call(object, key))
                         object[key] = Tools.unwrapProxy(
-                            object[key], seenObjects)
+                            object[key], seenObjects
+                        )
         }
         return object
     }
