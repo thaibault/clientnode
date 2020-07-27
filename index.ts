@@ -163,6 +163,8 @@ export let $:$Function = determine$()
  * @property numberOfFreeResources - Number free allowed concurrent resource
  * uses.
  * @property numberOfResources - Number of allowed concurrent resource uses.
+ *
+ * @property static:_name - Holds this class name (not minifyable).
  */
 export class Semaphore {
     queue:Array<Function> = []
