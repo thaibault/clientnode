@@ -25,7 +25,6 @@ import {
 } from 'node-fetch'
 
 import {
-    ExtendableOptions,
     File,
     GetterFunction,
     LockCallbackFunction,
@@ -257,7 +256,7 @@ export class Semaphore {
  * to dom nodes which should be visible if javaScript is available.
  */
 export class Tools<TElement = HTMLElement> {
-    // region static properties
+    // region static properti es
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href'
     ]
@@ -377,7 +376,7 @@ export class Tools<TElement = HTMLElement> {
     locks:Mapping<Array<LockCallbackFunction>>
 
     _defaultOptions:Options
-    _options:ExtendableOptions
+    _options:Options
     readonly _self:typeof Tools = Tools
     // endregion
     // region public methods
@@ -414,10 +413,7 @@ export class Tools<TElement = HTMLElement> {
         if ($domNode)
             this.$domNode = $domNode
         this._defaultOptions = defaultOptions
-        if (options)
-            this._options = options
-        else
-            this._options = this._defaultOptions
+        this._options = options ? options as Options : this._defaultOptions
         this.locks = locks
         // Avoid errors in browsers that lack a console.
         if (!$.global.console)
