@@ -377,7 +377,7 @@ export class Tools<TElement = HTMLElement> {
     locks:Mapping<Array<LockCallbackFunction>>
 
     _defaultOptions:Options
-    _options:Options
+    _options:RecursivePartial<Options>
     readonly _self:typeof Tools = Tools
     // endregion
     // region public methods
