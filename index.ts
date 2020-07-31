@@ -249,11 +249,11 @@ export class Semaphore {
  * should be active.
  * @property _defaultOptions.domNodeSelectorPrefix {string} - Selector prefix
  * for all needed dom nodes.
- * @property _defaultOptions.domNode {Object.<string, string>} - Mapping of
+ * @property _defaultOptions.domNodes {Object.<string, string>} - Mapping of
  * names to needed dom nodes referenced by there selector.
- * @property _defaultOptions.domNode.hideJavaScriptEnabled {string} - Selector
+ * @property _defaultOptions.domNodes.hideJavaScriptEnabled {string} - Selector
  * to dom nodes which should be hidden if javaScript is available.
- * @property _defaultOptions.domNode.showJavaScriptEnabled {string} - Selector
+ * @property _defaultOptions.domNodes.showJavaScriptEnabled {string} - Selector
  * to dom nodes which should be visible if javaScript is available.
  */
 export class Tools<TElement = HTMLElement> {
@@ -402,7 +402,7 @@ export class Tools<TElement = HTMLElement> {
         $domNode?:$DomNode<TElement>,
         options?:RecursivePartial<Options>,
         defaultOptions:Options = {
-            domNode: {
+            domNodes: {
                 hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
                 showJavaScriptEnabled: '.tools-visible-on-javascript-enabled'
             },
@@ -433,7 +433,7 @@ export class Tools<TElement = HTMLElement> {
             this._self._javaScriptDependentContentHandled = true
             $(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
-                this._defaultOptions.domNode.hideJavaScriptEnabled
+                this._defaultOptions.domNodes.hideJavaScriptEnabled
             )
                 .filter(
                     (index:number, domNode:HTMLElement):boolean =>
@@ -443,7 +443,7 @@ export class Tools<TElement = HTMLElement> {
                 .hide()
             $(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
-                this._defaultOptions.domNode.showJavaScriptEnabled
+                this._defaultOptions.domNodes.showJavaScriptEnabled
             )
                 .filter(
                     (index:number, domNode:HTMLElement):boolean =>

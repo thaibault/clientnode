@@ -81,11 +81,13 @@ export type ProcessCloseReason = {parameter:Array<any>;reason:any}
 export type ProcessCloseCallback = (reason:ProcessCloseReason) => void
 export type ProcessErrorCallback = (reason:ProcessError) => void
 export type RelativePosition = 'above'|'below'|'in'|'left'|'right'
+export type DomNodes<Type = string> = {
+    hideJavaScriptEnabled:Type;
+    showJavaScriptEnabled:Type;
+}
+export type $DomNodes = DomNodes<$DomNode>
 export type Options = {
-    domNode:{
-        hideJavaScriptEnabled:string;
-        showJavaScriptEnabled:string;
-    };
+    domNodes:DomNodes;
     domNodeSelectorPrefix:string;
     logging:boolean;
 }
