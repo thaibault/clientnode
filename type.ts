@@ -52,16 +52,8 @@ export type $Function =
         Tools:ToolsFunction;
     }
 export type $Global = typeof globalThis & {console:Console;$:$Function}
-export type Noop = (...parameter:Array<any>) => any
-export type Encoding = 'ascii'|'base64'|'binary'|'hex'|'latin1'|'ucs2'|'ucs-2'|'utf8'|'utf16le'|'utf-8'
-export type Mapping<T=string> = {[key:string]:T}
-export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
-export type ObjectMaskConfiguration = {exclude?:ObjectMask;include?:ObjectMask}
-export type Primitive = boolean|null|number|string|undefined
-export type PlainObject<T=Primitive> = {
-    [key:string]:Array<PlainObject<T>|T>|PlainObject<T>|T;
-}
-export type ProcedureFunction = (...parameter:Array<any>) => void|Promise<void>
+export type Encoding =
+    'ascii'|'base64'|'binary'|'hex'|'latin1'|'ucs2'|'ucs-2'|'utf8'|'utf16le'|'utf-8'
 export type File = {
     directoryPath:string;
     error:Error|null;
@@ -69,9 +61,20 @@ export type File = {
     path:string;
     stats:Stats|null;
 }
+export type Mapping<T=string> = {[key:string]:T}
+export type Noop = (...parameter:Array<any>) => any
+export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
+export type ObjectMaskConfiguration = {exclude?:ObjectMask;include?:ObjectMask}
+export type RecursivePartial<Type> = {
+    [Property in keyof Type]?:RecursivePartial<Type[Property]>;
+}
+export type Primitive = boolean|null|number|string|undefined
+export type PlainObject<T=Primitive> = {
+    [key:string]:Array<PlainObject<T>|T>|PlainObject<T>|T;
+}
+export type ProcedureFunction = (...parameter:Array<any>) => void|Promise<void>
 export type GetterFunction = (keyOrValue:any, key:any, target:any) => any
 export type SetterFunction = (key:any, value:any, target:any) => any
-
 export type Position = {bottom:number;left:number;right:number;top:number}
 export type ProcessHandler = (returnCode:any, ...parameter:Array<any>) => void
 export type ProcessCloseReason = {parameter:Array<any>;reason:any}
