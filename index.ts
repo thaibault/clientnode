@@ -400,7 +400,7 @@ export class Tools<TElement = HTMLElement> {
      */
     constructor(
         $domNode?:$DomNode<TElement>,
-        options?:Options,
+        options?:Partial<Options>,
         defaultOptions:Options = {
             domNode: {
                 hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
