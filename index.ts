@@ -40,6 +40,7 @@ import {
     ProcessErrorCallback,
     ProcessHandler,
     ProxyHandler,
+    RecursivePartial,
     RelativePosition,
     SetterFunction,
     TimeoutPromise,
@@ -399,7 +400,7 @@ export class Tools<TElement = HTMLElement> {
      */
     constructor(
         $domNode?:$DomNode<TElement>,
-        options?:Partial<Options>,
+        options?:RecursivePartial<Options>,
         defaultOptions:Options = {
             domNode: {
                 hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
