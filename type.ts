@@ -77,7 +77,7 @@ export type ProcessHandler = (returnCode:any, ...parameter:Array<any>) => void
 export type ProcessCloseReason = {parameter:Array<any>;reason:any}
 export type ProcessCloseCallback = (reason:ProcessCloseReason) => void
 export type ProcessErrorCallback = (reason:ProcessError) => void
-export type RelativePosition = 'in'|'above'|'left'|'below'|'right'
+export type RelativePosition = 'above'|'below'|'in'|'left'|'right'
 export type Options = {
     domNode:{
         hideJavaScriptEnabled:string;
@@ -85,14 +85,6 @@ export type Options = {
     };
     domNodeSelectorPrefix:string;
     logging:boolean;
-}
-export type ExtendableOptions = {
-    domNode?:{
-        hideJavaScriptEnabled?:string;
-        showJavaScriptEnabled?:string;
-    };
-    domNodeSelectorPrefix?:string;
-    logging?:boolean;
 }
 export type ProxyHandler = {
     deleteProperty:(target:any, key:any) => boolean;

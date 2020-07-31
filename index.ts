@@ -25,7 +25,6 @@ import {
 } from 'node-fetch'
 
 import {
-    ExtendableOptions,
     File,
     GetterFunction,
     LockCallbackFunction,
@@ -163,6 +162,8 @@ export let $:$Function = determine$()
  * @property numberOfFreeResources - Number free allowed concurrent resource
  * uses.
  * @property numberOfResources - Number of allowed concurrent resource uses.
+ *
+ * @property static:_name - Holds this class name (not minifyable).
  */
 export class Semaphore {
     queue:Array<Function> = []
@@ -255,7 +256,7 @@ export class Semaphore {
  * to dom nodes which should be visible if javaScript is available.
  */
 export class Tools<TElement = HTMLElement> {
-    // region static properties
+    // region static properti es
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href'
     ]
@@ -375,7 +376,7 @@ export class Tools<TElement = HTMLElement> {
     locks:Mapping<Array<LockCallbackFunction>>
 
     _defaultOptions:Options
-    _options:ExtendableOptions
+    _options:Options
     readonly _self:typeof Tools = Tools
     // endregion
     // region public methods
@@ -398,7 +399,7 @@ export class Tools<TElement = HTMLElement> {
      */
     constructor(
         $domNode?:$DomNode<TElement>,
-        options?:Options,
+        options?:Partial<Options>,
         defaultOptions:Options = {
             domNode: {
                 hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
@@ -412,10 +413,7 @@ export class Tools<TElement = HTMLElement> {
         if ($domNode)
             this.$domNode = $domNode
         this._defaultOptions = defaultOptions
-        if (options)
-            this._options = options
-        else
-            this._options = this._defaultOptions
+        this._options = options ? options as Options : this._defaultOptions
         this.locks = locks
         // Avoid errors in browsers that lack a console.
         if (!$.global.console)
@@ -1938,11 +1936,13 @@ export class Tools<TElement = HTMLElement> {
             if (Object.prototype.hasOwnProperty.call(object, key))
                 if (Tools.isPlainObject(object[key]))
                     object[key] = Tools.convertSubstringInPlainObject(
-                        object[key], pattern, replacement)
+                        object[key], pattern, replacement
+                    )
                 else if (typeof object[key] === 'string')
                     (object[key] as unknown as string) =
                         (object[key] as unknown as string).replace(
-                            pattern, replacement)
+                            pattern, replacement
+                        )
         return object
     }
     /**
@@ -3215,7 +3215,8 @@ export class Tools<TElement = HTMLElement> {
                 for (const key in object)
                     if (Object.prototype.hasOwnProperty.call(object, key))
                         object[key] = Tools.unwrapProxy(
-                            object[key], seenObjects)
+                            object[key], seenObjects
+                        )
         }
         return object
     }
