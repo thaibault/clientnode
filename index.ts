@@ -99,7 +99,7 @@ const fileSystem = synchronousFileSystem ?
     undefined
 const path = optionalRequire('path')
 // / endregion
-// / region $ 
+// / region $
 export const determine$:(() => $Function) = ():$Function => {
     let $:$Function|undefined
     if (globalContext.$ && globalContext.$ !== null)
@@ -112,10 +112,7 @@ export const determine$:(() => $Function) = ():$Function => {
             } catch (error) {}
             /* eslint-enable no-empty */
         if (typeof $ === 'undefined') {
-            const selector:any = (
-                globalContext.document &&
-                globalContext.document.querySelectorAll
-            ) ?
+            const selector:any = globalContext.document?.querySelectorAll ?
                 globalContext.document.querySelectorAll.bind(
                     globalContext.document
                 ) :
@@ -149,8 +146,12 @@ export const determine$:(() => $Function) = ():$Function => {
     }
     if (!$.global)
         $.global = globalContext
-    if (!$.context && $.global.window && $.global.window.document)
-        $.context = $.global.window.document
+    if ($.global.window) {
+        if (!$.document && $.global.window.document)
+            $.document = $.global.window.document
+        if (!$.location && $.global.window.location)
+            $.location = $.global.window.location
+    }
     return $
 }
 export let $:$Function = determine$()
@@ -318,9 +319,9 @@ export class Tools<TElement = HTMLElement> {
             NOTE: This method uses "Array.indexOf" instead of "Array.includes"
             since this function could be crucial in wide browser support.
         */
-        if (!($.global.window && $.global.window.document))
+        if (!$.document)
             return 0
-        const div = $.global.window.document.createElement('div')
+        const div = $.document.createElement('div')
         let version:number
         for (version = 0; version < 10; version++) {
             /*
@@ -344,9 +345,10 @@ export class Tools<TElement = HTMLElement> {
             if ($.global.window.navigator.appVersion.indexOf('MSIE 10') !== -1)
                 return 10
             else if (
-                $.global.window.navigator.userAgent.indexOf('Trident') !==
-                    -1 &&
-                $.global.window.navigator.userAgent.indexOf('rv:11') !== -1
+                ![
+                    $.global.window.navigator.userAgent.indexOf('Trident'),
+                    $.global.window.navigator.userAgent.indexOf('rv:11')
+                ].includes(-1)
             )
                 return 11
             /* eslint-enable @typescript-eslint/prefer-includes */
@@ -424,8 +426,7 @@ export class Tools<TElement = HTMLElement> {
                 $.global.console[methodName as keyof Console] = this._self.noop
         if (
             !this._self._javaScriptDependentContentHandled &&
-            $.global.window &&
-            $.global.window.document &&
+            $.document &&
             'filter' in $ &&
             'hide' in $ &&
             'show' in $
@@ -458,7 +459,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns the current instance.
      */
     destructor():Tools<TElement> {
-        if ($.fn && $.fn.off)
+        if (($.fn as {off?:Function})?.off)
             this.off('*')
         return this
     }
@@ -512,7 +513,7 @@ export class Tools<TElement = HTMLElement> {
         }
         const name:string = object.constructor._name || object.constructor.name
         parameter = this._self.arrayMake(parameter)
-        if ($domNode && $domNode.data && !$domNode.data(name))
+        if ($domNode?.data && !$domNode.data(name))
             // Attach extended object to the associated dom node.
             $domNode.data(name, object)
         if (
@@ -636,8 +637,7 @@ export class Tools<TElement = HTMLElement> {
         return (
             ![null, undefined].includes(object) &&
             typeof object === 'object' &&
-            'window' in object &&
-            object === object.window
+            object === object?.window
         )
     }
     /**
@@ -691,8 +691,8 @@ export class Tools<TElement = HTMLElement> {
      */
     static isPlainObject(object:any):object is PlainObject {
         return (
-            typeof object === 'object' &&
             object !== null &&
+            typeof object === 'object' &&
             Tools.plainObjectPrototypes.includes(Object.getPrototypeOf(object))
         )
     }
@@ -744,7 +744,7 @@ export class Tools<TElement = HTMLElement> {
             let relatedTarget:Element = event.toElement
             if (event.relatedTarget)
                 relatedTarget = event.relatedTarget
-            while (relatedTarget && relatedTarget.tagName !== 'BODY') {
+            while (relatedTarget?.tagName !== 'BODY') {
                 if (
                     relatedTarget === this || relatedTarget.parentNode === null
                 )
@@ -803,7 +803,7 @@ export class Tools<TElement = HTMLElement> {
                     !($.global.console && level in $.global.console) ||
                     ($.global.console[level] === this._self.noop)
                 ) {
-                    if ($.global.window && $.global.window.alert)
+                    if ($.global.window?.alert)
                         $.global.window.alert(message)
                 } else
                     $.global.console[level](message)
@@ -899,8 +899,8 @@ export class Tools<TElement = HTMLElement> {
      * @returns Nothing.
      */
     static deleteCookie(name:string):void {
-        if ($.global.window && $.global.window.document)
-            $.global.window.document.cookie = `${name}=; Max-Age=-99999999;`
+        if ($.document)
+            $.document.cookie = `${name}=; Max-Age=-99999999;`
     }
     /**
      * Gets a cookie value by given name.
@@ -908,10 +908,9 @@ export class Tools<TElement = HTMLElement> {
      * @returns Requested value.
      */
     static getCookie(name:string):string|null {
-        if ($.global.window && $.global.window.document) {
+        if ($.document) {
             const key = `${name}=`
-            const decodedCookie:string = decodeURIComponent(
-                $.global.window.document.cookie)
+            const decodedCookie:string = decodeURIComponent($.document.cookie)
             for (let date of decodedCookie.split(';')) {
                 while (date.startsWith(' '))
                     date = date.substring(1)
@@ -946,20 +945,15 @@ export class Tools<TElement = HTMLElement> {
         secure = true,
         httpOnly = false
     ):boolean {
-        if ($.global.window && $.global.window.document) {
+        if ($.document) {
             const now:Date = new Date()
             now.setTime(
                 now.getTime() +
                 (numberOfDaysUntilExpiration * 24 * 60 * 60 * 1000)
             )
-            if (
-                domain === '' &&
-                $.global.window &&
-                $.global.window.location &&
-                $.global.window.location.hostname
-            )
-                domain = $.global.window.location.hostname
-            $.global.window.document.cookie =
+            if (domain === '' && $.location?.hostname)
+                domain = $.location.hostname
+            $.document.cookie =
                 `${name}=${value};` +
                 `Expires="${now.toUTCString()};` +
                 `Path=${path};` +
@@ -1043,9 +1037,9 @@ export class Tools<TElement = HTMLElement> {
     get style():Mapping<number|string> {
         const result:Mapping<number|string> = {}
         const $domNode:null|$DomNode<TElement> = this.$domNode
-        if ($domNode && $domNode.length) {
+        if ($domNode?.length) {
             let styleProperties:any
-            if ($.global.window && $.global.window.getComputedStyle) {
+            if ($.global.window?.getComputedStyle) {
                 styleProperties = $.global.window.getComputedStyle(
                     $domNode[0] as unknown as Element, null
                 )
@@ -1203,8 +1197,7 @@ export class Tools<TElement = HTMLElement> {
         const $domNode:null|$DomNode<TElement> = this.$domNode
         if (
             $.global.window &&
-            $domNode &&
-            $domNode.length &&
+            $domNode?.length &&
             $domNode[0] &&
             'getBoundingClientRect' in $domNode[0]
         ) {
@@ -1402,10 +1395,8 @@ export class Tools<TElement = HTMLElement> {
             domNodes.parent = $(this._options.domNodeSelectorPrefix)
         if ($.global.window) {
             domNodes.window = $($.global.window as unknown as HTMLElement)
-            if ($.global.window.document)
-                domNodes.document = $(
-                    $.global.window.document as unknown as HTMLElement
-                )
+            if ($.document)
+                domNodes.document = $($.document as unknown as HTMLElement)
         }
         return domNodes
     }
@@ -1766,9 +1757,9 @@ export class Tools<TElement = HTMLElement> {
         if (getterWrapper || setterWrapper)
             for (const type of typesToExtend)
                 if (
+                    object !== null &&
                     typeof object === 'object' &&
-                    object instanceof type &&
-                    object !== null
+                    object instanceof type
                 ) {
                     const defaultHandler:ProxyHandler = Tools.getProxyHandler(
                         object, methodNames)
@@ -1821,7 +1812,7 @@ export class Tools<TElement = HTMLElement> {
         return JSON.stringify(
             object,
             (key:string, value:any):any => {
-                if (typeof value === 'object' && value !== null) {
+                if (value !== null && typeof value === 'object') {
                     if (seenObjects.includes(value))
                         return determineCicularReferenceValue(
                             key, value, seenObjects)
@@ -2417,8 +2408,8 @@ export class Tools<TElement = HTMLElement> {
                 if (
                     Object.prototype.hasOwnProperty.call(data, key) &&
                     key !== '__target__' &&
-                    typeof data[key] === 'object' &&
-                    data[key] !== null
+                    data[key] !== null &&
+                    typeof data[key] === 'object'
                 ) {
                     addProxyRecursively(data[key])
                     /*
@@ -2456,7 +2447,7 @@ export class Tools<TElement = HTMLElement> {
                                 }
                                 if (typeof key !== 'string') {
                                     const result:any = evaluate(resolvedTarget)
-                                    if (result[key] && result[key].call)
+                                    if (result[key]?.call)
                                         return result[key].bind(result)
                                     return result[key]
                                 }
@@ -2498,7 +2489,7 @@ export class Tools<TElement = HTMLElement> {
             return data
         }
         const resolve:Function = (data:any):any => {
-            if (typeof data === 'object' && data !== null) {
+            if (data !== null && typeof data === 'object') {
                 if (data.__target__) {
                     // NOTE: We have to skip "ownKeys" proxy trap here.
                     for (const type of [
@@ -2524,13 +2515,13 @@ export class Tools<TElement = HTMLElement> {
         }
         scope.resolve = resolve
         const removeProxyRecursively:Function = (data:any):any => {
-            if (typeof data === 'object' && data !== null)
+            if (data !== null && typeof data === 'object')
                 for (const key in data)
                     if (
                         Object.prototype.hasOwnProperty.call(data, key) &&
                         key !== '__target__' &&
-                        ['function', 'undefined'].includes(typeof data[key]) &&
-                        data[key] !== null
+                        data[key] !== null &&
+                        ['function', 'undefined'].includes(typeof data[key])
                     ) {
                         const target:any = data[key].__target__
                         if (typeof target !== 'undefined')
@@ -2539,7 +2530,7 @@ export class Tools<TElement = HTMLElement> {
                     }
             return data
         }
-        if (typeof object === 'object' && object !== null)
+        if (object !== null && typeof object === 'object')
             if (Object.prototype.hasOwnProperty.call(
                 object, expressionIndicatorKey
             ))
@@ -2614,10 +2605,9 @@ export class Tools<TElement = HTMLElement> {
                         targetValue :
                         new Map()
                 else
-                    clone = (
-                        targetValue &&
-                        Tools.isPlainObject(targetValue)
-                    ) ? targetValue : {}
+                    clone = (targetValue && Tools.isPlainObject(targetValue)) ?
+                        targetValue :
+                        {}
                 return Tools.extend(deep, clone, value)
             }
             return value
@@ -3237,8 +3227,7 @@ export class Tools<TElement = HTMLElement> {
     ):any {
         let result:any = defaultValue
         if (
-            data &&
-            data.length &&
+            data?.length &&
             Object.prototype.hasOwnProperty.call(data[0], propertyName)
         ) {
             result = data[0][propertyName]
@@ -3844,12 +3833,7 @@ export class Tools<TElement = HTMLElement> {
      */
     static stringHasPathPrefix(
         prefix:any|string = '/admin',
-        path:string = (
-            $.global.window &&
-            $.global.window.location &&
-            $.global.window.location.pathname ||
-            ''
-        ),
+        path:string = $.location?.pathname || '',
         separator:string = '/'
     ):boolean {
         if (typeof prefix === 'string') {
@@ -3874,17 +3858,8 @@ export class Tools<TElement = HTMLElement> {
      * @returns Extracted domain.
      */
     static stringGetDomainName(
-        url:string =
-            $.global.window &&
-            $.global.window.location &&
-            $.global.window.location.href ||
-            '',
-        fallback:any = (
-            $.global.window &&
-            $.global.window.location &&
-            $.global.window.location.hostname ||
-            ''
-        )
+        url:string = $.location?.href || '',
+        fallback:any = $.location?.hostname || ''
     ):any {
         const result:Array<string>|null =
             /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
@@ -3906,18 +3881,9 @@ export class Tools<TElement = HTMLElement> {
      * @returns Extracted port number.
      */
     static stringGetPortNumber(
-        url:string =
-            $.global.window &&
-            $.global.window.location &&
-            $.global.window.location.href ||
-            '',
-        fallback:null|number = (
-            $.global.window &&
-            $.global.window.location &&
-            $.global.window.location.port &&
-            typeof $.global.window.location.port === 'string'
-        ) ?
-            parseInt($.global.window.location.port) :
+        url:string = $.location?.href || '',
+        fallback:null|number = $.location?.port ?
+            parseInt($.location.port) :
             null,
         parameter:Array<string> = []
     ):null|number {
@@ -3929,12 +3895,10 @@ export class Tools<TElement = HTMLElement> {
             return fallback
         if (
             Tools.stringIsInternalURL(url, ...parameter) &&
-            $.global.window &&
-            $.global.window.location &&
-            $.global.window.location.port &&
-            parseInt($.global.window.location.port, 10)
+            $.location?.port &&
+            parseInt($.location.port, 10)
         )
-            return parseInt($.global.window.location.port, 10)
+            return parseInt($.location.port, 10)
         return (Tools.stringGetProtocolName(url) === 'https') ? 443 : 80
     }
     /**
@@ -3947,19 +3911,10 @@ export class Tools<TElement = HTMLElement> {
      * @returns Extracted protocol.
      */
     static stringGetProtocolName(
-        url:string =
-            $.global.window &&
-            $.global.window.location &&
-            $.global.window.location.href ||
-            '',
-        fallback:string =
-            $.global.window &&
-            $.global.window.location &&
-            $.global.window.location.protocol &&
-            $.global.window.location.protocol.substring(
-                0, $.global.window.location.protocol.length - 1
-            ) ||
-            ''
+        url:string = $.location?.href || '',
+        fallback:string = $.location?.protocol &&
+        $.location.protocol.substring(0, $.location.protocol.length - 1) ||
+        ''
     ):string {
         const result:Array<string>|null = /^([a-z]+):\/\//i.exec(url)
         if (result && result.length > 1 && result[1])
@@ -3999,16 +3954,10 @@ export class Tools<TElement = HTMLElement> {
         subDelimiter:string = '$',
         hashedPathIndicator:string = '!',
         givenSearch:null|string = null,
-        givenHash:string = (
-            $.global.window &&
-            $.global.window.location &&
-            typeof $.global.window.location.hash === 'string'
-        ) ?
-            $.global.window.location.hash :
-            ''
+        givenHash:string = $.location?.hash ?? ''
     ):Array<string>|null|string {
         // region set search and hash
-        let hash:string = (givenHash) ? givenHash : '#'
+        let hash:string = givenHash ?? '#'
         let search:string = ''
         if (givenSearch)
             search = givenSearch
@@ -4020,14 +3969,15 @@ export class Tools<TElement = HTMLElement> {
                 hash = ''
             } else {
                 pathAndSearch = hash.substring(
-                    hashedPathIndicator.length, subHashStartIndex)
+                    hashedPathIndicator.length, subHashStartIndex
+                )
                 hash = hash.substring(subHashStartIndex)
             }
             const subSearchStartIndex:number = pathAndSearch.indexOf('?')
             if (subSearchStartIndex !== -1)
                 search = pathAndSearch.substring(subSearchStartIndex)
-        } else if ($.global.window && $.global.window.location)
-            search = $.global.window.location.search || ''
+        } else if ($.location)
+            search = $.location.search || ''
         let input:string = givenInput ? givenInput : search
         // endregion
         // region determine data from search and hash if specified
@@ -4102,11 +4052,7 @@ export class Tools<TElement = HTMLElement> {
      */
     static stringIsInternalURL(
         firstURL:string,
-        secondURL:string =
-            $.global.window &&
-            $.global.window.location &&
-            $.global.window.location.href ||
-            ''
+        secondURL:string = $.location?.href || ''
     ):boolean {
         const explicitDomainName:string =
             Tools.stringGetDomainName(firstURL, '')
@@ -4225,9 +4171,8 @@ export class Tools<TElement = HTMLElement> {
      * @returns Decoded html string.
      */
     static stringDecodeHTMLEntities(htmlString:string):null|string {
-        if ($.global.window && $.global.window.document) {
-            const textareaDomNode =
-                $.global.window.document.createElement('textarea')
+        if ($.document) {
+            const textareaDomNode = $.document.createElement('textarea')
             textareaDomNode.innerHTML = htmlString
             return textareaDomNode.value
         }
@@ -4787,7 +4732,7 @@ export class Tools<TElement = HTMLElement> {
         marker:string = '<span class="tools-mark">{1}</span>',
         normalizer:Function = (value:any):string => `${value}`.toLowerCase()
     ):any {
-        if (typeof target === 'string' && words && words.length) {
+        if (typeof target === 'string' && words?.length) {
             target = target.trim()
             if (!Array.isArray(words))
                 words = [words]
@@ -5734,7 +5679,7 @@ export class Tools<TElement = HTMLElement> {
         try {
             await fileSystem.mkdir(targetPath)
         } catch (error) {
-            if (!('code' in error.code && error.code === 'EEXIST'))
+            if (error.code !== 'EEXIST')
                 throw error
         }
         for (
@@ -5744,14 +5689,11 @@ export class Tools<TElement = HTMLElement> {
             const currentTargetPath:string = path.join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
-            if (
-                currentSourceFile.stats &&
-                currentSourceFile.stats.isDirectory()
-            )
+            if (currentSourceFile.stats?.isDirectory())
                 try {
                     await fileSystem.mkdir(currentTargetPath)
                 } catch (error) {
-                    if (!('code' in error && error.code === 'EEXIST'))
+                    if (error.code !== 'EEXIST')
                         throw error
                 }
             else
@@ -5790,7 +5732,7 @@ export class Tools<TElement = HTMLElement> {
         try {
             synchronousFileSystem.mkdirSync(targetPath)
         } catch (error) {
-            if (!('code' in error && error.code === 'EEXIST'))
+            if (error.code !== 'EEXIST')
                 throw error
         }
         for (
@@ -5800,14 +5742,11 @@ export class Tools<TElement = HTMLElement> {
             const currentTargetPath:string = path.join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
-            if (
-                currentSourceFile.stats &&
-                currentSourceFile.stats.isDirectory()
-            )
+            if (currentSourceFile.stats?.isDirectory())
                 try {
                     synchronousFileSystem.mkdirSync(currentTargetPath)
                 } catch (error) {
-                    if (!('code' in error && error.code === 'EEXIST'))
+                    if (error.code !== 'EEXIST')
                         throw error
                 }
             else
@@ -5995,18 +5934,14 @@ export class Tools<TElement = HTMLElement> {
                         return 0
                     return 1
                 }
-                if (firstFile.stats && firstFile.stats.isDirectory()) {
-                    if (
-                        secondFile.error ||
-                        secondFile.stats &&
-                        secondFile.stats.isDirectory()
-                    )
+                if (firstFile.stats?.isDirectory()) {
+                    if (secondFile.error || secondFile.stats?.isDirectory())
                         return 0
                     return -1
                 }
                 if (secondFile.error)
                     return -1
-                if (secondFile.stats && secondFile.stats.isDirectory())
+                if (secondFile.stats?.isDirectory())
                     return 1
                 return 0
             })
@@ -6016,11 +5951,7 @@ export class Tools<TElement = HTMLElement> {
             const result:any = callback(file)
             if (result === null)
                 break
-            if (
-                result !== false &&
-                file.stats &&
-                file.stats.isDirectory()
-            )
+            if (result !== false && file.stats?.isDirectory())
                 finalFiles = finalFiles.concat(
                     Tools.walkDirectoryRecursivelySync(file.path, callback))
         }
@@ -6070,18 +6001,14 @@ export class Tools<TElement = HTMLElement> {
                         return 0
                     return 1
                 }
-                if (firstFile.stats && firstFile.stats.isDirectory()) {
-                    if (
-                        secondFile.error ||
-                        secondFile.stats &&
-                        secondFile.stats.isDirectory()
-                    )
+                if (firstFile.stats?.isDirectory()) {
+                    if (secondFile.error || secondFile.stats?.isDirectory())
                         return 0
                     return -1
                 }
                 if (secondFile.error)
                     return -1
-                if (secondFile.stats && secondFile.stats.isDirectory())
+                if (secondFile.stats?.isDirectory())
                     return 1
                 return 0
             })
@@ -6091,13 +6018,10 @@ export class Tools<TElement = HTMLElement> {
             const result:any = callback(file)
             if (result === null)
                 break
-            if (
-                result !== false &&
-                file.stats &&
-                file.stats.isDirectory()
-            )
+            if (result !== false && file.stats?.isDirectory())
                 finalFiles = finalFiles.concat(
-                    Tools.walkDirectoryRecursivelySync(file.path, callback))
+                    Tools.walkDirectoryRecursivelySync(file.path, callback)
+                )
         }
         return finalFiles
     }
@@ -6233,8 +6157,12 @@ export const augment$ = (value:$Function):void => {
     $ = value
     if (!$.global)
         $.global = globalContext
-    if (!$.context && $.global.window && $.global.window.document)
-        $.context = $.global.window.document
+    if ($.global.window) {
+        if (!$.document && $.global.window.document)
+            $.document = $.global.window.document
+        if (!$.location && $.global.window.location)
+            $.location = $.global.window.location
+    }
     if ($.fn)
         $.fn.Tools = function<TElement = HTMLElement>(
             this:$DomNode<TElement>, ...parameter:Array<any>
