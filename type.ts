@@ -47,8 +47,9 @@ export type $Function =
     StaticScope &
     ((parameter:any, ...additionalArguments:Array<any>) => any) &
     {
-        context?:Document;
+        document?:Document;
         global:$Global;
+        location?:Location;
         Tools:ToolsFunction;
     }
 export type $Global = typeof globalThis & {console:Console;$:$Function}
