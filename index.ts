@@ -2703,24 +2703,24 @@ export class Tools<TElement = HTMLElement> {
             methodNames
         )
         return {
-            deleteProperty: (targetObject:any, key:string|Symbol):boolean => {
+            deleteProperty: (targetObject:any, key:string|symbol):boolean => {
                 if (methodNames.delete === '[]' && typeof key === 'string')
                     delete target[key]
                 else
                     return target[methodNames.delete](key)
                 return true
             },
-            get: (targetObject:any, key:string|Symbol):any => {
+            get: (targetObject:any, key:string|symbol):any => {
                 if (methodNames.get === '[]' && typeof key === 'string')
                     return target[key]
                 return target[methodNames.get](key)
             },
-            has: (targetObject:any, key:string|Symbol):boolean => {
+            has: (targetObject:any, key:string|symbol):boolean => {
                 if (methodNames.has === '[]')
                     return key in target
                 return target[methodNames.has](key)
             },
-            set: (targetObject:any, key:string|Symbol, value:any):boolean => {
+            set: (targetObject:any, key:string|symbol, value:any):boolean => {
                 if (methodNames.set === '[]' && typeof key === 'string')
                     target[key] = value
                 else
