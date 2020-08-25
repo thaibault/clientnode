@@ -431,8 +431,8 @@ export class Tools<TElement = HTMLElement> {
             'hide' in $ &&
             'show' in $
         ) {
-            this._self._javaScriptDependentContentHandled = true
-            $(
+            this._self._javaScriptDependentContentHandled = true;
+            ($ as $Function)(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNodes.hideJavaScriptEnabled
             )
@@ -441,8 +441,8 @@ export class Tools<TElement = HTMLElement> {
                         !$(domNode).data('javaScriptDependentContentHide')
                 )
                 .data('javaScriptDependentContentHide', true)
-                .hide()
-            $(
+                .hide();
+            ($ as $Function)(
                 `${this._defaultOptions.domNodeSelectorPrefix} ` +
                 this._defaultOptions.domNodes.showJavaScriptEnabled
             )
