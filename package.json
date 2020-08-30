@@ -23,6 +23,7 @@
   "files": [
     "index.ts",
     "property-types.ts",
+    "property-types.js",
     "type.ts"
   ],
   "main": "index.js",
@@ -105,6 +106,12 @@
     "files": {
       "compose": {
         "cascadingStyleSheet": null
+      }
+    },
+    "injection": {
+      "entry": {
+        "index": "./index.ts",
+        "property-types": "./property-types.ts"
       }
     },
     "module": {
