@@ -63,6 +63,7 @@
     "@types/loader-utils": "*",
     "@types/node": "*",
     "@types/node-fetch": "*",
+    "@types/prop-types": "*",
     "@typescript-eslint/eslint-plugin": "*",
     "@typescript-eslint/parser": "*",
     "babel-eslint": "*",
@@ -112,8 +113,7 @@
     },
     "injection": {
       "entry": {
-        "index": "./index.ts",
-        "property-types": "./property-types.ts"
+        "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2].startsWith('test') ?  {index: './test'} : {index: './index.ts', 'property-types': './property-types.ts'}"
       }
     },
     "module": {

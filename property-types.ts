@@ -20,7 +20,7 @@
 import {Mapping, ValueOf} from 'clientnode/type'
 import PropTypes from 'prop-types'
 // endregion
-let Types:Mapping<ValueOf<(() => void)|PropertyTypes>>
+let Types:Mapping<(() => void)|ValueOf<typeof PropTypes>>
 if (process.env.NODE_ENV === 'production') {
     Types = {}
     for (const name of Object.keys(PropTypes))
@@ -48,7 +48,7 @@ export const shape = Types.shape
 export const string = Types.string
 export const symbol = Types.symbol
 
-export const PropertyTypes:typeof PropTypes = Types
+export const PropertyTypes:typeof Types = Types
 export default PropertyTypes
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
