@@ -2693,15 +2693,13 @@ export class Tools<TElement = HTMLElement> {
      * @returns Determined proxy handler.
      */
     static getProxyHandler(target:any, methodNames:Mapping = {}):ProxyHandler {
-        methodNames = Tools.extend(
-            {
-                delete: '[]',
-                get: '[]',
-                has: '[]',
-                set: '[]'
-            },
-            methodNames
-        )
+        methodNames = {
+            delete: '[]',
+            get: '[]',
+            has: '[]',
+            set: '[]',
+            ...methodNames
+        }
         return {
             deleteProperty: (targetObject:any, key:string|symbol):boolean => {
                 if (methodNames.delete === '[]' && typeof key === 'string')
@@ -2739,7 +2737,7 @@ export class Tools<TElement = HTMLElement> {
      * modified a flat copy of that object will be returned.
      */
     static maskObject(object:object, mask:ObjectMaskConfiguration):object {
-        mask = Tools.extend({exclude: false, include: true}, mask)
+        mask = {exclude: false, include: true, ...mask}
         if (
             mask.exclude === true ||
             mask.include === false ||
