@@ -74,6 +74,7 @@
     "jquery": "*",
     "jsdoc": "*",
     "node-fetch": "*",
+    "prop-types": "*",
     "rimraf": "*",
     "weboptimizer": "*",
     "webpack": "*",
@@ -82,7 +83,8 @@
   },
   "peerDependencies": {
     "@babel/runtime": "*",
-    "jquery": "*"
+    "jquery": "*",
+    "prop-types": "*"
   },
   "sideEffects": false,
   "webOptimizer": {
