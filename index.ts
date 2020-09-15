@@ -3055,7 +3055,8 @@ export class Tools<TElement = HTMLElement> {
             for (const item of object) {
                 if (firstSeen)
                     result += ','
-                result += `\n${initialIndention}${indention}` +
+                result +=
+                    `\n${initialIndention}${indention}` +
                     Tools.represent(
                         item,
                         indention,
