@@ -17,33 +17,13 @@
     endregion
 */
 // region imports
-import {Mapping, ValueOf} from 'clientnode/type'
-import PropTypes from 'prop-types'
+import PropTypes, {Requireable} from 'prop-types'
+
+import Tools from './index'
+import {Mapping, ValueOf} from './type'
 // endregion
 
-export const DummyTypes:Mapping<(() => void)> = {
-    any: ():void => {},
-    array: ():void => {},
-    arrayOf: ():void => {},
-    bool: ():void => {},
-    boolean: ():void => {},
-    element: ():void => {},
-    elementType: ():void => {},
-    exact: ():void => {},
-    func: ():void => {},
-    instanceOf: ():void => {},
-    node: ():void => {},
-    number: ():void => {},
-    object: ():void => {},
-    objectOf: ():void => {},
-    oneOf: ():void => {},
-    oneOfType: ():void => {},
-    shape: ():void => {},
-    string: ():void => {},
-    symbol: ():void => {}
-} as const
-
-export const RealTypes:Mapping<ValueOf<typeof PropTypes>> = {
+export const RealTypes = {
     any: PropTypes.any,
     array: PropTypes.array,
     arrayOf: PropTypes.arrayOf,
@@ -65,7 +45,14 @@ export const RealTypes:Mapping<ValueOf<typeof PropTypes>> = {
     symbol: PropTypes.symbol
 } as const
 
-export const PropertyTypes:typeof DummyTypes|typeof RealTypes = 
+/*
+    NOTE: Each value has to be different (a real copy) to distinguish them from
+    each other during runtime property reflections.
+    Strict equality checks between different values have to be negative.
+*/
+export const DummyTypes:typeof RealTypes = Tools.copy(RealTypes, 1)
+
+export const PropertyTypes:typeof RealTypes =
     (process.env.NODE_ENV === 'production') ? DummyTypes : RealTypes
 
 export const any = PropertyTypes.any
