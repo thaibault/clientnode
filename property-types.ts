@@ -20,35 +20,74 @@
 import {Mapping, ValueOf} from 'clientnode/type'
 import PropTypes from 'prop-types'
 // endregion
-let Types:Mapping<(() => void)|ValueOf<typeof PropTypes>>
-if (process.env.NODE_ENV === 'production') {
-    Types = {}
-    for (const name of Object.keys(PropTypes))
-        Types[name] = ():void => {}
-} else
-    Types = PropTypes
 
-export const any = Types.any
-export const array = Types.array
-export const arrayOf = Types.arrayOf
-export const bool = Types.bool
-export const boolean = Types.bool
-export const element = Types.element
-export const elementType = Types.elementType
-export const instanceOf = Types.instanceOf
-export const func = Types.func
-export const node = Types.node
-export const number = Types.number
-export const object = Types.object
-export const objectOf = Types.objectOf
-export const oneOf = Types.oneOf
-export const oneOfType = Types.oneOfType
-export const exact = Types.exact
-export const shape = Types.shape
-export const string = Types.string
-export const symbol = Types.symbol
+export const DummyTypes:Mapping<(() => void)> = {
+    any: ():void => {},
+    array: ():void => {},
+    arrayOf: ():void => {},
+    bool: ():void => {},
+    boolean: ():void => {},
+    element: ():void => {},
+    elementType: ():void => {},
+    exact: ():void => {},
+    func: ():void => {},
+    instanceOf: ():void => {},
+    node: ():void => {},
+    number: ():void => {},
+    object: ():void => {},
+    objectOf: ():void => {},
+    oneOf: ():void => {},
+    oneOfType: ():void => {},
+    shape: ():void => {},
+    string: ():void => {},
+    symbol: ():void => {}
+} as const
 
-export const PropertyTypes:typeof Types = Types
+export const RealTypes:Mapping<ValueOf<typeof PropTypes>> = {
+    any: PropTypes.any,
+    array: PropTypes.array,
+    arrayOf: PropTypes.arrayOf,
+    bool: PropTypes.bool,
+    boolean: PropTypes.bool,
+    element: PropTypes.element,
+    elementType: PropTypes.elementType,
+    exact: PropTypes.exact,
+    func: PropTypes.func,
+    instanceOf: PropTypes.instanceOf,
+    node: PropTypes.node,
+    number: PropTypes.number,
+    object: PropTypes.object,
+    objectOf: PropTypes.objectOf,
+    oneOf: PropTypes.oneOf,
+    oneOfType: PropTypes.oneOfType,
+    shape: PropTypes.shape,
+    string: PropTypes.string,
+    symbol: PropTypes.symbol
+} as const
+
+export const PropertyTypes:typeof DummyTypes|typeof RealTypes = 
+    (process.env.NODE_ENV === 'production') ? DummyTypes : RealTypes
+
+export const any = PropertyTypes.any
+export const array = PropertyTypes.array
+export const arrayOf = PropertyTypes.arrayOf
+export const bool = PropertyTypes.bool
+export const boolean = PropertyTypes.bool
+export const element = PropertyTypes.element
+export const elementType = PropertyTypes.elementType
+export const exact = PropertyTypes.exact
+export const func = PropertyTypes.func
+export const instanceOf = PropertyTypes.instanceOf
+export const node = PropertyTypes.node
+export const number = PropertyTypes.number
+export const object = PropertyTypes.object
+export const objectOf = PropertyTypes.objectOf
+export const oneOf = PropertyTypes.oneOf
+export const oneOfType = PropertyTypes.oneOfType
+export const shape = PropertyTypes.shape
+export const string = PropertyTypes.string
+export const symbol = PropertyTypes.symbol
+
 export default PropertyTypes
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
