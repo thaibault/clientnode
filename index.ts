@@ -3528,7 +3528,8 @@ export class Tools<TElement = HTMLElement> {
         if (![null, undefined].includes(object))
             if (Tools.isArrayLike(Object(object)))
                 Tools.arrayMerge(
-                    result, typeof object === 'string' ? [object] : object)
+                    result, typeof object === 'string' ? [object] : object
+                )
             else
                 result.push(object)
         return result
