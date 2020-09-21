@@ -66,6 +66,9 @@ export type Mapping<T=string> = {[key:string]:T}
 export type Noop = (...parameter:Array<any>) => any
 export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
 export type ObjectMaskConfiguration = {exclude?:ObjectMask;include?:ObjectMask}
+export type RecursiveNonNullable<Type> = {
+    [Key in keyof NonNullable<Type>]:RecursiveNonNullable<NonNullable<Type>[Key]>
+} & {[RNN_ORIG]:Type}
 export type RecursivePartial<Type> = {
     [Property in keyof Type]?:
         Type[Property] extends (infer OtherType)[] ?
