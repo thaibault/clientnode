@@ -2310,11 +2310,6 @@ babel-plugin-syntax-exponentiation-operator@^6.8.0:
   resolved "https://registry.yarnpkg.com/babel-plugin-syntax-exponentiation-operator/-/babel-plugin-syntax-exponentiation-operator-6.13.0.tgz#9ee7e8337290da95288201a6a57f4170317830de"
   integrity sha1-nufoM3KQ2pUoggGmpX9BcDF4MN4=
 
-babel-plugin-syntax-optional-chaining@7.0.0-beta.3:
-  version "7.0.0-beta.3"
-  resolved "https://registry.yarnpkg.com/babel-plugin-syntax-optional-chaining/-/babel-plugin-syntax-optional-chaining-7.0.0-beta.3.tgz#0abab5055caddd68d099263c2d65ad5d5da97e3d"
-  integrity sha512-aYGg45Pdl+i9X7Jq6lpIJ6wkcb0B+Lc24nZnEqQNHLAmj/HjRLPhr3I9V8pUKVc/k+MB0qGAKuwwTJXOVvi48g==
-
 babel-plugin-syntax-trailing-function-commas@^6.22.0:
   version "6.22.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-syntax-trailing-function-commas/-/babel-plugin-syntax-trailing-function-commas-6.22.0.tgz#ba0360937f8d06e40180a43fe0d5616fff532cf3"
@@ -2554,13 +2549,6 @@ babel-plugin-transform-modern-regexp@*:
   integrity sha512-DCCahkmEpqKDrHMKs/Cd6La4AQLnjoPwJAolzDIuLHkI8SFZLyleUwLfsUGxKMV9iJnsPtY0YWd1RpAbv2YFLg==
   dependencies:
     regexp-tree "^0.0.85"
-
-babel-plugin-transform-optional-chaining@7.0.0-beta.3:
-  version "7.0.0-beta.3"
-  resolved "https://registry.yarnpkg.com/babel-plugin-transform-optional-chaining/-/babel-plugin-transform-optional-chaining-7.0.0-beta.3.tgz#ffc7e1027e5720857e9b4f2e3b2115589b734218"
-  integrity sha512-ZTPWc2ZoXNRpKLyvC6jktG3Nhf0HxUpAv4yo0UCNrWeFraL33axgHPIjCduc3YylcukoXima1wMWepL/cgz87g==
-  dependencies:
-    babel-plugin-syntax-optional-chaining "7.0.0-beta.3"
 
 babel-plugin-transform-property-literals@^6.9.4:
   version "6.9.4"
@@ -3290,9 +3278,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.526"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.526.tgz#fd099f6ac270e38b72eb8357fa74781d3e93b7b4"
-  integrity sha512-ihiB29Aeow/lbhdQmfd+PpzlWEqZh+E8+QgCg1N/GZ+DnjnjGDJbyMgYDkEONXO5x7Vf6liMeH/22wkMcQPs3A==
+  version "3.0.527"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.527.tgz#a5cb3cccef0000a98222e61cc869fbc744026cd6"
+  integrity sha512-j0OD2zDvGUBOhuMwOiamEldjSvrsN9rgduJPvHHaUHTmxxmsfuv+hob+2tqA3v++EAXJESmnKk59z0E1KpdmoQ==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -9277,9 +9265,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.734"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.734.tgz#3f68a1a5887f6ce566dde695161abb0b9e4c2724"
-  integrity sha512-yk8UngJH75AkdbSBHB5bH6RMLlynwtsBb/jzE46q52107JxSZPijQ7K/r6PmOSfHf2GGY6KavV53UIe7Z+8Meg==
+  version "2.0.737"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.737.tgz#7c0af16deb1ba60760f59cf629b52254dfda37dd"
+  integrity sha512-0BCZsxqsIWBMSUR3ff8qfUrntxlSrubMbLOO37Qk7P70NKmYUD0OtBkLscIGPJVq8L7/akRhqiptq4VDUPhOeg==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
@@ -9290,7 +9278,6 @@ weboptimizer@*:
     add-asset-html-webpack-plugin "*"
     babel-loader "*"
     babel-plugin-transform-modern-regexp "*"
-    babel-plugin-transform-optional-chaining "7.0.0-beta.3"
     babel-plugin-transform-with "*"
     babel-preset-minify "*"
     clientnode "*"
