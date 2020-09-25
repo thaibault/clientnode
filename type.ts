@@ -66,13 +66,25 @@ export type Mapping<T=string> = {[key:string]:T}
 export type Noop = (...parameter:Array<any>) => any
 export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
 export type ObjectMaskConfiguration = {exclude?:ObjectMask;include?:ObjectMask}
+export type RecursiveNonNullable<Type> = {
+    [Property in keyof Type]:
+        Type[Property] extends (infer OtherType)[] ?
+            RecursiveNonNullable<OtherType>[] :
+            Type[Property] extends Function ?
+                Type[Property] :
+                Type[Property] extends object ?
+                    RecursiveNonNullable<Type[Property]> :
+                    Type[Property];
+}
 export type RecursivePartial<Type> = {
     [Property in keyof Type]?:
         Type[Property] extends (infer OtherType)[] ?
             RecursivePartial<OtherType>[] :
-            Type[Property] extends object ?
-                RecursivePartial<Type[Property]> :
-                Type[Property];
+            Type[Property] extends Function ?
+                Type[Property] :
+                Type[Property] extends object ?
+                    RecursivePartial<Type[Property]> :
+                    Type[Property];
 }
 export type Primitive = boolean|null|number|string|undefined
 export type PlainObject<T=Primitive> = {

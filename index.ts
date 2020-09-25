@@ -3528,7 +3528,8 @@ export class Tools<TElement = HTMLElement> {
         if (![null, undefined].includes(object))
             if (Tools.isArrayLike(Object(object)))
                 Tools.arrayMerge(
-                    result, typeof object === 'string' ? [object] : object)
+                    result, typeof object === 'string' ? [object] : object
+                )
             else
                 result.push(object)
         return result
@@ -3784,11 +3785,14 @@ export class Tools<TElement = HTMLElement> {
     static stringConvertToValidVariableName(
         name:string, allowedSymbols:string = '0-9a-zA-Z_$'
     ):string {
-        return name.toString().replace(/^[^a-zA-Z_$]+/, '').replace(
-            new RegExp(`[^${allowedSymbols}]+([a-zA-Z0-9])`, 'g'),
-            (fullMatch:string, firstLetter:string):string =>
-                firstLetter.toUpperCase()
-        )
+        return name
+            .toString()
+            .replace(/^[^a-zA-Z_$]+/, '')
+            .replace(
+                new RegExp(`[^${allowedSymbols}]+([a-zA-Z0-9])`, 'g'),
+                (fullMatch:string, firstLetter:string):string =>
+                    firstLetter.toUpperCase()
+            )
     }
     /**
      * This method is intended for encoding *key* or *value* parts of query
