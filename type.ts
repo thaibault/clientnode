@@ -27,18 +27,18 @@ export type ToolsFunction<TElement = HTMLElement> =
     ((...parameter:Array<any>) => any|Tools<TElement>) & {class:typeof Tools}
 // / region interfaces
 export interface Scope<TElement = HTMLElement> extends Iterable<TElement> {
-    Tools:ToolsFunction<TElement>;
+    Tools:ToolsFunction<TElement>
 }
 declare global {
     interface JQuery<TElement = HTMLElement> extends Scope<TElement> {}
 }
 export interface ProcessError extends Error {
-    parameter:Array<any>;
-    returnCode:number;
+    parameter:Array<any>
+    returnCode:number
 }
 export interface TimeoutPromise extends Promise<boolean> {
-    clear:() => void;
-    timeoutID:number;
+    clear:() => void
+    timeoutID:number
 }
 // / endregion
 export type HTMLItem = Comment|Document|HTMLElement|Text
@@ -47,25 +47,28 @@ export type $Function =
     StaticScope &
     ((parameter:any, ...additionalArguments:Array<any>) => any) &
     {
-        document?:Document;
-        global:$Global;
-        location?:Location;
-        Tools:ToolsFunction;
+        document?:Document
+        global:$Global
+        location?:Location
+        Tools:ToolsFunction
     }
-export type $Global = typeof globalThis & {console:Console;$:$Function}
+export type $Global = typeof globalThis & {console:Console$:$Function}
 export type Encoding =
     'ascii'|'base64'|'binary'|'hex'|'latin1'|'ucs2'|'ucs-2'|'utf8'|'utf16le'|'utf-8'
 export type File = {
-    directoryPath:string;
-    error:Error|null;
-    name:string;
-    path:string;
-    stats:Stats|null;
+    directoryPath:string
+    error:Error|null
+    name:string
+    path:string
+    stats:Stats|null
 }
 export type Mapping<T=string> = {[key:string]:T}
 export type Noop = (...parameter:Array<any>) => any
 export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
-export type ObjectMaskConfiguration = {exclude?:ObjectMask;include?:ObjectMask}
+export type ObjectMaskConfiguration = {
+    exclude?:ObjectMask
+    include?:ObjectMask
+}
 export type RecursiveNonNullable<Type> = {
     [Property in keyof Type]:
         Type[Property] extends (infer OtherType)[] ?
@@ -74,7 +77,7 @@ export type RecursiveNonNullable<Type> = {
                 Type[Property] :
                 Type[Property] extends object ?
                     RecursiveNonNullable<Type[Property]> :
-                    Type[Property];
+                    Type[Property]
 }
 export type RecursivePartial<Type> = {
     [Property in keyof Type]?:
@@ -84,36 +87,44 @@ export type RecursivePartial<Type> = {
                 Type[Property] :
                 Type[Property] extends object ?
                     RecursivePartial<Type[Property]> :
-                    Type[Property];
+                    Type[Property]
 }
 export type Primitive = boolean|null|number|string|undefined
 export type PlainObject<T=Primitive> = {
-    [key:string]:Array<PlainObject<T>|T>|PlainObject<T>|T;
+    [key:string]:Array<PlainObject<T>|T>|PlainObject<T>|T
 }
 export type ProcedureFunction = (...parameter:Array<any>) => void|Promise<void>
 export type GetterFunction = (keyOrValue:any, key:any, target:any) => any
 export type SetterFunction = (key:any, value:any, target:any) => any
-export type Position = {bottom:number;left:number;right:number;top:number}
+export type Position = {
+    bottom:number
+    left:number
+    right:number
+    top:number
+}
 export type ProcessHandler = (returnCode:any, ...parameter:Array<any>) => void
-export type ProcessCloseReason = {parameter:Array<any>;reason:any}
+export type ProcessCloseReason = {
+    parameter:Array<any>
+    reason:any
+}
 export type ProcessCloseCallback = (reason:ProcessCloseReason) => void
 export type ProcessErrorCallback = (reason:ProcessError) => void
 export type RelativePosition = 'above'|'below'|'in'|'left'|'right'
 export type DomNodes<Type = string> = {
-    hideJavaScriptEnabled:Type;
-    showJavaScriptEnabled:Type;
+    hideJavaScriptEnabled:Type
+    showJavaScriptEnabled:Type
 }
 export type $DomNodes = DomNodes<$DomNode>
 export type Options = {
-    domNodes:DomNodes;
-    domNodeSelectorPrefix:string;
-    logging:boolean;
+    domNodes:DomNodes
+    domNodeSelectorPrefix:string
+    logging:boolean
 }
 export type ProxyHandler = {
-    deleteProperty:(target:any, key:any) => boolean;
-    get:(target:any, key:string) => any;
-    has:(target:any, key:string) => boolean;
-    set:(target:any, key:string, value:any) => boolean;
+    deleteProperty:(target:any, key:any) => boolean
+    get:(target:any, key:string) => any
+    has:(target:any, key:string) => boolean
+    set:(target:any, key:string, value:any) => boolean
 }
 export type LockCallbackFunction = (description:string) => Promise<any>|void
 export type ValueOf<Type> = Type[keyof Type]
