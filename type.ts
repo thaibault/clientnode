@@ -52,7 +52,10 @@ export type $Function =
         location?:Location
         Tools:ToolsFunction
     }
-export type $Global = typeof globalThis & {console:Console$:$Function}
+export type $Global = typeof globalThis & {
+    console:Console
+    $:$Function
+}
 export type Encoding =
     'ascii'|'base64'|'binary'|'hex'|'latin1'|'ucs2'|'ucs-2'|'utf8'|'utf16le'|'utf-8'
 export type File = {
