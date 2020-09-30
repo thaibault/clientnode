@@ -14,15 +14,6 @@
     endregion
 */
 // region imports
-import Tools, {globalContext, Semaphore, $} from './index'
-import {
-    File,
-    Mapping,
-    ObjectMaskConfiguration,
-    PlainObject,
-    TimeoutPromise,
-    $DomNode
-} from './type'
 if (!('fetch' in globalContext))
     try {
         globalContext.fetch = eval('require')('node-fetch')
@@ -34,6 +25,16 @@ try {
 } catch (error) {}
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
+
+import Tools, {globalContext, Semaphore, $} from './index'
+import {
+    File,
+    Mapping,
+    ObjectMaskConfiguration,
+    PlainObject,
+    TimeoutPromise,
+    $DomNode
+} from './type'
 // endregion
 // region declaration
 declare var TARGET_TECHNOLOGY:string
