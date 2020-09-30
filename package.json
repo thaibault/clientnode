@@ -113,7 +113,7 @@
     },
     "injection": {
       "entry": {
-        "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2].startsWith('test') ? {index: './test'} : {index: './index.ts', 'property-types': './property-types.ts'}"
+        "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2].startsWith('test') ? './test.ts' : {index: './index.ts', 'property-types': './property-types.ts'}"
       }
     },
     "module": {
