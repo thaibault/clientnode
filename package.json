@@ -46,7 +46,7 @@
     "report:coverage": "nyc report --reporter=text-lcov | coveralls",
     "serve": "weboptimizer serve",
     "start": "yarn serve",
-    "test": "weboptimizer test",
+    "test": "yarn build; weboptimizer test",
     "test:browser": "weboptimizer test:browser",
     "update": "yarn version --patch && yarn publish",
     "update:documentation": "documentationWebsite --log-level info",
