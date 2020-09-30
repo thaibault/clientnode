@@ -18,11 +18,7 @@
 */
 // region imports
 import PropTypes, {Requireable} from 'prop-types'
-
-import Tools from './index'
-import {Mapping, ValueOf} from './type'
 // endregion
-
 export const RealTypes = {
     any: PropTypes.any,
     array: PropTypes.array,
@@ -50,7 +46,7 @@ export const RealTypes = {
     each other during runtime property reflections.
     Strict equality checks between different values have to be negative.
 */
-export const DummyTypes:typeof RealTypes = Tools.copy(RealTypes, 1)
+export const DummyTypes:typeof RealTypes = {...RealTypes}
 
 export const PropertyTypes:typeof RealTypes =
     (process.env.NODE_ENV === 'production') ? DummyTypes : RealTypes
