@@ -3121,9 +3121,9 @@ camelcase@^6.0.0:
   integrity sha512-8KMDF1Vz2gzOq54ONPJS65IvTUaB1cHJ2DMM7MbPmLZljDH1qpzzLsWdiN9pHh6qvkRVDTi/07+eNGch/oLU4w==
 
 caniuse-lite@^1.0.30000844, caniuse-lite@^1.0.30001135:
-  version "1.0.30001144"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001144.tgz#bca0fffde12f97e1127a351fec3bfc1971aa3b3d"
-  integrity sha512-4GQTEWNMnVZVOFG3BK0xvGeaDAtiPAbG2N8yuMXuXzx/c2Vd4XoMPO8+E918zeXn5IF0FRVtGShBfkfQea2wHQ==
+  version "1.0.30001146"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001146.tgz#c61fcb1474520c1462913689201fb292ba6f447c"
+  integrity sha512-VAy5RHDfTJhpxnDdp2n40GPPLp3KqNrXz1QqFv4J64HvArKs8nuNMOWkB3ICOaBTU/Aj4rYAo/ytdQDDFF/Pug==
 
 capture-exit@^2.0.0:
   version "2.0.0"
@@ -3272,9 +3272,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.537"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.537.tgz#7330c58eb99ceda75425b7bbbd0749b3ca79ca86"
-  integrity sha512-3iMcWnPTs6WATw2UmKA5cxkAY0tEYv42esBd/A81EmGfDmU0OWCdk2V/OmQJPB98s5epW7bQL3GsyJDQhr8OYA==
+  version "3.0.538"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.538.tgz#3621956b0087eb7460d4d38269d6c13776fc853a"
+  integrity sha512-kgkf+eXRImXXXPF4Edvlmh3OBQXe42P4Jl+sZsnq35xRqAI79tIf+slCHs6RMxx3vIGJ/TSrdn+neMsZM/P7jQ==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -9269,9 +9269,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.749"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.749.tgz#027fd3929ee6b26fd872e3b3eb0a2f2e32779fa0"
-  integrity sha512-aE2nKHFGg7d+Nrfs5RYdKRxsmO5JzpisbbvkrPEXAtxALHMVd30y/SAqoG2EHOm1DUw8ki0OmRq1V9/jlMGgug==
+  version "2.0.751"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.751.tgz#3bb31ab1b5fd86fab647bb920ddc0e7acddf85b6"
+  integrity sha512-LWVqYlHnN0IKHyNbdayEpwTJ1/JzNr1raZ51d8g2UDum9h0WNuGbjI0E5TCftdt2IbdLWqPoaojB4WCa29utmQ==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
