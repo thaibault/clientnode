@@ -7462,18 +7462,6 @@ onetime@^5.1.0:
   dependencies:
     mimic-fn "^2.1.0"
 
-open-browser-webpack-plugin@*:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/open-browser-webpack-plugin/-/open-browser-webpack-plugin-0.0.5.tgz#5e6dc6f8b8797331e212985de218572d84c0521f"
-  integrity sha1-Xm3G+Lh5czHiEphd4hhXLYTAUh8=
-  dependencies:
-    open "0.0.5"
-
-open@0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/open/-/open-0.0.5.tgz#42c3e18ec95466b6bf0dc42f3a2945c3f0cad8fc"
-  integrity sha1-QsPhjslUZra/DcQvOilFw/DK2Pw=
-
 opn@^5.5.0:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/opn/-/opn-5.5.0.tgz#fc7164fab56d235904c51c3b27da6758ca3b9bfc"
@@ -9760,9 +9748,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.761"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.761.tgz#0fe575e0f334e2fc17d9f98a5e03fbeeb0ecea9f"
-  integrity sha512-n8gczuPFDlSrmJ+Lu7T7/M4mBfkH2aobidRJNanEKcvJGNvoiKHfoQXPhYHho+iyEw6fjDH9WYozsk9VhmmbYg==
+  version "2.0.765"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.765.tgz#d58313c73d156be1eac4727739404ed4676b17f0"
+  integrity sha512-xzXlKM4hB3iHRMHpZvEFkAMAFuqdChJXf7n8vLjyo6/CeclII5ZRbDCGYdJlEnkXnByOBYFrNgQH+L4I2w/Q9A==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
@@ -9786,7 +9774,6 @@ weboptimizer@*:
     imports-loader "*"
     jsdom "*"
     loader-utils "*"
-    open-browser-webpack-plugin "*"
     rimraf "*"
     script-loader "*"
     typescript "*"
