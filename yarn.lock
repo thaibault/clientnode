@@ -3375,9 +3375,9 @@ cli-width@^3.0.0:
   integrity sha512-FxqpkPPwu1HjuN93Omfm4h8uIanXofW0RxVEW3k5RKx+mJJYSthzNhp32Kzxxy3YAEZ/Dc/EWN1vZRY0+kOhbw==
 
 clientnode@*:
-  version "3.0.548"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.548.tgz#5e058b9842dc0af181a1744ef51183c3dfc8d3d8"
-  integrity sha512-JUTjGwNIXpGC1hd1uqyz0Jp+iCvPXJFjRgi1ReYlgGQM95WmFo4Q7fJ7sGDpg475/Dj22VHGYl/0lMZ2mHJyCQ==
+  version "3.0.549"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.549.tgz#47c6046a46897452fed5c6ae373f3ac73929173c"
+  integrity sha512-TKjPVTloQ5h9XoqEjYw1MYOxFnMsAnX5tAO86tXa1sWq6FWT5BaW5XDq/kAp2ckpdhyTvORC/y8sIwUb013K0Q==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -9614,9 +9614,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.774"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.774.tgz#394267bd65142532c187a00bc9f1806a590399f1"
-  integrity sha512-KpikCip31OathJX6gbZUn+GgLoC4/o+jI3/vDEqO1spROHeyHdHkKwQxVKaZPPi0l7EI8aHnodSkPaTVDlJciw==
+  version "2.0.775"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.775.tgz#54caaf46e96522dbf5363e00402525f40b2879d8"
+  integrity sha512-rm7muIioiEFRCIu0hezoz6h0aheHMT9bOeKjcvABxjCQo0pnhcL27f3QdZxlGBSN7+VqXmnMUsajoeXXsHZhBg==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
@@ -9740,9 +9740,9 @@ webpack-sources@*, webpack-sources@^2.0.1:
     source-map "^0.6.1"
 
 webpack@*:
-  version "5.1.2"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.1.2.tgz#00146bb721119398ecf903b38ee4fda1a81593e1"
-  integrity sha512-R0DKsyNS9/jkzOTkEZ7gzEKhEQZtkD5wcHGL5Z8cwpb0l+f5PgaxLlmh60od0fSu9Wk/9w+5SIJ6sZrWyzyg9w==
+  version "5.1.3"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.1.3.tgz#a6e4fd250ef2513f94844ae5d8f7570215a2ac49"
+  integrity sha512-bNBF5EOpt5a6NeCBFu0+8KJtG61cVmOb2b/a5tPNRLz3OWgDpHMbmnDkaSm3nf/UQ6ufw4PWYGVsVOAi8UfL2A==
   dependencies:
     "@types/eslint-scope" "^3.7.0"
     "@types/estree" "^0.0.45"
