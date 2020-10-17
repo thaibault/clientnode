@@ -6229,7 +6229,7 @@ $.readyException = (error:Error|string):void => {
 // endregion
 // region polyfills
 // Polyfill for template strings in dynamic function constructs in simple cases
-const Function:typeof global.Function = (
+export const Function:typeof global.Function = (
     Tools.maximalSupportedInternetExplorerVersion === 0
 ) ?
     globalContext.Function :
@@ -6249,6 +6249,7 @@ const Function:typeof global.Function = (
         parameter[parameter.length - 1] = code
         return new globalContext.Function(...parameter)
     } as typeof global.Function
+globalContext.Function = Function
 // endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
