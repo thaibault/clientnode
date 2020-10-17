@@ -258,7 +258,7 @@ export class Semaphore {
  * to dom nodes which should be visible if javaScript is available.
  */
 export class Tools<TElement = HTMLElement> {
-    // region static properti es
+    // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href'
     ]
@@ -6226,6 +6226,29 @@ $.readyException = (error:Error|string):void => {
         throw error
 }
 // / endregion
+// endregion
+// region polyfills
+// Polyfill for template strings in dynamic function constructs in simple cases
+const Function:typeof global.Function = (
+    Tools.maximalSupportedInternetExplorerVersion === 0
+) ?
+    globalContext.Function :
+    function(...parameter:Array<any>):Function {
+        let code:string = parameter[parameter.length - 1]
+        if (code.startsWith('return `') && code.endsWith('`')) {
+            // Handle avoidable template expression:
+            // Use raw code.
+            code = code.replace(/^(return )`\$\{(.+)\}`$/, '$1$2')
+            // Use plain string with single quotes.
+            code = code.replace(/^(return )`([^']+)`$/, "$1'$2'")
+            // Use plain string with double quotes.
+            code = code.replace(/^(return )`([^"]+)`$/, '$1"$2"')
+
+            // TODO replace new lines in replaced content: ".replace(/\\n+/g, ' ')"
+        }
+        parameter[parameter.length - 1] = code
+        return new globalContext.Function(...parameter)
+    } as typeof global.Function
 // endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
