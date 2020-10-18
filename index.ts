@@ -6228,7 +6228,11 @@ $.readyException = (error:Error|string):void => {
 // / endregion
 // endregion
 // region polyfills
-// Polyfill for template strings in dynamic function constructs in simple cases
+/*
+    Polyfill for template strings in dynamic function constructs (nested
+    template strings not supported yet).
+*/
+const NativeFunction:typeof global.Function = globalContext.Function
 export const Function:typeof global.Function = (
     Tools.maximalSupportedInternetExplorerVersion === 0
 ) ?
@@ -6247,7 +6251,7 @@ export const Function:typeof global.Function = (
             // TODO replace new lines in replaced content: ".replace(/\\n+/g, ' ')"
         }
         parameter[parameter.length - 1] = code
-        return new globalContext.Function(...parameter)
+        return new NativeFunction(...parameter)
     } as typeof global.Function
 globalContext.Function = Function
 // endregion
