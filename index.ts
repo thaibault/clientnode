@@ -1546,7 +1546,7 @@ export class Tools<TElement = HTMLElement> {
         let delayInMilliseconds:number = 0
         let throwOnTimeoutClear:boolean = false
         for (const value of parameter)
-            if (typeof value === 'number' && !Number.isNaN(value))
+            if (typeof value === 'number' && !isNaN(value))
                 delayInMilliseconds = value
             else if (typeof value === 'boolean')
                 throwOnTimeoutClear = value
