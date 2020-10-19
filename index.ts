@@ -50,17 +50,21 @@ import {
     $Global
 } from './type'
 // endregion
+// Make preprocessed require function available at runtime.
 declare const __non_webpack_require__:typeof require
 export const currentRequire = typeof __non_webpack_require__ === 'function' ?
     __non_webpack_require__ :
-    eval('require')
-export const optionalRequire = (...parameter:Array<any>):any => {
-    try {
-        return currentRequire(...parameter)
-    } catch (error) {
-        return
-    }
-}
+    (...parameter:Array<any>):any =>
+        (new Function('return require'))(...parameter)
+export const optionalRequire = typeof __non_webpack_require__ === 'function' ?
+    (...parameter:Array<any>):any => {
+        try {
+            return currentRequire(...parameter)
+        } catch (error) {
+            return
+        }
+    } :
+    (...parameter:Array<any>):any => {}
 export const CloseEventNames = [
     'close', 'exit', 'SIGINT', 'SIGTERM', 'SIGQUIT', 'uncaughtException'
 ] as const
@@ -213,7 +217,7 @@ export class Semaphore {
  * This plugin provides such interface logic like generic controller logic for
  * integrating plugins into $, mutual exclusion for depending gui elements,
  * logging additional string, array or function handling. A set of helper
- * functions to parse option objects dom trees or handle events is also
+ * functions to parse  option objects dom trees or handle events is also
  * provided.
  * @property static:abbreviations - Lists all known abbreviation for proper
  * camel case to delimited and back conversion.
