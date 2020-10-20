@@ -6232,6 +6232,7 @@ $.readyException = (error:Error|string):void => {
 // / endregion
 // endregion
 // region polyfills
+// TODO do not monkey patch but use provided evaluation method to allow web-component polyfill!
 /*
     Polyfill for template strings in dynamic function constructs (nested
     template strings not supported yet).
