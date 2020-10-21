@@ -3787,6 +3787,8 @@ export class Tools<TElement = HTMLElement> {
     static stringConvertToValidVariableName(
         name:string, allowedSymbols:string = '0-9a-zA-Z_$'
     ):string {
+        if (['class', 'default'].includes(name))
+            return `_${name}`
         return name
             .toString()
             .replace(/^[^a-zA-Z_$]+/, '')
@@ -4025,7 +4027,7 @@ export class Tools<TElement = HTMLElement> {
             parameter.push(key)
             if (allowDuplicates)
                 if (
-                    parameter.hasOwnProperty(key) &&
+                    Object.prototype.hasOwnProperty.call(parameter, key) &&
                     Array.isArray(
                         (parameter as unknown as Mapping<Array<string>>)[key]
                     )
@@ -4307,7 +4309,13 @@ export class Tools<TElement = HTMLElement> {
             return {compileError: evaluate}
         try {
             return {result: (binding ? evaluate.bind(binding) : evaluate)(
-                ...Object.values(scope)
+                /*
+                    NOTE: We want to be ensure to have same ordering as we have
+                    for the scope names and to call internal registered getter
+                    by retrieving values. So simple using
+                    "...Object.values(scope)" is not appreciate here.
+                */
+                ...scopeNames.map((name:string):any => scope[name])
             )}
         } catch (error) {
             return {runtimeError: (
