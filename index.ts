@@ -51,21 +51,6 @@ import {
     $Global
 } from './type'
 // endregion
-// Make preprocessed require function available at runtime.
-declare const __non_webpack_require__:typeof require
-export const currentRequire = typeof __non_webpack_require__ === 'function' ?
-    __non_webpack_require__ :
-    (...parameter:Array<any>):any =>
-        (new Function('return require'))(...parameter)
-export const optionalRequire = typeof __non_webpack_require__ === 'function' ?
-    (...parameter:Array<any>):any => {
-        try {
-            return currentRequire(...parameter)
-        } catch (error) {
-            return
-        }
-    } :
-    (...parameter:Array<any>):any => {}
 export const CloseEventNames = [
     'close', 'exit', 'SIGINT', 'SIGTERM', 'SIGQUIT', 'uncaughtException'
 ] as const
@@ -94,6 +79,18 @@ export const determineGlobalContext:(() => $Global) = ():$Global => {
 export let globalContext:$Global = determineGlobalContext()
 export const setGlobalContext = (context:$Global):void => {
     globalContext = context
+}
+// Make preprocessed require function available at runtime.
+declare const __non_webpack_require__:typeof require
+export const currentRequire = typeof __non_webpack_require__ === 'function' ?
+    __non_webpack_require__ :
+    eval('require')
+export const optionalRequire = (...parameter:Array<any>):any => {
+    try {
+        return currentRequire(...parameter)
+    } catch (error) {
+        return
+    }
 }
 const fetch = globalContext.fetch ?
     globalContext.fetch :
