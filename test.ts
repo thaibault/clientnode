@@ -207,7 +207,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(semaphore.numberOfFreeResources).toStrictEqual(3)
     })
     // / endregion
-    // / region boolean
+    // / region b oolean
     test.each([0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10])(
         'isNumeric(%s) === true',
         (value:any):void => expect(Tools.isNumeric(value)).toStrictEqual(true)
@@ -822,7 +822,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         })
     }
     // / endregion
-    // / region object
+    // / region  object
     test('addDynamicGetterAndSetter', ():void => {
         expect(Tools.addDynamicGetterAndSetter(null)).toStrictEqual(null)
         expect(Tools.addDynamicGetterAndSetter(true)).toStrictEqual(true)
@@ -2557,6 +2557,39 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             assert.strictEqual(
                 Tools.stringDelimitedToCamelCase(...test[0]), test[1])
     })
+*/
+    test.each([
+        ['null', [], 'function'],
+        ['null', {}, 'function'],
+        ['5 === 3', {name: 2}, 'function'],
+        ['5 === 3', ['name'], 'function'],
+        ['}', [], 'string']
+    ])(
+        'typeof stringCompile("%s", %p)[1] === "%s"',
+        (expression:string, scopeNames:any, resultType:string):void =>
+            expect(typeof Tools.stringCompile(expression, scopeNames)[1])
+                .toStrictEqual(resultType)
+    )
+    test.each([
+        ['null', {}, 'result', null],
+        ['5', {}, 'result', 5],
+        ['a', {a: 2}, 'result', 2],
+        ['a + b', {a: 2, b: 3}, 'result', 5],
+        ['a + b + c', {a: 2, b: 3}, 'runtimeError'],
+        ['}', {a: 2}, 'compileError'],
+        ['}', {}, 'compileError']
+    ])(
+        'stringEvaluate("%s", %p) === %p',
+        (
+            expression:string,
+            scope:any,
+            resultKey:string,
+            result:any = undefined
+        ):void =>
+            expect(Tools.stringEvaluate(expression, scope))
+                .toHaveProperty(resultKey, ...[].concat(result ? result : []))
+    )
+/*
     test('stringFindNormalizedMatchRange', ():void => {
         for (const test:Array<any> of [
             [['', ''], null],

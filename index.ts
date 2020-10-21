@@ -4249,6 +4249,73 @@ export class Tools<TElement = HTMLElement> {
             string = delimiter + string
         return string
     }
+    // TODO test
+    /**
+     * Compiles a given string as expression with given scope names.
+     * @param expression - The string to interpret.
+     * @param scope - Scope to extract names from.
+     * @returns Tuple of list of prepared scope names and compiled function or
+     * error string message if given expression couldn't be compiled.
+     */
+    static stringCompile(
+        expression:string, scope:any = []
+    ):[Array<string>, Function|string] {
+        if (
+            Tools.maximalSupportedInternetExplorerVersion !== 0 &&
+            expression.startsWith('`') &&
+            expression.endsWith('`')
+        )
+            expression = expression
+                // Handle avoidable template expression: Use raw code.
+                .replace(/^`\$\{(.+)\}`$/, '$1')
+                // Use plain string with single quotes.
+                .replace(/^`([^']+)`$/, "'$2'")
+                // Use plain string with double quotes.
+                .replace(/^`([^"]+)`$/, '"$2"')
+                // TODO replace new lines in replaced content:
+                // ".replace(/\\n+/g, ' ')"
+        const scopeNames:Array<string> = (Array.isArray(scope) ?
+            scope :
+            Object.keys(scope)
+        ).map((name:string):string =>
+            Tools.stringConvertToValidVariableName(name)
+        )
+        try {
+            return [
+                scopeNames,
+                new Function(...scopeNames, `return ${expression}`)
+            ]
+        } catch (error) {
+            return [
+                scopeNames,
+                `Given expression "${expression}" could not be compiled ` +
+                `with given scope names "${scopeNames.join('", "')}": ` +
+                Tools.represent(error)
+            ]
+        }
+    }
+    /**
+     * Evaluates a given string as expression against given scope.
+     * @param expression - The string to interpret.
+     * @param scope - Scope to render against.
+     * @returns Object with error message during parsing / running or result.
+     */
+    static stringEvaluate(
+        expression:string, scope:any
+    ):{compileError:string}|{result:any}|{runtimeError:string} {
+        const [scopeNames, evaluate] = this.stringCompile(expression, scope)
+        if (typeof evaluate === 'string')
+            return {compileError: evaluate}
+        try {
+            return {result: evaluate(...Object.values(scope))}
+        } catch (error) {
+            return {runtimeError: (
+                `Given expression "${expression}" could not be evaluated ` +
+                `with given scope names "${scopeNames.join('", "')}": ` +
+                Tools.represent(error)
+            )}
+        }
+    }
     /**
      * Finds the string match of given query in given target text by applying
      * given normalisation function to target and query.
@@ -6230,34 +6297,6 @@ $.readyException = (error:Error|string):void => {
         throw error
 }
 // / endregion
-// endregion
-// region polyfills
-/*
-    Polyfill for template strings in dynamic function constructs (nested
-    template strings not supported yet).
-*/
-const NativeFunction:typeof global.Function = globalContext.Function
-export const Function:typeof global.Function = (
-    Tools.maximalSupportedInternetExplorerVersion === 0
-) ?
-    globalContext.Function :
-    function(...parameter:Array<any>):Function {
-        let code:string = parameter[parameter.length - 1]
-        if (code.startsWith('return `') && code.endsWith('`')) {
-            // Handle avoidable template expression:
-            // Use raw code.
-            code = code.replace(/^(return )`\$\{(.+)\}`$/, '$1$2')
-            // Use plain string with single quotes.
-            code = code.replace(/^(return )`([^']+)`$/, "$1'$2'")
-            // Use plain string with double quotes.
-            code = code.replace(/^(return )`([^"]+)`$/, '$1"$2"')
-
-            // TODO replace new lines in replaced content: ".replace(/\\n+/g, ' ')"
-        }
-        parameter[parameter.length - 1] = code
-        return new NativeFunction(...parameter)
-    } as typeof global.Function
-globalContext.Function = Function
 // endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
