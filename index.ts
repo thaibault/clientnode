@@ -25,6 +25,7 @@ import {
 } from 'node-fetch'
 
 import {
+    EvaluationResult,
     File,
     GetterFunction,
     LockCallbackFunction,
@@ -4300,9 +4301,7 @@ export class Tools<TElement = HTMLElement> {
      * @param scope - Scope to render against.
      * @returns Object with error message during parsing / running or result.
      */
-    static stringEvaluate(
-        expression:string, scope:any
-    ):{compileError:string}|{result:any}|{runtimeError:string} {
+    static stringEvaluate(expression:string, scope:any):EvaluationResult {
         const [scopeNames, evaluate] = this.stringCompile(expression, scope)
         if (typeof evaluate === 'string')
             return {compileError: evaluate}
