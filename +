@@ -4254,12 +4254,10 @@ export class Tools<TElement = HTMLElement> {
      * Compiles a given string as expression with given scope names.
      * @param expression - The string to interpret.
      * @param scope - Scope to extract names from.
-     * @returns Tuple of list of prepared scope names and compiled function or
-     * error string message if given expression couldn't be compiled.
+     * @returns Compiled function or string error message if given expression
+     * could ne be compiled.
      */
-    static stringCompile(
-        expression:string, scope:any = []
-    ):[Array<string>, Function|string] {
+    static stringCompile(expression:string, scope:any = []):Function|null {
         if (
             Tools.maximalSupportedInternetExplorerVersion !== 0 &&
             expression.startsWith('`') &&
@@ -4281,17 +4279,13 @@ export class Tools<TElement = HTMLElement> {
             Tools.stringConvertToValidVariableName(name)
         )
         try {
-            return [
-                scopeNames,
-                new Function(...scopeNames, `return ${expression}`)
-            ]
+            return new Function(...scopeNames, `return ${expression}`)
         } catch (error) {
-            return [
-                scopeNames,
+            return (
                 `Given expression "${expression}" could not be compiled ` +
                 `with given scope names "${scopeNames.join('", "')}": ` +
                 Tools.represent(error)
-            ]
+            )
         }
     }
     /**
@@ -4300,16 +4294,18 @@ export class Tools<TElement = HTMLElement> {
      * @param scope - Scope to render against.
      * @returns Object with error message during parsing / running or result.
      */
-    static stringEvaluate(
-        expression:string, scope:any
-    ):{compileError:string}|{result:any}|{runtimeError:string} {
-        const [scopeNames, evaluate] = this.stringCompile(expression, scope)
-        if (typeof evaluate === 'string')
+    static stringEvaluate(expression:string, scope:any):{
+        compileError?:string
+        evaluationError?:string
+        result:any
+    } {
+        const evaluate:Function|null = this.stringCompile(expression, scope)
+        if (evaluate === null)
             return {compileError: evaluate}
         try {
             return {result: evaluate(...Object.values(scope))}
         } catch (error) {
-            return {runtimeError: (
+            return {evaluationError: (
                 `Given expression "${expression}" could not be evaluated ` +
                 `with given scope names "${scopeNames.join('", "')}": ` +
                 Tools.represent(error)
