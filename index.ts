@@ -4249,16 +4249,16 @@ export class Tools<TElement = HTMLElement> {
             string = delimiter + string
         return string
     }
-    // TODO test
     /**
      * Compiles a given string as expression with given scope names.
      * @param expression - The string to interpret.
      * @param scope - Scope to extract names from.
+     * @param execute - Indicates whether to execute or evaluate.
      * @returns Tuple of list of prepared scope names and compiled function or
      * error string message if given expression couldn't be compiled.
      */
     static stringCompile(
-        expression:string, scope:any = []
+        expression:string, scope:any = [], execute:boolean = false
     ):[Array<string>, Function|string] {
         if (
             Tools.maximalSupportedInternetExplorerVersion !== 0 &&
@@ -4283,7 +4283,9 @@ export class Tools<TElement = HTMLElement> {
         try {
             return [
                 scopeNames,
-                new Function(...scopeNames, `return ${expression}`)
+                new Function(
+                    ...scopeNames, `${execute ? '' : 'return'} ${expression}`
+                )
             ]
         } catch (error) {
             return [
@@ -4299,12 +4301,14 @@ export class Tools<TElement = HTMLElement> {
      * @param expression - The string to interpret.
      * @param scope - Scope to render against.
      * @param binding - Object to apply as "this" in evaluation scope.
+     * @param execute - Indicates whether to execute or evaluate.
      * @returns Object with error message during parsing / running or result.
      */
     static stringEvaluate(
-        expression:string, scope:any, binding?:any
+        expression:string, scope:any, execute:boolean = false, binding?:any
     ):EvaluationResult {
-        const [scopeNames, evaluate] = this.stringCompile(expression, scope)
+        const [scopeNames, evaluate] =
+            this.stringCompile(expression, scope, execute)
         if (typeof evaluate === 'string')
             return {compileError: evaluate}
         try {

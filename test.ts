@@ -2589,7 +2589,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             binding:any = undefined
         ):void =>
             expect(Tools.stringEvaluate(
-                expression, scope, ...[].concat(binding ? binding : [])
+                expression, scope, false, ...[].concat(binding ? binding : [])
             )).toHaveProperty(resultKey, ...[].concat(result ? result : []))
     )
 /*
