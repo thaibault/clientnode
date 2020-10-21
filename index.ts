@@ -4299,14 +4299,19 @@ export class Tools<TElement = HTMLElement> {
      * Evaluates a given string as expression against given scope.
      * @param expression - The string to interpret.
      * @param scope - Scope to render against.
+     * @param binding - Object to apply as "this" in evaluation scope.
      * @returns Object with error message during parsing / running or result.
      */
-    static stringEvaluate(expression:string, scope:any):EvaluationResult {
+    static stringEvaluate(
+        expression:string, scope:any, binding?:any
+    ):EvaluationResult {
         const [scopeNames, evaluate] = this.stringCompile(expression, scope)
         if (typeof evaluate === 'string')
             return {compileError: evaluate}
         try {
-            return {result: evaluate(...Object.values(scope))}
+            return {result: (binding ? evaluate.bind(binding) : evaluate)(
+                ...Object.values(scope)
+            )}
         } catch (error) {
             return {runtimeError: (
                 `Given expression "${expression}" could not be evaluated ` +

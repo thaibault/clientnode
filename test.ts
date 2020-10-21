@@ -2575,6 +2575,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ['5', {}, 'result', 5],
         ['a', {a: 2}, 'result', 2],
         ['a + b', {a: 2, b: 3}, 'result', 5],
+        ['a + b + this.c', {a: 2, b: 3}, 'result', 6, {c: 1}],
         ['a + b + c', {a: 2, b: 3}, 'runtimeError'],
         ['}', {a: 2}, 'compileError'],
         ['}', {}, 'compileError']
@@ -2584,10 +2585,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expression:string,
             scope:any,
             resultKey:string,
-            result:any = undefined
+            result:any = undefined,
+            binding:any = undefined
         ):void =>
-            expect(Tools.stringEvaluate(expression, scope))
-                .toHaveProperty(resultKey, ...[].concat(result ? result : []))
+            expect(Tools.stringEvaluate(
+                expression, scope, ...[].concat(binding ? binding : [])
+            )).toHaveProperty(resultKey, ...[].concat(result ? result : []))
     )
 /*
     test('stringFindNormalizedMatchRange', ():void => {
