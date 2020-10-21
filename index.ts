@@ -4689,15 +4689,20 @@ export class Tools<TElement = HTMLElement> {
                                 for (let pattern of ([] as Array<string>)
                                     .concat(dateTimeFormat.pattern)
                                 ) {
-                                    pattern = (new Function(
-                                        'delimiter', `return \`^${pattern}$\``
-                                    ))(`${delimiter}+`)
-                                    if (!Object.prototype.hasOwnProperty.call(
-                                        patternPresenceCache, pattern
-                                    )) {
+                                    pattern = (Tools.stringEvaluate(
+                                        `\`^${pattern}$\``,
+                                        {delimiter: `${delimiter}+`}
+                                    ) as {result:string}).result
+                                    if (
+                                        pattern &&
+                                        !Object.prototype.hasOwnProperty.call(
+                                            patternPresenceCache, pattern
+                                        )
+                                    ) {
                                         patternPresenceCache[pattern] = true
                                         Tools._dateTimePatternCache.push(
-                                            new RegExp(pattern))
+                                            new RegExp(pattern)
+                                        )
                                     }
                                 }
             // endregion
@@ -5294,12 +5299,10 @@ export class Tools<TElement = HTMLElement> {
             serializedObject = eval('Buffer')
                 .from(serializedObject, 'base64')
                 .toString('utf8')
-        let result:any
-        try {
-            result = (new Function(name, `return ${serializedObject}`))(scope)
-        } catch (error) {}
-        if (typeof result === 'object')
-            return result
+        const result:any =
+            Tools.stringEvaluate(serializedObject, {[name]: scope})
+        if (typeof result.result === 'object')
+            return result.result
         return null
     }
     /**
