@@ -2375,29 +2375,18 @@ export class Tools<TElement = HTMLElement> {
         const evaluate:Function = (
             code:string, type:string = expressionIndicatorKey
         ):any => {
-            code = (type === expressionIndicatorKey) ? `return ${code}` : code
-            let compiledFunction:Function
-            try {
-                /* eslint-disable new-parens */
-                compiledFunction = new (Function.prototype.bind.call(
-                /* eslint-enable new-parens */
-                    Function, null, ...Object.keys(scope), code
-                ))
-            } catch (error) {
+            const evaluated:EvaluationResult = Tools.stringEvaluate(
+                code, scope, type === executionIndicatorKey
+            )
+            if (
+                (evaluated as {compileError:string}).compileError ||
+                (evaluated as {runtimeError:string}).runtimeError
+            )
                 throw new Error(
-                    `Error during compiling code "${code}": "` +
-                    `${Tools.represent(error)}".`
+                    (evaluated as {compileError:string}).compileError ||
+                    (evaluated as {runtimeError:string}).runtimeError
                 )
-            }
-            try {
-                return compiledFunction(...Object.values(scope))
-            } catch (error) {
-                throw new Error(
-                    `Error running code "${code}" in scope with variables "` +
-                    `${Object.keys(scope).join('", "')}": "` +
-                    `${Tools.represent(error)}".`
-                )
-            }
+            return (evaluated as {result:any}).result
         }
         const addProxyRecursively:Function = (data:any):any => {
             if (
@@ -2441,7 +2430,8 @@ export class Tools<TElement = HTMLElement> {
                                 ])
                                     if (key === type)
                                         return resolve(evaluate(
-                                            target[key], type))
+                                            target[key], type
+                                        ))
                                 const resolvedTarget:any = resolve(target)
                                 if (key === 'toString') {
                                     const result:any = evaluate(resolvedTarget)
