@@ -1705,7 +1705,7 @@ acorn@^7.1.1, acorn@^7.4.0:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.4.1.tgz#feaed255973d2e77555b83dbc08851a6c63520fa"
   integrity sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==
 
-acorn@^8.0.3:
+acorn@^8.0.4:
   version "8.0.4"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.0.4.tgz#7a3ae4191466a6984eee0fe3407a4f3aa9db8354"
   integrity sha512-XNP0PqF1XD19ZlLKvB7cMmnZswW4C/03pRHgirB30uSJTaS3A3V1/P4sS3HPvFmjoriPCJQs+JDSbm4bL1TxGQ==
@@ -2902,7 +2902,7 @@ browserslist@^3.2.6:
     caniuse-lite "^1.0.30000844"
     electron-to-chromium "^1.3.47"
 
-browserslist@^4.12.0, browserslist@^4.14.3, browserslist@^4.8.5:
+browserslist@^4.12.0, browserslist@^4.14.5, browserslist@^4.8.5:
   version "4.14.5"
   resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.14.5.tgz#1c751461a102ddc60e40993639b709be7f2c4015"
   integrity sha512-Z+vsCZIvCBvqLoYkBFTwEYH3v5MCQbsAjp50ERycpOjnPmolg1Gjy4+KaWWpm8QOJt9GHkhdqAl14NpCX73CWA==
@@ -3131,9 +3131,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.568"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.568.tgz#3fd290741518dbf6f4f709457d618647e83b3171"
-  integrity sha512-jzje3xk8nlPRZ5DDj9NRr+e6wKc6qio+xxqiPmmv8t23BMl4cyuVSVIA2tRaf0MJKd7Imdl0/Y7cwd029ad3mg==
+  version "3.0.569"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.569.tgz#08f0b9d228dde5c8e2f105662dbb6c5a94f28dc3"
+  integrity sha512-GYFf4dOENZvlz1Al813AgaQDLJc2YVGeSPhvLImDIyajXvQbV9nQ9DSI2ptf9A+h4ga/uJGsi+rb50aldnM2eA==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3734,9 +3734,9 @@ ejs@*:
     jake "^10.6.1"
 
 electron-to-chromium@^1.3.47, electron-to-chromium@^1.3.571:
-  version "1.3.582"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.582.tgz#1adfac5affce84d85b3d7b3dfbc4ade293a6ffc4"
-  integrity sha512-0nCJ7cSqnkMC+kUuPs0YgklFHraWGl/xHqtZWWtOeVtyi+YqkoAOMGuZQad43DscXCQI/yizcTa3u6B5r+BLww==
+  version "1.3.583"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.583.tgz#47a9fde74740b1205dba96db2e433132964ba3ee"
+  integrity sha512-L9BwLwJohjZW9mQESI79HRzhicPk1DFgM+8hOCfGgGCFEcA3Otpv7QK6SGtYoZvfQfE3wKLh0Hd5ptqUFv3gvQ==
 
 emittery@^0.7.1:
   version "0.7.2"
@@ -3770,7 +3770,7 @@ end-of-stream@^1.1.0:
   dependencies:
     once "^1.4.0"
 
-enhanced-resolve@^5.2.0:
+enhanced-resolve@^5.3.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/enhanced-resolve/-/enhanced-resolve-5.3.0.tgz#14be504e14ad58e9821a311ea6a9037c716786d9"
   integrity sha512-EENz3E701+77g0wfbOITeI8WLPNso2kQNMBIBEi/TH/BEa9YXtS01X7sIEk5XXsfFq1jNkhIpu08hBPH1TRLIQ==
@@ -3913,7 +3913,7 @@ eslint-plugin-jsdoc@*:
     semver "^7.3.2"
     spdx-expression-parse "^3.0.1"
 
-eslint-scope@^5.0.0, eslint-scope@^5.1.0, eslint-scope@^5.1.1:
+eslint-scope@^5.0.0, eslint-scope@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/eslint-scope/-/eslint-scope-5.1.1.tgz#e786e59a66cb92b3f6c1fb0d508aab174848f48c"
   integrity sha512-2NxwbF/hZ0KpepYN0cNbo+FN6XoK7GaHlQhgx/hIZl6Va0bF45RQOOwhLIy8lQDbuCiadSLCBnH2CFYquit5bw==
@@ -4982,9 +4982,9 @@ internal-ip@^4.3.0:
     ipaddr.js "^1.9.0"
 
 internationalisation@*:
-  version "1.0.209"
-  resolved "https://registry.yarnpkg.com/internationalisation/-/internationalisation-1.0.209.tgz#ac46032b3df865a1f826628c3dbc62c772846292"
-  integrity sha512-QhjvroWIghZfGuiCL4toqHn+A3BNLFJX+YJgBdCxEm3EzXzn+KBfFTYY9abbdjr3Ea6tJ4vzIP8wN0EUgz1YNQ==
+  version "1.0.210"
+  resolved "https://registry.yarnpkg.com/internationalisation/-/internationalisation-1.0.210.tgz#e38fe92689c1f02b198d81d8eeb126633431a061"
+  integrity sha512-vpicaq2sJr5EwbF6licMRuG5EgPIIhwoe3OlLyQf3zvJ5pIQ1xfo08sCSnD3LPVE8YqJMTFBByWsjXablb4jBg==
 
 interpret@^2.0.0:
   version "2.2.0"
@@ -8098,9 +8098,9 @@ terser@^4.6.3:
     source-map-support "~0.5.12"
 
 terser@^5.3.5:
-  version "5.3.7"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-5.3.7.tgz#798a4ae2e7ff67050c3e99fcc4e00725827d97e2"
-  integrity sha512-lJbKdfxWvjpV330U4PBZStCT9h3N9A4zZVA5Y4k9sCWXknrpdyxi1oMsRKLmQ/YDMDxSBKIh88v0SkdhdqX06w==
+  version "5.3.8"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-5.3.8.tgz#991ae8ba21a3d990579b54aa9af11586197a75dd"
+  integrity sha512-zVotuHoIfnYjtlurOouTazciEfL7V38QMAOhGqpXDEg6yT13cF4+fEP9b0rrCEQTn+tT46uxgFsTZzhygk+CzQ==
   dependencies:
     commander "^2.20.0"
     source-map "~0.7.2"
@@ -8523,9 +8523,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.794"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.794.tgz#be960eb90dc3b016df950d538fe6571ba38a2642"
-  integrity sha512-8E5U68ommZJxcfgWKYzvcnrXdjoP9m19B1ggQ8LVZbKLSTggsxqv14jsBFia7s/rJQ4jtj4Wo6IXixUYR6nqsQ==
+  version "2.0.795"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.795.tgz#980714023b58ebc5e391a685ba3cb60b05d9bd37"
+  integrity sha512-f0CKEJErYDUEllx9WZbigN6m9xvybU+XmonwCaviWVdTt6C9SA9njDpft5arrlu/vjDPakSmYKu1U94NJgshtg==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
@@ -8648,9 +8648,9 @@ webpack-sources@*, webpack-sources@^2.0.1:
     source-map "^0.6.1"
 
 webpack@*:
-  version "5.1.3"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.1.3.tgz#a6e4fd250ef2513f94844ae5d8f7570215a2ac49"
-  integrity sha512-bNBF5EOpt5a6NeCBFu0+8KJtG61cVmOb2b/a5tPNRLz3OWgDpHMbmnDkaSm3nf/UQ6ufw4PWYGVsVOAi8UfL2A==
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.2.0.tgz#02f22466b79751a80a50f20f027a716e296b3ef5"
+  integrity sha512-evtOjOJQq3zaHJIWsJjM4TGtNHtSrNVAIyQ+tdPW/fRd+4PLGbUG6S3xt+N4+QwDBOaCVd0xCWiHd4R6lWO5DQ==
   dependencies:
     "@types/eslint-scope" "^3.7.0"
     "@types/estree" "^0.0.45"
@@ -8658,11 +8658,11 @@ webpack@*:
     "@webassemblyjs/helper-module-context" "1.9.0"
     "@webassemblyjs/wasm-edit" "1.9.0"
     "@webassemblyjs/wasm-parser" "1.9.0"
-    acorn "^8.0.3"
-    browserslist "^4.14.3"
+    acorn "^8.0.4"
+    browserslist "^4.14.5"
     chrome-trace-event "^1.0.2"
-    enhanced-resolve "^5.2.0"
-    eslint-scope "^5.1.0"
+    enhanced-resolve "^5.3.0"
+    eslint-scope "^5.1.1"
     events "^3.2.0"
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.2.4"

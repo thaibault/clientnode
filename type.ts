@@ -118,8 +118,8 @@ export type DomNodes<Type = string> = {
     showJavaScriptEnabled:Type
 }
 export type $DomNodes = DomNodes<$DomNode>
-export type Options = {
-    domNodes:DomNodes
+export type Options<Type = string> = {
+    domNodes:DomNodes<Type>
     domNodeSelectorPrefix:string
     logging:boolean
 }
