@@ -85,11 +85,11 @@ declare const __non_webpack_require__:typeof require
 export const currentRequire = typeof __non_webpack_require__ === 'function' ?
     __non_webpack_require__ :
     eval(`typeof require === 'undefined' ? null : require`)
-export const optionalRequire = (...parameter:Array<any>):any => {
+export const optionalRequire = (...parameter:Array<any>):any|null => {
     try {
         return currentRequire(...parameter)
     } catch (error) {
-        return
+        return null
     }
 }
 const fetch = globalContext.fetch ?
