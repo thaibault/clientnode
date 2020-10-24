@@ -129,8 +129,12 @@ export type ProxyHandler = {
     has:(target:any, key:string) => boolean
     set:(target:any, key:string, value:any) => boolean
 }
-export type EvaluationResult =
-    {compileError:string}|{result:any}|{runtimeError:string}
+export type EvaluationResult = {
+    compileError:null|string
+    error:null|string
+    result:any
+    runtimeError:null|string
+}
 export type LockCallbackFunction = (description:string) => Promise<any>|void
 export type ValueOf<Type> = Type[keyof Type]
 // endregion
