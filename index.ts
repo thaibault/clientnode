@@ -2378,15 +2378,9 @@ export class Tools<TElement = HTMLElement> {
             const evaluated:EvaluationResult = Tools.stringEvaluate(
                 code, scope, type === executionIndicatorKey
             )
-            if (
-                (evaluated as {compileError:string}).compileError ||
-                (evaluated as {runtimeError:string}).runtimeError
-            )
-                throw new Error(
-                    (evaluated as {compileError:string}).compileError ||
-                    (evaluated as {runtimeError:string}).runtimeError
-                )
-            return (evaluated as {result:any}).result
+            if (evaluated.error)
+                throw new Error(evaluated.error)
+            return evaluated.result
         }
         const addProxyRecursively:Function = (data:any):any => {
             if (
@@ -4299,10 +4293,18 @@ export class Tools<TElement = HTMLElement> {
     ):EvaluationResult {
         const [scopeNames, evaluate] =
             this.stringCompile(expression, scope, execute)
-        if (typeof evaluate === 'string')
-            return {compileError: evaluate}
+        const result:EvaluationResult = {
+            compileError:null,
+            error:null,
+            result:null,
+            runtimeError:null
+        }
+        if (typeof evaluate === 'string') {
+            result.compileError = result.error = evaluate
+            return result
+        }
         try {
-            return {result: (binding ? evaluate.bind(binding) : evaluate)(
+            result.result = (binding ? evaluate.bind(binding) : evaluate)(
                 /*
                     NOTE: We want to be ensure to have same ordering as we have
                     for the scope names and to call internal registered getter
@@ -4310,14 +4312,15 @@ export class Tools<TElement = HTMLElement> {
                     "...Object.values(scope)" is not appreciate here.
                 */
                 ...scopeNames.map((name:string):any => scope[name])
-            )}
+            )
         } catch (error) {
-            return {runtimeError: (
+            result.error = result.runtimeError = (
                 `Given expression "${expression}" could not be evaluated ` +
                 `with given scope names "${scopeNames.join('", "')}": ` +
                 Tools.represent(error)
-            )}
+            )
         }
+        return result
     }
     /**
      * Finds the string match of given query in given target text by applying
@@ -4692,10 +4695,10 @@ export class Tools<TElement = HTMLElement> {
                                 for (let pattern of ([] as Array<string>)
                                     .concat(dateTimeFormat.pattern)
                                 ) {
-                                    pattern = (Tools.stringEvaluate(
+                                    pattern = Tools.stringEvaluate(
                                         `\`^${pattern}$\``,
                                         {delimiter: `${delimiter}+`}
-                                    ) as {result:string}).result
+                                    ).result
                                     if (
                                         pattern &&
                                         !Object.prototype.hasOwnProperty.call(
