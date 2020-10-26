@@ -4289,7 +4289,10 @@ export class Tools<TElement = HTMLElement> {
      * @returns Object with error message during parsing / running or result.
      */
     static stringEvaluate(
-        expression:string, scope:any, execute:boolean = false, binding?:any
+        expression:string,
+        scope:any = {},
+        execute:boolean = false,
+        binding?:any
     ):EvaluationResult {
         const [scopeNames, evaluate] =
             this.stringCompile(expression, scope, execute)
