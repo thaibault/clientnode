@@ -91,13 +91,13 @@ export type RecursivePartial<Type> = {
                 Partial<Type[Property]>
 }
 export type Evaluateable = {__evaluate__:string}|{__execute__:string}
-export type RecursiveEvaluateable<Type> = {
+export type RecursiveEvaluateable<Type> = Evaluateable|{
     [Property in keyof Type]:
         Evaluateable|(Type[Property] extends (infer OtherType)[] ?
             RecursiveEvaluateable<OtherType>[] :
             Type[Property] extends object ?
                 RecursiveEvaluateable<Type[Property]> :
-                Type[Property]|Evaluateable
+                Evaluateable|Type[Property]
         )
 }
 export type Primitive = boolean|null|number|string|undefined
