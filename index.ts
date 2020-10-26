@@ -41,6 +41,7 @@ import {
     ProcessErrorCallback,
     ProcessHandler,
     ProxyHandler,
+    RecursiveEvaluateable,
     RecursivePartial,
     RelativePosition,
     SetterFunction,
@@ -2361,13 +2362,13 @@ export class Tools<TElement = HTMLElement> {
      * to evaluate.
      * @returns Evaluated given mapping.
      */
-    static evaluateDynamicData(
-        object:any,
+    static evaluateDynamicData<Type = any>(
+        object:RecursiveEvaluateable<Type>,
         scope:Mapping<any> = {},
         selfReferenceName:string = 'self',
         expressionIndicatorKey:string = '__evaluate__',
         executionIndicatorKey:string = '__execute__'
-    ):any {
+    ):Type {
         if (typeof object !== 'object' || object === null)
             return object
         if (!(selfReferenceName in scope))
@@ -2520,12 +2521,19 @@ export class Tools<TElement = HTMLElement> {
             if (Object.prototype.hasOwnProperty.call(
                 object, expressionIndicatorKey
             ))
-                return evaluate(object[expressionIndicatorKey])
+                return evaluate(object[
+                    expressionIndicatorKey as keyof RecursiveEvaluateable<Type>
+                ])
             else if (Object.prototype.hasOwnProperty.call(
                 object, executionIndicatorKey
             ))
                 return evaluate(
-                    object[executionIndicatorKey], executionIndicatorKey)
+                    object[
+                        executionIndicatorKey as
+                            keyof RecursiveEvaluateable<Type>
+                    ],
+                    executionIndicatorKey
+                )
         return removeProxyRecursively(resolve(addProxyRecursively(object)))
     }
     /**
