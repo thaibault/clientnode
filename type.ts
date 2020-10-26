@@ -73,24 +73,32 @@ export type ObjectMaskConfiguration = {
     include?:ObjectMask
 }
 export type RecursiveNonNullable<Type> = {
-    [Property in keyof Type]:
-        Type[Property] extends (infer OtherType)[] ?
-            RecursiveNonNullable<OtherType>[] :
-            Type[Property] extends Function ?
-                NonNullable<Type[Property]> :
-                Type[Property] extends object ?
-                    RecursiveNonNullable<Type[Property]> :
-                    NonNullable<Type[Property]>
+    [Property in keyof Type]:Type[Property] extends (infer OtherType)[] ?
+        RecursiveNonNullable<OtherType>[] :
+        Type[Property] extends Function ?
+            NonNullable<Type[Property]> :
+            Type[Property] extends object ?
+                RecursiveNonNullable<Type[Property]> :
+                NonNullable<Type[Property]>
 }
 export type RecursivePartial<Type> = {
-    [Property in keyof Type]?:
-        Type[Property] extends (infer OtherType)[] ?
-            RecursivePartial<OtherType>[] :
-            Type[Property] extends Function ?
-                Partial<Type[Property]> :
-                Type[Property] extends object ?
-                    RecursivePartial<Type[Property]> :
-                    Partial<Type[Property]>
+    [Property in keyof Type]?:Type[Property] extends (infer OtherType)[] ?
+        RecursivePartial<OtherType>[] :
+        Type[Property] extends Function ?
+            Partial<Type[Property]> :
+            Type[Property] extends object ?
+                RecursivePartial<Type[Property]> :
+                Partial<Type[Property]>
+}
+export type Evaluateable = {__evaluate__:string}|{__execute__:string}
+export type RecursiveEvaluateable<Type> = {
+    [Property in keyof Type]:
+        Evaluateable|(Type[Property] extends (infer OtherType)[] ?
+            RecursiveEvaluateable<OtherType>[] :
+            Type[Property] extends object ?
+                RecursiveEvaluateable<Type[Property]> :
+                Type[Property]|Evaluateable
+        )
 }
 export type Primitive = boolean|null|number|string|undefined
 export type PlainObject<T=Primitive> = {
