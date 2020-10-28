@@ -4268,7 +4268,7 @@ export class Tools<TElement = HTMLElement> {
                 // ".replace(/\\n+/g, ' ')"
         const scopeNames:Array<string> = (Array.isArray(scope) ?
             scope :
-            Object.keys(scope)
+            typeof scope === 'string' ? [scope] : Object.keys(scope)
         ).map((name:string):string =>
             Tools.stringConvertToValidVariableName(name)
         )
