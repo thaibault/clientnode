@@ -2404,9 +2404,11 @@ export class Tools<TElement = HTMLElement> {
                     */
                     if (
                         Object.prototype.hasOwnProperty.call(
-                            data[key], expressionIndicatorKey) ||
+                            data[key], expressionIndicatorKey
+                        ) ||
                         Object.prototype.hasOwnProperty.call(
-                            data[key], executionIndicatorKey)
+                            data[key], executionIndicatorKey
+                        )
                     ) {
                         const backup:object = data[key]
                         data[key] = new Proxy(data[key], {
@@ -2461,7 +2463,9 @@ export class Tools<TElement = HTMLElement> {
                                     ))
                                         return Object.getOwnPropertyNames(
                                             resolve(evaluate(
-                                                target[type], type)))
+                                                target[type], type
+                                            ))
+                                        )
                                 return Object.getOwnPropertyNames(target)
                             }
                         })
