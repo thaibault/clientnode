@@ -337,7 +337,8 @@ export class Tools<TElement = HTMLElement> {
             */
             /* eslint-disable no-useless-concat */
             div.innerHTML = (
-                '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' + '->')
+                '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' + '->'
+            )
             /* eslint-enable no-useless-concat */
             if (div.getElementsByTagName('i').length === 0)
                 break
@@ -4265,9 +4266,9 @@ export class Tools<TElement = HTMLElement> {
                 // Handle avoidable template expression: Use raw code.
                 .replace(/^`\$\{(.+)\}`$/, '$1')
                 // Use plain string with single quotes.
-                .replace(/^`([^']+)`$/, "'$2'")
+                .replace(/^`([^']+)`$/, "'$1'")
                 // Use plain string with double quotes.
-                .replace(/^`([^"]+)`$/, '"$2"')
+                .replace(/^`([^"]+)`$/, '"$1"')
                 // TODO replace new lines in replaced content:
                 // ".replace(/\\n+/g, ' ')"
         const scopeNames:Array<string> = (Array.isArray(scope) ?
@@ -4280,7 +4281,7 @@ export class Tools<TElement = HTMLElement> {
             return [
                 scopeNames,
                 new Function(
-                    ...scopeNames, `${execute ? '' : 'return'} ${expression}`
+                    ...scopeNames, `${execute ? '' : 'return '}${expression}`
                 )
             ]
         } catch (error) {
