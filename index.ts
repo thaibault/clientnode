@@ -1577,17 +1577,20 @@ export class Tools<TElement = HTMLElement> {
                 possible timeout duration.
             */
             let numberOfRemainingTimeouts:number = Math.floor(
-                delayInMilliseconds / maximumTimeoutDelayInMilliseconds)
-            const finalTimeoutDuration:number = delayInMilliseconds %
-                maximumTimeoutDelayInMilliseconds
+                delayInMilliseconds / maximumTimeoutDelayInMilliseconds
+            )
+            const finalTimeoutDuration:number =
+                delayInMilliseconds % maximumTimeoutDelayInMilliseconds
             const delay:Function = ():void => {
                 if (numberOfRemainingTimeouts > 0) {
                     numberOfRemainingTimeouts -= 1
                     result.timeoutID = setTimeout(
-                        delay, maximumTimeoutDelayInMilliseconds)
+                        delay, maximumTimeoutDelayInMilliseconds
+                    )
                 } else
                     result.timeoutID = setTimeout(
-                        wrappedCallback, finalTimeoutDuration)
+                        wrappedCallback, finalTimeoutDuration
+                    )
             }
             delay()
         }

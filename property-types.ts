@@ -49,7 +49,11 @@ export const RealTypes = {
 export const DummyTypes:typeof RealTypes = {...RealTypes}
 
 export const PropertyTypes:typeof RealTypes =
-    (process.env.NODE_ENV === 'production') ? DummyTypes : RealTypes
+    ['debug', 'dev', 'development'].includes(
+        (process.env.NODE_ENV || '').trim().toLowerCase()
+    ) ?
+        RealTypes :
+        DummyTypes
 
 export const any = PropertyTypes.any
 export const array = PropertyTypes.array
