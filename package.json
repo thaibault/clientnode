@@ -135,6 +135,7 @@
         }
       }
     },
+    "nodeENV": false,
     "target:compatible": {
       "module": {
         "preprocessor": {
