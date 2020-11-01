@@ -18,6 +18,8 @@
 */
 // region imports
 import PropTypes from 'prop-types'
+
+import {ValueOf} from './type'
 // endregion
 export const RealTypes = {
     any: PropTypes.any,
@@ -40,39 +42,44 @@ export const RealTypes = {
     string: PropTypes.string,
     symbol: PropTypes.symbol
 } as const
+export const createDummy = ():ValueOf<typeof RealTypes> => {
+    const result = ():null => null
+    result.isRequired = result
+    return result
+}
 /*
     NOTE: Each value has to be different (a real copy) to distinguish them from
     each other during runtime property reflections.
     Strict equality checks between different values have to be negative.
 */
 export const DummyTypes = {
-    any: ():void => {},
-    array: ():void => {},
-    arrayOf: ():void => {},
-    bool: ():void => {},
-    boolean: ():void => {},
-    element: ():void => {},
-    elementType: ():void => {},
-    exact: ():void => {},
-    func: ():void => {},
-    instanceOf: ():void => {},
-    node: ():void => {},
-    number: ():void => {},
-    object: ():void => {},
-    objectOf: ():void => {},
-    oneOf: ():void => {},
-    oneOfType: ():void => {},
-    shape: ():void => {},
-    string: ():void => {},
-    symbol: ():void => {}
+    any: createDummy(),
+    array: createDummy(),
+    arrayOf: createDummy(),
+    bool: createDummy(),
+    boolean: createDummy(),
+    element: createDummy(),
+    elementType: createDummy(),
+    exact: createDummy(),
+    func: createDummy(),
+    instanceOf: createDummy(),
+    node: createDummy(),
+    number: createDummy(),
+    object: createDummy(),
+    objectOf: createDummy(),
+    oneOf: createDummy(),
+    oneOfType: createDummy(),
+    shape: createDummy(),
+    string: createDummy(),
+    symbol: createDummy()
 } as const
 
-export const PropertyTypes:typeof DummyTypes|typeof RealTypes =
+export const PropertyTypes:typeof RealTypes =
     ['debug', 'dev', 'development'].includes(
         (process.env.NODE_ENV || '').trim().toLowerCase()
     ) ?
         RealTypes :
-        DummyTypes
+        DummyTypes as typeof RealTypes
 
 export const any = PropertyTypes.any
 export const array = PropertyTypes.array
