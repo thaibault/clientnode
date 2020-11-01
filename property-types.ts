@@ -69,7 +69,7 @@ export const DummyTypes = {
 
 export const PropertyTypes:typeof DummyTypes|typeof RealTypes =
     ['debug', 'dev', 'development'].includes(
-        (eval('process.env.NODE_ENV') || '').trim().toLowerCase()
+        (process.env.NODE_ENV || '').trim().toLowerCase()
     ) ?
         RealTypes :
         DummyTypes
