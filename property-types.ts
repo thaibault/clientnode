@@ -42,10 +42,12 @@ export const RealTypes = {
     string: PropTypes.string,
     symbol: PropTypes.symbol
 } as const
-export const createDummy = ():ValueOf<typeof RealTypes> => {
-    const result = ():null => null
-    result.isRequired = result
-    return result
+export const createDummy = (
+    result:any = undefined
+):ValueOf<typeof RealTypes> => {
+    const type = ():any => result
+    type.isRequired = ():null => null
+    return type
 }
 /*
     NOTE: Each value has to be different (a real copy) to distinguish them from
@@ -55,21 +57,21 @@ export const createDummy = ():ValueOf<typeof RealTypes> => {
 export const DummyTypes = {
     any: createDummy(),
     array: createDummy(),
-    arrayOf: createDummy(),
+    arrayOf: createDummy(():void => {}),
     bool: createDummy(),
     boolean: createDummy(),
     element: createDummy(),
-    elementType: createDummy(),
+    elementType: createDummy(():void => {}),
     exact: createDummy(),
     func: createDummy(),
-    instanceOf: createDummy(),
+    instanceOf: createDummy(():void => {}),
     node: createDummy(),
     number: createDummy(),
     object: createDummy(),
-    objectOf: createDummy(),
-    oneOf: createDummy(),
-    oneOfType: createDummy(),
-    shape: createDummy(),
+    objectOf: createDummy(():void => {}),
+    oneOf: createDummy(():void => {}),
+    oneOfType: createDummy(():void => {}),
+    shape: createDummy(():void => {}),
     string: createDummy(),
     symbol: createDummy()
 } as const
