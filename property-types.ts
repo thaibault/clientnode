@@ -21,6 +21,7 @@ import PropTypes from 'prop-types'
 
 import {ValueOf} from './type'
 // endregion
+export const NullSymbol = Symbol('null')
 export const UndefinedSymbol = Symbol('undefined')
 
 export const RealTypes = {
