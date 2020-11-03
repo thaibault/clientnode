@@ -21,6 +21,8 @@ import PropTypes from 'prop-types'
 
 import {ValueOf} from './type'
 // endregion
+export const UndefinedSymbol = Symbol('undefined')
+
 export const RealTypes = {
     any: PropTypes.any,
     array: PropTypes.array,
