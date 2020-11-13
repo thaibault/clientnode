@@ -1962,7 +1962,7 @@ export class Tools<TElement = HTMLElement> {
      * level in given source data structure.
      * @returns Value "true" if both objects are equal and "false" otherwise.
      */
-    static copy<T>(
+    static copy<T = any>(
         source:T,
         recursionLimit:number = -1,
         recursionEndValue:any = ValueCopySymbol,
