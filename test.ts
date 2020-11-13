@@ -26,7 +26,7 @@ try {
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
 
-import Tools, {globalContext, Semaphore, $} from './index'
+import Tools, {globalContext, Semaphore, ValueCopySymbol, $} from './index'
 import {
     File,
     Mapping,
@@ -1109,11 +1109,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             new Set(['a', new Set(['a', 2])]),
             new Set(['a', new Set(['a', 2])]),
             10
-        ]
+        ],
+        [{ValueCopySymbol}, {ValueCopySymbol}]
     ])(
         '%p === copy(...%p)',
         (expected:any, object:any, ...parameter:Array<any>):void =>
-            expect(Tools.copy<any>(object, ...parameter))
+            expect(Tools.copy(object, ...parameter))
                 .toStrictEqual(expected)
     )
     test('determineType', ():void =>
