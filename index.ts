@@ -1955,9 +1955,8 @@ export class Tools<TElement = HTMLElement> {
      * @param cyclic - Indicates whether known sub structures should be copied
      * or referenced (if "true" endless loops can occur if source has cyclic
      * structures).
-     * @param stackSource - Internally used to avoid traversing loops.
-     * @param stackDestination - Internally used to avoid traversing loops and
-     * referencing them correctly.
+     * @param knownReferences - Used to avoid traversing loops and not to copy
+     * references e.g. to objects not to copy (e.g. symbol polyfills).
      * @param recursionLevel - Internally used to track current recursion
      * level in given source data structure.
      * @returns Value "true" if both objects are equal and "false" otherwise.
@@ -1968,8 +1967,7 @@ export class Tools<TElement = HTMLElement> {
         recursionEndValue:any = ValueCopySymbol,
         destination:null|T = null,
         cyclic:boolean = false,
-        stackSource:Array<any> = [],
-        stackDestination:Array<any> = [],
+        knownReferences:Array<any> = [],
         recursionLevel:number = 0
     ):T {
         if (source !== null && typeof source === 'object')
@@ -1980,11 +1978,10 @@ export class Tools<TElement = HTMLElement> {
                         'identical.'
                     )
                 if (!cyclic && ![undefined, null].includes(source as any)) {
-                    const index:number = stackSource.indexOf(source)
+                    const index:number = knownReferences.indexOf(source)
                     if (index !== -1)
-                        return stackDestination[index]
-                    stackSource.push(source)
-                    stackDestination.push(destination)
+                        return knownReferences[index]
+                    knownReferences.push(source)
                 }
                 const copyValue:Function = <V>(value:V):null|V => {
                     if (
@@ -2000,35 +1997,29 @@ export class Tools<TElement = HTMLElement> {
                         recursionEndValue,
                         null,
                         cyclic,
-                        stackSource,
-                        stackDestination,
+                        knownReferences,
                         recursionLevel + 1
                     )
                     if (
                         !cyclic &&
                         ![undefined, null].includes(value as any) &&
                         typeof value === 'object'
-                    ) {
-                        stackSource.push(value)
-                        stackDestination.push(result)
-                    }
+                    )
+                        knownReferences.push(value)
                     return result
                 }
                 if (Array.isArray(source))
                     for (const item of source)
-                        (destination as unknown as Array<any>).push(
-                            copyValue(item)
-                        )
+                        (destination as unknown as Array<any>)
+                            .push(copyValue(item))
                 else if (source instanceof Map)
                     for (const [key, value] of source)
-                        (destination as unknown as Map<any, any>).set(
-                            key, copyValue(value)
-                        )
+                        (destination as unknown as Map<any, any>)
+                            .set(key, copyValue(value))
                 else if (source instanceof Set)
                     for (const value of source)
-                        (destination as unknown as Set<any>).add(
-                            copyValue(value)
-                        )
+                        (destination as unknown as Set<any>)
+                            .add(copyValue(value))
                 else
                     for (const key in source)
                         if (Object.prototype.hasOwnProperty.call(source, key))
@@ -2048,8 +2039,7 @@ export class Tools<TElement = HTMLElement> {
                         recursionEndValue,
                         ([] as unknown as T),
                         cyclic,
-                        stackSource,
-                        stackDestination,
+                        knownReferences,
                         recursionLevel
                     )
                 if (source instanceof Map)
@@ -2059,8 +2049,7 @@ export class Tools<TElement = HTMLElement> {
                         recursionEndValue,
                         (new Map() as unknown as T),
                         cyclic,
-                        stackSource,
-                        stackDestination,
+                        knownReferences,
                         recursionLevel
                     )
                 if (source instanceof Set)
@@ -2070,8 +2059,7 @@ export class Tools<TElement = HTMLElement> {
                         recursionEndValue,
                         (new Set() as unknown as T),
                         cyclic,
-                        stackSource,
-                        stackDestination,
+                        knownReferences,
                         recursionLevel
                     )
                 if (source instanceof Date)
@@ -2092,8 +2080,7 @@ export class Tools<TElement = HTMLElement> {
                     recursionEndValue,
                     ({} as unknown as T),
                     cyclic,
-                    stackSource,
-                    stackDestination,
+                    knownReferences,
                     recursionLevel
                 )
             }
