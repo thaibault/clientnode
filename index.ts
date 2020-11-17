@@ -4251,16 +4251,21 @@ export class Tools<TElement = HTMLElement> {
             Tools.maximalSupportedInternetExplorerVersion !== 0 &&
             expression.startsWith('`') &&
             expression.endsWith('`')
-        )
+        ) {
             expression = expression
                 // Handle avoidable template expression: Use raw code.
-                .replace(/^`\$\{(.+)\}`$/, '$1')
+                .replace(/^`\$\{(.+)\}`$/, 'String($1)')
                 // Use plain string with single quotes.
                 .replace(/^`([^']+)`$/, "'$1'")
                 // Use plain string with double quotes.
                 .replace(/^`([^"]+)`$/, '"$1"')
-                // TODO replace new lines in replaced content:
-                // ".replace(/\\n+/g, ' ')"
+                // Replace new lines with corresponding escape sequence.
+                .replace(/\\n/g, '\\n')
+            const quote:string = expression.charAt(0)
+            // Replace simple placeholder.
+            expression =
+                expression.replace(/\$\{([^}]+)\}/g, `${quote}+($1)+${quote}`)
+        }
         const scopeNames:Array<string> = (Array.isArray(scope) ?
             scope :
             typeof scope === 'string' ? [scope] : Object.keys(scope)
