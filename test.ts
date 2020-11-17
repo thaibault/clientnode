@@ -2572,6 +2572,71 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 .toStrictEqual(resultType)
     )
     test.each([
+        [
+            'null',
+            `
+                function anonymous(
+                ) {
+                return null
+                }
+            `
+        ],
+        [
+            '`test ${test} value`',
+            `
+                function anonymous(
+                ) {
+                return \`test \${test} value\`
+                }
+            `
+        ]
+    ])(
+        'String(stringCompile("%s")[1]) === "%s"',
+        (expression:string, result:string):void =>
+            expect(String(Tools.stringCompile(expression)[1]))
+                .toStrictEqual(result.trim().replace(/\n +/g, '\n'))
+    )
+    test.each([
+        [
+            '`${a + b}`',
+            `
+                function anonymous(
+                ) {
+                return String(a + b)
+                }
+            `
+        ],
+        [
+            '`test ${name} - ${other} value`',
+            `
+                function anonymous(
+                ) {
+                return 'test '+(name)+' - '+(other)+' value'
+                }
+            `
+        ],
+        [
+            "`test ${name} '-' ${other} value`",
+            `
+                function anonymous(
+                ) {
+                return "test "+(name)+" '-' "+(other)+" value"
+                }
+            `
+        ]
+    ])(
+        'IE 11: String(stringCompile("%s")[1]) === "%s"',
+        (expression:string, result:string):void => {
+            const backup:number = Tools.maximalSupportedInternetExplorerVersion
+            ;(Tools as {maximalSupportedInternetExplorerVersion:number})
+                .maximalSupportedInternetExplorerVersion = 11
+            expect(String(Tools.stringCompile(expression)[1]))
+                .toStrictEqual(result.trim().replace(/\n +/g, '\n'))
+            ;(Tools as {maximalSupportedInternetExplorerVersion:number})
+                .maximalSupportedInternetExplorerVersion = backup
+        }
+    )
+    test.each([
         ['null', {}, 'result', null],
         ['5', {}, 'result', 5],
         ['a', {a: 2}, 'result', 2],
