@@ -2946,14 +2946,15 @@ export class Tools<TElement = HTMLElement> {
                 if (typeof subObject === 'string') {
                     for (const key of resolvedKeys)
                         if (subObject.startsWith(`${key}:`)) {
-                            object.splice(index, 1)
+                            ;(object as Array<string>).splice(index, 1)
                             skip = true
                             break
                         }
                     if (skip)
                         continue
                 }
-                object[index] = Tools.removeKeys(subObject, resolvedKeys)
+                ;(object as Array<any>)[index] =
+                    Tools.removeKeys(subObject, resolvedKeys)
                 index += 1
             }
         } else if (Tools.isSet(object))
@@ -3655,7 +3656,7 @@ export class Tools<TElement = HTMLElement> {
                         `Given target doesn't exists in given list.`
                     )
             } else
-                list.splice(index, 1)
+                ;(list as Array<any>).splice(index, 1)
         } else if (strict)
             throw new Error(`Given target isn't an array.`)
         return list
