@@ -4818,16 +4818,16 @@ export class Tools<TElement = HTMLElement> {
      * Wraps given mark strings in given target with given marker.
      * @param target - String to search for marker.
      * @param words - String or array of strings to search in target for.
-     * @param marker - HTML template string to mark.
      * @param normalizer - Pure normalisation function to use before searching
      * for matches.
+     * @param marker - HTML template string to mark.
      * @returns Processed result.
      */
     static stringMark(
         target:any,
         words:any,
-        marker:string = '<span class="tools-mark">{1}</span>',
-        normalizer:Function = (value:any):string => `${value}`.toLowerCase()
+        normalizer:Function = (value:any):string => `${value}`.toLowerCase(),
+        marker:string = '<span class="tools-mark">{1}</span>'
     ):any {
         if (typeof target === 'string' && words?.length) {
             target = target.trim()

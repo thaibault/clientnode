@@ -33,7 +33,7 @@
   },
   "scripts": {
     "build": "weboptimizer build",
-    "build:alternate": "command='babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/env,@babel/preset-typescript --source-maps inline --out-file' && $command index.js index.ts && $command property-types.js property-types.ts && yarn make:executable",
+    "build:alternate": "command='babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/preset-env,@babel/preset-typescript --source-maps inline --out-file' && $command index.js index.ts && $command property-types.js property-types.ts && yarn make:executable",
     "build:export": "weboptimizer build '{__reference__: \"target:export\"}'",
     "build:export:compatible": "weboptimizer build '{__reference__: [\"target:export\", \"target:compatible\"]}'",
     "check": "yarn check:types; yarn lint",
@@ -124,14 +124,8 @@
       },
       "optimizer": {
         "babelMinify": {
-          "module": {
-            "#": "For Task \"test\", this module would produce this error \"ERROR in ./test.ts Module build failed (from ./node_modules/babel-loader/lib/index.js): TypeError: clientnode/test.ts: Cannot read property 'end' of null\".",
-            "evaluate": false,
-            "#0": "For external task \"clear\", this module would produce this error \"UnhandledPromiseRejectionWarning: TypeError: Cannot create property 'next' on string '.dynamicConfiguration-0.json' at Function.<anonymous> (clientnode/index.js:1:80221)\".",
-            "mangle": false,
-            "#1": "To provide a generic logging mechanism we need this feature to be exported.",
-            "removeConsole": false
-          }
+          "#": "Avoids TypeError: Cannot read property 'removeBinding' of null",
+          "module": null
         }
       }
     },

@@ -2799,17 +2799,29 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             [['test', ''], 'test'],
             [['test', 'tests'], 'test'],
             [['', 'test'], ''],
-            [['test', 'e', '<a>{1}</a>'], 't<a>e</a>st'],
-            [['test', ['e'], '<a>{1}</a>'], 't<a>e</a>st'],
-            [['test', 'E', '<a>{1}</a>'], 't<a>e</a>st'],
-            [['test', 'E', '<a>{1}</a>'], 't<a>e</a>st'],
-            [['tesT', 't', '<a>{1}</a>'], '<a>t</a>es<a>T</a>'],
             [
-                ['tesT', 't', '<a>{1} - {1}</a>'],
+                ['test', 'e', (value:any):string => `${value}`.toLowerCase(), '<a>{1}</a>'],
+                't<a>e</a>st'
+            ],
+            [['test', ['e'], Tools.identity, '<a>{1}</a>'], 't<a>e</a>st'],
+            [
+                ['test', 'E', (value:any):string => `${value}`.toLowerCase(), '<a>{1}</a>'],
+                't<a>e</a>st'
+            ],
+            [
+                ['test', 'E', (value:any):string => `${value}`.toLowerCase(), '<a>{1}</a>'],
+                't<a>e</a>st'
+            ],
+            [
+                ['tesT', 't', (value:any):string => `${value}`.toLowerCase(), '<a>{1}</a>'],
+                '<a>t</a>es<a>T</a>'
+            ],
+            [
+                ['tesT', 't', (value:any):string => `${value}`.toLowerCase(), '<a>{1} - {1}</a>'],
                 '<a>t - t</a>es<a>T - T</a>'
             ],
             [
-                ['test', 'E', '<a>{1}</a>', (value:any):string => `${value}`],
+                ['test', 'E', (value:any):string => `${value}`.toLowerCase(), '<a>{1}</a>', (value:any):string => `${value}`],
                 'test'
             ],
             [
@@ -2831,42 +2843,64 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 '<span class="tools-mark">d</span>'
             ],
             [
-                ['a EBikes München', ['ebikes', 'münchen'], '<a>{1}</a>', (
-                    value:any
-                ):string => `${value}`.toLowerCase()],
+                [
+                    'a EBikes München',
+                    ['ebikes', 'münchen'],
+                    (value:any):string => `${value}`.toLowerCase(),
+                    '<a>{1}</a>'
+                ],
                 'a <a>EBikes</a> <a>München</a>'
             ],
             [
-                ['a E-Bikes München', ['ebikes', 'münchen'], '<a>{1}</a>', (
-                    value:any
-                ):string => `${value}`.toLowerCase().replace('-', '')],
+                [
+                    'a E-Bikes München',
+                    ['ebikes', 'münchen'],
+                    (value:any):string =>
+                        `${value}`.toLowerCase().replace('-', ''),
+                    '<a>{1}</a>'
+                ],
                 'a <a>E-Bikes</a> <a>München</a>'
             ],
             [
-                ['a str. 2', ['straße', '2'], '<a>{1}</a>', (
-                    value:any
-                ):string => `${value}`.toLowerCase().replace(
-                    'str.', 'strasse'
-                ).replace('ß', 'ss')],
+                [
+                    'a str. 2',
+                    ['straße', '2'],
+                    (value:any):string =>
+                        `${value}`
+                            .toLowerCase()
+                            .replace('str.', 'strasse')
+                            .replace('ß', 'ss'),
+                    '<a>{1}</a>'
+                ],
                 'a <a>str.</a> <a>2</a>'
             ],
             [
                 [
                     'EGO Movement Store E-Bikes München',
                     ['eBikes', 'München'],
-                    '<a>{1}</a>', (value:any):string => `${value}`.toLowerCase(
-                    ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
-                        /(^| )str\./g, '$1strasse'
-                    ).replace(/[& ]+/g, ' ')
-                ], 'EGO Movement Store <a>E-Bikes</a> <a>München</a>'
+                    (value:any):string =>
+                        `${value}`
+                            .toLowerCase()
+                            .replace(/[-_]+/g, '')
+                            .replace(/ß/g, 'ss')
+                            .replace(/(^| )str\./g, '$1strasse')
+                            .replace(/[& ]+/g, ' '),
+                    '<a>{1}</a>'
+                ],
+                'EGO Movement Store <a>E-Bikes</a> <a>München</a>'
             ],
             [
                 [
-                    'str.A strasse B straße C str. D', ['str.'],
-                    '<a>{1}</a>', (value:any):string => `${value}`.toLowerCase(
-                    ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
-                        /(^| )str\./g, '$1strasse'
-                    ).replace(/[& ]+/g, ' ')
+                    'str.A strasse B straße C str. D',
+                    ['str.'],
+                    (value:any):string =>
+                        `${value}`
+                            .toLowerCase()
+                            .replace(/[-_]+/g, '')
+                            .replace(/ß/g, 'ss')
+                            .replace(/(^| )str\./g, '$1strasse')
+                            .replace(/[& ]+/g, ' '),
+                    '<a>{1}</a>'
                 ],
                 '<a>str.</a>A <a>strasse</a> B <a>straße</a> C <a>str.</a> D'
             ]
