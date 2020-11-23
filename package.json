@@ -124,7 +124,13 @@
       },
       "optimizer": {
         "babelMinify": {
-          "#": "Avoids TypeError: Cannot read property 'removeBinding' of null",
+          "bundle": {
+            "transform": {
+              "#": "To provide a logging output we need to exclude this feature.",
+              "removeConsole": false
+            }
+          },
+          "#": "Avoids TypeError: Cannot read property 'removeBinding' of null.",
           "module": null
         }
       }
