@@ -1933,240 +1933,251 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expect(Tools.arrayDeleteEmptyItems(...parameter))
                 .toStrictEqual(expected)
     )
-    /* TODO
-    test('arrayExtract', ():void => {
-        for (const test of [
-            [[[{a: 'b', c: 'd'}], ['a']], [{a: 'b'}]],
-            [[[{a: 'b', c: 'd'}], ['b']], [{}]],
-            [[[{a: 'b', c: 'd'}], ['c']], [{c: 'd'}]],
-            [[[{a: 'b', c: 'd'}, {a: 3}], ['c']], [{c: 'd'}, {}]],
-            [[[{a: 'b', c: 'd'}, {c: 3}], ['c']], [{c: 'd'}, {c: 3}]]
-        ])
-            assert.deepEqual(
-                Tools.arrayExtract(...test[0]), test[1])
-    })
-    test('arrayExtractIfMatches', ():void => {
-        for (const test of [
-            [['b'], /b/, ['b']],
-            [['b'], 'b', ['b']],
-            [['b'], 'a', []],
-            [[], 'a', []],
-            [['a', 'b'], '', ['a', 'b']],
-            [['a', 'b'], '^$', []],
-            [['a', 'b'], 'b', ['b']],
-            [['a', 'b'], '[ab]', ['a', 'b']]
-        ])
-            assert.deepEqual(Tools.arrayExtractIfMatches(
-                test[0], test[1]
-            ), test[2])
-    })
-    test('arrayExtractIfPropertyExists', ():void => {
-        for (const test of [
-            [[{a: 2}], 'a', [{a: 2}]],
-            [[{a: 2}], 'b', []],
-            [[], 'b', []],
-            [[{a: 2}, {b: 3}], 'a', [{a: 2}]]
-        ])
-            assert.deepEqual(Tools.arrayExtractIfPropertyExists(
-                test[0], test[1]
-            ), test[2])
-    })
-    test('arrayExtractIfPropertyMatches', ():void => {
-        for (const test of [
-            [[{a: 'b'}], {a: 'b'}, [{a: 'b'}]],
-            [[{a: 'b'}], {a: '.'}, [{a: 'b'}]],
-            [[{a: 'b'}], {a: 'a'}, []],
-            [[], {a: 'a'}, []],
-            [[{a: 2}], {b: /a/}, []],
-            [
-                [{mimeType: 'text/x-webm'}],
-                {mimeType: /^text\/x-webm$/},
-                [{mimeType: 'text/x-webm'}]
-            ]
-        ])
-            assert.deepEqual(Tools.arrayExtractIfPropertyMatches(
-                test[0], test[1]
-            ), test[2])
-    })
-    test('arrayIntersect', ():void => {
-        for (const test of [
-            [[['A'], ['A']], ['A']],
-            [[['A', 'B'], ['A']], ['A']],
-            [[[], []], []],
-            [[[5], []], []],
-            [[[{a: 2}], [{a: 2}]], [{a: 2}]],
-            [[[{a: 3}], [{a: 2}]], []],
-            [[[{a: 3}], [{b: 3}]], []],
-            [[[{a: 3}], [{b: 3}], ['b']], []],
-            [[[{a: 3}], [{b: 3}], ['b'], false], []],
-            [[[{b: null}], [{b: null}], ['b']], [{b: null}]],
-            [[[{b: null}], [{b: undefined}], ['b']], []],
-            [[[{b: null}], [{b: undefined}], ['b'], false], [{b: null}]],
-            [[[{b: null}], [{}], ['b'], false], [{b: null}]],
-            [[[{b: undefined}], [{}], ['b'], false], [{b: undefined}]],
-            [[[{}], [{}], ['b'], false], [{}]],
-            [[[{b: null}], [{}], ['b']], []],
-            [[[{b: undefined}], [{}], ['b'], true], [{b: undefined}]],
-            [[[{b: 1}], [{a: 1}], {b: 'a'}, true], [{b: 1}]]
-        ])
-            assert.deepEqual(Tools.arrayIntersect(...test[0]), test[1])
-    })
-    test('arrayMakeRange', ():void => {
-        for (const test:Array<any> of [
-            [[[0]], [0]],
-            [[[5]], [0, 1, 2, 3, 4, 5]],
-            [[[]], []],
-            [[[2, 5]], [2, 3, 4, 5]],
-            [[[2, 10], 2], [2, 4, 6, 8, 10]]
-        ])
-            assert.deepEqual(Tools.arrayMakeRange(...test[0]), test[1])
-    })
-    test('arrayMerge', ():void => {
-        for (const test:Array<any> of [
-            [[], [], []],
-            [[1], [], [1]],
-            [[], [1], [1]],
-            [[1], [1], [1, 1]],
-            [[1, 2, 3, 1], [1, 2, 3], [1, 2, 3, 1, 1, 2, 3]]
-        ])
-            assert.deepEqual(
-                Tools.arrayMerge(test[0], test[1]), test[2])
-    })
-    test('arrayMake', ():void => {
-        for (const test:Array<any> of [
-            [[], []],
-            [[1, 2, 3], [1, 2, 3]],
-            [1, [1]]
-        ])
-            assert.deepEqual(Tools.arrayMake(test[0]), test[1])
-    })
-    test('arrayPermutate', ():void => {
-        for (const test:Array<any> of [
-            [[], [[]]],
-            [[1], [[1]]],
-            [[1, 2], [[1, 2], [2, 1]]],
-            [
-                [1, 2, 3],
-                [
-                    [1, 2, 3],
-                    [1, 3, 2],
-                    [2, 1, 3],
-                    [2, 3, 1],
-                    [3, 1, 2],
-                    [3, 2, 1]
-                ]
-            ],
-            [
-                ['1', '2', '3'],
-                [
-                    ['1', '2', '3'],
-                    ['1', '3', '2'],
-                    ['2', '1', '3'],
-                    ['2', '3', '1'],
-                    ['3', '1', '2'],
-                    ['3', '2', '1']
-                ]
-            ]
-        ])
-            assert.deepEqual(Tools.arrayPermutate(test[0]), test[1])
-    })
-    test('arrayPermutateLength', ():void => {
-        for (const test:Array<any> of [
-            [[], []],
-            [[1], [[1]]],
-            [[1, 2], [[1], [2], [1, 2]]],
+    test.each([
+        [[[{a: 'b', c: 'd'}], ['a']], [{a: 'b'}]],
+        [[[{a: 'b', c: 'd'}], ['b']], [{}]],
+        [[[{a: 'b', c: 'd'}], ['c']], [{c: 'd'}]],
+        [[[{a: 'b', c: 'd'}, {a: 3}], ['c']], [{c: 'd'}, {}]],
+        [[[{a: 'b', c: 'd'}, {c: 3}], ['c']], [{c: 'd'}, {c: 3}]]
+    ])(
+        'arrayExtract(...%p) === %p',
+        (parameter:Array<any>, expected:Array<any>):void =>
+            expect(Tools.arrayExtract(...parameter)).toStrictEqual(expected)
+    )
+    test.each([
+        [['b'], /b/, ['b']],
+        [['b'], 'b', ['b']],
+        [['b'], 'a', []],
+        [[], 'a', []],
+        [['a', 'b'], '', ['a', 'b']],
+        [['a', 'b'], '^$', []],
+        [['a', 'b'], 'b', ['b']],
+        [['a', 'b'], '[ab]', ['a', 'b']]
+    ])(
+        'arrayExtractIfMatches(%p, %p) === %p',
+        (
+            source:Array<string>, pattern:RexExp|string, expected:Array<string>
+        ):void =>
+            expect(Tools.arrayExtractIfMatches(source, pattern))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        [[{a: 2}], 'a', [{a: 2}]],
+        [[{a: 2}], 'b', []],
+        [[], 'b', []],
+        [[{a: 2}, {b: 3}], 'a', [{a: 2}]]
+    ])(
+        "arrayExtractIfPropertyExists(%p, '%s') === %p",
+        (source:Array<any>, propertyName:string, expected:Array<any>):void =>
+            expect(Tools.arrayExtractIfPropertyExists(source, propertyName))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        [[{a: 'b'}], {a: 'b'}, [{a: 'b'}]],
+        [[{a: 'b'}], {a: '.'}, [{a: 'b'}]],
+        [[{a: 'b'}], {a: 'a'}, []],
+        [[], {a: 'a'}, []],
+        [[{a: 2}], {b: /a/}, []],
+        [
+            [{mimeType: 'text/x-webm'}],
+            {mimeType: /^text\/x-webm$/},
+            [{mimeType: 'text/x-webm'}]
+        ]
+    ])(
+        'arrayExtractIfPropertyMatches(%p, %p) === %p',
+        (
+            source:Array<PlainObject>,
+            patternMapping:Mapping<RegExp|string>,
+            expected:Array<PlainObject>
+        ):void =>
+            expect(Tools.arrayExtractIfPropertyMatches(source, patternMapping))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        [[['A'], ['A']], ['A']],
+        [[['A', 'B'], ['A']], ['A']],
+        [[[], []], []],
+        [[[5], []], []],
+        [[[{a: 2}], [{a: 2}]], [{a: 2}]],
+        [[[{a: 3}], [{a: 2}]], []],
+        [[[{a: 3}], [{b: 3}]], []],
+        [[[{a: 3}], [{b: 3}], ['b']], []],
+        [[[{a: 3}], [{b: 3}], ['b'], false], []],
+        [[[{b: null}], [{b: null}], ['b']], [{b: null}]],
+        [[[{b: null}], [{b: undefined}], ['b']], []],
+        [[[{b: null}], [{b: undefined}], ['b'], false], [{b: null}]],
+        [[[{b: null}], [{}], ['b'], false], [{b: null}]],
+        [[[{b: undefined}], [{}], ['b'], false], [{b: undefined}]],
+        [[[{}], [{}], ['b'], false], [{}]],
+        [[[{b: null}], [{}], ['b']], []],
+        [[[{b: undefined}], [{}], ['b'], true], [{b: undefined}]],
+        [[[{b: 1}], [{a: 1}], {b: 'a'}, true], [{b: 1}]]
+    ])(
+        'arrayIntersect(...%p) === %p',
+        (arrays:Array<Arrays<any>>, expected:Array<any>):void =>
+            expect(Tools.arrayIntersect(...arrays)).toStrictEqual(expected)
+    )
+    test.each([
+        [[[0]], [0]],
+        [[[5]], [0, 1, 2, 3, 4, 5]],
+        [[[]], []],
+        [[[2, 5]], [2, 3, 4, 5]],
+        [[[2, 10], 2], [2, 4, 6, 8, 10]]
+    ])(
+        'arrayMakeRange(...%p) === %p',
+        (parameter:Array<any>, expected:Array<number>):void =>
+            expect(Tools.arrayMakeRange(...parameter)).toStrictEqual(expected)
+    )
+    test.each([
+        [[], [], []],
+        [[1], [], [1]],
+        [[], [1], [1]],
+        [[1], [1], [1, 1]],
+        [[1, 2, 3, 1], [1, 2, 3], [1, 2, 3, 1, 1, 2, 3]]
+    ])(
+        'arrayMerge(%p, %p) === %p',
+        (first:Array<any>, second:Array<any>, expected:Array<any>):void =>
+            expect(Tools.arrayMerge(first, second)).toStrictEqual(expected)
+    )
+    test.each([
+        [[], []],
+        [[1, 2, 3], [1, 2, 3]],
+        [1, [1]]
+    ])('arrayMake(%p) === %p', (value:any, expected:Array<any>):void =>
+        expect(Tools.arrayMake(value)).toStrictEqual(expected)
+    )
+    test.each([
+        [[], [[]]],
+        [[1], [[1]]],
+        [[1, 2], [[1, 2], [2, 1]]],
+        [
+            [1, 2, 3],
             [
                 [1, 2, 3],
-                [
-                    [1],
-                    [2],
-                    [3],
-                    [1, 2],
-                    [1, 3],
-                    [2, 3],
-                    [1, 2, 3]
-                ]
-            ],
+                [1, 3, 2],
+                [2, 1, 3],
+                [2, 3, 1],
+                [3, 1, 2],
+                [3, 2, 1]
+            ]
+        ],
+        [
+            ['1', '2', '3'],
             [
                 ['1', '2', '3'],
-                [
-                    ['1'],
-                    ['2'],
-                    ['3'],
-                    ['1', '2'],
-                    ['1', '3'],
-                    ['2', '3'],
-                    ['1', '2', '3']
-                ]
+                ['1', '3', '2'],
+                ['2', '1', '3'],
+                ['2', '3', '1'],
+                ['3', '1', '2'],
+                ['3', '2', '1']
             ]
-        ])
-            assert.deepEqual(
-                Tools.arrayPermutateLength(test[0]), test[1])
-    })
-    test('arrayUnique', ():void => {
-        for (const test:Array<any> of [
-            [[1, 2, 3, 1], [1, 2, 3]],
-            [[1, 2, 3, 1, 2, 3], [1, 2, 3]],
-            [[], []],
-            [[1, 2, 3], [1, 2, 3]]
-        ])
-            assert.deepEqual(Tools.arrayUnique(test[0]), test[1])
-    })
-    test('arraySumUpProperty', ():void => {
-        for (const test:Array<any> of [
-            [[[{a: 2}, {a: 3}], 'a'], 5],
-            [[[{a: 2}, {b: 3}], 'a'], 2],
-            [[[{a: 2}, {b: 3}], 'c'], 0]
-        ])
-            assert.strictEqual(
-                Tools.arraySumUpProperty(...test[0]), test[1])
-    })
+        ]
+    ])(
+        'arrayPermutate(%p) === %p',
+        (values:Array<any>, expected:Array<Array<any>>):void =>
+            expect(Tools.arrayPermutate(values)).toStrictEqual(expected)
+    )
+    test.each([
+        [[], []],
+        [[1], [[1]]],
+        [[1, 2], [[1], [2], [1, 2]]],
+        [
+            [1, 2, 3],
+            [
+                [1],
+                [2],
+                [3],
+                [1, 2],
+                [1, 3],
+                [2, 3],
+                [1, 2, 3]
+            ]
+        ],
+        [
+            ['1', '2', '3'],
+            [
+                ['1'],
+                ['2'],
+                ['3'],
+                ['1', '2'],
+                ['1', '3'],
+                ['2', '3'],
+                ['1', '2', '3']
+            ]
+        ]
+    ])(
+        'arrayPermutateLength(%p) === %p',
+        (values:Array<any>, expected:Array<Array<any>>):void =>
+            expect(Tools.arrayPermutateLength(values)).toStrictEqual(expected)
+    )
+    test.each([
+        [[1, 2, 3, 1], [1, 2, 3]],
+        [[1, 2, 3, 1, 2, 3], [1, 2, 3]],
+        [[], []],
+        [[1, 2, 3], [1, 2, 3]]
+    ])(
+        'arrayUnique(%p) ==== %p',
+        (values:Array<any>, expected:Array<any>):void =>
+            expect(Tools.arrayUnique(values)).toStrictEqual(expected)
+    )
+    test.each([
+        [[{a: 2}, {a: 3}], 'a', 5],
+        [[{a: 2}, {b: 3}], 'a', 2],
+        [[{a: 2}, {b: 3}], 'c', 0]
+    ])(
+        "arraySumUpProperty(%p, '%s') === %p",
+        (values:Array<any>, propertyName:string, expected:number):void =>
+            expect(Tools.arraySumUpProperty(values, propertyName))
+                .toStrictEqual(expected)
+    )
     test('arrayAppendAdd', ():void => {
         const testObject:PlainObject = {}
-        for (const test:Array<any> of [
+        for (const [parameter:Array<any>, expected:Mapping<any>] of [
             [[{}, {}, 'b'], {b: [{}]}],
             [[testObject, {a: 3}, 'b'], {b: [{a: 3}]}],
             [[testObject, {a: 3}, 'b'], {b: [{a: 3}, {a: 3}]}],
             [[{b: [2]}, 2, 'b', false], {b: [2, 2]}],
             [[{b: [2]}, 2, 'b'], {b: [2]}]
         ])
-            assert.deepEqual(Tools.arrayAppendAdd(...test[0]), test[1])
+            expect(Tools.arrayAppendAdd(...parameter)).toStrictEqual(expected)
     })
-    test('arrayRemove', ():void => {
-        for (const test:Array<any> of [
-            [[[], 2], []],
-            [[[2], 2], []],
-            [[[2], 2, true], []],
-            [[[1, 2], 2], [1]],
-            [[[1, 2], 2, true], [1]]
-        ])
-            assert.deepEqual(Tools.arrayRemove(...test[0]), test[1])
-        assert.throws(():?Array<any> => Tools.arrayRemove(
-            [], 2, true
-        ), new Error(`Given target doesn't exists in given list.`))
-    })
-    test('arraySortTopological', ():void => {
-        for (const test:Array<any> of [
-            [{}, []],
-            [{a: []}, ['a']],
-            [{a: 'b'}, ['b', 'a']],
-            [{a: [], b: 'a'}, ['a', 'b']],
-            [{a: [], b: ['a']}, ['a', 'b']],
-            [{a: ['b'], b: []}, ['b', 'a']],
-            [{c: 'b', a: [], b: ['a']}, ['a', 'b', 'c']],
-            [{b: ['a'], a: [], c: ['a', 'b']}, ['a', 'b', 'c']]
-        ])
-            assert.deepEqual(
-                Tools.arraySortTopological(test[0]), test[1])
-        for (const test:any of [
-            {a: 'a'},
-            {a: 'b', b: 'a'},
-            {a: 'b', b: 'c', c: 'a'}
-        ])
-            assert.throws(():void => Tools.arraySortTopological(test))
-    })
+    test.each([
+        [[[], 2], []],
+        [[[2], 2], []],
+        [[[2], 2, true], []],
+        [[[1, 2], 2], [1]],
+        [[[1, 2], 2, true], [1]]
+    ])(
+        'arrayRemove(...%p) === %p',
+        (parameter:Array<any>, expected:Array<any>):void =>
+            expect(Tools.arrayRemove(...parameter)).toStrictEqual(expected)
+    )
+    test('arrayRemove([], 2, true) -> throws Exception', ():void =>
+        expect(():void => Tools.arrayRemove([], 2, true))
+            .toThrow(new Error(`Given target doesn't exists in given list.`))
+    )
+    test.each([
+        [{}, []],
+        [{a: []}, ['a']],
+        [{a: 'b'}, ['b', 'a']],
+        [{a: [], b: 'a'}, ['a', 'b']],
+        [{a: [], b: ['a']}, ['a', 'b']],
+        [{a: ['b'], b: []}, ['b', 'a']],
+        [{c: 'b', a: [], b: ['a']}, ['a', 'b', 'c']],
+        [{b: ['a'], a: [], c: ['a', 'b']}, ['a', 'b', 'c']]
+    ])(
+        'arraySortTopological(%p) === %p',
+        (values:Mapping<any>, expected:Mapping<any>):void =>
+            expect(Tools.arraySortTopological(values)).toStrictEqual(expected)
+    )
+    test.each([{a: 'a'}, {a: 'b', b: 'a'}, {a: 'b', b: 'c', c: 'a'}])(
+        'arraySortTopological(%p) -> throws Exception',
+        (values:Mapping<any>):void =>
+            expect(():void => Tools.arraySortTopological(values)).toThrow()
+    )
     // / endregion
     // / region string
+    /* TODO
     test('stringEscapeRegularExpressions', ():void => {
         for (const test:Array<any> of [
             [[''], ''],
