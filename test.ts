@@ -1909,30 +1909,31 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expect(Tools.unwrapProxy(source)).toStrictEqual(expected)
     )
     // / endregion
-    /* TODO
     // / region array
-    test('arrayAggregatePropertyIfEqual', ():void => {
-        for (const test of [
-            [[[{a: 'b'}], 'a'], 'b'],
-            [[[{a: 'b'}, {a: 'b'}], 'a'], 'b'],
-            [[[{a: 'b'}, {a: 'c'}], 'a'], ''],
-            [[[{a: 'b'}, {a: 'c'}], 'a', false], false]
-        ])
-            assert.strictEqual(Tools.arrayAggregatePropertyIfEqual(
-                ...test[0]
-            ), test[1])
-    })
-    test('arrayDeleteEmptyItems', ():void => {
-        for (const test of [
-            [[[{a: null}]], []],
-            [[[{a: null, b: 2}]], [{a: null, b: 2}]],
-            [[[{a: null, b: 2}], ['a']], []],
-            [[[], ['a']], []],
-            [[[]], []]
-        ])
-            assert.deepEqual(
-                Tools.arrayDeleteEmptyItems(...test[0]), test[1])
-    })
+    test.each([
+        [[[{a: 'b'}], 'a'], 'b'],
+        [[[{a: 'b'}, {a: 'b'}], 'a'], 'b'],
+        [[[{a: 'b'}, {a: 'c'}], 'a'], ''],
+        [[[{a: 'b'}, {a: 'c'}], 'a', false], false]
+    ])(
+        'arrayAggregatePropertyIfEqual(...%p) === %p',
+        (parameter:Array<any>, expected:any):void =>
+            expect(Tools.arrayAggregatePropertyIfEqual(...parameter))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        [[[{a: null}]], []],
+        [[[{a: null, b: 2}]], [{a: null, b: 2}]],
+        [[[{a: null, b: 2}], ['a']], []],
+        [[[], ['a']], []],
+        [[[]], []]
+    ])(
+        'arrayDeleteEmptyItems(...%p) === %p',
+        (parameter:Array<any>, expected:any):void =>
+            expect(Tools.arrayDeleteEmptyItems(...parameter))
+                .toStrictEqual(expected)
+    )
+    /* TODO
     test('arrayExtract', ():void => {
         for (const test of [
             [[[{a: 'b', c: 'd'}], ['a']], [{a: 'b'}]],
