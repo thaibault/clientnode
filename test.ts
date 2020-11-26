@@ -2418,9 +2418,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             '//www.test.de/site/subSite?param=value#hash'
         ],
         [
-            `${$.location?.protocol || 'http'}//www.test.de/site/subSite` +
+            `${$.location?.protocol || 'http:'}//www.test.de/site/subSite` +
                 '?param=value#hash',
-            `${$.location?.protocol || 'http'}//www.test.de/site/subSite` +
+            `${$.location?.protocol || 'http:'}//www.test.de/site/subSite` +
                 `?param=value#hash`
         ],
         [
@@ -2435,18 +2435,18 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             $.location?.href || 'http://localhost',
             $.location?.href || 'http://localhost'
         ],
-        ['1', $.location?.hre || 'http://localhost'],
+        ['1', $.location?.href || 'http://localhost'],
         ['#1', $.location?.href || 'http://localhost'],
         ['/a', $.location?.href || 'http://localhost']
     ])(
-        "stringIsInternalURL('%s', '%s') === true",
-        (firstURL:string, secondURL:string):void =>
-            expect(Tools.stringIsInternalURL(firstURL, secondURL))
+        "stringServiceURLEquals('%s', '%s') === true",
+        (url:string, referenceURL:string):void =>
+            expect(Tools.stringServiceURLEquals(url, referenceURL))
                 .toStrictEqual(true)
     )
     test.each([
         [
-            `${$.location?.protocol || 'http'}//www.test.de/site/subSite` +
+            `${$.location?.protocol || 'http:'}//www.test.de/site/subSite` +
                 '?param=value#hash',
             'ftp://www.test.de/site/subSite?param=value#hash'
         ],
@@ -2459,7 +2459,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             'test.de/site/subSite?param=value#hash'
         ],
         [
-            `${$.location?.protocol || 'http'}//www.test.de:` +
+            `${$.location?.protocol || 'http:'}//www.test.de:` +
             `${$.location?.port || 80}/site/subSite` +
             '?param=value#hash/site/subSite?param=value#hash',
             $.location?.href || 'http://localhost:8080'
@@ -2470,124 +2470,124 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             'https://www.test.de/site/subSite?param=value#hash'
         ]
     ])(
-        "stringIsInternalURL('%s', '%s') === false",
-        (firstURL:string, secondURL:string):void =>
-            expect(Tools.stringIsInternalURL(firstURL, secondURL))
+        "stringServiceURLEquals('%s', '%s') === false",
+        (url:string, referenceURL:string):void =>
+            expect(Tools.stringServiceURLEquals(url, referenceURL))
                 .toStrictEqual(false)
     )
-    /* TODO
-    test('stringNormalizeURL', ():void => {
-        for (const test:Array<any> of [
-            ['www.test.com', 'http://www.test.com'],
-            ['test', 'http://test'],
-            ['http://test', 'http://test'],
-            ['https://test', 'https://test']
-        ])
-            assert.strictEqual(
-                Tools.stringNormalizeURL(test[0]), test[1])
-    })
-    test('stringRepresentURL', ():void => {
-        for (const test:Array<any> of [
-            ['http://www.test.com', 'www.test.com'],
-            ['ftp://www.test.com', 'ftp://www.test.com'],
-            ['https://www.test.com', 'www.test.com'],
-            [undefined, ''],
-            [null, ''],
-            [false, ''],
-            [true, ''],
-            ['', ''],
-            [' ', '']
-        ])
-            assert.strictEqual(
-                Tools.stringRepresentURL(test[0]), test[1])
-    })
+    test.each([
+        ['www.test.com', 'http://www.test.com'],
+        ['test', 'http://test'],
+        ['http://test', 'http://test'],
+        ['https://test', 'https://test']
+    ])(
+        "stringNormalizeURL('%s') === '%s'",
+        (url:string, normalizedURL:string):void =>
+            expect(Tools.stringNormalizeURL(url)).toStrictEqual(normalizedURL)
+    )
+    test.each([
+        ['http://www.test.com', 'www.test.com'],
+        ['ftp://www.test.com', 'ftp://www.test.com'],
+        ['https://www.test.com', 'www.test.com'],
+        [undefined, ''],
+        [null, ''],
+        [false, ''],
+        [true, ''],
+        ['', ''],
+        [' ', '']
+    ])(
+        "stringRepresentURL(%p) === '%s'", (value:any, expected:string):void =>
+            expect(Tools.stringRepresentURL(value)).toStrictEqual(expected)
+    )
     // // endregion
-    test('stringCamelCaseToDelimited', ():void => {
-        for (const test:Array<any> of [
-            [['hansPeter'], 'hans-peter'],
-            [['hansPeter', '|'], 'hans|peter'],
-            [[''], ''],
-            [['h'], 'h'],
-            [['hP', ''], 'hp'],
-            [['hansPeter'], 'hans-peter'],
-            [['hans-peter'], 'hans-peter'],
-            [['hansPeter', '_'], 'hans_peter'],
-            [['hansPeter', '+'], 'hans+peter'],
-            [['Hans'], 'hans'],
-            [['hansAPIURL', '-', ['api', 'url']], 'hans-api-url'],
-            [['hansPeter', '-', []], 'hans-peter']
-        ])
-            assert.strictEqual(
-                Tools.stringCamelCaseToDelimited(...test[0]), test[1])
-    })
-    test('stringCapitalize', ():void => {
-        for (const test:Array<any> of [
-            ['hansPeter', 'HansPeter'],
-            ['', ''],
-            ['a', 'A'],
-            ['A', 'A'],
-            ['AA', 'AA'],
-            ['Aa', 'Aa'],
-            ['aa', 'Aa']
-        ])
-            assert.strictEqual(
-                Tools.stringCapitalize(test[0]), test[1])
-    })
-    test('stringCompressStyleValue', ():void => {
-        for (const test:Array<any> of [
-            ['', ''],
-            [' border: 1px  solid red;', 'border:1px solid red'],
-            ['border : 1px solid red ', 'border:1px solid red'],
-            ['border : 1px  solid red ;', 'border:1px solid red'],
-            ['border : 1px  solid red   ; ', 'border:1px solid red'],
-            ['height: 1px ; width:2px ; ', 'height:1px;width:2px'],
-            [';;height: 1px ; width:2px ; ;', 'height:1px;width:2px'],
-            [' ;;height: 1px ; width:2px ; ;', 'height:1px;width:2px'],
-            [';height: 1px ; width:2px ; ', 'height:1px;width:2px']
-        ])
-            assert.strictEqual(
-                Tools.stringCompressStyleValue(test[0]), test[1])
-    })
-    test('stringDecodeHTMLEntities', ():void => {
-        for (const test:Array<string> of [
-            ['', ''],
-            ['<div></div>', '<div></div>'],
-            ['<div>&amp;</div>', '<div>&</div>'],
-            [
-                '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>',
-                '<div>&äÄüÜöÖ</div>'
-            ]
-        ])
-            assert.equal(
-                Tools.stringDecodeHTMLEntities(test[0]), test[1])
-    })
-    test('stringDelimitedToCamelCase', ():void => {
-        for (const test:Array<any> of [
-            [['hans-peter'], 'hansPeter'],
-            [['hans|peter', '|'], 'hansPeter'],
-            [[''], ''],
-            [['h'], 'h'],
-            [['hans-peter'], 'hansPeter'],
-            [['hans--peter'], 'hans-Peter'],
-            [['Hans-Peter'], 'HansPeter'],
-            [['-Hans-Peter'], '-HansPeter'],
-            [['-'], '-'],
-            [['hans-peter', '_'], 'hans-peter'],
-            [['hans_peter', '_'], 'hansPeter'],
-            [['hans_id', '_'], 'hansID'],
-            [['url_hans_id', '_', ['hans']], 'urlHANSId'],
-            [['url_hans_1', '_'], 'urlHans1'],
-            [['hansUrl1', '-', ['url'], true], 'hansUrl1'],
-            [['hans-url', '-', ['url'], true], 'hansURL'],
-            [['hans-Url', '-', ['url'], true], 'hansUrl'],
-            [['hans-Url', '-', ['url'], false], 'hansURL'],
-            [['hans-Url', '-', [], false], 'hansUrl'],
-            [['hans--Url', '-', [], false, true], 'hansUrl']
-        ])
-            assert.strictEqual(
-                Tools.stringDelimitedToCamelCase(...test[0]), test[1])
-    })
-*/
+    test.each([
+        [['hansPeter'], 'hans-peter'],
+        [['hansPeter', '|'], 'hans|peter'],
+        [[''], ''],
+        [['h'], 'h'],
+        [['hP', ''], 'hp'],
+        [['hansPeter'], 'hans-peter'],
+        [['hans-peter'], 'hans-peter'],
+        [['hansPeter', '_'], 'hans_peter'],
+        [['hansPeter', '+'], 'hans+peter'],
+        [['Hans'], 'hans'],
+        [['hansAPIURL', '-', ['api', 'url']], 'hans-api-url'],
+        [['hansPeter', '-', []], 'hans-peter']
+    ])(
+        "stringCamelCaseToDelimited(...%p) === '%s'",
+        (parameter:Array<string>, expected:string):void =>
+            expect(Tools.stringCamelCaseToDelimited(...parameter))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        ['hansPeter', 'HansPeter'],
+        ['', ''],
+        ['a', 'A'],
+        ['A', 'A'],
+        ['AA', 'AA'],
+        ['Aa', 'Aa'],
+        ['aa', 'Aa']
+    ])(
+        "stringCapitalize('%s') === '%s'",
+        (word:string, expected:string):void =>
+            expect(Tools.stringCapitalize(word)).toStrictEqual(expected)
+    )
+    test.each([
+        ['', ''],
+        [' border: 1px  solid red;', 'border:1px solid red'],
+        ['border : 1px solid red ', 'border:1px solid red'],
+        ['border : 1px  solid red ;', 'border:1px solid red'],
+        ['border : 1px  solid red   ; ', 'border:1px solid red'],
+        ['height: 1px ; width:2px ; ', 'height:1px;width:2px'],
+        [';;height: 1px ; width:2px ; ;', 'height:1px;width:2px'],
+        [' ;;height: 1px ; width:2px ; ;', 'height:1px;width:2px'],
+        [';height: 1px ; width:2px ; ', 'height:1px;width:2px']
+    ])(
+        "stringCompressStyleValue('%s') === '%s'",
+        (css:string, expected:string):void =>
+            expect(Tools.stringCompressStyleValue(css)).toStrictEqual(expected)
+    )
+    test.each([
+        ['', $.document ? '' : null],
+        ['<div></div>', $.document ? '<div></div>' : null],
+        ['<div>&amp;</div>', $.document ? '<div>&</div>' : null],
+        [
+            '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>',
+            $.document ? '<div>&äÄüÜöÖ</div>' : null
+        ]
+    ])(
+        "stringDecodeHTMLEntities('%s') === '%s'",
+        (markup:string, expected:string):void =>
+            expect(Tools.stringDecodeHTMLEntities(markup))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        [['hans-peter'], 'hansPeter'],
+        [['hans|peter', '|'], 'hansPeter'],
+        [[''], ''],
+        [['h'], 'h'],
+        [['hans-peter'], 'hansPeter'],
+        [['hans--peter'], 'hans-Peter'],
+        [['Hans-Peter'], 'HansPeter'],
+        [['-Hans-Peter'], '-HansPeter'],
+        [['-'], '-'],
+        [['hans-peter', '_'], 'hans-peter'],
+        [['hans_peter', '_'], 'hansPeter'],
+        [['hans_id', '_'], 'hansID'],
+        [['url_hans_id', '_', ['hans']], 'urlHANSId'],
+        [['url_hans_1', '_'], 'urlHans1'],
+        [['hansUrl1', '-', ['url'], true], 'hansUrl1'],
+        [['hans-url', '-', ['url'], true], 'hansURL'],
+        [['hans-Url', '-', ['url'], true], 'hansUrl'],
+        [['hans-Url', '-', ['url'], false], 'hansURL'],
+        [['hans-Url', '-', [], false], 'hansUrl'],
+        [['hans--Url', '-', [], false, true], 'hansUrl']
+    ])(
+        "stringDelimitedToCamelCase(...%p) === '%s'",
+        (parameter:Array<string>, expected:string):void =>
+            expect(Tools.stringDelimitedToCamelCase(...parameter))
+                .toStrictEqual(expected)
+    )
     test.each([
         ['null', [], 'function'],
         ['null', {}, 'function'],
@@ -2687,54 +2687,54 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 expression, scope, false, ...[].concat(binding ? binding : [])
             )).toHaveProperty(resultKey, ...[].concat(result ? result : []))
     )
+    test.each([
+        [['', ''], null],
+        [['hans', ''], null],
+        [['hans', 'a'], [1, 2]],
+        [['hans', 'an'], [1, 3]],
+        [['hans', 'han'], [0, 3]],
+        [['hans', 'hans'], [0, 4]],
+        [['hans', 'ans'], [1, 4]],
+        [['hans hans', 'ans'], [1, 4]],
+        [
+            [' hAns ', 'ans', (value:any):string => value.toLowerCase()],
+            [2, 5]
+        ],
+        [
+            ['a straße b', 'strasse', (value:any):string =>
+                value.replace(/ß/g, 'ss').toLowerCase()
+            ],
+            [2, 8]
+        ],
+        [
+            ['a strasse b', 'strasse', (value:any):string =>
+                value.replace(/ß/g, 'ss').toLowerCase()
+            ],
+            [2, 9]
+        ],
+        [
+            ['a strasse b', 'straße', (value:any):string =>
+                value.replace(/ß/g, 'ss').toLowerCase()
+            ],
+            [2, 9]
+        ]
+    ])(
+        'stringFindNormalizedMatchRange(...%p) === %p',
+        (parameter:Array<any>, expected:any):void =>
+            expect(Tools.stringFindNormalizedMatchRange(...parameter))
+               .toStrictEqual(expected)
+    )
+    test.each([
+        [['{1}', 'test'], 'test'],
+        [['', 'test'], ''],
+        [['{1}'], '{1}'],
+        [['{1} test {2} - {2}', 1, 2], '1 test 2 - 2']
+    ])(
+        "stringFormat(...%p) === '%s'",
+        (parameter:Array<number|string>, expected:string):void =>
+            expect(Tools.stringFormat(...parameter)).toStrictEqual(expected)
+    )
 /*
-    test('stringFindNormalizedMatchRange', ():void => {
-        for (const test:Array<any> of [
-            [['', ''], null],
-            [['hans', ''], null],
-            [['hans', 'a'], [1, 2]],
-            [['hans', 'an'], [1, 3]],
-            [['hans', 'han'], [0, 3]],
-            [['hans', 'hans'], [0, 4]],
-            [['hans', 'ans'], [1, 4]],
-            [['hans hans', 'ans'], [1, 4]],
-            [
-                [' hAns ', 'ans', (value:any):string => value.toLowerCase()],
-                [2, 5]
-            ],
-            [
-                ['a straße b', 'strasse', (value:any):string =>
-                    value.replace(/ß/g, 'ss').toLowerCase()
-                ],
-                [2, 8]
-            ],
-            [
-                ['a strasse b', 'strasse', (value:any):string =>
-                    value.replace(/ß/g, 'ss').toLowerCase()
-                ],
-                [2, 9]
-            ],
-            [
-                ['a strasse b', 'straße', (value:any):string =>
-                    value.replace(/ß/g, 'ss').toLowerCase()
-                ],
-                [2, 9]
-            ]
-        ])
-            assert.deepEqual(Tools.stringFindNormalizedMatchRange(
-                ...test[0]
-            ), test[1])
-    })
-    test('stringFormat', ():void => {
-        for (const test:Array<any> of [
-            [['{1}', 'test'], 'test'],
-            [['', 'test'], ''],
-            [['{1}'], '{1}'],
-            [['{1} test {2} - {2}', 1, 2], '1 test 2 - 2']
-        ])
-            assert.strictEqual(
-                Tools.stringFormat(...test[0]), test[1])
-    })
     test('stringGetEditDistance', ():void => {
         for (const test:Array<any> of [
             ['', '', 0],

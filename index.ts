@@ -3872,7 +3872,7 @@ export class Tools<TElement = HTMLElement> {
      * Default is derived from current protocol name.
      * @param parameter - Additional parameter for checking if given url is an
      * internal url. Given url and this parameter will be forwarded to the
-     * "stringIsInternalURL()" method.
+     * "stringServiceURLEquals()" method.
      * @returns Extracted port number.
      */
     static stringGetPortNumber(
@@ -3890,7 +3890,7 @@ export class Tools<TElement = HTMLElement> {
             return fallback
         if (
             // NOTE: Would result in an endless loop:
-            // Tools.stringIsInternalURL(url, ...parameter) &&
+            // Tools.stringServiceURLEquals(url, ...parameter) &&
             $.location?.port &&
             parseInt($.location.port, 10)
         )
@@ -4040,34 +4040,29 @@ export class Tools<TElement = HTMLElement> {
         return parameter
     }
     /**
-     * Checks if given url points to another domain than second given url. If
-     * no second given url provided current url will be assumed.
-     * @param firstURL - URL to check against second url.
-     * @param secondURL - URL to check against first url.
+     * Checks if given url points to another "service" than second given url.
+     * If no second given url provided current url will be assumed.
+     * @param url - URL to check against second url.
+     * @param referenceURL - URL to check against first url.
      * @returns Returns "true" if given first url has same domain as given
      * second (or current).
      */
-    static stringIsInternalURL(
-        firstURL:string, secondURL:string = $.location?.href || ''
+    static stringServiceURLEquals(
+        url:string, referenceURL:string = $.location?.href || ''
     ):boolean {
-        const explicitDomainName:string =
-            Tools.stringGetDomainName(firstURL, '')
-        const explicitProtocolName:string =
-            Tools.stringGetProtocolName(firstURL, '')
-        const explicitPortNumber = Tools.stringGetPortNumber(firstURL)
+        const domain:string = Tools.stringGetDomainName(url, '')
+        const protocol:string = Tools.stringGetProtocolName(url, '')
+        const port:number = Tools.stringGetPortNumber(url)
         return (
             (
-                explicitDomainName === '' ||
-                explicitDomainName === Tools.stringGetDomainName(secondURL)
+                domain === '' ||
+                domain === Tools.stringGetDomainName(referenceURL)
             ) &&
             (
-                explicitProtocolName === '' ||
-                explicitProtocolName === Tools.stringGetProtocolName(secondURL)
+                protocol === '' ||
+                protocol === Tools.stringGetProtocolName(referenceURL)
             ) &&
-            (
-                explicitPortNumber === null ||
-                explicitPortNumber === Tools.stringGetPortNumber(secondURL)
-            )
+            (port === null || port === Tools.stringGetPortNumber(referenceURL))
         )
     }
     /**
