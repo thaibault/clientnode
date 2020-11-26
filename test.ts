@@ -2270,15 +2270,15 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [['http://a.de'], 'a.de'],
         [['http://localhost'], 'localhost'],
         [['localhost', 'a'], 'a'],
-        [['a', $.global.location.hostname], $.global.location.hostname],
+        [['a', $.location?.hostname], $.location?.hostname || ''],
         [['//a'], 'a'],
         [
-            [ 'a/site/subSite?param=value#hash', $.global.location.hostname],
-            $.global.location.hostname
+            [ 'a/site/subSite?param=value#hash', $.location?.hostname],
+            $.location?.hostname || ''
         ],
         [
-            ['/a/site/subSite?param=value#hash', $.global.location.hostname],
-            $.global.location.hostname
+            ['/a/site/subSite?param=value#hash', $.location?.hostname],
+            $.location?.hostname || ''
         ],
         [
             ['//alternate.local/a/site/subSite?param=value#hash'],
@@ -2291,73 +2291,78 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expect(Tools.stringGetDomainName(...parameter))
                 .toStrictEqual(expected)
     )
-    /* TODO
-    test('stringGetPortNumber', ():void => {
-        for (const test:Array<any> of [
-            [['https://www.test.de/site/subSite?param=value#hash'], 443],
-            [['http://www.test.de'], 80],
-            [['http://www.test.de', true], true],
-            [['www.test.de', true], true],
-            [['a', true], true],
-            [['a', true], true],
-            [['a:80'], 80],
-            [['a:20'], 20],
-            [['a:444'], 444],
-            [['http://localhost:89'], 89],
-            [['https://localhost:89'], 89]
-        ])
-            assert.strictEqual(
-                Tools.stringGetPortNumber(...test[0]), test[1])
-    })
-    test('stringGetProtocolName', ():void => {
-        for (const test:Array<any> of [
+    test.each([
+        [['https://www.test.de/site/subSite?param=value#hash'], 443],
+        [['http://www.test.de'], 80],
+        [['http://www.test.de', true], true],
+        [['www.test.de', true], true],
+        [['a', true], true],
+        [['a', true], true],
+        [['a:80'], 80],
+        [['a:20'], 20],
+        [['a:444'], 444],
+        [['http://localhost:89'], 89],
+        [['https://localhost:89'], 89]
+    ])(
+        'stringGetPortNumber(...%p) === %p',
+        (parameter:Array<any>, expected:any):void =>
+            expect(Tools.stringGetPortNumber(...parameter))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        [['https://www.test.de/site/subSite?param=value#hash'], 'https'],
+        [['http://www.test.de'], 'http'],
+        [
             [
-                ['https://www.test.de/site/subSite?param=value#hash'],
-                'https'
+                '//www.test.de',
+                $.location?.protocol
+                    .substring(0, $.location.protocol.length - 1)
             ],
-            [['http://www.test.de'], 'http'],
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1) ||
+            ''
+        ],
+        [['http://a.de'], 'http'],
+        [['ftp://localhost'], 'ftp'],
+        [
             [
-                ['//www.test.de', $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1)],
-                $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1)
+                'a',
+                $.location?.protocol
+                    .substring(0, $.location.protocol.length - 1)
             ],
-            [['http://a.de'], 'http'],
-            [['ftp://localhost'], 'ftp'],
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1) ||
+            ''
+        ],
+        [
             [
-                ['a', $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1)],
-                $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1)
+                'a/site/subSite?param=value#hash',
+                $.location?.protocol
+                    .substring(0, $.location.protocol.length - 1)
             ],
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1) ||
+            ''
+        ],
+        [['/a/site/subSite?param=value#hash', 'a'], 'a'],
+        [['alternate.local/a/site/subSite?param=value#hash', 'b'], 'b'],
+        [['alternate.local/', 'c'], 'c'],
+        [
             [
-                [
-                    'a/site/subSite?param=value#hash',
-                    $.global.location.protocol.substring(
-                        0, $.global.location.protocol.length - 1)
-                ],
-                $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1)
+                '',
+                $.location?.protocol
+                    .substring(0, $.location.protocol.length - 1)
             ],
-            [['/a/site/subSite?param=value#hash', 'a'], 'a'],
-            [
-                ['alternate.local/a/site/subSite?param=value#hash', 'b'],
-                'b'
-            ],
-            [['alternate.local/', 'c'], 'c'],
-            [
-                [
-                    '', $.global.location.protocol.substring(
-                        0, $.global.location.protocol.length - 1)
-                ],
-                $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1)
-            ]
-        ])
-            assert.strictEqual(
-                Tools.stringGetProtocolName(...test[0]), test[1])
-    })
-    */
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1) ||
+            ''
+        ]
+    ])(
+        "stringGetProtocolName(...%p) === '%s'",
+        (parameter:Array<string>, expected:string):void =>
+            expect(Tools.stringGetProtocolName(...parameter))
+                .toStrictEqual(expected)
+    )
     test.each([[], [null, true, '&'], [null, false, '&'], [null, false, '#']])(
         'Array.isArray(stringGetURLParameter(...)) === true',
         (...parameter:Array<any>):void =>
@@ -2403,64 +2408,74 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expect(Tools.stringGetURLParameter(key, ...parameter)).
                 toStrictEqual(expected)
     )
+    test.each([
+        [
+            'https://www.test.de/site/subSite?param=value#hash',
+            'https://www.test.de/site/subSite?param=value#hash'
+        ],
+        [
+            '//www.test.de/site/subSite?param=value#hash',
+            '//www.test.de/site/subSite?param=value#hash'
+        ],
+        [
+            `${$.location?.protocol || 'http'}//www.test.de/site/subSite` +
+                '?param=value#hash',
+            `${$.location?.protocol || 'http'}//www.test.de/site/subSite` +
+                `?param=value#hash`
+        ],
+        [
+            'https://www.test.de:443/site/subSite?param=value#hash',
+            'https://www.test.de/site/subSite?param=value#hash'
+        ],
+        [
+            '//www.test.de:80/site/subSite?param=value#hash',
+            '//www.test.de/site/subSite?param=value#hash'
+        ],
+        [
+            $.location?.href || 'http://localhost',
+            $.location?.href || 'http://localhost'
+        ],
+        ['1', $.location?.hre || 'http://localhost'],
+        ['#1', $.location?.href || 'http://localhost'],
+        ['/a', $.location?.href || 'http://localhost']
+    ])(
+        "stringIsInternalURL('%s', '%s') === true",
+        (firstURL:string, secondURL:string):void =>
+            expect(Tools.stringIsInternalURL(firstURL, secondURL))
+                .toStrictEqual(true)
+    )
+    test.each([
+        [
+            `${$.location?.protocol || 'http'}//www.test.de/site/subSite` +
+                '?param=value#hash',
+            'ftp://www.test.de/site/subSite?param=value#hash'
+        ],
+        [
+            'https://www.test.de/site/subSite?param=value#hash',
+            'http://www.test.de/site/subSite?param=value#hash'
+        ],
+        [
+            'http://www.test.de/site/subSite?param=value#hash',
+            'test.de/site/subSite?param=value#hash'
+        ],
+        [
+            `${$.location?.protocol || 'http'}//www.test.de:` +
+            `${$.location?.port || 80}/site/subSite` +
+            '?param=value#hash/site/subSite?param=value#hash',
+            $.location?.href || 'http://localhost:8080'
+        ],
+        [
+            `http://www.test.de:${$.location?.port || 80}/site/subSite?` +
+                'param=value#hash',
+            'https://www.test.de/site/subSite?param=value#hash'
+        ]
+    ])(
+        "stringIsInternalURL('%s', '%s') === false",
+        (firstURL:string, secondURL:string):void =>
+            expect(Tools.stringIsInternalURL(firstURL, secondURL))
+                .toStrictEqual(false)
+    )
     /* TODO
-    test('stringIsInternalURL', ():void => {
-        for (const test:Array<any> of [
-            [
-                'https://www.test.de/site/subSite?param=value#hash',
-                'https://www.test.de/site/subSite?param=value#hash'
-            ],
-            [
-                '//www.test.de/site/subSite?param=value#hash',
-                '//www.test.de/site/subSite?param=value#hash'
-            ],
-            [
-                `${$.global.location.protocol}//www.test.de/site/subSite` +
-                    '?param=value#hash',
-                `${$.global.location.protocol}//www.test.de/site/subSite` +
-                    `?param=value#hash`
-            ],
-            [
-                'https://www.test.de:443/site/subSite?param=value#hash',
-                'https://www.test.de/site/subSite?param=value#hash'
-            ],
-            [
-                '//www.test.de:80/site/subSite?param=value#hash',
-                '//www.test.de/site/subSite?param=value#hash'
-            ],
-            [$.global.location.href, $.global.location.href],
-            ['1', $.global.location.href],
-            ['#1', $.global.location.href],
-            ['/a', $.global.location.href]
-        ])
-            assert.ok(Tools.stringIsInternalURL(...test))
-        for (const test:Array<any> of [
-            [
-                `${$.global.location.protocol}//www.test.de/site/subSite` +
-                    '?param=value#hash',
-                'ftp://www.test.de/site/subSite?param=value#hash'
-            ],
-            [
-                'https://www.test.de/site/subSite?param=value#hash',
-                'http://www.test.de/site/subSite?param=value#hash'
-            ],
-            [
-                'http://www.test.de/site/subSite?param=value#hash',
-                'test.de/site/subSite?param=value#hash'
-            ],
-            [
-                `${$.global.location.protocol}//www.test.de:` +
-                `${$.global.location.port}/site/subSite` +
-                '?param=value#hash/site/subSite?param=value#hash'
-            ],
-            [
-                `http://www.test.de:${$.global.location.port}/site/subSite?` +
-                    'param=value#hash',
-                'https://www.test.de/site/subSite?param=value#hash'
-            ]
-        ])
-            assert.notOk(Tools.stringIsInternalURL(...test))
-    })
     test('stringNormalizeURL', ():void => {
         for (const test:Array<any> of [
             ['www.test.com', 'http://www.test.com'],

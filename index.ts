@@ -3865,8 +3865,8 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Extracts port number from given url. If no explicit port number given
      * and no fallback is defined current port number will be assumed for local
-     * links. For external links 80 will be assumed for http protocol or 443
-     * for https.
+     * links. For external links 80 will be assumed for http protocols and 443
+     * for https protocols.
      * @param url - The url to extract port from.
      * @param fallback - Fallback port number if no explicit one was found.
      * Default is derived from current protocol name.
@@ -3889,12 +3889,13 @@ export class Tools<TElement = HTMLElement> {
         if (fallback !== null)
             return fallback
         if (
-            Tools.stringIsInternalURL(url, ...parameter) &&
+            // NOTE: Would result in an endless loop:
+            // Tools.stringIsInternalURL(url, ...parameter) &&
             $.location?.port &&
             parseInt($.location.port, 10)
         )
             return parseInt($.location.port, 10)
-        return (Tools.stringGetProtocolName(url) === 'https') ? 443 : 80
+        return Tools.stringGetProtocolName(url) === 'https' ? 443 : 80
     }
     /**
      * Extracts protocol name from given url. If no explicit url is given,
@@ -3907,9 +3908,10 @@ export class Tools<TElement = HTMLElement> {
      */
     static stringGetProtocolName(
         url:string = $.location?.href || '',
-        fallback:string = $.location?.protocol &&
-        $.location.protocol.substring(0, $.location.protocol.length - 1) ||
-        ''
+        fallback:string =
+            $.location?.protocol &&
+            $.location.protocol.substring(0, $.location.protocol.length - 1) ||
+            ''
     ):string {
         const result:Array<string>|null = /^([a-z]+):\/\//i.exec(url)
         if (result && result.length > 1 && result[1])
@@ -4046,8 +4048,7 @@ export class Tools<TElement = HTMLElement> {
      * second (or current).
      */
     static stringIsInternalURL(
-        firstURL:string,
-        secondURL:string = $.location?.href || ''
+        firstURL:string, secondURL:string = $.location?.href || ''
     ):boolean {
         const explicitDomainName:string =
             Tools.stringGetDomainName(firstURL, '')
