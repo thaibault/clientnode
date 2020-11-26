@@ -2177,119 +2177,126 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     )
     // / endregion
     // / region string
-    /* TODO
-    test('stringEscapeRegularExpressions', ():void => {
-        for (const test:Array<any> of [
-            [[''], ''],
-            [[`that's no regex: .*$`], `that's no regex: \\.\\*\\$`],
+    test.each([
+        [[''], ''],
+        [[`that's no regex: .*$`], `that's no regex: \\.\\*\\$`],
+        [['-\\[]()^$*+.}-', '}'], '\\-\\\\[\\]\\(\\)\\^\\$\\*\\+\\.}\\-'],
+        [
             [
-                ['-\\[]()^$*+.}-', '}'],
-                '\\-\\\\[\\]\\(\\)\\^\\$\\*\\+\\.}\\-'
-            ],
-            [[
                 '-\\[]()^$*+.{}-',
                 ['[', ']', '(', ')', '^', '$', '*', '+', '.', '{']
-            ], '\\-\\[]()^$*+.{\\}\\-'],
-            [['-', '\\'], '\\-']
-        ])
-            assert.strictEqual(
-                Tools.stringEscapeRegularExpressions(...test[0]),
-                test[1])
-    })
-    test('stringConvertToValidVariableName', ():void => {
-        for (const test:Array<string> of [
-            ['', ''],
-            ['a', 'a'],
-            ['_a', '_a'],
-            ['_a_a', '_a_a'],
-            ['_a-a', '_aA'],
-            ['-a-a', 'aA'],
-            ['-a--a', 'aA'],
-            ['--a--a', 'aA']
-        ])
-            assert.strictEqual(
-                Tools.stringConvertToValidVariableName(test[0]), test[1]
-            )
-    })
+            ],
+            '\\-\\[]()^$*+.{\\}\\-'
+        ],
+        [['-', '\\'], '\\-']
+    ])(
+        "stringEscapeRegularExpressions(...%p) === '%s'",
+        (parameter:Array<string>, expected:string):void =>
+            expect(Tools.stringEscapeRegularExpressions(...parameter))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        ['', ''],
+        ['a', 'a'],
+        ['_a', '_a'],
+        ['_a_a', '_a_a'],
+        ['_a-a', '_aA'],
+        ['-a-a', 'aA'],
+        ['-a--a', 'aA'],
+        ['--a--a', 'aA']
+    ])(
+        "stringConvertToValidVariableName('%s') === '%s'",
+        (name:string, expected:string):void =>
+            expect(Tools.stringConvertToValidVariableName(name))
+                .toStrictEqual(expected)
+    )
     // // region url handling 
-    test('stringEncodeURIComponent', ():void => {
-        for (const test:Array<any> of [
-            [[''], ''],
-            [[' '], '+'],
-            [[' ', true], '%20'],
-            [['@:$, '], '@:$,+'],
-            [['+'], '%2B']
-        ])
-            assert.strictEqual(
-                Tools.stringEncodeURIComponent(...test[0]), test[1])
-    })
-    test('stringAddSeparatorToPath', ():void => {
-        for (const test:Array<any> of [
-            [[''], ''],
-            [['/'], '/'],
-            [['/a'], '/a/'],
-            [['/a/bb/'], '/a/bb/'],
-            [['/a/bb'], '/a/bb/'],
-            [['/a/bb', '|'], '/a/bb|'],
-            [['/a/bb/', '|'], '/a/bb/|']
-        ])
-            assert.strictEqual(
-                Tools.stringAddSeparatorToPath(...test[0]), test[1])
-    })
-    test('stringHasPathPrefix', ():void => {
-        for (const test:Array<any> of [
-            ['/admin', '/admin'],
-            ['test', 'test'],
-            ['', ''],
-            ['a', 'a/b'],
-            ['a/', 'a/b'],
-            ['/admin', '/admin#test', '#']
-        ])
-            assert.ok(Tools.stringHasPathPrefix(...test))
-        for (const test:Array<any> of [
-            ['b', 'a/b'],
-            ['b/', 'a/b'],
-            ['/admin/', '/admin/test', '#'],
-            ['/admin', '/admin/test', '#']
-        ])
-            assert.notOk(Tools.stringHasPathPrefix(...test))
-    })
-    test('stringGetDomainName', ():void => {
-        for (const test:Array<any> of [
+    test.each([
+        [[''], ''],
+        [[' '], '+'],
+        [[' ', true], '%20'],
+        [['@:$, '], '@:$,+'],
+        [['+'], '%2B']
+    ])(
+        "stringEncodeURIComponent(...%p), === '%s'",
+        (parameter:Array<any>, expected:string):void =>
+            expect(Tools.stringEncodeURIComponent(...parameter))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        [[''], ''],
+        [['/'], '/'],
+        [['/a'], '/a/'],
+        [['/a/bb/'], '/a/bb/'],
+        [['/a/bb'], '/a/bb/'],
+        [['/a/bb', '|'], '/a/bb|'],
+        [['/a/bb/', '|'], '/a/bb/|']
+    ])(
+        "stringAddSeparatorToPath(...%p) === '%s'",
+        (parameter:Array<string>, expected:string):void =>
+            expect(Tools.stringAddSeparatorToPath(...parameter))
+                .toStrictEqual(expected)
+    )
+    test.each([
+        ['/admin', '/admin'],
+        ['test', 'test'],
+        ['', ''],
+        ['a', 'a/b'],
+        ['a/', 'a/b'],
+        ['/admin', '/admin#test', '#']
+    ])(
+        'stringHasPathPrefix(...%p) === true',
+        (...parameter:Array<string>):void =>
+            expect(Tools.stringHasPathPrefix(...parameter)).toStrictEqual(true)
+    )
+    test.each([
+        ['b', 'a/b'],
+        ['b/', 'a/b'],
+        ['/admin/', '/admin/test', '#'],
+        ['/admin', '/admin/test', '#']
+    ])(
+        'stringHasPathPrefix(...%p) === false',
+        (...parameter:Array<string>):void =>
+            expect(Tools.stringHasPathPrefix(...parameter))
+                .toStrictEqual(false)
+    )
+    test.each([
+        [
+            ['https://www.test.de/site/subSite?param=value#hash'],
+            'www.test.de'
+        ],
+        [['a', true], true],
+        [['http://www.test.de'], 'www.test.de'],
+        [['http://a.de'], 'a.de'],
+        [['http://localhost'], 'localhost'],
+        [['localhost', 'a'], 'a'],
+        [['a', $.global.location.hostname], $.global.location.hostname],
+        [['//a'], 'a'],
+        [
             [
-                ['https://www.test.de/site/subSite?param=value#hash'],
-                'www.test.de'
-            ],
-            [['a', true], true],
-            [['http://www.test.de'], 'www.test.de'],
-            [['http://a.de'], 'a.de'],
-            [['http://localhost'], 'localhost'],
-            [['localhost', 'a'], 'a'],
-            [['a', $.global.location.hostname], $.global.location.hostname],
-            [['//a'], 'a'],
-            [
-                [
-                    'a/site/subSite?param=value#hash',
-                    $.global.location.hostname
-                ],
+                'a/site/subSite?param=value#hash',
                 $.global.location.hostname
             ],
+            $.global.location.hostname
+        ],
+        [
             [
-                [
-                    '/a/site/subSite?param=value#hash',
-                    $.global.location.hostname
-                ],
+                '/a/site/subSite?param=value#hash',
                 $.global.location.hostname
             ],
-            [
-                ['//alternate.local/a/site/subSite?param=value#hash'],
-                'alternate.local'
-            ],
-            [['//alternate.local/'], 'alternate.local']
-        ])
-            assert.strictEqual(
-                Tools.stringGetDomainName(...test[0]), test[1])
-    })
+            $.global.location.hostname
+        ],
+        [
+            ['//alternate.local/a/site/subSite?param=value#hash'],
+            'alternate.local'
+        ],
+        [['//alternate.local/'], 'alternate.local']
+    ])(
+        'stringGetDomainName(...%p) === %p', ():void =>
+            expect(Tools.stringGetDomainName(...parameter))
+                .toStrictEqual(expected)
+    )
+    /* TODO
     test('stringGetPortNumber', ():void => {
         for (const test:Array<any> of [
             [['https://www.test.de/site/subSite?param=value#hash'], 443],
