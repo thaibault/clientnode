@@ -22,6 +22,10 @@ import {Stats} from 'fs'
 import Tools from './index'
 // endregion
 // region exports
+export type FirstParameter<FunctionType extends GenericFunction> =
+    Parameters<FunctionType>[0]
+export type FunctionTestTuple<FunctionType extends GenericFunction> =
+    [ReturnType<FunctionType>, ...Parameters<FunctionType>]
 export type StaticScope = JQueryStatic
 export type ToolsFunction<TElement = HTMLElement> =
     ((...parameter:Array<any>) => any|Tools<TElement>) & {class:typeof Tools}
@@ -104,6 +108,7 @@ export type Primitive = boolean|null|number|string|undefined
 export type PlainObject<T=Primitive> = {
     [key:string]:Array<PlainObject<T>|T>|PlainObject<T>|T
 }
+export type GenericFunction = (...parameter:Array<any>) => any
 export type ProcedureFunction = (...parameter:Array<any>) => void|Promise<void>
 export type GetterFunction = (keyOrValue:any, key:any, target:any) => any
 export type SetterFunction = (key:any, value:any, target:any) => any

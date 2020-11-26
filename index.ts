@@ -3210,9 +3210,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Summarized array.
      */
     static arrayAggregatePropertyIfEqual(
-        data:Array<Mapping<any>>,
-        propertyName:string,
-        defaultValue:any = ''
+        data:Array<Mapping<any>>, propertyName:string, defaultValue:any = ''
     ):any {
         let result:any = defaultValue
         if (
@@ -4052,7 +4050,7 @@ export class Tools<TElement = HTMLElement> {
     ):boolean {
         const domain:string = Tools.stringGetDomainName(url, '')
         const protocol:string = Tools.stringGetProtocolName(url, '')
-        const port:number = Tools.stringGetPortNumber(url)
+        const port:null|number = Tools.stringGetPortNumber(url)
         return (
             (
                 domain === '' ||

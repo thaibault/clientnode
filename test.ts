@@ -12,6 +12,17 @@
     naming 3.0 unported license.
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
+
+    generic test boilerplate:
+
+    test.each<FunctionTestTuple<FUNCTION>>([
+        [EXPECTED, ...PARAMETERS],
+        ...
+    ])(
+        '%p === FUNCTION(...%p)',
+        (expected:ReturnType<FUNCTION>, ...parameters:Parameters<FUNCTION>) =>
+            expect(FUNCTION(...parameters)).toStrictEqual(expected)
+    )
 */
 // region imports
 if (!('fetch' in globalContext))
@@ -29,6 +40,9 @@ import {InitializedBrowser} from 'weboptimizer/type'
 import Tools, {globalContext, Semaphore, ValueCopySymbol, $} from './index'
 import {
     File,
+    FirstParameter,
+    FunctionTestTuple,
+    GenericFunction,
     Mapping,
     ObjectMaskConfiguration,
     PlainObject,
@@ -54,6 +68,19 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
 }
 const hasDOM:boolean = ['browser', 'node-with-dom'].includes(testEnvironment)
 // endregion
+const testEach = <FunctionType extends GenericFunction>(
+    functionName:string,
+    callback:FunctionType,
+    ...functionTestTuple:Array<FunctionTestTuple<FunctionType>>
+):void => test.each<[...FunctionTestTuple<FunctionType>]>(
+    [...functionTestTuple]
+)(
+    `%p === ${functionName}(...%p)`,
+    (
+        expected:ReturnType<FunctionType>,
+        ...parameters:Parameters<FunctionType>
+    ):void => expect(callback(...parameters)).toStrictEqual(expected)
+)
 // region semaphore
 describe(`${Semaphore._name} (${testEnvironment})`, ():void => {
     test('constructor', ():void => {
@@ -207,12 +234,15 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(semaphore.numberOfFreeResources).toStrictEqual(3)
     })
     // / endregion
-    // / region b oolean
-    test.each([0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10])(
-        'isNumeric(%s) === true',
-        (value:any):void => expect(Tools.isNumeric(value)).toStrictEqual(true)
+    // / region boolean
+    test.each<FirstParameter<typeof Tools.isNumeric>>([
+        0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10
+    ])(
+        'true === isNumeric(%s)',
+        (value:Parameters<typeof Tools.isNumeric>[0]):void =>
+            expect(Tools.isNumeric(value)).toStrictEqual(true)
     )
-    test.each([
+    test.each<FirstParameter<typeof Tools.isNumeric>>([
         null,
         undefined,
         false,
@@ -226,8 +256,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         NaN,
         Infinity
     ])(
-        'isNumeric(%p) === false',
-        (value:any):void => expect(Tools.isNumeric(value)).toStrictEqual(false)
+        'false === isNumeric(%p)',
+        (value:FirstParameter<typeof Tools.isNumeric>):void =>
+            expect(Tools.isNumeric(value)).toStrictEqual(false)
     )
     test('isWindow', async ():Promise<void> => {
         const browser:InitializedBrowser = await getInitializedBrowser()
@@ -242,57 +273,66 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ])
             expect(Tools.isArrayLike(value)).toStrictEqual(true)
     })
-    test.each([{}, null, undefined, false, true, /a/])(
-        'isArrayLike(%p) === false',
-        (value:any):void =>
-            expect(Tools.isArrayLike(value)).toStrictEqual(false)
+    test.each<FirstParameter<typeof Tools.isArrayLike>>([
+        {}, null, undefined, false, true, /a/
+    ])('false === isArrayLike(%p)', (value:any):void =>
+        expect(Tools.isArrayLike(value)).toStrictEqual(false)
     )
-    test.each([
+    test.each<Parameters<typeof Tools.isAnyMatching>>([
         ['', ['']],
         ['test', [/test/]],
         ['test', [/a/, /b/, /es/]],
         ['test', ['', 'test']]
     ])(
-        `isAnyMatching('%s', %p) === true`,
-        (target:string, pattern:Array<string|RegExp>):void =>
-            expect(Tools.isAnyMatching(target, pattern)).toStrictEqual(true)
+        `true === isAnyMatching('%s', %p)`,
+        (...parameters:Parameters<typeof Tools.isAnyMatching>):void =>
+            expect(Tools.isAnyMatching(...parameters)).toStrictEqual(true)
     )
-    test.each([
+    test.each<Parameters<typeof Tools.isAnyMatching>>([
         ['', []],
         ['test', [/tes$/]],
         ['test', [/^est/]],
         ['test', [/^est$/]],
         ['test', ['a']]
     ])(
-        `isAnyMatching('%s', %p) === false`,
-        (target:string, pattern:Array<string|RegExp>):void =>
-            expect(Tools.isAnyMatching(target, pattern)).toStrictEqual(false)
+        `false === isAnyMatching('%s', %p)`,
+        (...parameters:Parameters<typeof Tools.isAnyMatching>):void =>
+            expect(Tools.isAnyMatching(...parameters)).toStrictEqual(false)
     )
-    test.each([
+    test.each<FirstParameter<typeof Tools.isPlainObject>>([
         {},
         {a: 1},
         /* eslint-disable no-new-object */
         new Object()
         /* eslint-enable no-new-object */
-    ])('isPlainObject(%p) === true', (value:any):void =>
-        expect(Tools.isPlainObject(value)).toStrictEqual(true)
+    ])(
+        'true === isPlainObject(%p)',
+        (value:FirstParameter<typeof Tools.isPlainObject>):void =>
+            expect(Tools.isPlainObject(value)).toStrictEqual(true)
     )
-    test.each([new String(), Object, null, 0, 1, true, undefined])(
-        'isPlainObject(%p) === false',
-        (value:any):void =>
+    test.each<FirstParameter<typeof Tools.isPlainObject>>([
+        new String(), Object, null, 0, 1, true, undefined
+    ])(
+        'false === isPlainObject(%p)',
+        (value:FirstParameter<typeof Tools.isPlainObject>):void =>
             expect(Tools.isPlainObject(value)).toStrictEqual(false)
     )
-    test.each([
+    test.each<FirstParameter<typeof Tools.isFunction>>([
         Object,
         new Function('return 1'),
         function():void {},
         ():void => {},
         async ():Promise<void> => {}
-    ])('isFunction(%p) === true', (value:any):void =>
-        expect(Tools.isFunction(value)).toStrictEqual(true)
+    ])(
+        'true === isFunction(%p)',
+        (value:FirstParameter<typeof Tools.isFunction>):void =>
+            expect(Tools.isFunction(value)).toStrictEqual(true)
     )
-    test.each([null, false, 0, 1, undefined, {}, new Boolean()])(
-        'isFunction(%p) === false', (value:any):void =>
+    test.each<FirstParameter<typeof Tools.isFunction>>([
+        null, false, 0, 1, undefined, {}, new Boolean()
+    ])(
+        'false === isFunction(%p)',
+        (value:FirstParameter<typeof Tools.isFunction>):void =>
             expect(Tools.isFunction(value)).toStrictEqual(false)
     )
     // / endregion
@@ -319,14 +359,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             .toStrictEqual(true)
         /* eslint-enable no-control-regex */
     )
-    test.each([
-        [1, '1 (Type: "number")'],
-        [null, 'null (Type: "null")'],
-        [/a/, '/a/ (Type: "regexp")'],
-        ['hans', 'hans (Type: "string")'],
-        [{A: 'a', B: 'b'}, 'A: a (Type: "string")\nB: b (Type: "string")']
-    ])('show(%p) === %s', (value:any, expected:string):void =>
-        expect(Tools.show(value)).toStrictEqual(expected)
+    testEach<typeof Tools.show>(
+        'show',
+        Tools.show,
+        ['1 (Type: "number")', 1],
+        ['null (Type: "null")', null],
+        ['/a/ (Type: "regexp")', /a/],
+        ['hans (Type: "string")', 'hans'],
+        ['A: a (Type: "string")\nB: b (Type: "string")', {A: 'a', B: 'b'}]
     )
     // / endregion
     // / region dom node handling
@@ -425,7 +465,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                     .prop('outerHTML')
             )
         })
-        test.each([
+        test.each<[string, Mapping]>([
             ['<span>', {}],
             ['<span>hans</span>', {}],
             ['<span style="display:block"></span>', {display: 'block'}],
@@ -449,7 +489,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 $domNode.remove()
             }
         )
-        test.each([
+        test.each<[string, string]>([
             ['<div>', ''],
             ['<div>hans</div>', 'hans'],
             ['<div><div>hans</div</div>', ''],
@@ -460,7 +500,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 expect($(html).Tools('text')).toStrictEqual(text)
         )
         // endregion
-        test.each([
+        test.each<Parameters<typeof Tools.isEquivalentDOM>>([
             ['test', 'test'],
             ['test test', 'test test'],
             ['<div>', '<div>'],
@@ -506,16 +546,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             ],
             ['a<br>', 'a<br />', true]
         ])(
-            `isEquivalentDOM('%s', '%s') === true`,
-            (
-                first:$DomNode<HTMLElement>|string,
-                second:string,
-                forceHTMLString:boolean = false
-            ):void =>
-                expect(Tools.isEquivalentDOM(first, second, forceHTMLString))
+            `true === isEquivalentDOM('%s', '%s')`,
+            (...parameters:Parameters<typeof Tools.isEquivalentDOM>):void =>
+                expect(Tools.isEquivalentDOM(...parameters))
                     .toStrictEqual(true)
         )
-        test.each([
+        test.each<Parameters<typeof Tools.isEquivalentDOM>>([
             ['test', ''],
             ['test', 'hans'],
             ['test test', 'testtest'],
@@ -533,9 +569,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             ['text', 'text a'],
             ['text', 'text a & +']
         ])(
-            `isEquivalentDOM('%s', '%s') === false`,
-            (first:$DomNode<HTMLElement>|string, second:string):void =>
-                expect(Tools.isEquivalentDOM(first, second))
+            `false === isEquivalentDOM('%s', '%s')`,
+            (...parameters:Parameters<typeof Tools.isEquivalentDOM>):void =>
+                expect(Tools.isEquivalentDOM(...parameters))
                     .toStrictEqual(false)
         )
         test('getPositionRelativeToViewport', ():void =>
@@ -543,33 +579,31 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 .toContain(tools.getPositionRelativeToViewport())
         )
     }
-    test.each([
-        ['a-b', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
-        ['aB', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
-        ['a', 'a, .a, [a], [data-a], [x-a]'],
-        ['aa', 'aa, .aa, [aa], [data-aa], [x-aa]'],
+    // TODO
+    testEach<typeof Tools.generateDirectiveSelector>(
+        'generateDirectiveSelector',
+        Tools.generateDirectiveSelector,
+        ['a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]', 'a-b'],
+        ['a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]', 'aB'],
+        ['a, .a, [a], [data-a], [x-a]', 'a'],
+        ['aa, .aa, [aa], [data-aa], [x-aa]', 'aa'],
         [
-            'aaBB',
             'aa-bb, .aa-bb, ' +
-            '[aa-bb], [data-aa-bb], [x-aa-bb], [aa\\:bb], [aa_bb]'
+            '[aa-bb], [data-aa-bb], [x-aa-bb], [aa\\:bb], [aa_bb]',
+            'aaBB'
         ],
         [
-            'aaBbCcDd',
             'aa-bb-cc-dd, .aa-bb-cc-dd, ' +
             '[aa-bb-cc-dd], [data-aa-bb-cc-dd], [x-aa-bb-cc-dd], ' +
-            '[aa\\:bb\\:cc\\:dd], [aa_bb_cc_dd]'
+            '[aa\\:bb\\:cc\\:dd], [aa_bb_cc_dd]',
+            'aaBbCcDd'
         ],
         [
-            'mceHREF',
             'mce-href, .mce-href, ' +
             '[mce-href], [data-mce-href], [x-mce-href], [mce\\:href], ' +
-            '[mce_href]'
+            '[mce_href]',
+            'mceHREF'
         ]
-    ])(
-        `generateDirectiveSelector('%s') === '%s'`,
-        (name:string, selector:string):void =>
-            expect(Tools.generateDirectiveSelector(name))
-                .toStrictEqual(selector)
     )
     if (hasDOM)
         test('removeDirective', async ():Promise<void> => {
@@ -578,7 +612,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expect($localBodyDomNode.Tools().removeDirective('a'))
                 .toStrictEqual($localBodyDomNode)
         })
-    test.each([
+    test.each<[string, string]>([
         ['data-a', 'a'], ['x-a', 'a'], ['data-a-bb', 'aBb'], ['x:a:b', 'aB']
     ])(
         `getNormalizedDirectiveName('%s') === '%s'`,
@@ -604,7 +638,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 .sliceDomNodeSelectorPrefix('body div')
         ).toStrictEqual('body div')
     })
-    test.each([
+    test.each<[string, string]>([
         ['div', 'div'],
         ['<div>', 'div'],
         ['<div />', 'div'],
@@ -694,7 +728,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     })
     // / endregion
     // / region function handling
-    test.each([
+    test.each<[Function|string, Array<string>]>([
         [function():void {}, []],
         ['function() {}', []],
         ['function(a, /* dummy*/ b, c/**/) {}', ['a', 'b', 'c']],
@@ -725,14 +759,16 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         const testObject = {}
         expect(Tools.identity(testObject)).toStrictEqual(testObject)
     })
-    test.each([
+    test.each<[any, any]>([
         [2, 2],
         ['', ''],
         [undefined, undefined],
         [null, null],
         ['hans', 'hans']
-    ])('identity(%p) === %p', (given:any, expected:any):void =>
-        expect(Tools.identity(given)).toStrictEqual(expected)
+    ])(
+        'identity(%p) === %p',
+        (given:any, expected:any):void =>
+            expect(Tools.identity(given)).toStrictEqual(expected)
     )
     test('invertArrayFilter', ():void => {
         expect(
@@ -903,18 +939,21 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(Tools.convertCircularObjectToJSON(object1))
             .toStrictEqual('{"a":{"a":"__circularReference__"}}')
     })
-    test.each([
-        [{}, '{}'],
-        [{a: null}, '{"a":null}'],
-        [{a: {a: 2}}, '{"a":{"a":2}}'],
-        [{a: {a: Infinity}}, '{"a":{"a":null}}']
+    test.each<FunctionTestTuple<typeof Tools.convertCircularObjectToJSON>>([
+        ['{}', {}],
+        ['{"a":null}', {a: null}],
+        ['{"a":{"a":2}}', {a: {a: 2}}],
+        ['{"a":{"a":null}}', {a: {a: Infinity}}]
     ])(
-        `convertCircularObjectToJSON(%p) === '%s'`,
-        (value:any, expected:string):void =>
-            expect(Tools.convertCircularObjectToJSON(value))
+        `'%s' === convertCircularObjectToJSON(%p)`,
+        (
+            expected:ReturnType<typeof Tools.convertCircularObjectToJSON>,
+            ...parameters:Parameters<typeof Tools.convertCircularObjectToJSON>
+        ):void =>
+            expect(Tools.convertCircularObjectToJSON(...parameters))
                 .toStrictEqual(expected)
     )
-    test.each([
+    test.each<FunctionTestTuple<typeof Tools.convertMapToPlainObject>>([
         [null, null],
         [true, true],
         [0, 0],
@@ -938,11 +977,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ]
     ])(
         '%p === convertMapToPlainObject(%p, %p)',
-        (expected:any, object:any, deep:boolean = true):void =>
-            expect(Tools.convertMapToPlainObject(object, deep))
+        (
+            expected:ReturnType<typeof Tools.convertMapToPlainObject>,
+            ...parameters:Parameters<typeof Tools.convertMapToPlainObject>
+        ):void =>
+            expect(Tools.convertMapToPlainObject(...parameters))
                 .toStrictEqual(expected)
     )
-    test.each([
+    test.each<FunctionTestTuple<typeof Tools.convertPlainObjectToMap>>([
         [null, null],
         [true, true],
         [0, 0],
@@ -983,8 +1025,11 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ]
     ])(
         '%p === convertPlainObjectToMap(%p, %p)',
-        (expected:any, object:any, deep:boolean = true):void =>
-            expect(Tools.convertPlainObjectToMap(object, deep))
+        (
+            expected:ReturnType<typeof Tools.convertPlainObjectToMap>,
+            ...parameters:Parameters<typeof Tools.convertPlainObjectToMap>
+        ):void =>
+            expect(Tools.convertPlainObjectToMap(...parameters))
                 .toStrictEqual(expected)
     )
     test.each([
@@ -1113,8 +1158,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [{ValueCopySymbol}, {ValueCopySymbol}]
     ])(
         '%p === copy(...%p)',
-        (expected:any, object:any, ...parameter:Array<any>):void =>
-            expect(Tools.copy(object, ...parameter))
+        (expected:any, object:any, ...parameters:Array<any>):void =>
+            expect(Tools.copy(object, ...parameters))
                 .toStrictEqual(expected)
     )
     test('determineType', ():void =>
@@ -1182,8 +1227,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [Tools.noop, Tools.noop, null, -1, [], false]
     ])(
         'equals(%p, %p, ...%p) === true',
-        (first:any, second:any, ...parameter:Array<any>):void =>
-            expect(Tools.equals(first, second, ...parameter))
+        (first:any, second:any, ...parameters:Array<any>):void =>
+            expect(Tools.equals(first, second, ...parameters))
                 .toStrictEqual(true)
     )
     if (TARGET_TECHNOLOGY === 'node')
@@ -1910,26 +1955,32 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     )
     // / endregion
     // / region array
-    test.each([
+    test.each<[
+        parameter:Parameters<typeof Tools.arrayAggregatePropertyIfEqual>,
+        expected:any
+    ]>([
         [[[{a: 'b'}], 'a'], 'b'],
         [[[{a: 'b'}, {a: 'b'}], 'a'], 'b'],
         [[[{a: 'b'}, {a: 'c'}], 'a'], ''],
         [[[{a: 'b'}, {a: 'c'}], 'a', false], false]
     ])(
         'arrayAggregatePropertyIfEqual(...%p) === %p',
-        (parameter:Array<any>, expected:any):void =>
+        (parameter, expected):void =>
             expect(Tools.arrayAggregatePropertyIfEqual(...parameter))
                 .toStrictEqual(expected)
     )
-    test.each([
-        [[[{a: null}]], []],
-        [[[{a: null, b: 2}]], [{a: null, b: 2}]],
-        [[[{a: null, b: 2}], ['a']], []],
-        [[[], ['a']], []],
-        [[[]], []]
+    test.each<[any, ...Parameters<typeof Tools.arrayDeleteEmptyItems>]>([
+        [[], [{a: null}]],
+        [[{a: null, b: 2}], [{a: null, b: 2}]],
+        [[], [{a: null, b: 2}], ['a']],
+        [[], [], ['a']],
+        [[], []]
     ])(
-        'arrayDeleteEmptyItems(...%p) === %p',
-        (parameter:Array<any>, expected:any):void =>
+        '%p === arrayDeleteEmptyItems(...%p)',
+        (
+            expected:ReturnType<typeof Tools.arrayDeleteEmptyItems>,
+            ...parameter:Parameters<typeof Tools.arrayDeleteEmptyItems>
+        ):void =>
             expect(Tools.arrayDeleteEmptyItems(...parameter))
                 .toStrictEqual(expected)
     )
@@ -2132,7 +2183,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     )
     test('arrayAppendAdd', ():void => {
         const testObject:PlainObject = {}
-        for (const [parameter:Array<any>, expected:Mapping<any>] of [
+        for (const [parameter, expected] of [
             [[{}, {}, 'b'], {b: [{}]}],
             [[testObject, {a: 3}, 'b'], {b: [{a: 3}]}],
             [[testObject, {a: 3}, 'b'], {b: [{a: 3}, {a: 3}]}],
