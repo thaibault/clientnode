@@ -2273,17 +2273,11 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [['a', $.global.location.hostname], $.global.location.hostname],
         [['//a'], 'a'],
         [
-            [
-                'a/site/subSite?param=value#hash',
-                $.global.location.hostname
-            ],
+            [ 'a/site/subSite?param=value#hash', $.global.location.hostname],
             $.global.location.hostname
         ],
         [
-            [
-                '/a/site/subSite?param=value#hash',
-                $.global.location.hostname
-            ],
+            ['/a/site/subSite?param=value#hash', $.global.location.hostname],
             $.global.location.hostname
         ],
         [
@@ -2292,7 +2286,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ],
         [['//alternate.local/'], 'alternate.local']
     ])(
-        'stringGetDomainName(...%p) === %p', ():void =>
+        'stringGetDomainName(...%p) === %p',
+        (parameter:Array<any>, expected:any):void =>
             expect(Tools.stringGetDomainName(...parameter))
                 .toStrictEqual(expected)
     )
