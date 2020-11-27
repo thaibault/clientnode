@@ -24,6 +24,8 @@
     "index.ts",
     "property-types.ts",
     "property-types.js",
+    "testHelper.js",
+    "testHelper.ts",
     "type.ts"
   ],
   "main": "index.js",

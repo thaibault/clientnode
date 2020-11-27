@@ -39,10 +39,13 @@ import {InitializedBrowser} from 'weboptimizer/type'
 
 import Tools, {globalContext, Semaphore, ValueCopySymbol, $} from './index'
 import {
+    testEach,
+    testEachSingleParameter,
+    testEachSingleParameterAgainstSameExpectation,
+    testEachAgainstSameExpectation
+} from './testHelper'
+import {
     File,
-    FirstParameter,
-    FunctionTestTuple,
-    GenericFunction,
     Mapping,
     ObjectMaskConfiguration,
     PlainObject,
@@ -68,19 +71,6 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
 }
 const hasDOM:boolean = ['browser', 'node-with-dom'].includes(testEnvironment)
 // endregion
-const testEach = <FunctionType extends GenericFunction>(
-    functionName:string,
-    callback:FunctionType,
-    ...functionTestTuple:Array<FunctionTestTuple<FunctionType>>
-):void => test.each<[...FunctionTestTuple<FunctionType>]>(
-    [...functionTestTuple]
-)(
-    `%p === ${functionName}(...%p)`,
-    (
-        expected:ReturnType<FunctionType>,
-        ...parameters:Parameters<FunctionType>
-    ):void => expect(callback(...parameters)).toStrictEqual(expected)
-)
 // region semaphore
 describe(`${Semaphore._name} (${testEnvironment})`, ():void => {
     test('constructor', ():void => {
@@ -235,14 +225,26 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     })
     // / endregion
     // / region boolean
-    test.each<FirstParameter<typeof Tools.isNumeric>>([
-        0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10
-    ])(
-        'true === isNumeric(%s)',
-        (value:Parameters<typeof Tools.isNumeric>[0]):void =>
-            expect(Tools.isNumeric(value)).toStrictEqual(true)
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isNumeric>(
+        'isNumeric',
+        Tools.isNumeric,
+        true,
+
+        0,
+        1,
+        '-10',
+        '0',
+        0xFF,
+        '0xFF',
+        '8e5',
+        '3.1415',
+        +10
     )
-    test.each<FirstParameter<typeof Tools.isNumeric>>([
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isNumeric>(
+        'isNumeric',
+        Tools.isNumeric,
+        false,
+
         null,
         undefined,
         false,
@@ -255,10 +257,6 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         '7.2acdgs',
         NaN,
         Infinity
-    ])(
-        'false === isNumeric(%p)',
-        (value:FirstParameter<typeof Tools.isNumeric>):void =>
-            expect(Tools.isNumeric(value)).toStrictEqual(false)
     )
     test('isWindow', async ():Promise<void> => {
         const browser:InitializedBrowser = await getInitializedBrowser()
@@ -273,67 +271,86 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ])
             expect(Tools.isArrayLike(value)).toStrictEqual(true)
     })
-    test.each<FirstParameter<typeof Tools.isArrayLike>>([
-        {}, null, undefined, false, true, /a/
-    ])('false === isArrayLike(%p)', (value:any):void =>
-        expect(Tools.isArrayLike(value)).toStrictEqual(false)
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isArrayLike>(
+        'isArrayLike',
+        Tools.isArrayLike,
+        false,
+
+        {},
+        null,
+        undefined,
+        false,
+        true,
+        /a/
     )
-    test.each<Parameters<typeof Tools.isAnyMatching>>([
+    testEachAgainstSameExpectation<typeof Tools.isAnyMatching>(
+        'isAnyMatching',
+        Tools.isAnyMatching,
+        true,
+
         ['', ['']],
         ['test', [/test/]],
         ['test', [/a/, /b/, /es/]],
         ['test', ['', 'test']]
-    ])(
-        `true === isAnyMatching('%s', %p)`,
-        (...parameters:Parameters<typeof Tools.isAnyMatching>):void =>
-            expect(Tools.isAnyMatching(...parameters)).toStrictEqual(true)
     )
-    test.each<Parameters<typeof Tools.isAnyMatching>>([
+    testEachAgainstSameExpectation<typeof Tools.isAnyMatching>(
+        'isAnyMatching',
+        Tools.isAnyMatching,
+        false,
+
         ['', []],
         ['test', [/tes$/]],
         ['test', [/^est/]],
         ['test', [/^est$/]],
         ['test', ['a']]
-    ])(
-        `false === isAnyMatching('%s', %p)`,
-        (...parameters:Parameters<typeof Tools.isAnyMatching>):void =>
-            expect(Tools.isAnyMatching(...parameters)).toStrictEqual(false)
     )
-    test.each<FirstParameter<typeof Tools.isPlainObject>>([
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isPlainObject>(
+        'isPlainObject',
+        Tools.isPlainObject,
+        true,
+
         {},
         {a: 1},
         /* eslint-disable no-new-object */
         new Object()
         /* eslint-enable no-new-object */
-    ])(
-        'true === isPlainObject(%p)',
-        (value:FirstParameter<typeof Tools.isPlainObject>):void =>
-            expect(Tools.isPlainObject(value)).toStrictEqual(true)
     )
-    test.each<FirstParameter<typeof Tools.isPlainObject>>([
-        new String(), Object, null, 0, 1, true, undefined
-    ])(
-        'false === isPlainObject(%p)',
-        (value:FirstParameter<typeof Tools.isPlainObject>):void =>
-            expect(Tools.isPlainObject(value)).toStrictEqual(false)
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isPlainObject>(
+        'isPlainObject',
+        Tools.isPlainObject,
+        false,
+
+        new String(),
+        Object,
+        null,
+        0,
+        1,
+        true,
+        undefined
     )
-    test.each<FirstParameter<typeof Tools.isFunction>>([
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isFunction>(
+        'isFunction',
+        Tools.isFunction,
+        true,
+
         Object,
         new Function('return 1'),
         function():void {},
         ():void => {},
         async ():Promise<void> => {}
-    ])(
-        'true === isFunction(%p)',
-        (value:FirstParameter<typeof Tools.isFunction>):void =>
-            expect(Tools.isFunction(value)).toStrictEqual(true)
     )
-    test.each<FirstParameter<typeof Tools.isFunction>>([
-        null, false, 0, 1, undefined, {}, new Boolean()
-    ])(
-        'false === isFunction(%p)',
-        (value:FirstParameter<typeof Tools.isFunction>):void =>
-            expect(Tools.isFunction(value)).toStrictEqual(false)
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isFunction>(
+        'isFunction',
+        Tools.isFunction,
+        false,
+
+        null,
+        false,
+        0,
+        1,
+        undefined,
+        {},
+        new Boolean()
     )
     // / endregion
     // / region language fixes
@@ -939,21 +956,19 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(Tools.convertCircularObjectToJSON(object1))
             .toStrictEqual('{"a":{"a":"__circularReference__"}}')
     })
-    test.each<FunctionTestTuple<typeof Tools.convertCircularObjectToJSON>>([
+    testEach<typeof Tools.convertCircularObjectToJSON>(
+        'convertCircularObjectToJSON',
+        Tools.convertCircularObjectToJSON,
+
         ['{}', {}],
         ['{"a":null}', {a: null}],
         ['{"a":{"a":2}}', {a: {a: 2}}],
         ['{"a":{"a":null}}', {a: {a: Infinity}}]
-    ])(
-        `'%s' === convertCircularObjectToJSON(%p)`,
-        (
-            expected:ReturnType<typeof Tools.convertCircularObjectToJSON>,
-            ...parameters:Parameters<typeof Tools.convertCircularObjectToJSON>
-        ):void =>
-            expect(Tools.convertCircularObjectToJSON(...parameters))
-                .toStrictEqual(expected)
     )
-    test.each<FunctionTestTuple<typeof Tools.convertMapToPlainObject>>([
+    testEach<typeof Tools.convertMapToPlainObject>(
+        'convertMapToPlainObject',
+        Tools.convertMapToPlainObject,
+
         [null, null],
         [true, true],
         [0, 0],
@@ -975,16 +990,11 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 [['a', new Map([['a', 2]])], ['2', 2]]
             )]]
         ]
-    ])(
-        '%p === convertMapToPlainObject(%p, %p)',
-        (
-            expected:ReturnType<typeof Tools.convertMapToPlainObject>,
-            ...parameters:Parameters<typeof Tools.convertMapToPlainObject>
-        ):void =>
-            expect(Tools.convertMapToPlainObject(...parameters))
-                .toStrictEqual(expected)
     )
-    test.each<FunctionTestTuple<typeof Tools.convertPlainObjectToMap>>([
+    testEach<typeof Tools.convertPlainObjectToMap>(
+        'convertPlainObjectToMap',
+        Tools.convertPlainObjectToMap,
+
         [null, null],
         [true, true],
         [0, 0],
@@ -1023,15 +1033,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             )],
             [{b: 2, a: new Set([{}])}]
         ]
-    ])(
-        '%p === convertPlainObjectToMap(%p, %p)',
-        (
-            expected:ReturnType<typeof Tools.convertPlainObjectToMap>,
-            ...parameters:Parameters<typeof Tools.convertPlainObjectToMap>
-        ):void =>
-            expect(Tools.convertPlainObjectToMap(...parameters))
-                .toStrictEqual(expected)
     )
+    // TODO
     test.each([
         [{}, /a/, '', {}],
         [{a: 'a'}, /a/, 'b', {a: 'b'}],
@@ -2007,7 +2010,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     ])(
         'arrayExtractIfMatches(%p, %p) === %p',
         (
-            source:Array<string>, pattern:RexExp|string, expected:Array<string>
+            source:Array<string>, pattern:RegExp|string, expected:Array<string>
         ):void =>
             expect(Tools.arrayExtractIfMatches(source, pattern))
                 .toStrictEqual(expected)
@@ -2065,7 +2068,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[[{b: 1}], [{a: 1}], {b: 'a'}, true], [{b: 1}]]
     ])(
         'arrayIntersect(...%p) === %p',
-        (arrays:Array<Arrays<any>>, expected:Array<any>):void =>
+        (arrays:Array<Array<any>>, expected:Array<any>):void =>
             expect(Tools.arrayIntersect(...arrays)).toStrictEqual(expected)
     )
     test.each([
