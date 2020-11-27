@@ -47,6 +47,7 @@ import {
 import {
     File,
     FirstParameter,
+    FunctionTestTuple,
     Mapping,
     ObjectMaskConfiguration,
     PlainObject,
@@ -598,10 +599,10 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 .toContain(tools.getPositionRelativeToViewport())
         )
     }
-    // TODO
     testEach<typeof Tools.generateDirectiveSelector>(
         'generateDirectiveSelector',
         Tools.generateDirectiveSelector,
+
         ['a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]', 'a-b'],
         ['a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]', 'aB'],
         ['a, .a, [a], [data-a], [x-a]', 'a'],
@@ -631,13 +632,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expect($localBodyDomNode.Tools().removeDirective('a'))
                 .toStrictEqual($localBodyDomNode)
         })
-    test.each<[string, string]>([
-        ['data-a', 'a'], ['x-a', 'a'], ['data-a-bb', 'aBb'], ['x:a:b', 'aB']
-    ])(
-        `getNormalizedDirectiveName('%s') === '%s'`,
-        (directive:string, name:string):void =>
-            expect(Tools.getNormalizedDirectiveName(directive))
-                .toStrictEqual(name)
+    testEach<typeof Tools.getNormalizedDirectiveName>(
+        'getNormalizedDirectiveName',
+        Tools.getNormalizedDirectiveName,
+
+        ['a', 'data-a'],
+        ['a', 'x-a'],
+        ['aBb', 'data-a-bb'],
+        ['aB', 'x:a:b']
     )
     if (hasDOM)
         test('getDirectiveValue', async ():Promise<void> => {
@@ -657,17 +659,18 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 .sliceDomNodeSelectorPrefix('body div')
         ).toStrictEqual('body div')
     })
-    test.each<[string, string]>([
+    testEach<typeof Tools.getDomNodeName>(
+        'getDomNodeName',
+        Tools.getDomNodeName,
+
         ['div', 'div'],
-        ['<div>', 'div'],
-        ['<div />', 'div'],
-        ['<div></div>', 'div'],
+        ['div', '<div>'],
+        ['div', '<div />'],
+        ['div', '<div></div>'],
         ['a', 'a'],
-        ['<a>', 'a'],
-        ['<a />', 'a'],
-        ['<a></a>', 'a']
-    ])(`getDomNodeName('%s') === '%s'`, (html:string, name:string):void =>
-        expect(Tools.getDomNodeName(html)).toStrictEqual(name)
+        ['a', '<a>'],
+        ['a', '<a />'],
+        ['a', '<a></a>']
     )
     if (hasDOM)
         test('grabDomNode', async ():Promise<void> => {
@@ -747,47 +750,45 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     })
     // / endregion
     // / region function handling
-    test.each<[Function|string, Array<string>]>([
-        [function():void {}, []],
-        ['function() {}', []],
-        ['function(a, /* dummy*/ b, c/**/) {}', ['a', 'b', 'c']],
-        ['(a, /*dummy*/b, c/**/) => {}', ['a', 'b', 'c']],
+    testEach<typeof Tools.getParameterNames>(
+        'getParameterNames',
+        Tools.getParameterNames,
+
+        [[], function():void {}],
+        [[], 'function() {}'],
+        [['a', 'b', 'c'], 'function(a, /* dummy*/ b, c/**/) {}'],
+        [['a', 'b', 'c'], '(a, /*dummy*/b, c/**/) => {}'],
         [
+            ['a', 'b', 'c'],
             `(a, /*dummy*/b, c/**/) => {
                 return 2
-            }`,
-            ['a', 'b', 'c']
+            }`
         ],
-        ['(a, /* dummy*/b, c/* */) => 2', ['a', 'b', 'c']],
-        ['(a, /* dummy*/b = 2, c/* */) => 2', ['a', 'b', 'c']],
-        ['a => 2', ['a']],
+        [['a', 'b', 'c'], '(a, /* dummy*/b, c/* */) => 2'],
+        [['a', 'b', 'c'], '(a, /* dummy*/b = 2, c/* */) => 2'],
+        [['a'], 'a => 2'],
         [
+            ['a', 'b', 'c'],
             `class A {
                 constructor(a, b, c) {}
                 a() {}
-            }`,
-            ['a', 'b', 'c']
+            }`
         ]
-    ])(
-        `getParameterNames('%s') === %p`,
-        (code:Function|string, parameterNames:Array<string>):void =>
-            expect(Tools.getParameterNames(code)).toStrictEqual(parameterNames)
     )
     test('identity', ():void => {
         expect(Tools.identity({}) === {}).toStrictEqual(false)
         const testObject = {}
         expect(Tools.identity(testObject)).toStrictEqual(testObject)
     })
-    test.each<[any, any]>([
+    testEach<typeof Tools.identity>(
+        'identity',
+        Tools.identity,
+
         [2, 2],
         ['', ''],
         [undefined, undefined],
         [null, null],
         ['hans', 'hans']
-    ])(
-        'identity(%p) === %p',
-        (given:any, expected:any):void =>
-            expect(Tools.identity(given)).toStrictEqual(expected)
     )
     test('invertArrayFilter', ():void => {
         expect(
@@ -877,7 +878,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         })
     }
     // / endregion
-    // / region  object
+    // / region object
     test('addDynamicGetterAndSetter', ():void => {
         expect(Tools.addDynamicGetterAndSetter(null)).toStrictEqual(null)
         expect(Tools.addDynamicGetterAndSetter(true)).toStrictEqual(true)
@@ -1764,7 +1765,6 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             {exclude: {a: {a: {a: true}}}}
         ]
     )
-    // TODO
     test.each([
         [{}, {}, {}, {}],
         [{a: 2}, {}, {a: 2}, {}],
@@ -1830,84 +1830,84 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     ])(
         '%p (=> %p) === modifyObject(%p, %p, ...%p)',
         (
-            sliced:PlainObject,
-            modified:PlainObject,
-            target:any,
-            source:any,
-            ...parameter:Array<any>
+            sliced:ReturnType<typeof Tools.modifyObject>,
+            modified:SecondParameter<typeof Tools.modifyObject>,
+            ...parameters:Parameters<typeof Tools.modifyObject>
         ):void => {
-            expect(Tools.modifyObject(target, source, ...parameter))
-                .toStrictEqual(sliced)
-            expect(source).toStrictEqual(modified)
+            expect(Tools.modifyObject(...parameters)).toStrictEqual(sliced)
+            expect(parameters[1]).toStrictEqual(modified)
         }
     )
     test('normalizeDateTime', ():void =>
         expect(typeof Tools.normalizeDateTime()).toStrictEqual('object')
     )
-    test.each([
+    test.each<[
+        ReturnType<typeof Tools.normalizeDateTime>,
+        FirstParameter<typeof Tools.normalizeDateTime>
+    ]>([
         [now, now],
-        [1.2, new Date(1.2 * 1000)],
-        ['1.2', new Date(1.2 * 1000)],
-        ['08:55', new Date(1970, 1 - 1, 1, 8, 55)],
-        [1, new Date(1 * 1000)],
-        ['2/1/1970', new Date(1970, 2 - 1, 1)],
-        [0.001, new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, 0, 1))],
+        [new Date(1.2 * 1000), 1.2],
+        [new Date(1.2 * 1000), '1.2'],
+        [new Date(1970, 1 - 1, 1, 8, 55), '08:55'],
+        [new Date(1 * 1000), 1],
+        [new Date(1970, 2 - 1, 1), '2/1/1970'],
+        [new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, 0, 1)), 0.001],
         [new Date(1970, 1 - 1, 1, 8, 30), new Date(1970, 1 - 1, 1, 8, 30)],
-        ['abc', null],
-        ['1+1+1970 08+30+00', null]
-    ])('normalizeDateTime(%p) === %p', (value:any, expected:Date|null):void =>
-        expect(Tools.equals(
-            Tools.normalizeDateTime(value, false), expected
-        )).toStrictEqual(true)
+        [null, 'abc'],
+        [null, '1+1+1970 08+30+00']
+    ])(
+        '%p === normalizeDateTime(%p)',
+        (
+            expected:ReturnType<typeof Tools.normalizeDateTime>,
+            parameter:FirstParameter<typeof Tools.normalizeDateTime>
+        ):void =>
+            expect(Tools.equals(
+                Tools.normalizeDateTime(parameter, false), expected
+            )).toStrictEqual(true)
     )
-    test.each([
-        [{}, [], {}],
-        [new Set(), '#', new Set()],
-        [new Map(), [], new Map()],
-        [5, [], 5],
-        ['a', [], 'a'],
+    testEach<typeof Tools.removeKeys>(
+        'removeKeys',
+        Tools.removeKeys,
+
+        [{}, {}, []],
+        [new Set(), new Set(), '#'],
+        [new Map(), new Map(), []],
+        [5, 5, []],
+        ['a', 'a', []],
         [[], [], []],
-        [{a: 2, b: 3}, ['a'], {b: 3}],
-        [{a: 2, a0: 2, b: 3}, ['a'], {b: 3}],
+        [{b: 3}, {a: 2, b: 3}, ['a']],
+        [{b: 3}, {a: 2, a0: 2, b: 3}, ['a']],
         [
+            new Map([['3', []]]),
             new Map<string, [string]|number>(
                 [['3', ['a:to remove']], ['a', 3]]
             ),
-            'a',
-            new Map([['3', []]])
+            'a'
         ],
         [
+            [{a: ['value']}],
             [{a: ['#:comment', 'value', '#: remove']}],
-            '#',
-            [{a: ['value']}]
+            '#'
         ],
         [
+            [{a: new Set(['value'])}],
             [{a: new Set(['#:comment', 'value', '#: remove'])}],
-            '#',
-            [{a: new Set(['value'])}]
+            '#'
         ],
         [
+            [{a: new Map([['key', 'value']])}],
             [{a: new Map([
                 ['#', 'comment'], ['key', 'value'], ['#', 'remove']
             ])}],
-            '#',
-            [{a: new Map([['key', 'value']])}]
+            '#'
         ]
-    ])(
-        'removeKeys(%p, %p) === %p',
-        (source:any, keysToRemove:Array<string>|string, expected:any):void =>
-            expect(Tools.removeKeys<any>(source, keysToRemove))
-                .toStrictEqual(expected)
     )
-    test.each([
-        ['', '""'],
+    testEach<typeof Tools.represent>(
+        'represent',
+        Tools.represent,
+
+        ['""', ''],
         [
-            {
-                a: 'A',
-                b: 123,
-                c: null,
-                d: ['a', 1, null]
-            },
             `{
                 a: "A",
                 b: 123,
@@ -1917,187 +1917,168 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                     1,
                     null
                 ]
-            }`.replace(/(\n) {12}/g, '$1')
+            }`.replace(/(\n) {12}/g, '$1'),
+            {
+                a: 'A',
+                b: 123,
+                c: null,
+                d: ['a', 1, null]
+            }
         ]
-    ])(`represent(%p) === '%s'`, (source:any, expected:string):void =>
-        expect(Tools.represent(source)).toStrictEqual(expected)
     )
-    test.each([
+    testEach<typeof Tools.sort>(
+        'sort',
+        Tools.sort,
+
         [[], []],
-        [{}, []],
-        [[1], [0]],
-        [[1, 2, 3], [0, 1, 2]],
-        [[3, 2, 1], [0, 1, 2]],
-        [[2, 3, 1], [0, 1, 2]],
-        [{'1': 2, '2': 5, '3': 'a'}, ['1', '2', '3']],
-        [{'2': 2, '1': 5, '-5': 'a'}, ['-5', '1', '2']],
-        [{'3': 2, '2': 5, '1': 'a'}, ['1', '2', '3']],
-        [{a: 2, b: 5, c: 'a'}, ['a', 'b', 'c']],
-        [{c: 2, b: 5, a: 'a'}, ['a', 'b', 'c']],
-        [{b: 2, c: 5, z: 'a'}, ['b', 'c', 'z']]
-    ])('sort(%p) === %p', (source:any, expected:Array<any>):void =>
-        expect(Tools.sort(source)).toStrictEqual(expected)
+        [[], {}],
+        [[0], [1]],
+        [[0, 1, 2], [1, 2, 3]],
+        [[0, 1, 2], [3, 2, 1]],
+        [[0, 1, 2], [2, 3, 1]],
+        [['1', '2', '3'], {'1': 2, '2': 5, '3': 'a'}],
+        [['-5', '1', '2'], {'2': 2, '1': 5, '-5': 'a'}],
+        [['1', '2', '3'], {'3': 2, '2': 5, '1': 'a'}],
+        [['a', 'b', 'c'], {a: 2, b: 5, c: 'a'}],
+        [['a', 'b', 'c'], {c: 2, b: 5, a: 'a'}],
+        [['b', 'c', 'z'], {b: 2, c: 5, z: 'a'}]
     )
-    test.each([
+    testEach<typeof Tools.unwrapProxy>(
+        'unwrapProxy',
+        Tools.unwrapProxy,
+
         [{}, {}],
         [{a: 'a'}, {a: 'a'}],
         [{a: 'aa'}, {a: 'aa'}],
-        [{a: {__revoke__: ():void => {}, __target__: 2}}, {a: 2}]
-    ])(
-        'unwrapProxy(%p) === %p',
-        (source:any, expected:any):void =>
-            expect(Tools.unwrapProxy(source)).toStrictEqual(expected)
+        [{a: 2}, {a: {__revoke__: ():void => {}, __target__: 2}}]
     )
     // / endregion
     // / region array
-    test.each<[
-        parameter:Parameters<typeof Tools.arrayAggregatePropertyIfEqual>,
-        expected:any
-    ]>([
-        [[[{a: 'b'}], 'a'], 'b'],
-        [[[{a: 'b'}, {a: 'b'}], 'a'], 'b'],
-        [[[{a: 'b'}, {a: 'c'}], 'a'], ''],
-        [[[{a: 'b'}, {a: 'c'}], 'a', false], false]
-    ])(
-        'arrayAggregatePropertyIfEqual(...%p) === %p',
-        (parameter, expected):void =>
-            expect(Tools.arrayAggregatePropertyIfEqual(...parameter))
-                .toStrictEqual(expected)
+    testEach<typeof Tools.arrayAggregatePropertyIfEqual>(
+        'arrayAggregatePropertyIfEqual',
+        Tools.arrayAggregatePropertyIfEqual,
+
+        ['b', [{a: 'b'}], 'a'],
+        ['b', [{a: 'b'}, {a: 'b'}], 'a'],
+        ['', [{a: 'b'}, {a: 'c'}], 'a'],
+        [false, [{a: 'b'}, {a: 'c'}], 'a', false]
     )
-    test.each<[any, ...Parameters<typeof Tools.arrayDeleteEmptyItems>]>([
+    testEach<typeof Tools.arrayDeleteEmptyItems>(
+        'arrayDeleteEmptyItems',
+        Tools.arrayDeleteEmptyItems,
+
         [[], [{a: null}]],
         [[{a: null, b: 2}], [{a: null, b: 2}]],
         [[], [{a: null, b: 2}], ['a']],
         [[], [], ['a']],
         [[], []]
-    ])(
-        '%p === arrayDeleteEmptyItems(...%p)',
-        (
-            expected:ReturnType<typeof Tools.arrayDeleteEmptyItems>,
-            ...parameter:Parameters<typeof Tools.arrayDeleteEmptyItems>
-        ):void =>
-            expect(Tools.arrayDeleteEmptyItems(...parameter))
-                .toStrictEqual(expected)
     )
-    test.each([
-        [[[{a: 'b', c: 'd'}], ['a']], [{a: 'b'}]],
-        [[[{a: 'b', c: 'd'}], ['b']], [{}]],
-        [[[{a: 'b', c: 'd'}], ['c']], [{c: 'd'}]],
-        [[[{a: 'b', c: 'd'}, {a: 3}], ['c']], [{c: 'd'}, {}]],
-        [[[{a: 'b', c: 'd'}, {c: 3}], ['c']], [{c: 'd'}, {c: 3}]]
-    ])(
-        'arrayExtract(...%p) === %p',
-        (parameter:Array<any>, expected:Array<any>):void =>
-            expect(Tools.arrayExtract(...parameter)).toStrictEqual(expected)
+    testEach<typeof Tools.arrayExtract>(
+        'arrayExtract',
+        Tools.arrayExtract,
+
+        [[{a: 'b'}], [{a: 'b', c: 'd'}], ['a']],
+        [[{}], [{a: 'b', c: 'd'}], ['b']],
+        [[{c: 'd'}], [{a: 'b', c: 'd'}], ['c']],
+        [[{c: 'd'}, {}], [{a: 'b', c: 'd'}, {a: 3}], ['c']],
+        [[{c: 'd'}, {c: 3}], [{a: 'b', c: 'd'}, {c: 3}], ['c']]
     )
-    test.each([
-        [['b'], /b/, ['b']],
-        [['b'], 'b', ['b']],
-        [['b'], 'a', []],
-        [[], 'a', []],
-        [['a', 'b'], '', ['a', 'b']],
-        [['a', 'b'], '^$', []],
-        [['a', 'b'], 'b', ['b']],
-        [['a', 'b'], '[ab]', ['a', 'b']]
-    ])(
-        'arrayExtractIfMatches(%p, %p) === %p',
-        (
-            source:Array<string>, pattern:RegExp|string, expected:Array<string>
-        ):void =>
-            expect(Tools.arrayExtractIfMatches(source, pattern))
-                .toStrictEqual(expected)
+    testEach<typeof Tools.arrayExtractIfMatches>(
+        'arrayExtractIfMatches',
+        Tools.arrayExtractIfMatches,
+
+        [['b'], ['b'], /b/],
+        [['b'], ['b'], 'b'],
+        [[], ['b'], 'a'],
+        [[], [], 'a'],
+        [['a', 'b'], ['a', 'b'], ''],
+        [[], ['a', 'b'], '^$'],
+        [['b'], ['a', 'b'], 'b'],
+        [['a', 'b'], ['a', 'b'], '[ab]']
     )
-    test.each([
-        [[{a: 2}], 'a', [{a: 2}]],
-        [[{a: 2}], 'b', []],
-        [[], 'b', []],
-        [[{a: 2}, {b: 3}], 'a', [{a: 2}]]
-    ])(
-        "arrayExtractIfPropertyExists(%p, '%s') === %p",
-        (source:Array<any>, propertyName:string, expected:Array<any>):void =>
-            expect(Tools.arrayExtractIfPropertyExists(source, propertyName))
-                .toStrictEqual(expected)
+    testEach<typeof Tools.arrayExtractIfPropertyExists>(
+        'arrayExtractIfPropertyExists',
+        Tools.arrayExtractIfPropertyExists,
+
+        [[{a: 2}], [{a: 2}], 'a'],
+        [[], [{a: 2}], 'b'],
+        [[], [], 'b'],
+        [[{a: 2}], [{a: 2}, {b: 3}], 'a']
     )
-    test.each([
-        [[{a: 'b'}], {a: 'b'}, [{a: 'b'}]],
-        [[{a: 'b'}], {a: '.'}, [{a: 'b'}]],
-        [[{a: 'b'}], {a: 'a'}, []],
-        [[], {a: 'a'}, []],
-        [[{a: 2}], {b: /a/}, []],
+    testEach<typeof Tools.arrayExtractIfPropertyMatches>(
+        'arrayExtractIfPropertyMatches',
+        Tools.arrayExtractIfPropertyMatches,
+
+        [[{a: 'b'}], [{a: 'b'}], {a: 'b'}],
+        [[{a: 'b'}], [{a: 'b'}], {a: '.'}],
+        [[], [{a: 'b'}], {a: 'a'}],
+        [[], [], {a: 'a'}],
+        [[], [{a: 2}], {b: /a/}],
         [
             [{mimeType: 'text/x-webm'}],
-            {mimeType: /^text\/x-webm$/},
-            [{mimeType: 'text/x-webm'}]
+            [{mimeType: 'text/x-webm'}],
+            {mimeType: /^text\/x-webm$/}
         ]
-    ])(
-        'arrayExtractIfPropertyMatches(%p, %p) === %p',
-        (
-            source:Array<PlainObject>,
-            patternMapping:Mapping<RegExp|string>,
-            expected:Array<PlainObject>
-        ):void =>
-            expect(Tools.arrayExtractIfPropertyMatches(source, patternMapping))
-                .toStrictEqual(expected)
     )
-    test.each([
-        [[['A'], ['A']], ['A']],
-        [[['A', 'B'], ['A']], ['A']],
-        [[[], []], []],
-        [[[5], []], []],
-        [[[{a: 2}], [{a: 2}]], [{a: 2}]],
-        [[[{a: 3}], [{a: 2}]], []],
-        [[[{a: 3}], [{b: 3}]], []],
-        [[[{a: 3}], [{b: 3}], ['b']], []],
-        [[[{a: 3}], [{b: 3}], ['b'], false], []],
-        [[[{b: null}], [{b: null}], ['b']], [{b: null}]],
-        [[[{b: null}], [{b: undefined}], ['b']], []],
-        [[[{b: null}], [{b: undefined}], ['b'], false], [{b: null}]],
-        [[[{b: null}], [{}], ['b'], false], [{b: null}]],
-        [[[{b: undefined}], [{}], ['b'], false], [{b: undefined}]],
-        [[[{}], [{}], ['b'], false], [{}]],
-        [[[{b: null}], [{}], ['b']], []],
-        [[[{b: undefined}], [{}], ['b'], true], [{b: undefined}]],
-        [[[{b: 1}], [{a: 1}], {b: 'a'}, true], [{b: 1}]]
-    ])(
-        'arrayIntersect(...%p) === %p',
-        (arrays:Array<Array<any>>, expected:Array<any>):void =>
-            expect(Tools.arrayIntersect(...arrays)).toStrictEqual(expected)
-    )
-    test.each([
-        [[[0]], [0]],
-        [[[5]], [0, 1, 2, 3, 4, 5]],
-        [[[]], []],
-        [[[2, 5]], [2, 3, 4, 5]],
-        [[[2, 10], 2], [2, 4, 6, 8, 10]]
-    ])(
-        'arrayMakeRange(...%p) === %p',
-        (parameter:Array<any>, expected:Array<number>):void =>
-            expect(Tools.arrayMakeRange(...parameter)).toStrictEqual(expected)
-    )
-    test.each([
+    testEach<typeof Tools.arrayIntersect>(
+        'arrayIntersect',
+        Tools.arrayIntersect,
+
+        [['A'], ['A'], ['A']],
+        [['A'], ['A', 'B'], ['A']],
         [[], [], []],
-        [[1], [], [1]],
-        [[], [1], [1]],
-        [[1], [1], [1, 1]],
-        [[1, 2, 3, 1], [1, 2, 3], [1, 2, 3, 1, 1, 2, 3]]
-    ])(
-        'arrayMerge(%p, %p) === %p',
-        (first:Array<any>, second:Array<any>, expected:Array<any>):void =>
-            expect(Tools.arrayMerge(first, second)).toStrictEqual(expected)
+        [[], [5], []],
+        [[{a: 2}], [{a: 2}], [{a: 2}]],
+        [[], [{a: 3}], [{a: 2}]],
+        [[], [{a: 3}], [{b: 3}]],
+        [[], [{a: 3}], [{b: 3}], ['b']],
+        [[], [{a: 3}], [{b: 3}], ['b'], false],
+        [[{b: null}], [{b: null}], [{b: null}], ['b']],
+        [[], [{b: null}], [{b: undefined}], ['b']],
+        [[{b: null}], [{b: null}], [{b: undefined}], ['b'], false],
+        [[{b: null}], [{b: null}], [{}], ['b'], false],
+        [[{b: undefined}], [{b: undefined}], [{}], ['b'], false],
+        [[{}], [{}], [{}], ['b'], false],
+        [[], [{b: null}], [{}], ['b']],
+        [[{b: undefined}], [{b: undefined}], [{}], ['b'], true],
+        [[{b: 1}], [{b: 1}], [{a: 1}], {b: 'a'}, true]
     )
-    test.each([
+    testEach<typeof Tools.arrayMakeRange>(
+        'arrayMakeRange',
+        Tools.arrayMakeRange,
+
+        [[0], [0]],
+        [[0, 1, 2, 3, 4, 5], [5]],
+        [[], []],
+        [[2, 3, 4, 5], [2, 5]],
+        [[2, 4, 6, 8, 10], [2, 10], 2]
+    )
+    testEach<typeof Tools.arrayMerge>(
+        'arrayMerge',
+        Tools.arrayMerge,
+
+        [[], [], []],
+        [[1], [1], []],
+        [[1], [], [1]],
+        [[1, 1], [1], [1]],
+        [[1, 2, 3, 1, 1, 2, 3], [1, 2, 3, 1], [1, 2, 3]]
+    )
+    testEach<typeof Tools.arrayMake>(
+        'arrayMake',
+        Tools.arrayMake,
+
         [[], []],
         [[1, 2, 3], [1, 2, 3]],
-        [1, [1]]
-    ])('arrayMake(%p) === %p', (value:any, expected:Array<any>):void =>
-        expect(Tools.arrayMake(value)).toStrictEqual(expected)
+        [[1], 1]
     )
-    test.each([
-        [[], [[]]],
-        [[1], [[1]]],
-        [[1, 2], [[1, 2], [2, 1]]],
+    testEach<typeof Tools.arrayPermutate>(
+        'arrayPermutate',
+        Tools.arrayPermutate,
+
+        [[[]], []],
+        [[[1]], [1]],
+        [[[1, 2], [2, 1]], [1, 2]],
         [
-            [1, 2, 3],
             [
                 [1, 2, 3],
                 [1, 3, 2],
@@ -2105,10 +2086,10 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 [2, 3, 1],
                 [3, 1, 2],
                 [3, 2, 1]
-            ]
+            ],
+            [1, 2, 3]
         ],
         [
-            ['1', '2', '3'],
             [
                 ['1', '2', '3'],
                 ['1', '3', '2'],
@@ -2116,19 +2097,18 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 ['2', '3', '1'],
                 ['3', '1', '2'],
                 ['3', '2', '1']
-            ]
+            ],
+            ['1', '2', '3']
         ]
-    ])(
-        'arrayPermutate(%p) === %p',
-        (values:Array<any>, expected:Array<Array<any>>):void =>
-            expect(Tools.arrayPermutate(values)).toStrictEqual(expected)
     )
-    test.each([
+    testEach<typeof Tools.arrayPermutateLength>(
+        'arrayPermutateLength',
+        Tools.arrayPermutateLength,
+
         [[], []],
-        [[1], [[1]]],
-        [[1, 2], [[1], [2], [1, 2]]],
+        [[[1]], [1]],
+        [[[1], [2], [1, 2]], [1, 2]],
         [
-            [1, 2, 3],
             [
                 [1],
                 [2],
@@ -2137,10 +2117,10 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 [1, 3],
                 [2, 3],
                 [1, 2, 3]
-            ]
+            ],
+            [1, 2, 3]
         ],
         [
-            ['1', '2', '3'],
             [
                 ['1'],
                 ['2'],
@@ -2149,23 +2129,20 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 ['1', '3'],
                 ['2', '3'],
                 ['1', '2', '3']
-            ]
+            ],
+            ['1', '2', '3']
         ]
-    ])(
-        'arrayPermutateLength(%p) === %p',
-        (values:Array<any>, expected:Array<Array<any>>):void =>
-            expect(Tools.arrayPermutateLength(values)).toStrictEqual(expected)
     )
-    test.each([
-        [[1, 2, 3, 1], [1, 2, 3]],
-        [[1, 2, 3, 1, 2, 3], [1, 2, 3]],
+    testEach<typeof Tools.arrayUnique>(
+        'arrayUnique',
+        Tools.arrayUnique,
+
+        [[1, 2, 3], [1, 2, 3, 1]],
+        [[1, 2, 3], [1, 2, 3, 1, 2, 3]],
         [[], []],
         [[1, 2, 3], [1, 2, 3]]
-    ])(
-        'arrayUnique(%p) ==== %p',
-        (values:Array<any>, expected:Array<any>):void =>
-            expect(Tools.arrayUnique(values)).toStrictEqual(expected)
     )
+    // TODO
     test.each([
         [[{a: 2}, {a: 3}], 'a', 5],
         [[{a: 2}, {b: 3}], 'a', 2],
@@ -2178,14 +2155,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     )
     test('arrayAppendAdd', ():void => {
         const testObject:PlainObject = {}
-        for (const [parameter, expected] of [
+        for (const [parameters, expected] of [
             [[{}, {}, 'b'], {b: [{}]}],
             [[testObject, {a: 3}, 'b'], {b: [{a: 3}]}],
             [[testObject, {a: 3}, 'b'], {b: [{a: 3}, {a: 3}]}],
             [[{b: [2]}, 2, 'b', false], {b: [2, 2]}],
             [[{b: [2]}, 2, 'b'], {b: [2]}]
         ])
-            expect(Tools.arrayAppendAdd(...parameter)).toStrictEqual(expected)
+            expect(Tools.arrayAppendAdd(...parameters)).toStrictEqual(expected)
     })
     test.each([
         [[[], 2], []],
