@@ -24,8 +24,11 @@ import Tools from './index'
 // region exports
 export type FirstParameter<FunctionType extends GenericFunction> =
     Parameters<FunctionType>[0]
+export type SecondParameter<FunctionType extends GenericFunction> =
+    Parameters<FunctionType>[1]
 export type FunctionTestTuple<FunctionType extends GenericFunction> =
     [ReturnType<FunctionType>, ...Parameters<FunctionType>]
+
 export type StaticScope = JQueryStatic
 export type ToolsFunction<TElement = HTMLElement> =
     ((...parameter:Array<any>) => any|Tools<TElement>) & {class:typeof Tools}

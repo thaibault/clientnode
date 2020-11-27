@@ -1928,9 +1928,9 @@ export class Tools<TElement = HTMLElement> {
      * @param replacement - String to use as replacement for found patterns.
      * @returns Converted object with replaced patterns.
      */
-    static convertSubstringInPlainObject<T extends Object>(
-        object:T, pattern:RegExp|string, replacement:string
-    ):T {
+    static convertSubstringInPlainObject<Type extends object = PlainObject>(
+        object:Type, pattern:RegExp|string, replacement:string
+    ):Type {
         for (const key in object)
             if (Object.prototype.hasOwnProperty.call(object, key))
                 if (Tools.isPlainObject(object[key]))
@@ -1939,9 +1939,8 @@ export class Tools<TElement = HTMLElement> {
                     )
                 else if (typeof object[key] === 'string')
                     (object[key] as unknown as string) =
-                        (object[key] as unknown as string).replace(
-                            pattern, replacement
-                        )
+                        (object[key] as unknown as string)
+                            .replace(pattern, replacement)
         return object
     }
     /**
@@ -2354,7 +2353,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Evaluated given mapping.
      */
     static evaluateDynamicData<Type = any>(
-        object:RecursiveEvaluateable<Type>,
+        object:null|RecursiveEvaluateable<Type>,
         scope:Mapping<any> = {},
         selfReferenceName:string = 'self',
         expressionIndicatorKey:string = '__evaluate__',
@@ -2748,7 +2747,7 @@ export class Tools<TElement = HTMLElement> {
                         typeof object[key as keyof object] === 'object'
                     )
                         (result[key as keyof object] as object) =
-                            this.maskObject(
+                            Tools.maskObject(
                                 object[key as keyof object],
                                 {include: mask.include[key]}
                             )
@@ -2767,7 +2766,7 @@ export class Tools<TElement = HTMLElement> {
                         typeof result[key as keyof object] === 'object'
                     )
                         (result[key as keyof object] as object) =
-                            this.maskObject(
+                            Tools.maskObject(
                                 result[key as keyof object],
                                 {exclude: mask.exclude[key]}
                             )

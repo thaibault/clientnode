@@ -46,9 +46,11 @@ import {
 } from './testHelper'
 import {
     File,
+    FirstParameter,
     Mapping,
     ObjectMaskConfiguration,
     PlainObject,
+    SecondParameter,
     TimeoutPromise,
     $DomNode
 } from './type'
@@ -1034,28 +1036,20 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             [{b: 2, a: new Set([{}])}]
         ]
     )
-    // TODO
-    test.each([
-        [{}, /a/, '', {}],
-        [{a: 'a'}, /a/, 'b', {a: 'b'}],
-        [{a: 'aa'}, /a/, 'b', {a: 'ba'}],
-        [{a: 'aa'}, /a/g, 'b', {a: 'bb'}],
-        [{a: {a: 'aa'}}, /a/g, 'b', {a: {a: 'bb'}}]
-    ])(
-        `convertSubstringInPlainObject(%p, %p, '%s') === %p`,
-        (
-            object:PlainObject,
-            pattern:RegExp|string,
-            replacement:string,
-            expected:PlainObject
-        ):void =>
-            expect(
-                Tools.convertSubstringInPlainObject(
-                    object, pattern, replacement
-                )
-            ).toStrictEqual(expected)
+    testEach<typeof Tools.convertSubstringInPlainObject>(
+        'convertSubstringInPlainObject',
+        Tools.convertSubstringInPlainObject,
+
+        [{}, {}, /a/, ''],
+        [{a: 'b'}, {a: 'a'}, /a/, 'b'],
+        [{a: 'ba'}, {a: 'aa'}, /a/, 'b'],
+        [{a: 'bb'}, {a: 'aa'}, /a/g, 'b'],
+        [{a: {a: 'bb'}}, {a: {a: 'aa'}}, /a/g, 'b']
     )
-    test.each([
+    testEach<typeof Tools.copy>(
+        'copy',
+        Tools.copy,
+
         [21, 21],
         [0, 0],
         [0, 0, -1],
@@ -1159,42 +1153,42 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             10
         ],
         [{ValueCopySymbol}, {ValueCopySymbol}]
-    ])(
-        '%p === copy(...%p)',
-        (expected:any, object:any, ...parameters:Array<any>):void =>
-            expect(Tools.copy(object, ...parameters))
-                .toStrictEqual(expected)
     )
     test('determineType', ():void =>
         expect(Tools.determineType()).toStrictEqual('undefined')
     )
-    test.each([
-        [undefined, 'undefined'],
-        [({} as {notDefined:undefined}).notDefined, 'undefined'],
-        [null, 'null'],
-        [true, 'boolean'],
-        [new Boolean(), 'boolean'],
-        [3, 'number'],
-        [new Number(3), 'number'],
-        ['', 'string'],
-        [new String(''), 'string'],
-        ['test', 'string'],
-        [new String('test'), 'string'],
-        [function():void {}, 'function'],
-        [():void => {}, 'function'],
-        [[], 'array'],
+    testEach<typeof Tools.determineType>(
+        'determineType',
+        Tools.determineType,
+
+        ['undefined', undefined],
+        ['undefined', ({} as {notDefined:undefined}).notDefined],
+        ['null', null],
+        ['boolean', true],
+        ['boolean', new Boolean()],
+        ['number', 3],
+        ['number', new Number(3)],
+        ['string', ''],
+        ['string', new String('')],
+        ['string', 'test'],
+        ['string', new String('test')],
+        ['function', function():void {}],
+        ['function', ():void => {}],
+        ['array', []],
         /* eslint-disable no-array-constructor */
-        // TODO [new Array(), 'array'],
+        // TODO ['array', new Array()],
         /* eslint-enable no-array-constructor */
-        [now, 'date'],
-        [new Error(), 'error'],
-        [new Map(), 'map'],
-        [new Set(), 'set'],
-        [/test/, 'regexp']
-    ])(`determineType(%p) === '%s'`, (object:any, expected:string):void =>
-        expect(Tools.determineType(object)).toStrictEqual(expected)
+        ['date', now],
+        ['error', new Error()],
+        ['map', new Map()],
+        ['set', new Set()],
+        ['regexp', /test/]
     )
-    test.each([
+    testEachAgainstSameExpectation<typeof Tools.equals>(
+        'equals',
+        Tools.equals,
+        true,
+
         [1, 1],
         [now, now],
         [new Date(1995, 11, 17), new Date(1995, 11, 17)],
@@ -1213,7 +1207,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[{a: 1}], [{a: 1}]],
         [[{a: 1, b: 1}], [{a: 1}], []],
         [[{a: 1, b: 1}], [{a: 1}], ['a']],
-        [2, 2, 0],
+        [2, 2, null, 0],
         [[{a: 1, b: 1}], [{a: 1}], null, 0],
         [[{a: 1}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
         [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
@@ -1228,11 +1222,6 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ],
         [Tools.noop, Tools.noop],
         [Tools.noop, Tools.noop, null, -1, [], false]
-    ])(
-        'equals(%p, %p, ...%p) === true',
-        (first:any, second:any, ...parameters:Array<any>):void =>
-            expect(Tools.equals(first, second, ...parameters))
-                .toStrictEqual(true)
     )
     if (TARGET_TECHNOLOGY === 'node')
         test('equals', ():void =>
@@ -1241,92 +1230,115 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             )).toStrictEqual(true)
         )
     else {
-        test.each([
-            [
-                new Blob(['a'], {type: 'text/plain'}),
-                new Blob(['a'], {type: 'text/plain'})
-            ],
-            [
-                [new Blob(['a'], {type: 'text/plain'})],
-                [new Blob(['a'], {type: 'text/plain'})]
-            ],
-            [
-                {a: new Blob(['a'], {type: 'text/plain'})},
-                {a: new Blob(['a'], {type: 'text/plain'})}
-            ],
-            [
-                new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
-                new Map([['a', new Blob(['a'], {type: 'text/plain'})]])
-            ],
-            [
-                new Set([new Blob(['a'], {type: 'text/plain'})]),
-                new Set([new Blob(['a'], {type: 'text/plain'})])
-            ],
-            [
-                {
-                    a: new Set([[new Map([['a', new Blob(['a'], {
-                        type: 'text/plain'
-                    })]])]]),
-                    b: 2
-                },
-                {
-                    a: new Set([[new Map([['a', new Blob(['a'], {
-                        type: 'text/plain'
-                    })]])]]),
-                    b: 2
-                }
-            ]
-        ])(
-            'equals(%p, %p, null, -1, [], true, true) === true',
-            async (first:any, second:any):Promise<void> =>
-                expect(
-                    await Tools.equals(first, second, null, -1, [], true, true)
-                ).toStrictEqual(true)
+        testEachAgainstSameExpectation<typeof Tools.equals>(
+            'equals',
+            Tools.equals,
+            true,
+
+            ...([
+                [
+                    new Blob(['a'], {type: 'text/plain'}),
+                    new Blob(['a'], {type: 'text/plain'})
+                ],
+                [
+                    [new Blob(['a'], {type: 'text/plain'})],
+                    [new Blob(['a'], {type: 'text/plain'})]
+                ],
+                [
+                    {a: new Blob(['a'], {type: 'text/plain'})},
+                    {a: new Blob(['a'], {type: 'text/plain'})}
+                ],
+                [
+                    new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
+                    new Map([['a', new Blob(['a'], {type: 'text/plain'})]])
+                ],
+                [
+                    new Set([new Blob(['a'], {type: 'text/plain'})]),
+                    new Set([new Blob(['a'], {type: 'text/plain'})])
+                ],
+                [
+                    {
+                        a: new Set([[new Map([['a', new Blob(['a'], {
+                            type: 'text/plain'
+                        })]])]]),
+                        b: 2
+                    },
+                    {
+                        a: new Set([[new Map([['a', new Blob(['a'], {
+                            type: 'text/plain'
+                        })]])]]),
+                        b: 2
+                    }
+                ]
+            ] as Array<[
+                FirstParameter<typeof Tools.equals>,
+                SecondParameter<typeof Tools.equals>
+            ]>).map((parameters:[
+                FirstParameter<typeof Tools.equals>,
+                SecondParameter<typeof Tools.equals>
+            ]):Parameters<typeof Tools.equals> =>
+                parameters.concat(null, -1, [], true, true) as
+                    Parameters<typeof Tools.equals>
+            )
         )
-        test.each([
-            [
-                new Blob(['a'], {type: 'text/plain'}),
-                new Blob(['b'], {type: 'text/plain'})
-            ],
-            [
-                [new Blob(['a'], {type: 'text/plain'})],
-                [new Blob(['b'], {type: 'text/plain'})]
-            ],
-            [
-                {a: new Blob(['a'], {type: 'text/plain'})},
-                {a: new Blob(['b'], {type: 'text/plain'})}
-            ],
-            [
-                new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
-                new Map([['a', new Blob(['b'], {type: 'text/plain'})]])
-            ],
-            [
-                new Set([new Blob(['a'], {type: 'text/plain'})]),
-                new Set([new Blob(['b'], {type: 'text/plain'})])
-            ],
-            [
-                {
-                    a: new Set([[new Map([['a', new Blob(['a'], {
-                        type: 'text/plain'
-                    })]])]]),
-                    b: 2
-                },
-                {
-                    a: new Set([[new Map([['a', new Blob(['b'], {
-                        type: 'text/plain'
-                    })]])]]),
-                    b: 2
-                }
+        testEachAgainstSameExpectation<typeof Tools.equals>(
+            'equals',
+            Tools.equals,
+            false,
+
+            ...([
+                [
+                    new Blob(['a'], {type: 'text/plain'}),
+                    new Blob(['b'], {type: 'text/plain'})
+                ],
+                [
+                    [new Blob(['a'], {type: 'text/plain'})],
+                    [new Blob(['b'], {type: 'text/plain'})]
+                ],
+                [
+                    {a: new Blob(['a'], {type: 'text/plain'})},
+                    {a: new Blob(['b'], {type: 'text/plain'})}
+                ],
+                [
+                    new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
+                    new Map([['a', new Blob(['b'], {type: 'text/plain'})]])
+                ],
+                [
+                    new Set([new Blob(['a'], {type: 'text/plain'})]),
+                    new Set([new Blob(['b'], {type: 'text/plain'})])
+                ],
+                [
+                    {
+                        a: new Set([[new Map([['a', new Blob(['a'], {
+                            type: 'text/plain'
+                        })]])]]),
+                        b: 2
+                    },
+                    {
+                        a: new Set([[new Map([['a', new Blob(['b'], {
+                            type: 'text/plain'
+                        })]])]]),
+                        b: 2
+                    }
+                ]
+            ] as Array<[
+                FirstParameter<typeof Tools.equals>,
+                SecondParameter<typeof Tools.equals>
+            ]>).map((parameter:[
+                FirstParameter<typeof Tools.equals>,
+                SecondParameter<typeof Tools.equals>
             ]
-        ])(
-            'equals(%p, %p) === false',
-            async (first:any, second:any):Promise<void> =>
-                expect(await Tools.equals(
-                    first, second, null, -1, [], true, true
-                )).toStrictEqual(false)
+            ):Parameters<typeof Tools.equals> =>
+                parameter.concat(null, -1, [], true, true) as
+                    Parameters<typeof Tools.equals>
+            )
         )
     }
-    test.each([
+    testEachAgainstSameExpectation<typeof Tools.equals>(
+        'equals',
+        Tools.equals,
+        false,
+
         [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 2],
         [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3],
         [new Date(1995, 11, 17), new Date(1995, 11, 16)],
@@ -1343,16 +1355,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2, {}]]],
         [[{a: 1, b: 1}], [{a: 1}]],
         [[{a: 1, b: 1}], [{a: 1}], ['a', 'b']],
-        [1, 2, 0],
+        [1, 2, null, 0],
         [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
         [():void => {}, ():void => {}, null, -1, [], false]
-    ])(
-        'equals(%p, %p, ...%p) === false',
-        (first:any, second:any, ...parameter:Array<any>):void =>
-            expect(Tools.equals(first, second, ...parameter))
-                .toStrictEqual(false)
     )
-    test.each([
+    testEach<typeof Tools.evaluateDynamicData>(
+        'evaluateDynamicData',
+        Tools.evaluateDynamicData,
+
         [null, null],
         [false, false],
         ['1', '1'],
@@ -1447,7 +1457,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 b: {__evaluate__: '_.c'},
                 c: {d: {e: {__evaluate__: 'tools.copy([2])'}}}
             },
-            {tools: $.Tools.class}, '_'
+            {tools: Tools.copy($.Tools.class)}, '_'
         ],
         [
             {a: {b: 1, c: 1}},
@@ -1547,33 +1557,28 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
             }
         ]
-    ])(
-        '%p === evaluateDynamicData(%p, ...%p)',
-        (expected:any, object:any, ...parameter:Array<any>):void =>
-            expect(Tools.copy(
-                Tools.evaluateDynamicData(object, ...parameter), -1, true
-            )).toStrictEqual(expected)
     )
-    test.each([
+    testEach<typeof Tools.removeEvaluationInDynamicData>(
+        'removeEvaluationInDynamicData',
+        Tools.removeEvaluationInDynamicData,
+
         [{}, {}],
         [{a: 2}, {a: 2}],
-        [{a: 2, __evaluate__: ''}, {__evaluate__: ''}],
+        [{__evaluate__: ''}, {a: 2, __evaluate__: ''}],
         [
-            {a: 2, b: {__evaluate__: '', c: 4}},
-            {a: 2, b: {__evaluate__: ''}}
+            {a: 2, b: {__evaluate__: ''}},
+            {a: 2, b: {__evaluate__: '', c: 4}}
         ]
-    ])(
-        'removeEvaluationInDynamicData(%p) === %p',
-        (data:PlainObject, expected:PlainObject):void =>
-            expect(Tools.removeEvaluationInDynamicData(data))
-                .toStrictEqual(expected)
     )
     test('extend', ():void => {
         const target:PlainObject = {a: [1, 2]}
         Tools.extend(true, target, {a: [3, 4]})
         expect(target).toStrictEqual({a: [3, 4]})
     })
-    test.each([
+    testEach<typeof Tools.extend>(
+        'extend',
+        Tools.extend,
+
         [[], []],
         [{}, {}],
         [{a: 1}, {a: 1}],
@@ -1676,27 +1681,16 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ],
         [undefined, [1, 2], undefined],
         [null, [1, 2], null]
-    ])(
-        '%p === extend(%p, ...%p)',
-        (expected:any, first:any, ...parameter:Array<any>):void =>
-            expect(Tools.extend(first, ...parameter)).toStrictEqual(expected)
     )
-    test.each([
+    testEach<typeof Tools.getSubstructure>(
+        'getSubstructure',
+        Tools.getSubstructure,
+
         [{}, {}, []],
         [1, {a: 1}, ['a']],
         [null, {a: {a: null}}, 'a.a'],
         [[], {a: {a: []}}, 'a.a'],
         [3, {a: {b: {c: 3}}}, ['a', 'b.c']]
-    ])(
-        '%p === getSubstructure(%p, %p, ...%p)',
-        (
-            expected:any,
-            target:any,
-            selector:Array<string>|string,
-            ...parameter:Array<any>
-        ):void =>
-            expect(Tools.getSubstructure(target, selector, ...parameter))
-                .toStrictEqual(expected)
     )
     test('getProxyHandler', ():void => {
         expect(Tools.isPlainObject(Tools.getProxyHandler({})))
@@ -1705,74 +1699,72 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             Tools.isPlainObject(Tools.getProxyHandler(new Map(), {get: 'get'}))
         ).toStrictEqual(true)
     })
-    test.each([
+    testEach<typeof Tools.maskObject>(
+        'maskObject',
+        Tools.maskObject,
+
         [{}, {}, {}],
-        [{a: 2}, {}, {a: 2}],
-        [{a: 2}, {include: false}, {}],
-        [{a: 2}, {include: true}, {a: 2}],
-        [{a: 2}, {include: {a: true}}, {a: 2}],
-        [{a: 2}, {include: {b: true}}, {}],
-        [{a: 2}, {include: {a: false}}, {}],
-        [{a: 2}, {include: {b: false}}, {}],
-        [{a: 2, b: 3}, {include: {a: true}}, {a: 2}],
-        [{a: 2, b: 3}, {include: {}}, {}],
-        [{a: 2, b: 3}, {include: {a: false, b: true}}, {b: 3}],
-        [{a: 2, b: {a: 2}}, {include: {a: false, b: true}}, {b: {a: 2}}],
-        [{a: 2, b: {a: 2}}, {include: {a: false, b: {}}}, {b: {}}],
-        [{a: 2, b: {a: 2}}, {include: {a: false, b: {a: true}}}, {b: {a: 2}}],
+        [{a: 2}, {a: 2}, {}],
+        [{}, {a: 2}, {include: false}],
+        [{a: 2}, {a: 2}, {include: true}],
+        [{a: 2}, {a: 2}, {include: {a: true}}],
+        [{}, {a: 2}, {include: {b: true}}],
+        [{}, {a: 2}, {include: {a: false}}],
+        [{}, {a: 2}, {include: {b: false}}],
+        [{a: 2}, {a: 2, b: 3}, {include: {a: true}}],
+        [{}, {a: 2, b: 3}, {include: {}}],
+        [{b: 3}, {a: 2, b: 3}, {include: {a: false, b: true}}],
+        [{b: {a: 2}}, {a: 2, b: {a: 2}}, {include: {a: false, b: true}}],
+        [{b: {}}, {a: 2, b: {a: 2}}, {include: {a: false, b: {}}}],
+        [{b: {a: 2}}, {a: 2, b: {a: 2}}, {include: {a: false, b: {a: true}}}],
         [
+            {a: 2, b: {}},
             {a: 2, b: {a: 2}},
-            {include: {a: true, b: {a: false}}},
-            {a: 2, b: {}}
+            {include: {a: true, b: {a: false}}}
+        ],
+        [
+            {a: 2, b: {}},
+            {a: 2, b: {a: 2}},
+            {include: {a: true, b: {a: false}, c: true}}
         ],
         [
             {a: 2, b: {a: 2}},
-            {include: {a: true, b: {a: false}, c: true}},
-            {a: 2, b: {}}
-        ],
-        [
             {a: 2, b: {a: 2}},
-            {include: {a: true, b: {a: true}}},
-            {a: 2, b: {a: 2}}
+            {include: {a: true, b: {a: true}}}
         ],
         [
-            {a: {a: {a: {a: 2, b: 3}}}},
-            {include: {a: {a: {a: {a: true}}}}},
             {a: {a: {a: {a: 2}}}},
+            {a: {a: {a: {a: 2, b: 3}}}},
+            {include: {a: {a: {a: {a: true}}}}}
         ],
         [
             {a: {a: {a: {a: 2, b: 3}}}},
-            {include: {a: {a: {a: true}}}},
             {a: {a: {a: {a: 2, b: 3}}}},
+            {include: {a: {a: {a: true}}}}
         ],
-        [{a: 2}, {exclude: true}, {}],
-        [{a: 2}, {exclude: false}, {a: 2}],
-        [{a: 2}, {exclude: {a: true}}, {}],
-        [{a: 2}, {exclude: {b: true}}, {a: 2}],
-        [{a: 2}, {exclude: {b: true}}, {a: 2}],
-        [{a: 2, b: 3}, {exclude: {b: true}}, {a: 2}],
-        [{a: 2, b: 3}, {exclude: {b: false}}, {a: 2, b: 3}],
-        [{a: 2, b: {a: 2}}, {exclude: {b: {}}}, {a: 2, b: {a: 2}}],
-        [{a: 2, b: {a: 2}}, {exclude: {b: {a: true}}}, {a: 2, b: {}}],
-        [{a: 2, b: {a: 2}}, {exclude: {b: true}}, {a: 2}],
-        [{a: 2, b: {a: 2}}, {exclude: {b: {a: false}}}, {a: 2, b: {a: 2}}],
+        [{}, {a: 2}, {exclude: true}],
+        [{a: 2}, {a: 2}, {exclude: false}],
+        [{}, {a: 2}, {exclude: {a: true}}],
+        [{a: 2}, {a: 2}, {exclude: {b: true}}],
+        [{a: 2}, {a: 2}, {exclude: {b: true}}],
+        [{a: 2}, {a: 2, b: 3}, {exclude: {b: true}}],
+        [{a: 2, b: 3}, {a: 2, b: 3}, {exclude: {b: false}}],
+        [{a: 2, b: {a: 2}}, {a: 2, b: {a: 2}}, {exclude: {b: {}}}],
+        [{a: 2, b: {}}, {a: 2, b: {a: 2}}, {exclude: {b: {a: true}}}],
+        [{a: 2}, {a: 2, b: {a: 2}}, {exclude: {b: true}}],
+        [{a: 2, b: {a: 2}}, {a: 2, b: {a: 2}}, {exclude: {b: {a: false}}}],
         [
-            {a: {a: {a: {a: 2, b: 3}}}},
-            {exclude: {a: {a: {a: {a: true}}}}},
             {a: {a: {a: {b: 3}}}},
+            {a: {a: {a: {a: 2, b: 3}}}},
+            {exclude: {a: {a: {a: {a: true}}}}}
         ],
         [
-            {a: {a: {a: {a: 2, b: 3}}}},
-            {exclude: {a: {a: {a: true}}}},
             {a: {a: {}}},
+            {a: {a: {a: {a: 2, b: 3}}}},
+            {exclude: {a: {a: {a: true}}}}
         ]
-    ])(
-        'maskObject(%p, %p) === %p',
-        (
-            object:object, mask:ObjectMaskConfiguration, expected:object
-        ):void =>
-            expect(Tools.maskObject(object, mask)).toStrictEqual(expected)
     )
+    // TODO
     test.each([
         [{}, {}, {}, {}],
         [{a: 2}, {}, {a: 2}, {}],
