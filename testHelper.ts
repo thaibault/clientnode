@@ -30,7 +30,14 @@ import Tools from './index'
 import {FirstParameter, FunctionTestTuple, GenericFunction} from './type'
 // endregion
 /**
- * TODO
+ * Tests each given test set (expected value follows by various list of
+ * function parameters). It respects function signature to raise compile time
+ * errors if given test set does not match given function signature.
+ *
+ * @param functionName - Function description to test.
+ * @param callback - Function reference to test.
+ * @param functionTestTuple - Additional arrays of test sets to test given
+ * function again.
  * @returns Nothing.
  */
 export const testEach = <
@@ -49,7 +56,14 @@ export const testEach = <
             expect(callback(...parameters)).toStrictEqual(expected)
     )
 /**
- * TODO
+ * Tests each given test set (expected value follows one fuction parameter).
+ * It respects function signature to raise compile time errors if given test set
+ * does not match given function signature.
+ *
+ * @param functionName - Function description to test.
+ * @param callback - Function reference to test.
+ * @param functionTestTuple - Additional arrays of test sets to test given
+ * function again.
  * @returns Nothing.
  */
 export const testEachSingleParameter = <
@@ -72,7 +86,15 @@ export const testEachSingleParameter = <
             expect(callback(parameter)).toStrictEqual(expected)
     )
 /**
- * TODO
+ * Tests each given single parameter against same given expected value. It
+ * respects function signature to raise compile time errors if given test set
+ * does not match given function signature.
+ *
+ * @param functionName - Function description to test.
+ * @param callback - Function reference to test.
+ * @param expected - Value to check each function call return value against.
+ * @param functionTestTuple - Additional arrays of parameter to test given
+ * function with.
  * @returns Nothing.
  */
 export const testEachSingleParameterAgainstSameExpectation = <
@@ -89,7 +111,15 @@ export const testEachSingleParameterAgainstSameExpectation = <
             expect(callback(parameter)).toStrictEqual(expected)
     )
 /**
- * TODO
+ * Tests each given test set (various list of function parameters) against same
+ * given expected value. It respects function signature to raise compile time
+ * errors if given test set does not match given function signature.
+ *
+ * @param functionName - Function description to test.
+ * @param callback - Function reference to test.
+ * @param expected - Value to check each function call return value against.
+ * @param functionTestTuple - Additional arrays of parameters to test given
+ * function again.
  * @returns Nothing.
  */
 export const testEachAgainstSameExpectation = <
