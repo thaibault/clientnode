@@ -56,36 +56,6 @@ export const testEach = <
             expect(callback(...parameters)).toStrictEqual(expected)
     )
 /**
- * Tests each given test set (expected value follows one fuction parameter).
- * It respects function signature to raise compile time errors if given test set
- * does not match given function signature.
- *
- * @param functionName - Function description to test.
- * @param callback - Function reference to test.
- * @param functionTestTuple - Additional arrays of test sets to test given
- * function again.
- * @returns Nothing.
- */
-export const testEachSingleParameter = <
-    FunctionType extends GenericFunction = GenericFunction
->(
-    functionName:string,
-    callback:FunctionType,
-    ...functionTestTuple:Array<[
-        ReturnType<FunctionType>, FirstParameter<FunctionType>
-    ]>
-):void =>
-    test.each<[ReturnType<FunctionType>, FirstParameter<FunctionType>]>(
-        [...functionTestTuple]
-    )(
-        `%p === ${functionName}(%p)`,
-        (
-            expected:ReturnType<FunctionType>,
-            parameter:FirstParameter<FunctionType>
-        ):void =>
-            expect(callback(parameter)).toStrictEqual(expected)
-    )
-/**
  * Tests each given single parameter against same given expected value. It
  * respects function signature to raise compile time errors if given test set
  * does not match given function signature.

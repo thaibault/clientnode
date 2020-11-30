@@ -3644,7 +3644,9 @@ export class Tools<TElement = HTMLElement> {
      * doesn't exists given list.
      * @returns Item with the appended target.
      */
-    static arrayRemove<T>(list:T, target:any, strict:boolean = false):T {
+    static arrayRemove<T = Array<any>>(
+        list:T, target:any, strict:boolean = false
+    ):T {
         if (Array.isArray(list)) {
             const index:number = list.indexOf(target)
             if (index === -1) {

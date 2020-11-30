@@ -40,7 +40,6 @@ import {InitializedBrowser} from 'weboptimizer/type'
 import Tools, {globalContext, Semaphore, ValueCopySymbol, $} from './index'
 import {
     testEach,
-    testEachSingleParameter,
     testEachSingleParameterAgainstSameExpectation,
     testEachAgainstSameExpectation
 } from './testHelper'
@@ -520,7 +519,11 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 expect($(html).Tools('text')).toStrictEqual(text)
         )
         // endregion
-        test.each<Parameters<typeof Tools.isEquivalentDOM>>([
+        testEachAgainstSameExpectation<typeof Tools.isEquivalentDOM>(
+            'isEquivalentDOM',
+            Tools.isEquivalentDOM,
+            true,
+
             ['test', 'test'],
             ['test test', 'test test'],
             ['<div>', '<div>'],
@@ -565,13 +568,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 '</div>'
             ],
             ['a<br>', 'a<br />', true]
-        ])(
-            `true === isEquivalentDOM('%s', '%s')`,
-            (...parameters:Parameters<typeof Tools.isEquivalentDOM>):void =>
-                expect(Tools.isEquivalentDOM(...parameters))
-                    .toStrictEqual(true)
         )
-        test.each<Parameters<typeof Tools.isEquivalentDOM>>([
+        testEachAgainstSameExpectation<typeof Tools.isEquivalentDOM>(
+            'isEquivalentDOM',
+            Tools.isEquivalentDOM,
+            false,
+
             ['test', ''],
             ['test', 'hans'],
             ['test test', 'testtest'],
@@ -588,11 +590,6 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             ['text', 'text a'],
             ['text', 'text a'],
             ['text', 'text a & +']
-        ])(
-            `false === isEquivalentDOM('%s', '%s')`,
-            (...parameters:Parameters<typeof Tools.isEquivalentDOM>):void =>
-                expect(Tools.isEquivalentDOM(...parameters))
-                    .toStrictEqual(false)
         )
         test('getPositionRelativeToViewport', ():void =>
             expect(['above', 'left', 'right', 'below', 'in'])
@@ -2142,110 +2139,103 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[], []],
         [[1, 2, 3], [1, 2, 3]]
     )
-    // TODO
-    test.each([
-        [[{a: 2}, {a: 3}], 'a', 5],
-        [[{a: 2}, {b: 3}], 'a', 2],
-        [[{a: 2}, {b: 3}], 'c', 0]
-    ])(
-        "arraySumUpProperty(%p, '%s') === %p",
-        (values:Array<any>, propertyName:string, expected:number):void =>
-            expect(Tools.arraySumUpProperty(values, propertyName))
-                .toStrictEqual(expected)
+    testEach<typeof Tools.arraySumUpProperty>(
+        'arraySumUpProperty',
+        Tools.arraySumUpProperty,
+
+        [5, [{a: 2}, {a: 3}], 'a'],
+        [2, [{a: 2}, {b: 3}], 'a'],
+        [0, [{a: 2}, {b: 3}], 'c']
     )
-    test('arrayAppendAdd', ():void => {
+    ;(():void => {
         const testObject:PlainObject = {}
-        for (const [parameters, expected] of [
-            [[{}, {}, 'b'], {b: [{}]}],
-            [[testObject, {a: 3}, 'b'], {b: [{a: 3}]}],
-            [[testObject, {a: 3}, 'b'], {b: [{a: 3}, {a: 3}]}],
-            [[{b: [2]}, 2, 'b', false], {b: [2, 2]}],
-            [[{b: [2]}, 2, 'b'], {b: [2]}]
-        ])
-            expect(Tools.arrayAppendAdd(...parameters)).toStrictEqual(expected)
-    })
-    test.each([
-        [[[], 2], []],
-        [[[2], 2], []],
-        [[[2], 2, true], []],
-        [[[1, 2], 2], [1]],
-        [[[1, 2], 2, true], [1]]
-    ])(
-        'arrayRemove(...%p) === %p',
-        (parameter:Array<any>, expected:Array<any>):void =>
-            expect(Tools.arrayRemove(...parameter)).toStrictEqual(expected)
+
+        testEach<typeof Tools.arrayAppendAdd>(
+            'arrayAppenAdd',
+            Tools.arrayAppendAdd,
+
+            [{b: [{}]}, {}, {}, 'b'],
+            [{b: [{a: 3}]}, testObject, {a: 3}, 'b'],
+            [{b: [{a: 3}, {a: 3}]}, testObject, {a: 3}, 'b'],
+            [{b: [2, 2]}, {b: [2]}, 2, 'b', false],
+            [{b: [2]}, {b: [2]}, 2, 'b']
+        )
+    })()
+    testEach<typeof Tools.arrayRemove>(
+        'arrayRemove',
+        Tools.arrayRemove,
+
+        [[], [], 2],
+        [[], [2], 2],
+        [[], [2], 2, true],
+        [[1], [1, 2], 2],
+        [[1], [1, 2], 2, true]
     )
     test('arrayRemove([], 2, true) -> throws Exception', ():void =>
-        expect(():void => Tools.arrayRemove([], 2, true))
-            .toThrow(new Error(`Given target doesn't exists in given list.`))
+        expect(():Array<number> =>
+            Tools.arrayRemove<Array<number>>([], 2, true)
+        ).toThrow(new Error(`Given target doesn't exists in given list.`))
     )
-    test.each([
-        [{}, []],
-        [{a: []}, ['a']],
-        [{a: 'b'}, ['b', 'a']],
-        [{a: [], b: 'a'}, ['a', 'b']],
-        [{a: [], b: ['a']}, ['a', 'b']],
-        [{a: ['b'], b: []}, ['b', 'a']],
-        [{c: 'b', a: [], b: ['a']}, ['a', 'b', 'c']],
-        [{b: ['a'], a: [], c: ['a', 'b']}, ['a', 'b', 'c']]
-    ])(
-        'arraySortTopological(%p) === %p',
-        (values:Mapping<any>, expected:Mapping<any>):void =>
-            expect(Tools.arraySortTopological(values)).toStrictEqual(expected)
+    testEach<typeof Tools.arraySortTopological>(
+        'arraySortTopological',
+        Tools.arraySortTopological,
+
+        [[], {}],
+        [['a'], {a: []}],
+        [['b', 'a'], {a: 'b'}],
+        [['a', 'b'], {a: [], b: 'a'}],
+        [['a', 'b'], {a: [], b: ['a']}],
+        [['b', 'a'], {a: ['b'], b: []}],
+        [['a', 'b', 'c'], {c: 'b', a: [], b: ['a']}],
+        [['a', 'b', 'c'], {b: ['a'], a: [], c: ['a', 'b']}]
     )
     test.each([{a: 'a'}, {a: 'b', b: 'a'}, {a: 'b', b: 'c', c: 'a'}])(
         'arraySortTopological(%p) -> throws Exception',
         (values:Mapping<any>):void =>
-            expect(():void => Tools.arraySortTopological(values)).toThrow()
+            expect(():Array<string> => Tools.arraySortTopological(values))
+                .toThrow()
     )
     // / endregion
     // / region string
-    test.each([
-        [[''], ''],
-        [[`that's no regex: .*$`], `that's no regex: \\.\\*\\$`],
-        [['-\\[]()^$*+.}-', '}'], '\\-\\\\[\\]\\(\\)\\^\\$\\*\\+\\.}\\-'],
+    testEach<typeof Tools.stringEscapeRegularExpressions>(
+        'stringEscapeRegularExpressions',
+        Tools.stringEscapeRegularExpressions,
+
+        ['', ''],
+        [`that's no regex: \\.\\*\\$`, `that's no regex: .*$`],
+        ['\\-\\\\[\\]\\(\\)\\^\\$\\*\\+\\.}\\-', '-\\[]()^$*+.}-', '}'],
         [
-            [
-                '-\\[]()^$*+.{}-',
-                ['[', ']', '(', ')', '^', '$', '*', '+', '.', '{']
-            ],
-            '\\-\\[]()^$*+.{\\}\\-'
+            '\\-\\[]()^$*+.{\\}\\-',
+            '-\\[]()^$*+.{}-',
+            ['[', ']', '(', ')', '^', '$', '*', '+', '.', '{']
         ],
-        [['-', '\\'], '\\-']
-    ])(
-        "stringEscapeRegularExpressions(...%p) === '%s'",
-        (parameter:Array<string>, expected:string):void =>
-            expect(Tools.stringEscapeRegularExpressions(...parameter))
-                .toStrictEqual(expected)
+        ['\\-', '-', '\\']
     )
-    test.each([
+    testEach<typeof Tools.stringConvertToValidVariableName>(
+        'stringConvertToValidVariableName',
+        Tools.stringConvertToValidVariableName,
+
         ['', ''],
         ['a', 'a'],
         ['_a', '_a'],
         ['_a_a', '_a_a'],
-        ['_a-a', '_aA'],
-        ['-a-a', 'aA'],
-        ['-a--a', 'aA'],
-        ['--a--a', 'aA']
-    ])(
-        "stringConvertToValidVariableName('%s') === '%s'",
-        (name:string, expected:string):void =>
-            expect(Tools.stringConvertToValidVariableName(name))
-                .toStrictEqual(expected)
+        ['_aA', '_a-a'],
+        ['aA', '-a-a'],
+        ['aA', '-a--a'],
+        ['aA', '--a--a']
     )
-    // // region url handling 
-    test.each([
-        [[''], ''],
-        [[' '], '+'],
-        [[' ', true], '%20'],
-        [['@:$, '], '@:$,+'],
-        [['+'], '%2B']
-    ])(
-        "stringEncodeURIComponent(...%p), === '%s'",
-        (parameter:Array<any>, expected:string):void =>
-            expect(Tools.stringEncodeURIComponent(...parameter))
-                .toStrictEqual(expected)
+    // // region url handling
+    testEach<typeof Tools.stringEncodeURIComponent>(
+        'stringEncodeURIComponent',
+        Tools.stringEncodeURIComponent,
+
+        ['', ''],
+        ['+', ' '],
+        ['%20', ' ', true],
+        ['@:$,+', '@:$, '],
+        ['%2B', '+']
     )
+    // TODO
     test.each([
         [[''], ''],
         [['/'], '/'],
