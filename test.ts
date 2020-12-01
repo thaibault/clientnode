@@ -12,6 +12,17 @@
     naming 3.0 unported license.
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
+
+    generic test boilerplate:
+
+    test.each<FunctionTestTuple<FUNCTION>>([
+        [EXPECTED, ...PARAMETERS],
+        ...
+    ])(
+        '%p === FUNCTION(...%p)',
+        (expected:ReturnType<FUNCTION>, ...parameters:Parameters<FUNCTION>) =>
+            expect(FUNCTION(...parameters)).toStrictEqual(expected)
+    )
 */
 // region imports
 if (!('fetch' in globalContext))
@@ -28,10 +39,20 @@ import {InitializedBrowser} from 'weboptimizer/type'
 
 import Tools, {globalContext, Semaphore, ValueCopySymbol, $} from './index'
 import {
+    testEach,
+    testEachSingleParameterAgainstSameExpectation,
+    testEachAgainstSameExpectation
+} from './testHelper'
+import {
     File,
+    FirstParameter,
+    FunctionTestTuple,
     Mapping,
     ObjectMaskConfiguration,
     PlainObject,
+    ProcessCloseReason,
+    ProcessError,
+    SecondParameter,
     TimeoutPromise,
     $DomNode
 } from './type'
@@ -40,9 +61,9 @@ import {
 declare var TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
-let path:object
+let path
 let removeDirectoryRecursivelySync:Function
-let synchronousFileSystem:object
+let synchronousFileSystem
 let testEnvironment:string = 'browser'
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     path = require('path')
@@ -207,12 +228,27 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(semaphore.numberOfFreeResources).toStrictEqual(3)
     })
     // / endregion
-    // / region b oolean
-    test.each([0, 1, '-10', '0', 0xFF, '0xFF', '8e5', '3.1415', +10])(
-        'isNumeric(%s) === true',
-        (value:any):void => expect(Tools.isNumeric(value)).toStrictEqual(true)
+    // / region boolean
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isNumeric>(
+        'isNumeric',
+        Tools.isNumeric,
+        true,
+
+        0,
+        1,
+        '-10',
+        '0',
+        0xFF,
+        '0xFF',
+        '8e5',
+        '3.1415',
+        +10
     )
-    test.each([
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isNumeric>(
+        'isNumeric',
+        Tools.isNumeric,
+        false,
+
         null,
         undefined,
         false,
@@ -225,9 +261,6 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         '7.2acdgs',
         NaN,
         Infinity
-    ])(
-        'isNumeric(%p) === false',
-        (value:any):void => expect(Tools.isNumeric(value)).toStrictEqual(false)
     )
     test('isWindow', async ():Promise<void> => {
         const browser:InitializedBrowser = await getInitializedBrowser()
@@ -242,58 +275,86 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ])
             expect(Tools.isArrayLike(value)).toStrictEqual(true)
     })
-    test.each([{}, null, undefined, false, true, /a/])(
-        'isArrayLike(%p) === false',
-        (value:any):void =>
-            expect(Tools.isArrayLike(value)).toStrictEqual(false)
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isArrayLike>(
+        'isArrayLike',
+        Tools.isArrayLike,
+        false,
+
+        {},
+        null,
+        undefined,
+        false,
+        true,
+        /a/
     )
-    test.each([
+    testEachAgainstSameExpectation<typeof Tools.isAnyMatching>(
+        'isAnyMatching',
+        Tools.isAnyMatching,
+        true,
+
         ['', ['']],
         ['test', [/test/]],
         ['test', [/a/, /b/, /es/]],
         ['test', ['', 'test']]
-    ])(
-        `isAnyMatching('%s', %p) === true`,
-        (target:string, pattern:Array<string|RegExp>):void =>
-            expect(Tools.isAnyMatching(target, pattern)).toStrictEqual(true)
     )
-    test.each([
+    testEachAgainstSameExpectation<typeof Tools.isAnyMatching>(
+        'isAnyMatching',
+        Tools.isAnyMatching,
+        false,
+
         ['', []],
         ['test', [/tes$/]],
         ['test', [/^est/]],
         ['test', [/^est$/]],
         ['test', ['a']]
-    ])(
-        `isAnyMatching('%s', %p) === false`,
-        (target:string, pattern:Array<string|RegExp>):void =>
-            expect(Tools.isAnyMatching(target, pattern)).toStrictEqual(false)
     )
-    test.each([
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isPlainObject>(
+        'isPlainObject',
+        Tools.isPlainObject,
+        true,
+
         {},
         {a: 1},
         /* eslint-disable no-new-object */
         new Object()
         /* eslint-enable no-new-object */
-    ])('isPlainObject(%p) === true', (value:any):void =>
-        expect(Tools.isPlainObject(value)).toStrictEqual(true)
     )
-    test.each([new String(), Object, null, 0, 1, true, undefined])(
-        'isPlainObject(%p) === false',
-        (value:any):void =>
-            expect(Tools.isPlainObject(value)).toStrictEqual(false)
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isPlainObject>(
+        'isPlainObject',
+        Tools.isPlainObject,
+        false,
+
+        new String(),
+        Object,
+        null,
+        0,
+        1,
+        true,
+        undefined
     )
-    test.each([
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isFunction>(
+        'isFunction',
+        Tools.isFunction,
+        true,
+
         Object,
         new Function('return 1'),
         function():void {},
         ():void => {},
         async ():Promise<void> => {}
-    ])('isFunction(%p) === true', (value:any):void =>
-        expect(Tools.isFunction(value)).toStrictEqual(true)
     )
-    test.each([null, false, 0, 1, undefined, {}, new Boolean()])(
-        'isFunction(%p) === false', (value:any):void =>
-            expect(Tools.isFunction(value)).toStrictEqual(false)
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.isFunction>(
+        'isFunction',
+        Tools.isFunction,
+        false,
+
+        null,
+        false,
+        0,
+        1,
+        undefined,
+        {},
+        new Boolean()
     )
     // / endregion
     // / region language fixes
@@ -319,14 +380,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             .toStrictEqual(true)
         /* eslint-enable no-control-regex */
     )
-    test.each([
-        [1, '1 (Type: "number")'],
-        [null, 'null (Type: "null")'],
-        [/a/, '/a/ (Type: "regexp")'],
-        ['hans', 'hans (Type: "string")'],
-        [{A: 'a', B: 'b'}, 'A: a (Type: "string")\nB: b (Type: "string")']
-    ])('show(%p) === %s', (value:any, expected:string):void =>
-        expect(Tools.show(value)).toStrictEqual(expected)
+    testEach<typeof Tools.show>(
+        'show',
+        Tools.show,
+        ['1 (Type: "number")', 1],
+        ['null (Type: "null")', null],
+        ['/a/ (Type: "regexp")', /a/],
+        ['hans (Type: "string")', 'hans'],
+        ['A: a (Type: "string")\nB: b (Type: "string")', {A: 'a', B: 'b'}]
     )
     // / endregion
     // / region dom node handling
@@ -425,7 +486,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                     .prop('outerHTML')
             )
         })
-        test.each([
+        test.each<[string, Mapping]>([
             ['<span>', {}],
             ['<span>hans</span>', {}],
             ['<span style="display:block"></span>', {display: 'block'}],
@@ -449,7 +510,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 $domNode.remove()
             }
         )
-        test.each([
+        test.each<[string, string]>([
             ['<div>', ''],
             ['<div>hans</div>', 'hans'],
             ['<div><div>hans</div</div>', ''],
@@ -460,7 +521,11 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 expect($(html).Tools('text')).toStrictEqual(text)
         )
         // endregion
-        test.each([
+        testEachAgainstSameExpectation<typeof Tools.isEquivalentDOM>(
+            'isEquivalentDOM',
+            Tools.isEquivalentDOM,
+            true,
+
             ['test', 'test'],
             ['test test', 'test test'],
             ['<div>', '<div>'],
@@ -505,17 +570,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 '</div>'
             ],
             ['a<br>', 'a<br />', true]
-        ])(
-            `isEquivalentDOM('%s', '%s') === true`,
-            (
-                first:$DomNode<HTMLElement>|string,
-                second:string,
-                forceHTMLString:boolean = false
-            ):void =>
-                expect(Tools.isEquivalentDOM(first, second, forceHTMLString))
-                    .toStrictEqual(true)
         )
-        test.each([
+        testEachAgainstSameExpectation<typeof Tools.isEquivalentDOM>(
+            'isEquivalentDOM',
+            Tools.isEquivalentDOM,
+            false,
+
             ['test', ''],
             ['test', 'hans'],
             ['test test', 'testtest'],
@@ -532,44 +592,37 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             ['text', 'text a'],
             ['text', 'text a'],
             ['text', 'text a & +']
-        ])(
-            `isEquivalentDOM('%s', '%s') === false`,
-            (first:$DomNode<HTMLElement>|string, second:string):void =>
-                expect(Tools.isEquivalentDOM(first, second))
-                    .toStrictEqual(false)
         )
         test('getPositionRelativeToViewport', ():void =>
             expect(['above', 'left', 'right', 'below', 'in'])
                 .toContain(tools.getPositionRelativeToViewport())
         )
     }
-    test.each([
-        ['a-b', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
-        ['aB', 'a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]'],
-        ['a', 'a, .a, [a], [data-a], [x-a]'],
-        ['aa', 'aa, .aa, [aa], [data-aa], [x-aa]'],
+    testEach<typeof Tools.generateDirectiveSelector>(
+        'generateDirectiveSelector',
+        Tools.generateDirectiveSelector,
+
+        ['a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]', 'a-b'],
+        ['a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]', 'aB'],
+        ['a, .a, [a], [data-a], [x-a]', 'a'],
+        ['aa, .aa, [aa], [data-aa], [x-aa]', 'aa'],
         [
-            'aaBB',
             'aa-bb, .aa-bb, ' +
-            '[aa-bb], [data-aa-bb], [x-aa-bb], [aa\\:bb], [aa_bb]'
+            '[aa-bb], [data-aa-bb], [x-aa-bb], [aa\\:bb], [aa_bb]',
+            'aaBB'
         ],
         [
-            'aaBbCcDd',
             'aa-bb-cc-dd, .aa-bb-cc-dd, ' +
             '[aa-bb-cc-dd], [data-aa-bb-cc-dd], [x-aa-bb-cc-dd], ' +
-            '[aa\\:bb\\:cc\\:dd], [aa_bb_cc_dd]'
+            '[aa\\:bb\\:cc\\:dd], [aa_bb_cc_dd]',
+            'aaBbCcDd'
         ],
         [
-            'mceHREF',
             'mce-href, .mce-href, ' +
             '[mce-href], [data-mce-href], [x-mce-href], [mce\\:href], ' +
-            '[mce_href]'
+            '[mce_href]',
+            'mceHREF'
         ]
-    ])(
-        `generateDirectiveSelector('%s') === '%s'`,
-        (name:string, selector:string):void =>
-            expect(Tools.generateDirectiveSelector(name))
-                .toStrictEqual(selector)
     )
     if (hasDOM)
         test('removeDirective', async ():Promise<void> => {
@@ -578,13 +631,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expect($localBodyDomNode.Tools().removeDirective('a'))
                 .toStrictEqual($localBodyDomNode)
         })
-    test.each([
-        ['data-a', 'a'], ['x-a', 'a'], ['data-a-bb', 'aBb'], ['x:a:b', 'aB']
-    ])(
-        `getNormalizedDirectiveName('%s') === '%s'`,
-        (directive:string, name:string):void =>
-            expect(Tools.getNormalizedDirectiveName(directive))
-                .toStrictEqual(name)
+    testEach<typeof Tools.getNormalizedDirectiveName>(
+        'getNormalizedDirectiveName',
+        Tools.getNormalizedDirectiveName,
+
+        ['a', 'data-a'],
+        ['a', 'x-a'],
+        ['aBb', 'data-a-bb'],
+        ['aB', 'x:a:b']
     )
     if (hasDOM)
         test('getDirectiveValue', async ():Promise<void> => {
@@ -604,17 +658,18 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 .sliceDomNodeSelectorPrefix('body div')
         ).toStrictEqual('body div')
     })
-    test.each([
+    testEach<typeof Tools.getDomNodeName>(
+        'getDomNodeName',
+        Tools.getDomNodeName,
+
         ['div', 'div'],
-        ['<div>', 'div'],
-        ['<div />', 'div'],
-        ['<div></div>', 'div'],
+        ['div', '<div>'],
+        ['div', '<div />'],
+        ['div', '<div></div>'],
         ['a', 'a'],
-        ['<a>', 'a'],
-        ['<a />', 'a'],
-        ['<a></a>', 'a']
-    ])(`getDomNodeName('%s') === '%s'`, (html:string, name:string):void =>
-        expect(Tools.getDomNodeName(html)).toStrictEqual(name)
+        ['a', '<a>'],
+        ['a', '<a />'],
+        ['a', '<a></a>']
     )
     if (hasDOM)
         test('grabDomNode', async ():Promise<void> => {
@@ -694,45 +749,45 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     })
     // / endregion
     // / region function handling
-    test.each([
-        [function():void {}, []],
-        ['function() {}', []],
-        ['function(a, /* dummy*/ b, c/**/) {}', ['a', 'b', 'c']],
-        ['(a, /*dummy*/b, c/**/) => {}', ['a', 'b', 'c']],
+    testEach<typeof Tools.getParameterNames>(
+        'getParameterNames',
+        Tools.getParameterNames,
+
+        [[], function():void {}],
+        [[], 'function() {}'],
+        [['a', 'b', 'c'], 'function(a, /* dummy*/ b, c/**/) {}'],
+        [['a', 'b', 'c'], '(a, /*dummy*/b, c/**/) => {}'],
         [
+            ['a', 'b', 'c'],
             `(a, /*dummy*/b, c/**/) => {
                 return 2
-            }`,
-            ['a', 'b', 'c']
+            }`
         ],
-        ['(a, /* dummy*/b, c/* */) => 2', ['a', 'b', 'c']],
-        ['(a, /* dummy*/b = 2, c/* */) => 2', ['a', 'b', 'c']],
-        ['a => 2', ['a']],
+        [['a', 'b', 'c'], '(a, /* dummy*/b, c/* */) => 2'],
+        [['a', 'b', 'c'], '(a, /* dummy*/b = 2, c/* */) => 2'],
+        [['a'], 'a => 2'],
         [
+            ['a', 'b', 'c'],
             `class A {
                 constructor(a, b, c) {}
                 a() {}
-            }`,
-            ['a', 'b', 'c']
+            }`
         ]
-    ])(
-        `getParameterNames('%s') === %p`,
-        (code:Function|string, parameterNames:Array<string>):void =>
-            expect(Tools.getParameterNames(code)).toStrictEqual(parameterNames)
     )
     test('identity', ():void => {
         expect(Tools.identity({}) === {}).toStrictEqual(false)
         const testObject = {}
         expect(Tools.identity(testObject)).toStrictEqual(testObject)
     })
-    test.each([
+    testEach<typeof Tools.identity>(
+        'identity',
+        Tools.identity,
+
         [2, 2],
         ['', ''],
         [undefined, undefined],
         [null, null],
         ['hans', 'hans']
-    ])('identity(%p) === %p', (given:any, expected:any):void =>
-        expect(Tools.identity(given)).toStrictEqual(expected)
     )
     test('invertArrayFilter', ():void => {
         expect(
@@ -822,7 +877,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         })
     }
     // / endregion
-    // / region  object
+    // / region object
     test('addDynamicGetterAndSetter', ():void => {
         expect(Tools.addDynamicGetterAndSetter(null)).toStrictEqual(null)
         expect(Tools.addDynamicGetterAndSetter(true)).toStrictEqual(true)
@@ -903,18 +958,19 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(Tools.convertCircularObjectToJSON(object1))
             .toStrictEqual('{"a":{"a":"__circularReference__"}}')
     })
-    test.each([
-        [{}, '{}'],
-        [{a: null}, '{"a":null}'],
-        [{a: {a: 2}}, '{"a":{"a":2}}'],
-        [{a: {a: Infinity}}, '{"a":{"a":null}}']
-    ])(
-        `convertCircularObjectToJSON(%p) === '%s'`,
-        (value:any, expected:string):void =>
-            expect(Tools.convertCircularObjectToJSON(value))
-                .toStrictEqual(expected)
+    testEach<typeof Tools.convertCircularObjectToJSON>(
+        'convertCircularObjectToJSON',
+        Tools.convertCircularObjectToJSON,
+
+        ['{}', {}],
+        ['{"a":null}', {a: null}],
+        ['{"a":{"a":2}}', {a: {a: 2}}],
+        ['{"a":{"a":null}}', {a: {a: Infinity}}]
     )
-    test.each([
+    testEach<typeof Tools.convertMapToPlainObject>(
+        'convertMapToPlainObject',
+        Tools.convertMapToPlainObject,
+
         [null, null],
         [true, true],
         [0, 0],
@@ -936,13 +992,11 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 [['a', new Map([['a', 2]])], ['2', 2]]
             )]]
         ]
-    ])(
-        '%p === convertMapToPlainObject(%p, %p)',
-        (expected:any, object:any, deep:boolean = true):void =>
-            expect(Tools.convertMapToPlainObject(object, deep))
-                .toStrictEqual(expected)
     )
-    test.each([
+    testEach<typeof Tools.convertPlainObjectToMap>(
+        'convertPlainObjectToMap',
+        Tools.convertPlainObjectToMap,
+
         [null, null],
         [true, true],
         [0, 0],
@@ -981,33 +1035,21 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             )],
             [{b: 2, a: new Set([{}])}]
         ]
-    ])(
-        '%p === convertPlainObjectToMap(%p, %p)',
-        (expected:any, object:any, deep:boolean = true):void =>
-            expect(Tools.convertPlainObjectToMap(object, deep))
-                .toStrictEqual(expected)
     )
-    test.each([
-        [{}, /a/, '', {}],
-        [{a: 'a'}, /a/, 'b', {a: 'b'}],
-        [{a: 'aa'}, /a/, 'b', {a: 'ba'}],
-        [{a: 'aa'}, /a/g, 'b', {a: 'bb'}],
-        [{a: {a: 'aa'}}, /a/g, 'b', {a: {a: 'bb'}}]
-    ])(
-        `convertSubstringInPlainObject(%p, %p, '%s') === %p`,
-        (
-            object:PlainObject,
-            pattern:RegExp|string,
-            replacement:string,
-            expected:PlainObject
-        ):void =>
-            expect(
-                Tools.convertSubstringInPlainObject(
-                    object, pattern, replacement
-                )
-            ).toStrictEqual(expected)
+    testEach<typeof Tools.convertSubstringInPlainObject>(
+        'convertSubstringInPlainObject',
+        Tools.convertSubstringInPlainObject,
+
+        [{}, {}, /a/, ''],
+        [{a: 'b'}, {a: 'a'}, /a/, 'b'],
+        [{a: 'ba'}, {a: 'aa'}, /a/, 'b'],
+        [{a: 'bb'}, {a: 'aa'}, /a/g, 'b'],
+        [{a: {a: 'bb'}}, {a: {a: 'aa'}}, /a/g, 'b']
     )
-    test.each([
+    testEach<typeof Tools.copy>(
+        'copy',
+        Tools.copy,
+
         [21, 21],
         [0, 0],
         [0, 0, -1],
@@ -1111,42 +1153,42 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             10
         ],
         [{ValueCopySymbol}, {ValueCopySymbol}]
-    ])(
-        '%p === copy(...%p)',
-        (expected:any, object:any, ...parameter:Array<any>):void =>
-            expect(Tools.copy(object, ...parameter))
-                .toStrictEqual(expected)
     )
     test('determineType', ():void =>
         expect(Tools.determineType()).toStrictEqual('undefined')
     )
-    test.each([
-        [undefined, 'undefined'],
-        [({} as {notDefined:undefined}).notDefined, 'undefined'],
-        [null, 'null'],
-        [true, 'boolean'],
-        [new Boolean(), 'boolean'],
-        [3, 'number'],
-        [new Number(3), 'number'],
-        ['', 'string'],
-        [new String(''), 'string'],
-        ['test', 'string'],
-        [new String('test'), 'string'],
-        [function():void {}, 'function'],
-        [():void => {}, 'function'],
-        [[], 'array'],
+    testEach<typeof Tools.determineType>(
+        'determineType',
+        Tools.determineType,
+
+        ['undefined', undefined],
+        ['undefined', ({} as {notDefined:undefined}).notDefined],
+        ['null', null],
+        ['boolean', true],
+        ['boolean', new Boolean()],
+        ['number', 3],
+        ['number', new Number(3)],
+        ['string', ''],
+        ['string', new String('')],
+        ['string', 'test'],
+        ['string', new String('test')],
+        ['function', function():void {}],
+        ['function', ():void => {}],
+        ['array', []],
         /* eslint-disable no-array-constructor */
-        // TODO [new Array(), 'array'],
+        // TODO ['array', new Array()],
         /* eslint-enable no-array-constructor */
-        [now, 'date'],
-        [new Error(), 'error'],
-        [new Map(), 'map'],
-        [new Set(), 'set'],
-        [/test/, 'regexp']
-    ])(`determineType(%p) === '%s'`, (object:any, expected:string):void =>
-        expect(Tools.determineType(object)).toStrictEqual(expected)
+        ['date', now],
+        ['error', new Error()],
+        ['map', new Map()],
+        ['set', new Set()],
+        ['regexp', /test/]
     )
-    test.each([
+    testEachAgainstSameExpectation<typeof Tools.equals>(
+        'equals',
+        Tools.equals,
+        true,
+
         [1, 1],
         [now, now],
         [new Date(1995, 11, 17), new Date(1995, 11, 17)],
@@ -1165,7 +1207,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[{a: 1}], [{a: 1}]],
         [[{a: 1, b: 1}], [{a: 1}], []],
         [[{a: 1, b: 1}], [{a: 1}], ['a']],
-        [2, 2, 0],
+        [2, 2, null, 0],
         [[{a: 1, b: 1}], [{a: 1}], null, 0],
         [[{a: 1}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
         [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
@@ -1180,11 +1222,6 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ],
         [Tools.noop, Tools.noop],
         [Tools.noop, Tools.noop, null, -1, [], false]
-    ])(
-        'equals(%p, %p, ...%p) === true',
-        (first:any, second:any, ...parameter:Array<any>):void =>
-            expect(Tools.equals(first, second, ...parameter))
-                .toStrictEqual(true)
     )
     if (TARGET_TECHNOLOGY === 'node')
         test('equals', ():void =>
@@ -1193,92 +1230,115 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             )).toStrictEqual(true)
         )
     else {
-        test.each([
-            [
-                new Blob(['a'], {type: 'text/plain'}),
-                new Blob(['a'], {type: 'text/plain'})
-            ],
-            [
-                [new Blob(['a'], {type: 'text/plain'})],
-                [new Blob(['a'], {type: 'text/plain'})]
-            ],
-            [
-                {a: new Blob(['a'], {type: 'text/plain'})},
-                {a: new Blob(['a'], {type: 'text/plain'})}
-            ],
-            [
-                new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
-                new Map([['a', new Blob(['a'], {type: 'text/plain'})]])
-            ],
-            [
-                new Set([new Blob(['a'], {type: 'text/plain'})]),
-                new Set([new Blob(['a'], {type: 'text/plain'})])
-            ],
-            [
-                {
-                    a: new Set([[new Map([['a', new Blob(['a'], {
-                        type: 'text/plain'
-                    })]])]]),
-                    b: 2
-                },
-                {
-                    a: new Set([[new Map([['a', new Blob(['a'], {
-                        type: 'text/plain'
-                    })]])]]),
-                    b: 2
-                }
-            ]
-        ])(
-            'equals(%p, %p, null, -1, [], true, true) === true',
-            async (first:any, second:any):Promise<void> =>
-                expect(
-                    await Tools.equals(first, second, null, -1, [], true, true)
-                ).toStrictEqual(true)
+        testEachAgainstSameExpectation<typeof Tools.equals>(
+            'equals',
+            Tools.equals,
+            true,
+
+            ...([
+                [
+                    new Blob(['a'], {type: 'text/plain'}),
+                    new Blob(['a'], {type: 'text/plain'})
+                ],
+                [
+                    [new Blob(['a'], {type: 'text/plain'})],
+                    [new Blob(['a'], {type: 'text/plain'})]
+                ],
+                [
+                    {a: new Blob(['a'], {type: 'text/plain'})},
+                    {a: new Blob(['a'], {type: 'text/plain'})}
+                ],
+                [
+                    new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
+                    new Map([['a', new Blob(['a'], {type: 'text/plain'})]])
+                ],
+                [
+                    new Set([new Blob(['a'], {type: 'text/plain'})]),
+                    new Set([new Blob(['a'], {type: 'text/plain'})])
+                ],
+                [
+                    {
+                        a: new Set([[new Map([['a', new Blob(['a'], {
+                            type: 'text/plain'
+                        })]])]]),
+                        b: 2
+                    },
+                    {
+                        a: new Set([[new Map([['a', new Blob(['a'], {
+                            type: 'text/plain'
+                        })]])]]),
+                        b: 2
+                    }
+                ]
+            ] as Array<[
+                FirstParameter<typeof Tools.equals>,
+                SecondParameter<typeof Tools.equals>
+            ]>).map((parameters:[
+                FirstParameter<typeof Tools.equals>,
+                SecondParameter<typeof Tools.equals>
+            ]):Parameters<typeof Tools.equals> =>
+                parameters.concat(null, -1, [], true, true) as
+                    Parameters<typeof Tools.equals>
+            )
         )
-        test.each([
-            [
-                new Blob(['a'], {type: 'text/plain'}),
-                new Blob(['b'], {type: 'text/plain'})
-            ],
-            [
-                [new Blob(['a'], {type: 'text/plain'})],
-                [new Blob(['b'], {type: 'text/plain'})]
-            ],
-            [
-                {a: new Blob(['a'], {type: 'text/plain'})},
-                {a: new Blob(['b'], {type: 'text/plain'})}
-            ],
-            [
-                new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
-                new Map([['a', new Blob(['b'], {type: 'text/plain'})]])
-            ],
-            [
-                new Set([new Blob(['a'], {type: 'text/plain'})]),
-                new Set([new Blob(['b'], {type: 'text/plain'})])
-            ],
-            [
-                {
-                    a: new Set([[new Map([['a', new Blob(['a'], {
-                        type: 'text/plain'
-                    })]])]]),
-                    b: 2
-                },
-                {
-                    a: new Set([[new Map([['a', new Blob(['b'], {
-                        type: 'text/plain'
-                    })]])]]),
-                    b: 2
-                }
+        testEachAgainstSameExpectation<typeof Tools.equals>(
+            'equals',
+            Tools.equals,
+            false,
+
+            ...([
+                [
+                    new Blob(['a'], {type: 'text/plain'}),
+                    new Blob(['b'], {type: 'text/plain'})
+                ],
+                [
+                    [new Blob(['a'], {type: 'text/plain'})],
+                    [new Blob(['b'], {type: 'text/plain'})]
+                ],
+                [
+                    {a: new Blob(['a'], {type: 'text/plain'})},
+                    {a: new Blob(['b'], {type: 'text/plain'})}
+                ],
+                [
+                    new Map([['a', new Blob(['a'], {type: 'text/plain'})]]),
+                    new Map([['a', new Blob(['b'], {type: 'text/plain'})]])
+                ],
+                [
+                    new Set([new Blob(['a'], {type: 'text/plain'})]),
+                    new Set([new Blob(['b'], {type: 'text/plain'})])
+                ],
+                [
+                    {
+                        a: new Set([[new Map([['a', new Blob(['a'], {
+                            type: 'text/plain'
+                        })]])]]),
+                        b: 2
+                    },
+                    {
+                        a: new Set([[new Map([['a', new Blob(['b'], {
+                            type: 'text/plain'
+                        })]])]]),
+                        b: 2
+                    }
+                ]
+            ] as Array<[
+                FirstParameter<typeof Tools.equals>,
+                SecondParameter<typeof Tools.equals>
+            ]>).map((parameter:[
+                FirstParameter<typeof Tools.equals>,
+                SecondParameter<typeof Tools.equals>
             ]
-        ])(
-            'equals(%p, %p) === false',
-            async (first:any, second:any):Promise<void> =>
-                expect(await Tools.equals(
-                    first, second, null, -1, [], true, true
-                )).toStrictEqual(false)
+            ):Parameters<typeof Tools.equals> =>
+                parameter.concat(null, -1, [], true, true) as
+                    Parameters<typeof Tools.equals>
+            )
         )
     }
-    test.each([
+    testEachAgainstSameExpectation<typeof Tools.equals>(
+        'equals',
+        Tools.equals,
+        false,
+
         [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 2],
         [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3],
         [new Date(1995, 11, 17), new Date(1995, 11, 16)],
@@ -1295,16 +1355,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2, {}]]],
         [[{a: 1, b: 1}], [{a: 1}]],
         [[{a: 1, b: 1}], [{a: 1}], ['a', 'b']],
-        [1, 2, 0],
+        [1, 2, null, 0],
         [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
         [():void => {}, ():void => {}, null, -1, [], false]
-    ])(
-        'equals(%p, %p, ...%p) === false',
-        (first:any, second:any, ...parameter:Array<any>):void =>
-            expect(Tools.equals(first, second, ...parameter))
-                .toStrictEqual(false)
     )
-    test.each([
+    testEach<typeof Tools.evaluateDynamicData>(
+        'evaluateDynamicData',
+        Tools.evaluateDynamicData,
+
         [null, null],
         [false, false],
         ['1', '1'],
@@ -1399,7 +1457,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 b: {__evaluate__: '_.c'},
                 c: {d: {e: {__evaluate__: 'tools.copy([2])'}}}
             },
-            {tools: $.Tools.class}, '_'
+            {tools: Tools.copy($.Tools.class)}, '_'
         ],
         [
             {a: {b: 1, c: 1}},
@@ -1499,33 +1557,28 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
             }
         ]
-    ])(
-        '%p === evaluateDynamicData(%p, ...%p)',
-        (expected:any, object:any, ...parameter:Array<any>):void =>
-            expect(Tools.copy(
-                Tools.evaluateDynamicData(object, ...parameter), -1, true
-            )).toStrictEqual(expected)
     )
-    test.each([
+    testEach<typeof Tools.removeEvaluationInDynamicData>(
+        'removeEvaluationInDynamicData',
+        Tools.removeEvaluationInDynamicData,
+
         [{}, {}],
         [{a: 2}, {a: 2}],
-        [{a: 2, __evaluate__: ''}, {__evaluate__: ''}],
+        [{__evaluate__: ''}, {a: 2, __evaluate__: ''}],
         [
-            {a: 2, b: {__evaluate__: '', c: 4}},
-            {a: 2, b: {__evaluate__: ''}}
+            {a: 2, b: {__evaluate__: ''}},
+            {a: 2, b: {__evaluate__: '', c: 4}}
         ]
-    ])(
-        'removeEvaluationInDynamicData(%p) === %p',
-        (data:PlainObject, expected:PlainObject):void =>
-            expect(Tools.removeEvaluationInDynamicData(data))
-                .toStrictEqual(expected)
     )
     test('extend', ():void => {
         const target:PlainObject = {a: [1, 2]}
         Tools.extend(true, target, {a: [3, 4]})
         expect(target).toStrictEqual({a: [3, 4]})
     })
-    test.each([
+    testEach<typeof Tools.extend>(
+        'extend',
+        Tools.extend,
+
         [[], []],
         [{}, {}],
         [{a: 1}, {a: 1}],
@@ -1628,27 +1681,16 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ],
         [undefined, [1, 2], undefined],
         [null, [1, 2], null]
-    ])(
-        '%p === extend(%p, ...%p)',
-        (expected:any, first:any, ...parameter:Array<any>):void =>
-            expect(Tools.extend(first, ...parameter)).toStrictEqual(expected)
     )
-    test.each([
+    testEach<typeof Tools.getSubstructure>(
+        'getSubstructure',
+        Tools.getSubstructure,
+
         [{}, {}, []],
         [1, {a: 1}, ['a']],
         [null, {a: {a: null}}, 'a.a'],
         [[], {a: {a: []}}, 'a.a'],
         [3, {a: {b: {c: 3}}}, ['a', 'b.c']]
-    ])(
-        '%p === getSubstructure(%p, %p, ...%p)',
-        (
-            expected:any,
-            target:any,
-            selector:Array<string>|string,
-            ...parameter:Array<any>
-        ):void =>
-            expect(Tools.getSubstructure(target, selector, ...parameter))
-                .toStrictEqual(expected)
     )
     test('getProxyHandler', ():void => {
         expect(Tools.isPlainObject(Tools.getProxyHandler({})))
@@ -1657,73 +1699,70 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             Tools.isPlainObject(Tools.getProxyHandler(new Map(), {get: 'get'}))
         ).toStrictEqual(true)
     })
-    test.each([
+    testEach<typeof Tools.maskObject>(
+        'maskObject',
+        Tools.maskObject,
+
         [{}, {}, {}],
-        [{a: 2}, {}, {a: 2}],
-        [{a: 2}, {include: false}, {}],
-        [{a: 2}, {include: true}, {a: 2}],
-        [{a: 2}, {include: {a: true}}, {a: 2}],
-        [{a: 2}, {include: {b: true}}, {}],
-        [{a: 2}, {include: {a: false}}, {}],
-        [{a: 2}, {include: {b: false}}, {}],
-        [{a: 2, b: 3}, {include: {a: true}}, {a: 2}],
-        [{a: 2, b: 3}, {include: {}}, {}],
-        [{a: 2, b: 3}, {include: {a: false, b: true}}, {b: 3}],
-        [{a: 2, b: {a: 2}}, {include: {a: false, b: true}}, {b: {a: 2}}],
-        [{a: 2, b: {a: 2}}, {include: {a: false, b: {}}}, {b: {}}],
-        [{a: 2, b: {a: 2}}, {include: {a: false, b: {a: true}}}, {b: {a: 2}}],
+        [{a: 2}, {a: 2}, {}],
+        [{}, {a: 2}, {include: false}],
+        [{a: 2}, {a: 2}, {include: true}],
+        [{a: 2}, {a: 2}, {include: {a: true}}],
+        [{}, {a: 2}, {include: {b: true}}],
+        [{}, {a: 2}, {include: {a: false}}],
+        [{}, {a: 2}, {include: {b: false}}],
+        [{a: 2}, {a: 2, b: 3}, {include: {a: true}}],
+        [{}, {a: 2, b: 3}, {include: {}}],
+        [{b: 3}, {a: 2, b: 3}, {include: {a: false, b: true}}],
+        [{b: {a: 2}}, {a: 2, b: {a: 2}}, {include: {a: false, b: true}}],
+        [{b: {}}, {a: 2, b: {a: 2}}, {include: {a: false, b: {}}}],
+        [{b: {a: 2}}, {a: 2, b: {a: 2}}, {include: {a: false, b: {a: true}}}],
         [
+            {a: 2, b: {}},
             {a: 2, b: {a: 2}},
-            {include: {a: true, b: {a: false}}},
-            {a: 2, b: {}}
+            {include: {a: true, b: {a: false}}}
+        ],
+        [
+            {a: 2, b: {}},
+            {a: 2, b: {a: 2}},
+            {include: {a: true, b: {a: false}, c: true}}
         ],
         [
             {a: 2, b: {a: 2}},
-            {include: {a: true, b: {a: false}, c: true}},
-            {a: 2, b: {}}
-        ],
-        [
             {a: 2, b: {a: 2}},
-            {include: {a: true, b: {a: true}}},
-            {a: 2, b: {a: 2}}
+            {include: {a: true, b: {a: true}}}
         ],
         [
-            {a: {a: {a: {a: 2, b: 3}}}},
-            {include: {a: {a: {a: {a: true}}}}},
             {a: {a: {a: {a: 2}}}},
+            {a: {a: {a: {a: 2, b: 3}}}},
+            {include: {a: {a: {a: {a: true}}}}}
         ],
         [
             {a: {a: {a: {a: 2, b: 3}}}},
-            {include: {a: {a: {a: true}}}},
             {a: {a: {a: {a: 2, b: 3}}}},
+            {include: {a: {a: {a: true}}}}
         ],
-        [{a: 2}, {exclude: true}, {}],
-        [{a: 2}, {exclude: false}, {a: 2}],
-        [{a: 2}, {exclude: {a: true}}, {}],
-        [{a: 2}, {exclude: {b: true}}, {a: 2}],
-        [{a: 2}, {exclude: {b: true}}, {a: 2}],
-        [{a: 2, b: 3}, {exclude: {b: true}}, {a: 2}],
-        [{a: 2, b: 3}, {exclude: {b: false}}, {a: 2, b: 3}],
-        [{a: 2, b: {a: 2}}, {exclude: {b: {}}}, {a: 2, b: {a: 2}}],
-        [{a: 2, b: {a: 2}}, {exclude: {b: {a: true}}}, {a: 2, b: {}}],
-        [{a: 2, b: {a: 2}}, {exclude: {b: true}}, {a: 2}],
-        [{a: 2, b: {a: 2}}, {exclude: {b: {a: false}}}, {a: 2, b: {a: 2}}],
+        [{}, {a: 2}, {exclude: true}],
+        [{a: 2}, {a: 2}, {exclude: false}],
+        [{}, {a: 2}, {exclude: {a: true}}],
+        [{a: 2}, {a: 2}, {exclude: {b: true}}],
+        [{a: 2}, {a: 2}, {exclude: {b: true}}],
+        [{a: 2}, {a: 2, b: 3}, {exclude: {b: true}}],
+        [{a: 2, b: 3}, {a: 2, b: 3}, {exclude: {b: false}}],
+        [{a: 2, b: {a: 2}}, {a: 2, b: {a: 2}}, {exclude: {b: {}}}],
+        [{a: 2, b: {}}, {a: 2, b: {a: 2}}, {exclude: {b: {a: true}}}],
+        [{a: 2}, {a: 2, b: {a: 2}}, {exclude: {b: true}}],
+        [{a: 2, b: {a: 2}}, {a: 2, b: {a: 2}}, {exclude: {b: {a: false}}}],
         [
-            {a: {a: {a: {a: 2, b: 3}}}},
-            {exclude: {a: {a: {a: {a: true}}}}},
             {a: {a: {a: {b: 3}}}},
+            {a: {a: {a: {a: 2, b: 3}}}},
+            {exclude: {a: {a: {a: {a: true}}}}}
         ],
         [
-            {a: {a: {a: {a: 2, b: 3}}}},
-            {exclude: {a: {a: {a: true}}}},
             {a: {a: {}}},
+            {a: {a: {a: {a: 2, b: 3}}}},
+            {exclude: {a: {a: {a: true}}}}
         ]
-    ])(
-        'maskObject(%p, %p) === %p',
-        (
-            object:object, mask:ObjectMaskConfiguration, expected:object
-        ):void =>
-            expect(Tools.maskObject(object, mask)).toStrictEqual(expected)
     )
     test.each([
         [{}, {}, {}, {}],
@@ -1790,84 +1829,84 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     ])(
         '%p (=> %p) === modifyObject(%p, %p, ...%p)',
         (
-            sliced:PlainObject,
-            modified:PlainObject,
-            target:any,
-            source:any,
-            ...parameter:Array<any>
+            sliced:ReturnType<typeof Tools.modifyObject>,
+            modified:SecondParameter<typeof Tools.modifyObject>,
+            ...parameters:Parameters<typeof Tools.modifyObject>
         ):void => {
-            expect(Tools.modifyObject(target, source, ...parameter))
-                .toStrictEqual(sliced)
-            expect(source).toStrictEqual(modified)
+            expect(Tools.modifyObject(...parameters)).toStrictEqual(sliced)
+            expect(parameters[1]).toStrictEqual(modified)
         }
     )
     test('normalizeDateTime', ():void =>
         expect(typeof Tools.normalizeDateTime()).toStrictEqual('object')
     )
-    test.each([
+    test.each<[
+        ReturnType<typeof Tools.normalizeDateTime>,
+        FirstParameter<typeof Tools.normalizeDateTime>
+    ]>([
         [now, now],
-        [1.2, new Date(1.2 * 1000)],
-        ['1.2', new Date(1.2 * 1000)],
-        ['08:55', new Date(1970, 1 - 1, 1, 8, 55)],
-        [1, new Date(1 * 1000)],
-        ['2/1/1970', new Date(1970, 2 - 1, 1)],
-        [0.001, new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, 0, 1))],
+        [new Date(1.2 * 1000), 1.2],
+        [new Date(1.2 * 1000), '1.2'],
+        [new Date(1970, 1 - 1, 1, 8, 55), '08:55'],
+        [new Date(1 * 1000), 1],
+        [new Date(1970, 2 - 1, 1), '2/1/1970'],
+        [new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, 0, 1)), 0.001],
         [new Date(1970, 1 - 1, 1, 8, 30), new Date(1970, 1 - 1, 1, 8, 30)],
-        ['abc', null],
-        ['1+1+1970 08+30+00', null]
-    ])('normalizeDateTime(%p) === %p', (value:any, expected:Date|null):void =>
-        expect(Tools.equals(
-            Tools.normalizeDateTime(value, false), expected
-        )).toStrictEqual(true)
+        [null, 'abc'],
+        [null, '1+1+1970 08+30+00']
+    ])(
+        '%p === normalizeDateTime(%p)',
+        (
+            expected:ReturnType<typeof Tools.normalizeDateTime>,
+            parameter:FirstParameter<typeof Tools.normalizeDateTime>
+        ):void =>
+            expect(Tools.equals(
+                Tools.normalizeDateTime(parameter, false), expected
+            )).toStrictEqual(true)
     )
-    test.each([
-        [{}, [], {}],
-        [new Set(), '#', new Set()],
-        [new Map(), [], new Map()],
-        [5, [], 5],
-        ['a', [], 'a'],
+    testEach<typeof Tools.removeKeys>(
+        'removeKeys',
+        Tools.removeKeys,
+
+        [{}, {}, []],
+        [new Set(), new Set(), '#'],
+        [new Map(), new Map(), []],
+        [5, 5, []],
+        ['a', 'a', []],
         [[], [], []],
-        [{a: 2, b: 3}, ['a'], {b: 3}],
-        [{a: 2, a0: 2, b: 3}, ['a'], {b: 3}],
+        [{b: 3}, {a: 2, b: 3}, ['a']],
+        [{b: 3}, {a: 2, a0: 2, b: 3}, ['a']],
         [
+            new Map([['3', []]]),
             new Map<string, [string]|number>(
                 [['3', ['a:to remove']], ['a', 3]]
             ),
-            'a',
-            new Map([['3', []]])
+            'a'
         ],
         [
+            [{a: ['value']}],
             [{a: ['#:comment', 'value', '#: remove']}],
-            '#',
-            [{a: ['value']}]
+            '#'
         ],
         [
+            [{a: new Set(['value'])}],
             [{a: new Set(['#:comment', 'value', '#: remove'])}],
-            '#',
-            [{a: new Set(['value'])}]
+            '#'
         ],
         [
+            [{a: new Map([['key', 'value']])}],
             [{a: new Map([
                 ['#', 'comment'], ['key', 'value'], ['#', 'remove']
             ])}],
-            '#',
-            [{a: new Map([['key', 'value']])}]
+            '#'
         ]
-    ])(
-        'removeKeys(%p, %p) === %p',
-        (source:any, keysToRemove:Array<string>|string, expected:any):void =>
-            expect(Tools.removeKeys<any>(source, keysToRemove))
-                .toStrictEqual(expected)
     )
-    test.each([
-        ['', '""'],
+    testEach<typeof Tools.represent>(
+        'represent',
+        Tools.represent,
+
+        ['""', ''],
         [
-            {
-                a: 'A',
-                b: 123,
-                c: null,
-                d: ['a', 1, null]
-            },
             `{
                 a: "A",
                 b: 123,
@@ -1877,480 +1916,465 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                     1,
                     null
                 ]
-            }`.replace(/(\n) {12}/g, '$1')
+            }`.replace(/(\n) {12}/g, '$1'),
+            {
+                a: 'A',
+                b: 123,
+                c: null,
+                d: ['a', 1, null]
+            }
         ]
-    ])(`represent(%p) === '%s'`, (source:any, expected:string):void =>
-        expect(Tools.represent(source)).toStrictEqual(expected)
     )
-    test.each([
+    testEach<typeof Tools.sort>(
+        'sort',
+        Tools.sort,
+
         [[], []],
-        [{}, []],
-        [[1], [0]],
-        [[1, 2, 3], [0, 1, 2]],
-        [[3, 2, 1], [0, 1, 2]],
-        [[2, 3, 1], [0, 1, 2]],
-        [{'1': 2, '2': 5, '3': 'a'}, ['1', '2', '3']],
-        [{'2': 2, '1': 5, '-5': 'a'}, ['-5', '1', '2']],
-        [{'3': 2, '2': 5, '1': 'a'}, ['1', '2', '3']],
-        [{a: 2, b: 5, c: 'a'}, ['a', 'b', 'c']],
-        [{c: 2, b: 5, a: 'a'}, ['a', 'b', 'c']],
-        [{b: 2, c: 5, z: 'a'}, ['b', 'c', 'z']]
-    ])('sort(%p) === %p', (source:any, expected:Array<any>):void =>
-        expect(Tools.sort(source)).toStrictEqual(expected)
+        [[], {}],
+        [[0], [1]],
+        [[0, 1, 2], [1, 2, 3]],
+        [[0, 1, 2], [3, 2, 1]],
+        [[0, 1, 2], [2, 3, 1]],
+        [['1', '2', '3'], {'1': 2, '2': 5, '3': 'a'}],
+        [['-5', '1', '2'], {'2': 2, '1': 5, '-5': 'a'}],
+        [['1', '2', '3'], {'3': 2, '2': 5, '1': 'a'}],
+        [['a', 'b', 'c'], {a: 2, b: 5, c: 'a'}],
+        [['a', 'b', 'c'], {c: 2, b: 5, a: 'a'}],
+        [['b', 'c', 'z'], {b: 2, c: 5, z: 'a'}]
     )
-    test.each([
+    testEach<typeof Tools.unwrapProxy>(
+        'unwrapProxy',
+        Tools.unwrapProxy,
+
         [{}, {}],
         [{a: 'a'}, {a: 'a'}],
         [{a: 'aa'}, {a: 'aa'}],
-        [{a: {__revoke__: ():void => {}, __target__: 2}}, {a: 2}]
-    ])(
-        'unwrapProxy(%p) === %p',
-        (source:any, expected:any):void =>
-            expect(Tools.unwrapProxy(source)).toStrictEqual(expected)
+        [{a: 2}, {a: {__revoke__: ():void => {}, __target__: 2}}]
     )
     // / endregion
-    /* TODO
     // / region array
-    test('arrayAggregatePropertyIfEqual', ():void => {
-        for (const test of [
-            [[[{a: 'b'}], 'a'], 'b'],
-            [[[{a: 'b'}, {a: 'b'}], 'a'], 'b'],
-            [[[{a: 'b'}, {a: 'c'}], 'a'], ''],
-            [[[{a: 'b'}, {a: 'c'}], 'a', false], false]
-        ])
-            assert.strictEqual(Tools.arrayAggregatePropertyIfEqual(
-                ...test[0]
-            ), test[1])
-    })
-    test('arrayDeleteEmptyItems', ():void => {
-        for (const test of [
-            [[[{a: null}]], []],
-            [[[{a: null, b: 2}]], [{a: null, b: 2}]],
-            [[[{a: null, b: 2}], ['a']], []],
-            [[[], ['a']], []],
-            [[[]], []]
-        ])
-            assert.deepEqual(
-                Tools.arrayDeleteEmptyItems(...test[0]), test[1])
-    })
-    test('arrayExtract', ():void => {
-        for (const test of [
-            [[[{a: 'b', c: 'd'}], ['a']], [{a: 'b'}]],
-            [[[{a: 'b', c: 'd'}], ['b']], [{}]],
-            [[[{a: 'b', c: 'd'}], ['c']], [{c: 'd'}]],
-            [[[{a: 'b', c: 'd'}, {a: 3}], ['c']], [{c: 'd'}, {}]],
-            [[[{a: 'b', c: 'd'}, {c: 3}], ['c']], [{c: 'd'}, {c: 3}]]
-        ])
-            assert.deepEqual(
-                Tools.arrayExtract(...test[0]), test[1])
-    })
-    test('arrayExtractIfMatches', ():void => {
-        for (const test of [
-            [['b'], /b/, ['b']],
-            [['b'], 'b', ['b']],
-            [['b'], 'a', []],
-            [[], 'a', []],
-            [['a', 'b'], '', ['a', 'b']],
-            [['a', 'b'], '^$', []],
-            [['a', 'b'], 'b', ['b']],
-            [['a', 'b'], '[ab]', ['a', 'b']]
-        ])
-            assert.deepEqual(Tools.arrayExtractIfMatches(
-                test[0], test[1]
-            ), test[2])
-    })
-    test('arrayExtractIfPropertyExists', ():void => {
-        for (const test of [
-            [[{a: 2}], 'a', [{a: 2}]],
-            [[{a: 2}], 'b', []],
-            [[], 'b', []],
-            [[{a: 2}, {b: 3}], 'a', [{a: 2}]]
-        ])
-            assert.deepEqual(Tools.arrayExtractIfPropertyExists(
-                test[0], test[1]
-            ), test[2])
-    })
-    test('arrayExtractIfPropertyMatches', ():void => {
-        for (const test of [
-            [[{a: 'b'}], {a: 'b'}, [{a: 'b'}]],
-            [[{a: 'b'}], {a: '.'}, [{a: 'b'}]],
-            [[{a: 'b'}], {a: 'a'}, []],
-            [[], {a: 'a'}, []],
-            [[{a: 2}], {b: /a/}, []],
-            [
-                [{mimeType: 'text/x-webm'}],
-                {mimeType: /^text\/x-webm$/},
-                [{mimeType: 'text/x-webm'}]
-            ]
-        ])
-            assert.deepEqual(Tools.arrayExtractIfPropertyMatches(
-                test[0], test[1]
-            ), test[2])
-    })
-    test('arrayIntersect', ():void => {
-        for (const test of [
-            [[['A'], ['A']], ['A']],
-            [[['A', 'B'], ['A']], ['A']],
-            [[[], []], []],
-            [[[5], []], []],
-            [[[{a: 2}], [{a: 2}]], [{a: 2}]],
-            [[[{a: 3}], [{a: 2}]], []],
-            [[[{a: 3}], [{b: 3}]], []],
-            [[[{a: 3}], [{b: 3}], ['b']], []],
-            [[[{a: 3}], [{b: 3}], ['b'], false], []],
-            [[[{b: null}], [{b: null}], ['b']], [{b: null}]],
-            [[[{b: null}], [{b: undefined}], ['b']], []],
-            [[[{b: null}], [{b: undefined}], ['b'], false], [{b: null}]],
-            [[[{b: null}], [{}], ['b'], false], [{b: null}]],
-            [[[{b: undefined}], [{}], ['b'], false], [{b: undefined}]],
-            [[[{}], [{}], ['b'], false], [{}]],
-            [[[{b: null}], [{}], ['b']], []],
-            [[[{b: undefined}], [{}], ['b'], true], [{b: undefined}]],
-            [[[{b: 1}], [{a: 1}], {b: 'a'}, true], [{b: 1}]]
-        ])
-            assert.deepEqual(Tools.arrayIntersect(...test[0]), test[1])
-    })
-    test('arrayMakeRange', ():void => {
-        for (const test:Array<any> of [
-            [[[0]], [0]],
-            [[[5]], [0, 1, 2, 3, 4, 5]],
-            [[[]], []],
-            [[[2, 5]], [2, 3, 4, 5]],
-            [[[2, 10], 2], [2, 4, 6, 8, 10]]
-        ])
-            assert.deepEqual(Tools.arrayMakeRange(...test[0]), test[1])
-    })
-    test('arrayMerge', ():void => {
-        for (const test:Array<any> of [
-            [[], [], []],
-            [[1], [], [1]],
-            [[], [1], [1]],
-            [[1], [1], [1, 1]],
-            [[1, 2, 3, 1], [1, 2, 3], [1, 2, 3, 1, 1, 2, 3]]
-        ])
-            assert.deepEqual(
-                Tools.arrayMerge(test[0], test[1]), test[2])
-    })
-    test('arrayMake', ():void => {
-        for (const test:Array<any> of [
-            [[], []],
-            [[1, 2, 3], [1, 2, 3]],
-            [1, [1]]
-        ])
-            assert.deepEqual(Tools.arrayMake(test[0]), test[1])
-    })
-    test('arrayPermutate', ():void => {
-        for (const test:Array<any> of [
-            [[], [[]]],
-            [[1], [[1]]],
-            [[1, 2], [[1, 2], [2, 1]]],
+    testEach<typeof Tools.arrayAggregatePropertyIfEqual>(
+        'arrayAggregatePropertyIfEqual',
+        Tools.arrayAggregatePropertyIfEqual,
+
+        ['b', [{a: 'b'}], 'a'],
+        ['b', [{a: 'b'}, {a: 'b'}], 'a'],
+        ['', [{a: 'b'}, {a: 'c'}], 'a'],
+        [false, [{a: 'b'}, {a: 'c'}], 'a', false]
+    )
+    testEach<typeof Tools.arrayDeleteEmptyItems>(
+        'arrayDeleteEmptyItems',
+        Tools.arrayDeleteEmptyItems,
+
+        [[], [{a: null}]],
+        [[{a: null, b: 2}], [{a: null, b: 2}]],
+        [[], [{a: null, b: 2}], ['a']],
+        [[], [], ['a']],
+        [[], []]
+    )
+    testEach<typeof Tools.arrayExtract>(
+        'arrayExtract',
+        Tools.arrayExtract,
+
+        [[{a: 'b'}], [{a: 'b', c: 'd'}], ['a']],
+        [[{}], [{a: 'b', c: 'd'}], ['b']],
+        [[{c: 'd'}], [{a: 'b', c: 'd'}], ['c']],
+        [[{c: 'd'}, {}], [{a: 'b', c: 'd'}, {a: 3}], ['c']],
+        [[{c: 'd'}, {c: 3}], [{a: 'b', c: 'd'}, {c: 3}], ['c']]
+    )
+    testEach<typeof Tools.arrayExtractIfMatches>(
+        'arrayExtractIfMatches',
+        Tools.arrayExtractIfMatches,
+
+        [['b'], ['b'], /b/],
+        [['b'], ['b'], 'b'],
+        [[], ['b'], 'a'],
+        [[], [], 'a'],
+        [['a', 'b'], ['a', 'b'], ''],
+        [[], ['a', 'b'], '^$'],
+        [['b'], ['a', 'b'], 'b'],
+        [['a', 'b'], ['a', 'b'], '[ab]']
+    )
+    testEach<typeof Tools.arrayExtractIfPropertyExists>(
+        'arrayExtractIfPropertyExists',
+        Tools.arrayExtractIfPropertyExists,
+
+        [[{a: 2}], [{a: 2}], 'a'],
+        [[], [{a: 2}], 'b'],
+        [[], [], 'b'],
+        [[{a: 2}], [{a: 2}, {b: 3}], 'a']
+    )
+    testEach<typeof Tools.arrayExtractIfPropertyMatches>(
+        'arrayExtractIfPropertyMatches',
+        Tools.arrayExtractIfPropertyMatches,
+
+        [[{a: 'b'}], [{a: 'b'}], {a: 'b'}],
+        [[{a: 'b'}], [{a: 'b'}], {a: '.'}],
+        [[], [{a: 'b'}], {a: 'a'}],
+        [[], [], {a: 'a'}],
+        [[], [{a: 2}], {b: /a/}],
+        [
+            [{mimeType: 'text/x-webm'}],
+            [{mimeType: 'text/x-webm'}],
+            {mimeType: /^text\/x-webm$/}
+        ]
+    )
+    testEach<typeof Tools.arrayIntersect>(
+        'arrayIntersect',
+        Tools.arrayIntersect,
+
+        [['A'], ['A'], ['A']],
+        [['A'], ['A', 'B'], ['A']],
+        [[], [], []],
+        [[], [5], []],
+        [[{a: 2}], [{a: 2}], [{a: 2}]],
+        [[], [{a: 3}], [{a: 2}]],
+        [[], [{a: 3}], [{b: 3}]],
+        [[], [{a: 3}], [{b: 3}], ['b']],
+        [[], [{a: 3}], [{b: 3}], ['b'], false],
+        [[{b: null}], [{b: null}], [{b: null}], ['b']],
+        [[], [{b: null}], [{b: undefined}], ['b']],
+        [[{b: null}], [{b: null}], [{b: undefined}], ['b'], false],
+        [[{b: null}], [{b: null}], [{}], ['b'], false],
+        [[{b: undefined}], [{b: undefined}], [{}], ['b'], false],
+        [[{}], [{}], [{}], ['b'], false],
+        [[], [{b: null}], [{}], ['b']],
+        [[{b: undefined}], [{b: undefined}], [{}], ['b'], true],
+        [[{b: 1}], [{b: 1}], [{a: 1}], {b: 'a'}, true]
+    )
+    testEach<typeof Tools.arrayMakeRange>(
+        'arrayMakeRange',
+        Tools.arrayMakeRange,
+
+        [[0], [0]],
+        [[0, 1, 2, 3, 4, 5], [5]],
+        [[], []],
+        [[2, 3, 4, 5], [2, 5]],
+        [[2, 4, 6, 8, 10], [2, 10], 2]
+    )
+    testEach<typeof Tools.arrayMerge>(
+        'arrayMerge',
+        Tools.arrayMerge,
+
+        [[], [], []],
+        [[1], [1], []],
+        [[1], [], [1]],
+        [[1, 1], [1], [1]],
+        [[1, 2, 3, 1, 1, 2, 3], [1, 2, 3, 1], [1, 2, 3]]
+    )
+    testEach<typeof Tools.arrayMake>(
+        'arrayMake',
+        Tools.arrayMake,
+
+        [[], []],
+        [[1, 2, 3], [1, 2, 3]],
+        [[1], 1]
+    )
+    testEach<typeof Tools.arrayPermutate>(
+        'arrayPermutate',
+        Tools.arrayPermutate,
+
+        [[[]], []],
+        [[[1]], [1]],
+        [[[1, 2], [2, 1]], [1, 2]],
+        [
             [
                 [1, 2, 3],
-                [
-                    [1, 2, 3],
-                    [1, 3, 2],
-                    [2, 1, 3],
-                    [2, 3, 1],
-                    [3, 1, 2],
-                    [3, 2, 1]
-                ]
+                [1, 3, 2],
+                [2, 1, 3],
+                [2, 3, 1],
+                [3, 1, 2],
+                [3, 2, 1]
             ],
+            [1, 2, 3]
+        ],
+        [
             [
                 ['1', '2', '3'],
-                [
-                    ['1', '2', '3'],
-                    ['1', '3', '2'],
-                    ['2', '1', '3'],
-                    ['2', '3', '1'],
-                    ['3', '1', '2'],
-                    ['3', '2', '1']
-                ]
-            ]
-        ])
-            assert.deepEqual(Tools.arrayPermutate(test[0]), test[1])
-    })
-    test('arrayPermutateLength', ():void => {
-        for (const test:Array<any> of [
-            [[], []],
-            [[1], [[1]]],
-            [[1, 2], [[1], [2], [1, 2]]],
-            [
-                [1, 2, 3],
-                [
-                    [1],
-                    [2],
-                    [3],
-                    [1, 2],
-                    [1, 3],
-                    [2, 3],
-                    [1, 2, 3]
-                ]
+                ['1', '3', '2'],
+                ['2', '1', '3'],
+                ['2', '3', '1'],
+                ['3', '1', '2'],
+                ['3', '2', '1']
             ],
+            ['1', '2', '3']
+        ]
+    )
+    testEach<typeof Tools.arrayPermutateLength>(
+        'arrayPermutateLength',
+        Tools.arrayPermutateLength,
+
+        [[], []],
+        [[[1]], [1]],
+        [[[1], [2], [1, 2]], [1, 2]],
+        [
             [
-                ['1', '2', '3'],
-                [
-                    ['1'],
-                    ['2'],
-                    ['3'],
-                    ['1', '2'],
-                    ['1', '3'],
-                    ['2', '3'],
-                    ['1', '2', '3']
-                ]
-            ]
-        ])
-            assert.deepEqual(
-                Tools.arrayPermutateLength(test[0]), test[1])
-    })
-    test('arrayUnique', ():void => {
-        for (const test:Array<any> of [
-            [[1, 2, 3, 1], [1, 2, 3]],
-            [[1, 2, 3, 1, 2, 3], [1, 2, 3]],
-            [[], []],
-            [[1, 2, 3], [1, 2, 3]]
-        ])
-            assert.deepEqual(Tools.arrayUnique(test[0]), test[1])
-    })
-    test('arraySumUpProperty', ():void => {
-        for (const test:Array<any> of [
-            [[[{a: 2}, {a: 3}], 'a'], 5],
-            [[[{a: 2}, {b: 3}], 'a'], 2],
-            [[[{a: 2}, {b: 3}], 'c'], 0]
-        ])
-            assert.strictEqual(
-                Tools.arraySumUpProperty(...test[0]), test[1])
-    })
-    test('arrayAppendAdd', ():void => {
+                [1],
+                [2],
+                [3],
+                [1, 2],
+                [1, 3],
+                [2, 3],
+                [1, 2, 3]
+            ],
+            [1, 2, 3]
+        ],
+        [
+            [
+                ['1'],
+                ['2'],
+                ['3'],
+                ['1', '2'],
+                ['1', '3'],
+                ['2', '3'],
+                ['1', '2', '3']
+            ],
+            ['1', '2', '3']
+        ]
+    )
+    testEach<typeof Tools.arrayUnique>(
+        'arrayUnique',
+        Tools.arrayUnique,
+
+        [[1, 2, 3], [1, 2, 3, 1]],
+        [[1, 2, 3], [1, 2, 3, 1, 2, 3]],
+        [[], []],
+        [[1, 2, 3], [1, 2, 3]]
+    )
+    testEach<typeof Tools.arraySumUpProperty>(
+        'arraySumUpProperty',
+        Tools.arraySumUpProperty,
+
+        [5, [{a: 2}, {a: 3}], 'a'],
+        [2, [{a: 2}, {b: 3}], 'a'],
+        [0, [{a: 2}, {b: 3}], 'c']
+    )
+    ;(():void => {
         const testObject:PlainObject = {}
-        for (const test:Array<any> of [
-            [[{}, {}, 'b'], {b: [{}]}],
-            [[testObject, {a: 3}, 'b'], {b: [{a: 3}]}],
-            [[testObject, {a: 3}, 'b'], {b: [{a: 3}, {a: 3}]}],
-            [[{b: [2]}, 2, 'b', false], {b: [2, 2]}],
-            [[{b: [2]}, 2, 'b'], {b: [2]}]
-        ])
-            assert.deepEqual(Tools.arrayAppendAdd(...test[0]), test[1])
-    })
-    test('arrayRemove', ():void => {
-        for (const test:Array<any> of [
-            [[[], 2], []],
-            [[[2], 2], []],
-            [[[2], 2, true], []],
-            [[[1, 2], 2], [1]],
-            [[[1, 2], 2, true], [1]]
-        ])
-            assert.deepEqual(Tools.arrayRemove(...test[0]), test[1])
-        assert.throws(():?Array<any> => Tools.arrayRemove(
-            [], 2, true
-        ), new Error(`Given target doesn't exists in given list.`))
-    })
-    test('arraySortTopological', ():void => {
-        for (const test:Array<any> of [
-            [{}, []],
-            [{a: []}, ['a']],
-            [{a: 'b'}, ['b', 'a']],
-            [{a: [], b: 'a'}, ['a', 'b']],
-            [{a: [], b: ['a']}, ['a', 'b']],
-            [{a: ['b'], b: []}, ['b', 'a']],
-            [{c: 'b', a: [], b: ['a']}, ['a', 'b', 'c']],
-            [{b: ['a'], a: [], c: ['a', 'b']}, ['a', 'b', 'c']]
-        ])
-            assert.deepEqual(
-                Tools.arraySortTopological(test[0]), test[1])
-        for (const test:any of [
-            {a: 'a'},
-            {a: 'b', b: 'a'},
-            {a: 'b', b: 'c', c: 'a'}
-        ])
-            assert.throws(():void => Tools.arraySortTopological(test))
-    })
+
+        testEach<typeof Tools.arrayAppendAdd>(
+            'arrayAppenAdd',
+            Tools.arrayAppendAdd,
+
+            [{b: [{}]}, {}, {}, 'b'],
+            [{b: [{a: 3}]}, testObject, {a: 3}, 'b'],
+            [{b: [{a: 3}, {a: 3}]}, testObject, {a: 3}, 'b'],
+            [{b: [2, 2]}, {b: [2]}, 2, 'b', false],
+            [{b: [2]}, {b: [2]}, 2, 'b']
+        )
+    })()
+    testEach<typeof Tools.arrayRemove>(
+        'arrayRemove',
+        Tools.arrayRemove,
+
+        [[], [], 2],
+        [[], [2], 2],
+        [[], [2], 2, true],
+        [[1], [1, 2], 2],
+        [[1], [1, 2], 2, true]
+    )
+    test('arrayRemove([], 2, true) -> throws Exception', ():void =>
+        expect(():Array<number> =>
+            Tools.arrayRemove<Array<number>>([], 2, true)
+        ).toThrow(new Error(`Given target doesn't exists in given list.`))
+    )
+    testEach<typeof Tools.arraySortTopological>(
+        'arraySortTopological',
+        Tools.arraySortTopological,
+
+        [[], {}],
+        [['a'], {a: []}],
+        [['b', 'a'], {a: 'b'}],
+        [['a', 'b'], {a: [], b: 'a'}],
+        [['a', 'b'], {a: [], b: ['a']}],
+        [['b', 'a'], {a: ['b'], b: []}],
+        [['a', 'b', 'c'], {c: 'b', a: [], b: ['a']}],
+        [['a', 'b', 'c'], {b: ['a'], a: [], c: ['a', 'b']}]
+    )
+    test.each<FirstParameter<typeof Tools.arraySortTopological>>([
+        {a: 'a'}, {a: 'b', b: 'a'}, {a: 'b', b: 'c', c: 'a'}
+    ])(
+        'arraySortTopological(%p) -> throws Exception',
+        (values:Mapping<any>):void =>
+            expect(():Array<string> => Tools.arraySortTopological(values))
+                .toThrow()
+    )
     // / endregion
     // / region string
-    test('stringEscapeRegularExpressions', ():void => {
-        for (const test:Array<any> of [
-            [[''], ''],
-            [[`that's no regex: .*$`], `that's no regex: \\.\\*\\$`],
-            [
-                ['-\\[]()^$*+.}-', '}'],
-                '\\-\\\\[\\]\\(\\)\\^\\$\\*\\+\\.}\\-'
-            ],
-            [[
-                '-\\[]()^$*+.{}-',
-                ['[', ']', '(', ')', '^', '$', '*', '+', '.', '{']
-            ], '\\-\\[]()^$*+.{\\}\\-'],
-            [['-', '\\'], '\\-']
-        ])
-            assert.strictEqual(
-                Tools.stringEscapeRegularExpressions(...test[0]),
-                test[1])
-    })
-    test('stringConvertToValidVariableName', ():void => {
-        for (const test:Array<string> of [
-            ['', ''],
-            ['a', 'a'],
-            ['_a', '_a'],
-            ['_a_a', '_a_a'],
-            ['_a-a', '_aA'],
-            ['-a-a', 'aA'],
-            ['-a--a', 'aA'],
-            ['--a--a', 'aA']
-        ])
-            assert.strictEqual(
-                Tools.stringConvertToValidVariableName(test[0]), test[1]
-            )
-    })
-    // // region url handling 
-    test('stringEncodeURIComponent', ():void => {
-        for (const test:Array<any> of [
-            [[''], ''],
-            [[' '], '+'],
-            [[' ', true], '%20'],
-            [['@:$, '], '@:$,+'],
-            [['+'], '%2B']
-        ])
-            assert.strictEqual(
-                Tools.stringEncodeURIComponent(...test[0]), test[1])
-    })
-    test('stringAddSeparatorToPath', ():void => {
-        for (const test:Array<any> of [
-            [[''], ''],
-            [['/'], '/'],
-            [['/a'], '/a/'],
-            [['/a/bb/'], '/a/bb/'],
-            [['/a/bb'], '/a/bb/'],
-            [['/a/bb', '|'], '/a/bb|'],
-            [['/a/bb/', '|'], '/a/bb/|']
-        ])
-            assert.strictEqual(
-                Tools.stringAddSeparatorToPath(...test[0]), test[1])
-    })
-    test('stringHasPathPrefix', ():void => {
-        for (const test:Array<any> of [
-            ['/admin', '/admin'],
-            ['test', 'test'],
-            ['', ''],
-            ['a', 'a/b'],
-            ['a/', 'a/b'],
-            ['/admin', '/admin#test', '#']
-        ])
-            assert.ok(Tools.stringHasPathPrefix(...test))
-        for (const test:Array<any> of [
-            ['b', 'a/b'],
-            ['b/', 'a/b'],
-            ['/admin/', '/admin/test', '#'],
-            ['/admin', '/admin/test', '#']
-        ])
-            assert.notOk(Tools.stringHasPathPrefix(...test))
-    })
-    test('stringGetDomainName', ():void => {
-        for (const test:Array<any> of [
-            [
-                ['https://www.test.de/site/subSite?param=value#hash'],
-                'www.test.de'
-            ],
-            [['a', true], true],
-            [['http://www.test.de'], 'www.test.de'],
-            [['http://a.de'], 'a.de'],
-            [['http://localhost'], 'localhost'],
-            [['localhost', 'a'], 'a'],
-            [['a', $.global.location.hostname], $.global.location.hostname],
-            [['//a'], 'a'],
-            [
-                [
-                    'a/site/subSite?param=value#hash',
-                    $.global.location.hostname
-                ],
-                $.global.location.hostname
-            ],
-            [
-                [
-                    '/a/site/subSite?param=value#hash',
-                    $.global.location.hostname
-                ],
-                $.global.location.hostname
-            ],
-            [
-                ['//alternate.local/a/site/subSite?param=value#hash'],
-                'alternate.local'
-            ],
-            [['//alternate.local/'], 'alternate.local']
-        ])
-            assert.strictEqual(
-                Tools.stringGetDomainName(...test[0]), test[1])
-    })
-    test('stringGetPortNumber', ():void => {
-        for (const test:Array<any> of [
-            [['https://www.test.de/site/subSite?param=value#hash'], 443],
-            [['http://www.test.de'], 80],
-            [['http://www.test.de', true], true],
-            [['www.test.de', true], true],
-            [['a', true], true],
-            [['a', true], true],
-            [['a:80'], 80],
-            [['a:20'], 20],
-            [['a:444'], 444],
-            [['http://localhost:89'], 89],
-            [['https://localhost:89'], 89]
-        ])
-            assert.strictEqual(
-                Tools.stringGetPortNumber(...test[0]), test[1])
-    })
-    test('stringGetProtocolName', ():void => {
-        for (const test:Array<any> of [
-            [
-                ['https://www.test.de/site/subSite?param=value#hash'],
-                'https'
-            ],
-            [['http://www.test.de'], 'http'],
-            [
-                ['//www.test.de', $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1)],
-                $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1)
-            ],
-            [['http://a.de'], 'http'],
-            [['ftp://localhost'], 'ftp'],
-            [
-                ['a', $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1)],
-                $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1)
-            ],
-            [
-                [
-                    'a/site/subSite?param=value#hash',
-                    $.global.location.protocol.substring(
-                        0, $.global.location.protocol.length - 1)
-                ],
-                $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1)
-            ],
-            [['/a/site/subSite?param=value#hash', 'a'], 'a'],
-            [
-                ['alternate.local/a/site/subSite?param=value#hash', 'b'],
-                'b'
-            ],
-            [['alternate.local/', 'c'], 'c'],
-            [
-                [
-                    '', $.global.location.protocol.substring(
-                        0, $.global.location.protocol.length - 1)
-                ],
-                $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1)
-            ]
-        ])
-            assert.strictEqual(
-                Tools.stringGetProtocolName(...test[0]), test[1])
-    })
-    */
-    test.each([[], [null, true, '&'], [null, false, '&'], [null, false, '#']])(
-        'Array.isArray(stringGetURLParameter(...)) === true',
-        (...parameter:Array<any>):void =>
-            expect(Array.isArray(Tools.stringGetURLParameter(...parameter)))
+    testEach<typeof Tools.stringEscapeRegularExpressions>(
+        'stringEscapeRegularExpressions',
+        Tools.stringEscapeRegularExpressions,
+
+        ['', ''],
+        [`that's no regex: \\.\\*\\$`, `that's no regex: .*$`],
+        ['\\-\\\\[\\]\\(\\)\\^\\$\\*\\+\\.}\\-', '-\\[]()^$*+.}-', ['}']],
+        [
+            '\\-\\[]()^$*+.{\\}\\-',
+            '-\\[]()^$*+.{}-',
+            ['[', ']', '(', ')', '^', '$', '*', '+', '.', '{']
+        ],
+        ['\\-', '-', ['\\']]
+    )
+    testEach<typeof Tools.stringConvertToValidVariableName>(
+        'stringConvertToValidVariableName',
+        Tools.stringConvertToValidVariableName,
+
+        ['', ''],
+        ['a', 'a'],
+        ['_a', '_a'],
+        ['_a_a', '_a_a'],
+        ['_aA', '_a-a'],
+        ['aA', '-a-a'],
+        ['aA', '-a--a'],
+        ['aA', '--a--a']
+    )
+    // // region url handling
+    testEach<typeof Tools.stringEncodeURIComponent>(
+        'stringEncodeURIComponent',
+        Tools.stringEncodeURIComponent,
+
+        ['', ''],
+        ['+', ' '],
+        ['%20', ' ', true],
+        ['@:$,+', '@:$, '],
+        ['%2B', '+']
+    )
+    testEach<typeof Tools.stringAddSeparatorToPath>(
+        'stringAddSeparatorToPath',
+        Tools.stringAddSeparatorToPath,
+
+        ['', ''],
+        ['/', '/'],
+        ['/a/', '/a'],
+        ['/a/bb/', '/a/bb/'],
+        ['/a/bb/', '/a/bb'],
+        ['/a/bb|', '/a/bb', '|'],
+        ['/a/bb/|', '/a/bb/', '|']
+    )
+    testEachAgainstSameExpectation<typeof Tools.stringHasPathPrefix>(
+        'stringHasPathPrefix',
+        Tools.stringHasPathPrefix,
+        true,
+
+        ['/admin', '/admin'],
+        ['test', 'test'],
+        ['', ''],
+        ['a', 'a/b'],
+        ['a/', 'a/b'],
+        ['/admin', '/admin#test', '#']
+    )
+    testEachAgainstSameExpectation<typeof Tools.stringHasPathPrefix>(
+        'stringHasPathPrefix',
+        Tools.stringHasPathPrefix,
+        false,
+
+        ['b', 'a/b'],
+        ['b/', 'a/b'],
+        ['/admin/', '/admin/test', '#'],
+        ['/admin', '/admin/test', '#']
+    )
+    testEach<typeof Tools.stringGetDomainName>(
+        'stringGetDomainName',
+        Tools.stringGetDomainName,
+
+        ['www.test.de', 'https://www.test.de/site/subSite?param=value#hash'],
+        [true, 'a', true],
+        ['www.test.de', 'http://www.test.de'],
+        ['a.de', 'http://a.de'],
+        ['localhost', 'http://localhost'],
+        ['a', 'localhost', 'a'],
+        [$.location?.hostname || '', 'a', $.location?.hostname],
+        ['a', '//a'],
+        [
+            $.location?.hostname || '',
+            'a/site/subSite?param=value#hash',
+            $.location?.hostname
+        ],
+        [
+            $.location?.hostname || '',
+            '/a/site/subSite?param=value#hash',
+            $.location?.hostname
+        ],
+        [
+            'alternate.local',
+            '//alternate.local/a/site/subSite?param=value#hash'
+        ],
+        ['alternate.local', '//alternate.local/']
+    )
+    testEach<typeof Tools.stringGetPortNumber>(
+        'stringGetPortNumber',
+        Tools.stringGetPortNumber,
+
+        [443, 'https://www.test.de/site/subSite?param=value#hash'],
+        [80, 'http://www.test.de'],
+        [0, 'http://www.test.de', 0],
+        [0, 'www.test.de', 0],
+        [0, 'a', 0],
+        [0, 'a', 0],
+        [80, 'a:80'],
+        [20, 'a:20'],
+        [444, 'a:444'],
+        [89, 'http://localhost:89'],
+        [89, 'https://localhost:89']
+    )
+    testEach<typeof Tools.stringGetProtocolName>(
+        'stringGetProtocolName',
+        Tools.stringGetProtocolName,
+
+        ['https', 'https://www.test.de/site/subSite?param=value#hash'],
+        ['http', 'http://www.test.de'],
+        [
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1) ||
+                '',
+            '//www.test.de',
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1)
+        ],
+        ['http', 'http://a.de'],
+        ['ftp', 'ftp://localhost'],
+        [
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1) ||
+            '',
+            'a',
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1)
+
+        ],
+        [
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1) ||
+                '',
+            'a/site/subSite?param=value#hash',
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1)
+
+        ],
+        ['a', '/a/site/subSite?param=value#hash', 'a'],
+        ['b', 'alternate.local/a/site/subSite?param=value#hash', 'b'],
+        ['c', 'alternate.local/', 'c'],
+        [
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1) ||
+                '',
+            '',
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1)
+        ]
+    )
+    test.each<Parameters<typeof Tools.stringGetURLParameter>>([
+        [], [null, true, '&'], [null, false, '&'], [null, false, '#']
+    ])(
+        'Array.isArray(stringGetURLParameter(...%p)) === true',
+        (...parameters:Parameters<typeof Tools.stringGetURLParameter>):void =>
+            expect(Array.isArray(Tools.stringGetURLParameter(...parameters)))
                 .toStrictEqual(true)
     )
-    test.each([
+    testEach<typeof Tools.stringGetURLParameter>(
+        'stringGetURLParameter',
+        Tools.stringGetURLParameter,
+
         [null, 'notExisting'],
         [null, 'notExisting', true],
         [null, 'notExisting', false, '&'],
@@ -2378,198 +2402,200 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ['4', 'test', false, '&', '$', '!', null, '#!test#$test=4'],
         ['4', 'test', false, '&', '$', '!', null, '#!test?test=3#$test=4'],
         [['4'], 'test', true, '&', '$', '!', null, '#!test?test=3#$test=4'],
-        [['2', '4'], 'test', true, '&', '$', '!', null, '#!test?test=3#$test=2&test=4']
-    ])(
-        "%p === stringGetURLParameter('%s', ...)",
-        (
-            expected:Array<string>|null|string,
-            key:string,
-            ...parameter:Array<any>
-        ):void =>
-            expect(Tools.stringGetURLParameter(key, ...parameter)).
-                toStrictEqual(expected)
+        [
+            ['2', '4'],
+            'test',
+            true,
+            '&',
+            '$',
+            '!',
+            null,
+            '#!test?test=3#$test=2&test=4'
+        ]
     )
-    /* TODO
-    test('stringIsInternalURL', ():void => {
-        for (const test:Array<any> of [
-            [
-                'https://www.test.de/site/subSite?param=value#hash',
-                'https://www.test.de/site/subSite?param=value#hash'
-            ],
-            [
-                '//www.test.de/site/subSite?param=value#hash',
-                '//www.test.de/site/subSite?param=value#hash'
-            ],
-            [
-                `${$.global.location.protocol}//www.test.de/site/subSite` +
-                    '?param=value#hash',
-                `${$.global.location.protocol}//www.test.de/site/subSite` +
-                    `?param=value#hash`
-            ],
-            [
-                'https://www.test.de:443/site/subSite?param=value#hash',
-                'https://www.test.de/site/subSite?param=value#hash'
-            ],
-            [
-                '//www.test.de:80/site/subSite?param=value#hash',
-                '//www.test.de/site/subSite?param=value#hash'
-            ],
-            [$.global.location.href, $.global.location.href],
-            ['1', $.global.location.href],
-            ['#1', $.global.location.href],
-            ['/a', $.global.location.href]
-        ])
-            assert.ok(Tools.stringIsInternalURL(...test))
-        for (const test:Array<any> of [
-            [
-                `${$.global.location.protocol}//www.test.de/site/subSite` +
-                    '?param=value#hash',
-                'ftp://www.test.de/site/subSite?param=value#hash'
-            ],
-            [
-                'https://www.test.de/site/subSite?param=value#hash',
-                'http://www.test.de/site/subSite?param=value#hash'
-            ],
-            [
-                'http://www.test.de/site/subSite?param=value#hash',
-                'test.de/site/subSite?param=value#hash'
-            ],
-            [
-                `${$.global.location.protocol}//www.test.de:` +
-                `${$.global.location.port}/site/subSite` +
-                '?param=value#hash/site/subSite?param=value#hash'
-            ],
-            [
-                `http://www.test.de:${$.global.location.port}/site/subSite?` +
-                    'param=value#hash',
-                'https://www.test.de/site/subSite?param=value#hash'
-            ]
-        ])
-            assert.notOk(Tools.stringIsInternalURL(...test))
-    })
-    test('stringNormalizeURL', ():void => {
-        for (const test:Array<any> of [
-            ['www.test.com', 'http://www.test.com'],
-            ['test', 'http://test'],
-            ['http://test', 'http://test'],
-            ['https://test', 'https://test']
-        ])
-            assert.strictEqual(
-                Tools.stringNormalizeURL(test[0]), test[1])
-    })
-    test('stringRepresentURL', ():void => {
-        for (const test:Array<any> of [
-            ['http://www.test.com', 'www.test.com'],
-            ['ftp://www.test.com', 'ftp://www.test.com'],
-            ['https://www.test.com', 'www.test.com'],
-            [undefined, ''],
-            [null, ''],
-            [false, ''],
-            [true, ''],
-            ['', ''],
-            [' ', '']
-        ])
-            assert.strictEqual(
-                Tools.stringRepresentURL(test[0]), test[1])
-    })
+    testEachAgainstSameExpectation<typeof Tools.stringServiceURLEquals>(
+        'stringServiceURLEquals',
+        Tools.stringServiceURLEquals,
+        true,
+
+        [
+            'https://www.test.de/site/subSite?param=value#hash',
+            'https://www.test.de/site/subSite?param=value#hash'
+        ],
+        [
+            '//www.test.de/site/subSite?param=value#hash',
+            '//www.test.de/site/subSite?param=value#hash'
+        ],
+        [
+            `${$.location?.protocol || 'http:'}//www.test.de/site/subSite` +
+                '?param=value#hash',
+            `${$.location?.protocol || 'http:'}//www.test.de/site/subSite` +
+                `?param=value#hash`
+        ],
+        [
+            'https://www.test.de:443/site/subSite?param=value#hash',
+            'https://www.test.de/site/subSite?param=value#hash'
+        ],
+        [
+            '//www.test.de:80/site/subSite?param=value#hash',
+            '//www.test.de/site/subSite?param=value#hash'
+        ],
+        [
+            $.location?.href || 'http://localhost',
+            $.location?.href || 'http://localhost'
+        ],
+        ['1', $.location?.href || 'http://localhost'],
+        ['#1', $.location?.href || 'http://localhost'],
+        ['/a', $.location?.href || 'http://localhost']
+    )
+    testEachAgainstSameExpectation<typeof Tools.stringServiceURLEquals>(
+        'stringServiceURLEquals',
+        Tools.stringServiceURLEquals,
+        false,
+
+        [
+            `${$.location?.protocol || 'http:'}//www.test.de/site/subSite` +
+                '?param=value#hash',
+            'ftp://www.test.de/site/subSite?param=value#hash'
+        ],
+        [
+            'https://www.test.de/site/subSite?param=value#hash',
+            'http://www.test.de/site/subSite?param=value#hash'
+        ],
+        [
+            'http://www.test.de/site/subSite?param=value#hash',
+            'test.de/site/subSite?param=value#hash'
+        ],
+        [
+            `${$.location?.protocol || 'http:'}//www.test.de:` +
+            `${$.location?.port || 80}/site/subSite` +
+            '?param=value#hash/site/subSite?param=value#hash',
+            $.location?.href || 'http://localhost:8080'
+        ],
+        [
+            `http://www.test.de:${$.location?.port || 80}/site/subSite?` +
+                'param=value#hash',
+            'https://www.test.de/site/subSite?param=value#hash'
+        ]
+    )
+    testEach<typeof Tools.stringNormalizeURL>(
+        'stringNormalizeURL',
+        Tools.stringNormalizeURL,
+
+        ['http://www.test.com', 'www.test.com'],
+        ['http://test', 'test'],
+        ['http://test', 'http://test'],
+        ['https://test', 'https://test']
+    )
+    testEach<typeof Tools.stringRepresentURL>(
+        'stringRepresentURL',
+        Tools.stringRepresentURL,
+
+        ['www.test.com', 'http://www.test.com'],
+        ['ftp://www.test.com', 'ftp://www.test.com'],
+        ['www.test.com', 'https://www.test.com'],
+        ['', undefined],
+        ['', null],
+        ['', false],
+        ['', true],
+        ['', ''],
+        ['', ' ']
+    )
     // // endregion
-    test('stringCamelCaseToDelimited', ():void => {
-        for (const test:Array<any> of [
-            [['hansPeter'], 'hans-peter'],
-            [['hansPeter', '|'], 'hans|peter'],
-            [[''], ''],
-            [['h'], 'h'],
-            [['hP', ''], 'hp'],
-            [['hansPeter'], 'hans-peter'],
-            [['hans-peter'], 'hans-peter'],
-            [['hansPeter', '_'], 'hans_peter'],
-            [['hansPeter', '+'], 'hans+peter'],
-            [['Hans'], 'hans'],
-            [['hansAPIURL', '-', ['api', 'url']], 'hans-api-url'],
-            [['hansPeter', '-', []], 'hans-peter']
-        ])
-            assert.strictEqual(
-                Tools.stringCamelCaseToDelimited(...test[0]), test[1])
-    })
-    test('stringCapitalize', ():void => {
-        for (const test:Array<any> of [
-            ['hansPeter', 'HansPeter'],
-            ['', ''],
-            ['a', 'A'],
-            ['A', 'A'],
-            ['AA', 'AA'],
-            ['Aa', 'Aa'],
-            ['aa', 'Aa']
-        ])
-            assert.strictEqual(
-                Tools.stringCapitalize(test[0]), test[1])
-    })
-    test('stringCompressStyleValue', ():void => {
-        for (const test:Array<any> of [
-            ['', ''],
-            [' border: 1px  solid red;', 'border:1px solid red'],
-            ['border : 1px solid red ', 'border:1px solid red'],
-            ['border : 1px  solid red ;', 'border:1px solid red'],
-            ['border : 1px  solid red   ; ', 'border:1px solid red'],
-            ['height: 1px ; width:2px ; ', 'height:1px;width:2px'],
-            [';;height: 1px ; width:2px ; ;', 'height:1px;width:2px'],
-            [' ;;height: 1px ; width:2px ; ;', 'height:1px;width:2px'],
-            [';height: 1px ; width:2px ; ', 'height:1px;width:2px']
-        ])
-            assert.strictEqual(
-                Tools.stringCompressStyleValue(test[0]), test[1])
-    })
-    test('stringDecodeHTMLEntities', ():void => {
-        for (const test:Array<string> of [
-            ['', ''],
-            ['<div></div>', '<div></div>'],
-            ['<div>&amp;</div>', '<div>&</div>'],
-            [
-                '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>',
-                '<div>&äÄüÜöÖ</div>'
-            ]
-        ])
-            assert.equal(
-                Tools.stringDecodeHTMLEntities(test[0]), test[1])
-    })
-    test('stringDelimitedToCamelCase', ():void => {
-        for (const test:Array<any> of [
-            [['hans-peter'], 'hansPeter'],
-            [['hans|peter', '|'], 'hansPeter'],
-            [[''], ''],
-            [['h'], 'h'],
-            [['hans-peter'], 'hansPeter'],
-            [['hans--peter'], 'hans-Peter'],
-            [['Hans-Peter'], 'HansPeter'],
-            [['-Hans-Peter'], '-HansPeter'],
-            [['-'], '-'],
-            [['hans-peter', '_'], 'hans-peter'],
-            [['hans_peter', '_'], 'hansPeter'],
-            [['hans_id', '_'], 'hansID'],
-            [['url_hans_id', '_', ['hans']], 'urlHANSId'],
-            [['url_hans_1', '_'], 'urlHans1'],
-            [['hansUrl1', '-', ['url'], true], 'hansUrl1'],
-            [['hans-url', '-', ['url'], true], 'hansURL'],
-            [['hans-Url', '-', ['url'], true], 'hansUrl'],
-            [['hans-Url', '-', ['url'], false], 'hansURL'],
-            [['hans-Url', '-', [], false], 'hansUrl'],
-            [['hans--Url', '-', [], false, true], 'hansUrl']
-        ])
-            assert.strictEqual(
-                Tools.stringDelimitedToCamelCase(...test[0]), test[1])
-    })
-*/
-    test.each([
-        ['null', [], 'function'],
-        ['null', {}, 'function'],
-        ['5 === 3', {name: 2}, 'function'],
-        ['5 === 3', ['name'], 'function'],
-        ['}', [], 'string']
+    testEach<typeof Tools.stringCamelCaseToDelimited>(
+        'stringCamelCaseToDelimited',
+        Tools.stringCamelCaseToDelimited,
+
+        ['hans-peter', 'hansPeter'],
+        ['hans|peter', 'hansPeter', '|'],
+        ['', ''],
+        ['h', 'h'],
+        ['hp', 'hP', ''],
+        ['hans-peter', 'hansPeter'],
+        ['hans-peter', 'hans-peter'],
+        ['hans_peter', 'hansPeter', '_'],
+        ['hans+peter', 'hansPeter', '+'],
+        ['hans', 'Hans'],
+        ['hans-api-url', 'hansAPIURL', '-', ['api', 'url']],
+        ['hans-peter', 'hansPeter', '-', []]
+    )
+    testEach<typeof Tools.stringCapitalize>(
+        'stringCapitalize',
+        Tools.stringCapitalize,
+
+        ['HansPeter', 'hansPeter'],
+        ['', ''],
+        ['A', 'a'],
+        ['A', 'A'],
+        ['AA', 'AA'],
+        ['Aa', 'Aa'],
+        ['Aa', 'aa']
+    )
+    testEach<typeof Tools.stringCompressStyleValue>(
+        'stringCompressStyleValue',
+        Tools.stringCompressStyleValue,
+
+        ['', ''],
+        ['border:1px solid red', ' border: 1px  solid red;'],
+        ['border:1px solid red', 'border : 1px solid red '],
+        ['border:1px solid red', 'border : 1px  solid red ;'],
+        ['border:1px solid red', 'border : 1px  solid red   ; '],
+        ['height:1px;width:2px', 'height: 1px ; width:2px ; '],
+        ['height:1px;width:2px', ';;height: 1px ; width:2px ; ;'],
+        ['height:1px;width:2px', ' ;;height: 1px ; width:2px ; ;'],
+        ['height:1px;width:2px', ';height: 1px ; width:2px ; ']
+    )
+    testEach<typeof Tools.stringDecodeHTMLEntities>(
+        'stringDecodeHTMLEntities',
+        Tools.stringDecodeHTMLEntities,
+
+        [$.document ? '' : null, ''],
+        [$.document ? '<div></div>' : null, '<div></div>'],
+        [$.document ? '<div>&</div>' : null, '<div>&amp;</div>'],
+        [
+            $.document ? '<div>&äÄüÜöÖ</div>' : null,
+            '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>'
+        ]
+    )
+    testEach<typeof Tools.stringDelimitedToCamelCase>(
+        'stringDelimitedToCamelCase',
+        Tools.stringDelimitedToCamelCase,
+
+        ['hansPeter', 'hans-peter'],
+        ['hansPeter', 'hans|peter', '|'],
+        ['', ''],
+        ['h', 'h'],
+        ['hansPeter', 'hans-peter'],
+        ['hans-Peter', 'hans--peter'],
+        ['HansPeter', 'Hans-Peter'],
+        ['-HansPeter', '-Hans-Peter'],
+        ['-', '-'],
+        ['hans-peter', 'hans-peter', '_'],
+        ['hansPeter', 'hans_peter', '_'],
+        ['hansID', 'hans_id', '_'],
+        ['urlHANSId', 'url_hans_id', '_', ['hans']],
+        ['urlHans1', 'url_hans_1', '_'],
+        ['hansUrl1', 'hansUrl1', '-', ['url'], true],
+        ['hansURL', 'hans-url', '-', ['url'], true],
+        ['hansUrl', 'hans-Url', '-', ['url'], true],
+        ['hansURL', 'hans-Url', '-', ['url'], false],
+        ['hansUrl', 'hans-Url', '-', [], false],
+        ['hansUrl', 'hans--Url', '-', [], false, true]
+    )
+    test.each<[string, ...Parameters<typeof Tools.stringCompile>]>([
+        ['function', 'null', []],
+        ['function', 'null', {}],
+        ['function', '5 === 3', {name: 2}],
+        ['function', '5 === 3', ['name']],
+        ['string', '}', []]
     ])(
-        'typeof stringCompile("%s", %p)[1] === "%s"',
-        (expression:string, scopeNames:any, resultType:string):void =>
-            expect(typeof Tools.stringCompile(expression, scopeNames)[1])
-                .toStrictEqual(resultType)
+        "'%s' === typeof stringCompile('%s', %p)[1]",
+        (
+            expected:string,
+            ...parameters:Parameters<typeof Tools.stringCompile>
+        ):void =>
+            expect(typeof Tools.stringCompile(...parameters)[1])
+                .toStrictEqual(expected)
     )
     test.each([
         [
@@ -2596,42 +2622,45 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expect(String(Tools.stringCompile(expression)[1]))
                 .toStrictEqual(result.trim().replace(/\n +/g, '\n'))
     )
-    test.each([
+    test.each<[string, FirstParameter<typeof Tools.stringCompile>]>([
         [
-            '`${a + b}`',
             `
                 function anonymous(
                 ) {
                 return String(a + b)
                 }
-            `
+            `,
+            '`${a + b}`'
         ],
         [
-            '`test ${name} - ${other} value`',
             `
                 function anonymous(
                 ) {
                 return 'test '+(name)+' - '+(other)+' value'
                 }
-            `
+            `,
+            '`test ${name} - ${other} value`'
         ],
         [
-            "`test ${name} '-' ${other} value`",
             `
                 function anonymous(
                 ) {
                 return "test "+(name)+" '-' "+(other)+" value"
                 }
-            `
+            `,
+            "`test ${name} '-' ${other} value`"
         ]
     ])(
         'IE 11: String(stringCompile("%s")[1]) === "%s"',
-        (expression:string, result:string):void => {
+        (
+            expected:string,
+            expression:FirstParameter<typeof Tools.stringCompile>
+        ):void => {
             const backup:number = Tools.maximalSupportedInternetExplorerVersion
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
                 .maximalSupportedInternetExplorerVersion = 11
             expect(String(Tools.stringCompile(expression)[1]))
-                .toStrictEqual(result.trim().replace(/\n +/g, '\n'))
+                .toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
                 .maximalSupportedInternetExplorerVersion = backup
         }
@@ -2658,628 +2687,611 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 expression, scope, false, ...[].concat(binding ? binding : [])
             )).toHaveProperty(resultKey, ...[].concat(result ? result : []))
     )
-/*
-    test('stringFindNormalizedMatchRange', ():void => {
-        for (const test:Array<any> of [
-            [['', ''], null],
-            [['hans', ''], null],
-            [['hans', 'a'], [1, 2]],
-            [['hans', 'an'], [1, 3]],
-            [['hans', 'han'], [0, 3]],
-            [['hans', 'hans'], [0, 4]],
-            [['hans', 'ans'], [1, 4]],
-            [['hans hans', 'ans'], [1, 4]],
-            [
-                [' hAns ', 'ans', (value:any):string => value.toLowerCase()],
-                [2, 5]
-            ],
-            [
-                ['a straße b', 'strasse', (value:any):string =>
-                    value.replace(/ß/g, 'ss').toLowerCase()
-                ],
-                [2, 8]
-            ],
-            [
-                ['a strasse b', 'strasse', (value:any):string =>
-                    value.replace(/ß/g, 'ss').toLowerCase()
-                ],
-                [2, 9]
-            ],
-            [
-                ['a strasse b', 'straße', (value:any):string =>
-                    value.replace(/ß/g, 'ss').toLowerCase()
-                ],
-                [2, 9]
-            ]
-        ])
-            assert.deepEqual(Tools.stringFindNormalizedMatchRange(
-                ...test[0]
-            ), test[1])
-    })
-    test('stringFormat', ():void => {
-        for (const test:Array<any> of [
-            [['{1}', 'test'], 'test'],
-            [['', 'test'], ''],
-            [['{1}'], '{1}'],
-            [['{1} test {2} - {2}', 1, 2], '1 test 2 - 2']
-        ])
-            assert.strictEqual(
-                Tools.stringFormat(...test[0]), test[1])
-    })
-    test('stringGetEditDistance', ():void => {
-        for (const test:Array<any> of [
-            ['', '', 0],
-            ['h', 'h', 0],
-            ['hans', 'hans', 0],
-            ['hans', 'hansa', 1],
-            ['hansa', 'hans', 1],
-            ['hans', 'hbns', 1],
-            ['hbns', 'hans', 1],
-            ['hbbs', 'hans', 2],
-            ['beer', 'hans', 4]
-        ])
-            assert.strictEqual(
-                Tools.stringGetEditDistance(test[0], test[1]), test[2])
-    })
-    test('stringGetRegularExpressionValidated', ():void => {
-        for (const test:Array<any> of [
-            [`that's no regex: .*$`, `that's no regex: \\.\\*\\$`],
-            ['', ''],
-            ['-[]()^$*+.}-\\', '\\-\\[\\]\\(\\)\\^\\$\\*\\+\\.\\}\\-\\\\'],
-            ['-', '\\-']
-        ])
-            assert.strictEqual(
-                Tools.stringGetRegularExpressionValidated(test[0]),
-                test[1])
-    })
-    test('stringInterpretDateTime', ():void => {
-        for (const test:Array<any> of [
-            ['', null],
-            ['01:00', new Date(1970, 1 - 1, 1, 1)],
-            // TODO ['01:00 A.M.', new Date(1970, 1 - 1, 1, 1)],
-            ['08:55', new Date(1970, 1 - 1, 1, 8, 55)],
-            ['01:02', new Date(1970, 1 - 1, 1, 1, 2)],
-            ['01:00:00', new Date(1970, 1 - 1, 1, 1)],
-            ['01:02:00', new Date(1970, 1 - 1, 1, 1, 2)],
-            ['01:02:03', new Date(1970, 1 - 1, 1, 1, 2, 3)],
-            ['01:02:03:0', new Date(1970, 1 - 1, 1, 1, 2, 3)],
-            ['01:02:03:4', new Date(1970, 1 - 1, 1, 1, 2, 3, 4)],
-            ['1.1.1970', new Date(1970, 1 - 1, 1)],
-            ['1.2.1970', new Date(1970, 2 - 1, 1)],
-            ['1.1.1970 10', new Date(1970, 1 - 1, 1, 10)],
-            ['1.1.1970 10:30', new Date(1970, 1 - 1, 1, 10, 30)],
-            ['1.1.1970 10:30:30', new Date(1970, 1 - 1, 1, 10, 30, 30)],
-            ['2014-11-26 08:30:00', new Date(2014, 11 - 1, 26, 8, 30)],
-            ['2014-11-26T08:30:00', new Date(2014, 11 - 1, 26, 8, 30)],
-            [
-                '2014-11-26T08:30:00+01:00',
-                new Date(Date.UTC(2014, 11 - 1, 26, 7, 30))
-            ],
-            [
-                '2014-11-10T08:30:00+01:00',
-                new Date(Date.UTC(2014, 11 - 1, 10, 7, 30))
-            ],
-            [
-                '2014-11-10T08:30:00+02:00',
-                new Date(Date.UTC(2014, 11 - 1, 10, 6, 30))
-            ],
-            ['1.1.1970 08:30:00', new Date(1970, 1 - 1, 1, 8, 30)],
-            ['Mo. 1.1.1970', new Date(1970, 1 - 1, 1)],
-            ['Di. 2.1.1970', new Date(1970, 1 - 1, 2)],
-            ['Fr. 3.1.1970', new Date(1970, 1 - 1, 3)],
-            ['3.Jan.1970', new Date(1970, 1 - 1, 3)],
-            ['3. Jan. 1970', new Date(1970, 1 - 1, 3)],
-            ['3. mai. 1970', new Date(1970, 5 - 1, 3)],
-            ['3. may 1970', new Date(1970, 5 - 1, 3)],
-            ['3. märz 1970', new Date(1970, 3 - 1, 3)],
-            ['3. Dezember 1970', new Date(1970, 12 - 1, 3)]
-        ])
-            assert.ok(Tools.equals(
-                Tools.stringInterpretDateTime(test[0], false), test[1]
-            ))
-    })
-    test('stringLowerCase', ():void => {
-        for (const test:Array<any> of [
-            ['HansPeter', 'hansPeter'],
-            ['', ''],
-            ['A', 'a'],
-            ['a', 'a'],
-            ['aa', 'aa'],
-            ['Aa', 'aa'],
-            ['aa', 'aa']
-        ])
-            assert.strictEqual(Tools.stringLowerCase(test[0]), test[1])
-    })
-    test('stringMark', ():void => {
-        for (const test:Array<any> of [
-            [[''], ''],
-            [['test', 'e'], 't<span class="tools-mark">e</span>st'],
-            [['test', 'es'], 't<span class="tools-mark">es</span>t'],
-            [['test', 'test'], '<span class="tools-mark">test</span>'],
-            [['test', ''], 'test'],
-            [['test', 'tests'], 'test'],
-            [['', 'test'], ''],
-            [
-                ['test', 'e', (value:any):string => `${value}`.toLowerCase(), '<a>{1}</a>'],
-                't<a>e</a>st'
-            ],
-            [['test', ['e'], Tools.identity, '<a>{1}</a>'], 't<a>e</a>st'],
-            [
-                ['test', 'E', (value:any):string => `${value}`.toLowerCase(), '<a>{1}</a>'],
-                't<a>e</a>st'
-            ],
-            [
-                ['test', 'E', (value:any):string => `${value}`.toLowerCase(), '<a>{1}</a>'],
-                't<a>e</a>st'
-            ],
-            [
-                ['tesT', 't', (value:any):string => `${value}`.toLowerCase(), '<a>{1}</a>'],
-                '<a>t</a>es<a>T</a>'
-            ],
-            [
-                ['tesT', 't', (value:any):string => `${value}`.toLowerCase(), '<a>{1} - {1}</a>'],
-                '<a>t - t</a>es<a>T - T</a>'
-            ],
-            [
-                ['test', 'E', (value:any):string => `${value}`.toLowerCase(), '<a>{1}</a>', (value:any):string => `${value}`],
-                'test'
-            ],
-            [
-                ['abcd', ['a', 'c']],
-                '<span class="tools-mark">a</span>b' +
-                '<span class="tools-mark">c</span>d'
-            ],
-            [
-                ['aabcd', ['a', 'c']],
-                '<span class="tools-mark">a</span>' +
-                '<span class="tools-mark">a</span>b' +
-                '<span class="tools-mark">c</span>d'
-            ],
-            [
-                ['acbcd', ['a', 'c', 'd']],
-                '<span class="tools-mark">a</span>' +
-                '<span class="tools-mark">c</span>b' +
-                '<span class="tools-mark">c</span>' +
-                '<span class="tools-mark">d</span>'
-            ],
-            [
-                [
-                    'a EBikes München',
-                    ['ebikes', 'münchen'],
-                    (value:any):string => `${value}`.toLowerCase(),
-                    '<a>{1}</a>'
-                ],
-                'a <a>EBikes</a> <a>München</a>'
-            ],
-            [
-                [
-                    'a E-Bikes München',
-                    ['ebikes', 'münchen'],
-                    (value:any):string =>
-                        `${value}`.toLowerCase().replace('-', ''),
-                    '<a>{1}</a>'
-                ],
-                'a <a>E-Bikes</a> <a>München</a>'
-            ],
-            [
-                [
-                    'a str. 2',
-                    ['straße', '2'],
-                    (value:any):string =>
-                        `${value}`
-                            .toLowerCase()
-                            .replace('str.', 'strasse')
-                            .replace('ß', 'ss'),
-                    '<a>{1}</a>'
-                ],
-                'a <a>str.</a> <a>2</a>'
-            ],
-            [
-                [
-                    'EGO Movement Store E-Bikes München',
-                    ['eBikes', 'München'],
-                    (value:any):string =>
-                        `${value}`
-                            .toLowerCase()
-                            .replace(/[-_]+/g, '')
-                            .replace(/ß/g, 'ss')
-                            .replace(/(^| )str\./g, '$1strasse')
-                            .replace(/[& ]+/g, ' '),
-                    '<a>{1}</a>'
-                ],
-                'EGO Movement Store <a>E-Bikes</a> <a>München</a>'
-            ],
-            [
-                [
-                    'str.A strasse B straße C str. D',
-                    ['str.'],
-                    (value:any):string =>
-                        `${value}`
-                            .toLowerCase()
-                            .replace(/[-_]+/g, '')
-                            .replace(/ß/g, 'ss')
-                            .replace(/(^| )str\./g, '$1strasse')
-                            .replace(/[& ]+/g, ' '),
-                    '<a>{1}</a>'
-                ],
-                '<a>str.</a>A <a>strasse</a> B <a>straße</a> C <a>str.</a> D'
-            ]
-        ])
-            assert.strictEqual(Tools.stringMark(...test[0]), test[1])
-    })
-    test(`stringMD5 (${testEnvironment})`, ():void => {
-        for (const test:Array<any> of [
-            [[''], 'd41d8cd98f00b204e9800998ecf8427e'],
-            [['test'], '098f6bcd4621d373cade4e832627b4f6'],
-            [['ä'], '8419b71c87a225a2c70b50486fbee545'],
-            [['test', true], '098f6bcd4621d373cade4e832627b4f6'],
-            [['ä', true], 'c15bcc5577f9fade4b4a3256190a59b0']
-        ])
-            assert.strictEqual(Tools.stringMD5(...test[0]), test[1])
-    })
-    test('stringNormalizePhoneNumber', ():void => {
-        for (const test:Array<any> of [
-            ['0', '0'],
-            [' 0  ', '0'],
-            [0, '0'],
-            [12345, '12345'],
-            ['+49 172 (0) / 0212 - 3', '0049172002123']
-        ])
-            assert.strictEqual(
-                Tools.stringNormalizePhoneNumber(test[0]), test[1])
-        for (const test:Array<any> of [
-            ['0', '0'],
-            [' 0  ', '0'],
-            [0, '0'],
-            [12345, '12345'],
-            ['+49 (0) 176-12 34-56', '0049-176-1234-56'],
-            ['+49(0)176 12-34 56', '0049-176-123456'],
-            ['+49 176 12 34 56', '0049-176-123456'],
-            ['+49-176-12 34 56', '0049-176-123456'],
-            ['0172/12555433', '0172-12555433'],
-            ['0176 12 34 56', '0176-123456'],
-            ['01761 234 56', '01761-23456'],
-            ['+49 (178) 12 34 56', '0049-178-123456'],
-            ['+49(178)123456', '0049-178-123456'],
-            ['+49(178)12345-6', '0049-178-12345-6'],
-            ['+49 (178) 123 45-6', '0049-178-12345-6'],
-            ['06132-77-0', '06132-77-0'],
-            ['06132-77-0 ', '06132-77-0'],
-            ['06132-77-0a', '06132-770'],
-            ['06132-77-0a ', '06132-770'],
-            ['  06132-77-0a ', '06132-770'],
-            ['  061 32-77-0a ', '06132-770'],
-            ['  061 32-77-0 ', '06132-77-0'],
-            ['  0061 32-77-0 ', '0061-32-77-0'],
-            ['  +61 32-77-0 ', '0061-32-77-0'],
-            ['05661-711677', '05661-711677'],
-            ['0174/5661677', '0174-5661677'],
-            ['+49 (0) 174 / 566 16 77', '0049-174-5661677'],
-            ['+49 (174) 566 16 77', '0049-174-5661677'],
-            [' +49 (174) 566 16 77 ', '0049-174-5661677'],
-            ['02 91 / 14 55', '0291-1455'],
-            ['03677842375', '03677842375']
-        ])
-            assert.strictEqual(
-                Tools.stringNormalizePhoneNumber(test[0], false),
-                test[1]
-            )
-    })
-    test('stringNormalizeZipCode', ():void => {
-        for (const test:Array<any> of [
-            ['0', '0'],
-            [' 0  ', '0'],
-            [0, '0'],
-            [12345, '12345'],
-            ['abc', ''],
-            ['1B23A45', '12345'],
-            [' 1B23A45 ', '12345']
-        ])
-            assert.strictEqual(
-                Tools.stringNormalizeZipCode(test[0]), test[1])
-    })
+    testEach<typeof Tools.stringFindNormalizedMatchRange>(
+        'stringFindNormalizedMatchRange',
+        Tools.stringFindNormalizedMatchRange,
+
+        [null, '', ''],
+        [null, 'hans', ''],
+        [[1, 2], 'hans', 'a'],
+        [[1, 3], 'hans', 'an'],
+        [[0, 3], 'hans', 'han'],
+        [[0, 4], 'hans', 'hans'],
+        [[1, 4], 'hans', 'ans'],
+        [[1, 4], 'hans hans', 'ans'],
+        [[2, 5], ' hAns ', 'ans', (value:any):string => value.toLowerCase()],
+        [
+            [2, 8],
+            'a straße b', 'strasse',
+            (value:any):string => value.replace(/ß/g, 'ss').toLowerCase()
+        ],
+        [
+            [2, 9],
+            'a strasse b',
+            'strasse',
+            (value:any):string => value.replace(/ß/g, 'ss').toLowerCase()
+        ],
+        [
+            [2, 9],
+            'a strasse b',
+            'straße',
+            (value:any):string => value.replace(/ß/g, 'ss').toLowerCase()
+        ]
+    )
+    testEach<typeof Tools.stringFormat>(
+        'stringFormat',
+        Tools.stringFormat,
+
+        ['test', '{1}', 'test'],
+        ['', '', 'test'],
+        ['{1}', '{1}'],
+        ['1 test 2 - 2', '{1} test {2} - {2}', 1, 2]
+    )
+    testEach<typeof Tools.stringGetEditDistance>(
+        'stringGetEditDistance',
+        Tools.stringGetEditDistance,
+
+        [0, '', ''],
+        [0, 'h', 'h'],
+        [0, 'hans', 'hans'],
+        [1, 'hans', 'hansa'],
+        [1, 'hansa', 'hans'],
+        [1, 'hans', 'hbns'],
+        [1, 'hbns', 'hans'],
+        [2, 'hbbs', 'hans'],
+        [4, 'beer', 'hans']
+    )
+    testEach<typeof Tools.stringGetRegularExpressionValidated>(
+        'stringGetRegularExpressionValidated',
+        Tools.stringGetRegularExpressionValidated,
+
+        [`that's no regex: \\.\\*\\$`, `that's no regex: .*$`],
+        ['', ''],
+        ['\\-\\[\\]\\(\\)\\^\\$\\*\\+\\.\\}\\-\\\\', '-[]()^$*+.}-\\'],
+        ['\\-', '-']
+    )
+    testEach<typeof Tools.stringInterpretDateTime>(
+        'stringInterpretDateTime',
+        Tools.stringInterpretDateTime,
+
+        [null, ''],
+        [new Date(1970, 1 - 1, 1, 1), '01:00', false],
+        // TODO [new Date(1970, 1 - 1, 1, 1), '01:00 A.M.', false],
+        [new Date(1970, 1 - 1, 1, 8, 55), '08:55', false],
+        [new Date(1970, 1 - 1, 1, 1, 2), '01:02', false],
+        [new Date(1970, 1 - 1, 1, 1), '01:00:00', false],
+        [new Date(1970, 1 - 1, 1, 1, 2), '01:02:00', false],
+        [new Date(1970, 1 - 1, 1, 1, 2, 3), '01:02:03', false],
+        [new Date(1970, 1 - 1, 1, 1, 2, 3), '01:02:03:0', false],
+        [new Date(1970, 1 - 1, 1, 1, 2, 3, 4), '01:02:03:4', false],
+        [new Date(1970, 1 - 1, 1), '1.1.1970', false],
+        [new Date(1970, 2 - 1, 1), '1.2.1970', false],
+        [new Date(1970, 1 - 1, 1, 10), '1.1.1970 10', false],
+        [new Date(1970, 1 - 1, 1, 10, 30), '1.1.1970 10:30', false],
+        [new Date(1970, 1 - 1, 1, 10, 30, 30), '1.1.1970 10:30:30', false],
+        [new Date(2014, 11 - 1, 26, 8, 30), '2014-11-26 08:30:00', false],
+        [new Date(2014, 11 - 1, 26, 8, 30), '2014-11-26T08:30:00', false],
+        [
+            new Date(Date.UTC(2014, 11 - 1, 26, 7, 30)),
+            '2014-11-26T08:30:00+01:00',
+            false
+        ],
+        [
+            new Date(Date.UTC(2014, 11 - 1, 10, 7, 30)),
+            '2014-11-10T08:30:00+01:00',
+            false
+        ],
+        [
+            new Date(Date.UTC(2014, 11 - 1, 10, 6, 30)),
+            '2014-11-10T08:30:00+02:00',
+            false
+        ],
+        [new Date(1970, 1 - 1, 1, 8, 30), '1.1.1970 08:30:00', false],
+        [new Date(1970, 1 - 1, 1), 'Mo. 1.1.1970', false],
+        [new Date(1970, 1 - 1, 2), 'Di. 2.1.1970', false],
+        [new Date(1970, 1 - 1, 3), 'Fr. 3.1.1970', false],
+        [new Date(1970, 1 - 1, 3), '3.Jan.1970', false],
+        [new Date(1970, 1 - 1, 3), '3. Jan. 1970', false],
+        [new Date(1970, 5 - 1, 3), '3. mai. 1970', false],
+        [new Date(1970, 5 - 1, 3), '3. may 1970', false],
+        [new Date(1970, 3 - 1, 3), '3. märz 1970', false],
+        [new Date(1970, 12 - 1, 3), '3. Dezember 1970', false]
+    )
+    testEach<typeof Tools.stringLowerCase>(
+        'stringLowerCase',
+        Tools.stringLowerCase,
+
+        ['hansPeter', 'HansPeter'],
+        ['', ''],
+        ['a', 'A'],
+        ['a', 'a'],
+        ['aa', 'aa'],
+        ['aa', 'Aa'],
+        ['aA', 'aA']
+    )
+    testEach<typeof Tools.stringMark>(
+        'stringMark',
+        Tools.stringMark,
+
+        ['', ''],
+        ['t<span class="tools-mark">e</span>st', 'test', 'e'],
+        ['t<span class="tools-mark">es</span>t', 'test', 'es'],
+        ['<span class="tools-mark">test</span>', 'test', 'test'],
+        ['test', 'test', ''],
+        ['test', 'test', 'tests'],
+        ['', '', 'test'],
+        [
+            't<a>e</a>st',
+            'test', 'e',
+            (value:any):string => `${value}`.toLowerCase(),
+            '<a>{1}</a>'
+        ],
+        ['t<a>e</a>st', 'test', ['e'], Tools.identity, '<a>{1}</a>'],
+        [
+            't<a>e</a>st',
+            'test',
+            'E',
+            (value:any):string => `${value}`.toLowerCase(),
+            '<a>{1}</a>'
+        ],
+        [
+            't<a>E</a>st',
+            'tEst',
+            'e',
+            (value:any):string => `${value}`.toLowerCase(),
+            '<a>{1}</a>'
+        ],
+        [
+            '<a>t</a>es<a>T</a>',
+            'tesT',
+            't',
+            (value:any):string => `${value}`.toLowerCase(),
+            '<a>{1}</a>'
+        ],
+        [
+            '<a>t - t</a>es<a>T - T</a>',
+            'tesT',
+            't',
+            (value:any):string => `${value}`.toLowerCase(),
+            '<a>{1} - {1}</a>'
+        ],
+        ['test', 'test', 'E', Tools.identity, '<a>{1}</a>'],
+        [
+            '<span class="tools-mark">a</span>b' +
+            '<span class="tools-mark">c</span>d',
+            'abcd',
+            ['a', 'c']
+        ],
+        [
+            '<span class="tools-mark">a</span>' +
+            '<span class="tools-mark">a</span>b' +
+            '<span class="tools-mark">c</span>d',
+            'aabcd',
+            ['a', 'c']
+        ],
+        [
+            '<span class="tools-mark">a</span>' +
+            '<span class="tools-mark">c</span>b' +
+            '<span class="tools-mark">c</span>' +
+            '<span class="tools-mark">d</span>',
+            'acbcd',
+            ['a', 'c', 'd']
+        ],
+        [
+            'a <a>EBikes</a> <a>München</a>',
+            'a EBikes München',
+            ['ebikes', 'münchen'],
+            (value:any):string => `${value}`.toLowerCase(),
+            '<a>{1}</a>'
+        ],
+        [
+            'a <a>E-Bikes</a> <a>München</a>',
+            'a E-Bikes München',
+            ['ebikes', 'münchen'],
+            (value:any):string => `${value}`.toLowerCase().replace('-', ''),
+            '<a>{1}</a>'
+        ],
+        [
+            'a <a>str.</a> <a>2</a>',
+            'a str. 2',
+            ['straße', '2'],
+            (value:any):string =>
+                `${value}`
+                    .toLowerCase()
+                    .replace('str.', 'strasse')
+                    .replace('ß', 'ss'),
+            '<a>{1}</a>'
+        ],
+        [
+            'EGO Movement Store <a>E-Bikes</a> <a>München</a>',
+            'EGO Movement Store E-Bikes München',
+            ['eBikes', 'München'],
+            (value:any):string =>
+                `${value}`
+                    .toLowerCase()
+                    .replace(/[-_]+/g, '')
+                    .replace(/ß/g, 'ss')
+                    .replace(/(^| )str\./g, '$1strasse')
+                    .replace(/[& ]+/g, ' '),
+            '<a>{1}</a>'
+        ],
+        [
+            '<a>str.</a>A <a>strasse</a> B <a>straße</a> C <a>str.</a> D',
+            'str.A strasse B straße C str. D',
+            ['str.'],
+            (value:any):string =>
+                `${value}`
+                    .toLowerCase()
+                    .replace(/[-_]+/g, '')
+                    .replace(/ß/g, 'ss')
+                    .replace(/(^| )str\./g, '$1strasse')
+                    .replace(/[& ]+/g, ' '),
+            '<a>{1}</a>'
+        ]
+    )
+    testEach<typeof Tools.stringMD5>(
+        `stringMD5 (${testEnvironment})`,
+        Tools.stringMD5,
+
+        ['d41d8cd98f00b204e9800998ecf8427e', ''],
+        ['098f6bcd4621d373cade4e832627b4f6', 'test'],
+        ['8419b71c87a225a2c70b50486fbee545', 'ä'],
+        ['098f6bcd4621d373cade4e832627b4f6', 'test', true],
+        ['c15bcc5577f9fade4b4a3256190a59b0', 'ä', true]
+    )
+    testEach<typeof Tools.stringNormalizePhoneNumber>(
+        'stringNormalizePhoneNumber',
+        Tools.stringNormalizePhoneNumber,
+
+        ['0', '0'],
+        ['0', ' 0  '],
+        ['0', 0],
+        ['12345', 12345],
+        ['0049172002123', '+49 172 (0) / 0212 - 3'],
+        ['0', '0', false],
+        ['0', ' 0  ', false],
+        ['0', 0, false],
+        ['12345', 12345, false],
+        ['0049-176-1234-56', '+49 (0) 176-12 34-56', false],
+        ['0049-176-123456', '+49(0)176 12-34 56', false],
+        ['0049-176-123456', '+49 176 12 34 56', false],
+        ['0049-176-123456', '+49-176-12 34 56', false],
+        ['0172-12555433', '0172/12555433', false],
+        ['0176-123456', '0176 12 34 56', false],
+        ['01761-23456', '01761 234 56', false],
+        ['0049-178-123456', '+49 (178) 12 34 56', false],
+        ['0049-178-123456', '+49(178)123456', false],
+        ['0049-178-12345-6', '+49(178)12345-6', false],
+        ['0049-178-12345-6', '+49 (178) 123 45-6', false],
+        ['06132-77-0', '06132-77-0', false],
+        ['06132-77-0', '06132-77-0 ', false],
+        ['06132-770', '06132-77-0a', false],
+        ['06132-770', '06132-77-0a ', false],
+        ['06132-770', '  06132-77-0a ', false],
+        ['06132-770', '  061 32-77-0a ', false],
+        ['06132-77-0', '  061 32-77-0 ', false],
+        ['0061-32-77-0', '  0061 32-77-0 ', false],
+        ['0061-32-77-0', '  +61 32-77-0 ', false],
+        ['05661-711677', '05661-711677', false],
+        ['0174-5661677', '0174/5661677', false],
+        ['0049-174-5661677', '+49 (0) 174 / 566 16 77', false],
+        ['0049-174-5661677', '+49 (174) 566 16 77', false],
+        ['0049-174-5661677', ' +49 (174) 566 16 77 ', false],
+        ['0291-1455', '02 91 / 14 55', false],
+        ['03677842375', '03677842375', false]
+    )
+    testEach<typeof Tools.stringNormalizeZipCode>(
+        'stringNormalizeZipCode',
+        Tools.stringNormalizeZipCode,
+
+        ['0', '0'],
+        ['0', ' 0  '],
+        ['0', 0],
+        ['12345', 12345],
+        ['', 'abc'],
+        ['12345', '1B23A45'],
+        ['12345', ' 1B23A45 ']
+    )
     if (TARGET_TECHNOLOGY === 'node')
-        test('stringParseEncodedObject', ():void => {
-            for (const test:Array<any> of [
-                [[''], null],
-                [['null'], null],
-                [['{a: undefined}'], {a: undefined}],
-                [
-                    [Buffer.from('{a: undefined}').toString('base64')],
-                    {a: undefined}
-                ],
-                [['{a: 2}'], {a: 2}],
-                [[Buffer.from('{a: 1}').toString('base64')], {a: 1}],
-                [['null'], null],
-                [[Buffer.from('null').toString('base64')], null],
-                [['{}'], {}],
-                [[Buffer.from('{}').toString('base64')], {}],
-                [['{a: a}'], null],
-                [[Buffer.from('{a: a}').toString('base64')], null],
-                [['{a: scope.a}', {a: 2}], {a: 2}],
-                [
-                    [Buffer.from('{a: scope.a}').toString('base64'), {a: 2}],
-                    {a: 2}
-                ]
-            ])
-                assert.deepEqual(
-                    Tools.stringParseEncodedObject(...test[0]), test[1]
-                )
-        })
-    test('stringSliceAllExceptNumberAndLastSeperator', ():void => {
-        for (const test:Array<any> of [
-            ['12-34-56', '1234-56'],
-            ['12 34 56', '123456'],
-            ['123456', '123456']
-        ])
-            assert.strictEqual(
-                Tools.stringSliceAllExceptNumberAndLastSeperator(
-                    test[0]),
-                test[1]
-            )
-    })
-    test('stringRepresentPhoneNumber', ():void => {
-        for (const test:Array<any> of [
-            ['0', '0'],
-            ['0172-12321-1', '+49 (0) 172 / 123 21-1'],
-            ['0172-123211', '+49 (0) 172 / 12 32 11'],
-            ['0172-1232111', '+49 (0) 172 / 123 21 11'],
-            [undefined, ''],
+        testEach<typeof Tools.stringParseEncodedObject>(
+            'stringParseEncodedObject',
+            Tools.stringParseEncodedObject,
+
             [null, ''],
-            [false, ''],
-            [true, ''],
-            ['', ''],
-            [' ', '']
-        ])
-            assert.strictEqual(
-                Tools.stringRepresentPhoneNumber(test[0]), test[1])
-    })
-    test('stringSliceWeekday', ():void => {
-        for (const test:Array<string> of [
-            ['', ''],
-            ['a', 'a'],
-            ['1.1.1970', '1.1.1970'],
-            ['Do. 1.1.1970', '1.1.1970'],
-            ['We. 1.1.1970', '1.1.1970'],
-            ['Mo. 1.1.1970', '1.1.1970'],
-            ['Mo. 10', '10'],
-            ['Mo. ', 'Mo. ']
-        ])
-            assert.strictEqual(Tools.stringSliceWeekday(test[0]), test[1])
-    })
-    test('stringNormalizeDomNodeSelector', ():void => {
-        for (const test:Array<string> of [
-            ['div', 'body div'],
-            ['div p', 'body div p'],
-            ['body div', 'body div'],
-            ['body div p', 'body div p'],
-            ['', 'body']
-        ])
-            assert.strictEqual(
-                tools.stringNormalizeDomNodeSelector(test[0]), test[1])
-        for (const test:string of [
-            '',
-            'div',
-            'div, p'
-        ])
-            assert.strictEqual($.Tools({
-                domNodeSelectorPrefix: ''
-            }).stringNormalizeDomNodeSelector(test), test)
-    })
+            [null, 'null'],
+            [{a: undefined}, '{a: undefined}'],
+            [{a: undefined}, Buffer.from('{a: undefined}').toString('base64')],
+            [{a: 2}, '{a: 2}'],
+            [{a: 1}, Buffer.from('{a: 1}').toString('base64')],
+            [null, 'null'],
+            [null, Buffer.from('null').toString('base64')],
+            [{}, '{}'],
+            [{}, Buffer.from('{}').toString('base64')],
+            [null, '{a: a}'],
+            [null, Buffer.from('{a: a}').toString('base64')],
+            [{a: 2}, '{a: scope.a}', {a: 2}],
+            [{a: 2}, Buffer.from('{a: scope.a}').toString('base64'), {a: 2}]
+        )
+    testEach<typeof Tools.stringSliceAllExceptNumberAndLastSeperator>(
+        'stringSliceAllExceptNumberAndLastSeperator',
+        Tools.stringSliceAllExceptNumberAndLastSeperator,
+
+        ['1234-56', '12-34-56'],
+        ['123456', '12 34 56'],
+        ['123456', '123456']
+    )
+    testEach<typeof Tools.stringRepresentPhoneNumber>(
+        'stringRepresentPhoneNumber',
+        Tools.stringRepresentPhoneNumber,
+
+        ['0', '0'],
+        ['+49 (0) 172 / 123 21-1', '0172-12321-1'],
+        ['+49 (0) 172 / 12 32 11', '0172-123211'],
+        ['+49 (0) 172 / 123 21 11', '0172-1232111'],
+        ['', undefined],
+        ['', null],
+        ['', false],
+        ['', true],
+        ['', ''],
+        ['', ' ']
+    )
+    testEach<typeof Tools.stringSliceWeekday>(
+        'stringSliceWeekday',
+        Tools.stringSliceWeekday,
+
+        ['', ''],
+        ['a', 'a'],
+        ['1.1.1970', '1.1.1970'],
+        ['1.1.1970', 'Do. 1.1.1970'],
+        ['1.1.1970', 'We. 1.1.1970'],
+        ['1.1.1970', 'Mo. 1.1.1970'],
+        ['10', 'Mo. 10'],
+        ['Mo. ', 'Mo. ']
+    )
+    testEach<Tools['stringNormalizeDomNodeSelector']>(
+        'stringNormalizeDomNodeSelector',
+        tools.stringNormalizeDomNodeSelector,
+
+        ['body div', 'div'],
+        ['body div p', 'div p'],
+        ['body div', 'body div'],
+        ['body div p', 'body div p'],
+        ['body', '']
+    )
+    testEach<Tools['stringNormalizeDomNodeSelector']>(
+        "$.Tools({domNodeSelectorPrefix: ''})" +
+        '.stringNormalizeDomNodeSelector',
+        $.Tools({domNodeSelectorPrefix: ''}).stringNormalizeDomNodeSelector,
+
+        ['', ''],
+        ['div', 'div'],
+        ['div, p', 'div, p']
+    )
     // / endregion
     // / region number
-    test('numberGetUTCTimestamp', ():void => {
-        for (const test:Array<any> of [
-            [[new Date(0)], 0],
-            [[new Date(1)], 0.001],
-            [[new Date(0), true], 0],
-            [[new Date(1000), false], 1],
-            [[new Date(1000), true], 1000],
-            [[new Date(0), false], 0]
-        ])
-            assert.strictEqual(
-                Tools.numberGetUTCTimestamp(...test[0]), test[1])
-    })
-    test('numberIsNotANumber', ():void => {
-        for (const test:Array<any> of [
-            [NaN, true],
-            [{}, false],
-            [undefined, false],
-            [now.toString(), false],
-            [null, false],
-            [false, false],
-            [true, false],
-            [0, false]
-        ])
-            assert.strictEqual(
-                Tools.numberIsNotANumber(test[0]), test[1])
-    })
-    test('numberRound', ():void => {
-        for (const test:Array<any> of [
-            [[1.5, 0], 2],
-            [[1.4, 0], 1],
-            [[1.4, -1], 0],
-            [[1000, -2], 1000],
-            [[999, -2], 1000],
-            [[950, -2], 1000],
-            [[949, -2], 900],
-            [[1.2345], 1],
-            [[1.2345, 2], 1.23],
-            [[1.2345, 3], 1.235],
-            [[1.2345, 4], 1.2345],
-            [[699, -2], 700],
-            [[650, -2], 700],
-            [[649, -2], 600]
-        ])
-            assert.strictEqual(Tools.numberRound(...test[0]), test[1])
-    })
+    testEach<typeof Tools.numberGetUTCTimestamp>(
+        'numberGetUTCTimestamp',
+        Tools.numberGetUTCTimestamp,
+
+        [0, new Date(0)],
+        [0.001, new Date(1)],
+        [0, new Date(0), true],
+        [1, new Date(1000), false],
+        [1000, new Date(1000), true],
+        [0, new Date(0), false]
+    )
+    testEach<typeof Tools.numberIsNotANumber>(
+        'numberIsNotANumber',
+        Tools.numberIsNotANumber,
+
+        [true, NaN],
+        [false, {}],
+        [false, undefined],
+        [false, now.toString()],
+        [false, null],
+        [false, false],
+        [false, true],
+        [false, 0]
+    )
+    testEach<typeof Tools.numberRound>(
+        'numberRound',
+        Tools.numberRound,
+
+        [2, 1.5, 0],
+        [1, 1.4, 0],
+        [0, 1.4, -1],
+        [1000, 1000, -2],
+        [1000, 999, -2],
+        [1000, 950, -2],
+        [900, 949, -2],
+        [1, 1.2345],
+        [1.23, 1.2345, 2],
+        [1.235, 1.2345, 3],
+        [1.2345, 1.2345, 4],
+        [700, 699, -2],
+        [700, 650, -2],
+        [600, 649, -2]
+    )
     // / endregion
-    // / region data transnfer
-    test('checkReachability', async ():Promise<void> => {
-        const done:Function = assert.async()
-        for (const test:Array<any> of [
-            ['unknownURL', false],
-            ['unknownURL', false, 301],
-            ['http://unknownHostName', true, 200, 0.025],
-            ['http://unknownHostName', true, [200], 0.025],
-            ['http://unknownHostName', true, [200, 301], 0.025]
-        ])
-            try {
-                await Tools.checkReachability(...test)
-                assert.ok(false)
-            } catch (error) {
-                assert.ok(true)
-            }
-        done()
-    })
-    test('checkUnreachability', async ():Promise<void> => {
-        const done:Function = assert.async()
-        for (const test:Array<any> of [
-            ['unknownURL', false, 10, 0.1, 200],
-            ['unknownURL', true, 10, 0.1, 200],
-            ['unknownURL', true, 10, 0.1, [200]],
-            ['unknownURL', true, 10, 0.1, [200, 301]],
-            ['http://unknownHostName', true]
-        ])
-            try {
-                await Tools.checkUnreachability(...test)
-                assert.ok(true)
-            } catch (error) {
-                assert.ok(false)
-            }
-        done()
-    })
-    if (
-        typeof targetTechnology !== 'undefined' &&
-        targetTechnology === 'web' &&
-        testEnvironment === 'full'
-    ) {
+    // / region data transfer
+    test.each<Parameters<typeof Tools.checkReachability>>([
+        ['unknownURL', false],
+        ['unknownURL', false, 301],
+        ['http://unknownHostName', true, 200, 0.025],
+        ['http://unknownHostName', true, [200], 0.025],
+        ['http://unknownHostName', true, [200, 301], 0.025]
+    ])(
+        'checkReachability(%p, ...) -> throws',
+        (
+            ...parameters:Parameters<typeof Tools.checkReachability>
+        ):Promise<void> =>
+            expect(Tools.checkReachability(...parameters))
+                .rejects.toBeDefined()
+    )
+    test.each<Parameters<typeof Tools.checkUnreachability>>([
+        ['unknownURL', false, 10, 0.1, 200],
+        ['unknownURL', true, 10, 0.1, 200],
+        ['unknownURL', true, 10, 0.1, [200]],
+        ['unknownURL', true, 10, 0.1, [200, 301]],
+        ['http://unknownHostName', true]
+    ])(
+        'checkUnreachability(%p, ...) -> resolves',
+        (
+            ...parameters:Parameters<typeof Tools.checkUnreachability>
+        ):Promise<void> =>
+            expect(Tools.checkUnreachability(...parameters))
+                .resolves.toBeDefined()
+    )
+    if (TARGET_TECHNOLOGY !== 'node') {
         test('sendToIFrame', ():void => {
-            const iFrame = $('<iframe>').hide().attr('name', 'test')
-            $('body').append(iFrame)
-            assert.ok(Tools.sendToIFrame(
-                iFrame, window.document.URL, {test: 5}, 'get', true))
+            const $iFrame:$DomNode<HTMLIFrameElement> =
+                $('<iframe>').hide().attr('name', 'test')
+            $('body').append($iFrame)
+            expect(Tools.sendToIFrame(
+                $iFrame, window.document.URL, {test: 5}, 'get', true
+            )).toStrictEqual(true)
         })
         test('sendToExternalURL', ():void =>
-            assert.ok(tools.sendToExternalURL(window.document.URL, {test: 5})))
+            expect(tools.sendToExternalURL(window.document.URL, {test: 5}))
+                .toStrictEqual(true)
+        )
     }
     // / endregion
     // / region file
     if (TARGET_TECHNOLOGY === 'node') {
+        const testPath:string = './copyDirectoryRecursiveTest.compiled'
         test('copyDirectoryRecursive', async ():Promise<void> => {
-            const done:Function = assert.async()
-            assert.ok((await Tools.copyDirectoryRecursive(
-                './node_modules/.bin',
-                './copyDirectoryRecursiveTest.compiled',
-                Tools.noop
-            )).endsWith('/copyDirectoryRecursiveTest.compiled'))
-            removeDirectoryRecursivelySync(
-                './copyDirectoryRecursiveTest.compiled')
-            done()
+            removeDirectoryRecursivelySync(testPath)
+            expect(await Tools.copyDirectoryRecursive(
+                './node_modules/.bin', testPath, Tools.noop
+            )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
+            removeDirectoryRecursivelySync(testPath)
         })
         test('copyDirectoryRecursiveSync', ():void => {
-            assert.ok(Tools.copyDirectoryRecursiveSync(
-                './node_modules/.bin',
-                './copyDirectoryRecursiveTestSync.compiled',
-                Tools.noop
-            ).endsWith('/copyDirectoryRecursiveTestSync.compiled'))
-            removeDirectoryRecursivelySync(
-                './copyDirectoryRecursiveTestSync.compiled')
+            removeDirectoryRecursivelySync(testPath)
+            expect(Tools.copyDirectoryRecursiveSync(
+                './node_modules/.bin', testPath, Tools.noop
+            )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
+            removeDirectoryRecursivelySync(testPath)
         })
         test('copyFile', async ():Promise<void> => {
-            const done:Function = assert.async()
+            try {
+                synchronousFileSystem.unlinkSync(
+                    `./test.copyFile.${testEnvironment}.compiled.js`
+                )
+            } catch (error) {}
             let result:string = ''
             try {
                 result = await Tools.copyFile(
-                    path.resolve('./', path.basename(__filename)),
-                    `./test.${testEnvironment}.compiled.js`
+                    path.resolve('./test.ts'),
+                    `./test.copyFile.${testEnvironment}.compiled.js`
                 )
             } catch (error) {
                 console.error(error)
             }
-            assert.ok(result.endsWith(`./test.${testEnvironment}.compiled.js`))
+            expect(result).toMatch(new RegExp(
+                `\.\/test\.copyFile\.${testEnvironment}\.compiled\.js$`
+            ))
             /*
                 NOTE: A race condition was identified here. So we need an
                 additional digest loop to have this test artefact placed here.
             */
-    /*
             await Tools.timeout()
-            synchronousFileSystem.unlinkSync(`./test.${testEnvironment}.compiled.js`)
-            done()
+            synchronousFileSystem.unlinkSync(
+                `./test.copyFile.${testEnvironment}.compiled.js`
+            )
         })
         test('copyFileSync', ():void => {
-            assert.ok(Tools.copyFileSync(
-                path.resolve('./', path.basename(__filename)),
-                './synctest.compiled.js'
-            ).endsWith('/synctest.compiled.js'))
-            synchronousFileSystem.unlinkSync('./synctest.compiled.js')
+            try {
+                synchronousFileSystem.unlinkSync(
+                    `./test.copyFileSync.${testEnvironment}.compiled.js`
+                )
+            } catch (error) {}
+            expect(Tools.copyFileSync(
+                path.resolve('./test.ts'),
+                `./test.copyFileSync.${testEnvironment}.compiled.js`
+            )).toMatch(new RegExp(
+                `\.\/test\.copyFileSync\.${testEnvironment}\.compiled\.js$`
+            ))
+            synchronousFileSystem.unlinkSync(
+                `./test.copyFileSync.${testEnvironment}.compiled.js`
+            )
         })
         test('isDirectory', async ():Promise<void> => {
-            const done:Function = assert.async()
-            for (const filePath:string of ['./', '../']) {
-                let result:boolean
+            for (const filePath of ['./', '../']) {
+                let result:boolean = false
                 try {
                     result = await Tools.isDirectory(filePath)
                 } catch (error) {
                     console.error(error)
                 }
-                assert.ok(result)
+                expect(result).toStrictEqual(true)
             }
-            for (const filePath:string of [
-                path.resolve('./', path.basename(__filename))
-            ]) {
-                let result:boolean
+            for (const filePath of [path.resolve('./test.ts')]) {
+                let result:boolean = true
                 try {
                     result = await Tools.isDirectory(filePath)
                 } catch (error) {
                     console.error(error)
                 }
-                assert.notOk(result)
+                expect(result).toStrictEqual(false)
             }
-            done()
         })
-        test('isDirectorySync', ():void => {
-            for (const filePath:string of ['./', '../'])
-                assert.ok(Tools.isDirectorySync(filePath))
-            for (const filePath:string of [
-                path.resolve('./', path.basename(__filename))
-            ])
-                assert.notOk(Tools.isDirectorySync(filePath))
-        })
+        testEachSingleParameterAgainstSameExpectation<
+            typeof Tools.isDirectorySync
+        >(
+            'isDirectorySync',
+            Tools.isDirectorySync,
+            true,
+
+            './',
+            '../'
+        )
+        testEachSingleParameterAgainstSameExpectation<
+            typeof Tools.isDirectorySync
+        >(
+            'isDirectorySync',
+            Tools.isDirectorySync,
+            false,
+
+            path.resolve('./test.ts')
+        )
         test('isFile', async ():Promise<void> => {
-            const done:Function = assert.async()
-            for (const filePath:string of [
-                path.resolve('./', path.basename(__filename))
-            ]) {
-                let result:boolean
+            for (const filePath of [path.resolve('./test.ts')]) {
+                let result:boolean = false
                 try {
                     result = await Tools.isFile(filePath)
                 } catch (error) {
                     console.error(error)
                 }
-                assert.ok(result)
+                expect(result).toStrictEqual(true)
             }
-            for (const filePath:string of ['./', '../']) {
-                let result:boolean
+            for (const filePath of ['./', '../']) {
+                let result:boolean = true
                 try {
                     result = await Tools.isFile(filePath)
                 } catch (error) {
                     console.error(error)
                 }
-                assert.notOk(result)
+                expect(result).toStrictEqual(false)
             }
-            done()
         })
-        test('isFileSync', ():void => {
-            for (const filePath:string of [
-                path.resolve('./', path.basename(__filename))
-            ])
-                assert.ok(Tools.isFileSync(filePath))
-            for (const filePath:string of ['./', '../'])
-                assert.notOk(Tools.isFileSync(filePath))
-        })
+        testEachSingleParameterAgainstSameExpectation<typeof Tools.isFileSync>(
+            'isFileSync',
+            Tools.isFileSync,
+            true,
+
+            path.resolve('./test.ts')
+        )
+        testEachSingleParameterAgainstSameExpectation<typeof Tools.isFileSync>(
+            'isFileSync',
+            Tools.isFileSync,
+            false,
+
+            './',
+            '../'
+        )
         test('walkDirectoryRecursively', async ():Promise<void> => {
-            const done:Function = assert.async()
             const filePaths:Array<string> = []
             const callback:Function = (filePath:string):null => {
                 filePaths.push(filePath)
@@ -3287,16 +3299,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             }
             let files:Array<File> = []
             try {
-                files = await Tools.walkDirectoryRecursively(
-                    './', callback)
+                files = await Tools.walkDirectoryRecursively('./', callback)
             } catch (error) {
                 console.error(error)
             }
-            assert.strictEqual(files.length, 1)
-            assert.ok(files[0].hasOwnProperty('path'))
-            assert.ok(files[0].hasOwnProperty('stats'))
-            assert.strictEqual(filePaths.length, 1)
-            done()
+            expect(files).toHaveLength(1)
+            expect(files[0]).toHaveProperty('path')
+            expect(files[0]).toHaveProperty('stats')
+            expect(filePaths).toHaveLength(1)
         })
         test('walkDirectoryRecursivelySync', ():void => {
             const filePaths:Array<string> = []
@@ -3306,30 +3316,32 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             }
             const files:Array<File> =
                 Tools.walkDirectoryRecursivelySync('./', callback)
-            assert.strictEqual(files.length, 1)
-            assert.ok(files[0].hasOwnProperty('path'))
-            assert.ok(files[0].hasOwnProperty('stats'))
-            assert.strictEqual(filePaths.length, 1)
+            expect(files).toHaveLength(1)
+            expect(files[0]).toHaveProperty('path')
+            expect(files[0]).toHaveProperty('stats')
+            expect(filePaths).toHaveLength(1)
         })
     }
     // / endregion
     // / region process handler
     if (TARGET_TECHNOLOGY === 'node') {
         test('getProcessCloseHandler', ():void =>
-            assert.strictEqual(typeof Tools.getProcessCloseHandler(
-                (:ProcessCloseReason):void => {}, (:ProcessError):void => {}
-            ), 'function'))
+            expect(typeof Tools.getProcessCloseHandler(
+                (reason:ProcessCloseReason):void => {},
+                (error:ProcessError):void => {}
+            )).toStrictEqual('function')
+        )
         test('handleChildProcess', ():void => {
             /**
              * A mockup duplex stream for mocking "stdout" and "strderr"
              * process connections.
-             *//*TODO
+             */
             class MockupDuplexStream extends require('stream').Duplex {
                 /**
                  * Triggers if contents from current stream should be red.
                  * @param _size - Number of bytes to read asynchronously.
                  * @returns Red data.
-                 *//*TODO
+                 */
                 _read(_size?:number):void {}
                 /**
                  * Triggers if contents should be written on current stream.
@@ -3339,7 +3351,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                  * data.
                  * @param callback - Will be called if data has been written.
                  * @returns Returns Nothing.
-                 *//*TODO
+                 */
                 _write(
                     chunk:Buffer|string, encoding:string, callback:Function
                 ):void {
@@ -3350,28 +3362,29 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 new MockupDuplexStream()
             const stderrMockupDuplexStream:MockupDuplexStream =
                 new MockupDuplexStream()
-            const childProcess:ChildProcess = new ChildProcess()
+            const childProcess:typeof ChildProcess = new ChildProcess()
             childProcess.stdout = stdoutMockupDuplexStream
             childProcess.stderr = stderrMockupDuplexStream
 
-            assert.strictEqual(
-                Tools.handleChildProcess(childProcess), childProcess)
+            expect(Tools.handleChildProcess(childProcess))
+                .toStrictEqual(childProcess)
         })
     }
     // / endregion
     // endregion
     // region protected
-    if (testEnvironment === 'full')
-        test(`_bindEventHelper (${testEnvironment})`, ():void => {
-            for (const test:Array<any> of [
-                [['body']],
-                [['body'], true],
-                [['body'], false, 'bind']
-            ])
-                assert.ok(tools._bindEventHelper(...test))
-        })
+    if (testEnvironment !== 'node')
+        test.each<Parameters<Tools['_bindEventHelper']>>([
+            [['body']],
+            [['body'], true],
+            [['body'], false, 'bind']
+        ])(
+            `_bindEventHelper('%s', ...) -> is defined (${testEnvironment})`,
+            (...parameters:Parameters<Tools['_bindEventHelper']>):void =>
+                expect(tools._bindEventHelper(...parameters))
+                    .toBeDefined()
+        )
     // endregion
-    */
 })
 // endregion
 // region vim modline

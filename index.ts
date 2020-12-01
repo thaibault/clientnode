@@ -1928,9 +1928,9 @@ export class Tools<TElement = HTMLElement> {
      * @param replacement - String to use as replacement for found patterns.
      * @returns Converted object with replaced patterns.
      */
-    static convertSubstringInPlainObject<T extends Object>(
-        object:T, pattern:RegExp|string, replacement:string
-    ):T {
+    static convertSubstringInPlainObject<Type extends object = PlainObject>(
+        object:Type, pattern:RegExp|string, replacement:string
+    ):Type {
         for (const key in object)
             if (Object.prototype.hasOwnProperty.call(object, key))
                 if (Tools.isPlainObject(object[key]))
@@ -1939,9 +1939,8 @@ export class Tools<TElement = HTMLElement> {
                     )
                 else if (typeof object[key] === 'string')
                     (object[key] as unknown as string) =
-                        (object[key] as unknown as string).replace(
-                            pattern, replacement
-                        )
+                        (object[key] as unknown as string)
+                            .replace(pattern, replacement)
         return object
     }
     /**
@@ -2354,7 +2353,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Evaluated given mapping.
      */
     static evaluateDynamicData<Type = any>(
-        object:RecursiveEvaluateable<Type>,
+        object:null|RecursiveEvaluateable<Type>,
         scope:Mapping<any> = {},
         selfReferenceName:string = 'self',
         expressionIndicatorKey:string = '__evaluate__',
@@ -2748,7 +2747,7 @@ export class Tools<TElement = HTMLElement> {
                         typeof object[key as keyof object] === 'object'
                     )
                         (result[key as keyof object] as object) =
-                            this.maskObject(
+                            Tools.maskObject(
                                 object[key as keyof object],
                                 {include: mask.include[key]}
                             )
@@ -2767,7 +2766,7 @@ export class Tools<TElement = HTMLElement> {
                         typeof result[key as keyof object] === 'object'
                     )
                         (result[key as keyof object] as object) =
-                            this.maskObject(
+                            Tools.maskObject(
                                 result[key as keyof object],
                                 {exclude: mask.exclude[key]}
                             )
@@ -3210,9 +3209,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Summarized array.
      */
     static arrayAggregatePropertyIfEqual(
-        data:Array<Mapping<any>>,
-        propertyName:string,
-        defaultValue:any = ''
+        data:Array<Mapping<any>>, propertyName:string, defaultValue:any = ''
     ):any {
         let result:any = defaultValue
         if (
@@ -3647,7 +3644,9 @@ export class Tools<TElement = HTMLElement> {
      * doesn't exists given list.
      * @returns Item with the appended target.
      */
-    static arrayRemove<T>(list:T, target:any, strict:boolean = false):T {
+    static arrayRemove<T = Array<any>>(
+        list:T, target:any, strict:boolean = false
+    ):T {
         if (Array.isArray(list)) {
             const index:number = list.indexOf(target)
             if (index === -1) {
@@ -3796,13 +3795,15 @@ export class Tools<TElement = HTMLElement> {
      * whitespaces as "+" or "%20".
      * @returns Encoded given url.
      */
-    static stringEncodeURIComponent(url:string, encodeSpaces:boolean):string {
+    static stringEncodeURIComponent(
+        url:string, encodeSpaces:boolean = false
+    ):string {
         return encodeURIComponent(url)
             .replace(/%40/gi, '@')
             .replace(/%3A/gi, ':')
             .replace(/%24/g, '$')
             .replace(/%2C/gi, ',')
-            .replace(/%20/g, (encodeSpaces) ? '%20' : '+')
+            .replace(/%20/g, encodeSpaces ? '%20' : '+')
     }
     /**
      * Appends a path selector to the given path if there isn't one yet.
@@ -3865,14 +3866,14 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Extracts port number from given url. If no explicit port number given
      * and no fallback is defined current port number will be assumed for local
-     * links. For external links 80 will be assumed for http protocol or 443
-     * for https.
+     * links. For external links 80 will be assumed for http protocols and 443
+     * for https protocols.
      * @param url - The url to extract port from.
      * @param fallback - Fallback port number if no explicit one was found.
      * Default is derived from current protocol name.
      * @param parameter - Additional parameter for checking if given url is an
      * internal url. Given url and this parameter will be forwarded to the
-     * "stringIsInternalURL()" method.
+     * "stringServiceURLEquals()" method.
      * @returns Extracted port number.
      */
     static stringGetPortNumber(
@@ -3889,12 +3890,13 @@ export class Tools<TElement = HTMLElement> {
         if (fallback !== null)
             return fallback
         if (
-            Tools.stringIsInternalURL(url, ...parameter) &&
+            // NOTE: Would result in an endless loop:
+            // Tools.stringServiceURLEquals(url, ...parameter) &&
             $.location?.port &&
             parseInt($.location.port, 10)
         )
             return parseInt($.location.port, 10)
-        return (Tools.stringGetProtocolName(url) === 'https') ? 443 : 80
+        return Tools.stringGetProtocolName(url) === 'https' ? 443 : 80
     }
     /**
      * Extracts protocol name from given url. If no explicit url is given,
@@ -3907,9 +3909,10 @@ export class Tools<TElement = HTMLElement> {
      */
     static stringGetProtocolName(
         url:string = $.location?.href || '',
-        fallback:string = $.location?.protocol &&
-        $.location.protocol.substring(0, $.location.protocol.length - 1) ||
-        ''
+        fallback:string =
+            $.location?.protocol &&
+            $.location.protocol.substring(0, $.location.protocol.length - 1) ||
+            ''
     ):string {
         const result:Array<string>|null = /^([a-z]+):\/\//i.exec(url)
         if (result && result.length > 1 && result[1])
@@ -4038,35 +4041,29 @@ export class Tools<TElement = HTMLElement> {
         return parameter
     }
     /**
-     * Checks if given url points to another domain than second given url. If
-     * no second given url provided current url will be assumed.
-     * @param firstURL - URL to check against second url.
-     * @param secondURL - URL to check against first url.
+     * Checks if given url points to another "service" than second given url.
+     * If no second given url provided current url will be assumed.
+     * @param url - URL to check against second url.
+     * @param referenceURL - URL to check against first url.
      * @returns Returns "true" if given first url has same domain as given
      * second (or current).
      */
-    static stringIsInternalURL(
-        firstURL:string,
-        secondURL:string = $.location?.href || ''
+    static stringServiceURLEquals(
+        url:string, referenceURL:string = $.location?.href || ''
     ):boolean {
-        const explicitDomainName:string =
-            Tools.stringGetDomainName(firstURL, '')
-        const explicitProtocolName:string =
-            Tools.stringGetProtocolName(firstURL, '')
-        const explicitPortNumber = Tools.stringGetPortNumber(firstURL)
+        const domain:string = Tools.stringGetDomainName(url, '')
+        const protocol:string = Tools.stringGetProtocolName(url, '')
+        const port:null|number = Tools.stringGetPortNumber(url)
         return (
             (
-                explicitDomainName === '' ||
-                explicitDomainName === Tools.stringGetDomainName(secondURL)
+                domain === '' ||
+                domain === Tools.stringGetDomainName(referenceURL)
             ) &&
             (
-                explicitProtocolName === '' ||
-                explicitProtocolName === Tools.stringGetProtocolName(secondURL)
+                protocol === '' ||
+                protocol === Tools.stringGetProtocolName(referenceURL)
             ) &&
-            (
-                explicitPortNumber === null ||
-                explicitPortNumber === Tools.stringGetPortNumber(secondURL)
-            )
+            (port === null || port === Tools.stringGetPortNumber(referenceURL))
         )
     }
     /**
@@ -4825,7 +4822,7 @@ export class Tools<TElement = HTMLElement> {
      */
     static stringMark(
         target:any,
-        words:any,
+        words?:any,
         normalizer:Function = (value:any):string => `${value}`.toLowerCase(),
         marker:string = '<span class="tools-mark">{1}</span>'
     ):any {
@@ -5211,9 +5208,7 @@ export class Tools<TElement = HTMLElement> {
      * represented as lossless data.
      * @returns Normalized number.
      */
-    static stringNormalizePhoneNumber(
-        value:any, dialable:boolean=true
-    ):string {
+    static stringNormalizePhoneNumber(value:any, dialable = true):string {
         if (typeof value === 'string' || typeof value === 'number') {
             value = `${value}`.trim()
             // Normalize country code prefix.
@@ -5401,7 +5396,7 @@ export class Tools<TElement = HTMLElement> {
      * @param selector - A dom node selector.
      * @returns Returns given selector prefixed.
      */
-    stringNormalizeDomNodeSelector(selector:string):string {
+    stringNormalizeDomNodeSelector = (selector:string):string => {
         let domNodeSelectorPrefix:string = ''
         if (this._options.domNodeSelectorPrefix)
             domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
@@ -5725,12 +5720,12 @@ export class Tools<TElement = HTMLElement> {
      * right after load event.
      * @returns Returns the dynamically created iframe.
      */
-    sendToExternalURL(
+    sendToExternalURL = (
         url:string,
         data:Mapping<any>,
         requestType:string = 'post',
         removeAfterLoad:boolean = true
-    ):$DomNode<HTMLIFrameElement> {
+    ):$DomNode<HTMLIFrameElement> => {
         const $iFrameDomNode:$DomNode<HTMLIFrameElement> =
             $<HTMLIFrameElement>('<iframe>')
                 .attr(
@@ -6190,11 +6185,11 @@ export class Tools<TElement = HTMLElement> {
      * @param eventFunctionName - Name of function to wrap.
      * @returns Returns $'s wrapped dom node.
      */
-    _bindEventHelper<TElement = HTMLElement>(
+    _bindEventHelper = <TElement = HTMLElement>(
         parameter:Array<any>,
         removeEvent:boolean = false,
         eventFunctionName?:string
-    ):$DomNode<TElement> {
+    ):$DomNode<TElement> => {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (!eventFunctionName)
             eventFunctionName = removeEvent ? 'off' : 'on'
