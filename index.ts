@@ -3795,13 +3795,15 @@ export class Tools<TElement = HTMLElement> {
      * whitespaces as "+" or "%20".
      * @returns Encoded given url.
      */
-    static stringEncodeURIComponent(url:string, encodeSpaces:boolean):string {
+    static stringEncodeURIComponent(
+        url:string, encodeSpaces:boolean = false
+    ):string {
         return encodeURIComponent(url)
             .replace(/%40/gi, '@')
             .replace(/%3A/gi, ':')
             .replace(/%24/g, '$')
             .replace(/%2C/gi, ',')
-            .replace(/%20/g, (encodeSpaces) ? '%20' : '+')
+            .replace(/%20/g, encodeSpaces ? '%20' : '+')
     }
     /**
      * Appends a path selector to the given path if there isn't one yet.

@@ -2203,13 +2203,13 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
 
         ['', ''],
         [`that's no regex: \\.\\*\\$`, `that's no regex: .*$`],
-        ['\\-\\\\[\\]\\(\\)\\^\\$\\*\\+\\.}\\-', '-\\[]()^$*+.}-', '}'],
+        ['\\-\\\\[\\]\\(\\)\\^\\$\\*\\+\\.}\\-', '-\\[]()^$*+.}-', ['}']],
         [
             '\\-\\[]()^$*+.{\\}\\-',
             '-\\[]()^$*+.{}-',
             ['[', ']', '(', ')', '^', '$', '*', '+', '.', '{']
         ],
-        ['\\-', '-', '\\']
+        ['\\-', '-', ['\\']]
     )
     testEach<typeof Tools.stringConvertToValidVariableName>(
         'stringConvertToValidVariableName',
@@ -2235,154 +2235,142 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ['@:$,+', '@:$, '],
         ['%2B', '+']
     )
-    // TODO
-    test.each([
-        [[''], ''],
-        [['/'], '/'],
-        [['/a'], '/a/'],
-        [['/a/bb/'], '/a/bb/'],
-        [['/a/bb'], '/a/bb/'],
-        [['/a/bb', '|'], '/a/bb|'],
-        [['/a/bb/', '|'], '/a/bb/|']
-    ])(
-        "stringAddSeparatorToPath(...%p) === '%s'",
-        (parameter:Array<string>, expected:string):void =>
-            expect(Tools.stringAddSeparatorToPath(...parameter))
-                .toStrictEqual(expected)
+    testEach<typeof Tools.stringAddSeparatorToPath>(
+        'stringAddSeparatorToPath',
+        Tools.stringAddSeparatorToPath,
+
+        ['', ''],
+        ['/', '/'],
+        ['/a/', '/a'],
+        ['/a/bb/', '/a/bb/'],
+        ['/a/bb/', '/a/bb'],
+        ['/a/bb|', '/a/bb', '|'],
+        ['/a/bb/|', '/a/bb/', '|']
     )
-    test.each([
+    testEachAgainstSameExpectation<typeof Tools.stringHasPathPrefix>(
+        'stringHasPathPrefix',
+        Tools.stringHasPathPrefix,
+        true,
+
         ['/admin', '/admin'],
         ['test', 'test'],
         ['', ''],
         ['a', 'a/b'],
         ['a/', 'a/b'],
         ['/admin', '/admin#test', '#']
-    ])(
-        'stringHasPathPrefix(...%p) === true',
-        (...parameter:Array<string>):void =>
-            expect(Tools.stringHasPathPrefix(...parameter)).toStrictEqual(true)
     )
-    test.each([
+    testEachAgainstSameExpectation<typeof Tools.stringHasPathPrefix>(
+        'stringHasPathPrefix',
+        Tools.stringHasPathPrefix,
+        false,
+
         ['b', 'a/b'],
         ['b/', 'a/b'],
         ['/admin/', '/admin/test', '#'],
         ['/admin', '/admin/test', '#']
-    ])(
-        'stringHasPathPrefix(...%p) === false',
-        (...parameter:Array<string>):void =>
-            expect(Tools.stringHasPathPrefix(...parameter))
-                .toStrictEqual(false)
     )
-    test.each([
+    testEach<typeof Tools.stringGetDomainName>(
+        'stringGetDomainName',
+        Tools.stringGetDomainName,
+
+        ['www.test.de', 'https://www.test.de/site/subSite?param=value#hash'],
+        [true, 'a', true],
+        ['www.test.de', 'http://www.test.de'],
+        ['a.de', 'http://a.de'],
+        ['localhost', 'http://localhost'],
+        ['a', 'localhost', 'a'],
+        [$.location?.hostname || '', 'a', $.location?.hostname],
+        ['a', '//a'],
         [
-            ['https://www.test.de/site/subSite?param=value#hash'],
-            'www.test.de'
-        ],
-        [['a', true], true],
-        [['http://www.test.de'], 'www.test.de'],
-        [['http://a.de'], 'a.de'],
-        [['http://localhost'], 'localhost'],
-        [['localhost', 'a'], 'a'],
-        [['a', $.location?.hostname], $.location?.hostname || ''],
-        [['//a'], 'a'],
-        [
-            [ 'a/site/subSite?param=value#hash', $.location?.hostname],
-            $.location?.hostname || ''
-        ],
-        [
-            ['/a/site/subSite?param=value#hash', $.location?.hostname],
-            $.location?.hostname || ''
+            $.location?.hostname || '',
+            'a/site/subSite?param=value#hash',
+            $.location?.hostname
         ],
         [
-            ['//alternate.local/a/site/subSite?param=value#hash'],
-            'alternate.local'
+            $.location?.hostname || '',
+            '/a/site/subSite?param=value#hash',
+            $.location?.hostname
         ],
-        [['//alternate.local/'], 'alternate.local']
-    ])(
-        'stringGetDomainName(...%p) === %p',
-        (parameter:Array<any>, expected:any):void =>
-            expect(Tools.stringGetDomainName(...parameter))
-                .toStrictEqual(expected)
+        [
+            'alternate.local',
+            '//alternate.local/a/site/subSite?param=value#hash'
+        ],
+        ['alternate.local', '//alternate.local/']
     )
-    test.each([
-        [['https://www.test.de/site/subSite?param=value#hash'], 443],
-        [['http://www.test.de'], 80],
-        [['http://www.test.de', true], true],
-        [['www.test.de', true], true],
-        [['a', true], true],
-        [['a', true], true],
-        [['a:80'], 80],
-        [['a:20'], 20],
-        [['a:444'], 444],
-        [['http://localhost:89'], 89],
-        [['https://localhost:89'], 89]
-    ])(
-        'stringGetPortNumber(...%p) === %p',
-        (parameter:Array<any>, expected:any):void =>
-            expect(Tools.stringGetPortNumber(...parameter))
-                .toStrictEqual(expected)
+    testEach<typeof Tools.stringGetPortNumber>(
+        'stringGetPortNumber',
+        Tools.stringGetPortNumber,
+
+        [443, 'https://www.test.de/site/subSite?param=value#hash'],
+        [80, 'http://www.test.de'],
+        [0, 'http://www.test.de', 0],
+        [0, 'www.test.de', 0],
+        [0, 'a', 0],
+        [0, 'a', 0],
+        [80, 'a:80'],
+        [20, 'a:20'],
+        [444, 'a:444'],
+        [89, 'http://localhost:89'],
+        [89, 'https://localhost:89']
     )
-    test.each([
-        [['https://www.test.de/site/subSite?param=value#hash'], 'https'],
-        [['http://www.test.de'], 'http'],
+    testEach<typeof Tools.stringGetProtocolName>(
+        'stringGetProtocolName',
+        Tools.stringGetProtocolName,
+
+        ['https', 'https://www.test.de/site/subSite?param=value#hash'],
+        ['http', 'http://www.test.de'],
         [
-            [
-                '//www.test.de',
-                $.location?.protocol
-                    .substring(0, $.location.protocol.length - 1)
-            ],
             $.location?.protocol
                 .substring(0, $.location.protocol.length - 1) ||
-            ''
-        ],
-        [['http://a.de'], 'http'],
-        [['ftp://localhost'], 'ftp'],
-        [
-            [
-                'a',
-                $.location?.protocol
-                    .substring(0, $.location.protocol.length - 1)
-            ],
-            $.location?.protocol
-                .substring(0, $.location.protocol.length - 1) ||
-            ''
-        ],
-        [
-            [
-                'a/site/subSite?param=value#hash',
-                $.location?.protocol
-                    .substring(0, $.location.protocol.length - 1)
-            ],
-            $.location?.protocol
-                .substring(0, $.location.protocol.length - 1) ||
-            ''
-        ],
-        [['/a/site/subSite?param=value#hash', 'a'], 'a'],
-        [['alternate.local/a/site/subSite?param=value#hash', 'b'], 'b'],
-        [['alternate.local/', 'c'], 'c'],
-        [
-            [
                 '',
-                $.location?.protocol
-                    .substring(0, $.location.protocol.length - 1)
-            ],
+            '//www.test.de',
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1)
+        ],
+        ['http', 'http://a.de'],
+        ['ftp', 'ftp://localhost'],
+        [
             $.location?.protocol
                 .substring(0, $.location.protocol.length - 1) ||
-            ''
+            '',
+            'a',
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1)
+
+        ],
+        [
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1) ||
+                '',
+            'a/site/subSite?param=value#hash',
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1)
+
+        ],
+        ['a', '/a/site/subSite?param=value#hash', 'a'],
+        ['b', 'alternate.local/a/site/subSite?param=value#hash', 'b'],
+        ['c', 'alternate.local/', 'c'],
+        [
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1) ||
+                '',
+            '',
+            $.location?.protocol
+                .substring(0, $.location.protocol.length - 1)
         ]
-    ])(
-        "stringGetProtocolName(...%p) === '%s'",
-        (parameter:Array<string>, expected:string):void =>
-            expect(Tools.stringGetProtocolName(...parameter))
-                .toStrictEqual(expected)
     )
-    test.each([[], [null, true, '&'], [null, false, '&'], [null, false, '#']])(
-        'Array.isArray(stringGetURLParameter(...)) === true',
-        (...parameter:Array<any>):void =>
-            expect(Array.isArray(Tools.stringGetURLParameter(...parameter)))
+    test.each<Parameters<typeof Tools.stringGetURLParameter>>([
+        [], [null, true, '&'], [null, false, '&'], [null, false, '#']
+    ])(
+        'Array.isArray(stringGetURLParameter(...%p)) === true',
+        (...parameters:Parameters<typeof Tools.stringGetURLParameter>):void =>
+            expect(Array.isArray(Tools.stringGetURLParameter(...parameters)))
                 .toStrictEqual(true)
     )
-    test.each([
+    testEach<typeof Tools.stringGetURLParameter>(
+        'stringGetURLParameter',
+        Tools.stringGetURLParameter,
+
         [null, 'notExisting'],
         [null, 'notExisting', true],
         [null, 'notExisting', false, '&'],
@@ -2410,18 +2398,22 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ['4', 'test', false, '&', '$', '!', null, '#!test#$test=4'],
         ['4', 'test', false, '&', '$', '!', null, '#!test?test=3#$test=4'],
         [['4'], 'test', true, '&', '$', '!', null, '#!test?test=3#$test=4'],
-        [['2', '4'], 'test', true, '&', '$', '!', null, '#!test?test=3#$test=2&test=4']
-    ])(
-        "%p === stringGetURLParameter('%s', ...)",
-        (
-            expected:Array<string>|null|string,
-            key:string,
-            ...parameter:Array<any>
-        ):void =>
-            expect(Tools.stringGetURLParameter(key, ...parameter)).
-                toStrictEqual(expected)
+        [
+            ['2', '4'],
+            'test',
+            true,
+            '&',
+            '$',
+            '!',
+            null,
+            '#!test?test=3#$test=2&test=4'
+        ]
     )
-    test.each([
+    testEachAgainstSameExpectation<typeof Tools.stringServiceURLEquals>(
+        'stringServiceURLEquals',
+        Tools.stringServiceURLEquals,
+        true,
+
         [
             'https://www.test.de/site/subSite?param=value#hash',
             'https://www.test.de/site/subSite?param=value#hash'
@@ -2451,13 +2443,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ['1', $.location?.href || 'http://localhost'],
         ['#1', $.location?.href || 'http://localhost'],
         ['/a', $.location?.href || 'http://localhost']
-    ])(
-        "stringServiceURLEquals('%s', '%s') === true",
-        (url:string, referenceURL:string):void =>
-            expect(Tools.stringServiceURLEquals(url, referenceURL))
-                .toStrictEqual(true)
     )
-    test.each([
+    testEachAgainstSameExpectation<typeof Tools.stringServiceURLEquals>(
+        'stringServiceURLEquals',
+        Tools.stringServiceURLEquals,
+        false,
+
         [
             `${$.location?.protocol || 'http:'}//www.test.de/site/subSite` +
                 '?param=value#hash',
@@ -2482,37 +2473,32 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 'param=value#hash',
             'https://www.test.de/site/subSite?param=value#hash'
         ]
-    ])(
-        "stringServiceURLEquals('%s', '%s') === false",
-        (url:string, referenceURL:string):void =>
-            expect(Tools.stringServiceURLEquals(url, referenceURL))
-                .toStrictEqual(false)
     )
-    test.each([
-        ['www.test.com', 'http://www.test.com'],
-        ['test', 'http://test'],
+    testEach<typeof Tools.stringNormalizeURL>(
+        'stringNormalizeURL',
+        Tools.stringNormalizeURL,
+
+        ['http://www.test.com', 'www.test.com'],
+        ['http://test', 'test'],
         ['http://test', 'http://test'],
         ['https://test', 'https://test']
-    ])(
-        "stringNormalizeURL('%s') === '%s'",
-        (url:string, normalizedURL:string):void =>
-            expect(Tools.stringNormalizeURL(url)).toStrictEqual(normalizedURL)
     )
-    test.each([
-        ['http://www.test.com', 'www.test.com'],
+    testEach<typeof Tools.stringRepresentURL>(
+        'stringRepresentURL',
+        Tools.stringRepresentURL,
+
+        ['www.test.com', 'http://www.test.com'],
         ['ftp://www.test.com', 'ftp://www.test.com'],
-        ['https://www.test.com', 'www.test.com'],
-        [undefined, ''],
-        [null, ''],
-        [false, ''],
-        [true, ''],
+        ['www.test.com', 'https://www.test.com'],
+        ['', undefined],
+        ['', null],
+        ['', false],
+        ['', true],
         ['', ''],
-        [' ', '']
-    ])(
-        "stringRepresentURL(%p) === '%s'", (value:any, expected:string):void =>
-            expect(Tools.stringRepresentURL(value)).toStrictEqual(expected)
+        ['', ' ']
     )
     // // endregion
+    // TODO
     test.each([
         [['hansPeter'], 'hans-peter'],
         [['hansPeter', '|'], 'hans|peter'],
