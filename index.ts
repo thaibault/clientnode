@@ -4822,7 +4822,7 @@ export class Tools<TElement = HTMLElement> {
      */
     static stringMark(
         target:any,
-        words:any,
+        words?:any,
         normalizer:Function = (value:any):string => `${value}`.toLowerCase(),
         marker:string = '<span class="tools-mark">{1}</span>'
     ):any {
@@ -5208,9 +5208,7 @@ export class Tools<TElement = HTMLElement> {
      * represented as lossless data.
      * @returns Normalized number.
      */
-    static stringNormalizePhoneNumber(
-        value:any, dialable:boolean=true
-    ):string {
+    static stringNormalizePhoneNumber(value:any, dialable = true):string {
         if (typeof value === 'string' || typeof value === 'number') {
             value = `${value}`.trim()
             // Normalize country code prefix.
@@ -5398,7 +5396,7 @@ export class Tools<TElement = HTMLElement> {
      * @param selector - A dom node selector.
      * @returns Returns given selector prefixed.
      */
-    stringNormalizeDomNodeSelector(selector:string):string {
+    stringNormalizeDomNodeSelector = (selector:string):string => {
         let domNodeSelectorPrefix:string = ''
         if (this._options.domNodeSelectorPrefix)
             domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
@@ -5722,12 +5720,12 @@ export class Tools<TElement = HTMLElement> {
      * right after load event.
      * @returns Returns the dynamically created iframe.
      */
-    sendToExternalURL(
+    sendToExternalURL = (
         url:string,
         data:Mapping<any>,
         requestType:string = 'post',
         removeAfterLoad:boolean = true
-    ):$DomNode<HTMLIFrameElement> {
+    ):$DomNode<HTMLIFrameElement> => {
         const $iFrameDomNode:$DomNode<HTMLIFrameElement> =
             $<HTMLIFrameElement>('<iframe>')
                 .attr(
@@ -6187,11 +6185,11 @@ export class Tools<TElement = HTMLElement> {
      * @param eventFunctionName - Name of function to wrap.
      * @returns Returns $'s wrapped dom node.
      */
-    _bindEventHelper<TElement = HTMLElement>(
+    _bindEventHelper = <TElement = HTMLElement>(
         parameter:Array<any>,
         removeEvent:boolean = false,
         eventFunctionName?:string
-    ):$DomNode<TElement> {
+    ):$DomNode<TElement> => {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (!eventFunctionName)
             eventFunctionName = removeEvent ? 'off' : 'on'
