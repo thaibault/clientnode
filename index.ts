@@ -47,6 +47,7 @@ import {
     SetterFunction,
     TimeoutPromise,
     ToolsFunction,
+    ValueOf,
     $DomNode,
     $Function,
     $Global
@@ -1934,9 +1935,12 @@ export class Tools<TElement = HTMLElement> {
         for (const key in object)
             if (Object.prototype.hasOwnProperty.call(object, key))
                 if (Tools.isPlainObject(object[key]))
-                    object[key] = Tools.convertSubstringInPlainObject(
-                        object[key], pattern, replacement
-                    )
+                    object[key as keyof Type] =
+                        Tools.convertSubstringInPlainObject(
+                            object[key as keyof Type] as unknown as object,
+                            pattern,
+                            replacement
+                        ) as unknown as ValueOf<Type>
                 else if (typeof object[key] === 'string')
                     (object[key] as unknown as string) =
                         (object[key] as unknown as string)
@@ -2360,7 +2364,7 @@ export class Tools<TElement = HTMLElement> {
         executionIndicatorKey:string = '__execute__'
     ):Type {
         if (typeof object !== 'object' || object === null)
-            return object
+            return object as unknown as Type
         if (!(selfReferenceName in scope))
             scope[selfReferenceName] = object
         const evaluate:Function = (
