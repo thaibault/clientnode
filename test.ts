@@ -61,9 +61,9 @@ import {
 declare var TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
-let path
+let path:NodeModule
 let removeDirectoryRecursivelySync:Function
-let synchronousFileSystem
+let synchronousFileSystem:NodeModule
 let testEnvironment:string = 'browser'
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     path = require('path')
@@ -694,16 +694,20 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(Tools.isolateScope({a: 2})).toStrictEqual({a: 2})
         expect(Tools.isolateScope({a: 2, b: {a: [1, 2]}}))
             .toStrictEqual({a: 2, b: {a: [1, 2]}})
+
         let Scope:Function = function(this:Mapping<number>):void {
             this.a = 2
         }
         Scope.prototype = {_a: 5, b: 2}
-        let scope:Mapping<number> = new (Scope as (new () => Mapping<number>))()
+        let scope:Mapping<number|undefined> =
+            new (Scope as (new () => Mapping<number>))()
+
         Tools.isolateScope(scope, ['_'])
-        let finalScope:Mapping<number> = {}
+        let finalScope:Mapping<number|undefined> = {}
         for (const name in scope)
             finalScope[name] = scope[name]
         expect(finalScope).toStrictEqual({_a: 5, a: 2, b: undefined})
+
         scope.b = 3
         Tools.isolateScope(scope, ['_'])
         finalScope = {}
@@ -712,9 +716,11 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(finalScope).toStrictEqual({_a: 5, a: 2, b: 3})
         expect(Tools.isolateScope(scope))
             .toStrictEqual({_a: undefined, a: 2, b: 3})
+
         scope._a = 6
         expect(Tools.isolateScope(scope, ['_']))
             .toStrictEqual({_a: 6, a: 2, b: 3})
+
         Scope = function(this:Mapping<number>):void {
             this.a = 2
         }
@@ -726,8 +732,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         for (const name in scope)
             finalScope[name] = scope[name]
         expect(finalScope).toStrictEqual({a: 2, b: 3})
-        expect(Tools.isolateScope(new (Scope as (new () => Mapping<number>))()))
-            .toStrictEqual({a: 2, b: undefined})
+        expect(Tools.isolateScope(
+            new (Scope as (new () => Mapping<number|undefined>))()
+        )).toStrictEqual({a: 2, b: undefined})
     })
     test('determineUniqueScopeName', ():void => {
         expect(Tools.determineUniqueScopeName())
@@ -2594,7 +2601,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expected:string,
             ...parameters:Parameters<typeof Tools.stringCompile>
         ):void =>
-            expect(typeof Tools.stringCompile(...parameters)[1])
+            expect<string>(typeof Tools.stringCompile(...parameters)[1])
                 .toStrictEqual(expected)
     )
     test.each([
@@ -3145,15 +3152,15 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     if (TARGET_TECHNOLOGY !== 'node') {
         test('sendToIFrame', ():void => {
             const $iFrame:$DomNode<HTMLIFrameElement> =
-                $('<iframe>').hide().attr('name', 'test')
+                $<HTMLIFrameElement>('<iframe>').hide().attr('name', 'test')
             $('body').append($iFrame)
             expect(Tools.sendToIFrame(
                 $iFrame, window.document.URL, {test: 5}, 'get', true
-            )).toStrictEqual(true)
+            )).toBeDefined()
         })
         test('sendToExternalURL', ():void =>
             expect(tools.sendToExternalURL(window.document.URL, {test: 5}))
-                .toStrictEqual(true)
+                .toBeDefined()
         )
     }
     // / endregion
@@ -3176,7 +3183,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         })
         test('copyFile', async ():Promise<void> => {
             try {
-                synchronousFileSystem.unlinkSync(
+                (synchronousFileSystem).unlinkSync(
                     `./test.copyFile.${testEnvironment}.compiled.js`
                 )
             } catch (error) {}

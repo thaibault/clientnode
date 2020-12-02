@@ -190,7 +190,7 @@ export class Semaphore {
      * @returns A promise which will be resolved if requested resource
      * is available.
      */
-    acquire():Promise<void> {
+    acquire():Promise<number> {
         return new Promise((resolve:Function):void => {
             if (this.numberOfFreeResources <= 0)
                 this.queue.push(resolve)
