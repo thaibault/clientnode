@@ -2420,9 +2420,9 @@ export class Tools<TElement = HTMLElement> {
                                     executionIndicatorKey
                                 ])
                                     if (key === type)
-                                        return resolve(evaluate(
-                                            target[key], type
-                                        ))
+                                        return resolve(
+                                            evaluate(target[key], type)
+                                        )
                                 const resolvedTarget:any = resolve(target)
                                 if (key === 'toString') {
                                     const result:any = evaluate(resolvedTarget)
