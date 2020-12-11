@@ -66,6 +66,7 @@
     "@types/node": "*",
     "@types/node-fetch": "*",
     "@types/prop-types": "*",
+    "@types/rimraf": "*",
     "@typescript-eslint/eslint-plugin": "*",
     "@typescript-eslint/parser": "*",
     "babel-eslint": "*",
@@ -137,7 +138,10 @@
         }
       }
     },
-    "nodeENV": false,
+    "#": "Do not touch nodes environment variables on static builds to allow \"prop-types\" conditional exports.",
+    "nodeENV": {
+      "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'serve' ? null : false"
+    },
     "target:compatible": {
       "module": {
         "preprocessor": {

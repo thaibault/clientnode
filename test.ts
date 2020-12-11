@@ -34,6 +34,9 @@ try {
     var ChildProcess = eval('require')('child_process').ChildProcess
     /* eslint-enable no-var */
 } catch (error) {}
+import FileSystemType from 'fs'
+import PathType from 'path'
+import RemoveDirectoryRecursivelyType from 'rimraf'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
 
@@ -61,9 +64,9 @@ import {
 declare var TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
-let path:NodeModule
-let removeDirectoryRecursivelySync:Function
-let synchronousFileSystem:NodeModule
+let path:typeof PathType
+let removeDirectoryRecursivelySync:(typeof RemoveDirectoryRecursivelyType)['sync']
+let synchronousFileSystem:typeof FileSystemType
 let testEnvironment:string = 'browser'
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     path = require('path')
@@ -3183,7 +3186,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         })
         test('copyFile', async ():Promise<void> => {
             try {
-                (synchronousFileSystem).unlinkSync(
+                synchronousFileSystem.unlinkSync(
                     `./test.copyFile.${testEnvironment}.compiled.js`
                 )
             } catch (error) {}
