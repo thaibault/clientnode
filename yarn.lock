@@ -1326,9 +1326,9 @@
     form-data "^3.0.0"
 
 "@types/node@*":
-  version "14.14.12"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.12.tgz#0b1d86f8c40141091285dea02e4940df73bba43f"
-  integrity sha512-ASH8OPHMNlkdjrEdmoILmzFfsJICvhBsFfAum4aKZ/9U4B6M6tTmTPh+f3ttWdD74CEGV5XvXWkbyfSdXaTd7g==
+  version "14.14.13"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.13.tgz#9e425079799322113ae8477297ae6ef51b8e0cdf"
+  integrity sha512-vbxr0VZ8exFMMAjCW8rJwaya0dMCDyYW2ZRdTyjtrCvJoENMpdUHOT/eTzvgyA5ZnqRZ/sI0NwqAxNHKYokLJQ==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
@@ -3127,9 +3127,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.620"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.620.tgz#87ec9efe9529eb222877fe23327aa40d2ef48dd1"
-  integrity sha512-saqiKaAwpkZ8MBbAtqW+htE8ujlarOQcYy5lXP2RAVJxlD0WoYiR/wSKe5jPHAhhrZsHFFCduj6NK9tjuW9m1Q==
+  version "3.0.621"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.621.tgz#1a4cf77549c28b8afa131c55f81aa187efec02fa"
+  integrity sha512-ELB61x/7s2QyvBaq4fOKbQxoDkiVF5qX625NHaUtNJmMaaff7xUHYX3AneaA+uL2ZB+NBns7dHPUSmL3iAMOvA==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3730,9 +3730,9 @@ ejs@*:
     jake "^10.6.1"
 
 electron-to-chromium@^1.3.47, electron-to-chromium@^1.3.621:
-  version "1.3.623"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.623.tgz#b61ba1d94b27031554ea2768bb9b823501a918a0"
-  integrity sha512-CgbWTyPmJ4f9pqtqR+HPL3O0ay6BRhnpFD52TqBB2K8kTAcmAar2e93Vo1q651E4vnCHuTDuZDdbj0sTMP2QQw==
+  version "1.3.625"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.625.tgz#a7bd18da4dc732c180b2e95e0e296c0bf22f3bd6"
+  integrity sha512-CsLk/r0C9dAzVPa9QF74HIXduxaucsaRfqiOYvIv2PRhvyC6EOqc/KbpgToQuDVgPf3sNAFZi3iBu4vpGOwGag==
 
 emittery@^0.7.1:
   version "0.7.2"
@@ -4367,9 +4367,9 @@ flatted@^3.1.0:
   integrity sha512-tW+UkmtNg/jv9CSofAKvgVcO7c2URjhTdW1ZTkcAritblu8tajiYy7YisnIflEwtKssCtOxpnBRoCB7iap0/TA==
 
 follow-redirects@^1.0.0:
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.0.tgz#b42e8d93a2a7eea5ed88633676d6597bc8e384db"
-  integrity sha512-aq6gF1BEKje4a9i9+5jimNFIpq4Q1WiwBToeRK5NvZBd/TRsmW8BsJfOEGkr76TbOyPVD3OVDN910EcUNtRYEA==
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.1.tgz#5f69b813376cee4fd0474a3aba835df04ab763b7"
+  integrity sha512-SSG5xmZh1mkPGyKzjZP8zLjltIfpW32Y5QpdNJyjcfGxK3qo3NDDkZOZSFiGn1A6SclQxY9GzEwAHQ3dmYRWpg==
 
 for-in@^1.0.2:
   version "1.0.2"
@@ -8468,9 +8468,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.851"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.851.tgz#3bd9163621bb31e1d4b10c113448873499162da8"
-  integrity sha512-eivOykfoHMLHNOHx9UjJpEyWUe8YwU6fT6g89gAabZ+uKyhCkchrIhMryZNUJ7c5zsNczAmpnVvFQpM1OQJtkQ==
+  version "2.0.852"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.852.tgz#38fc8c71d730b430fa66770ec0656e99e8dea856"
+  integrity sha512-EkpUPIxNgk9hQYszX10EeAxzvLloNG3ihcLDspZeESPvwzYN39O43RVw49hd72SqJlevzxfBUhxyrnoMxNlJhg==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
