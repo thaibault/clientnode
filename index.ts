@@ -2728,7 +2728,9 @@ export class Tools<TElement = HTMLElement> {
      * @returns Given but sliced object. If object (or nested object will be
      * modified a flat copy of that object will be returned.
      */
-    static maskObject(object:object, mask:ObjectMaskConfiguration):object {
+    static maskObject<Type = object>(
+        object:Type, mask:ObjectMaskConfiguration
+    ):Partial<Type> {
         mask = {exclude: false, include: true, ...mask}
         if (
             mask.exclude === true ||
@@ -2736,12 +2738,12 @@ export class Tools<TElement = HTMLElement> {
             typeof object !== 'object'
         )
             return {}
-        let result:object = {}
+        let result:Type = {} as Type
         if (Tools.isPlainObject(mask.include)) {
             for (const key in mask.include)
                 if (
-                    mask.include.hasOwnProperty(key) &&
-                    object.hasOwnProperty(key)
+                    Object.prototype.hasOwnProperty.call(mask.include, key) &&
+                    Object.prototype.hasOwnProperty.call(object, key)
                 )
                     if (mask.include[key] === true)
                         result[key as keyof object] =
@@ -2760,8 +2762,8 @@ export class Tools<TElement = HTMLElement> {
         if (Tools.isPlainObject(mask.exclude))
             for (const key in mask.exclude)
                 if (
-                    mask.exclude.hasOwnProperty(key) &&
-                    result.hasOwnProperty(key)
+                    Object.prototype.hasOwnProperty.call(mask.exclude, key) &&
+                    Object.prototype.hasOwnProperty.call(result, key)
                 )
                     if (mask.exclude[key] === true)
                         delete result[key as keyof object]
