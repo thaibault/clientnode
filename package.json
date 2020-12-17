@@ -67,6 +67,7 @@
     "@types/node-fetch": "*",
     "@types/prop-types": "*",
     "@types/rimraf": "*",
+    "@types/workbox-webpack-plugin": "*",
     "@typescript-eslint/eslint-plugin": "*",
     "@typescript-eslint/parser": "*",
     "babel-eslint": "*",
