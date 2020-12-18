@@ -59,8 +59,9 @@ export const CloseEventNames = [
 export const ConsoleOutputMethods = [
     'debug', 'error', 'info', 'log', 'warn'
 ] as const
-export const ValueCopySymbol = Symbol('Value')
-export const IgnoreNullAndUndefinedSymbol = Symbol('IgnoreNullAndUndefined')
+export const ValueCopySymbol = Symbol.for('clientnodeValue')
+export const IgnoreNullAndUndefinedSymbol =
+    Symbol.for('clientnodeIgnoreNullAndUndefined')
 // region determine environment
 // / region context
 export const determineGlobalContext:(() => $Global) = ():$Global => {

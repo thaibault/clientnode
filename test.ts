@@ -42,9 +42,14 @@ import {InitializedBrowser} from 'weboptimizer/type'
 
 import Tools, {globalContext, Semaphore, ValueCopySymbol, $} from './index'
 import {
+    DefinedSymbol,
     testEach,
+    testEachAgainstSameExpectation,
+    testEachPromise,
+    testEachPromiseAgainstSameExpectation,
+    testEachPromiseRejectionAgainstSameExpection,
     testEachSingleParameterAgainstSameExpectation,
-    testEachAgainstSameExpectation
+    ThrowSymbol
 } from './testHelper'
 import {
     File,
@@ -2201,13 +2206,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [['a', 'b', 'c'], {c: 'b', a: [], b: ['a']}],
         [['a', 'b', 'c'], {b: ['a'], a: [], c: ['a', 'b']}]
     )
-    test.each<FirstParameter<typeof Tools.arraySortTopological>>([
-        {a: 'a'}, {a: 'b', b: 'a'}, {a: 'b', b: 'c', c: 'a'}
-    ])(
-        'arraySortTopological(%p) -> throws Exception',
-        (values:Mapping<any>):void =>
-            expect(():Array<string> => Tools.arraySortTopological(values))
-                .toThrow()
+    testEachSingleParameterAgainstSameExpectation<typeof Tools.arraySortTopological>(
+        'arraySortTopological',
+        Tools.arraySortTopological,
+        ThrowSymbol,
+
+        {a: 'a'},
+        {a: 'b', b: 'a'},
+        {a: 'b', b: 'c', c: 'a'}
     )
     // / endregion
     // / region string
@@ -3124,33 +3130,28 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     )
     // / endregion
     // / region data transfer
-    test.each<Parameters<typeof Tools.checkReachability>>([
+    // TODO test
+    testEachPromiseRejectionAgainstSameExpection<typeof Tools.checkReachability>(
+        'checkReachability',
+        Tools.checkReachability,
+        DefinedSymbol,
+
         ['unknownURL', false],
         ['unknownURL', false, 301],
         ['http://unknownHostName', true, 200, 0.025],
         ['http://unknownHostName', true, [200], 0.025],
         ['http://unknownHostName', true, [200, 301], 0.025]
-    ])(
-        'checkReachability(%p, ...) -> throws',
-        (
-            ...parameters:Parameters<typeof Tools.checkReachability>
-        ):Promise<void> =>
-            expect(Tools.checkReachability(...parameters))
-                .rejects.toBeDefined()
     )
-    test.each<Parameters<typeof Tools.checkUnreachability>>([
+    testEachPromiseAgainstSameExpectation<typeof Tools.checkUnreachability>(
+        'checkUnreachability',
+        Tools.checkUnreachability,
+        DefinedSymbol,
+
         ['unknownURL', false, 10, 0.1, 200],
         ['unknownURL', true, 10, 0.1, 200],
         ['unknownURL', true, 10, 0.1, [200]],
         ['unknownURL', true, 10, 0.1, [200, 301]],
         ['http://unknownHostName', true]
-    ])(
-        'checkUnreachability(%p, ...) -> resolves',
-        (
-            ...parameters:Parameters<typeof Tools.checkUnreachability>
-        ):Promise<void> =>
-            expect(Tools.checkUnreachability(...parameters))
-                .resolves.toBeDefined()
     )
     if (TARGET_TECHNOLOGY !== 'node') {
         test('sendToIFrame', ():void => {
