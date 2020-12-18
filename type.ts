@@ -20,6 +20,7 @@ import JQuery from 'jquery'
 import {Stats} from 'fs'
 
 import Tools from './index'
+import {DefinedSymbol, ThrowSymbol, UndefinedSymbol} from './testHelper'
 // endregion
 // region exports
 export type FirstParameter<FunctionType extends GenericFunction> =
@@ -28,6 +29,11 @@ export type SecondParameter<FunctionType extends GenericFunction> =
     Parameters<FunctionType>[1]
 export type FunctionTestTuple<FunctionType extends GenericFunction> =
     [ReturnType<FunctionType>, ...Parameters<FunctionType>]
+export type TestSymbol =
+    typeof DefinedSymbol|typeof ThrowSymbol|typeof UndefinedSymbol
+export type ThenParameter<Type> = Type extends PromiseLike<infer U> ? U : Type
+export type ThenParameterRecursive<Type> =
+    Type extends PromiseLike<infer U> ? ThenParameterRecursive<U> : Type
 
 export type StaticScope = JQueryStatic
 export type ToolsFunction<TElement = HTMLElement> =
@@ -108,8 +114,8 @@ export type RecursiveEvaluateable<Type> = Evaluateable|{
         )
 }
 export type Primitive = boolean|null|number|string|undefined
-export type PlainObject<T=Primitive> = {
-    [key:string]:Array<PlainObject<T>|T>|PlainObject<T>|T
+export type PlainObject<Type = Primitive> = {
+    [key:string]:Array<PlainObject<Type>|Type>|PlainObject<Type>|Type
 }
 export type GenericFunction = (...parameter:Array<any>) => any
 export type ProcedureFunction = (...parameter:Array<any>) => void|Promise<void>
