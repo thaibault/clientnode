@@ -47,7 +47,7 @@ import {
     testEachAgainstSameExpectation,
     testEachPromise,
     testEachPromiseAgainstSameExpectation,
-    testEachPromiseRejectionAgainstSameExpection,
+    testEachPromiseRejectionAgainstSameExpectation,
     testEachSingleParameterAgainstSameExpectation,
     ThrowSymbol
 } from './testHelper'
@@ -3130,8 +3130,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     )
     // / endregion
     // / region data transfer
-    // TODO test
-    testEachPromiseRejectionAgainstSameExpection<typeof Tools.checkReachability>(
+    testEachPromiseRejectionAgainstSameExpectation<typeof Tools.checkReachability>(
         'checkReachability',
         Tools.checkReachability,
         DefinedSymbol,
@@ -3385,15 +3384,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     // endregion
     // region protected
     if (testEnvironment !== 'node')
-        test.each<Parameters<Tools['_bindEventHelper']>>([
+        testEachAgainstSameExpectation<Tools['_bindEventHelper']>(
+            '_bindEventHelper',
+            tools._bindEventHelper,
+            DefinedSymbol,
+
             [['body']],
             [['body'], true],
             [['body'], false, 'bind']
-        ])(
-            `_bindEventHelper('%s', ...) -> is defined (${testEnvironment})`,
-            (...parameters:Parameters<Tools['_bindEventHelper']>):void =>
-                expect(tools._bindEventHelper(...parameters))
-                    .toBeDefined()
         )
     // endregion
 })

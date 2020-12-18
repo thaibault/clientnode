@@ -116,7 +116,11 @@ export const testEachPromise = <
             ...parameters:Parameters<FunctionType>
         ):Promise<void> =>
             testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
-                expect(callback(...parameters)).resolves, expected, false
+                expect(callback(...parameters)).resolves as
+                    unknown as
+                    jest.JestMatchers<ReturnType<FunctionType>>,
+                expected,
+                false
             ) as Promise<void>
     )
 /**
@@ -144,7 +148,11 @@ export const testEachPromiseRejection = <
             ...parameters:Parameters<FunctionType>
         ):Promise<void> =>
             testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
-                expect(callback(...parameters)).rejects, expected, false
+                expect(callback(...parameters)).rejects as
+                    unknown as
+                    jest.JestMatchers<ReturnType<FunctionType>>,
+                expected,
+                false
             ) as Promise<void>
     )
 /**
@@ -201,7 +209,11 @@ export const testEachSingleParameterAgainstSamePromisedExpectation = <
         `${Tools.represent(expected)} === ${functionName}(%p)`,
         (parameter:FirstParameter<FunctionType>):Promise<void> =>
             testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
-                expect(callback(parameter)).resolves, expected, false
+                expect(callback(parameter)).resolves as
+                    unknown as
+                    jest.JestMatchers<ReturnType<FunctionType>>,
+                    expected,
+                    false
             ) as Promise<void>
     )
 /**
@@ -228,7 +240,11 @@ export const testEachSingleParameterAgainstSameRejectedExpectation = <
         `${Tools.represent(expected)} === ${functionName}(%p)`,
         (parameter:FirstParameter<FunctionType>):Promise<void> =>
             testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
-                expect(callback(parameter)).rejects, expected, false
+                expect(callback(parameter)).rejects as
+                    unknown as
+                    jest.JestMatchers<ReturnType<FunctionType>>,
+                expected,
+                false
             ) as Promise<void>
     )
 /**
@@ -285,7 +301,11 @@ export const testEachPromiseAgainstSameExpectation = <
         `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
         (...parameters:Parameters<FunctionType>):Promise<void> =>
             testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
-                expect(callback(...parameters)).resolves, expected, false
+                expect(callback(...parameters)).resolves as
+                    unknown as
+                    jest.JestMatchers<ReturnType<FunctionType>>,
+                expected,
+                false
             ) as Promise<void>
     )
 /**
@@ -312,7 +332,11 @@ export const testEachPromiseRejectionAgainstSameExpectation = <
         `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
         (...parameters:Parameters<FunctionType>):Promise<void> =>
             testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
-                expect(callback(...parameters)).rejects, expected, false
+                expect(callback(...parameters)).rejects as
+                    unknown as
+                    jest.JestMatchers<ReturnType<FunctionType>>,
+                expected,
+                false
             ) as Promise<void>
     )
 export default testEach
