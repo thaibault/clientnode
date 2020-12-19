@@ -67,6 +67,7 @@ export type $Function =
     }
 export type $Global = typeof globalThis & {
     console:Console
+    dataLayer:Array<PlainObject>
     $:$Function
 }
 export type Encoding =
