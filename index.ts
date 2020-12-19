@@ -1547,8 +1547,8 @@ export class Tools<TElement = HTMLElement> {
      * holds a boolean indicating whether timeout has been canceled or
      * resolved.
      */
-    static timeout(...parameter:Array<any>):TimeoutPromise {
-        let callback:Function = Tools.noop
+    static timeout<Type = Function>(...parameter:Array<any>):TimeoutPromise {
+        let callback:Type = Tools.noop
         let delayInMilliseconds:number = 0
         let throwOnTimeoutClear:boolean = false
         for (const value of parameter)
@@ -1586,20 +1586,18 @@ export class Tools<TElement = HTMLElement> {
             const delay:Function = ():void => {
                 if (numberOfRemainingTimeouts > 0) {
                     numberOfRemainingTimeouts -= 1
-                    result.timeoutID = setTimeout(
-                        delay, maximumTimeoutDelayInMilliseconds
-                    )
+                    result.timeoutID =
+                        setTimeout(delay, maximumTimeoutDelayInMilliseconds)
                 } else
-                    result.timeoutID = setTimeout(
-                        wrappedCallback, finalTimeoutDuration
-                    )
+                    result.timeoutID =
+                        setTimeout(wrappedCallback, finalTimeoutDuration)
             }
             delay()
         }
         result.clear = ():void => {
             if (result.timeoutID) {
-                clearTimeout(result.timeoutID);
-                (throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)
+                clearTimeout(result.timeoutID)
+                ;(throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)
             }
         }
         return result
