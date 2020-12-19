@@ -51,7 +51,7 @@ export interface ProcessError extends Error {
 }
 export interface TimeoutPromise extends Promise<boolean> {
     clear:() => void
-    timeoutID:number
+    timeoutID:NodeJS.Timeout
 }
 // / endregion
 export type HTMLItem = Comment|Document|HTMLElement|Text

@@ -35,6 +35,7 @@ import {
     Options,
     PlainObject,
     Position,
+    ProcedureFunction,
     ProcessCloseCallback,
     ProcessCloseReason,
     ProcessError,
@@ -1547,8 +1548,8 @@ export class Tools<TElement = HTMLElement> {
      * holds a boolean indicating whether timeout has been canceled or
      * resolved.
      */
-    static timeout<Type = Function>(...parameter:Array<any>):TimeoutPromise {
-        let callback:Type = Tools.noop
+    static timeout(...parameter:Array<any>):TimeoutPromise {
+        let callback:Function = Tools.noop
         let delayInMilliseconds:number = 0
         let throwOnTimeoutClear:boolean = false
         for (const value of parameter)
@@ -1566,7 +1567,7 @@ export class Tools<TElement = HTMLElement> {
             rejectCallback = reject
             resolveCallback = resolve
         }) as TimeoutPromise
-        const wrappedCallback:Function = ():void => {
+        const wrappedCallback:ProcedureFunction = ():void => {
             callback.call(result, ...parameter)
             resolveCallback(false)
         }
@@ -1587,7 +1588,9 @@ export class Tools<TElement = HTMLElement> {
                 if (numberOfRemainingTimeouts > 0) {
                     numberOfRemainingTimeouts -= 1
                     result.timeoutID =
-                        setTimeout(delay, maximumTimeoutDelayInMilliseconds)
+                        setTimeout(delay, maximumTimeoutDelayInMilliseconds) as
+                            unknown as
+                            NodeJS.Timeout
                 } else
                     result.timeoutID =
                         setTimeout(wrappedCallback, finalTimeoutDuration)
