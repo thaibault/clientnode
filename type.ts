@@ -51,7 +51,7 @@ export interface ProcessError extends Error {
 }
 export interface TimeoutPromise extends Promise<boolean> {
     clear:() => void
-    timeoutID:number
+    timeoutID:NodeJS.Timeout
 }
 // / endregion
 export type HTMLItem = Comment|Document|HTMLElement|Text
@@ -67,6 +67,7 @@ export type $Function =
     }
 export type $Global = typeof globalThis & {
     console:Console
+    dataLayer:Array<PlainObject>
     $:$Function
 }
 export type Encoding =
@@ -118,7 +119,7 @@ export type PlainObject<Type = Primitive> = {
     [key:string]:Array<PlainObject<Type>|Type>|PlainObject<Type>|Type
 }
 export type GenericFunction = (...parameter:Array<any>) => any
-export type ProcedureFunction = (...parameter:Array<any>) => void|Promise<void>
+export type ProcedureFunction = (...parameter:Array<any>) => Promise<void>|void
 export type GetterFunction = (keyOrValue:any, key:any, target:any) => any
 export type SetterFunction = (key:any, value:any, target:any) => any
 export type Position = {
@@ -137,7 +138,9 @@ export type ProcessErrorCallback = (reason:ProcessError) => void
 export type RelativePosition = 'above'|'below'|'in'|'left'|'right'
 export type DomNodes<Type = string> = {
     hideJavaScriptEnabled:Type
+    parent?:Type
     showJavaScriptEnabled:Type
+    window?:Type
 }
 export type $DomNodes = DomNodes<$DomNode>
 export type Options<Type = string> = {

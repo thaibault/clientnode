@@ -35,6 +35,7 @@ import {
     Options,
     PlainObject,
     Position,
+    ProcedureFunction,
     ProcessCloseCallback,
     ProcessCloseReason,
     ProcessError,
@@ -1566,7 +1567,7 @@ export class Tools<TElement = HTMLElement> {
             rejectCallback = reject
             resolveCallback = resolve
         }) as TimeoutPromise
-        const wrappedCallback:Function = ():void => {
+        const wrappedCallback:ProcedureFunction = ():void => {
             callback.call(result, ...parameter)
             resolveCallback(false)
         }
@@ -1586,20 +1587,20 @@ export class Tools<TElement = HTMLElement> {
             const delay:Function = ():void => {
                 if (numberOfRemainingTimeouts > 0) {
                     numberOfRemainingTimeouts -= 1
-                    result.timeoutID = setTimeout(
-                        delay, maximumTimeoutDelayInMilliseconds
-                    )
+                    result.timeoutID =
+                        setTimeout(delay, maximumTimeoutDelayInMilliseconds) as
+                            unknown as
+                            NodeJS.Timeout
                 } else
-                    result.timeoutID = setTimeout(
-                        wrappedCallback, finalTimeoutDuration
-                    )
+                    result.timeoutID =
+                        setTimeout(wrappedCallback, finalTimeoutDuration)
             }
             delay()
         }
         result.clear = ():void => {
             if (result.timeoutID) {
-                clearTimeout(result.timeoutID);
-                (throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)
+                clearTimeout(result.timeoutID)
+                ;(throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)
             }
         }
         return result
@@ -1611,7 +1612,7 @@ export class Tools<TElement = HTMLElement> {
      * span between each function call. Additional arguments given to this
      * function will be forwarded to given event function call. The function
      * wrapper returns null if current function will be omitted due to
-     * debounceing.
+     * debouncing.
      * @param eventFunction - The function to call debounced.
      * @param thresholdInMilliseconds - The minimum time span between each
      * function call.
@@ -1623,7 +1624,7 @@ export class Tools<TElement = HTMLElement> {
         eventFunction:Function,
         thresholdInMilliseconds:number = 600,
         ...additionalArguments:Array<any>
-    ):Function {
+    ):((...parameter:Array<any>) => null|Promise<boolean>) {
         let lock:boolean = false
         let waitingCallArguments:Array<any>|null = null
         let timer:null|Promise<boolean> = null
