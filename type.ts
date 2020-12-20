@@ -119,7 +119,7 @@ export type PlainObject<Type = Primitive> = {
     [key:string]:Array<PlainObject<Type>|Type>|PlainObject<Type>|Type
 }
 export type GenericFunction = (...parameter:Array<any>) => any
-export type ProcedureFunction = (...parameter:Array<any>) => void|Promise<void>
+export type ProcedureFunction = (...parameter:Array<any>) => Promise<void>|void
 export type GetterFunction = (keyOrValue:any, key:any, target:any) => any
 export type SetterFunction = (key:any, value:any, target:any) => any
 export type Position = {
