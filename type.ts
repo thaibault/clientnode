@@ -138,7 +138,9 @@ export type ProcessErrorCallback = (reason:ProcessError) => void
 export type RelativePosition = 'above'|'below'|'in'|'left'|'right'
 export type DomNodes<Type = string> = {
     hideJavaScriptEnabled:Type
+    parent?:Type
     showJavaScriptEnabled:Type
+    window?:Type
 }
 export type $DomNodes = DomNodes<$DomNode>
 export type Options<Type = string> = {
