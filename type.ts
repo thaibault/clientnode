@@ -34,16 +34,23 @@ export type TestSymbol =
 export type ThenParameter<Type> = Type extends PromiseLike<infer U> ? U : Type
 export type ThenParameterRecursive<Type> =
     Type extends PromiseLike<infer U> ? ThenParameterRecursive<U> : Type
-
-export type StaticScope = JQueryStatic
 export type ToolsFunction<TElement = HTMLElement> =
     ((...parameter:Array<any>) => any|Tools<TElement>) & {class:typeof Tools}
+export type StaticScope =
+    ((parameter:any, ...additionalArguments:Array<any>) => any) &
+    {
+        document?:Document
+        global:$Global
+        location?:Location
+        Tools:ToolsFunction
+    }
 // / region interfaces
 export interface Scope<TElement = HTMLElement> extends Iterable<TElement> {
     Tools:ToolsFunction<TElement>
 }
 declare global {
     interface JQuery<TElement = HTMLElement> extends Scope<TElement> {}
+    interface JQueryStatic extends StaticScope {}
 }
 export interface ProcessError extends Error {
     parameter:Array<any>
@@ -56,15 +63,7 @@ export interface TimeoutPromise extends Promise<boolean> {
 // / endregion
 export type HTMLItem = Comment|Document|HTMLElement|Text
 export type $DomNode<TElement = HTMLElement> = JQuery<TElement>
-export type $Function =
-    StaticScope &
-    ((parameter:any, ...additionalArguments:Array<any>) => any) &
-    {
-        document?:Document
-        global:$Global
-        location?:Location
-        Tools:ToolsFunction
-    }
+export type $Function = JQueryStatic & StaticScope
 export type $Global = typeof globalThis & {
     console:Console
     dataLayer:Array<PlainObject>
