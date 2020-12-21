@@ -478,7 +478,7 @@ export class Tools<TElement = HTMLElement> {
      */
     initialize(
         options:object = {}
-    ):Promise<$DomNode<TElement>>|Tools<TElement> {
+    ):Promise<$DomNode<TElement>>|Promise<Tools>|Tools<TElement>|Tools {
         /*
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
