@@ -4150,7 +4150,7 @@ export class Tools<TElement = HTMLElement> {
      */
     static stringCapitalize(string:string):string {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        return string.charAt(0).toUpperCase() + string.substring(1)
+        return 'TODO 1' + string.charAt(0).toUpperCase() + string.substring(1)
     }
     /**
      * Compresses given style attribute value.
