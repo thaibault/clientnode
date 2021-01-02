@@ -163,7 +163,6 @@ export const determine$:(() => $Function) = ():$Function => {
 export let $:$Function = determine$()
 // / endregion
 // endregion
-console.log('TODO 2')
 // region plugins/classes
 /**
  * Represents the semaphore state.
