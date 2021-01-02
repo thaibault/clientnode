@@ -86,8 +86,15 @@ export const setGlobalContext = (context:$Global):void => {
 }
 // Make preprocessed require function available at runtime.
 declare const __non_webpack_require__:typeof require
-export const currentRequire = typeof __non_webpack_require__ === 'function' ?
-    __non_webpack_require__ :
+export const currentRequire =
+    /*
+        NOTE: This results in an webpack error when post processing this
+        compiled pendant in another webpack context.
+    */
+    /*
+        typeof __non_webpack_require__ === 'function' ?
+            __non_webpack_require__ :
+    */
     eval(`typeof require === 'undefined' ? null : require`)
 export const optionalRequire = (...parameter:Array<any>):any|null => {
     try {
