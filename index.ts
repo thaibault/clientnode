@@ -2595,7 +2595,7 @@ export class Tools<TElement = HTMLElement> {
         const mergeValue = (targetValue:any, value:any):any => {
             if (value === targetValue)
                 return targetValue
-            // Recurse if we're merging plain objects or maps.
+            // Traverse recursively if we're merging plain objects or maps.
             if (
                 deep &&
                 value &&
