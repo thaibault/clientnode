@@ -29,6 +29,10 @@ export type SecondParameter<FunctionType extends GenericFunction> =
     Parameters<FunctionType>[1]
 export type FunctionTestTuple<FunctionType extends GenericFunction> =
     [ReturnType<FunctionType>, ...Parameters<FunctionType>]
+export type FunctionTestPromiseTuple<FunctionType extends GenericFunction> =
+    [ThenParameter<ReturnType<FunctionType>>, ...Parameters<FunctionType>]
+export type FunctionTestPromiseRejectionTuple<FunctionType extends GenericFunction> =
+    [Error, ...Parameters<FunctionType>]
 export type TestSymbol =
     typeof DefinedSymbol|typeof ThrowSymbol|typeof UndefinedSymbol
 export type ThenParameter<Type> = Type extends PromiseLike<infer U> ? U : Type
