@@ -80,6 +80,7 @@ export type File = {
 }
 export type Mapping<T=string> = {[key:string]:T}
 export type Noop = (...parameter:Array<any>) => any
+// NOTE: Mapping cannot be used here to avoid circular references.
 export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
 export type ObjectMaskConfiguration = {
     exclude?:ObjectMask
@@ -114,6 +115,7 @@ export type RecursiveEvaluateable<Type> = Evaluateable|{
         )
 }
 export type Primitive = boolean|null|number|string|undefined
+// NOTE: Mapping cannot be used here to avoid circular references.
 export type PlainObject<Type = Primitive> = {
     [key:string]:Array<PlainObject<Type>|Type>|PlainObject<Type>|Type
 }

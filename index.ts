@@ -45,6 +45,7 @@ import {
     RecursiveEvaluateable,
     RecursivePartial,
     RelativePosition,
+    SecondParameter,
     SetterFunction,
     TimeoutPromise,
     ToolsFunction,
@@ -2594,7 +2595,7 @@ export class Tools<TElement = HTMLElement> {
         const mergeValue = (targetValue:any, value:any):any => {
             if (value === targetValue)
                 return targetValue
-            // Recurse if we're merging plain objects or maps.
+            // Traverse recursively if we're merging plain objects or maps.
             if (
                 deep &&
                 value &&
@@ -6006,7 +6007,7 @@ export class Tools<TElement = HTMLElement> {
     static async walkDirectoryRecursively(
         directoryPath:string,
         callback:Function = Tools.noop,
-        options:PlainObject|string = 'utf8'
+        options:SecondParameter<typeof fileSystem.readdir> = 'utf8'
     ):Promise<Array<File>> {
         const files:Array<File> = []
         // TODO use (everywhere) direct with "withFileTypes" option.
