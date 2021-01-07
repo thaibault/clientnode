@@ -25,11 +25,13 @@
             expect(FUNCTION(...parameters)).toStrictEqual(expected)
     )
 */
-// region imports
+// region imports 
 import Tools from './index'
 import {
     FirstParameter,
     FunctionTestTuple,
+    FunctionTestPromiseTuple,
+    FunctionTestPromiseRejectionTuple,
     GenericFunction,
     TestSymbol,
     ThenParameter
@@ -107,9 +109,9 @@ export const testEachPromise = <
 >(
     functionName:string,
     callback:FunctionType,
-    ...functionTestTuple:Array<FunctionTestTuple<FunctionType>>
+    ...functionTestTuple:Array<FunctionTestPromiseTuple<FunctionType>>
 ):void =>
-    test.each<FunctionTestTuple<FunctionType>>([...functionTestTuple])(
+    test.each<FunctionTestPromiseTuple<FunctionType>>([...functionTestTuple])(
         `%p === ${functionName}(%p, ...)`,
         (
             expected:TestSymbol|ThenParameter<ReturnType<FunctionType>>,
@@ -118,7 +120,7 @@ export const testEachPromise = <
             testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
                 expect(callback(...parameters)).resolves as
                     unknown as
-                    jest.JestMatchers<ReturnType<FunctionType>>,
+                    jest.JestMatchers<ThenParameter<ReturnType<FunctionType>>>,
                 expected,
                 false
             ) as Promise<void>
@@ -139,18 +141,19 @@ export const testEachPromiseRejection = <
 >(
     functionName:string,
     callback:FunctionType,
-    ...functionTestTuple:Array<FunctionTestTuple<FunctionType>>
+    ...functionTestTuple:Array<FunctionTestPromiseRejectionTuple<FunctionType>>
 ):void =>
-    test.each<FunctionTestTuple<FunctionType>>([...functionTestTuple])(
+    test.each<FunctionTestPromiseRejectionTuple<FunctionType>>(
+        [...functionTestTuple]
+    )(
         `%p === ${functionName}(%p, ...)`,
         (
-            expected:TestSymbol|ThenParameter<ReturnType<FunctionType>>,
-            ...parameters:Parameters<FunctionType>
+            expected:Error|TestSymbol, ...parameters:Parameters<FunctionType>
         ):Promise<void> =>
-            testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
+            testExpectedType<Error>(
                 expect(callback(...parameters)).rejects as
                     unknown as
-                    jest.JestMatchers<ReturnType<FunctionType>>,
+                    jest.JestMatchers<Error>,
                 expected,
                 false
             ) as Promise<void>
@@ -211,7 +214,7 @@ export const testEachSingleParameterAgainstSamePromisedExpectation = <
             testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
                 expect(callback(parameter)).resolves as
                     unknown as
-                    jest.JestMatchers<ReturnType<FunctionType>>,
+                    jest.JestMatchers<ThenParameter<ReturnType<FunctionType>>>,
                     expected,
                     false
             ) as Promise<void>
@@ -233,16 +236,16 @@ export const testEachSingleParameterAgainstSameRejectedExpectation = <
 >(
     functionName:string,
     callback:FunctionType,
-    expected:TestSymbol|ThenParameter<ReturnType<FunctionType>>,
+    expected:Error|TestSymbol,
     ...parameters:Array<FirstParameter<FunctionType>>
 ):void =>
     test.each<FirstParameter<FunctionType>>([...parameters])(
         `${Tools.represent(expected)} === ${functionName}(%p)`,
         (parameter:FirstParameter<FunctionType>):Promise<void> =>
-            testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
+            testExpectedType<Error>(
                 expect(callback(parameter)).rejects as
                     unknown as
-                    jest.JestMatchers<ReturnType<FunctionType>>,
+                    jest.JestMatchers<Error>,
                 expected,
                 false
             ) as Promise<void>
@@ -303,7 +306,7 @@ export const testEachPromiseAgainstSameExpectation = <
             testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
                 expect(callback(...parameters)).resolves as
                     unknown as
-                    jest.JestMatchers<ReturnType<FunctionType>>,
+                    jest.JestMatchers<ThenParameter<ReturnType<FunctionType>>>,
                 expected,
                 false
             ) as Promise<void>
@@ -325,16 +328,16 @@ export const testEachPromiseRejectionAgainstSameExpectation = <
 >(
     functionName:string,
     callback:FunctionType,
-    expected:TestSymbol|ThenParameter<ReturnType<FunctionType>>,
+    expected:Error|TestSymbol,
     ...functionParameters:Array<Parameters<FunctionType>>
 ):void =>
     test.each<Parameters<FunctionType>>([...functionParameters])(
         `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
         (...parameters:Parameters<FunctionType>):Promise<void> =>
-            testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
+            testExpectedType<Error>(
                 expect(callback(...parameters)).rejects as
                     unknown as
-                    jest.JestMatchers<ReturnType<FunctionType>>,
+                    jest.JestMatchers<Error>,
                 expected,
                 false
             ) as Promise<void>
