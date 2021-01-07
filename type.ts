@@ -80,7 +80,7 @@ export type File = {
 }
 export type Mapping<T=string> = {[key:string]:T}
 export type Noop = (...parameter:Array<any>) => any
-export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
+export type ObjectMask = boolean|Mapping<boolean|ObjectMask>
 export type ObjectMaskConfiguration = {
     exclude?:ObjectMask
     include?:ObjectMask
@@ -114,9 +114,7 @@ export type RecursiveEvaluateable<Type> = Evaluateable|{
         )
 }
 export type Primitive = boolean|null|number|string|undefined
-export type PlainObject<Type = Primitive> = {
-    [key:string]:Array<PlainObject<Type>|Type>|PlainObject<Type>|Type
-}
+export type PlainObject<Type = Primitive> = Mapping<Array<PlainObject<Type>|Type>|PlainObject<Type>|Type>
 export type GenericFunction = (...parameter:Array<any>) => any
 export type ProcedureFunction = (...parameter:Array<any>) => Promise<void>|void
 export type GetterFunction = (keyOrValue:any, key:any, target:any) => any
