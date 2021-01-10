@@ -4011,7 +4011,7 @@ export class Tools<TElement = HTMLElement> {
             }
         } else if (input.startsWith('?'))
             input = input.substring('?'.length)
-        let data:Array<string> = (input) ? input.split('&') : []
+        let data:Array<string> = input ? input.split('&') : []
         search = search.substring('?'.length)
         if (both && search)
             data = data.concat(search.split('&'))
