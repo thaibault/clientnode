@@ -3124,9 +3124,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.648"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.648.tgz#68ae5358275b5b9f73e102b833828b5cddb30cfd"
-  integrity sha512-sDa1CTRE/MAHmV7tNo3GQcdgdS1+qj+chv0A+97zqMzJ2dJdCC3kWGwyVkcw586337af9ZvdiNRhVbGdJvLNYA==
+  version "3.0.649"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.649.tgz#399e33624798be46a2de6b193edf4fe55fc26588"
+  integrity sha512-f0coJQkTW83GX6iqjuNshz1fvq10Wxnnr6ttJtexhX1riOlVMt3l74rl22MsJpqQd1lOvXpZu8JjZ9pFCWeq/A==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -8438,9 +8438,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.877"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.877.tgz#d1f630d244615251f42ca7f5716a4dbe01559374"
-  integrity sha512-KZEqGpWiIgSrdhH/SHBwFc1HkyzPtZfpIbd47XnUU3eabKFHaf2eAML1YyP/jvXYCRotxRsa18ZzG9OnovBphQ==
+  version "2.0.879"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.879.tgz#5497b96adea701668a1ed3babeaf335a05047ed4"
+  integrity sha512-oti15PvrOfg7B9OCpHcVON4jiH1LSKRf9LKwBjNrXBacTXlU+poKDLmEJR+rqIicBD1tb8cu3bVgVUw4qK67hQ==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
@@ -8503,9 +8503,9 @@ webpack-dev-middleware@^3.7.2:
     webpack-log "^2.0.0"
 
 webpack-dev-server@*:
-  version "3.11.1"
-  resolved "https://registry.yarnpkg.com/webpack-dev-server/-/webpack-dev-server-3.11.1.tgz#c74028bf5ba8885aaf230e48a20e8936ab8511f0"
-  integrity sha512-u4R3mRzZkbxQVa+MBWi2uVpB5W59H3ekZAJsQlKUTdl7Elcah2EhygTPLmeFXybQkf9i2+L0kn7ik9SnXa6ihQ==
+  version "3.11.2"
+  resolved "https://registry.yarnpkg.com/webpack-dev-server/-/webpack-dev-server-3.11.2.tgz#695ebced76a4929f0d5de7fd73fafe185fe33708"
+  integrity sha512-A80BkuHRQfCiNtGBS1EMf2ChTUs0x+B3wGDFmOeT4rmJOHhHTCH2naNxIHhmkr0/UillP4U3yeIyv1pNp+QDLQ==
   dependencies:
     ansi-html "0.0.7"
     bonjour "^3.5.0"
