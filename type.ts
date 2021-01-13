@@ -161,6 +161,7 @@ export type ProxyHandler = {
     has:(target:any, key:string) => boolean
     set:(target:any, key:string, value:any) => boolean
 }
+export type TemplateFunction = (...parameter:Array<any>) => string
 export type EvaluationResult = {
     compileError:null|string
     error:null|string

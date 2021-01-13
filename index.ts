@@ -47,6 +47,7 @@ import {
     RelativePosition,
     SecondParameter,
     SetterFunction,
+    TemplateFunction,
     TimeoutPromise,
     ToolsFunction,
     ValueOf,
@@ -4260,7 +4261,7 @@ export class Tools<TElement = HTMLElement> {
      */
     static stringCompile(
         expression:string, scope:any = [], execute:boolean = false
-    ):[Array<string>, Function|string] {
+    ):[Array<string>, string|TemplateFunction] {
         if (
             Tools.maximalSupportedInternetExplorerVersion !== 0 &&
             expression.startsWith('`') &&
@@ -4291,7 +4292,7 @@ export class Tools<TElement = HTMLElement> {
                 scopeNames,
                 new Function(
                     ...scopeNames, `${execute ? '' : 'return '}${expression}`
-                )
+                ) as TemplateFunction
             ]
         } catch (error) {
             return [
