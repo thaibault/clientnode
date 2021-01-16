@@ -4269,7 +4269,7 @@ export class Tools<TElement = HTMLElement> {
         ) {
             expression = expression
                 // Handle avoidable template expression: Use raw code.
-                .replace(/^`\$\{(.+)\}`$/, 'String($1)')
+                .replace(/^`\$\{([\s\S]+)\}`$/, 'String($1)')
                 // Use plain string with single quotes.
                 .replace(/^`([^']+)`$/, "'$1'")
                 // Use plain string with double quotes.
