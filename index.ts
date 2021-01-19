@@ -3490,10 +3490,14 @@ export class Tools<TElement = HTMLElement> {
      * positive and will be contained in the resulting array. If more than two
      * numbers are provided given range will be returned.
      * @param step - Space between two consecutive values.
+     * @param ignoreLastStep - Removes last step (useful for pagination
+     * indexes.
      * @returns Produced array of integers.
      */
     static arrayMakeRange(
-        range:number|[number]|[number, number]|Array<number>, step:number = 1
+        range:number|[number]|[number, number]|Array<number>,
+        step:number = 1,
+        ignoreLastStep:boolean = false
     ):Array<number> {
         range = ([] as Array<number>).concat(range)
         let index:number
@@ -3509,7 +3513,8 @@ export class Tools<TElement = HTMLElement> {
         const result = [index]
         while (index <= higherBound - step) {
             index += step
-            result.push(index)
+            if (!ignoreLastStep || index <= higherBound - step)
+                result.push(index)
         }
         return result
     }

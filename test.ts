@@ -2066,7 +2066,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[0], [0]],
         [[0, 1, 2, 3, 4, 5], [5]],
         [[2, 3, 4, 5], [2, 5]],
-        [[2, 4, 6, 8, 10], [2, 10], 2]
+        [[2, 4, 6, 8, 10], [2, 10], 2],
+        [[2, 4, 6, 8], [2, 10], 2, true]
     )
     testEach<typeof Tools.arrayMerge>(
         'arrayMerge',
