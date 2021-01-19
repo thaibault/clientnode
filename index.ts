@@ -3487,11 +3487,19 @@ export class Tools<TElement = HTMLElement> {
      * Creates a list of items within given range.
      * @param range - Array of lower and upper bounds. If only one value is
      * given lower bound will be assumed to be zero. Both integers have to be
-     * positive and will be contained in the resulting array.
+     * positive and will be contained in the resulting array. If more than two
+     * numbers are provided given range will be returned.
      * @param step - Space between two consecutive values.
+     * @param ignoreLastStep - Removes last step (useful for pagination
+     * indexes.
      * @returns Produced array of integers.
      */
-    static arrayMakeRange(range:Array<number>, step:number = 1):Array<number> {
+    static arrayMakeRange(
+        range:number|[number]|[number, number]|Array<number>,
+        step:number = 1,
+        ignoreLastStep:boolean = false
+    ):Array<number> {
+        range = ([] as Array<number>).concat(range)
         let index:number
         let higherBound:number
         if (range.length === 1) {
@@ -3505,7 +3513,8 @@ export class Tools<TElement = HTMLElement> {
         const result = [index]
         while (index <= higherBound - step) {
             index += step
-            result.push(index)
+            if (!ignoreLastStep || index <= higherBound - step)
+                result.push(index)
         }
         return result
     }
