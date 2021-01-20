@@ -2684,7 +2684,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             `
                 function anonymous(
                 ) {
-                return ""
+                return ''+'                \\'+(loading ?'+'                    \\'<div class="idle">loading...</div>\\' :'+'                    results.map(function(result) {'+'                        return (\\'<ul>\\' +'+'                            \\'<li>\\' +'+'                                Object.keys(result)'+'                                    .filter(function(name) {'+'                                        return [\\'number\\', \\'string\\']'+'                                            .includes(typeof result[name])'+'                                    })'+'                                    .join(\\'\\') +'+'                            \\'</li>\\' +'+'                        \\'</ul>\\')'+'                    }).join(\\'\\')'+'                )+\\''+'            '
                 }
             `,
             `\`
