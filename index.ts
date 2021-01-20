@@ -4283,12 +4283,22 @@ export class Tools<TElement = HTMLElement> {
                 .replace(/^`([^']+)`$/, "'$1'")
                 // Use plain string with double quotes.
                 .replace(/^`([^"]+)`$/, '"$1"')
-                // Replace new lines with corresponding escape sequence.
-                .replace(/\\n/g, '\\n')
+                // Use plain string with single quotes escaped inline.
+                .replace(
+                    /^`([\s\S]+)`$/, (match:string, middle:string):string =>
+                        "'" +
+                        middle
+                            .replace(/'/g, "\\'")
+                            .replace(/(\n)/g, "'+$1'") +
+                        "'"
+                )
+                // Remove remaining newlines.
+                .replace(/\n+/g, '\\n')
             const quote:string = expression.charAt(0)
             // Replace simple placeholder.
+            // NOTE: Replace complete bracket pairs.
             expression =
-                expression.replace(/\$\{([^}]+)\}/g, `${quote}+($1)+${quote}`)
+                expression.replace(/\$\{((([^{]*{.*}[^}]*})|[^{}]+)+)\}/g, `${quote}+($1)+${quote}`)
         }
         const scopeNames:Array<string> = (Array.isArray(scope) ?
             scope :
