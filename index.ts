@@ -4276,6 +4276,7 @@ export class Tools<TElement = HTMLElement> {
             expression.startsWith('`') &&
             expression.endsWith('`')
         ) {
+            // Convert template string into legacy string concatenations.
             expression = expression
                 // Handle avoidable template expression: Use raw code.
                 .replace(/^`\$\{([\s\S]+)\}`$/, 'String($1)')
@@ -4283,12 +4284,26 @@ export class Tools<TElement = HTMLElement> {
                 .replace(/^`([^']+)`$/, "'$1'")
                 // Use plain string with double quotes.
                 .replace(/^`([^"]+)`$/, '"$1"')
-                // Replace new lines with corresponding escape sequence.
-                .replace(/\\n/g, '\\n')
-            const quote:string = expression.charAt(0)
-            // Replace simple placeholder.
-            expression =
-                expression.replace(/\$\{([^}]+)\}/g, `${quote}+($1)+${quote}`)
+            const quote:string =
+                expression.charAt(0) === '`' ? "'" : expression.charAt(0)
+            expression = expression
+                // Replace simple placeholder.
+                // NOTE: Replace complete bracket pairs.
+                .replace(
+                    /\$\{((([^{]*{[^}]*}[^}]*})|[^{}]+)+)\}/g,
+                    `${quote}+($1)+${quote}`
+                )
+                // Use plain string with single quotes escaped inline.
+                .replace(
+                    /^`([\s\S]+)`$/, (match:string, middle:string):string =>
+                        "'" +
+                        middle
+                            .replace(/'/g, "\\'")
+                            .replace(/(\n)/g, "'+$1'") +
+                        "'"
+                )
+                // Remove remaining newlines.
+                .replace(/\n+/g, '')
         }
         const scopeNames:Array<string> = (Array.isArray(scope) ?
             scope :
