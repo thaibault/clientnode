@@ -2710,19 +2710,19 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             `
                 function anonymous(
                 ) {
-                return '[: \'+(a ? \'<div class="idle">loading...</div>\' : results.join(\'\'))+\' :]'
+                return '[: '+(a ? '<div class="idle">loading...</div>' : results.join(''))+' :]'
                 }
             `,
             `\`[: \${a ? '<div class="idle">loading...</div>' : results.join('')} :]\``
-        ]/*TODO,
+        ],
         [
             `
                 function anonymous(
                 ) {
-                return ''+'        \\'+(loading ?'+'            \\'<div class="idle">loading...</div>\\' :'+'            results.map(function(result) {'+'                return (\\'<ul>\\' +'+'                    \\'<li>\\' +'+'                        Object.keys(result)'+'                            .filter(function(name) {'+'                                return [\\'number\\', \\'string\\']'+'                                    .includes(typeof result[name])'+'                            })'+'                            .join(\\'\\') +'+'                    \\'</li>\\' +'+'                \\'</ul>\\')'+'            }).join(\\'\\')'+'        )+\\''+'    '
+                return ' '+(loading ?                '<div class="idle">loading...</div>' :                results.map(function(result) {                    return ('<ul>' +                        '<li>' +                            Object.keys(result)                                .filter(function(name) {                                    return ['number', 'string']                                        .includes(typeof result[name])                                })                                .join('') +                        '</li>' +                    '</ul>')                }).join('')            )+''
                 }
             `,
-            `\`\${loading ?
+            `\` \${loading ?
                 '<div class="idle">loading...</div>' :
                 results.map(function(result) {
                     return ('<ul>' +
@@ -2737,9 +2737,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                     '</ul>')
                 }).join('')
             }\``.replace('\n', '')
-        ]*/
+        ]
     ])(
-        'IE 11: String(stringCompile("%s")[1]) === "%s"',
+        'IE 11: "%s" === String(stringCompile("%s")[1])',
         (
             expected:string,
             expression:FirstParameter<typeof Tools.stringCompile>
@@ -2756,23 +2756,21 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         }
     )
 
-    const advancedTemplateEvaluationExample:string = `\`
-        \${loading ?
-            '<div class="idle">loading...</div>' :
-            results.map(function(result) {
-                return ('<ul>' +
-                    '<li>' +
-                        Object.keys(result)
-                            .filter(function(name) {
-                                return ['number', 'string']
-                                    .includes(typeof result[name])
-                            })
-                            .join('') +
-                    '</li>' +
-                '</ul>')
-            }).join('')
-        }
-    \``
+    const advancedTemplateEvaluationExample:string = `\`\${loading ?
+        '<div class="idle">loading...</div>' :
+        results.map(function(result) {
+            return ('<ul>' +
+                '<li>' +
+                    Object.keys(result)
+                        .filter(function(name) {
+                            return ['number', 'string']
+                                .includes(typeof result[name])
+                        })
+                        .join('') +
+                '</li>' +
+            '</ul>')
+        }).join('')
+    }\``.replace('\n', '')
     test.each([
         ['null', {}, 'result', null],
         ['5', {}, 'result', 5],
@@ -2825,7 +2823,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 else
                     expect(evaluation[resultKey]).toStrictEqual(result)
         }
-    )/*TODO
+    )
     test.each([
         [
             advancedTemplateEvaluationExample,
@@ -2849,7 +2847,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expression:string,
             scope:any,
             resultKey:string,
-            result:any = undefined,
+            expected:any = undefined,
             binding:any = undefined
         ):void => {
             const backup:number = Tools.maximalSupportedInternetExplorerVersion
@@ -2863,19 +2861,20 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 ...[].concat(binding === undefined ? [] : binding)
             )
             expect(evaluation).toHaveProperty(resultKey)
-            if (result !== undefined)
+            if (expected !== undefined)
                 if (
                     resultKey === 'result' &&
                     typeof evaluation[resultKey] === 'string'
                 )
-                    expect(evaluation[resultKey].trim()).toStrictEqual(result)
+                    expect(evaluation[resultKey].trim())
+                        .toStrictEqual(expected)
                 else
-                    expect(evaluation[resultKey]).toStrictEqual(result)
+                    expect(evaluation[resultKey]).toStrictEqual(expected)
 
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
                 .maximalSupportedInternetExplorerVersion = backup
         }
-    )*/
+    )
 
     testEach<typeof Tools.stringFindNormalizedMatchRange>(
         'stringFindNormalizedMatchRange',
