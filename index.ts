@@ -4276,8 +4276,11 @@ export class Tools<TElement = HTMLElement> {
             expression.startsWith('`') &&
             expression.endsWith('`')
         ) {
+            const escapeMarker:string = '####'
             // Convert template string into legacy string concatenations.
             expression = expression
+                // Mark simple escape sequences.
+                .replace(/\\\$/g, escapeMarker)
                 // Handle avoidable template expression: Use raw code.
                 .replace(/^`\$\{([\s\S]+)\}`$/, 'String($1)')
                 // Use plain string with single quotes.
@@ -4297,6 +4300,8 @@ export class Tools<TElement = HTMLElement> {
                 .replace(/^`([\s\S]+)`$/, `${quote}$1${quote}`)
                 // Remove remaining newlines.
                 .replace(/\n+/g, '')
+                // Replace marked escape sequences.
+                .replace(new RegExp(escapeMarker, 'g'), '\\$')
         }
         const scopeNames:Array<string> = (Array.isArray(scope) ?
             scope :

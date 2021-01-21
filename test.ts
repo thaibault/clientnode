@@ -2616,30 +2616,51 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expect<string>(typeof Tools.stringCompile(...parameters)[1])
                 .toStrictEqual(expected)
     )
-    test.each([
+    test.each<[string, FirstParameter<typeof Tools.stringCompile>]>([
         [
-            'null',
             `
                 function anonymous(
                 ) {
                 return null
                 }
-            `
+            `,
+            'null'
         ],
         [
-            '`test ${test} value`',
             `
                 function anonymous(
                 ) {
                 return \`test \${test} value\`
                 }
+            `,
+            '`test ${test} value`'
+        ],
+        [
             `
+                function anonymous(
+                ) {
+                return \`test \${test} value\`
+                }
+            `,
+            '`test ${test} value`'
+        ],
+        [
+            `
+                function anonymous(
+                ) {
+                return \`test \\\${test} value\`
+                }
+            `,
+            '`test \\\${test} value`'
         ]
     ])(
-        'String(stringCompile("%s")[1]) === "%s"',
-        (expression:string, result:string):void =>
+        '"%s" === String(stringCompile("%s")[1])',
+        (
+            expected:string,
+            expression:FirstParameter<typeof Tools.stringCompile>
+        ):void =>
             expect(String(Tools.stringCompile(expression)[1]))
-                .toStrictEqual(result.trim().replace(/\n +/g, '\n'))
+                .toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
     )
     test.each<[string, FirstParameter<typeof Tools.stringCompile>]>([
         [
@@ -2737,6 +2758,24 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                     '</ul>')
                 }).join('')
             }\``.replace('\n', '')
+        ],
+        [
+            `
+                function anonymous(
+                ) {
+                return 'test {test} value'
+                }
+            `,
+            '`test {test} value`'
+        ],
+        [
+            `
+                function anonymous(
+                ) {
+                return 'test \\\${test} value \\\${test}'
+                }
+            `,
+            '`test \\\${test} value \\\${test}`'
         ]
     ])(
         'IE 11: "%s" === String(stringCompile("%s")[1])',
