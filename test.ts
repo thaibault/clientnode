@@ -2820,6 +2820,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ['}', {a: 2}, 'compileError'],
         ['}', {}, 'compileError'],
         [
+            '`test \\\${test} value \\\${test}`',
+            {},
+            'result',
+            'test \${test} value \${test}'
+        ],
+        [
             advancedTemplateEvaluationExample,
             {loading: false, results: []},
             'result',
@@ -2843,7 +2849,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             expression:string,
             scope:any,
             resultKey:string,
-            result:any = undefined,
+            expected:any = undefined,
             binding:any = undefined
         ):void => {
             const evaluation:EvaluationResult = Tools.stringEvaluate(
@@ -2853,18 +2859,44 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 ...[].concat(binding === undefined ? [] : binding)
             )
             expect(evaluation).toHaveProperty(resultKey)
-            if (result !== undefined)
+            if (expected !== undefined)
                 if (
                     resultKey === 'result' &&
                     typeof evaluation[resultKey] === 'string'
                 )
-                    expect(evaluation[resultKey].trim()).toStrictEqual(result)
+                    expect(evaluation[resultKey].trim())
+                        .toStrictEqual(expected)
                 else
                     expect(evaluation[resultKey as keyof EvaluationResult])
-                        .toStrictEqual(result)
+                        .toStrictEqual(expected)
         }
     )
     test.each([
+        [
+            '`test \\\${test} value \\\${test}`',
+            {},
+            'result',
+            'test \${test} value \${test}'
+        ],
+        /*
+            Nested quotes in code can work in IE 11 if only using one type of
+            quotes.
+        */
+        [
+            `\`
+                <div class="test">
+                    \\\${Object.keys(item)
+                        .filter(function(name) {
+                            return true
+                        })
+                        .join(",")
+                    }
+                </div>
+            \``.replace(/(\s\s+)|\n+/g, ''),
+            {},
+            'result',
+            '<div class=\"test\">${Object.keys(item).filter(function(name) {return true}).join(\",\")}</div>'
+        ],
         [
             advancedTemplateEvaluationExample,
             {loading: false, results: []}, 'result', ''
