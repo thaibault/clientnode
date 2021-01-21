@@ -52,6 +52,7 @@ import {
     ThrowSymbol
 } from './testHelper'
 import {
+    EvaluationResult,
     File,
     FirstParameter,
     FunctionTestTuple,
@@ -2672,39 +2673,71 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             `
                 function anonymous(
                 ) {
-                return "                test "+(name)+" '-' "+(other)+"                    value            "
+                return "test "+(name)+" '-' "+(other)+"                  value"
                 }
             `,
-            `\`
-                test \${name} '-' \${other}
-                    value
-            \``
+            `\`test \${name} '-' \${other}
+                  value\``
         ],
         [
             `
                 function anonymous(
                 ) {
-                return ''+'                \\'+(loading ?'+'                    \\'<div class="idle">loading...</div>\\' :'+'                    results.map(function(result) {'+'                        return (\\'<ul>\\' +'+'                            \\'<li>\\' +'+'                                Object.keys(result)'+'                                    .filter(function(name) {'+'                                        return [\\'number\\', \\'string\\']'+'                                            .includes(typeof result[name])'+'                                    })'+'                                    .join(\\'\\') +'+'                            \\'</li>\\' +'+'                        \\'</ul>\\')'+'                    }).join(\\'\\')'+'                )+\\''+'            '
+                return String(loading ? 'A' : 'B')
                 }
             `,
-            `\`
-                \${loading ?
-                    '<div class="idle">loading...</div>' :
-                    results.map(function(result) {
-                        return ('<ul>' +
-                            '<li>' +
-                                Object.keys(result)
-                                    .filter(function(name) {
-                                        return ['number', 'string']
-                                            .includes(typeof result[name])
-                                    })
-                                    .join('') +
-                            '</li>' +
-                        '</ul>')
-                    }).join('')
+            `\`\${loading ? 'A' : 'B'}\``
+        ],
+        [
+            `
+                function anonymous(
+                ) {
+                return String(loading ? 'A' : results.join(''))
                 }
-            \``
-        ]
+            `,
+            `\`\${loading ? 'A' : results.join('')}\``
+        ],
+        [
+            `
+                function anonymous(
+                ) {
+                return "[: "+(loading ? 'A' : results.join(''))+" :]"
+                }
+            `,
+            `\`[: \${loading ? 'A' : results.join('')} :]\``
+        ],
+        [
+            `
+                function anonymous(
+                ) {
+                return '[: \'+(a ? \'<div class="idle">loading...</div>\' : results.join(\'\'))+\' :]'
+                }
+            `,
+            `\`[: \${a ? '<div class="idle">loading...</div>' : results.join('')} :]\``
+        ]/*TODO,
+        [
+            `
+                function anonymous(
+                ) {
+                return ''+'        \\'+(loading ?'+'            \\'<div class="idle">loading...</div>\\' :'+'            results.map(function(result) {'+'                return (\\'<ul>\\' +'+'                    \\'<li>\\' +'+'                        Object.keys(result)'+'                            .filter(function(name) {'+'                                return [\\'number\\', \\'string\\']'+'                                    .includes(typeof result[name])'+'                            })'+'                            .join(\\'\\') +'+'                    \\'</li>\\' +'+'                \\'</ul>\\')'+'            }).join(\\'\\')'+'        )+\\''+'    '
+                }
+            `,
+            `\`\${loading ?
+                '<div class="idle">loading...</div>' :
+                results.map(function(result) {
+                    return ('<ul>' +
+                        '<li>' +
+                            Object.keys(result)
+                                .filter(function(name) {
+                                    return ['number', 'string']
+                                        .includes(typeof result[name])
+                                })
+                                .join('') +
+                        '</li>' +
+                    '</ul>')
+                }).join('')
+            }\``.replace('\n', '')
+        ]*/
     ])(
         'IE 11: String(stringCompile("%s")[1]) === "%s"',
         (
@@ -2714,12 +2747,32 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             const backup:number = Tools.maximalSupportedInternetExplorerVersion
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
                 .maximalSupportedInternetExplorerVersion = 11
+
             expect(String(Tools.stringCompile(expression)[1]))
                 .toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
+
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
                 .maximalSupportedInternetExplorerVersion = backup
         }
     )
+
+    const advancedTemplateEvaluationExample:string = `\`
+        \${loading ?
+            '<div class="idle">loading...</div>' :
+            results.map(function(result) {
+                return ('<ul>' +
+                    '<li>' +
+                        Object.keys(result)
+                            .filter(function(name) {
+                                return ['number', 'string']
+                                    .includes(typeof result[name])
+                            })
+                            .join('') +
+                    '</li>' +
+                '</ul>')
+            }).join('')
+        }
+    \``
     test.each([
         ['null', {}, 'result', null],
         ['5', {}, 'result', 5],
@@ -2728,20 +2781,102 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ['a + b + this.c', {a: 2, b: 3}, 'result', 6, {c: 1}],
         ['a + b + c', {a: 2, b: 3}, 'runtimeError'],
         ['}', {a: 2}, 'compileError'],
-        ['}', {}, 'compileError']
+        ['}', {}, 'compileError'],
+        [
+            advancedTemplateEvaluationExample,
+            {loading: false, results: []},
+            'result',
+            ''
+        ],
+        [
+            advancedTemplateEvaluationExample,
+            {loading: false, results: [{a: 'a'}]},
+            'result',
+            '<ul><li>a</li></ul>'
+        ],
+        [
+            advancedTemplateEvaluationExample,
+            {loading: true, results: []},
+            'result',
+            '<div class="idle">loading...</div>'
+        ]
     ])(
-        'stringEvaluate("%s", %p) === %p',
+        'stringEvaluate(`%s`, %p...)[%p] === %p',
         (
             expression:string,
             scope:any,
             resultKey:string,
             result:any = undefined,
             binding:any = undefined
-        ):void =>
-            expect(Tools.stringEvaluate(
-                expression, scope, false, ...[].concat(binding ? binding : [])
-            )).toHaveProperty(resultKey, ...[].concat(result ? result : []))
-    )
+        ):void => {
+            const evaluation:EvaluationResult = Tools.stringEvaluate(
+                expression,
+                scope,
+                false,
+                ...[].concat(binding === undefined ? [] : binding)
+            )
+            expect(evaluation).toHaveProperty(resultKey)
+            if (result !== undefined)
+                if (
+                    resultKey === 'result' &&
+                    typeof evaluation[resultKey] === 'string'
+                )
+                    expect(evaluation[resultKey].trim()).toStrictEqual(result)
+                else
+                    expect(evaluation[resultKey]).toStrictEqual(result)
+        }
+    )/*TODO
+    test.each([
+        [
+            advancedTemplateEvaluationExample,
+            {loading: false, results: []}, 'result', ''
+        ],
+        [
+            advancedTemplateEvaluationExample,
+            {loading: false, results: [{a: 'a'}]},
+            'result',
+            '<ul><li>a</li></ul>'
+        ],
+        [
+            advancedTemplateEvaluationExample,
+            {loading: true, results: []},
+            'result',
+            '<div class="idle">loading...</div>'
+        ]
+    ])(
+        'IE 11: stringEvaluate(`%s`, %p...)[%p] === %p',
+        (
+            expression:string,
+            scope:any,
+            resultKey:string,
+            result:any = undefined,
+            binding:any = undefined
+        ):void => {
+            const backup:number = Tools.maximalSupportedInternetExplorerVersion
+            ;(Tools as {maximalSupportedInternetExplorerVersion:number})
+                .maximalSupportedInternetExplorerVersion = 11
+
+            const evaluation:EvaluationResult = Tools.stringEvaluate(
+                expression,
+                scope,
+                false,
+                ...[].concat(binding === undefined ? [] : binding)
+            )
+            expect(evaluation).toHaveProperty(resultKey)
+            if (result !== undefined)
+                if (
+                    resultKey === 'result' &&
+                    typeof evaluation[resultKey] === 'string'
+                )
+                    expect(evaluation[resultKey].trim()).toStrictEqual(result)
+                else
+                    expect(evaluation[resultKey]).toStrictEqual(result)
+
+            ;(Tools as {maximalSupportedInternetExplorerVersion:number})
+                .maximalSupportedInternetExplorerVersion = backup
+        }
+    )*/
+
     testEach<typeof Tools.stringFindNormalizedMatchRange>(
         'stringFindNormalizedMatchRange',
         Tools.stringFindNormalizedMatchRange,
