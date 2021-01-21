@@ -4284,6 +4284,7 @@ export class Tools<TElement = HTMLElement> {
                 .replace(/^`([^']+)`$/, "'$1'")
                 // Use plain string with double quotes.
                 .replace(/^`([^"]+)`$/, '"$1"')
+            // Use single quotes and hope (just a heuristic).
             const quote:string =
                 expression.charAt(0) === '`' ? "'" : expression.charAt(0)
             expression = expression
@@ -4293,15 +4294,7 @@ export class Tools<TElement = HTMLElement> {
                     /\$\{((([^{]*{[^}]*}[^}]*})|[^{}]+)+)\}/g,
                     `${quote}+($1)+${quote}`
                 )
-                // Use plain string with single quotes escaped inline.
-                .replace(
-                    /^`([\s\S]+)`$/, (match:string, middle:string):string =>
-                        "'" +
-                        middle
-                            .replace(/'/g, "\\'")
-                            .replace(/(\n)/g, "'+$1'") +
-                        "'"
-                )
+                .replace(/^`([\s\S]+)`$/, `${quote}$1${quote}`)
                 // Remove remaining newlines.
                 .replace(/\n+/g, '')
         }
