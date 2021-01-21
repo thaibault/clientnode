@@ -2879,8 +2879,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             'test \${test} value \${test}'
         ],
         /*
-            Nested quotes in code can work in IE 11 if only using one type of
-            quotes.
+            Nested quotes in code can work in IE 11 if only one type of quote is
+            used according to escaping.
         */
         [
             `\`
