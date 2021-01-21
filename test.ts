@@ -2821,7 +2821,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 )
                     expect(evaluation[resultKey].trim()).toStrictEqual(result)
                 else
-                    expect(evaluation[resultKey]).toStrictEqual(result)
+                    expect(evaluation[resultKey as keyof EvaluationResult])
+                        .toStrictEqual(result)
         }
     )
     test.each([
@@ -2869,7 +2870,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                     expect(evaluation[resultKey].trim())
                         .toStrictEqual(expected)
                 else
-                    expect(evaluation[resultKey]).toStrictEqual(expected)
+                    expect(evaluation[resultKey as keyof EvaluationResult])
+                        .toStrictEqual(expected)
 
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
                 .maximalSupportedInternetExplorerVersion = backup
