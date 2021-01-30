@@ -4265,18 +4265,22 @@ export class Tools<TElement = HTMLElement> {
      * @param expression - The string to interpret.
      * @param scope - Scope to extract names from.
      * @param execute - Indicates whether to execute or evaluate.
-     * @returns Tuple of list of prepared scope names and compiled function or
-     * error string message if given expression couldn't be compiled.
+     * @returns Tuple of list of prepared scope name mappings and compiled
+     * function or error string message if given expression couldn't be
+     * compiled.
      */
     static stringCompile(
         expression:string, scope:any = [], execute:boolean = false
-    ):[Array<string>, string|TemplateFunction] {
+    ):[Array<[string, string]>, string|TemplateFunction] {
+        const scopeNameMapping:Array<[string, string]> = []
         const scopeNames:Array<string> = (Array.isArray(scope) ?
             scope :
             typeof scope === 'string' ? [scope] : Object.keys(scope)
-        ).map((name:string):string =>
-            Tools.stringConvertToValidVariableName(name)
-        )
+        ).map((name:string):string => {
+            const newName:string = Tools.stringConvertToValidVariableName(name)
+            scopeNameMapping.push([name, newName])
+            return newName
+        })
 
         if (Tools.maximalSupportedInternetExplorerVersion !== 0) {
             if ($.global.Babel?.transform)
@@ -4317,14 +4321,14 @@ export class Tools<TElement = HTMLElement> {
 
         try {
             return [
-                scopeNames,
+                scopeNameMapping,
                 new Function(
                     ...scopeNames, `${execute ? '' : 'return '}${expression}`
                 ) as TemplateFunction
             ]
         } catch (error) {
             return [
-                scopeNames,
+                scopeNameMapping,
                 `Given expression "${expression}" could not be compiled ` +
                 `with given scope names "${scopeNames.join('", "')}": ` +
                 Tools.represent(error)
@@ -4345,7 +4349,7 @@ export class Tools<TElement = HTMLElement> {
         execute:boolean = false,
         binding?:any
     ):EvaluationResult {
-        const [scopeNames, evaluate] =
+        const [scopeNameMapping, evaluate] =
             this.stringCompile(expression, scope, execute)
         const result:EvaluationResult = {
             compileError:null,
@@ -4365,13 +4369,16 @@ export class Tools<TElement = HTMLElement> {
                     by retrieving values. So simple using
                     "...Object.values(scope)" is not appreciate here.
                 */
-                ...scopeNames.map((name:string):any => scope[name])
+                ...scopeNameMapping.map(([originalName]):any =>
+                    scope[originalName]
+                )
             )
         } catch (error) {
             result.error = result.runtimeError = (
                 `Given expression "${expression}" could not be evaluated ` +
-                `with given scope names "${scopeNames.join('", "')}": ` +
-                Tools.represent(error)
+                'with given scope names "' +
+                scopeNameMapping.map(([newName]):any => newName).join('", "') +
+                `": ${Tools.represent(error)}`
             )
         }
         return result
