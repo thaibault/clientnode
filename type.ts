@@ -69,6 +69,9 @@ export type HTMLItem = Comment|Document|HTMLElement|Text
 export type $DomNode<TElement = HTMLElement> = JQuery<TElement>
 export type $Function = JQueryStatic & StaticScope
 export type $Global = typeof globalThis & {
+    Babel?:{transform:(code:string, configuration:PlainObject) => {
+        code:string
+    }}
     console:Console
     dataLayer:Array<PlainObject>
     $:$Function

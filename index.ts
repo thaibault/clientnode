@@ -4271,44 +4271,50 @@ export class Tools<TElement = HTMLElement> {
     static stringCompile(
         expression:string, scope:any = [], execute:boolean = false
     ):[Array<string>, string|TemplateFunction] {
-        if (
-            Tools.maximalSupportedInternetExplorerVersion !== 0 &&
-            expression.startsWith('`') &&
-            expression.endsWith('`')
-        ) {
-            const escapeMarker:string = '####'
-            // Convert template string into legacy string concatenations.
-            expression = expression
-                // Mark simple escape sequences.
-                .replace(/\\\$/g, escapeMarker)
-                // Handle avoidable template expression: Use raw code.
-                .replace(/^`\$\{([\s\S]+)\}`$/, 'String($1)')
-                // Use plain string with single quotes.
-                .replace(/^`([^']+)`$/, "'$1'")
-                // Use plain string with double quotes.
-                .replace(/^`([^"]+)`$/, '"$1"')
-            // Use single quotes and hope (just a heuristic).
-            const quote:string =
-                expression.charAt(0) === '`' ? "'" : expression.charAt(0)
-            expression = expression
-                // Replace simple placeholder.
-                // NOTE: Replace complete bracket pairs.
-                .replace(
-                    /\$\{((([^{]*{[^}]*}[^}]*})|[^{}]+)+)\}/g,
-                    `${quote}+($1)+${quote}`
-                )
-                .replace(/^`([\s\S]+)`$/, `${quote}$1${quote}`)
-                // Remove remaining newlines.
-                .replace(/\n+/g, '')
-                // Replace marked escape sequences.
-                .replace(new RegExp(escapeMarker, 'g'), '\\$')
-        }
         const scopeNames:Array<string> = (Array.isArray(scope) ?
             scope :
             typeof scope === 'string' ? [scope] : Object.keys(scope)
         ).map((name:string):string =>
             Tools.stringConvertToValidVariableName(name)
         )
+
+        if (Tools.maximalSupportedInternetExplorerVersion !== 0) {
+            if ($.global.Babel?.transform)
+                expression = $.global.Babel?.transform(
+                    `(${expression})`,
+                    {plugins: ['transform-template-literals']}
+                ).code
+            else if (expression.startsWith('`') && expression.endsWith('`')
+            ) {
+                const escapeMarker:string = '####'
+                // Convert template string into legacy string concatenations.
+                expression = expression
+                    // Mark simple escape sequences.
+                    .replace(/\\\$/g, escapeMarker)
+                    // Handle avoidable template expression: Use raw code.
+                    .replace(/^`\$\{([\s\S]+)\}`$/, 'String($1)')
+                    // Use plain string with single quotes.
+                    .replace(/^`([^']+)`$/, "'$1'")
+                    // Use plain string with double quotes.
+                    .replace(/^`([^"]+)`$/, '"$1"')
+                // Use single quotes and hope (just a heuristic).
+                const quote:string =
+                    expression.charAt(0) === '`' ? "'" : expression.charAt(0)
+                expression = expression
+                    // Replace simple placeholder.
+                    // NOTE: Replace complete bracket pairs.
+                    .replace(
+                        /\$\{((([^{]*{[^}]*}[^}]*})|[^{}]+)+)\}/g,
+                        `${quote}+($1)+${quote}`
+                    )
+                    .replace(/^`([\s\S]+)`$/, `${quote}$1${quote}`)
+                    // Remove remaining newlines.
+                    .replace(/\n+/g, '')
+                    // Replace marked escape sequences.
+                    .replace(new RegExp(escapeMarker, 'g'), '\\$')
+            }
+        }
+
         try {
             return [
                 scopeNames,
