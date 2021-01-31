@@ -4377,7 +4377,9 @@ export class Tools<TElement = HTMLElement> {
             result.error = result.runtimeError = (
                 `Given expression "${expression}" could not be evaluated ` +
                 'with given scope names "' +
-                scopeNameMapping.map(([newName]):any => newName).join('", "') +
+                scopeNameMapping
+                    .map(([oldName, newName]):any => newName)
+                    .join('", "') +
                 `": ${Tools.represent(error)}`
             )
         }
