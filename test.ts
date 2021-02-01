@@ -2605,15 +2605,26 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ['function', 'null', []],
         ['function', 'null', {}],
         ['function', '5 === 3', {name: 2}],
-        ['function', '5 === 3', ['name']],
-        ['string', '}', []]
+        ['function', '5 === 3', ['name']]
     ])(
-        "'%s' === typeof stringCompile('%s', %p)[1]",
+        "'%s' === typeof stringCompile('%s', %p).templateFunction",
         (
             expected:string,
             ...parameters:Parameters<typeof Tools.stringCompile>
         ):void =>
-            expect<string>(typeof Tools.stringCompile(...parameters)[1])
+            expect<string>(
+                typeof Tools.stringCompile(...parameters).templateFunction
+            ).toStrictEqual(expected)
+    )
+    test.each<[string, ...Parameters<typeof Tools.stringCompile>]>([
+        ['string', '= null', []], ['string', '{', {}]
+    ])(
+        "'%s' === typeof stringCompile('%s', %p).error",
+        (
+            expected:string,
+            ...parameters:Parameters<typeof Tools.stringCompile>
+        ):void =>
+            expect<string>(typeof Tools.stringCompile(...parameters).error)
                 .toStrictEqual(expected)
     )
     test.each<[string, FirstParameter<typeof Tools.stringCompile>]>([
@@ -2654,12 +2665,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             '`test \\\${test} value`'
         ]
     ])(
-        '"%s" === String(stringCompile("%s")[1])',
+        '"%s" === String(stringCompile("%s").templateFunction)',
         (
             expected:string,
             expression:FirstParameter<typeof Tools.stringCompile>
         ):void =>
-            expect(String(Tools.stringCompile(expression)[1]))
+            expect(String(Tools.stringCompile(expression).templateFunction))
                 .toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
     )
     test.each<[string, FirstParameter<typeof Tools.stringCompile>]>([
@@ -2778,7 +2789,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             '`test \\\${test} value \\\${test}`'
         ]
     ])(
-        'IE 11: "%s" === String(stringCompile("%s")[1])',
+        'IE 11: "%s" === String(stringCompile("%s").templateFunction)',
         (
             expected:string,
             expression:FirstParameter<typeof Tools.stringCompile>
@@ -2787,7 +2798,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
                 .maximalSupportedInternetExplorerVersion = 11
 
-            expect(String(Tools.stringCompile(expression)[1]))
+            expect(String(Tools.stringCompile(expression).templateFunction))
                 .toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
 
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})

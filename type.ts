@@ -165,6 +165,13 @@ export type ProxyHandler = {
     set:(target:any, key:string, value:any) => boolean
 }
 export type TemplateFunction = (...parameter:Array<any>) => any
+export type CompilationResult = {
+    error:null|string
+    originalScopeNames:Array<string>
+    scopeNameMapping:Mapping<string>
+    scopeNames:Array<string>
+    templateFunction:TemplateFunction
+}
 export type EvaluationResult = {
     compileError:null|string
     error:null|string

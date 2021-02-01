@@ -25,6 +25,7 @@ import {
 } from 'node-fetch'
 
 import {
+    CompilationResult,
     EvaluationResult,
     File,
     GetterFunction,
@@ -4265,22 +4266,27 @@ export class Tools<TElement = HTMLElement> {
      * @param expression - The string to interpret.
      * @param scope - Scope to extract names from.
      * @param execute - Indicates whether to execute or evaluate.
-     * @returns Tuple of list of prepared scope name mappings and compiled
+     * @returns Object of prepared scope name mappings and compiled
      * function or error string message if given expression couldn't be
      * compiled.
      */
     static stringCompile(
         expression:string, scope:any = [], execute:boolean = false
-    ):[Array<[string, string]>, string|TemplateFunction] {
-        const scopeNameMapping:Array<[string, string]> = []
-        const scopeNames:Array<string> = (Array.isArray(scope) ?
-            scope :
-            typeof scope === 'string' ? [scope] : Object.keys(scope)
-        ).map((name:string):string => {
+    ):CompilationResult {
+        const result:CompilationResult = {
+            error: null,
+            originalScopeNames: Array.isArray(scope) ?
+                scope :
+                typeof scope === 'string' ? [scope] : Object.keys(scope),
+            scopeNameMapping: {},
+            scopeNames: [],
+            templateFunction: ():null => null
+        }
+        for (const name of result.originalScopeNames) {
             const newName:string = Tools.stringConvertToValidVariableName(name)
-            scopeNameMapping.push([name, newName])
-            return newName
-        })
+            result.scopeNameMapping[name] = newName
+            result.scopeNames.push(newName)
+        }
 
         if (Tools.maximalSupportedInternetExplorerVersion !== 0) {
             if ($.global.Babel?.transform)
@@ -4320,20 +4326,18 @@ export class Tools<TElement = HTMLElement> {
         }
 
         try {
-            return [
-                scopeNameMapping,
-                new Function(
-                    ...scopeNames, `${execute ? '' : 'return '}${expression}`
-                ) as TemplateFunction
-            ]
+            result.templateFunction = new Function(
+                ...result.scopeNames,
+                `${execute ? '' : 'return '}${expression}`
+            ) as TemplateFunction
         } catch (error) {
-            return [
-                scopeNameMapping,
+            result.error =
                 `Given expression "${expression}" could not be compiled ` +
-                `with given scope names "${scopeNames.join('", "')}": ` +
-                Tools.represent(error)
-            ]
+                `with given scope names "${result.scopeNames.join('", "')}":` +
+                ` ${Tools.represent(error)}`
         }
+
+        return result
     }
     /**
      * Evaluates a given string as expression against given scope.
@@ -4349,7 +4353,7 @@ export class Tools<TElement = HTMLElement> {
         execute:boolean = false,
         binding?:any
     ):EvaluationResult {
-        const [scopeNameMapping, evaluate] =
+        const {error, originalScopeNames, scopeNames, templateFunction} =
             this.stringCompile(expression, scope, execute)
         const result:EvaluationResult = {
             compileError:null,
@@ -4357,32 +4361,31 @@ export class Tools<TElement = HTMLElement> {
             result:null,
             runtimeError:null
         }
-        if (typeof evaluate === 'string') {
-            result.compileError = result.error = evaluate
+
+        if (error) {
+            result.compileError = result.error = error
             return result
         }
+
         try {
-            result.result = (binding ? evaluate.bind(binding) : evaluate)(
-                /*
-                    NOTE: We want to be ensure to have same ordering as we have
-                    for the scope names and to call internal registered getter
-                    by retrieving values. So simple using
-                    "...Object.values(scope)" is not appreciate here.
-                */
-                ...scopeNameMapping.map(([originalName]):any =>
-                    scope[originalName]
+            result.result =
+                (binding ? templateFunction.bind(binding) : templateFunction)(
+                    /*
+                        NOTE: We want to be ensure to have same ordering as we
+                        have for the scope names and to call internal
+                        registered getter by retrieving values. So simple using
+                        "...Object.values(scope)" is not appreciate here.
+                    */
+                    ...originalScopeNames.map((name:string):any => scope[name])
                 )
-            )
         } catch (error) {
             result.error = result.runtimeError = (
                 `Given expression "${expression}" could not be evaluated ` +
-                'with given scope names "' +
-                scopeNameMapping
-                    .map(([oldName, newName]):any => newName)
-                    .join('", "') +
-                `": ${Tools.represent(error)}`
+                `with given scope names "${scopeNames.join('", "')}": ` +
+                Tools.represent(error)
             )
         }
+
         return result
     }
     /**
