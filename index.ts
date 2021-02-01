@@ -4282,6 +4282,7 @@ export class Tools<TElement = HTMLElement> {
             scopeNames: [],
             templateFunction: ():null => null
         }
+
         for (const name of result.originalScopeNames) {
             const newName:string = Tools.stringConvertToValidVariableName(name)
             result.scopeNameMapping[name] = newName
