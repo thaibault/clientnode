@@ -2605,7 +2605,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ['function', 'null', []],
         ['function', 'null', {}],
         ['function', '5 === 3', {name: 2}],
-        ['function', '5 === 3', ['name']]
+        ['function', '5 === 3', ['name']],
+        ['function', '', []]
     ])(
         "'%s' === typeof stringCompile('%s', %p).templateFunction",
         (
@@ -2617,7 +2618,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             ).toStrictEqual(expected)
     )
     test.each<[string, ...Parameters<typeof Tools.stringCompile>]>([
-        ['string', '= null', []], ['string', '{', {}]
+        ['string', '= null', []],
+        ['string', '{', {}],
+        ['object', '', {}]
     ])(
         "'%s' === typeof stringCompile('%s', %p).error",
         (
