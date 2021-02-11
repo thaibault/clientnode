@@ -1835,7 +1835,8 @@ export class Tools<TElement = HTMLElement> {
                 if (value !== null && typeof value === 'object') {
                     if (seenObjects.includes(value))
                         return determineCicularReferenceValue(
-                            key, value, seenObjects)
+                            key, value, seenObjects
+                        )
                     seenObjects.push(value)
                     return value
                 }
