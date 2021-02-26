@@ -507,6 +507,37 @@ export class Tools<TElement = HTMLElement> {
         return this
     }
     // / endregion
+    // / region data time
+    static dateTimeFormat(
+        format:string,
+        dateTime:Date = new Date(),
+        locals:Array<string>|string = []
+    ):string {
+        const scope:Mapping<Array<string>|string> = {}
+        for (const style of ['full', 'long', 'medium', 'short']) {
+            scope[`${style}Literals`] = []
+            const dateTimeFormat:Intl.DateTimeFormat = new Intl.DateTimeFormat(
+                ([] as Array<string>).concat(locals, 'en-US'),
+                {dateStyle: style, timeStyle: style} as
+                    SecondParameter<typeof Intl.DateTimeFormat>
+            )
+            scope[style] = dateTimeFormat.format(dateTime)
+            for (const item of dateTimeFormat.formatToParts(dateTime))
+                if (item.type === 'literal')
+                    (scope[`${style}Literals`] as Array<string>)
+                        .push(item.value)
+                else
+                    scope[`${style}${Tools.stringCapitalize(item.type)}`] =
+                        item.value
+        }
+
+        const evaluated:EvaluationResult =
+            Tools.stringEvaluate(`\`${format}\``, scope)
+        if (evaluated.error)
+            throw new Error(evaluated.error)
+        return evaluated.result
+    }
+    // / endregion
     // / region object orientation
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**

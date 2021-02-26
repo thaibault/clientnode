@@ -136,6 +136,23 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             .toStrictEqual(Tools.name)
     })
     // / endregion
+    // / region date time
+    const testDate:Date = new Date(0)
+    testEach<typeof Tools.dateTimeFormat>(
+        `dateTimeFormat (${testEnvironment})`,
+        Tools.dateTimeFormat,
+
+        ['', ''],
+        ['', '', testDate],
+        ['1/1/70, 1:00 AM', '${short}', testDate],
+        [
+            '1.1.1970 1:00:00',
+            '${shortDay}.${shortMonth}.${fullYear} ' +
+            '${shortHour}:${shortMinute}:${mediumSecond}',
+            testDate
+        ]
+    )
+    // / endregion
     // / region mutual exclusion
     test(`acquireLock|releaseLock (${testEnvironment})`, async (
         done:Function
