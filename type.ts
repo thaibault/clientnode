@@ -134,6 +134,23 @@ export type Offset = {
     top:number
     left:number
 }
+export type Page = {
+    disabled:boolean
+    type:string
+    page:number
+    selected:boolean
+}
+export type PaginateOptions = {
+    boundaryCount:number
+    disabled:boolean
+    hideNextButton:boolean
+    hidePrevButton:boolean
+    page:number
+    showFirstButton:boolean
+    showLastButton:boolean
+    siblingCount:number
+    total:number
+}
 export type Position = Offset & {
     bottom:number
     right:number

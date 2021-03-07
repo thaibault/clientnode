@@ -2075,6 +2075,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[{b: undefined}], [{b: undefined}], [{}], ['b'], true],
         [[{b: 1}], [{b: 1}], [{a: 1}], {b: 'a'}, true]
     )
+    testEach<typeof Tools.arrayMake>(
+        'arrayMake',
+        Tools.arrayMake,
+
+        [[], []],
+        [[1, 2, 3], [1, 2, 3]],
+        [[1], 1]
+    )
     testEach<typeof Tools.arrayMakeRange>(
         'arrayMakeRange',
         Tools.arrayMakeRange,
@@ -2084,6 +2092,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[0], [0]],
         [[0, 1, 2, 3, 4, 5], [5]],
         [[2, 3, 4, 5], [2, 5]],
+        [[1, 2, 3], [1, 2, 3]],
+        [[], [2, 1]],
         [[2, 4, 6, 8, 10], [2, 10], 2],
         [[2, 4, 6, 8], [2, 10], 2, true]
     )
@@ -2097,13 +2107,96 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[1, 1], [1], [1]],
         [[1, 2, 3, 1, 1, 2, 3], [1, 2, 3, 1], [1, 2, 3]]
     )
-    testEach<typeof Tools.arrayMake>(
-        'arrayMake',
-        Tools.arrayMake,
+    testEach<typeof Tools.arrayPaginate>(
+        'arrayPaginate',
+        Tools.arrayPaginate,
 
-        [[], []],
-        [[1, 2, 3], [1, 2, 3]],
-        [[1], 1]
+        [
+            [
+                {
+                    disabled: true,
+                    page: 1,
+                    selected: false,
+                    type: 'previous'
+                },
+                {
+                    disabled: false,
+                    page: 1,
+                    selected: true,
+                    type: 'page'
+                },
+                {
+                    disabled: true,
+                    page: 1,
+                    selected: false,
+                    type: 'next'
+                }
+            ],
+            {}
+        ],
+        [
+            [
+                {
+                    disabled: false,
+                    page: 2,
+                    selected: false,
+                    type: 'previous'
+                },
+                {
+                    disabled: false,
+                    page: 1,
+                    selected: false,
+                    type: 'page'
+                },
+                {
+                    disabled: false,
+                    page: 2,
+                    selected: false,
+                    type: 'page'
+                },
+                {
+                    disabled: false,
+                    page: 3,
+                    selected: true,
+                    type: 'page'
+                },
+                {
+                    disabled: false,
+                    page: 4,
+                    selected: false,
+                    type: 'page'
+                },
+                {
+                    disabled: false,
+                    page: 5,
+                    selected: false,
+                    type: 'page'
+                },
+                {
+                    disabled: false,
+                    page: 4,
+                    selected: false,
+                    type: 'end-ellipsis'
+                },
+                {
+                    disabled: false,
+                    page: 100,
+                    selected: false,
+                    type: 'page'
+                },
+                {
+                    disabled: false,
+                    page: 2,
+                    selected: false,
+                    type: 'next'
+                }
+            ],
+            {
+                page: 3,
+                siblingCount: 1,
+                total: 100
+            }
+        ]
     )
     testEach<typeof Tools.arrayPermutate>(
         'arrayPermutate',
@@ -2167,15 +2260,6 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             ['1', '2', '3']
         ]
     )
-    testEach<typeof Tools.arrayUnique>(
-        'arrayUnique',
-        Tools.arrayUnique,
-
-        [[1, 2, 3], [1, 2, 3, 1]],
-        [[1, 2, 3], [1, 2, 3, 1, 2, 3]],
-        [[], []],
-        [[1, 2, 3], [1, 2, 3]]
-    )
     testEach<typeof Tools.arraySumUpProperty>(
         'arraySumUpProperty',
         Tools.arraySumUpProperty,
@@ -2234,6 +2318,15 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         {a: 'a'},
         {a: 'b', b: 'a'},
         {a: 'b', b: 'c', c: 'a'}
+    )
+    testEach<typeof Tools.arrayUnique>(
+        'arrayUnique',
+        Tools.arrayUnique,
+
+        [[1, 2, 3], [1, 2, 3, 1]],
+        [[1, 2, 3], [1, 2, 3, 1, 2, 3]],
+        [[], []],
+        [[1, 2, 3], [1, 2, 3]]
     )
     // / endregion
     // / region string

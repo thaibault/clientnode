@@ -34,6 +34,8 @@ import {
     Noop,
     ObjectMaskConfiguration,
     Options,
+    Page,
+    PaginateOptions,
     PlainObject,
     Position,
     ProcedureFunction,
@@ -3526,54 +3528,6 @@ export class Tools<TElement = HTMLElement> {
         return containingData
     }
     /**
-     * Creates a list of items within given range.
-     * @param range - Array of lower and upper bounds. If only one value is
-     * given lower bound will be assumed to be zero. Both integers have to be
-     * positive and will be contained in the resulting array. If more than two
-     * numbers are provided given range will be returned.
-     * @param step - Space between two consecutive values.
-     * @param ignoreLastStep - Removes last step (useful for pagination
-     * indexes.
-     * @returns Produced array of integers.
-     */
-    static arrayMakeRange(
-        range:number|[number]|[number, number]|Array<number>,
-        step:number = 1,
-        ignoreLastStep:boolean = false
-    ):Array<number> {
-        range = ([] as Array<number>).concat(range)
-        let index:number
-        let higherBound:number
-        if (range.length === 1) {
-            index = 0
-            higherBound = parseInt(`${range[0]}`, 10)
-        } else if (range.length === 2) {
-            index = parseInt(`${range[0]}`, 10)
-            higherBound = parseInt(`${range[1]}`, 10)
-        } else
-            return range
-        const result = [index]
-        while (index <= higherBound - step) {
-            index += step
-            if (!ignoreLastStep || index <= higherBound - step)
-                result.push(index)
-        }
-        return result
-    }
-    /**
-     * Merge the contents of two arrays together into the first array.
-     * @param target - Target array.
-     * @param source - Source array.
-     * @returns Target array with merged given source one.
-     */
-    static arrayMerge(target:Array<any>, source:Array<any>):Array<any> {
-        if (!Array.isArray(source))
-            source = Array.prototype.slice.call(source)
-        for (const value of source)
-            target.push(value)
-        return target
-    }
-    /**
      * Converts given object into an array.
      * @param object - Target to convert.
      * @returns Generated array.
@@ -3590,17 +3544,177 @@ export class Tools<TElement = HTMLElement> {
         return result
     }
     /**
-     * Makes all values in given iterable unique by removing duplicates (The
-     * first occurrences will be left).
-     * @param data - Array like object.
-     * @returns Sliced version of given object.
+     * Creates a list of items within given range.
+     * @param range - Array of lower and upper bounds. If only one value is
+     * given lower bound will be assumed to be zero. Both integers have to be
+     * positive and will be contained in the resulting array. If more than two
+     * numbers are provided given range will be returned.
+     * @param step - Space between two consecutive values.
+     * @param ignoreLastStep - Removes last step.
+     * @returns Produced array of integers.
      */
-    static arrayUnique(data:Array<any>):Array<any> {
-        const result:Array<any> = []
-        for (const value of Tools.arrayMake(data))
-            if (!result.includes(value))
-                result.push(value)
+    static arrayMakeRange(
+        range:number|[number]|[number, number]|Array<number>,
+        step:number = 1,
+        ignoreLastStep:boolean = false
+    ):Array<number> {
+        range = ([] as Array<number>).concat(range)
+
+        let index:number
+        let higherBound:number
+        if (range.length === 1) {
+            index = 0
+            higherBound = parseInt(`${range[0]}`, 10)
+        } else if (range.length === 2) {
+            index = parseInt(`${range[0]}`, 10)
+            higherBound = parseInt(`${range[1]}`, 10)
+        } else
+            return range
+
+        if (higherBound < index)
+            return []
+
+        const result = [index]
+        while (index <= higherBound - step) {
+            index += step
+            if (!ignoreLastStep || index <= higherBound - step)
+                result.push(index)
+        }
+
         return result
+    }
+    /**
+     * Merge the contents of two arrays together into the first array.
+     * @param target - Target array.
+     * @param source - Source array.
+     * @returns Target array with merged given source one.
+     */
+    static arrayMerge(target:Array<any>, source:Array<any>):Array<any> {
+        if (!Array.isArray(source))
+            source = Array.prototype.slice.call(source)
+        for (const value of source)
+            target.push(value)
+        return target
+    }
+    /**
+     * TODO
+     */
+    static arrayPaginate(options:Partial<PaginateOptions> = {}):Array<Page> {
+        const {
+            boundaryCount = 1,
+            disabled = false,
+            hideNextButton = false,
+            hidePrevButton = false,
+            page = 1,
+            showFirstButton = false,
+            showLastButton = false,
+            siblingCount = 4,
+            total = 1
+        } = options
+
+        const startPages:Array<number> =
+            Tools.arrayMakeRange([1, Math.min(boundaryCount, total)])
+        const endPages:Array<number> = Tools.arrayMakeRange([
+            Math.max(total - boundaryCount + 1, boundaryCount + 1),
+            total
+        ])
+
+        const siblingsStart:number = Math.max(
+            Math.min(
+                // Left boundary for lower pages.
+                page - siblingCount,
+                // Lower boundary for higher pages.
+                total - boundaryCount - siblingCount * 2 - 1,
+            ),
+            // If number is greater than number of "startPages".
+            boundaryCount + 2
+        )
+
+        const siblingsEnd:number = Math.min(
+            Math.max(
+                // Right bound for higher pages.
+                page + siblingCount,
+                // Upper boundary for lower pages.
+                boundaryCount + siblingCount * 2 + 2,
+            ),
+            // If number is less than number of "endPages".
+            endPages.length > 0 ? endPages[0] - 2 : total - 1
+        )
+
+        /*
+            Symbol list of items to render represent as pagination.
+
+            Example result:
+
+            [
+                'first', 'previous',
+                1,
+                'start-ellipsis',
+                4, 5, 6,
+                'end-ellipsis',
+                10,
+                'next', 'last'
+            ]
+        */
+        return [
+            ...(showFirstButton ? ['first'] : []),
+            ...(hidePrevButton ? [] : ['previous']),
+            ...startPages,
+
+            // Start ellipsis
+            // eslint-disable-next-line no-nested-ternary
+            ...(
+                siblingsStart > boundaryCount + 2 ?
+                    ['start-ellipsis'] :
+                    boundaryCount + 1 < total - boundaryCount ?
+                        [boundaryCount + 1] :
+                        []
+            ),
+
+            // Sibling pages
+            ...Tools.arrayMakeRange([siblingsStart, siblingsEnd]),
+
+            // End ellipsis
+            // eslint-disable-next-line no-nested-ternary
+            ...(
+                siblingsEnd < total - boundaryCount - 1 ?
+                    ['end-ellipsis'] :
+                    total - boundaryCount > boundaryCount ?
+                        [total - boundaryCount] :
+                        []
+            ),
+
+            ...endPages,
+            ...(hideNextButton ? [] : ['next']),
+            ...(showLastButton ? ['last'] : [])
+        ].map((item:number|string):Page => typeof item === 'number' ?
+            {
+                disabled,
+                page: item,
+                selected: item === page,
+                type: 'page'
+            } :
+            {
+                disabled:
+                    disabled ||
+                    (
+                        item.indexOf('ellipsis') === -1 &&
+                        (
+                            item === 'next' || item === 'last' ?
+                                page >= total :
+                                page <= 1
+                        )
+                    ),
+                page:
+                    {first: 1, last: total}[item] ??
+                    item === 'next' ?
+                        Math.min(page + 1, total) :
+                        // NOTE: Is "previous" type.
+                        Math.max(page - 1, 1),
+                selected: false,
+                type: item
+            }
+        )
     }
     /**
      * Generates all permutations of given iterable.
@@ -3806,6 +3920,19 @@ export class Tools<TElement = HTMLElement> {
             }
         }
         return sorted
+    }
+    /**
+     * Makes all values in given iterable unique by removing duplicates (The
+     * first occurrences will be left).
+     * @param data - Array like object.
+     * @returns Sliced version of given object.
+     */
+    static arrayUnique(data:Array<any>):Array<any> {
+        const result:Array<any> = []
+        for (const value of Tools.arrayMake(data))
+            if (!result.includes(value))
+                result.push(value)
+        return result
     }
     // / endregion
     // / region string
