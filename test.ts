@@ -3326,6 +3326,20 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             ['link'],
             (value:any):string => value,
             '<mark>{1}</mark>'
+        ],
+        [
+            'test <a href="foo">link</a>',
+            'test <a href="foo">link</a>',
+            ['foo'],
+            (value:any):string => value,
+            '<mark>{1}</mark>'
+        ],
+        [
+            'test <a href="foo">a <mark>foo</mark> link</a>',
+            'test <a href="foo">a foo link</a>',
+            ['foo'],
+            (value:any):string => value,
+            '<mark>{1}</mark>'
         ]
     )
     testEach<typeof Tools.stringMD5>(

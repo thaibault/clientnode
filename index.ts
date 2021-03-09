@@ -4566,22 +4566,40 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Finds the string match of given query in given target text by applying
      * given normalisation function to target and query.
+     *
      * @param target - Target to search in.
      * @param query - Search string to search for.
      * @param normalizer - Function to use as normalisation for queries and
      * search targets.
+     * @param skipTags - Indicates whether to ignore tags.
+     *
+     * @returns Start and end index of matching range.
      */
     static stringFindNormalizedMatchRange(
         target:any,
         query:any,
-        normalizer:Function = (value:any):string => `${value}`.toLowerCase()
+        normalizer:Function = (value:any):string => `${value}`.toLowerCase(),
+        skipTags:boolean = true
     ):Array<number>|null {
         query = normalizer(query)
-        if (normalizer(target) && query)
-            for (let index = 0; index < target.length; index += 1)
+        if (normalizer(target) && query) {
+            let inTag:boolean = false
+            for (let index = 0; index < target.length; index += 1) {
+
+                if (inTag) {
+                    if (target.charAt(index) === '>')
+                        inTag = false
+                    continue
+                }
+                if (skipTags && target.charAt(index) === '<') {
+                    inTag = true
+                    continue
+                }
+
                 if (normalizer(target.substring(index)).startsWith(query)) {
                     if (query.length === 1)
                         return [index, index + 1]
+
                     for (
                         let subIndex = target.length;
                         subIndex > index;
@@ -4592,6 +4610,8 @@ export class Tools<TElement = HTMLElement> {
                         )).startsWith(query))
                             return [index, subIndex + 1]
                 }
+            }
+        }
         return null
     }
     /**
@@ -5054,14 +5074,13 @@ export class Tools<TElement = HTMLElement> {
      */
     static stringMark(
         target:any,
-        words?:any,
+        givenWords?:Array<string>|string,
         normalizer:Function = (value:any):string => `${value}`.toLowerCase(),
         marker:string = '<span class="tools-mark">{1}</span>'
     ):any {
-        if (typeof target === 'string' && words?.length) {
+        if (typeof target === 'string' && givenWords?.length) {
             target = target.trim()
-            if (!Array.isArray(words))
-                words = [words]
+            const words:Array<string> = ([] as Array<string>).concat(givenWords)
             let index:number = 0
             for (const word of words) {
                 words[index] = normalizer(word).trim()
