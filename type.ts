@@ -134,10 +134,11 @@ export type Offset = {
     top:number
     left:number
 }
+export type PageType = 'end-ellipsis'|'first'|'last'|'next'|'page'|'previous'|'start-ellipsis'
 export type Page = {
     disabled:boolean
-    type:string
-    page:number
+    type:PageType
+    page?:number
     selected:boolean
 }
 export type PaginateOptions = {

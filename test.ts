@@ -2174,7 +2174,6 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 },
                 {
                     disabled: false,
-                    page: 4,
                     selected: false,
                     type: 'end-ellipsis'
                 },
@@ -2186,7 +2185,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 },
                 {
                     disabled: false,
-                    page: 2,
+                    page: 4,
                     selected: false,
                     type: 'next'
                 }
@@ -3313,6 +3312,20 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                     .replace(/(^| )str\./g, '$1strasse')
                     .replace(/[& ]+/g, ' '),
             '<a>{1}</a>'
+        ],
+        [
+            '<mark>test</mark> <a>link</a>',
+            'test <a>link</a>',
+            ['test'],
+            (value:any):string => value,
+            '<mark>{1}</mark>'
+        ],
+        [
+            'test <a><mark>link</mark></a>',
+            'test <a>link</a>',
+            ['link'],
+            (value:any):string => value,
+            '<mark>{1}</mark>'
         ]
     )
     testEach<typeof Tools.stringMD5>(
