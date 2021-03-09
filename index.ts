@@ -35,6 +35,7 @@ import {
     ObjectMaskConfiguration,
     Options,
     Page,
+    PageType,
     PaginateOptions,
     PlainObject,
     Position,
@@ -3656,7 +3657,7 @@ export class Tools<TElement = HTMLElement> {
                 'next', 'last'
             ]
         */
-        return [
+        return ([
             ...(showFirstButton ? ['first'] : []),
             ...(hidePrevButton ? [] : ['previous']),
             ...startPages,
@@ -3687,33 +3688,38 @@ export class Tools<TElement = HTMLElement> {
             ...endPages,
             ...(hideNextButton ? [] : ['next']),
             ...(showLastButton ? ['last'] : [])
-        ].map((item:number|string):Page => typeof item === 'number' ?
-            {
-                disabled,
-                page: item,
-                selected: item === page,
-                type: 'page'
-            } :
-            {
-                disabled:
-                    disabled ||
-                    (
-                        item.indexOf('ellipsis') === -1 &&
+        ] as Array<number|PageType>).map((item:number|PageType):Page =>
+            typeof item === 'number' ?
+                {
+                    disabled,
+                    page: item,
+                    selected: item === page,
+                    type: 'page'
+                } :
+                {
+                    disabled:
+                        disabled ||
                         (
-                            item === 'next' || item === 'last' ?
-                                page >= total :
-                                page <= 1
-                        )
-                    ),
-                page:
-                    {first: 1, last: total}[item] ??
-                    item === 'next' ?
-                        Math.min(page + 1, total) :
-                        // NOTE: Is "previous" type.
-                        Math.max(page - 1, 1),
-                selected: false,
-                type: item
-            }
+                            item.indexOf('ellipsis') === -1 &&
+                            (
+                                item === 'next' || item === 'last' ?
+                                    page >= total :
+                                    page <= 1
+                            )
+                        ),
+                    selected: false,
+                    type: item,
+                    ...(item.endsWith('-ellipsis') ?
+                        {} :
+                        {page:
+                            {first: 1, last: total}[item as 'first'|'last'] ??
+                            item === 'next' ?
+                                Math.min(page + 1, total) :
+                                // NOTE: Is "previous" type.
+                                Math.max(page - 1, 1)
+                        }
+                    )
+                }
         )
     }
     /**
@@ -5061,6 +5067,7 @@ export class Tools<TElement = HTMLElement> {
                 words[index] = normalizer(word).trim()
                 index += 1
             }
+
             let restTarget:string = target
             let offset:number = 0
             while (true) {
@@ -5068,13 +5075,15 @@ export class Tools<TElement = HTMLElement> {
                 let currentRange:Array<number>|null = null
                 for (const word of words) {
                     currentRange = Tools.stringFindNormalizedMatchRange(
-                        restTarget, word, normalizer)
+                        restTarget, word, normalizer
+                    )
                     if (
                         currentRange &&
                         (!nearestRange || currentRange[0] < nearestRange[0])
                     )
                         nearestRange = currentRange
                 }
+
                 if (nearestRange) {
                     target =
                         target.substring(0, offset + nearestRange[0]) +
