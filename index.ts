@@ -3598,7 +3598,25 @@ export class Tools<TElement = HTMLElement> {
         return target
     }
     /**
-     * TODO
+     * Generates a list if pagination symbols to render a pagination from.
+     * @param options - Configure bounds and current page of pagination to
+     * determine.
+     * @param options.boundaryCount - Indicates where to start pagination
+     * within given total range.
+     * @param options.disabled - Indicates whether to disable all items.
+     * @param options.hideNextButton - Indicates whether to show a jump to next
+     * item.
+     * @param options.hidePrevButton - Indicates whether to show a jump to
+     * previous item.
+     * @param options.page - Indicates current visible page.
+     * @param options.showFirstButton - Indicates whether to show a jump to
+     * first item.
+     * @param options.showLastButton - Indicates whether to show a jump to last
+     * item.
+     * @param options.siblingCount - Number of sibling page symbols next to
+     * current page symbol.
+     * @param options.total - Number of all items to paginate.
+     * @returns A list of pagination symbols.
      */
     static arrayPaginate(options:Partial<PaginateOptions> = {}):Array<Page> {
         const {
