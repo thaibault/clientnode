@@ -525,7 +525,7 @@ export class Tools<TElement = HTMLElement> {
             ).format(dateTime)
 
         const scope:Mapping<Array<string>|string> = {}
-        for (const style of ['full', 'long', 'medium', 'short']) {
+        for (const style of ['full', 'long', 'medium', 'short'] as const) {
             scope[`${style}Literals`] = []
             const dateTimeFormat:Intl.DateTimeFormat = new Intl.DateTimeFormat(
                 ([] as Array<string>).concat(locals, 'en-US'),
@@ -1323,9 +1323,11 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns the corresponding name.
      */
     static getNormalizedDirectiveName(directiveName:string):string {
-        for (const delimiter of ['-', ':', '_']) {
+        for (const delimiter of ['-', ':', '_'] as const) {
             let prefixFound = false
-            for (const prefix of [`data${delimiter}`, `x${delimiter}`])
+            for (
+                const prefix of [`data${delimiter}`, `x${delimiter}`] as const
+            )
                 if (directiveName.startsWith(prefix)) {
                     directiveName = directiveName.substring(prefix.length)
                     prefixFound = true
@@ -1334,9 +1336,9 @@ export class Tools<TElement = HTMLElement> {
             if (prefixFound)
                 break
         }
-        for (const delimiter of ['-', ':', '_'])
-            directiveName = Tools.stringDelimitedToCamelCase(
-                directiveName, delimiter)
+        for (const delimiter of ['-', ':', '_'] as const)
+            directiveName =
+                Tools.stringDelimitedToCamelCase(directiveName, delimiter)
         return directiveName
     }
     /**
@@ -1355,7 +1357,7 @@ export class Tools<TElement = HTMLElement> {
             `data-${delimitedName}`,
             `x-${delimitedName}`,
             delimitedName.replace('-', '\\:')
-        ]) {
+        ] as const) {
             const value:string|undefined = this.$domNode.attr(attributeName)
             if (typeof value === 'string')
                 return value
@@ -2241,6 +2243,7 @@ export class Tools<TElement = HTMLElement> {
                         if (values.length === 2)
                             resolve(values[0] === values[1])
                     }
+
                     fileReader.readAsDataURL(value)
                 }
             })
@@ -2273,18 +2276,21 @@ export class Tools<TElement = HTMLElement> {
                     (!Array.isArray(second) || first.length !== second.length)
                 )
                     return false
+
                 const firstIsMap:boolean = Tools.isMap(first)
                 if (
                     firstIsMap &&
                     (!Tools.isMap(second) || first.size !== second.size)
                 )
                     return false
+
                 const firstIsSet:boolean = Tools.isSet(first)
                 if (
                     firstIsSet &&
                     (!Tools.isSet(second) || first.size !== second.size)
                 )
                     return false
+
                 if (firstIsArray) {
                     let index:number = 0
                     for (const value of first) {
@@ -2298,11 +2304,13 @@ export class Tools<TElement = HTMLElement> {
                                 ignoreFunctions,
                                 compareBlobs
                             )
+
                             if (!result)
                                 return false
                             else if (typeof result === 'object' && result.then)
                                 promises.push(result)
                         }
+
                         index += 1
                     }
                 /* eslint-disable curly */
@@ -4749,8 +4757,10 @@ export class Tools<TElement = HTMLElement> {
             const yearPattern:string = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
             // / endregion
             const patternPresenceCache:Mapping<true> = {}
-            for (const timeDelimiter of ['t', ' '])
-                for (const timeComponentDelimiter of [':', '/', '-', ' '])
+            for (const timeDelimiter of ['t', ' '] as const)
+                for (const timeComponentDelimiter of [
+                    ':', '/', '-', ' '
+                ] as const)
                     for (const timeFormat of [
                         hourPattern +
                         `${timeComponentDelimiter}+` +
@@ -5030,7 +5040,7 @@ export class Tools<TElement = HTMLElement> {
         const timezoneMatch:Array<any>|null = value.match(timezonePattern)
         if (timezoneMatch)
             value = value.replace(timezonePattern, '$1')
-        for (const wordToSlice of ['', 'Uhr', `o'clock`])
+        for (const wordToSlice of ['', 'Uhr', `o'clock`] as const)
             value = value.replace(wordToSlice, '')
         value = value.trim()
         // endregion
