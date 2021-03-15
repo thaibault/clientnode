@@ -130,18 +130,34 @@ export const determine$:(() => $Function) = ():$Function => {
                 $ = require('jquery')
             } catch (error) {}
             /* eslint-enable no-empty */
-        if (typeof $ === 'undefined') {
+
+        if (
+            typeof $ === 'undefined' ||
+            $ === null ||
+            typeof $ === 'object' && Object.keys($).length === 0
+        ) {
             const selector:any = globalContext.document?.querySelectorAll ?
                 globalContext.document.querySelectorAll.bind(
                     globalContext.document
                 ) :
                 ():null => null
+
             $ = ((parameter:any, ...additionalArguments:Array<any>):any => {
-                if (typeof parameter === 'string') {
-                    const $domNodes:NodeList = selector(
-                        parameter, ...additionalArguments
-                    )
-                    if ($domNodes && ($ as unknown as $Function).fn)
+                let $domNodes:Array<HTMLElement> = []
+                if (typeof parameter === 'string')
+                    $domNodes = selector(parameter, ...additionalArguments)
+                else if (Array.isArray(parameter))
+                    $domNodes = parameter
+                else if (
+                    typeof HTMLElement === 'object' &&
+                    parameter instanceof HTMLElement ||
+                    parameter?.nodeType === 1 &&
+                    typeof parameter?.nodeName === 'string'
+                )
+                    $domNodes = [parameter]
+
+                if ($domNodes) {
+                    if (($ as unknown as $Function).fn)
                         for (const key in ($ as unknown as $Function).fn)
                             if (Object.prototype.hasOwnProperty.call(
                                 ($ as unknown as $Function).fn, key
@@ -150,27 +166,34 @@ export const determine$:(() => $Function) = ():$Function => {
                                     ($ as unknown as $Function).fn[key] as
                                         unknown as Function
                                 ).bind($domNodes)
+
                     return $domNodes
                 }
+
                 /* eslint-disable @typescript-eslint/no-use-before-define */
                 if (Tools.isFunction(parameter) && globalContext.document)
                 /* eslint-enable @typescript-eslint/no-use-before-define */
                     globalContext.document.addEventListener(
                         'DOMContentLoaded', parameter
                     )
+
                 return parameter
             }) as $Function
+
             ($.fn as object) = {}
         }
     }
+
     if (!$.global)
         $.global = globalContext
+
     if ($.global.window) {
         if (!$.document && $.global.window.document)
             $.document = $.global.window.document
         if (!$.location && $.global.window.location)
             $.location = $.global.window.location
     }
+
     return $
 }
 export let $:$Function = determine$()
@@ -1097,6 +1120,7 @@ export class Tools<TElement = HTMLElement> {
     get style():Mapping<number|string> {
         const result:Mapping<number|string> = {}
         const $domNode:null|$DomNode<TElement> = this.$domNode
+
         if ($domNode?.length) {
             let styleProperties:any
 
