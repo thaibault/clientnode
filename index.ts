@@ -1099,6 +1099,7 @@ export class Tools<TElement = HTMLElement> {
         const $domNode:null|$DomNode<TElement> = this.$domNode
         if ($domNode?.length) {
             let styleProperties:any
+
             if ($.global.window?.getComputedStyle) {
                 styleProperties = $.global.window.getComputedStyle(
                     $domNode[0] as unknown as Element, null
@@ -1127,13 +1128,16 @@ export class Tools<TElement = HTMLElement> {
                                     propertyName in styleProperties &&
                                     styleProperties[propertyName] ||
                                     styleProperties.getPropertyValue(
-                                        propertyName)
+                                        propertyName
+                                    )
                     return result
                 }
             }
+
             styleProperties = (
                 $domNode[0] as unknown as {currentStyle:Mapping<number|string>}
             ).currentStyle
+
             if (styleProperties) {
                 for (const propertyName in styleProperties)
                     if (Object.prototype.hasOwnProperty.call(
@@ -1142,12 +1146,14 @@ export class Tools<TElement = HTMLElement> {
                         result[propertyName] = styleProperties[propertyName]
                 return result
             }
+
             styleProperties = ($domNode[0] as unknown as HTMLElement).style
             if (styleProperties)
                 for (const propertyName in styleProperties)
                     if (typeof styleProperties[propertyName] !== 'function')
                         result[propertyName] = styleProperties[propertyName]
         }
+
         return result
     }
     /**
