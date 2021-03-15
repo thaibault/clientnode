@@ -3673,6 +3673,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 }
                 expect(result).toStrictEqual(true)
             }
+
             for (const filePath of ['./', '../']) {
                 let result:boolean = true
                 try {
