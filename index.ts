@@ -3647,6 +3647,7 @@ export class Tools<TElement = HTMLElement> {
      * @param options.hidePrevButton - Indicates whether to show a jump to
      * previous item.
      * @param options.page - Indicates current visible page.
+     * @param options.pageSize - Number of items per page.
      * @param options.showFirstButton - Indicates whether to show a jump to
      * first item.
      * @param options.showLastButton - Indicates whether to show a jump to last
@@ -3663,17 +3664,23 @@ export class Tools<TElement = HTMLElement> {
             hideNextButton = false,
             hidePrevButton = false,
             page = 1,
+            pageSize = 5,
             showFirstButton = false,
             showLastButton = false,
             siblingCount = 4,
-            total = 1
+            total = 100
         } = options
 
+        const numberOfPages:number =
+            typeof pageSize === 'number' && !isNaN(pageSize) ?
+                Math.ceil(total / pageSize) :
+                total
+
         const startPages:Array<number> =
-            Tools.arrayMakeRange([1, Math.min(boundaryCount, total)])
+            Tools.arrayMakeRange([1, Math.min(boundaryCount, numberOfPages)])
         const endPages:Array<number> = Tools.arrayMakeRange([
-            Math.max(total - boundaryCount + 1, boundaryCount + 1),
-            total
+            Math.max(numberOfPages - boundaryCount + 1, boundaryCount + 1),
+            numberOfPages
         ])
 
         const siblingsStart:number = Math.max(
@@ -3681,7 +3688,7 @@ export class Tools<TElement = HTMLElement> {
                 // Left boundary for lower pages.
                 page - siblingCount,
                 // Lower boundary for higher pages.
-                total - boundaryCount - siblingCount * 2 - 1,
+                numberOfPages - boundaryCount - siblingCount * 2 - 1,
             ),
             // If number is greater than number of "startPages".
             boundaryCount + 2
@@ -3695,7 +3702,7 @@ export class Tools<TElement = HTMLElement> {
                 boundaryCount + siblingCount * 2 + 2,
             ),
             // If number is less than number of "endPages".
-            endPages.length > 0 ? endPages[0] - 2 : total - 1
+            endPages.length > 0 ? endPages[0] - 2 : numberOfPages - 1
         )
 
         /*
@@ -3723,7 +3730,7 @@ export class Tools<TElement = HTMLElement> {
             ...(
                 siblingsStart > boundaryCount + 2 ?
                     ['start-ellipsis'] :
-                    boundaryCount + 1 < total - boundaryCount ?
+                    boundaryCount + 1 < numberOfPages - boundaryCount ?
                         [boundaryCount + 1] :
                         []
             ),
@@ -3734,10 +3741,10 @@ export class Tools<TElement = HTMLElement> {
             // End ellipsis
             // eslint-disable-next-line no-nested-ternary
             ...(
-                siblingsEnd < total - boundaryCount - 1 ?
+                siblingsEnd < numberOfPages - boundaryCount - 1 ?
                     ['end-ellipsis'] :
-                    total - boundaryCount > boundaryCount ?
-                        [total - boundaryCount] :
+                    numberOfPages - boundaryCount > boundaryCount ?
+                        [numberOfPages - boundaryCount] :
                         []
             ),
 
@@ -3759,7 +3766,7 @@ export class Tools<TElement = HTMLElement> {
                             item.indexOf('ellipsis') === -1 &&
                             (
                                 item === 'next' || item === 'last' ?
-                                    page >= total :
+                                    page >= numberOfPages :
                                     page <= 1
                             )
                         ),
@@ -3768,11 +3775,14 @@ export class Tools<TElement = HTMLElement> {
                     ...(item.endsWith('-ellipsis') ?
                         {} :
                         {page:
-                            {first: 1, last: total}[item as 'first'|'last'] ??
-                            item === 'next' ?
-                                Math.min(page + 1, total) :
-                                // NOTE: Is "previous" type.
-                                Math.max(page - 1, 1)
+                            {
+                                first: 1,
+                                last: numberOfPages
+                            }[item as 'first'|'last'] ??
+                                item === 'next' ?
+                                    Math.min(page + 1, numberOfPages) :
+                                    // NOTE: Is "previous" type.
+                                    Math.max(page - 1, 1)
                         }
                     )
                 }

@@ -151,6 +151,7 @@ export type PaginateOptions = {
     showLastButton:boolean
     siblingCount:number
     total:number
+    pageSize?:null|number
 }
 export type Position = Offset & {
     bottom:number
