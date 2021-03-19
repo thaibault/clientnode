@@ -2132,7 +2132,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                     type: 'next'
                 }
             ],
-            {}
+            {total: 1}
         ],
         [
             [
@@ -2193,7 +2193,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             {
                 page: 3,
                 siblingCount: 1,
-                total: 100
+                total: 500
             }
         ]
     )
