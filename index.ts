@@ -1890,35 +1890,65 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Converts given object into its serialized json representation by
      * replacing circular references with a given provided value.
+     *
+     * This method traverses given object recursively and tracks of seen and
+     * already serialized structures to reuse generated strings or mark a
+     * circular reference.
+     *
      * @param object - Object to serialize.
      * @param determineCicularReferenceValue - Callback to create a fallback
      * value depending on given redundant value.
      * @param numberOfSpaces - Number of spaces to use for string formatting.
+     *
      * @returns The formatted json string.
      */
     static convertCircularObjectToJSON(
-        object:object,
-        determineCicularReferenceValue:((
-            key:string, value:any, seenObjects:Array<any>
-        ) => any) = ():string => '__circularReference__',
+        object:unknown,
+        determineCircularReferenceValue:((
+            serializedValue:null|unknown,
+            key:string,
+            value:unknown,
+            seenObjects:Map<unknown, null|unknown>
+        ) => unknown) = (serializedValue:null|unknown):string|unknown =>
+            serializedValue ?? '__circularReference__',
         numberOfSpaces:number = 0
-    ):string {
-        const seenObjects:Array<any> = []
-        return JSON.stringify(
-            object,
-            (key:string, value:any):any => {
+    ):ReturnType<typeof JSON.stringify>|undefined {
+        const seenObjects:Map<unknown, null|unknown> =
+            new Map<unknown, null|unknown>()
+
+        const stringifier = (object:unknown):string => {
+            const replacer = (key:string, value:unknown):unknown => {
                 if (value !== null && typeof value === 'object') {
-                    if (seenObjects.includes(value))
-                        return determineCicularReferenceValue(
-                            key, value, seenObjects
+                    if (seenObjects.has(value))
+                        return determineCircularReferenceValue(
+                            seenObjects.get(value) ?? null,
+                            key,
+                            value,
+                            seenObjects
                         )
-                    seenObjects.push(value)
-                    return value
+
+                    // NOTE: Set before traversing deeper to detect cycles.
+                    seenObjects.set(value, null)
+
+                    const result:Mapping<unknown> = {}
+                    for (const name in value)
+                        if (Object.prototype.hasOwnProperty.call(value, name))
+                            result[name] = replacer(
+                                name, value[name as keyof typeof value]
+                            )
+
+                    seenObjects.set(value, result)
+
+                    return result
                 }
+
                 return value
-            },
-            numberOfSpaces
-        )
+            }
+
+            return JSON.stringify(object, replacer, numberOfSpaces)
+        }
+
+        return stringifier(object)
     }
     /**
      * Converts given map and all nested found maps objects to corresponding
