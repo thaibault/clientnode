@@ -999,6 +999,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(Tools.convertCircularObjectToJSON(object))
             .toStrictEqual('{"a":{"a":"__circularReference__"}}')
     })
+    test('convertCircularObjectToJSON', ():void => {
+        const rootObject:Array<{a:unknown}> = []
+        const subObject:{a:typeof rootObject} = {a: rootObject}
+        rootObject.push(subObject)
+
+        expect(Tools.convertCircularObjectToJSON(rootObject))
+            .toStrictEqual('[{"a":"__circularReference__"}]')
+    })
     testEach<typeof Tools.convertCircularObjectToJSON>(
         'convertCircularObjectToJSON',
         Tools.convertCircularObjectToJSON,
@@ -1006,6 +1014,10 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         ['null', null],
         [undefined, undefined],
         ['5', 5],
+        ['[]', []],
+        ['[5]', [5]],
+        ['["a"]', ['a']],
+        ['["a",{"a":[]}]', ['a', {a: []}]],
         ['"A"', 'A'],
         ['{}', {}],
         ['{"a":null}', {a: null}],
