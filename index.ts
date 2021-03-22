@@ -1906,7 +1906,7 @@ export class Tools<TElement = HTMLElement> {
         object:unknown,
         determineCircularReferenceValue:((
             serializedValue:null|unknown,
-            key:string,
+            key:null|string,
             value:unknown,
             seenObjects:Map<unknown, null|unknown>
         ) => unknown) = (serializedValue:null|unknown):string|unknown =>
@@ -1917,7 +1917,7 @@ export class Tools<TElement = HTMLElement> {
             new Map<unknown, null|unknown>()
 
         const stringifier = (object:unknown):string => {
-            const replacer = (key:string, value:unknown):unknown => {
+            const replacer = (key:null|string, value:unknown):unknown => {
                 if (value !== null && typeof value === 'object') {
                     if (seenObjects.has(value))
                         return determineCircularReferenceValue(
@@ -1930,12 +1930,19 @@ export class Tools<TElement = HTMLElement> {
                     // NOTE: Set before traversing deeper to detect cycles.
                     seenObjects.set(value, null)
 
-                    const result:Mapping<unknown> = {}
-                    for (const name in value)
-                        if (Object.prototype.hasOwnProperty.call(value, name))
-                            result[name] = replacer(
-                                name, value[name as keyof typeof value]
-                            )
+                    let result:Array<unknown>|Mapping<unknown>
+                    if (Array.isArray(value)) {
+                        result = []
+                        for (const item of value)
+                            result.push(replacer(null, item))
+                    } else {
+                        result = {}
+                        for (const name in value)
+                            if (Object.prototype.hasOwnProperty.call(value, name))
+                                result[name] = replacer(
+                                    name, value[name as keyof typeof value]
+                                )
+                    }
 
                     seenObjects.set(value, result)
 
