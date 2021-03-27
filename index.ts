@@ -355,7 +355,7 @@ export class Tools<TElement = HTMLElement> {
         TAB: 9,
         UP: 38
     }
-    static locals:Array<string>|string = []
+    static locales:Array<string>|string = []
     static readonly maximalSupportedInternetExplorerVersion:number = ((
     ):number => {
         /*
@@ -538,11 +538,11 @@ export class Tools<TElement = HTMLElement> {
     static dateTimeFormat(
         format:string,
         dateTime:Date = new Date(),
-        locals:Array<string>|string = Tools.locals
+        locales:Array<string>|string = Tools.locales
     ):string {
         if (['full', 'long', 'medium', 'short'].includes(format))
             return new Intl.DateTimeFormat(
-                ([] as Array<string>).concat(locals, 'en-US'),
+                ([] as Array<string>).concat(locales, 'en-US'),
                 {dateStyle: format, timeStyle: format} as
                     SecondParameter<typeof Intl.DateTimeFormat>
             ).format(dateTime)
@@ -551,7 +551,7 @@ export class Tools<TElement = HTMLElement> {
         for (const style of ['full', 'long', 'medium', 'short'] as const) {
             scope[`${style}Literals`] = []
             const dateTimeFormat:Intl.DateTimeFormat = new Intl.DateTimeFormat(
-                ([] as Array<string>).concat(locals, 'en-US'),
+                ([] as Array<string>).concat(locales, 'en-US'),
                 {dateStyle: style, timeStyle: style} as
                     SecondParameter<typeof Intl.DateTimeFormat>
             )
