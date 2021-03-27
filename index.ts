@@ -355,7 +355,7 @@ export class Tools<TElement = HTMLElement> {
         TAB: 9,
         UP: 38
     }
-    static locales:Array<string>|string = []
+    static locales:Array<string> = []
     static readonly maximalSupportedInternetExplorerVersion:number = ((
     ):number => {
         /*
