@@ -2786,25 +2786,40 @@ export class Tools<TElement = HTMLElement> {
      */
     static getSubstructure(
         target:any,
-        selector:Array<string>|string,
+        selector:Array<string|((target:any) => any)>|string|((target:any) =>
+            any
+        ),
         skipMissingLevel:boolean = true,
         delimiter:string = '.'
     ):any {
-        let path:Array<string> = []
-        for (const component of ([] as Array<string>).concat(
-            selector
-        ))
-            path = path.concat(component.split(delimiter))
+        let path:Array<string|((target:any) => any)> = []
+        for (const component of (
+            [] as Array<string|((target:any) => any)>
+        ).concat(selector))
+            path = path.concat(
+                typeof component === 'string' ?
+                    component.split(delimiter) :
+                    component
+            )
+
         let result:any = target
-        for (const name of path)
+        for (const selector of path)
             if (
                 result !== null &&
-                typeof result === 'object' &&
-                Object.prototype.hasOwnProperty.call(result, name)
-            )
-                result = result[name]
-            else if (!skipMissingLevel)
+                typeof result === 'object'
+            ) {
+                if (
+                    typeof selector === 'string' &&
+                    Object.prototype.hasOwnProperty.call(result, selector)
+                )
+                    result = result[selector]
+                else if (Tools.isFunction(selector))
+                    result = selector(result)
+                else if (!skipMissingLevel)
+                    return undefined
+            } else if (!skipMissingLevel)
                 return undefined
+
         return result
     }
     /**

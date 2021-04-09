@@ -1747,7 +1747,17 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [1, {a: 1}, ['a']],
         [null, {a: {a: null}}, 'a.a'],
         [[], {a: {a: []}}, 'a.a'],
-        [3, {a: {b: {c: 3}}}, ['a', 'b.c']]
+        [3, {a: {b: {c: 3}}}, ['a', 'b.c']],
+        [
+            3,
+            {a: {b: {c: [1, 3, 2]}}},
+            (root:{a:{b:{c:Array<number>}}}):number => root.a.b.c[1]
+        ],
+        [
+            3,
+            {a: {b: {c: [1, 3, 2]}}},
+            ['a', (root:{b:{c:Array<number>}}):number => root.b.c[1]]
+        ]
     )
     test('getProxyHandler', ():void => {
         expect(Tools.isPlainObject(Tools.getProxyHandler({})))
