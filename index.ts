@@ -25,6 +25,7 @@ import {
 } from 'node-fetch'
 
 import {
+    BaseSelector,
     CompilationResult,
     EvaluationResult,
     File,
@@ -50,6 +51,7 @@ import {
     RecursivePartial,
     RelativePosition,
     SecondParameter,
+    Selector,
     SetterFunction,
     TemplateFunction,
     TimeoutPromise,
@@ -2778,29 +2780,45 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Retrieves substructure in given object referenced by given selector
      * path.
+     *
      * @param target - Object to search in.
      * @param selector - Selector path.
      * @param skipMissingLevel - Indicates to skip missing level in given path.
      * @param delimiter - Delimiter to delimit given selector components.
+     *
      * @returns Determined sub structure of given data or "undefined".
      */
     static getSubstructure(
         target:any,
-        selector:Array<string|((target:any) => any)>|string|((target:any) =>
-            any
-        ),
+        selector:Selector,
         skipMissingLevel:boolean = true,
         delimiter:string = '.'
     ):any {
-        let path:Array<string|((target:any) => any)> = []
-        for (const component of (
-            [] as Array<string|((target:any) => any)>
-        ).concat(selector))
-            path = path.concat(
-                typeof component === 'string' ?
-                    component.split(delimiter) :
-                    component
-            )
+        let path:Array<BaseSelector> = []
+        for (const component of ([] as Array<BaseSelector>).concat(selector))
+            if (typeof component === 'string') {
+                const parts:Array<string> = component.split(delimiter)
+                for (const part of parts) {
+                    const subParts:Array<string>|null =
+                        part.match(/(.*?)(\[[0-9]+\])/g)
+                    if (subParts)
+                        // NOTE: We add index assignments into path array.
+                        for (const subPart of subParts) {
+                            const [all, prefix, indexAssignment] =
+                                subPart.match(/(.*?)(\[[0-9]+\])/) as
+                                    [string, string, string] 
+                            if (prefix)
+                                path.push(prefix)
+                            // Trim bracket padding "[index]" => "index".
+                            path.push(indexAssignment.substring(
+                                1, indexAssignment.length - 1
+                            ))
+                        }
+                    else
+                        path.push(part)
+                }
+            } else
+                path = path.concat(component)
 
         let result:any = target
         for (const selector of path)

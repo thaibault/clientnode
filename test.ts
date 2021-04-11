@@ -1748,6 +1748,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [null, {a: {a: null}}, 'a.a'],
         [[], {a: {a: []}}, 'a.a'],
         [3, {a: {b: {c: 3}}}, ['a', 'b.c']],
+        [3, {a: {b: {c: [3]}}}, ['a', 'b.c[0]']],
         [
             3,
             {a: {b: {c: [1, 3, 2]}}},
