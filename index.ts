@@ -2889,8 +2889,8 @@ export class Tools<TElement = HTMLElement> {
      * configuration or black listed via "exclude" mask configuration.
      * @param object - Object to slice.
      * @param mask - Mask configuration.
-     * @returns Given but sliced object. If object (or nested object will be
-     * modified a flat copy of that object will be returned.
+     * @returns Given but sliced object. If (nested) object will be modified a
+     * flat copy of that object will be returned.
      */
     static mask<Type = object>(
         object:Type, mask:ObjectMaskConfiguration
