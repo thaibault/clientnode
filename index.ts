@@ -2932,24 +2932,39 @@ export class Tools<TElement = HTMLElement> {
                             {include: mask.include[key]}
                         )
         } else
+            // In this branch "mask.include === true" holds.
             result = object
 
-        if (Tools.isPlainObject(mask.exclude))
+        if (Tools.isPlainObject(mask.exclude)) {
+
+            let useCopy:boolean = false
+            const copy:Type = {...result}
+
             for (const key in mask.exclude)
                 if (
                     Object.prototype.hasOwnProperty.call(mask.exclude, key) &&
-                    Object.prototype.hasOwnProperty.call(result, key)
+                    Object.prototype.hasOwnProperty.call(copy, key)
                 )
-                    if (mask.exclude[key] === true)
-                        delete result[key as keyof object]
-                    else if (
+                    if (mask.exclude[key] === true) {
+                        useCopy = true
+                        delete copy[key as keyof Type]
+                    } else if (
                         Tools.isPlainObject(mask.exclude[key]) &&
-                        typeof result[key as keyof object] === 'object'
-                    )
-                        (result[key as keyof object] as object) = Tools.mask(
-                            result[key as keyof object],
-                            {exclude: mask.exclude[key]}
-                        )
+                        typeof copy[key as keyof Type] === 'object'
+                    ) {
+                        const current:ValueOf<Type> = copy[key as keyof Type]
+                        ;(copy[key as keyof Type] as ValueOf<Type>) =
+                            Tools.mask(
+                                copy[key as keyof Type],
+                                {exclude: mask.exclude[key]}
+                            ) as ValueOf<Type>
+                        if (copy[key as keyof Type] !== current)
+                            useCopy = true
+                    }
+
+            if (useCopy)
+                result = copy
+        }
 
         return result
     }
