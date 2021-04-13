@@ -1767,9 +1767,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             Tools.isPlainObject(Tools.getProxyHandler(new Map(), {get: 'get'}))
         ).toStrictEqual(true)
     })
-    testEach<typeof Tools.maskObject>(
-        'maskObject',
-        Tools.maskObject,
+    testEach<typeof Tools.mask>(
+        'mask',
+        Tools.mask,
 
         [{}, {}, {}],
         [{a: 2}, {a: 2}, {}],

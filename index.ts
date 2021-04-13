@@ -2892,7 +2892,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Given but sliced object. If object (or nested object will be
      * modified a flat copy of that object will be returned.
      */
-    static maskObject<Type = object>(
+    static mask<Type = object>(
         object:Type, mask:ObjectMaskConfiguration
     ):Partial<Type> {
         mask = {exclude: false, include: true, ...mask}
@@ -2917,7 +2917,7 @@ export class Tools<TElement = HTMLElement> {
                         typeof object[key as keyof object] === 'object'
                     )
                         (result[key as keyof object] as object) =
-                            Tools.maskObject(
+                            Tools.mask(
                                 object[key as keyof object],
                                 {include: mask.include[key]}
                             )
@@ -2936,7 +2936,7 @@ export class Tools<TElement = HTMLElement> {
                         typeof result[key as keyof object] === 'object'
                     )
                         (result[key as keyof object] as object) =
-                            Tools.maskObject(
+                            Tools.mask(
                                 result[key as keyof object],
                                 {exclude: mask.exclude[key]}
                             )
