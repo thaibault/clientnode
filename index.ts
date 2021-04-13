@@ -2705,6 +2705,7 @@ export class Tools<TElement = HTMLElement> {
         let index:number = 0
         let deep:boolean|typeof IgnoreNullAndUndefinedSymbol = false
         let target:any
+
         if (
             targetOrDeepIndicator === IgnoreNullAndUndefinedSymbol ||
             typeof targetOrDeepIndicator === 'boolean'
@@ -2715,9 +2716,11 @@ export class Tools<TElement = HTMLElement> {
             index = 1
         } else
             target = targetOrDeepIndicator
+
         const mergeValue = (targetValue:any, value:any):any => {
             if (value === targetValue)
                 return targetValue
+
             // Traverse recursively if we're merging plain objects or maps.
             if (
                 deep &&
@@ -2733,18 +2736,22 @@ export class Tools<TElement = HTMLElement> {
                     clone = (targetValue && Tools.isPlainObject(targetValue)) ?
                         targetValue :
                         {}
+
                 return Tools.extend(deep, clone, value)
             }
+
             return value
         }
         while (index < targetAndOrSources.length) {
             const source:any = targetAndOrSources[index]
             let targetType:string = typeof target
             let sourceType:string = typeof source
+
             if (Tools.isMap(target))
                 targetType += ' Map'
             if (Tools.isMap(source))
                 sourceType += ' Map'
+
             if (targetType === sourceType && target !== source)
                 if (Tools.isMap(target) && Tools.isMap(source))
                     for (const [key, value] of source)
@@ -2773,8 +2780,10 @@ export class Tools<TElement = HTMLElement> {
                     target = source
             else
                 target = source
+
             index += 1
         }
+
         return target
     }
     /**
@@ -2896,12 +2905,14 @@ export class Tools<TElement = HTMLElement> {
         object:Type, mask:ObjectMaskConfiguration
     ):Partial<Type> {
         mask = {exclude: false, include: true, ...mask}
+
         if (
             mask.exclude === true ||
             mask.include === false ||
             typeof object !== 'object'
         )
             return {}
+
         let result:Type = {} as Type
         if (Tools.isPlainObject(mask.include)) {
             for (const key in mask.include)
@@ -2916,13 +2927,13 @@ export class Tools<TElement = HTMLElement> {
                         Tools.isPlainObject(mask.include[key]) &&
                         typeof object[key as keyof object] === 'object'
                     )
-                        (result[key as keyof object] as object) =
-                            Tools.mask(
-                                object[key as keyof object],
-                                {include: mask.include[key]}
-                            )
+                        (result[key as keyof object] as object) = Tools.mask(
+                            object[key as keyof object],
+                            {include: mask.include[key]}
+                        )
         } else
             result = object
+
         if (Tools.isPlainObject(mask.exclude))
             for (const key in mask.exclude)
                 if (
@@ -2935,11 +2946,11 @@ export class Tools<TElement = HTMLElement> {
                         Tools.isPlainObject(mask.exclude[key]) &&
                         typeof result[key as keyof object] === 'object'
                     )
-                        (result[key as keyof object] as object) =
-                            Tools.mask(
-                                result[key as keyof object],
-                                {exclude: mask.exclude[key]}
-                            )
+                        (result[key as keyof object] as object) = Tools.mask(
+                            result[key as keyof object],
+                            {exclude: mask.exclude[key]}
+                        )
+
         return result
     }
     /**
