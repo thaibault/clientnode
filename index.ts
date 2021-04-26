@@ -4713,7 +4713,9 @@ export class Tools<TElement = HTMLElement> {
                         registered getter by retrieving values. So simple using
                         "...Object.values(scope)" is not appreciate here.
                     */
-                    ...originalScopeNames.map((name:string):any => scope[name])
+                    ...originalScopeNames.map((name:string):unknown =>
+                        scope[name]
+                    )
                 )
         } catch (error) {
             result.error = result.runtimeError = (
