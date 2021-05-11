@@ -2091,15 +2091,15 @@ export class Tools<TElement = HTMLElement> {
      * level in given source data structure.
      * @returns Value "true" if both objects are equal and "false" otherwise.
      */
-    static copy<T = any>(
-        source:T,
+    static copy<Type = unknown>(
+        source:Type,
         recursionLimit:number = -1,
         recursionEndValue:any = ValueCopySymbol,
-        destination:null|T = null,
+        destination:null|Type = null,
         cyclic:boolean = false,
-        knownReferences:Array<any> = [],
+        knownReferences:Array<unknown> = [],
         recursionLevel:number = 0
-    ):T {
+    ):Type {
         if (source !== null && typeof source === 'object')
             if (destination) {
                 if (source === destination)
@@ -2107,12 +2107,14 @@ export class Tools<TElement = HTMLElement> {
                         `Can't copy because source and destination are ` +
                         'identical.'
                     )
+
                 if (!cyclic && ![undefined, null].includes(source as any)) {
                     const index:number = knownReferences.indexOf(source)
                     if (index !== -1)
-                        return knownReferences[index]
+                        return knownReferences[index] as Type
                     knownReferences.push(source)
                 }
+
                 const copyValue:Function = <V>(value:V):null|V => {
                     if (
                         recursionLimit !== -1 &&
@@ -2121,6 +2123,7 @@ export class Tools<TElement = HTMLElement> {
                         return recursionEndValue === ValueCopySymbol ?
                             value :
                             recursionEndValue
+
                     const result:any = Tools.copy(
                         value,
                         recursionLimit,
@@ -2136,6 +2139,7 @@ export class Tools<TElement = HTMLElement> {
                         typeof value === 'object'
                     )
                         knownReferences.push(value)
+
                     return result
                 }
                 if (Array.isArray(source))
@@ -2167,48 +2171,58 @@ export class Tools<TElement = HTMLElement> {
                         source,
                         recursionLimit,
                         recursionEndValue,
-                        ([] as unknown as T),
+                        ([] as unknown as Type),
                         cyclic,
                         knownReferences,
                         recursionLevel
                     )
+
                 if (source instanceof Map)
                     return Tools.copy(
                         source,
                         recursionLimit,
                         recursionEndValue,
-                        (new Map() as unknown as T),
+                        (new Map() as unknown as Type),
                         cyclic,
                         knownReferences,
                         recursionLevel
                     )
+
                 if (source instanceof Set)
                     return Tools.copy(
                         source,
                         recursionLimit,
                         recursionEndValue,
-                        (new Set() as unknown as T),
+                        (new Set() as unknown as Type),
                         cyclic,
                         knownReferences,
                         recursionLevel
                     )
+
                 if (source instanceof Date)
-                    return new Date(source.getTime()) as unknown as T
+                    return new Date(source.getTime()) as unknown as Type
+
                 if (source instanceof RegExp) {
                     const modifier =
                         (source as RegExp).toString().match(/[^\/]*$/)
                     destination = new RegExp(
                         source.source,
                         modifier ? modifier[0] : undefined
-                    ) as unknown as T
+                    ) as unknown as Type
                     (destination as unknown as RegExp).lastIndex = source.lastIndex
                     return destination
                 }
+
+                if (typeof Blob !== 'undefined' && source instanceof Blob)
+                    return source.slice(0, source.size, source.type) as
+                        unknown as
+                        Type
+
                 return Tools.copy(
                     source,
                     recursionLimit,
                     recursionEndValue,
-                    ({} as unknown as T),
+                    ({} as unknown as Type),
                     cyclic,
                     knownReferences,
                     recursionLevel
