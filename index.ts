@@ -1976,31 +1976,38 @@ export class Tools<TElement = HTMLElement> {
                     if (['number', 'string'].includes(typeof key))
                         newObject[`${key}`] = value
                 }
+
                 return newObject
             }
+
             if (deep)
                 if (Tools.isPlainObject(object)) {
                     for (const key in object)
                         if (Object.prototype.hasOwnProperty.call(object, key))
                             object[key] = Tools.convertMapToPlainObject(
-                                object[key], deep)
+                                object[key], deep
+                            )
                 } else if (Array.isArray(object)) {
                     let index:number = 0
+
                     for (const value of object) {
-                        object[index] = Tools.convertMapToPlainObject(
-                            value, deep)
+                        object[index] =
+                            Tools.convertMapToPlainObject(value, deep)
                         index += 1
                     }
                 } else if (Tools.isSet(object)) {
                     const cache:Array<any> = []
+
                     for (const value of object) {
                         object.delete(value)
                         cache.push(Tools.convertMapToPlainObject(value, deep))
                     }
+
                     for (const value of cache)
                         object.add(value)
                 }
         }
+
         return object
     }
     /**
