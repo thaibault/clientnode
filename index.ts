@@ -1389,7 +1389,7 @@ export class Tools<TElement = HTMLElement> {
             `data-${delimitedName}`,
             `x-${delimitedName}`,
             delimitedName.replace('-', '\\:')
-        ] as const) {
+        ]) {
             const value:string|undefined = this.$domNode.attr(attributeName)
             if (typeof value === 'string')
                 return value
