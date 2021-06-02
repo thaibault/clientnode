@@ -155,69 +155,72 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     // / endregion
     // / region mutual exclusion
     test(`acquireLock|releaseLock (${testEnvironment})`, async (
-        done:Function
     ):Promise<void> => {
-        let testValue:boolean = false
+        let testValue:string = 'a'
         await tools.acquireLock('test', ():void => {
-            testValue = true
+            testValue = 'b'
         })
-        expect(testValue).toStrictEqual(true)
+        expect(testValue).toStrictEqual('b')
         expect(tools.acquireLock(
             'test',
             ():void => {
-                testValue = false
+                testValue = 'a'
             }
         )).toBeInstanceOf(Promise)
-        expect(testValue).toStrictEqual(true)
+        expect(testValue).toStrictEqual('b')
         expect($.Tools().releaseLock('test')).toBeInstanceOf(Promise)
-        expect(testValue).toStrictEqual(true)
+        expect(testValue).toStrictEqual('b')
         expect(tools.releaseLock('test')).toBeInstanceOf(Promise)
-        expect(testValue).toStrictEqual(false)
+        expect(testValue).toStrictEqual('a')
         expect(tools.releaseLock('test')).toBeInstanceOf(Promise)
-        expect(testValue).toStrictEqual(false)
+        expect(testValue).toStrictEqual('a')
         await tools.acquireLock('test', ():void => {
-            testValue = true
+            testValue = 'b'
         })
-        expect(testValue).toStrictEqual(true)
+        expect(testValue).toStrictEqual('b')
         expect(tools.acquireLock(
             'test',
             ():void => {
-                testValue = false
+                testValue = 'a'
             }
         )).toBeInstanceOf(Promise)
-        expect(testValue).toStrictEqual(true)
+        expect(testValue).toStrictEqual('b')
         expect(tools.acquireLock(
             'test',
             ():void => {
-                testValue = true
+                testValue = 'b'
             }
         )).toBeInstanceOf(Promise)
-        expect(testValue).toStrictEqual(true)
+        expect(testValue).toStrictEqual('b')
         tools.releaseLock('test')
-        expect(testValue).toStrictEqual(false)
+        expect(testValue).toStrictEqual('a')
         tools.releaseLock('test')
-        expect(testValue).toStrictEqual(true)
-        tools.acquireLock('test').then(async (result:string):Promise<void> => {
-            expect(result).toStrictEqual('test')
-            Tools.timeout(():Promise<void> =>
-                tools.releaseLock('test')
-            )
-            result = await tools.acquireLock('test')
-            expect(result).toStrictEqual('test')
-            Tools.timeout(():Promise<void> =>
-                tools.releaseLock('test')
-            )
-            result = await tools.acquireLock('test', ():Promise<boolean> => {
-                return new Promise(async (resolve:Function):Promise<void> => {
-                    await Tools.timeout()
-                    testValue = false
-                    resolve(testValue)
-                })
-            })
-            expect(testValue).toStrictEqual(false)
-            done()
-        })
+        expect(testValue).toStrictEqual('b')
+        const promise:Promise<void> = tools.acquireLock('test').then(
+            async (result:string|void):Promise<void> => {
+                expect(result).toStrictEqual('test')
+                Tools.timeout(():Promise<string|void> =>
+                    tools.releaseLock('test')
+                )
+                result = await tools.acquireLock('test')
+                expect(result).toStrictEqual('test')
+                Tools.timeout(():Promise<string|void> =>
+                    tools.releaseLock('test')
+                )
+                result = await tools.acquireLock(
+                    'test',
+                    ():Promise<string|void> =>
+                        new Promise(async (resolve:Function):Promise<void> => {
+                            await Tools.timeout()
+                            testValue = 'a'
+                            resolve(testValue)
+                        })
+                )
+                expect(testValue).toStrictEqual('a')
+            }
+        )
         tools.releaseLock('test')
+        await promise
     })
     test('getSemaphore', async ():Promise<void> => {
         const semaphore:Semaphore = Tools.getSemaphore(2)

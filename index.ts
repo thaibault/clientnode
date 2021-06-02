@@ -301,7 +301,7 @@ export class Semaphore {
  * @property _defaultOptions.domNodes.showJavaScriptEnabled {string} - Selector
  * to dom nodes which should be visible if javaScript is available.
  */
-export class Tools<TElement = HTMLElement> {
+export class Tools<TElement = HTMLElement, LockType = string|void> {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href'
@@ -422,7 +422,7 @@ export class Tools<TElement = HTMLElement> {
     // endregion
     // region dynamic properties
     $domNode:null|$DomNode<TElement> = null
-    locks:Mapping<Array<LockCallbackFunction>>
+    locks:Mapping<Array<LockCallbackFunction<LockType>>>
 
     _defaultOptions:Options
     _options:RecursivePartial<Options>
@@ -457,7 +457,7 @@ export class Tools<TElement = HTMLElement> {
             domNodeSelectorPrefix: 'body',
             logging: false
         },
-        locks:Mapping<Array<LockCallbackFunction>> = {}
+        locks:Mapping<Array<LockCallbackFunction<LockType>>> = {}
     ) {
         if ($domNode)
             this.$domNode = $domNode
@@ -504,9 +504,10 @@ export class Tools<TElement = HTMLElement> {
      * This method could be overwritten normally. It acts like a destructor.
      * @returns Returns the current instance.
      */
-    destructor():Tools<TElement> {
+    destructor():Tools<TElement, LockType> {
         if (($.fn as {off?:Function})?.off)
             this.off('*')
+
         return this
     }
     /**
@@ -517,7 +518,7 @@ export class Tools<TElement = HTMLElement> {
      */
     initialize(
         options:object = {}
-    ):Promise<$DomNode<TElement>>|Promise<Tools>|Tools<TElement>|Tools {
+    ):Promise<$DomNode<TElement>>|Promise<Tools>|Tools<TElement, LockType>|Tools {
         /*
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
@@ -627,36 +628,46 @@ export class Tools<TElement = HTMLElement> {
      * Calling this method introduces a starting point for a critical area with
      * potential race conditions. The area will be binded to given description
      * string. So don't use same names for different areas.
+     *
      * @param description - A short string describing the critical areas
      * properties.
      * @param callback - A procedure which should only be executed if the
      * interpreter isn't in the given critical area. The lock description
      * string will be given to the callback function.
      * @param autoRelease - Release the lock after execution of given callback.
+     *
      * @returns Returns a promise which will be resolved after releasing lock.
      */
     acquireLock(
-        description:string, callback?:LockCallbackFunction, autoRelease = false
-    ):Promise<any> {
+        description:string,
+        callback?:LockCallbackFunction<LockType>,
+        autoRelease = false
+    ):Promise<LockType> {
         return new Promise((resolve:Function):void => {
-            const wrappedCallback:LockCallbackFunction = (
+            const wrappedCallback:LockCallbackFunction<LockType> = (
                 description:string
-            ):Promise<any>|void => {
-                let result:any
+            ):Promise<LockType>|LockType => {
+                let result:Promise<LockType>|LockType|undefined
                 if (callback)
                     result = callback(description)
-                const finish:Function = (value:any):void => {
+
+                const finish = (value:LockType):LockType => {
                     if (autoRelease)
                         this.releaseLock(description)
+
                     resolve(value)
+
+                    return value
                 }
-                /* eslint-disable no-empty */
-                try {
-                    return result.then(finish)
-                } catch (error) {}
-                /* eslint-enable no-empty */
-                finish(description)
+
+                if ((result as Promise<LockType>)?.then)
+                    return (result as Promise<LockType>).then(finish)
+
+                finish(description as unknown as LockType)
+
+                return result!
             }
+
             if (Object.prototype.hasOwnProperty.call(this.locks, description))
                 this.locks[description].push(wrappedCallback)
             else {
@@ -668,22 +679,23 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Calling this method  causes the given critical area to be finished and
      * all functions given to "acquireLock()" will be executed in right order.
+     *
      * @param description - A short string describing the critical areas
      * properties.
+     *
      * @returns Returns the return (maybe promise resolved) value of the
      * callback given to the "acquireLock" method.
      */
-    async releaseLock(description:string):Promise<any> {
-        let result:any
+    async releaseLock(description:string):Promise<LockType|void> {
         if (Object.prototype.hasOwnProperty.call(this.locks, description)) {
-            const callback:LockCallbackFunction|undefined =
+            const callback:LockCallbackFunction<LockType>|undefined =
                 this.locks[description].shift()
+
             if (callback === undefined)
                 delete this.locks[description]
             else
-                result = await callback(description)
+                return await callback(description)
         }
-        return result
     }
     /**
      * Generate a semaphore object with given number of resources.
@@ -861,7 +873,7 @@ export class Tools<TElement = HTMLElement> {
         avoidAnnotation = false,
         level:keyof Console = 'info',
         ...additionalArguments:Array<any>
-    ):Tools<TElement> {
+    ):Tools<TElement, LockType> {
         if (
             this._options.logging ||
             force ||
@@ -903,7 +915,7 @@ export class Tools<TElement = HTMLElement> {
      * formating.
      * @returns Returns the current instance.
      */
-    info(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
+    info(object:any, ...additionalArguments:Array<any>):Tools<TElement, LockType> {
         return this.log(object, false, false, 'info', ...additionalArguments)
     }
     /**
@@ -914,7 +926,7 @@ export class Tools<TElement = HTMLElement> {
      * formating.
      * @returns Returns the current instance.
      */
-    debug(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
+    debug(object:any, ...additionalArguments:Array<any>):Tools<TElement, LockType> {
         return this.log(object, false, false, 'debug', ...additionalArguments)
     }
     /**
@@ -925,7 +937,7 @@ export class Tools<TElement = HTMLElement> {
      * formating.
      * @returns Returns the current instance.
      */
-    error(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
+    error(object:any, ...additionalArguments:Array<any>):Tools<TElement, LockType> {
         return this.log(object, true, false, 'error', ...additionalArguments)
     }
     /**
@@ -936,7 +948,7 @@ export class Tools<TElement = HTMLElement> {
      * formating.
      * @returns Returns the current instance.
      */
-    critical(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
+    critical(object:any, ...additionalArguments:Array<any>):Tools<TElement, LockType> {
         return this.log(object, true, false, 'warn', ...additionalArguments)
     }
     /**
@@ -947,7 +959,7 @@ export class Tools<TElement = HTMLElement> {
      * formating.
      * @returns Returns the current instance.
      */
-    warn(object:any, ...additionalArguments:Array<any>):Tools<TElement> {
+    warn(object:any, ...additionalArguments:Array<any>):Tools<TElement, LockType> {
         return this.log(object, false, false, 'warn', ...additionalArguments)
     }
     /**
@@ -1056,7 +1068,7 @@ export class Tools<TElement = HTMLElement> {
      * Normalizes class name order of current dom node.
      * @returns Current instance.
      */
-    get normalizedClassNames():Tools<TElement> {
+    get normalizedClassNames():Tools<TElement, LockType> {
         if (this.$domNode) {
             const className = 'class'
             this.$domNode
@@ -1081,7 +1093,7 @@ export class Tools<TElement = HTMLElement> {
      * Normalizes style attributes order of current dom node.
      * @returns Returns current instance.
      */
-    get normalizedStyles():Tools<TElement> {
+    get normalizedStyles():Tools<TElement, LockType> {
         if (this.$domNode) {
             const styleName = 'style'
             this.$domNode
@@ -6648,7 +6660,7 @@ export class Tools<TElement = HTMLElement> {
                     parameter[1], eventType
                 ))
                     (
-                        this[eventFunctionName as keyof Tools<TElement>] as
+                        this[eventFunctionName as keyof Tools<TElement, LockType>] as
                             Function
                     )($domNode, eventType, parameter[1][eventType])
             return $domNode
@@ -6664,8 +6676,8 @@ export class Tools<TElement = HTMLElement> {
     }
     // endregion
 }
-export class BoundTools<TElement extends HTMLElement = HTMLElement> extends
-    Tools<TElement> {
+export class BoundTools<TElement extends HTMLElement = HTMLElement, LockType = string|void> extends
+    Tools<TElement, LockType> {
     $domNode:$DomNode<TElement>
     readonly self:typeof BoundTools = BoundTools
     /**
@@ -6700,13 +6712,13 @@ export const augment$ = (value:$Function):void => {
             $.location = $.global.window.location
     }
     if ($.fn)
-        $.fn.Tools = function<TElement = HTMLElement>(
+        $.fn.Tools = function<TElement = HTMLElement, LockType = string|void>(
             this:$DomNode<TElement>, ...parameter:Array<any>
         ):any {
-            return (new Tools<TElement>()).controller(
+            return (new Tools<TElement, LockType>()).controller(
                 Tools, parameter, this as $DomNode<TElement>
             )
-        } as ToolsFunction<HTMLElement>
+        } as ToolsFunction
     $.Tools = ((...parameter:Array<any>):any =>
         (new Tools()).controller(Tools, parameter)
     ) as ToolsFunction

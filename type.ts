@@ -40,8 +40,9 @@ export type TestSymbol =
 export type ThenParameter<Type> = Type extends PromiseLike<infer U> ? U : Type
 export type ThenParameterRecursive<Type> =
     Type extends PromiseLike<infer U> ? ThenParameterRecursive<U> : Type
-export type ToolsFunction<TElement = HTMLElement> =
-    ((...parameter:Array<any>) => any|Tools<TElement>) & {class:typeof Tools}
+export type ToolsFunction<TElement = HTMLElement, LockType = string> =
+    ((...parameter:Array<any>) => any|Tools<TElement, LockType>) &
+    {class:typeof Tools}
 export type StaticScope =
     ((parameter:any, ...additionalArguments:Array<any>) => any) &
     {
@@ -199,7 +200,8 @@ export type EvaluationResult = {
     result:any
     runtimeError:null|string
 }
-export type LockCallbackFunction = (description:string) => Promise<any>|void
+export type LockCallbackFunction<Type = string> = (description:string) =>
+    Promise<Type>|Type
 export type ValueOf<Type> = Type[keyof Type]
 // endregion
 // region vim modline
