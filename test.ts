@@ -3378,6 +3378,13 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             ['foo'],
             (value:any):string => value,
             '<mark>{1}</mark>'
+        ],
+        [
+            '<mark>foo</mark> <mark>foo</mark> <mark>foo</mark>',
+            'foo foo foo',
+            ['foo'],
+            (value:any):string => value,
+            '<mark>{1}</mark>'
         ]
     )
     testEach<typeof Tools.stringMD5>(
