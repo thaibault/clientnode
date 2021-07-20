@@ -6676,8 +6676,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     // endregion
 }
-export class BoundTools<TElement extends HTMLElement = HTMLElement, LockType = string|void> extends
-    Tools<TElement, LockType> {
+export class BoundTools<
+    TElement extends HTMLElement = HTMLElement, LockType = string|void
+> extends Tools<TElement, LockType> {
     $domNode:$DomNode<TElement>
     readonly self:typeof BoundTools = BoundTools
     /**
