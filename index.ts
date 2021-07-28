@@ -26,6 +26,7 @@ import {
 
 import {
     BaseSelector,
+    CompareOptions,
     CompilationResult,
     EvaluationResult,
     File,
@@ -2273,20 +2274,25 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Returns true if given items are equal for given property list. If
      * property list isn't set all properties will be checked. All keys which
      * starts with one of the exception prefixes will be omitted.
+     *
      * @param firstValue - First object to compare.
      * @param secondValue - Second object to compare.
-     * @param properties - Property names to check. Check all if "null" is
-     * selected (default).
-     * @param deep - Recursion depth negative values means infinitely deep
-     * (default).
-     * @param exceptionPrefixes - Property prefixes which indicates properties
-     * to ignore.
-     * @param ignoreFunctions - Indicates whether functions have to be
-     * identical to interpret is as equal. If set to "true" two functions will
-     * be assumed to be equal (default).
-     * @param compareBlobs - Indicates whether binary data should be converted
-     * to a base64 string to compare their content. Makes this function
-     * asynchronous in browsers and potentially takes a lot of resources.
+     *
+     * @param givenOptions - Options to define how to compare.
+     * @param givenOptions.properties - Property names to check. Check all if
+     * "null" is selected (default).
+     * @param givenOptions.deep - Recursion depth negative values means
+     * infinitely deep (default).
+     * @param givenOptions.exceptionPrefixes - Property prefixes which
+     * indicates properties to ignore.
+     * @param givenOptions.ignoreFunctions - Indicates whether functions have
+     * to be identical to interpret is as equal. If set to "true" two functions
+     * will be assumed to be equal (default).
+     * @param givenOptions.compareBlobs - Indicates whether binary data should
+     * be converted to a base64 string to compare their content. Makes this
+     * function asynchronous in browsers and potentially takes a lot of
+     * resources.
+     *
      * @returns Value "true" if both objects are equal and "false" otherwise.
      * If "compareBlobs" is activated and we're running in a browser like
      * environment and binary data is given, then a promise wrapping the
@@ -2295,14 +2301,20 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static equals(
         firstValue:any,
         secondValue:any,
-        properties:Array<any>|null = null,
-        deep:number = -1,
-        exceptionPrefixes:Array<string> = [],
-        ignoreFunctions:boolean = true,
-        compareBlobs:boolean = false
-    ):Promise<boolean>|boolean {
+        givenOptions:Partial<CompareOptions> = {}
+    ):boolean|Promise<boolean|string>|string {
+        const options:CompareOptions = {
+            compareBlobs: false,
+            deep: -1,
+            exceptionPrefixes: [],
+            ignoreFunctions: true,
+            properties: null,
+            returnReasonIfNotEqual: false,
+            ...givenOptions
+        }
+
         if (
-            ignoreFunctions &&
+            options.ignoreFunctions &&
             Tools.isFunction(firstValue) &&
             Tools.isFunction(secondValue) ||
             firstValue === secondValue ||
@@ -2319,7 +2331,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 !isNaN(secondValue.getTime()) &&
                 firstValue.getTime() === secondValue.getTime()
             ) ||
-            compareBlobs &&
+            options.compareBlobs &&
             eval('typeof Buffer') !== 'undefined' &&
             eval('Buffer').isBuffer &&
             firstValue instanceof eval('Buffer') &&
@@ -2327,8 +2339,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             firstValue.toString('base64') === secondValue.toString('base64')
         )
             return true
+
         if (
-            compareBlobs &&
+            options.compareBlobs &&
             typeof Blob !== 'undefined' &&
             firstValue instanceof Blob &&
             secondValue instanceof Blob
@@ -2349,6 +2362,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     fileReader.readAsDataURL(value)
                 }
             })
+
         if (
             Tools.isPlainObject(firstValue) &&
             Tools.isPlainObject(secondValue) &&
@@ -2367,7 +2381,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 firstValue.size === secondValue.size
             )
         ) {
-            const promises:Array<Promise<boolean>> = []
+            const promises:Array<Promise<boolean|string>> = []
             for (const [first, second] of [
                 [firstValue, secondValue],
                 [secondValue, firstValue]
@@ -2377,40 +2391,45 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     firstIsArray &&
                     (!Array.isArray(second) || first.length !== second.length)
                 )
-                    return false
+                    return options.returnReasonIfNotEqual ? '.length' : false
 
                 const firstIsMap:boolean = Tools.isMap(first)
                 if (
                     firstIsMap &&
                     (!Tools.isMap(second) || first.size !== second.size)
                 )
-                    return false
+                    return options.returnReasonIfNotEqual ? '.size' : false
 
                 const firstIsSet:boolean = Tools.isSet(first)
                 if (
                     firstIsSet &&
                     (!Tools.isSet(second) || first.size !== second.size)
                 )
-                    return false
+                    return options.returnReasonIfNotEqual ? '.size' : false
 
                 if (firstIsArray) {
                     let index:number = 0
                     for (const value of first) {
-                        if (deep !== 0) {
-                            const result:any = Tools.equals(
-                                value,
-                                second[index],
-                                properties,
-                                deep - 1,
-                                exceptionPrefixes,
-                                ignoreFunctions,
-                                compareBlobs
-                            )
+                        if (options.deep !== 0) {
+                            const result:boolean|Promise<boolean|string>|string =
+                                Tools.equals(
+                                    value,
+                                    second[index],
+                                    {...options, deep: options.deep - 1}
+                                )
+
+                            if (typeof result === 'string')
+                                return `[${index}]${result}`
 
                             if (!result)
-                                return false
-                            else if (typeof result === 'object' && result.then)
-                                promises.push(result)
+                                return options.returnReasonIfNotEqual ?
+                                    `[${index}]` :
+                                    false
+
+                            if ((result as Promise<boolean|string>)?.then)
+                                promises.push(
+                                    result as Promise<boolean|string>
+                                )
                         }
 
                         index += 1
@@ -2418,45 +2437,61 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 /* eslint-disable curly */
                 } else if (firstIsMap) {
                     for (const [key, value] of first)
-                        if (deep !== 0) {
-                            const result:any = Tools.equals(
-                                value,
-                                second.get(key),
-                                properties,
-                                deep - 1,
-                                exceptionPrefixes,
-                                ignoreFunctions,
-                                compareBlobs
-                            )
+                        if (options.deep !== 0) {
+                            const result:boolean|Promise<boolean|string>|string =
+                                Tools.equals(
+                                    value,
+                                    second.get(key),
+                                    {...options, deep: options.deep - 1}
+                                )
+
+                            if (typeof result === 'string')
+                                return `[${key}]${result}`
+
                             if (!result)
-                                return false
-                            else if (typeof result === 'object' && result.then)
-                                promises.push(result)
+                                return options.returnReasonIfNotEqual ?
+                                    `[${key}]` :
+                                    false
+
+                            if ((result as Promise<boolean|string>)?.then)
+                                promises.push(
+                                    result as Promise<boolean|string>
+                                )
                         }
                 } else if (firstIsSet) {
                 /* eslint-enable curly */
                     for (const value of first)
-                        if (deep !== 0) {
+                        if (options.deep !== 0) {
                             let equal:boolean = false
-                            const subPromises:Array<Promise<boolean>> = []
+                            const subPromises:Array<Promise<boolean|string>> = []
+                            /*
+                                NOTE: Check if their exists at least one being
+                                equally.
+                            */
                             for (const secondValue of second) {
-                                const result:any = Tools.equals(
-                                    value,
-                                    secondValue,
-                                    properties,
-                                    deep - 1,
-                                    exceptionPrefixes,
-                                    ignoreFunctions,
-                                    compareBlobs
-                                )
+                                const result:boolean|Promise<boolean|string>|string =
+                                    Tools.equals(
+                                        value,
+                                        secondValue,
+                                        {...options, deep: options.deep - 1}
+                                    )
+
                                 if (typeof result === 'boolean') {
                                     if (result) {
                                         equal = true
                                         break
                                     }
                                 } else
-                                    subPromises.push(result)
+                                    subPromises.push(
+                                        result as Promise<boolean|string>
+                                    )
                             }
+
+                            if (!equal)
+                                return options.returnReasonIfNotEqual ?
+                                    `{${Tools.represent(value)}}` :
+                                    false
+
                             if (subPromises.length)
                                 promises.push(new Promise(async (
                                     resolve:Function
@@ -2464,49 +2499,69 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                     (await Promise.all(subPromises))
                                         .some(Tools.identity)
                                 )))
-                            else if (!equal)
-                                return false
                         }
                 } else
                     for (const key in first)
                         if (Object.prototype.hasOwnProperty.call(first, key)) {
-                            if (properties && !properties.includes(key))
+                            if (
+                                options.properties &&
+                                !options.properties.includes(key)
+                            )
                                 break
+
                             let doBreak:boolean = false
-                            for (const exceptionPrefix of exceptionPrefixes)
+                            for (
+                                const exceptionPrefix of
+                                options.exceptionPrefixes
+                            )
                                 if (key.toString().startsWith(
                                     exceptionPrefix
                                 )) {
                                     doBreak = true
                                     break
                                 }
+
                             if (doBreak)
                                 break
-                            if (deep !== 0) {
-                                const result:any = Tools.equals(
-                                    first[key],
-                                    second[key],
-                                    properties,
-                                    deep - 1,
-                                    exceptionPrefixes,
-                                    ignoreFunctions,
-                                    compareBlobs
-                                )
+
+                            if (options.deep !== 0) {
+                                const result:boolean|Promise<boolean|string>|string =
+                                    Tools.equals(
+                                        first[key],
+                                        second[key],
+                                        {...options, deep: options.deep - 1}
+                                    )
+
+                                if (typeof result === 'string')
+                                    return `[${key}]${result}`
+
                                 if (!result)
-                                    return false
-                                else if (
-                                    typeof result === 'object' && result.then
-                                )
-                                    promises.push(result)
+                                    return options.returnReasonIfNotEqual ?
+                                        `[${key}]` :
+                                        false
+
+                                if ((result as Promise<boolean|string>)?.then)
+                                    promises.push(
+                                        result as Promise<boolean|string>
+                                    )
                             }
                         }
             }
+
             if (promises.length)
-                return new Promise(async (resolve:Function):Promise<void> =>
-                    resolve((await Promise.all(promises)).every(
-                        Tools.identity)))
+                return new Promise(async (resolve:Function):Promise<void> => {
+                    for (const result of await Promise.all(promises))
+                        if (!result || typeof result === 'string') {
+                            resolve(result)
+                            break
+                        }
+
+                    resolve(true)
+                })
+
             return true
         }
+
         return false
     }
     /**
