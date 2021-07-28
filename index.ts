@@ -2355,8 +2355,17 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             values.push(null)
                         else
                             values.push((event.target as FileReader).result)
+
                         if (values.length === 2)
-                            resolve(values[0] === values[1])
+                            if (values[0] === values[1])
+                                resolve(true)
+                            else
+                                resolve(options.returnReasonIfNotEqual ?
+                                    `>>> Blob(${Tools.represent(values[0])})` +
+                                    ' !== Blob(' +
+                                    `${Tools.represent(values[1])})` :
+                                    false
+                                )
                     }
 
                     fileReader.readAsDataURL(value)
@@ -2418,18 +2427,25 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                     {...options, deep: options.deep - 1}
                                 )
 
-                            if (typeof result === 'string')
-                                return `[${index}]${result}`
-
                             if (!result)
-                                return options.returnReasonIfNotEqual ?
-                                    `[${index}]` :
-                                    false
+                                return false
+
+                            const currentIndex:number = index
+
+                            const determineResult = (
+                                result:boolean|string
+                            ):boolean|string =>
+                                typeof result === 'string' ?
+                                    `[${currentIndex}]${{'[': '', '>': ' '}[result[0]] ?? '.'}${result}` :
+                                    result
 
                             if ((result as Promise<boolean|string>)?.then)
-                                promises.push(
+                                promises.push((
                                     result as Promise<boolean|string>
-                                )
+                                ).then(determineResult))
+
+                            if (typeof result === 'string')
+                                return determineResult(result)
                         }
 
                         index += 1
@@ -2445,18 +2461,25 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                     {...options, deep: options.deep - 1}
                                 )
 
-                            if (typeof result === 'string')
-                                return `[${key}]${result}`
-
                             if (!result)
-                                return options.returnReasonIfNotEqual ?
-                                    `[${key}]` :
-                                    false
+                                return false
+
+                            const determineResult = (
+                                result:boolean|string
+                            ):boolean|string =>
+                                typeof result === 'string' ?
+                                    `get(${Tools.represent(key)})` +
+                                    ({'[': '', '>': ' '}[result[0]] ?? '.') +
+                                    result :
+                                    result
 
                             if ((result as Promise<boolean|string>)?.then)
-                                promises.push(
+                                promises.push((
                                     result as Promise<boolean|string>
-                                )
+                                ).then(determineResult))
+
+                            if (typeof result === 'string')
+                                return determineResult(result)
                         }
                 } else if (firstIsSet) {
                 /* eslint-enable curly */
@@ -2487,18 +2510,34 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                     )
                             }
 
-                            if (!equal)
-                                return options.returnReasonIfNotEqual ?
-                                    `{${Tools.represent(value)}}` :
+
+                            const determineResult = (
+                                equal:boolean
+                            ):boolean|string => equal ?
+                                true :
+                                options.returnReasonIfNotEqual ?
+                                    `>>> {-> ${Tools.represent(value)} not found}` :
                                     false
+
+                            if (equal)
+                                /*
+                                    NOTE: We do not have to wait for promises
+                                    to be resolved when one match could be
+                                    found.
+                                */
+                                continue
 
                             if (subPromises.length)
                                 promises.push(new Promise(async (
                                     resolve:Function
-                                ):Promise<void> => resolve(
-                                    (await Promise.all(subPromises))
-                                        .some(Tools.identity)
-                                )))
+                                ):Promise<void> =>
+                                    resolve(determineResult(
+                                        (await Promise.all(subPromises))
+                                            .some(Tools.identity)
+                                    ))
+                                ))
+
+                            return determineResult(false)
                         }
                 } else
                     for (const key in first)
@@ -2532,18 +2571,27 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                         {...options, deep: options.deep - 1}
                                     )
 
-                                if (typeof result === 'string')
-                                    return `[${key}]${result}`
-
                                 if (!result)
-                                    return options.returnReasonIfNotEqual ?
-                                        `[${key}]` :
-                                        false
+                                    return false
+
+                                const determineResult = (
+                                    result:boolean|string
+                                ):boolean|string =>
+                                    typeof result === 'string' ?
+                                        (
+                                            key +
+                                            ({'[': '', '>': ' '}[result[0]] ?? '.') +
+                                            result
+                                        ) :
+                                        result
 
                                 if ((result as Promise<boolean|string>)?.then)
-                                    promises.push(
+                                    promises.push((
                                         result as Promise<boolean|string>
-                                    )
+                                    ).then(determineResult))
+
+                                if (typeof result === 'string')
+                                    return determineResult(result)
                             }
                         }
             }
@@ -2562,7 +2610,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             return true
         }
 
-        return false
+        return options.returnReasonIfNotEqual ?
+            `>>> ${Tools.represent(firstValue)} !== ` +
+            Tools.represent(secondValue) :
+            false
     }
     /**
      * Searches for nested mappings with given indicator key and resolves

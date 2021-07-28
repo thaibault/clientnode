@@ -1279,22 +1279,18 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             {deep: 3, properties: ['b']}
         ],
         [Tools.noop, Tools.noop],
-        [
-            Tools.noop,
-            Tools.noop,
-            {deep: -1, properties: [], ignoreFunctions: false}
-        ]
+        [Tools.noop, Tools.noop, {ignoreFunctions: false}]
     )
     if (TARGET_TECHNOLOGY === 'node')
         test('equals', ():void =>
             expect(Tools.equals(
                 Buffer.from('a'),
                 Buffer.from('a'),
-                {compareBlobs: true, deep: -1, properties: []}
+                {compareBlobs: true, properties: []}
             )).toStrictEqual(true)
         )
     else {
-        testEachAgainstSameExpectation<typeof Tools.equals>(
+        testEachPromiseAgainstSameExpectation<typeof Tools.equals>(
             'equals',
             Tools.equals,
             true,
@@ -1341,11 +1337,11 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 FirstParameter<typeof Tools.equals>,
                 SecondParameter<typeof Tools.equals>
             ]):Parameters<typeof Tools.equals> =>
-                parameters.concat(null, -1, [], true, true) as
+                parameters.concat({compareBlobs: true}) as
                     Parameters<typeof Tools.equals>
             )
         )
-        testEachAgainstSameExpectation<typeof Tools.equals>(
+        testEachPromiseAgainstSameExpectation<typeof Tools.equals>(
             'equals',
             Tools.equals,
             false,
@@ -1391,11 +1387,37 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             ]>).map((parameter:[
                 FirstParameter<typeof Tools.equals>,
                 SecondParameter<typeof Tools.equals>
-            ]
-            ):Parameters<typeof Tools.equals> =>
-                parameter.concat(null, -1, [], true, true) as
+            ]):Parameters<typeof Tools.equals> =>
+                parameter.concat({compareBlobs: true}) as
                     Parameters<typeof Tools.equals>
             )
+        )
+        testEachPromise<typeof Tools.equals>(
+            'equals',
+            Tools.equals,
+
+            [
+                '>>> Blob("data:text/plain;base64,YQ==\") !== Blob(\"data:text/plain;base64,Yg==")',
+                new Blob(['a'], {type: 'text/plain'}),
+                new Blob(['b'], {type: 'text/plain'}),
+                {compareBlobs: true, returnReasonIfNotEqual: true}
+            ],
+            [
+                'a[1].a.get(1) >>> Blob("data:text/plain;base64,YQ==\") !== Blob(\"data:text/plain;base64,Yg==\")',
+                {
+                    a: [
+                        1,
+                        {a: new Map([[1, new Blob(['a'], {type: 'text/plain'})]])}
+                    ]
+                },
+                {
+                    a: [
+                        1,
+                        {a: new Map([[1, new Blob(['b'], {type: 'text/plain'})]])}
+                    ]
+                },
+                {compareBlobs: true, returnReasonIfNotEqual: true}
+            ]
         )
     }
     testEachAgainstSameExpectation<typeof Tools.equals>(
@@ -1424,7 +1446,38 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [
             ():void => {},
             ():void => {},
-            {deep: -1, properties: [], ignoreFunctions: false}
+            {deep: -1, ignoreFunctions: false, properties: []}
+        ]
+    )
+    testEach<typeof Tools.equals>(
+        'equals',
+        Tools.equals,
+
+        ['>>> 1 !== 2', 1, 2, {returnReasonIfNotEqual: true}],
+        ['a >>> 1 !== 2', {a: 1}, {a: 2}, {returnReasonIfNotEqual: true}],
+        [
+            'a[1] >>> 2 !== 1',
+            {a: [1, 2]},
+            {a: [1, 1]},
+            {returnReasonIfNotEqual: true}
+        ],
+        [
+            'a[1].a >>> 2 !== 1',
+            {a: [1, {a: 2}]},
+            {a: [1, {a: 1}]},
+            {returnReasonIfNotEqual: true}
+        ],
+        [
+            'a[1].a >>> {-> 2 not found}',
+            {a: [1, {a: new Set([2])}]},
+            {a: [1, {a: new Set([1])}]},
+            {returnReasonIfNotEqual: true}
+        ],
+        [
+            'a[1].a.get(1) >>> 1 !== 2',
+            {a: [1, {a: new Map([[1, 1]])}]},
+            {a: [1, {a: new Map([[1, 2]])}]},
+            {returnReasonIfNotEqual: true}
         ]
     )
     testEach<typeof Tools.evaluateDynamicData>(
