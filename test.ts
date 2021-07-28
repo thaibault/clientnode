@@ -1265,28 +1265,32 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[1, 2, 3, new Set(['a', 2])], [1, 2, 3, new Set(['a', 2])]],
         [[1, 2, 3, [1, 2]], [1, 2, 3, [1, 2]]],
         [[{a: 1}], [{a: 1}]],
-        [[{a: 1, b: 1}], [{a: 1}], []],
-        [[{a: 1, b: 1}], [{a: 1}], ['a']],
-        [2, 2, null, 0],
-        [[{a: 1, b: 1}], [{a: 1}], null, 0],
-        [[{a: 1}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
-        [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 1],
-        [[{a: {b: 1}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 2],
-        [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 2],
+        [[{a: 1, b: 1}], [{a: 1}], {properties: []}],
+        [[{a: 1, b: 1}], [{a: 1}], {properties: ['a']}],
+        [2, 2, {deep: 0}],
+        [[{a: 1, b: 1}], [{a: 1}], {deep: 0}],
+        [[{a: 1}, {b: 1}], [{a: 1}, {b: 1}], {deep: 1}],
+        [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], {deep: 1}],
+        [[{a: {b: 1}}, {b: 1}], [{a: {b: 1}}, {b: 1}], {deep: 2}],
+        [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], {deep: 2}],
         [
             [{a: {b: {c: 1}}}, {b: 1}],
             [{a: {b: 1}}, {b: 1}],
-            null,
-            3,
-            ['b']
+            {deep: 3, properties: ['b']}
         ],
         [Tools.noop, Tools.noop],
-        [Tools.noop, Tools.noop, null, -1, [], false]
+        [
+            Tools.noop,
+            Tools.noop,
+            {deep: -1, properties: [], ignoreFunctions: false}
+        ]
     )
     if (TARGET_TECHNOLOGY === 'node')
         test('equals', ():void =>
             expect(Tools.equals(
-                Buffer.from('a'), Buffer.from('a'), null, -1, [], true, true
+                Buffer.from('a'),
+                Buffer.from('a'),
+                {compareBlobs: true, deep: -1, properties: []}
             )).toStrictEqual(true)
         )
     else {
@@ -1399,8 +1403,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         Tools.equals,
         false,
 
-        [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], null, 2],
-        [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], null, 3],
+        [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], {deep: 2}],
+        [[{a: {b: {c: 1}}}, {b: 1}], [{a: {b: 1}}, {b: 1}], {deep: 3}],
         [new Date(1995, 11, 17), new Date(1995, 11, 16)],
         [/a/i, /a/],
         [1, 2],
@@ -1414,10 +1418,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2]]],
         [[1, 2, 3, [1, 2, 3]], [1, 2, 3, [1, 2, {}]]],
         [[{a: 1, b: 1}], [{a: 1}]],
-        [[{a: 1, b: 1}], [{a: 1}], ['a', 'b']],
-        [1, 2, null, 0],
-        [[{a: 1}, {b: 1}], [{a: 1}], null, 1],
-        [():void => {}, ():void => {}, null, -1, [], false]
+        [[{a: 1, b: 1}], [{a: 1}], {properties: ['a', 'b']}],
+        [1, 2, {deep: 0}],
+        [[{a: 1}, {b: 1}], [{a: 1}], {deep: 1}],
+        [
+            ():void => {},
+            ():void => {},
+            {deep: -1, properties: [], ignoreFunctions: false}
+        ]
     )
     testEach<typeof Tools.evaluateDynamicData>(
         'evaluateDynamicData',

@@ -67,6 +67,14 @@ export interface TimeoutPromise extends Promise<boolean> {
     clear:() => void
     timeoutID:NodeJS.Timeout
 }
+export interface CompareOptions {
+    compareBlobs:boolean
+    deep:number
+    exceptionPrefixes:Array<string>
+    ignoreFunctions:boolean
+    properties:Array<any>|null
+    returnReasonIfNotEqual:boolean
+}
 // / endregion
 export type HTMLItem = Comment|Document|HTMLElement|Text
 export type $DomNode<TElement = HTMLElement> = JQuery<TElement>
@@ -81,7 +89,7 @@ export type $Global = typeof globalThis & {
 }
 export type Encoding =
     'ascii'|'base64'|'binary'|'hex'|'latin1'|'ucs2'|'ucs-2'|'utf8'|'utf16le'|'utf-8'
-export type File = {
+export interface File {
     directoryPath:string
     error:Error|null
     name:string
@@ -92,7 +100,7 @@ export type Mapping<T=string> = {[key:string]:T}
 export type Noop = (...parameter:Array<any>) => any
 // NOTE: Mapping cannot be used here to avoid circular references.
 export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
-export type ObjectMaskConfiguration = {
+export interface ObjectMaskConfiguration {
     exclude?:ObjectMask
     include?:ObjectMask
 }
@@ -133,68 +141,68 @@ export type GenericFunction = (...parameter:Array<any>) => any
 export type ProcedureFunction = (...parameter:Array<any>) => Promise<void>|void
 export type GetterFunction = (keyOrValue:any, key:any, target:any) => any
 export type SetterFunction = (key:any, value:any, target:any) => any
-export type Offset = {
-    top:number
+export interface Offset {
     left:number
+    top:number
 }
 export type PageType = 'end-ellipsis'|'first'|'last'|'next'|'page'|'previous'|'start-ellipsis'
-export type Page = {
+export interface Page {
     disabled:boolean
-    type:PageType
     page?:number
     selected:boolean
+    type:PageType
 }
-export type PaginateOptions = {
+export interface PaginateOptions {
     boundaryCount:number
     disabled:boolean
     hideNextButton:boolean
     hidePrevButton:boolean
     page:number
+    pageSize?:null|number
     showFirstButton:boolean
     showLastButton:boolean
     siblingCount:number
     total:number
-    pageSize?:null|number
 }
-export type Position = Offset & {
+export interface Position extends Offset {
     bottom:number
     right:number
 }
 export type ProcessHandler = (returnCode:any, ...parameter:Array<any>) => void
-export type ProcessCloseReason = {
+export interface ProcessCloseReason {
     parameter:Array<any>
     reason:any
 }
 export type ProcessCloseCallback = (reason:ProcessCloseReason) => void
 export type ProcessErrorCallback = (reason:ProcessError) => void
 export type RelativePosition = 'above'|'below'|'in'|'left'|'right'
-export type DomNodes<Type = string> = {
+export interface DomNodes<Type = string> {
     hideJavaScriptEnabled:Type
     parent?:Type
     showJavaScriptEnabled:Type
     window?:Type
 }
 export type $DomNodes = DomNodes<$DomNode>
-export type Options<Type = string> = {
+export interface Options<Type = string> {
     domNodes:DomNodes<Type>
     domNodeSelectorPrefix:string
     logging:boolean
 }
-export type ProxyHandler = {
+export interface ProxyHandler {
     deleteProperty:(target:any, key:any) => boolean
     get:(target:any, key:string) => any
     has:(target:any, key:string) => boolean
     set:(target:any, key:string, value:any) => boolean
 }
 export type TemplateFunction = (...parameter:Array<any>) => any
-export type CompilationResult = {
+export interface CompilationResult {
     error:null|string
     originalScopeNames:Array<string>
     scopeNameMapping:Mapping<string>
     scopeNames:Array<string>
     templateFunction:TemplateFunction
 }
-export type EvaluationResult = {
+export interface EvaluationResult {
     compileError:null|string
     error:null|string
     result:any
