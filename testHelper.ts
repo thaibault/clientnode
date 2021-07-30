@@ -28,6 +28,7 @@
 // region imports 
 import Tools from './index'
 import {
+    AnyFunction,
     FirstParameter,
     FunctionTestTuple,
     FunctionTestPromiseTuple,
@@ -76,9 +77,7 @@ export const testExpectedType = <Type = any>(
  * function again.
  * @returns Nothing.
  */
-export const testEach = <
-    FunctionType extends GenericFunction = GenericFunction
->(
+export const testEach = <FunctionType extends AnyFunction = GenericFunction>(
     functionName:string,
     callback:FunctionType,
     ...functionTestTuple:Array<FunctionTestTuple<FunctionType>>
@@ -105,7 +104,7 @@ export const testEach = <
  * @returns Nothing.
  */
 export const testEachPromise = <
-    FunctionType extends GenericFunction = GenericFunction
+    FunctionType extends AnyFunction = GenericFunction
 >(
     functionName:string,
     callback:FunctionType,
@@ -137,7 +136,7 @@ export const testEachPromise = <
  * @returns Nothing.
  */
 export const testEachPromiseRejection = <
-    FunctionType extends GenericFunction = GenericFunction
+    FunctionType extends AnyFunction = GenericFunction
 >(
     functionName:string,
     callback:FunctionType,
@@ -171,7 +170,7 @@ export const testEachPromiseRejection = <
  * @returns Nothing.
  */
 export const testEachSingleParameterAgainstSameExpectation = <
-    FunctionType extends GenericFunction = GenericFunction
+    FunctionType extends AnyFunction = GenericFunction
 >(
     functionName:string,
     callback:FunctionType,
@@ -201,7 +200,7 @@ export const testEachSingleParameterAgainstSameExpectation = <
  * @returns Nothing.
  */
 export const testEachSingleParameterAgainstSamePromisedExpectation = <
-    FunctionType extends GenericFunction = GenericFunction
+    FunctionType extends AnyFunction = GenericFunction
 >(
     functionName:string,
     callback:FunctionType,
@@ -232,7 +231,7 @@ export const testEachSingleParameterAgainstSamePromisedExpectation = <
  * @returns Nothing.
  */
 export const testEachSingleParameterAgainstSameRejectedExpectation = <
-    FunctionType extends GenericFunction = GenericFunction
+    FunctionType extends AnyFunction = GenericFunction
 >(
     functionName:string,
     callback:FunctionType,
@@ -263,7 +262,7 @@ export const testEachSingleParameterAgainstSameRejectedExpectation = <
  * @returns Nothing.
  */
 export const testEachAgainstSameExpectation = <
-    FunctionType extends GenericFunction = GenericFunction
+    FunctionType extends AnyFunction = GenericFunction
 >(
     functionName:string,
     callback:FunctionType,
@@ -293,7 +292,7 @@ export const testEachAgainstSameExpectation = <
  * @returns Nothing.
  */
 export const testEachPromiseAgainstSameExpectation = <
-    FunctionType extends GenericFunction = GenericFunction
+    FunctionType extends AnyFunction = GenericFunction
 >(
     functionName:string,
     callback:FunctionType,
@@ -324,7 +323,7 @@ export const testEachPromiseAgainstSameExpectation = <
  * @returns Nothing.
  */
 export const testEachPromiseRejectionAgainstSameExpectation = <
-    FunctionType extends GenericFunction = GenericFunction
+    FunctionType extends AnyFunction = GenericFunction
 >(
     functionName:string,
     callback:FunctionType,

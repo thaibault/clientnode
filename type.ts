@@ -23,15 +23,16 @@ import Tools from './index'
 import {DefinedSymbol, ThrowSymbol, UndefinedSymbol} from './testHelper'
 // endregion
 // region exports
-export type FirstParameter<FunctionType extends GenericFunction> =
+export type AnyFunction = (...parameters:Array<any>) => any
+export type FirstParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[0]
-export type SecondParameter<FunctionType extends GenericFunction> =
+export type SecondParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[1]
-export type FunctionTestTuple<FunctionType extends GenericFunction> =
+export type FunctionTestTuple<FunctionType extends AnyFunction> =
     [ReturnType<FunctionType>, ...Parameters<FunctionType>]
-export type FunctionTestPromiseTuple<FunctionType extends GenericFunction> =
+export type FunctionTestPromiseTuple<FunctionType extends AnyFunction> =
     [ThenParameter<ReturnType<FunctionType>>, ...Parameters<FunctionType>]
-export type FunctionTestPromiseRejectionTuple<FunctionType extends GenericFunction> =
+export type FunctionTestPromiseRejectionTuple<FunctionType extends AnyFunction> =
     [Error, ...Parameters<FunctionType>]
 export type BaseSelector = number|string|((target:any) => any)
 export type Selector = Array<BaseSelector>|BaseSelector
@@ -138,12 +139,12 @@ export type PlainObject<Type = Primitive> = {
     [key:string]:Array<PlainObject<Type>|Type>|PlainObject<Type>|Type
 }
 export type GenericFunction = (...parameter:Array<unknown>) => unknown
-export type SynchrounousProcedureFunction = (...parameter:Array<unknown>) =>
+export type SynchronousProcedureFunction = (...parameter:Array<unknown>) =>
     void
-export type AsynchrounousProcedureFunction = (...parameter:Array<unknown>) =>
+export type AsynchronousProcedureFunction = (...parameter:Array<unknown>) =>
     Promise<void>
 export type ProcedureFunction =
-    AsynchrounousProcedureFunction|SynchrounousProcedureFunction
+    AsynchronousProcedureFunction|SynchronousProcedureFunction
 export type GetterFunction = (keyOrValue:any, key:any, target:any) => any
 export type SetterFunction = (key:any, value:any, target:any) => any
 export interface Offset {
