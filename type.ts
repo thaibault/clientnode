@@ -137,8 +137,13 @@ export type Primitive = boolean|null|number|string|undefined
 export type PlainObject<Type = Primitive> = {
     [key:string]:Array<PlainObject<Type>|Type>|PlainObject<Type>|Type
 }
-export type GenericFunction = (...parameter:Array<any>) => any
-export type ProcedureFunction = (...parameter:Array<any>) => Promise<void>|void
+export type GenericFunction = (...parameter:Array<unknown>) => unknown
+export type SynchrounousProcedureFunction = (...parameter:Array<unknown>) =>
+    void
+export type AsynchrounousProcedureFunction = (...parameter:Array<unknown>) =>
+    Promise<void>
+export type ProcedureFunction =
+    AsynchrounousProcedureFunction|SynchrounousProcedureFunction
 export type GetterFunction = (keyOrValue:any, key:any, target:any) => any
 export type SetterFunction = (key:any, value:any, target:any) => any
 export interface Offset {
