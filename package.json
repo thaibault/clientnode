@@ -21,12 +21,8 @@
     "jquery"
   ],
   "files": [
-    "index.ts",
-    "property-types.ts",
     "property-types.js",
     "testHelper.js",
-    "testHelper.ts",
-    "type.ts",
     "types"
   ],
   "main": "index.js",
@@ -35,10 +31,11 @@
     "url": "https://github.com/thaibault/clientnode"
   },
   "scripts": {
-    "build": "yarn build:types && weboptimizer build",
+    "build": "yarn build:types && yarn build:plain",
     "build:alternate": "command='babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/preset-env,@babel/preset-typescript --source-maps inline --out-file' && $command index.js index.ts && $command property-types.js property-types.ts && yarn make:executable",
     "build:export": "weboptimizer build '{__reference__: \"target:export\"}'",
     "build:export:compatible": "weboptimizer build '{__reference__: [\"target:export\", \"target:compatible\"]}'",
+    "build:plain": "weboptimizer build",
     "build:types": "weboptimizer build:types",
     "check": "yarn check:types; yarn lint",
     "check:types": "weboptimizer check:types",
@@ -64,7 +61,6 @@
     "@types/jest": "*",
     "@types/jquery": "*",
     "@types/jsdom": "*",
-    "@types/loader-utils": "*",
     "@types/node": "*",
     "@types/node-fetch": "*",
     "@types/prop-types": "*",
