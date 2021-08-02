@@ -21,9 +21,12 @@
     "jquery"
   ],
   "files": [
+    "property-types.d.ts",
     "property-types.js",
+    "testHelper.d.ts",
     "testHelper.js",
-    "types"
+    "types.d.ts",
+    "types.js"
   ],
   "main": "index.js",
   "repository": {
@@ -91,7 +94,6 @@
     "@types/webpack": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.0.tgz"
   },
   "sideEffects": false,
-  "types": "./types",
   "webOptimizer": {
     "debug": {
       "module": {
