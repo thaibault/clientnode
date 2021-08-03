@@ -1,1 +1,0 @@
-node_modules/weboptimizer/declarations.d.ts
