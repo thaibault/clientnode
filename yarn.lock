@@ -2958,15 +2958,15 @@ browserslist@^3.2.6:
     electron-to-chromium "^1.3.47"
 
 browserslist@^4.14.5, browserslist@^4.16.6:
-  version "4.16.6"
-  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.16.6.tgz#d7901277a5a88e554ed305b183ec9b0c08f66fa2"
-  integrity sha512-Wspk/PqO+4W9qp5iUTJsa1B/QrYn1keNCcEP5OvP7WBwT4KaDly0uONYmC6Xa3Z5IqnUgS0KcgLYu1l74x0ZXQ==
+  version "4.16.7"
+  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.16.7.tgz#108b0d1ef33c4af1b587c54f390e7041178e4335"
+  integrity sha512-7I4qVwqZltJ7j37wObBe3SoTz+nS8APaNcrBOlgoirb6/HbEU2XxW/LpUDTCngM6iauwFqmRTuOMfyKnFGY5JA==
   dependencies:
-    caniuse-lite "^1.0.30001219"
+    caniuse-lite "^1.0.30001248"
     colorette "^1.2.2"
-    electron-to-chromium "^1.3.723"
+    electron-to-chromium "^1.3.793"
     escalade "^3.1.1"
-    node-releases "^1.1.71"
+    node-releases "^1.1.73"
 
 bser@2.1.1:
   version "2.1.1"
@@ -3059,7 +3059,7 @@ camelcase@^6.2.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-6.2.0.tgz#924af881c9d525ac9d87f40d964e5cea982a1809"
   integrity sha512-c7wVvbw3f37nuobQNtgsgG9POC9qMbNuMQmTCqZv23b6MIz0fcYpBiOlv9gEN/hdLdnZTDQhg6e9Dq5M1vKvfg==
 
-caniuse-lite@^1.0.30000844, caniuse-lite@^1.0.30001219:
+caniuse-lite@^1.0.30000844, caniuse-lite@^1.0.30001248:
   version "1.0.30001248"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001248.tgz#26ab45e340f155ea5da2920dadb76a533cb8ebce"
   integrity sha512-NwlQbJkxUFJ8nMErnGtT0QTM2TJ33xgz4KXJSMIrjXIbDVdaYueGyjOrLKRtJC+rTiWfi6j5cnZN1NBiSBJGNw==
@@ -3181,9 +3181,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.768"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.768.tgz#5e4304671b2c0b7516820ddb17dfc8813a08c60a"
-  integrity sha512-FRfRRPjK8mVQ/t2PX7Tl/F57ozV9wMqzYdZR+T9Cjek8ozimIgJXlfu/5mBuA06JyP1aDrihkJeXwOoz8Eysnw==
+  version "3.0.769"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.769.tgz#0b4e84d6ef6ecdb29006926ca18ce499cb491907"
+  integrity sha512-eLlRn4+RvSkfeO6Rb6OGmeyjEoHglewAjMFw0ae3ULUQS0upYpCLLe8v8DdAQZ112LEURmkv4mlInWelsQy3JA==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.0.tgz"
 
@@ -3733,7 +3733,7 @@ ejs@*:
   dependencies:
     jake "^10.6.1"
 
-electron-to-chromium@^1.3.47, electron-to-chromium@^1.3.723:
+electron-to-chromium@^1.3.47, electron-to-chromium@^1.3.793:
   version "1.3.793"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.793.tgz#c10dff5f3126238004de344db458f1da3641d554"
   integrity sha512-l9NrGV6Mr4ov5mayYPvIWcwklNw5ROmy6rllzz9dCACw9nKE5y+s5uQk+CBJMetxrWZ6QJFsvEfG6WDcH2IGUg==
@@ -6231,7 +6231,7 @@ node-modules-regexp@^1.0.0:
   resolved "https://registry.yarnpkg.com/node-modules-regexp/-/node-modules-regexp-1.0.0.tgz#8d9dbe28964a4ac5712e9131642107c71e90ec40"
   integrity sha1-jZ2+KJZKSsVxLpExZCEHxx6Q7EA=
 
-node-releases@^1.1.71:
+node-releases@^1.1.73:
   version "1.1.73"
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-1.1.73.tgz#dd4e81ddd5277ff846b80b52bb40c49edf7a7b20"
   integrity sha512-uW7fodD6pyW2FZNZnp/Z3hvWKeEW1Y8R1+1CnErE8cXFXzl5blBOoVB41CvMer6P6Q0S5FXDwcHgFd1Wj0U9zg==
@@ -8108,9 +8108,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.1013"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1013.tgz#b51c825bb5a127479ccd1e2ecd956d50664cd4ab"
-  integrity sha512-iEGSx4qjqv5Ty30PKMrokN+f3xRZesgyQK7kuSWsLxEwUFRV23pmLW+4vFXlEVRp58gjxopS5F/58YuBpz/ZVA==
+  version "2.0.1014"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1014.tgz#1d5dc17633e6732179b5db5856f85bd39bc3b4ff"
+  integrity sha512-/Y6e4OuE0HfmryhBrj9XqH7DNZgu1vFHKG19NMY4pwMP+09TI2dgntYIRZfdmAg3qC+RYkq3sj67s1RVZIAv2w==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
