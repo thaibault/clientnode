@@ -21,6 +21,7 @@
     "jquery"
   ],
   "files": [
+    "index.d.ts",
     "property-types.d.ts",
     "property-types.js",
     "testHelper.d.ts",
