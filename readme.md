@@ -13,14 +13,21 @@ endregion -->
 Project status
 --------------
 
-[![npm version](https://badge.fury.io/js/clientnode.svg)](https://www.npmjs.com/package/clientnode)
-[![downloads](https://img.shields.io/npm/dy/clientnode.svg)](https://www.npmjs.com/package/clientnode)
-[![build status](https://travis-ci.org/thaibault/clientNode.svg?branch=master)](https://travis-ci.org/thaibault/clientNode)
-[![code coverage](https://coveralls.io/repos/github/thaibault/clientNode/badge.svg)](https://coveralls.io/github/thaibault/clientNode)
+[![npm](https://img.shields.io/npm/v/clientnode?color=%23d55e5d&label=npm%20package%20version&logoColor=%23d55e5d)](https://www.npmjs.com/package/clientnode)
+[![npm downloads](https://img.shields.io/npm/dy/clientnode.svg)](https://www.npmjs.com/package/clientnode)
+
+[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/build.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/build.yaml)
+[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/test.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/test.yaml)
+[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/test:coverage:report.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/test:coverage:report.yaml)
+[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/check:types.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/check:types.yaml)
+[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/lint.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/lint.yaml)
+
+[![code coverage](https://coveralls.io/repos/github/thaibault/clientnode/badge.svg)](https://coveralls.io/github/thaibault/clientnode)
+
 [![dependencies](https://img.shields.io/david/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode)
-[![development Dependencies](https://img.shields.io/david/dev/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode?type=dev)
+[![development dependencies](https://img.shields.io/david/dev/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode?type=dev)
 [![peer dependencies](https://img.shields.io/david/peer/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode?type=peer)
-[![documentation website](https://img.shields.io/website-up-down-green-red/http/torben.website/clientNode.svg?label=documentation-website)](http://torben.website/clientNode)
+[![documentation website](https://img.shields.io/website-up-down-green-red/https/torben.website/clientnode.svg?label=documentation-website)](https://torben.website/clientnode)
 
 <!--|deDE:Einsatz-->
 Use case

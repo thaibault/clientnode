@@ -1,18 +1,7 @@
 {
   "name": "clientnode",
   "version": "3.0.770",
-  "license": "CC-BY-3.0",
   "description": "upgrade to object orientated rock solid plugins",
-  "homepage": "https://torben.website/clientnode",
-  "documentationWebsite": {
-    "languages": [
-      "deDE",
-      "enUS"
-    ],
-    "name": "clientnode",
-    "tagline": "upgrade to object orientated rock solid plugins<!--deDE:Schreibe Objekt orientierte solide Plugins-->",
-    "trackingCode": "UA-40192634-7"
-  },
   "keywords": [
     "client",
     "tools",
@@ -20,6 +9,17 @@
     "polymorph",
     "jquery"
   ],
+  "homepage": "https://torben.website/clientnode",
+  "bugs": {
+    "email": "info@torben.website",
+    "url": "https://github.com/thaibault/clientnode/issues"
+  },
+  "license": "CC-BY-3.0",
+  "author": {
+    "name": "Torben Sickert",
+    "email": "info@torben.website",
+    "url": "https://torben.website"
+  },
   "files": [
     "index.d.ts",
     "property-types.d.ts",
@@ -48,11 +48,12 @@
     "lint": "weboptimizer lint",
     "make:executable": "node --eval \"fs.chmodSync('index.js', '700')\"",
     "prepare": "if ! yarn build; then echo You should rerun install procedure to resolve dependency cycle. && yarn build:alternate; fi",
-    "report:coverage": "nyc report --reporter=text-lcov | coveralls",
     "serve": "weboptimizer serve",
     "start": "yarn serve",
     "test": "weboptimizer test",
     "test:browser": "weboptimizer test:browser",
+    "test:coverage": "yarn test --ci --coverage --coverageReporters=text --coverageReporters=text-summary --silent --testLocationInResults",
+    "test:coverage:report": "yarn test:coverage --coverageDirectory=.coverage --coverageReporters=lcov --outputFile=lcov.info",
     "update": "yarn version --patch && yarn publish",
     "update:documentation": "documentationWebsite --log-level info",
     "watch": "weboptimizer build --watch"
@@ -102,10 +103,23 @@
       "optional": true
     }
   },
+  "engines": {
+    "node": ">=16",
+    "npm": ">=7"
+  },
   "resolutions": {
     "@types/webpack": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.0.tgz"
   },
   "sideEffects": false,
+  "documentationWebsite": {
+    "languages": [
+      "deDE",
+      "enUS"
+    ],
+    "name": "clientnode",
+    "tagline": "upgrade to object orientated rock solid plugins<!--deDE:Schreibe Objekt orientierte solide Plugins-->",
+    "trackingCode": "UA-40192634-7"
+  },
   "webOptimizer": {
     "debug": {
       "module": {
