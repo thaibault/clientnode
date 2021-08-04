@@ -1652,6 +1652,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         let callback:Function = Tools.noop
         let delayInMilliseconds:number = 0
         let throwOnTimeoutClear:boolean = false
+
         for (const value of parameter)
             if (typeof value === 'number' && !isNaN(value))
                 delayInMilliseconds = value
@@ -1659,19 +1660,23 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 throwOnTimeoutClear = value
             else if (Tools.isFunction(value))
                 callback = value
+
         let rejectCallback:Function
         let resolveCallback:Function
+
         const result:TimeoutPromise = new Promise((
             resolve:Function, reject:Function
         ):void => {
             rejectCallback = reject
             resolveCallback = resolve
         }) as TimeoutPromise
+
         const wrappedCallback:ProcedureFunction = ():void => {
             callback.call(result, ...parameter)
             resolveCallback(false)
         }
         const maximumTimeoutDelayInMilliseconds:number = 2147483647
+
         if (delayInMilliseconds <= maximumTimeoutDelayInMilliseconds)
             result.timeoutID = setTimeout(wrappedCallback, delayInMilliseconds)
         else {
@@ -1684,6 +1689,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             )
             const finalTimeoutDuration:number =
                 delayInMilliseconds % maximumTimeoutDelayInMilliseconds
+
             const delay:Function = ():void => {
                 if (numberOfRemainingTimeouts > 0) {
                     numberOfRemainingTimeouts -= 1
@@ -1697,12 +1703,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
             delay()
         }
+
         result.clear = ():void => {
             if (result.timeoutID) {
                 clearTimeout(result.timeoutID)
                 ;(throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)
             }
         }
+
         return result
     }
     // / endregion
@@ -1726,12 +1734,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         eventFunction:Function,
         thresholdInMilliseconds:number = 600,
         ...additionalArguments:Array<any>
-    ):((...parameter:Array<any>) => null|Promise<boolean>) {
+    ):((...parameter:Array<any>) => Promise<boolean>) {
         let lock:boolean = false
         let waitingCallArguments:Array<any>|null = null
-        let timer:null|Promise<boolean> = null
+        let timer:Promise<boolean> = Promise.resolve(false)
 
-        return (...parameter:Array<any>):null|Promise<boolean> => {
+        return (...parameter:Array<any>):Promise<boolean> => {
             parameter = parameter.concat(additionalArguments || [])
 
             if (lock)
