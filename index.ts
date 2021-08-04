@@ -1652,6 +1652,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         let callback:Function = Tools.noop
         let delayInMilliseconds:number = 0
         let throwOnTimeoutClear:boolean = false
+
         for (const value of parameter)
             if (typeof value === 'number' && !isNaN(value))
                 delayInMilliseconds = value
@@ -1659,19 +1660,23 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 throwOnTimeoutClear = value
             else if (Tools.isFunction(value))
                 callback = value
+
         let rejectCallback:Function
         let resolveCallback:Function
+
         const result:TimeoutPromise = new Promise((
             resolve:Function, reject:Function
         ):void => {
             rejectCallback = reject
             resolveCallback = resolve
         }) as TimeoutPromise
+
         const wrappedCallback:ProcedureFunction = ():void => {
             callback.call(result, ...parameter)
             resolveCallback(false)
         }
         const maximumTimeoutDelayInMilliseconds:number = 2147483647
+
         if (delayInMilliseconds <= maximumTimeoutDelayInMilliseconds)
             result.timeoutID = setTimeout(wrappedCallback, delayInMilliseconds)
         else {
@@ -1684,6 +1689,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             )
             const finalTimeoutDuration:number =
                 delayInMilliseconds % maximumTimeoutDelayInMilliseconds
+
             const delay:Function = ():void => {
                 if (numberOfRemainingTimeouts > 0) {
                     numberOfRemainingTimeouts -= 1
@@ -1697,12 +1703,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
             delay()
         }
+
         result.clear = ():void => {
             if (result.timeoutID) {
                 clearTimeout(result.timeoutID)
                 ;(throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)
             }
         }
+
         return result
     }
     // / endregion
@@ -1713,23 +1721,27 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * function will be forwarded to given event function call. The function
      * wrapper returns null if current function will be omitted due to
      * debouncing.
+     *
      * @param eventFunction - The function to call debounced.
      * @param thresholdInMilliseconds - The minimum time span between each
      * function call.
      * @param additionalArguments - Additional arguments to forward to given
      * function.
+     *
      * @returns Returns the wrapped method.
      */
     static debounce(
         eventFunction:Function,
         thresholdInMilliseconds:number = 600,
         ...additionalArguments:Array<any>
-    ):((...parameter:Array<any>) => null|Promise<boolean>) {
+    ):((...parameter:Array<any>) => Promise<boolean>) {
         let lock:boolean = false
         let waitingCallArguments:Array<any>|null = null
-        let timer:null|Promise<boolean> = null
-        return (...parameter:Array<any>):null|Promise<boolean> => {
+        let timer:Promise<boolean> = Promise.resolve(false)
+
+        return (...parameter:Array<any>):Promise<boolean> => {
             parameter = parameter.concat(additionalArguments || [])
+
             if (lock)
                 waitingCallArguments = parameter
             else {
@@ -1743,6 +1755,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     }
                 })
             }
+
             return timer
         }
     }
