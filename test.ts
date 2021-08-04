@@ -839,12 +839,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(await Tools.timeout(1)).toStrictEqual(false)
         expect(Tools.timeout()).toBeInstanceOf(Promise)
         expect(Tools.timeout().hasOwnProperty('clear')).toStrictEqual(true)
+
         let test:boolean = false
         const result:TimeoutPromise = Tools.timeout(10 ** 20, true)
         result.catch(():void => {
             test = true
         })
         result.clear()
+
         let test2:boolean = false
         expect(await Tools.timeout(():void => {
             test2 = true
@@ -854,21 +856,27 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     })
     // / endregion
     // / region event
-    test('debounce', ():void => {
+    test('debounce', async ():Promise<void> => {
         let testValue = false
         Tools.debounce(():void => {
             testValue = true
         })()
         expect(testValue).toStrictEqual(true)
-        const callback:Function = Tools.debounce(
-            ():void => {
-                testValue = !testValue
-            },
-            1000
-        )
-        callback()
-        callback()
-        expect(testValue).toStrictEqual(false)
+
+        const callback = jest.fn()
+        const debouncedCallback = Tools.debounce(callback, 1000)
+        debouncedCallback()
+        debouncedCallback()
+        expect(callback).toHaveBeenCalledTimes(1)
+
+        const debouncedAsyncronousCallback = Tools.debounce(async (
+        ):Promise<boolean> => {
+            await Tools.timeout()
+            return true
+        })
+        expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
+        expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
+        expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
     })
     test('fireEvent', ():void => {
         expect(
