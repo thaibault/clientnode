@@ -19,9 +19,7 @@
 // region imports
 import {ChildProcess} from 'child_process'
 import {
-    Response as FetchResponse,
-    RequestInit as FetchOptions,
-    RequestInfo as FetchURL
+    Response as FetchResponse, RequestInit as FetchOptions
 } from 'node-fetch'
 
 import {
@@ -43,7 +41,6 @@ import {
     Position,
     ProcedureFunction,
     ProcessCloseCallback,
-    ProcessCloseReason,
     ProcessError,
     ProcessErrorCallback,
     ProcessHandler,
@@ -1718,9 +1715,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Prevents event functions from triggering to often by defining a minimal
      * span between each function call. Additional arguments given to this
-     * function will be forwarded to given event function call. The function
-     * wrapper returns null if current function will be omitted due to
-     * debouncing.
+     * function will be forwarded to given event function call.
      *
      * @param eventFunction - The function to call debounced.
      * @param thresholdInMilliseconds - The minimum time span between each
@@ -1730,33 +1725,46 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Returns the wrapped method.
      */
-    static debounce(
+    static debounce<T = unknown>(
         eventFunction:Function,
         thresholdInMilliseconds:number = 600,
         ...additionalArguments:Array<any>
-    ):((...parameter:Array<any>) => Promise<boolean>) {
+    ):((...parameter:Array<any>) => Promise<T>) {
         let lock:boolean = false
         let waitingCallArguments:Array<any>|null = null
-        let timer:Promise<boolean> = Promise.resolve(false)
+        // NOTE: Type "T" will be added via "then" method when called.
+        let currentResolve:Function
+        let timer:Promise<T> = new Promise((resolve:Function) => {
+            currentResolve = resolve
+        })
 
-        return (...parameter:Array<any>):Promise<boolean> => {
+        return (...parameter:Array<any>):Promise<T> => {
             parameter = parameter.concat(additionalArguments || [])
 
+            const currentTimer:Promise<T> = timer
+
             if (lock)
+                // NOTE: We have to save latest arguments for next call.
                 waitingCallArguments = parameter
             else {
                 lock = true
-                eventFunction(...parameter)
-                timer = Tools.timeout(thresholdInMilliseconds, ():void => {
+
+                // NOTE: We call callback synchronously if possible.
+                currentResolve(eventFunction(...parameter))
+
+                timer = Tools.timeout(thresholdInMilliseconds).then((
+                ):void|T => {
                     lock = false
+
                     if (waitingCallArguments) {
-                        eventFunction(...waitingCallArguments)
+                        const result:T = eventFunction(...waitingCallArguments)
                         waitingCallArguments = null
+                        return result
                     }
-                })
+                }) as Promise<T>
             }
 
-            return timer
+            return currentTimer
         }
     }
     /**
