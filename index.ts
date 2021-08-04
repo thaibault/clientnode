@@ -1733,15 +1733,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         let lock:boolean = false
         let waitingCallArguments:Array<any>|null = null
         // NOTE: Type "T" will be added via "then" method when called.
-        let currentResolve:Function
-        let timer:Promise<T> = new Promise((resolve:Function) => {
-            currentResolve = resolve
+        let resolvePromise:Function
+        let promise:Promise<T> = new Promise((resolve:Function) => {
+            resolvePromise = resolve
         })
 
         return (...parameter:Array<any>):Promise<T> => {
             parameter = parameter.concat(additionalArguments || [])
 
-            const currentTimer:Promise<T> = timer
+            const currentPromise:Promise<T> = promise
 
             if (lock)
                 // NOTE: We have to save latest arguments for next call.
@@ -1750,21 +1750,25 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 lock = true
 
                 // NOTE: We call callback synchronously if possible.
-                currentResolve(eventFunction(...parameter))
+                resolvePromise(eventFunction(...parameter))
 
-                timer = Tools.timeout(thresholdInMilliseconds).then((
-                ):void|T => {
-                    lock = false
+                promise = new Promise<T>((resolve:Function):void => {
+                    resolvePromise = resolve
 
-                    if (waitingCallArguments) {
-                        const result:T = eventFunction(...waitingCallArguments)
-                        waitingCallArguments = null
-                        return result
-                    }
-                }) as Promise<T>
+                    Tools.timeout(thresholdInMilliseconds, ():void => {
+                        lock = false
+
+                        if (waitingCallArguments) {
+                            const result:T =
+                                eventFunction(...waitingCallArguments)
+                            waitingCallArguments = null
+                            resolvePromise(result)
+                        }
+                    })
+                })
             }
 
-            return currentTimer
+            return currentPromise
         }
     }
     /**
