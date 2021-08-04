@@ -1713,11 +1713,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * function will be forwarded to given event function call. The function
      * wrapper returns null if current function will be omitted due to
      * debouncing.
+     *
      * @param eventFunction - The function to call debounced.
      * @param thresholdInMilliseconds - The minimum time span between each
      * function call.
      * @param additionalArguments - Additional arguments to forward to given
      * function.
+     *
      * @returns Returns the wrapped method.
      */
     static debounce(
@@ -1728,8 +1730,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         let lock:boolean = false
         let waitingCallArguments:Array<any>|null = null
         let timer:null|Promise<boolean> = null
+
         return (...parameter:Array<any>):null|Promise<boolean> => {
             parameter = parameter.concat(additionalArguments || [])
+
             if (lock)
                 waitingCallArguments = parameter
             else {
@@ -1743,6 +1747,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     }
                 })
             }
+
             return timer
         }
     }
