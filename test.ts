@@ -144,12 +144,13 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
 
         ['', ''],
         ['', '', testDate],
-        ['1/1/70, 1:00 AM', '${short}', testDate],
+        ['1/1/70, 12:00 AM', '${short}', testDate, {timeZone: 'UTC'}],
         [
-            '1.1.1970 1:00:00',
+            '1.1.1970 12:00:00',
             '${shortDay}.${shortMonth}.${fullYear} ' +
             '${shortHour}:${shortMinute}:${mediumSecond}',
-            testDate
+            testDate,
+            {timeZone: 'UTC'}
         ]
     )
     // / endregion

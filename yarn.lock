@@ -3178,9 +3178,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.780"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.780.tgz#aa80a3c1ef4ac034a36377445a38fecc23dbf58b"
-  integrity sha512-77RXmV0Qy2r3IUIhZmjWtBJjZ/KcOXFSMNIUWrR0D0DnSZ2BkEnk7MitT0KfM1XA++rFU36o4hmos8COsgM1gQ==
+  version "3.0.781"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.781.tgz#cbc63d36cf239f9050ddd0256badc46163fdd0c7"
+  integrity sha512-aJJO2GRa+OahPybEonVdaJYrysHDXD8wXlM11ElLjIgr5c237BX2EjLX3dx4ZFHsHi3D+aQ6Tt5aC1eJR1IfHg==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.0.tgz"
 
@@ -4503,9 +4503,9 @@ globby@^6.1.0:
     pinkie-promise "^2.0.0"
 
 graceful-fs@^4.1.11, graceful-fs@^4.1.2, graceful-fs@^4.1.9, graceful-fs@^4.2.4:
-  version "4.2.6"
-  resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.6.tgz#ff040b2b0853b23c3d31027523706f1885d76bee"
-  integrity sha512-nTnJ528pbqxYanhpDYsi4Rd8MAeaBA67+RZ10CM1m3bTAVFEDcd5AuA4a6W5YkGZ1iNXHzZz8T6TBKLeBuNriQ==
+  version "4.2.8"
+  resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.8.tgz#e412b8d33f5e006593cbd3cee6df9f2cebbe802a"
+  integrity sha512-qkIilPUYcNhJpd33n0GBXTB1MMPp14TxEsEs0pTrsSVucApsYzW5V+Q8Qxhik6KU3evy+qkAAowTByymK0avdg==
 
 handle-thing@^2.0.0:
   version "2.0.1"
@@ -8105,9 +8105,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.1025"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1025.tgz#45a1a551317bea2fcc7f2801bf3c0d306f8683f5"
-  integrity sha512-TChtNj3y1kFWZABSQpL4s7JRlYjhw8HTED6wfsgi7wVY83KByXWpovBkJxPdJ9fb9aFOFJUKkIUb2MuXlY2ioQ==
+  version "2.0.1026"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1026.tgz#c2606bd4bfaaa68d09d808eee6620b92643a2592"
+  integrity sha512-wOBNNKfiED5vgjaFZjWfDtBN851L63YJuF3zUAvkGyhWvWjTboWhi/aoEKJZzNlJNbDayj32wVyzkuADBpW16Q==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
