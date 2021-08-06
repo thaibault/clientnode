@@ -1634,24 +1634,26 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Triggers given callback after given duration. Supports unlimited
      * duration length and returns a promise which will be resolved after given
      * duration has been passed.
-     * @param parameter - Observes the first three existing parameter. If one
+     *
+     * @param parameters - Observes the first three existing parameters. If one
      * is a number it will be interpret as delay in milliseconds until given
      * callback will be triggered. If one is of type function it will be used
      * as callback and if one is of type boolean it will indicate if returning
      * promise should be rejected or resolved if given internally created
-     * timeout should be canceled. Additional parameter will be forwarded to
+     * timeout should be canceled. Additional parameters will be forwarded to
      * given callback.
+     *
      * @returns A promise resolving after given delay or being rejected if
-     * value "true" is within one of the first three parameter. The promise
+     * value "true" is within one of the first three parameters. The promise
      * holds a boolean indicating whether timeout has been canceled or
      * resolved.
      */
-    static timeout(...parameter:Array<any>):TimeoutPromise {
+    static timeout(...parameters:Array<any>):TimeoutPromise {
         let callback:Function = Tools.noop
         let delayInMilliseconds:number = 0
         let throwOnTimeoutClear:boolean = false
 
-        for (const value of parameter)
+        for (const value of parameters)
             if (typeof value === 'number' && !isNaN(value))
                 delayInMilliseconds = value
             else if (typeof value === 'boolean')
@@ -1670,7 +1672,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         }) as TimeoutPromise
 
         const wrappedCallback:ProcedureFunction = ():void => {
-            callback.call(result, ...parameter)
+            callback.call(result, ...parameters)
             resolveCallback(false)
         }
         const maximumTimeoutDelayInMilliseconds:number = 2147483647
@@ -1718,7 +1720,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * span between each function call. Additional arguments given to this
      * function will be forwarded to given event function call.
      *
-     * @param eventFunction - The function to call debounced.
+     * @param callback - The function to call debounced.
      * @param thresholdInMilliseconds - The minimum time span between each
      * function call.
      * @param additionalArguments - Additional arguments to forward to given
@@ -1727,47 +1729,61 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns the wrapped method.
      */
     static debounce<T = unknown>(
-        eventFunction:Function,
+        callback:Function,
         thresholdInMilliseconds:number = 600,
         ...additionalArguments:Array<any>
-    ):((...parameter:Array<any>) => Promise<T>) {
-        let lock:boolean = false
-        let waitingCallArguments:Array<any>|null = null
+    ):((...parameters:Array<any>) => Promise<T>) {
+        let waitForNextSlot:boolean = false
+        let parametersForNextSlot:Array<any>|null = null
         // NOTE: Type "T" will be added via "then" method when called.
         let resolvePromise:Function
         let promise:Promise<T> = new Promise((resolve:Function) => {
             resolvePromise = resolve
         })
 
-        return (...parameter:Array<any>):Promise<T> => {
-            parameter = parameter.concat(additionalArguments || [])
+        return (...parameters:Array<any>):Promise<T> => {
+            parameters = parameters.concat(additionalArguments || [])
+
+            if (waitForNextSlot) {
+                /*
+                    NOTE: We have to reserve next time slot let given callback
+                    be called with latest known provided arguments.
+                */
+                parametersForNextSlot = parameters
+
+                return promise
+            }
+
+            waitForNextSlot = true
+
+            // NOTE: We call callback synchronously if possible.
+            resolvePromise(callback(...parameters))
 
             const currentPromise:Promise<T> = promise
 
-            if (lock)
-                // NOTE: We have to save latest arguments for next call.
-                waitingCallArguments = parameter
-            else {
-                lock = true
+            // Initialize new promise which will be used for next call request.
+            promise = new Promise<T>((resolve:Function):void => {
+                resolvePromise = resolve
 
-                // NOTE: We call callback synchronously if possible.
-                resolvePromise(eventFunction(...parameter))
+                // Initialize new time slot to trigger given callback.
+                Tools.timeout(
+                    thresholdInMilliseconds,
+                    ():void => {
+                        /*
+                            Next new incoming call request can be handled
+                            synchronously.
+                        */
+                        waitForNextSlot = false
 
-                promise = new Promise<T>((resolve:Function):void => {
-                    resolvePromise = resolve
-
-                    Tools.timeout(thresholdInMilliseconds, ():void => {
-                        lock = false
-
-                        if (waitingCallArguments) {
-                            const result:T =
-                                eventFunction(...waitingCallArguments)
-                            waitingCallArguments = null
-                            resolvePromise(result)
+                        // NOTE: Check if this slot should be used.
+                        if (parametersForNextSlot) {
+                            const result:T = callback(...parametersForNextSlot)
+                            parametersForNextSlot = null
+                            resolve(result)
                         }
-                    })
-                })
-            }
+                    }
+                )
+            })
 
             return currentPromise
         }
@@ -1815,24 +1831,28 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * A wrapper method for "$.on()". It sets current plugin name as event
      * scope if no scope is given. Given arguments are modified and passed
      * through "$.on()".
-     * @param parameter - Parameter to forward.
+     *
+     * @param parameters - Parameter to forward.
+     *
      * @returns Returns $'s grabbed dom node.
      */
-    on<TElement = HTMLElement>(...parameter:Array<any>):$DomNode<TElement> {
+    on<TElement = HTMLElement>(...parameters:Array<any>):$DomNode<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        return this._bindEventHelper<TElement>(parameter, false)
+        return this._bindEventHelper<TElement>(parameters, false)
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * A wrapper method fo "$.off()". It sets current plugin name as event
      * scope if no scope is given. Given arguments are modified and passed
      * through "$.off()".
-     * @param parameter - Parameter to forward.
+     *
+     * @param parameters - Parameter to forward.
+     *
      * @returns Returns $'s grabbed dom node.
      */
-    off<TElement = HTMLElement>(...parameter:Array<any>):$DomNode<TElement> {
+    off<TElement = HTMLElement>(...parameters:Array<any>):$DomNode<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        return this._bindEventHelper<TElement>(parameter, true)
+        return this._bindEventHelper<TElement>(parameters, true)
     }
     // / endregion
     // / region object
