@@ -143,11 +143,6 @@
         "cascadingStyleSheet": null
       }
     },
-    "injection": {
-      "entry": {
-        "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2].startsWith('test') ? './test.ts' : {index: './index.ts', 'property-types': './property-types.ts', testHelper: './testHelper.ts'}"
-      }
-    },
     "module": {
       "aliases": {
         "#": "Ensure that dependent modules uses latest clientnode version.",
