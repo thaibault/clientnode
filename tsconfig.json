@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "paths": {
+            "clientnode/type": ["./type"]
+        }
+    },
+    "extends": "weboptimizer/tsconfig.json",
+    "include": ["./*.ts", "./*.tsx"]
+}
