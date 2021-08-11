@@ -1736,9 +1736,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         let waitForNextSlot:boolean = false
         let parametersForNextSlot:Array<any>|null = null
         // NOTE: Type "T" will be added via "then" method when called.
-        let resolvePromise:Function
-        let promise:Promise<T> = new Promise((resolve:Function) => {
-            resolvePromise = resolve
+        let resolveNextSlotPromise:Function
+        let rejectNextSlotPromise:Function
+        let nextSlotPromise:Promise<T> = new Promise((
+            resolve:Function, reject:Function
+        ):void => {
+            resolveNextSlotPromise = resolve
+            rejectNextSlotPromise = reject
         })
 
         return (...parameters:Array<any>):Promise<T> => {
@@ -1751,19 +1755,35 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 */
                 parametersForNextSlot = parameters
 
-                return promise
+                return nextSlotPromise
             }
 
             waitForNextSlot = true
 
+            const currentSlotPromise:Promise<T> = nextSlotPromise
+            const resolveCurrentSlotPromise = resolveNextSlotPromise
+            const rejectCurrentSlotPromise = rejectNextSlotPromise
+
             // NOTE: We call callback synchronously if possible.
-            resolvePromise(callback(...parameters))
+            const result:Promise<T>|T = callback(...parameters)
 
-            const currentPromise:Promise<T> = promise
+            if ((result as Promise<T>)?.then)
+                (result as Promise<T>).then(
+                    (result:T):void => resolveCurrentSlotPromise(result),
+                    (reason:unknown):void => rejectCurrentSlotPromise(reason)
+                )
+            else
+                resolveCurrentSlotPromise(result)
 
-            // Initialize new promise which will be used for next call request.
-            promise = new Promise<T>((resolve:Function):void => {
-                resolvePromise = resolve
+            /*
+                Initialize new promise which will be used for next call request
+                and is marked as delayed.
+            */
+            nextSlotPromise = new Promise<T>((
+                resolve:Function, reject:Function
+            ):void => {
+                resolveNextSlotPromise = resolve
+                rejectNextSlotPromise = reject
 
                 // Initialize new time slot to trigger given callback.
                 Tools.timeout(
@@ -1777,15 +1797,34 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
                         // NOTE: Check if this slot should be used.
                         if (parametersForNextSlot) {
-                            const result:T = callback(...parametersForNextSlot)
+                            const result:Promise<T>|T =
+                                callback(...parametersForNextSlot)
                             parametersForNextSlot = null
-                            resolve(result)
+
+                            if ((result as Promise<T>)?.then)
+                                (result as Promise<T>).then(
+                                    (result:T):void => resolve(result),
+                                    (reason:unknown):void => reject(reason)
+                                )
+                            else
+                                resolve(result)
+
+                            /*
+                                Initialize new promise which will be used for
+                                next call request without waiting.
+                            */
+                            nextSlotPromise = new Promise<T>((
+                                resolve:Function, reject:Function
+                            ):void => {
+                                resolveNextSlotPromise = resolve
+                                rejectNextSlotPromise = reject
+                            })
                         }
                     }
                 )
             })
 
-            return currentPromise
+            return currentSlotPromise
         }
     }
     /**
