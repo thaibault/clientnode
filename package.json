@@ -22,6 +22,7 @@
   },
   "files": [
     "index.d.ts",
+    "index.js",
     "property-types.d.ts",
     "property-types.js",
     "testHelper.d.ts",
