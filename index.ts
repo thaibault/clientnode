@@ -1693,6 +1693,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const delay:Function = ():void => {
                 if (numberOfRemainingTimeouts > 0) {
                     numberOfRemainingTimeouts -= 1
+
                     result.timeoutID =
                         setTimeout(delay, maximumTimeoutDelayInMilliseconds) as
                             unknown as

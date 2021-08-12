@@ -839,21 +839,19 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(await Tools.timeout(0)).toStrictEqual(false)
         expect(await Tools.timeout(1)).toStrictEqual(false)
         expect(Tools.timeout()).toBeInstanceOf(Promise)
-        expect(Tools.timeout().hasOwnProperty('clear')).toStrictEqual(true)
+        expect(Tools.timeout()).toHaveProperty('clear')
 
-        let test:boolean = false
+        const callback = jest.fn()
+
         const result:TimeoutPromise = Tools.timeout(10 ** 20, true)
-        result.catch(():void => {
-            test = true
-        })
+        result.catch(callback)
         result.clear()
+        await Tools.timeout()
+        expect(callback).toHaveBeenCalledTimes(1)
+        expect(callback).toHaveBeenLastCalledWith(true)
 
-        let test2:boolean = false
-        expect(await Tools.timeout(():void => {
-            test2 = true
-        })).toStrictEqual(false)
-        expect(test).toStrictEqual(true)
-        expect(test2).toStrictEqual(true)
+        expect(await Tools.timeout(callback)).toStrictEqual(false)
+        expect(callback).toHaveBeenCalledTimes(2)
     })
     // / endregion
     // / region event
@@ -870,11 +868,11 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         debouncedCallback()
         expect(callback).toHaveBeenCalledTimes(1)
 
-        const debouncedAsyncronousCallback = Tools.debounce(async (
-        ):Promise<boolean> => {
-            await Tools.timeout()
-            return true
-        })
+        const debouncedAsyncronousCallback =
+            Tools.debounce(async ():Promise<boolean> => {
+                await Tools.timeout()
+                return true
+            })
         expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
         expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
         expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
