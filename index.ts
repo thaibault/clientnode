@@ -102,7 +102,9 @@ export const currentRequire =
             __non_webpack_require__ :
     */
     eval(`typeof require === 'undefined' ? null : require`)
-export const optionalRequire = (...parameter:Array<any>):any|null => {
+export const optionalRequire = <Type>(
+    ...parameter:Parameters<typeof require>
+):null|ReturnType<typeof require> => {
     try {
         return currentRequire(...parameter)
     } catch (error) {
@@ -143,7 +145,8 @@ export const determine$:(() => $Function) = ():$Function => {
                 ():null => null
 
             $ = ((parameter:any, ...additionalArguments:Array<any>):any => {
-                let $domNodes:Array<HTMLElement> = []
+                let $domNodes:Array<Node>|null|ReturnType<Document['querySelectorAll']> =
+                    [] as Array<Node>
                 if (typeof parameter === 'string')
                     $domNodes = selector(parameter, ...additionalArguments)
                 else if (Array.isArray(parameter))
