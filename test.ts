@@ -405,7 +405,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     )
     test('show', ():void =>
         /* eslint-disable no-control-regex */
-        expect(/^.+\(Type: "function"\)$/.test(Tools.show(Tools.noop)))
+        expect(/^.+\(Type: "function"\)$/su.test(Tools.show(Tools.noop)))
             .toStrictEqual(true)
         /* eslint-enable no-control-regex */
     )
