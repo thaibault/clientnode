@@ -754,6 +754,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         }
 
         const type:string = Tools.determineType(object)
+
         if (type === 'function' || Tools.isWindow(object))
             return false
 
@@ -976,25 +977,26 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static show(object:unknown, level = 3, currentLevel = 0):string {
         let output = ''
 
-        if (Tools.isObject(object)) {
-            for (const key in object)
+        if (Tools.determineType(object) === 'object') {
+            for (const key in object as object)
                 if (Object.prototype.hasOwnProperty.call(object, key)) {
                     output += `${key.toString()}: `
 
                     if (currentLevel <= level)
                         output += Tools.show(
-                            object[key as keyof object],
+                            (object as object)[key as keyof object],
                             level,
                             currentLevel + 1
                         )
                     else
-                        output += `${object[key as keyof object]}`
+                        output += `${(object as object)[key as keyof object]}`
 
                     output += '\n'
                 }
 
             return output.trim()
         }
+
         output = `${object}`.trim()
 
         return `${output} (Type: "${Tools.determineType(object)}")`
@@ -2342,25 +2344,29 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     /**
      * Determine the internal JavaScript [[Class]] of an object.
-     * @param object - Object to analyze.
-     * @returns Name of determined class.
+     * @param value - Value to analyze.
+     * @returns Name of determined type.
      */
-    static determineType(object:any = undefined):string {
-        if ([null, undefined].includes(object))
-            return `${object}`
+    static determineType(value:unknown = undefined):string {
+        if ([null, undefined].includes(value as null|undefined))
+            return `${value}`
+
+        const type:string = typeof value
 
         if (
-            ['function', 'object'].includes(typeof object) && object.toString
+            ['function', 'object'].includes(type) &&
+            (value as object).toString
         ) {
             const stringRepresentation:string =
-                Tools.classToTypeMapping.toString.call(object)
+                Tools.classToTypeMapping.toString.call(value)
+
             if (Object.prototype.hasOwnProperty.call(
                 Tools.classToTypeMapping, stringRepresentation
             ))
                 return Tools.classToTypeMapping[stringRepresentation]
         }
 
-        return typeof object
+        return type
     }
     /**
      * Returns true if given items are equal for given property list. If
@@ -3457,20 +3463,27 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     ):string {
         if (numberOfLevels === 0)
             return maximumNumberOfLevelsReachedIdentifier
+
         if (object === null)
             return 'null'
+
         if (object === undefined)
             return 'undefined'
+
         if (typeof object === 'string')
             return `"${object.replace(/\n/g, `\n${initialIndention}`)}"`
+
         if (Tools.isNumeric(object) || typeof object === 'boolean')
             return `${object}`
+
         if (Array.isArray(object)) {
             let result:string = '['
+
             let firstSeen:boolean = false
             for (const item of object) {
                 if (firstSeen)
                     result += ','
+
                 result +=
                     `\n${initialIndention}${indention}` +
                     Tools.represent(
@@ -3480,19 +3493,26 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         maximumNumberOfLevelsReachedIdentifier,
                         numberOfLevels - 1
                     )
+
                 firstSeen = true
             }
+
             if (firstSeen)
                 result += `\n${initialIndention}`
+
             result += ']'
+
             return result
         }
+
         if (Tools.isMap(object)) {
             let result:string = ''
+
             let firstSeen:boolean = false
             for (const [key, item] of object) {
                 if (firstSeen)
                     result += `,\n${initialIndention}${indention}`
+
                 result +=
                     Tools.represent(
                         key,
@@ -3509,18 +3529,24 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         maximumNumberOfLevelsReachedIdentifier,
                         numberOfLevels - 1
                     )
+
                 firstSeen = true
             }
+
             if (!firstSeen)
                 result = 'EmptyMap'
+
             return result
         }
+
         if (Tools.isSet(object)) {
             let result:string = '{'
+
             let firstSeen:boolean = false
             for (const item of object) {
                 if (firstSeen)
                     result += ','
+
                 result +=
                     `\n${initialIndention}${indention}` +
                     Tools.represent(
@@ -3530,20 +3556,25 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         maximumNumberOfLevelsReachedIdentifier,
                         numberOfLevels - 1
                     )
+
                 firstSeen = true
             }
+
             if (firstSeen)
                 result += `\n${initialIndention}}`
             else
                 result = 'EmptySet'
+
             return result
         }
+
         let result:string = '{'
         const keys:Array<string> = Object.getOwnPropertyNames(object).sort()
         let firstSeen:boolean = false
         for (const key of keys) {
             if (firstSeen)
                 result += ','
+
             result += `\n${initialIndention}${indention}${key}: ` +
                 Tools.represent(
                     object[key],
@@ -3552,11 +3583,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     maximumNumberOfLevelsReachedIdentifier,
                     numberOfLevels - 1
                 )
+
             firstSeen = true
         }
+
         if (firstSeen)
             result += `\n${initialIndention}`
+
         result += '}'
+
         return result
     }
     /**
@@ -3566,6 +3601,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static sort(object:any):Array<any> {
         const keys:Array<any> = []
+
         if (Array.isArray(object))
             for (let index:number = 0; index < object.length; index++)
                 keys.push(index)
@@ -3577,6 +3613,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 for (const key in object)
                     if (Object.prototype.hasOwnProperty.call(object, key))
                         keys.push(key)
+
         return keys.sort()
     }
     /**

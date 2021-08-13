@@ -388,26 +388,31 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     )
     // / endregion
     // / region logging
-    test('log', ():void => expect(tools.log('test')).toStrictEqual(tools))
+    test('log', ():void => expect(tools.log('test')).toStrictEqual(undefined))
     test('info', ():void =>
-        expect(tools.info('test {0}')).toStrictEqual(tools)
+        expect(tools.info('test {0}')).toStrictEqual(undefined)
     )
-    test('debug', ():void => expect(tools.debug('test')).toStrictEqual(tools))
+    test('debug', ():void =>
+        expect(tools.debug('test')).toStrictEqual(undefined)
+    )
     // NOTE: This test breaks javaScript modules in strict mode.
     test.skip(`${testEnvironment}-error`, ():void =>
         expect(tools.error('ignore this error, it is only a {1}', 'test'))
-            .toStrictEqual(tools)
+            .toStrictEqual(undefined)
     )
-    test('warn', ():void => expect(tools.warn('test')).toStrictEqual(tools))
+    test('warn', ():void =>
+        expect(tools.warn('test')).toStrictEqual(undefined)
+    )
     test('show', ():void =>
         /* eslint-disable no-control-regex */
-        expect(/^.+\(Type: "function"\)$/su.test(Tools.show(Tools.noop)))
+        expect(/^.+\(Type: "function"\)$/.test(Tools.show(Tools.noop)))
             .toStrictEqual(true)
         /* eslint-enable no-control-regex */
     )
     testEach<typeof Tools.show>(
         'show',
         Tools.show,
+
         ['1 (Type: "number")', 1],
         ['null (Type: "null")', null],
         ['/a/ (Type: "regexp")', /a/],
