@@ -752,11 +752,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         } catch (error) {
             return false
         }
+
         const type:string = Tools.determineType(object)
         if (type === 'function' || Tools.isWindow(object))
             return false
+
         if (type === 'array' || length === 0)
             return true
+
         if (typeof length === 'number' && length > 0)
             try {
                 /* eslint-disable no-unused-expressions */
@@ -764,13 +767,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 /* eslint-enable no-unused-expressions */
                 return true
             } catch (error) {}
+
         return false
     }
     /**
      * Checks whether one of the given pattern matches given string.
+     *
      * @param target - Target to check in pattern for.
      * @param pattern - List of pattern to check for.
      * @returns Value "true" if given object is matches by at leas one of the
+     *
      * given pattern and "false" otherwise.
      */
     static isAnyMatching(target:string, pattern:Array<string|RegExp>):boolean {
@@ -780,84 +786,67 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     return true
             } else if (currentPattern.test(target))
                 return true
+
         return false
     }
     /**
-     * Checks whether given object is a plain native object.
-     * @param object - Object to check.
+     * Checks whether given object is a native object but not null.
+     * @param value - Value to check.
      * @returns Value "true" if given object is a plain javaScript object and
      * "false" otherwise.
      */
-    static isPlainObject(object:any):object is PlainObject {
+    static isObject(value:unknown):value is object {
+        return value !== null && typeof value === 'object'
+    }
+    /**
+     * Checks whether given object is a plain native object.
+     * @param value - Value to check.
+     * @returns Value "true" if given object is a plain javaScript object and
+     * "false" otherwise.
+     */
+    static isPlainObject(value:unknown):value is PlainObject {
         return (
-            object !== null &&
-            typeof object === 'object' &&
-            Tools.plainObjectPrototypes.includes(Object.getPrototypeOf(object))
+            value !== null &&
+            typeof value === 'object' &&
+            Tools.plainObjectPrototypes.includes(Object.getPrototypeOf(value))
         )
     }
     /**
      * Checks whether given object is a set.
-     * @param object - Object to check.
+     * @param value - Value to check.
      * @returns Value "true" if given object is a set and "false" otherwise.
      */
-    static isSet(object:any):object is Set<unknown> {
-        return Tools.determineType(object) === 'set'
+    static isSet(value:unknown):value is Set<unknown> {
+        return Tools.determineType(value) === 'set'
     }
     /**
      * Checks whether given object is a map.
-     * @param object - Object to check.
+     * @param value - Value to check.
      * @returns Value "true" if given object is a map and "false" otherwise.
      */
-    static isMap(object:any):object is Map<unknown, unknown> {
-        return Tools.determineType(object) === 'map'
+    static isMap(value:unknown):value is Map<unknown, unknown> {
+        return Tools.determineType(value) === 'map'
     }
     /**
      * Checks whether given object is a function.
-     * @param object - Object to check.
+     * @param value - Value to check.
      * @returns Value "true" if given object is a function and "false"
      * otherwise.
      */
-    static isFunction(object:any):object is Function {
+    static isFunction(value:unknown):value is Function {
         return (
-            Boolean(object) &&
+            Boolean(value) &&
             ['[object AsyncFunction]', '[object Function]'].includes(
-                {}.toString.call(object)
+                {}.toString.call(value)
             )
         )
-    }
-    // / endregion
-    // / region language fixes
-    /**
-     * This method fixes an ugly javaScript bug. If you add a mouseout event
-     * listener to a dom node the given handler will be called each time any
-     * dom node inside the observed dom node triggers a mouseout event. This
-     * methods guarantees that the given event handler is only called if the
-     * observed dom node was leaved.
-     * @param eventHandler - The mouse out event handler.
-     * @returns Returns the given function wrapped by the workaround logic.
-     */
-    static mouseOutEventHandlerFix(eventHandler:Function):Function {
-        return function(
-            this:any, event:any, ...additionalParameter:Array<any>
-        ):any {
-            let relatedTarget:Element = event.toElement
-            if (event.relatedTarget)
-                relatedTarget = event.relatedTarget
-            while (relatedTarget?.tagName !== 'BODY') {
-                if (
-                    relatedTarget === this || relatedTarget.parentNode === null
-                )
-                    return
-                relatedTarget = relatedTarget.parentNode as Element
-            }
-            return eventHandler.call(this, ...additionalParameter)
-        }
     }
     // / endregion
     // / region logging
     /**
      * Shows the given object's representation in the browsers console if
      * possible or in a standalone alert-window as fallback.
+     *
      * @param object - Any object to print.
      * @param force - If set to "true" given input will be shown independently
      * from current logging configuration or interpreter's console
@@ -866,22 +855,23 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * log level specific annotations.
      * @param level - Description of log messages importance.
      * @param additionalArguments - Additional arguments are used for string
-     * formating.
-     * @returns Returns the current instance.
+     * formatting.
+     *
+     * @returns Nothing.
      */
     log(
-        object:any,
+        object:unknown,
         force = false,
         avoidAnnotation = false,
         level:keyof Console = 'info',
-        ...additionalArguments:Array<any>
-    ):Tools<TElement, LockType> {
+        ...additionalArguments:Array<unknown>
+    ):void {
         if (
             this._options.logging ||
             force ||
             ['error', 'critical'].includes(level)
         ) {
-            let message:any
+            let message
             if (avoidAnnotation)
                 message = object
             else if (typeof object === 'string')
@@ -907,87 +897,106 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 } else
                     $.global.console[level](message)
         }
-        return this
     }
     /**
      * Wrapper method for the native console method usually provided by
      * interpreter.
+     *
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
-     * formating.
-     * @returns Returns the current instance.
+     * formatting.
+     *
+     * @returns Nothing.
      */
-    info(object:any, ...additionalArguments:Array<any>):Tools<TElement, LockType> {
-        return this.log(object, false, false, 'info', ...additionalArguments)
+    info(object:unknown, ...additionalArguments:Array<unknown>):void {
+        this.log(object, false, false, 'info', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by
      * interpreter.
+     *
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
-     * formating.
-     * @returns Returns the current instance.
+     * formatting.
+     *
+     * @returns Nothing.
      */
-    debug(object:any, ...additionalArguments:Array<any>):Tools<TElement, LockType> {
-        return this.log(object, false, false, 'debug', ...additionalArguments)
+    debug(object:unknown, ...additionalArguments:Array<unknown>):void {
+        this.log(object, false, false, 'debug', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by
      * interpreter.
+     *
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
-     * formating.
-     * @returns Returns the current instance.
+     * formatting.
+     *
+     * @returns Nothing.
      */
-    error(object:any, ...additionalArguments:Array<any>):Tools<TElement, LockType> {
-        return this.log(object, true, false, 'error', ...additionalArguments)
+    error(object:unknown, ...additionalArguments:Array<unknown>):void {
+        this.log(object, true, false, 'error', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by
      * interpreter.
+     *
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
-     * formating.
-     * @returns Returns the current instance.
+     * formatting.
+     *
+     * @returns Nothing.
      */
-    critical(object:any, ...additionalArguments:Array<any>):Tools<TElement, LockType> {
-        return this.log(object, true, false, 'warn', ...additionalArguments)
+    critical(object:unknown, ...additionalArguments:Array<unknown>):void {
+        this.log(object, true, false, 'warn', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by
      * interpreter.
+     *
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
-     * formating.
-     * @returns Returns the current instance.
+     * formatting.
+     *
+     * @returns Nothing.
      */
-    warn(object:any, ...additionalArguments:Array<any>):Tools<TElement, LockType> {
-        return this.log(object, false, false, 'warn', ...additionalArguments)
+    warn(object:unknown, ...additionalArguments:Array<unknown>):void {
+        this.log(object, false, false, 'warn', ...additionalArguments)
     }
     /**
      * Dumps a given object in a human readable format.
+     *
      * @param object - Any object to show.
      * @param level - Number of levels to dig into given object recursively.
      * @param currentLevel - Maximal number of recursive function calls to
      * represent given object.
+     *
      * @returns Returns the serialized version of given object.
      */
-    static show(object:any, level = 3, currentLevel = 0):string {
+    static show(object:unknown, level = 3, currentLevel = 0):string {
         let output = ''
-        if (Tools.determineType(object) === 'object') {
+
+        if (Tools.isObject(object)) {
             for (const key in object)
                 if (Object.prototype.hasOwnProperty.call(object, key)) {
                     output += `${key.toString()}: `
+
                     if (currentLevel <= level)
                         output += Tools.show(
-                            object[key], level, currentLevel + 1)
+                            object[key as keyof object],
+                            level,
+                            currentLevel + 1
+                        )
                     else
-                        output += `${object[key]}`
+                        output += `${object[key as keyof object]}`
+
                     output += '\n'
                 }
+
             return output.trim()
         }
         output = `${object}`.trim()
+
         return `${output} (Type: "${Tools.determineType(object)}")`
     }
     // / endregion
@@ -1098,13 +1107,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     get normalizedStyles():Tools<TElement, LockType> {
         if (this.$domNode) {
             const styleName = 'style'
+
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, domNode:HTMLElement):any => {
+                .each((index:number, domNode:HTMLElement):void => {
                     const $domNode:$DomNode = $(domNode)
                     const serializedStyles:string|undefined =
                         $domNode.attr(styleName)
+
                     if (serializedStyles)
                         $domNode.attr(
                             styleName,
@@ -1138,12 +1149,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         const $domNode:null|$DomNode<TElement> = this.$domNode
 
         if ($domNode?.length) {
-            let styleProperties:any
+            let styleProperties:CSSStyleDeclaration
 
             if ($.global.window?.getComputedStyle) {
                 styleProperties = $.global.window.getComputedStyle(
                     $domNode[0] as unknown as Element, null
                 )
+
                 if (styleProperties) {
                     if ('length' in styleProperties)
                         for (
@@ -1170,24 +1182,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                     styleProperties.getPropertyValue(
                                         propertyName
                                     )
+
                     return result
                 }
             }
 
-            styleProperties = (
-                $domNode[0] as unknown as {currentStyle:Mapping<number|string>}
-            ).currentStyle
-
-            if (styleProperties) {
-                for (const propertyName in styleProperties)
-                    if (Object.prototype.hasOwnProperty.call(
-                        styleProperties, propertyName
-                    ))
-                        result[propertyName] = styleProperties[propertyName]
-                return result
-            }
-
             styleProperties = ($domNode[0] as unknown as HTMLElement).style
+
             if (styleProperties)
                 for (const propertyName in styleProperties)
                     if (typeof styleProperties[propertyName] !== 'function')
@@ -2347,6 +2348,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static determineType(object:any = undefined):string {
         if ([null, undefined].includes(object))
             return `${object}`
+
         if (
             ['function', 'object'].includes(typeof object) && object.toString
         ) {
@@ -2357,6 +2359,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             ))
                 return Tools.classToTypeMapping[stringRepresentation]
         }
+
         return typeof object
     }
     /**

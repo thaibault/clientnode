@@ -387,11 +387,6 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         new Boolean()
     )
     // / endregion
-    // / region language fixes
-    test('mouseOutEventHandlerFix', ():void =>
-        expect(Tools.mouseOutEventHandlerFix(():void => {})).toBeTruthy()
-    )
-    // / endregion
     // / region logging
     test('log', ():void => expect(tools.log('test')).toStrictEqual(tools))
     test('info', ():void =>
