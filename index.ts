@@ -724,7 +724,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         */
         return (
             ['number', 'string'].includes(type) &&
-            !isNaN(value - parseFloat(value))
+            !isNaN(value as number - parseFloat(value as string))
         )
     }
     /**
@@ -734,9 +734,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static isWindow(value:unknown):value is Window {
         return (
-            ![null, undefined].includes(value) &&
+            ![null, undefined].includes(value as null) &&
             typeof value === 'object' &&
-            value === value?.window
+            value === (value as Window)?.window
         )
     }
     /**
@@ -748,7 +748,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static isArrayLike(object:unknown):boolean {
         let length:number|boolean
         try {
-            length = Boolean(object) && object.length
+            length = Boolean(object) && (object as Array<unknown>).length
         } catch (error) {
             return false
         }
@@ -764,7 +764,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (typeof length === 'number' && length > 0)
             try {
                 /* eslint-disable no-unused-expressions */
-                object[length - 1]
+                (object as Array<unknown>)[length - 1]
                 /* eslint-enable no-unused-expressions */
                 return true
             } catch (error) {}
@@ -1206,19 +1206,24 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     get text():string {
         if (this.$domNode)
             return this.$domNode.clone().children().remove().end().text()
+
         return ''
     }
     /**
      * Checks whether given html or text strings are equal.
+     *
      * @param first - First html, selector to dom node or text to compare.
      * @param second - Second html, selector to dom node  or text to compare.
      * @param forceHTMLString - Indicates whether given contents are
      * interpreted as html string (otherwise an automatic detection will be
      * triggered).
+     *
      * @returns Returns true if both dom representations are equivalent.
      */
     static isEquivalentDOM(
-        first:any, second:any, forceHTMLString = false
+        first:Node|string|$DomNode,
+        second:Node|string|$DomNode,
+        forceHTMLString = false
     ):boolean {
         if (first === second)
             return true
@@ -1226,7 +1231,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (first && second) {
             const detemermineHTMLPattern =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
-            const inputs:Mapping<any> = {first, second}
+            const inputs:Mapping<Node|string|$DomNode> = {first, second}
             const $domNodes:Mapping<$DomNode> = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
@@ -1242,10 +1247,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     (
                         forceHTMLString ||
                         (
-                            inputs[type].startsWith('<') &&
-                            inputs[type].endsWith('>') &&
-                            inputs[type].length >= 3 ||
-                            detemermineHTMLPattern.test(inputs[type])
+                            (inputs[type] as string).startsWith('<') &&
+                            (inputs[type] as string).endsWith('>') &&
+                            (inputs[type] as string).length >= 3 ||
+                            detemermineHTMLPattern.test(inputs[type] as string)
                         )
                     )
                 )
@@ -1541,6 +1546,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     automatic lookup to parent scope.
                 */
                 (scope[name] as any) = undefined
+
         return scope
     }
     /**
