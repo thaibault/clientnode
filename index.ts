@@ -711,12 +711,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     // / region boolean
     /**
      * Determines whether its argument represents a JavaScript number.
-     * @param object - Object to analyze.
+     * @param value - Value to analyze.
      * @returns A boolean value indicating whether given object is numeric
      * like.
      */
-    static isNumeric(object:any):object is number {
-        const type:string = Tools.determineType(object)
+    static isNumeric(value:unknown):value is number {
+        const type:string = Tools.determineType(value)
         /*
             NOTE: "parseFloat" "NaNs" numeric-cast false positives ("") but
             misinterprets leading-number strings, particularly hex literals
@@ -724,19 +724,19 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         */
         return (
             ['number', 'string'].includes(type) &&
-            !isNaN(object - parseFloat(object))
+            !isNaN(value - parseFloat(value))
         )
     }
     /**
      * Determine whether the argument is a window.
-     * @param object - Object to check for.
+     * @param value - Value to check for.
      * @returns Boolean value indicating the result.
      */
-    static isWindow(object:any):object is Window {
+    static isWindow(value:unknown):value is Window {
         return (
-            ![null, undefined].includes(object) &&
-            typeof object === 'object' &&
-            object === object?.window
+            ![null, undefined].includes(value) &&
+            typeof value === 'object' &&
+            value === value?.window
         )
     }
     /**
@@ -745,7 +745,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param object - Object to check behavior for.
      * @returns A boolean value indicating whether given object is array like.
      */
-    static isArrayLike(object:any):boolean {
+    static isArrayLike(object:unknown):boolean {
         let length:number|boolean
         try {
             length = Boolean(object) && object.length
@@ -1222,6 +1222,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     ):boolean {
         if (first === second)
             return true
+
         if (first && second) {
             const detemermineHTMLPattern =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
@@ -1229,6 +1230,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const $domNodes:Mapping<$DomNode> = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
+
             /*
                 NOTE: Assume that strings that start "<" and end with ">" are
                 markup and skip the more expensive regular expression check.
@@ -1259,6 +1261,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     } catch (error) {
                         return false
                     }
+
             if (
                 ($domNodes.first as unknown as Array<Node>).length &&
                 ($domNodes.first as unknown as Array<Node>).length ===
@@ -1276,6 +1279,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     .$domNode
                     .Tools('normalizedStyles')
                     .$domNode
+
                 let index = 0
                 for (const domNode of (
                     $domNodes.first as unknown as Array<Node>
@@ -1284,11 +1288,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         $domNodes.second as unknown as Array<Node>
                     )[index]))
                         return false
+
                     index += 1
                 }
+
                 return true
             }
         }
+
         return false
     }
     /**
