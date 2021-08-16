@@ -925,11 +925,11 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(Tools.addDynamicGetterAndSetter(null)).toStrictEqual(null)
         expect(Tools.addDynamicGetterAndSetter(true)).toStrictEqual(true)
         expect(Tools.addDynamicGetterAndSetter({a: 2})).toStrictEqual({a: 2})
-        expect(Tools.addDynamicGetterAndSetter({}).__target__)
-            .not.toBeInstanceOf(Object)
+        expect(Tools.addDynamicGetterAndSetter({}))
+            .not.toHaveProperty('__target__')
         expect(
             Tools.addDynamicGetterAndSetter(
-                {}, (value:any):any => value
+                {}, (value:unknown):unknown => value
             ).__target__
         ).toBeInstanceOf(Object)
         const mockup = {}

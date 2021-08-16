@@ -23,11 +23,13 @@ import {
 } from 'node-fetch'
 
 import {
+    AnyFunction,
     BaseSelector,
     CompareOptions,
     CompilationResult,
     EvaluationResult,
     File,
+    FirstParameter,
     GetterFunction,
     LockCallbackFunction,
     Mapping,
@@ -367,6 +369,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         */
         if (!$.document)
             return 0
+
         const div = $.document.createElement('div')
         let version:number
         for (version = 0; version < 10; version++) {
@@ -382,10 +385,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             div.innerHTML = (
                 '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' + '->'
             )
+
             /* eslint-enable no-useless-concat */
             if (div.getElementsByTagName('i').length === 0)
                 break
         }
+
         // Try special detection for internet explorer 10 and 11.
         if (version === 0 && $.global.window.navigator)
             /* eslint-disable @typescript-eslint/prefer-includes */
@@ -399,12 +404,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             )
                 return 11
             /* eslint-enable @typescript-eslint/prefer-includes */
+
         return version
     })()
     /* eslint-disable @typescript-eslint/no-empty-function */
     static noop:Noop = $.noop ? $.noop as Noop : ():void => {}
     /* eslint-enable @typescript-eslint/no-empty-function */
-    static plainObjectPrototypes:Array<any> = [Object.prototype]
+    static plainObjectPrototypes:Array<FirstParameter<
+        typeof Object.getPrototypeOf
+    >> = [Object.prototype]
     static readonly specialRegexSequences:Array<string> = [
         '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}'
     ]
@@ -599,11 +607,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (!(object instanceof Tools))
                 object = this._self.extend(true, new Tools(), object)
         }
+
         const name:string = object.constructor._name || object.constructor.name
+
         parameter = this._self.arrayMake(parameter)
+
         if ($domNode?.data && !$domNode.data(name))
             // Attach extended object to the associated dom node.
             $domNode.data(name, object)
+
         if (
             parameter.length &&
             typeof parameter[0] === 'string' &&
@@ -611,13 +623,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         ) {
             if (Tools.isFunction(object[parameter[0]]))
                 return object[parameter[0]](...parameter.slice(1))
+
             return object[parameter[0]]
+
         } else if (parameter.length === 0 || typeof parameter[0] === 'object')
             /*
                 If an options object or no method name is given the initializer
                 will be called.
             */
             return object.initialize(...parameter)
+
         if (parameter.length && typeof parameter[0] === 'string')
             throw new Error(
                 `Method "${parameter[0]}" does not exist on $-extended dom ` +
@@ -1545,16 +1560,18 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     NOTE: Delete ("delete $scope[name]") doesn't destroy the
                     automatic lookup to parent scope.
                 */
-                (scope[name] as any) = undefined
+                (scope[name] as unknown) = undefined
 
         return scope
     }
     /**
      * Generates a unique name in given scope (useful for jsonp requests).
+     *
      * @param prefix - A prefix which will be prepended to unique name.
      * @param suffix - A suffix which will be prepended to unique name.
      * @param scope - A scope where the name should be unique.
      * @param initialUniqueName - An initial scope name to use if not exists.
+     *
      * @returns The function name.
      */
     static determineUniqueScopeName(
@@ -1627,15 +1644,17 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param filter - A function that filters an array.
      * @returns The inverted filter.
      */
-    static invertArrayFilter(
-        filter:(this:any, data:any, ...additionalParameter:Array<any>) => any
-    ):(data:any, ...additionalParameter:Array<any>) => any {
-        return function(
-            this:any, data:any, ...additionalParameter:Array<any>
-        ):any {
+    static invertArrayFilter<T extends AnyFunction = (
+        data:Array<unknown>, ...additionalParameter:Array<unknown>
+    ) => Array<unknown>>(filter:T):T {
+        return ((
+            data:Array<unknown>, ...additionalParameter:Array<unknown>
+        ):Array<unknown> => {
             if (data) {
-                const filteredData:any = filter(data, ...additionalParameter)
-                let result:Array<any> = []
+                const filteredData:Array<unknown> =
+                    filter(data, ...additionalParameter)
+
+                let result:Array<unknown> = []
                 /* eslint-disable curly */
                 if (filteredData.length) {
                     for (const date of data)
@@ -1644,10 +1663,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 } else
                 /* eslint-enable curly */
                     result = data
+
                 return result
             }
+
             return data
-        }
+        }) as T
     }
     /**
      * Triggers given callback after given duration. Supports unlimited
@@ -1667,7 +1688,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * holds a boolean indicating whether timeout has been canceled or
      * resolved.
      */
-    static timeout(...parameters:Array<any>):TimeoutPromise {
+    static timeout(...parameters:Array<unknown>):TimeoutPromise {
         let callback:Function = Tools.noop
         let delayInMilliseconds:number = 0
         let throwOnTimeoutClear:boolean = false
@@ -1751,10 +1772,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static debounce<T = unknown>(
         callback:Function,
         thresholdInMilliseconds:number = 600,
-        ...additionalArguments:Array<any>
-    ):((...parameters:Array<any>) => Promise<T>) {
+        ...additionalArguments:Array<unknown>
+    ):((...parameters:Array<unknown>) => Promise<T>) {
         let waitForNextSlot:boolean = false
-        let parametersForNextSlot:Array<any>|null = null
+        let parametersForNextSlot:Array<unknown>|null = null
         // NOTE: Type "T" will be added via "then" method when called.
         let resolveNextSlotPromise:Function
         let rejectNextSlotPromise:Function
@@ -1765,7 +1786,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             rejectNextSlotPromise = reject
         })
 
-        return (...parameters:Array<any>):Promise<T> => {
+        return (...parameters:Array<unknown>):Promise<T> => {
             parameters = parameters.concat(additionalArguments || [])
 
             if (waitForNextSlot) {
@@ -1852,6 +1873,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * addition this method searches for a given event method by the options
      * object. Additional arguments are forwarded to respective event
      * functions.
+     *
      * @param eventName - An event name.
      * @param callOnlyOptionsMethod - Prevents from trying to call an internal
      * event handler.
@@ -1859,30 +1881,44 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * called.
      * @param additionalArguments - Additional arguments to forward to
      * corresponding event handlers.
-     * @returns - Returns "true" if an options event handler was called and
-     * "false" otherwise.
+     *
+     * @returns - Returns result of an options event handler (when called) and
+     * "true" otherwise.
      */
     fireEvent(
         eventName:string,
         callOnlyOptionsMethod:boolean = false,
-        scope:any = this,
-        ...additionalArguments:Array<any>
-    ):any {
+        scope:unknown = this,
+        ...additionalArguments:Array<unknown>
+    ):unknown {
         const eventHandlerName:string =
             `on${this._self.stringCapitalize(eventName)}`
+
+        interface Scope {
+            callable:Function
+            _options:{[key:string]:Function}
+        }
+        const castedScope:Scope = scope as Scope
+
         if (!callOnlyOptionsMethod)
-            if (eventHandlerName in scope)
-                scope[eventHandlerName](...additionalArguments)
-            else if (`_${eventHandlerName}` in scope)
-                scope[`_${eventHandlerName}`](...additionalArguments)
+            if (eventHandlerName in castedScope)
+                castedScope[eventHandlerName as 'callable'](
+                    ...additionalArguments
+                )
+            else if (`_${eventHandlerName}` in castedScope)
+                castedScope[`_${eventHandlerName}` as 'callable'](
+                    ...additionalArguments
+                )
+
         if (
-            scope._options &&
-            eventHandlerName in scope._options &&
-            scope._options[eventHandlerName] !== this._self.noop
+            castedScope._options &&
+            eventHandlerName in castedScope._options &&
+            castedScope._options[eventHandlerName] !== this._self.noop
         )
-            return scope._options[eventHandlerName].call(
+            return castedScope._options[eventHandlerName].call(
                 this, ...additionalArguments
             )
+
         return true
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
@@ -1895,7 +1931,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Returns $'s grabbed dom node.
      */
-    on<TElement = HTMLElement>(...parameters:Array<any>):$DomNode<TElement> {
+    on<TElement = HTMLElement>(...parameters:Array<unknown>):$DomNode<
+        TElement
+    > {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper<TElement>(parameters, false)
     }
@@ -1909,7 +1947,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Returns $'s grabbed dom node.
      */
-    off<TElement = HTMLElement>(...parameters:Array<any>):$DomNode<TElement> {
+    off<TElement = HTMLElement>(...parameters:Array<unknown>):$DomNode<
+        TElement
+    > {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper<TElement>(parameters, true)
     }
@@ -1917,6 +1957,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     // / region object
     /**
      * Adds dynamic getter and setter to any given data structure such as maps.
+     *
      * @param object - Object to proxy.
      * @param getterWrapper - Function to wrap each property get.
      * @param setterWrapper - Function to wrap each property set.
@@ -1925,16 +1966,17 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param deep - Indicates to perform a deep wrapping of specified types.
      * @param typesToExtend - Types which should be extended (Checks are
      * performed via "value instanceof type".).
+     *
      * @returns Returns given object wrapped with a dynamic getter proxy.
      */
-    static addDynamicGetterAndSetter(
-        object:any,
+    static addDynamicGetterAndSetter<T = unknown>(
+        object:unknown,
         getterWrapper:GetterFunction|null = null,
         setterWrapper:null|SetterFunction = null,
         methodNames:Mapping = {},
         deep:boolean = true,
-        typesToExtend:Array<any> = [Object]
-    ):any {
+        typesToExtend:Array<unknown> = [Object]
+    ):T|(T & {__target__:T}) {
         if (deep && typeof object === 'object')
             if (Array.isArray(object)) {
                 let index:number = 0
@@ -1961,40 +2003,50 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             } else if (object !== null) {
                 for (const key in object)
                     if (Object.prototype.hasOwnProperty.call(object, key))
-                        object[key] = Tools.addDynamicGetterAndSetter(
-                            object[key],
-                            getterWrapper,
-                            setterWrapper,
-                            methodNames,
-                            deep
-                        )
+                        (object as Mapping<unknown>)[key] =
+                            Tools.addDynamicGetterAndSetter(
+                                (object as Mapping<unknown>)[key],
+                                getterWrapper,
+                                setterWrapper,
+                                methodNames,
+                                deep
+                            )
             }
+
         if (getterWrapper || setterWrapper)
             for (const type of typesToExtend)
                 if (
                     object !== null &&
                     typeof object === 'object' &&
-                    object instanceof type
+                    object instanceof (type as Function)
                 ) {
-                    const defaultHandler:ProxyHandler = Tools.getProxyHandler(
-                        object, methodNames)
-                    const handler:ProxyHandler = Tools.getProxyHandler(
-                        object, methodNames)
+                    const defaultHandler:ProxyHandler =
+                        Tools.getProxyHandler(object, methodNames)
+                    const handler:ProxyHandler =
+                        Tools.getProxyHandler(object, methodNames)
+
                     if (getterWrapper)
                         handler.get = (target:any, name:string):any => {
                             if (name === '__target__')
                                 return object
+
                             if (name === '__revoke__')
                                 return ():any => {
                                     revoke()
                                     return object
                                 }
-                            if (typeof object[name] === 'function')
-                                return object[name]
+
+                            if (
+                                typeof (object as Mapping<Function>)[name] ===
+                                    'function'
+                            )
+                                return (object as Mapping<unknown>)[name]
+
                             return getterWrapper(
                                 defaultHandler.get(proxy, name), name, object
                             )
                         }
+
                     if (setterWrapper)
                         handler.set = (
                             target:any, name:string, value:any
@@ -2003,9 +2055,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                 proxy, name, setterWrapper(name, value, object)
                             )
                     const {proxy, revoke} = Proxy.revocable({}, handler)
+
                     return proxy
                 }
-        return object
+
+        return object as T
     }
     /**
      * Converts given object into its serialized json representation by
