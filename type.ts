@@ -194,11 +194,11 @@ export interface Options<Type = string> {
     domNodeSelectorPrefix:string
     logging:boolean
 }
-export interface ProxyHandler {
-    deleteProperty:(target:any, key:any) => boolean
-    get:(target:any, key:string) => any
-    has:(target:any, key:string) => boolean
-    set:(target:any, key:string, value:any) => boolean
+export interface ProxyHandler <T = unknown>{
+    deleteProperty:(target:T, key:any) => boolean
+    get:(target:T, key:string) => unknown
+    has:(target:T, key:string) => boolean
+    set:(target:T, key:string, value:unknown) => boolean
 }
 export type TemplateFunction = (...parameter:Array<any>) => any
 export interface CompilationResult {

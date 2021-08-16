@@ -936,36 +936,33 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(Tools.addDynamicGetterAndSetter(mockup)).toStrictEqual(mockup)
         expect(
             Tools.addDynamicGetterAndSetter(
-                mockup, (value:any):any => value
+                mockup, (value:unknown):unknown => value
             ).__target__
         ).toStrictEqual(mockup)
         expect(
             Tools.addDynamicGetterAndSetter(
-                {a: 1}, (value:any):any => value + 2
+                {a: 1}, (value:number):number => value + 2
             ).a
         ).toStrictEqual(3)
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: {a: 1}},
-                (value:any):any => (value instanceof Object) ?
-                    value :
-                    value + 2
+                (value:number|object):number|object =>
+                    value instanceof Object ? value : value + 2
             ).a.a
         ).toStrictEqual(3)
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: {a: [{a: 1}]}},
-                (value:any):any => (value instanceof Object) ?
-                    value :
-                    value + 2
+                (value:number|object):number|object =>
+                    value instanceof Object ? value : value + 2
             ).a.a[0].a
         ).toStrictEqual(3)
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: {a: 1}},
-                (value:any):any => (value instanceof Object) ?
-                    value :
-                    value + 2,
+                (value:number|object):number|object =>
+                    value instanceof Object ? value : value + 2,
                 null,
                 {has: 'hasOwnProperty'},
                 false
@@ -974,8 +971,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: 1},
-                (value:any):any =>
-                    (value instanceof Object) ? value : value + 2,
+                (value:number|object):number|object =>
+                    value instanceof Object ? value : value + 2,
                 null,
                 {has: 'hasOwnProperty'},
                 false,
@@ -983,15 +980,15 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             ).a
         ).toStrictEqual(1)
         expect(
-            Tools.addDynamicGetterAndSetter(
+            (Tools.addDynamicGetterAndSetter(
                 {a: new Map([['a', 1]])},
-                (value:any):any =>
-                    (value instanceof Object) ? value : value + 2,
+                (value:number|object):number|object =>
+                    value instanceof Object ? value : value + 2,
                 null,
                 {delete: 'delete', get: 'get', set: 'set', has: 'has'},
                 true,
                 [Map]
-            ).a.a
+            ).a as unknown as {a:number}).a
         ).toStrictEqual(3)
     })
     test('convertCircularObjectToJSON', ():void => {

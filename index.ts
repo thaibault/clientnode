@@ -1970,13 +1970,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns given object wrapped with a dynamic getter proxy.
      */
     static addDynamicGetterAndSetter<T = unknown>(
-        object:unknown,
+        object:T,
         getterWrapper:GetterFunction|null = null,
         setterWrapper:null|SetterFunction = null,
         methodNames:Mapping = {},
         deep:boolean = true,
         typesToExtend:Array<unknown> = [Object]
-    ):T|(T & {__target__:T}) {
+    ):T & {__target__?:T} {
         if (deep && typeof object === 'object')
             if (Array.isArray(object)) {
                 let index:number = 0
@@ -1991,26 +1991,28 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         value, getterWrapper, setterWrapper, methodNames, deep)
                     )
             else if (Tools.isSet(object)) {
-                const cache:Array<any> = []
+                const cache:Array<unknown> = []
                 for (const value of object) {
                     object.delete(value)
                     cache.push(Tools.addDynamicGetterAndSetter(
                         value, getterWrapper, setterWrapper, methodNames, deep)
                     )
                 }
+
                 for (const value of cache)
                     object.add(value)
             } else if (object !== null) {
                 for (const key in object)
                     if (Object.prototype.hasOwnProperty.call(object, key))
-                        (object as Mapping<unknown>)[key] =
-                            Tools.addDynamicGetterAndSetter(
-                                (object as Mapping<unknown>)[key],
-                                getterWrapper,
-                                setterWrapper,
-                                methodNames,
-                                deep
-                            )
+                        object[key] = Tools.addDynamicGetterAndSetter<
+                            T[Extract<keyof T, string>]
+                        >(
+                            object[key],
+                            getterWrapper,
+                            setterWrapper,
+                            methodNames,
+                            deep
+                        ) as unknown as T[Extract<keyof T, string>]
             }
 
         if (getterWrapper || setterWrapper)
@@ -2020,43 +2022,45 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     typeof object === 'object' &&
                     object instanceof (type as Function)
                 ) {
-                    const defaultHandler:ProxyHandler =
-                        Tools.getProxyHandler(object, methodNames)
-                    const handler:ProxyHandler =
-                        Tools.getProxyHandler(object, methodNames)
+                    const defaultHandler:ProxyHandler<T> =
+                        Tools.getProxyHandler<T>(object, methodNames)
+                    const handler:ProxyHandler<T> =
+                        Tools.getProxyHandler<T>(object, methodNames)
 
                     if (getterWrapper)
-                        handler.get = (target:any, name:string):any => {
+                        handler.get = (target:T, name:string):unknown => {
                             if (name === '__target__')
                                 return object
 
                             if (name === '__revoke__')
-                                return ():any => {
+                                return ():unknown => {
                                     revoke()
+
                                     return object
                                 }
 
-                            if (
-                                typeof (object as Mapping<Function>)[name] ===
-                                    'function'
-                            )
-                                return (object as Mapping<unknown>)[name]
+                            if (typeof object[name as keyof T] === 'function')
+                                return object[name as keyof T]
 
                             return getterWrapper(
-                                defaultHandler.get(proxy, name), name, object
+                                defaultHandler.get(proxy as T, name),
+                                name,
+                                object
                             )
                         }
 
                     if (setterWrapper)
                         handler.set = (
-                            target:any, name:string, value:any
-                        ):any =>
+                            target:T, name:string, value:unknown
+                        ):boolean =>
                             defaultHandler.set(
-                                proxy, name, setterWrapper(name, value, object)
+                                proxy as T,
+                                name,
+                                setterWrapper(name, value, object)
                             )
                     const {proxy, revoke} = Proxy.revocable({}, handler)
 
-                    return proxy
+                    return proxy as T & {__target__:T}
                 }
 
         return object as T
@@ -2138,10 +2142,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given map as object.
      */
-    static convertMapToPlainObject(object:any, deep:boolean = true):any {
+    static convertMapToPlainObject<T = unknown>(
+        object:Map<string, T>, deep:boolean = true
+    ):Mapping<T> {
         if (typeof object === 'object') {
             if (Tools.isMap(object)) {
-                const newObject:Mapping<any> = {}
+                const newObject:Mapping<T> = {}
                 for (let [key, value] of object) {
                     if (deep)
                         value = Tools.convertMapToPlainObject(value, deep)
@@ -3156,12 +3162,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Generates a proxy handler which forwards all operations to given object
      * as there wouldn't be a proxy.
+     *
      * @param target - Object to proxy.
      * @param methodNames - Mapping of operand name to object specific method
      * name.
+     *
      * @returns Determined proxy handler.
      */
-    static getProxyHandler(target:any, methodNames:Mapping = {}):ProxyHandler {
+    static getProxyHandler<T = unknown>(
+        target:T, methodNames:Mapping = {}
+    ):ProxyHandler<T> {
         methodNames = {
             delete: '[]',
             get: '[]',
@@ -3169,29 +3179,51 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             set: '[]',
             ...methodNames
         }
+
         return {
-            deleteProperty: (targetObject:any, key:string|symbol):boolean => {
+            deleteProperty: (targetObject:T, key:string|symbol):boolean => {
                 if (methodNames.delete === '[]' && typeof key === 'string')
-                    delete target[key]
+                    delete target[key as keyof T]
                 else
-                    return target[methodNames.delete](key)
+                    return (
+                        target[methodNames.delete as keyof T] as
+                            unknown as
+                            (key:string|symbol) => boolean
+                    )(key)
+
                 return true
             },
-            get: (targetObject:any, key:string|symbol):any => {
+            get: (targetObject:T, key:string|symbol):unknown => {
                 if (methodNames.get === '[]' && typeof key === 'string')
-                    return target[key]
-                return target[methodNames.get](key)
+                    return target[key as keyof T]
+
+                return (
+                    target[methodNames.get as keyof T] as
+                        unknown as
+                        (key:string|symbol) => unknown
+                )(key)
             },
-            has: (targetObject:any, key:string|symbol):boolean => {
+            has: (targetObject:T, key:string|symbol):boolean => {
                 if (methodNames.has === '[]')
                     return key in target
-                return target[methodNames.has](key)
+
+                return (
+                    target[methodNames.has as keyof T] as
+                        unknown as
+                        (key:string|symbol) => boolean
+                )(key)
             },
-            set: (targetObject:any, key:string|symbol, value:any):boolean => {
+            set: (
+                targetObject:T, key:string|symbol, value:unknown
+            ):boolean => {
                 if (methodNames.set === '[]' && typeof key === 'string')
-                    target[key] = value
+                    target[key as keyof T] = value as T[keyof T]
                 else
-                    return target[methodNames.set](value)
+                    return (target[methodNames.set as keyof T] as
+                        unknown as
+                        (key:string|symbol, value:unknown) => boolean
+                    )(key, value)
+
                 return true
             }
         }
