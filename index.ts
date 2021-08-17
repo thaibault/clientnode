@@ -41,6 +41,7 @@ import {
     PaginateOptions,
     PlainObject,
     Position,
+    Primitive,
     ProcedureFunction,
     ProcessCloseCallback,
     ProcessError,
@@ -2142,12 +2143,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given map as object.
      */
-    static convertMapToPlainObject<T = unknown>(
-        object:Map<string, T>, deep:boolean = true
-    ):Mapping<T> {
+    static convertMapToPlainObject(
+        object:unknown, deep:boolean = true
+    ):unknown {
         if (typeof object === 'object') {
             if (Tools.isMap(object)) {
-                const newObject:Mapping<T> = {}
+                const newObject:Mapping<unknown> = {}
                 for (let [key, value] of object) {
                     if (deep)
                         value = Tools.convertMapToPlainObject(value, deep)
@@ -2164,7 +2165,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         if (Object.prototype.hasOwnProperty.call(object, key))
                             object[key] = Tools.convertMapToPlainObject(
                                 object[key], deep
-                            )
+                            ) as Primitive
                 } else if (Array.isArray(object)) {
                     let index:number = 0
 
