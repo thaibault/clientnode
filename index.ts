@@ -2175,7 +2175,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         index += 1
                     }
                 } else if (Tools.isSet(object)) {
-                    const cache:Array<any> = []
+                    const cache:Array<unknown> = []
 
                     for (const value of object) {
                         object.delete(value)
@@ -2196,25 +2196,30 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given object as map.
      */
-    static convertPlainObjectToMap(object:any, deep:boolean = true):any {
+    static convertPlainObjectToMap(
+        object:unknown, deep:boolean = true
+    ):unknown {
         if (typeof object === 'object') {
             if (Tools.isPlainObject(object)) {
-                const newObject:Map<number|string, any> = new Map()
+                const newObject:Map<number|string, unknown> = new Map()
                 for (const key in object)
                     if (Object.prototype.hasOwnProperty.call(object, key)) {
                         if (deep)
                             object[key] = Tools.convertPlainObjectToMap(
-                                object[key], deep)
+                                object[key], deep
+                            ) as Primitive
                         newObject.set(key, object[key])
                     }
                 return newObject
             }
+
             if (deep)
                 if (Array.isArray(object)) {
                     let index:number = 0
                     for (const value of object) {
                         object[index] = Tools.convertPlainObjectToMap(
-                            value, deep)
+                            value, deep
+                        )
                         index += 1
                     }
                 } else if (Tools.isMap(object))
@@ -2223,15 +2228,18 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             key, Tools.convertPlainObjectToMap(value, deep)
                         )
                 else if (Tools.isSet(object)) {
-                    const cache:Array<any> = []
+                    const cache:Array<unknown> = []
+
                     for (const value of object) {
                         object.delete(value)
                         cache.push(Tools.convertPlainObjectToMap(value, deep))
                     }
+
                     for (const value of cache)
                         object.add(value)
                 }
         }
+
         return object
     }
     /**
@@ -2262,6 +2270,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     /**
      * Copies given object (of any type) into optionally given destination.
+     *
      * @param source - Object to copy.
      * @param recursionLimit - Specifies how deep we should traverse into given
      * object recursively.
@@ -2275,12 +2284,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * references e.g. to objects not to copy (e.g. symbol polyfills).
      * @param recursionLevel - Internally used to track current recursion
      * level in given source data structure.
+     *
      * @returns Value "true" if both objects are equal and "false" otherwise.
      */
     static copy<Type = unknown>(
         source:Type,
         recursionLimit:number = -1,
-        recursionEndValue:any = ValueCopySymbol,
+        recursionEndValue:unknown = ValueCopySymbol,
         destination:null|Type = null,
         cyclic:boolean = false,
         knownReferences:Array<unknown> = [],
@@ -2294,10 +2304,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         'identical.'
                     )
 
-                if (!cyclic && ![undefined, null].includes(source as any)) {
+                if (
+                    !cyclic &&
+                    ![undefined, null].includes(source as unknown as null)
+                ) {
                     const index:number = knownReferences.indexOf(source)
                     if (index !== -1)
                         return knownReferences[index] as Type
+
                     knownReferences.push(source)
                 }
 
@@ -2308,9 +2322,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     )
                         return recursionEndValue === ValueCopySymbol ?
                             value :
-                            recursionEndValue
+                            recursionEndValue as null|V
 
-                    const result:any = Tools.copy(
+                    const result:null|V = Tools.copy(
                         value,
                         recursionLimit,
                         recursionEndValue,
@@ -2319,26 +2333,30 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         knownReferences,
                         recursionLevel + 1
                     )
+
                     if (
                         !cyclic &&
-                        ![undefined, null].includes(value as any) &&
+                        ![undefined, null].includes(
+                            value as unknown as null
+                        ) &&
                         typeof value === 'object'
                     )
                         knownReferences.push(value)
 
                     return result
                 }
+
                 if (Array.isArray(source))
                     for (const item of source)
-                        (destination as unknown as Array<any>)
+                        (destination as unknown as Array<unknown>)
                             .push(copyValue(item))
                 else if (source instanceof Map)
                     for (const [key, value] of source)
-                        (destination as unknown as Map<any, any>)
+                        (destination as unknown as Map<unknown, unknown>)
                             .set(key, copyValue(value))
                 else if (source instanceof Set)
                     for (const value of source)
-                        (destination as unknown as Set<any>)
+                        (destination as unknown as Set<unknown>)
                             .add(copyValue(value))
                 else
                     for (const key in source)
@@ -2414,6 +2432,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     recursionLevel
                 )
             }
+
         return destination || source
     }
     /**
@@ -2471,8 +2490,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * determined boolean values is returned.
      */
     static equals(
-        firstValue:any,
-        secondValue:any,
+        firstValue:unknown,
+        secondValue:unknown,
         givenOptions:Partial<CompareOptions> = {}
     ):boolean|Promise<boolean|string>|string {
         const options:CompareOptions = {
@@ -2508,7 +2527,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             eval('Buffer').isBuffer &&
             firstValue instanceof eval('Buffer') &&
             secondValue instanceof eval('Buffer') &&
-            firstValue.toString('base64') === secondValue.toString('base64')
+            (firstValue as Buffer).toString('base64') ===
+                (secondValue as Buffer).toString('base64')
         )
             return true
 
@@ -2559,7 +2579,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         Tools.determineType(secondValue) &&
                     ['map', 'set'].includes(Tools.determineType(firstValue))
                 ) &&
-                firstValue.size === secondValue.size
+                (firstValue as Set<unknown>).size ===
+                    (secondValue as Set<unknown>).size
             )
         ) {
             const promises:Array<Promise<boolean|string>> = []
@@ -2570,32 +2591,44 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 const firstIsArray:boolean = Array.isArray(first)
                 if (
                     firstIsArray &&
-                    (!Array.isArray(second) || first.length !== second.length)
+                    (
+                        !Array.isArray(second) ||
+                        (first as Array<unknown>).length !==
+                            (second as Array<unknown>).length
+                    )
                 )
                     return options.returnReasonIfNotEqual ? '.length' : false
 
                 const firstIsMap:boolean = Tools.isMap(first)
                 if (
                     firstIsMap &&
-                    (!Tools.isMap(second) || first.size !== second.size)
+                    (
+                        !Tools.isMap(second) ||
+                        (first as Map<unknown, unknown>).size !==
+                            (second as Map<unknown, unknown>).size
+                    )
                 )
                     return options.returnReasonIfNotEqual ? '.size' : false
 
                 const firstIsSet:boolean = Tools.isSet(first)
                 if (
                     firstIsSet &&
-                    (!Tools.isSet(second) || first.size !== second.size)
+                    (
+                        !Tools.isSet(second) ||
+                        (first as Set<unknown>).size !==
+                            (second as Set<unknown>).size
+                    )
                 )
                     return options.returnReasonIfNotEqual ? '.size' : false
 
                 if (firstIsArray) {
                     let index:number = 0
-                    for (const value of first) {
+                    for (const value of first as Array<unknown>) {
                         if (options.deep !== 0) {
                             const result:boolean|Promise<boolean|string>|string =
                                 Tools.equals(
                                     value,
-                                    second[index],
+                                    (second as Array<unknown>)[index],
                                     {...options, deep: options.deep - 1}
                                 )
 
@@ -2624,12 +2657,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     }
                 /* eslint-disable curly */
                 } else if (firstIsMap) {
-                    for (const [key, value] of first)
+                    for (const [key, value] of first as Map<unknown, unknown>)
                         if (options.deep !== 0) {
                             const result:boolean|Promise<boolean|string>|string =
                                 Tools.equals(
                                     value,
-                                    second.get(key),
+                                    (second as Map<unknown, unknown>).get(key),
                                     {...options, deep: options.deep - 1}
                                 )
 
@@ -2655,15 +2688,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         }
                 } else if (firstIsSet) {
                 /* eslint-enable curly */
-                    for (const value of first)
+                    for (const value of first as Set<unknown>)
                         if (options.deep !== 0) {
                             let equal:boolean = false
-                            const subPromises:Array<Promise<boolean|string>> = []
+                            const subPromises:Array<Promise<boolean|string>> =
+                                []
                             /*
                                 NOTE: Check if their exists at least one being
                                 equally.
                             */
-                            for (const secondValue of second) {
+                            for (const secondValue of second as Set<unknown>) {
                                 const result:boolean|Promise<boolean|string>|string =
                                     Tools.equals(
                                         value,
@@ -2712,7 +2746,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             return determineResult(false)
                         }
                 } else
-                    for (const key in first)
+                    for (const key in first as object)
                         if (Object.prototype.hasOwnProperty.call(first, key)) {
                             if (
                                 options.properties &&
@@ -2738,8 +2772,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             if (options.deep !== 0) {
                                 const result:boolean|Promise<boolean|string>|string =
                                     Tools.equals(
-                                        first[key],
-                                        second[key],
+                                        (first as Mapping<unknown>)[key],
+                                        (second as Mapping<unknown>)[key],
                                         {...options, deep: options.deep - 1}
                                     )
 
@@ -2752,7 +2786,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                     typeof result === 'string' ?
                                         (
                                             key +
-                                            ({'[': '', '>': ' '}[result[0]] ?? '.') +
+                                            ({'[': '', '>': ' '}[result[0]] ??
+                                                '.'
+                                            ) +
                                             result
                                         ) :
                                         result
@@ -2791,6 +2827,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Searches for nested mappings with given indicator key and resolves
      * marked values. Additionally all objects are wrapped with a proxy to
      * dynamically resolve nested properties.
+     *
      * @param object - Given mapping to resolve.
      * @param scope - Scope to to use evaluate again.
      * @param selfReferenceName - Name to use for reference to given object.
@@ -2798,6 +2835,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * to evaluate.
      * @param executionIndicatorKey - Indicator property name to mark a value
      * to evaluate.
+     *
      * @returns Evaluated given mapping.
      */
     static evaluateDynamicData<Type = any>(
@@ -2809,18 +2847,23 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     ):Type {
         if (typeof object !== 'object' || object === null)
             return object as unknown as Type
+
         if (!(selfReferenceName in scope))
             scope[selfReferenceName] = object
+
         const evaluate:Function = (
             code:string, type:string = expressionIndicatorKey
         ):any => {
             const evaluated:EvaluationResult = Tools.stringEvaluate(
                 code, scope, type === executionIndicatorKey
             )
+
             if (evaluated.error)
                 throw new Error(evaluated.error)
+
             return evaluated.result
         }
+
         const addProxyRecursively:Function = (data:any):any => {
             if (
                 typeof data !== 'object' ||
@@ -2828,6 +2871,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 typeof Proxy === 'undefined'
             )
                 return data
+
             for (const key in data)
                 if (
                     Object.prototype.hasOwnProperty.call(data, key) &&
@@ -2853,8 +2897,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             get: (target:any, key:any):any => {
                                 if (key === '__target__')
                                     return target
+
                                 if (key === 'hasOwnProperty')
                                     return target[key]
+
                                 /*
                                     NOTE: Very complicated stuff section, only
                                     change while doing a lot of tests.
@@ -2867,17 +2913,21 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                         return resolve(
                                             evaluate(target[key], type)
                                         )
+
                                 const resolvedTarget:any = resolve(target)
                                 if (key === 'toString') {
                                     const result:any = evaluate(resolvedTarget)
                                     return result[key].bind(result)
                                 }
+
                                 if (typeof key !== 'string') {
                                     const result:any = evaluate(resolvedTarget)
                                     if (result[key]?.call)
                                         return result[key].bind(result)
+
                                     return result[key]
                                 }
+
                                 for (const type of [
                                     expressionIndicatorKey,
                                     executionIndicatorKey
@@ -2888,6 +2938,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                         return evaluate(
                                             resolvedTarget, type
                                         )[key]
+
                                 return resolvedTarget[key]
                                 // End of complicated stuff.
                             },
@@ -2904,9 +2955,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                                 target[type], type
                                             ))
                                         )
+
                                 return Object.getOwnPropertyNames(target)
                             }
                         })
+
                         /*
                             NOTE: Known proxy polyfills does not provide the
                             "__target__" api.
@@ -2915,8 +2968,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             data[key].__target__ = backup
                     }
                 }
+
             return data
         }
+
         const resolve:Function = (data:any):any => {
             if (data !== null && typeof data === 'object') {
                 if (data.__target__) {
@@ -2926,6 +2981,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     ])
                         if (Object.prototype.hasOwnProperty.call(data, type))
                             return data[type]
+
                     data = data.__target__
                 }
                 for (const key in data)
@@ -2935,13 +2991,17 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         ].includes(key)) {
                             if (typeof Proxy === 'undefined')
                                 return resolve(evaluate(data[key]))
+
                             return data[key]
                         }
+
                         data[key] = resolve(data[key])
                     }
             }
+
             return data
         }
+
         scope.resolve = resolve
         const removeProxyRecursively:Function = (data:any):any => {
             if (data !== null && typeof data === 'object')
@@ -2957,8 +3017,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             data[key] = target
                         removeProxyRecursively(data[key])
                     }
+
             return data
         }
+
         if (object !== null && typeof object === 'object')
             if (Object.prototype.hasOwnProperty.call(
                 object, expressionIndicatorKey
@@ -2976,6 +3038,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     ],
                     executionIndicatorKey
                 )
+
         return removeProxyRecursively(resolve(addProxyRecursively(object)))
     }
     /**
