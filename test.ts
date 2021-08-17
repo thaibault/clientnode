@@ -130,10 +130,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     // / region  object orientation
     test('controller', ():void => {
         expect(tools.controller(tools, [])).toStrictEqual(tools)
-        expect(tools.controller($.Tools.class, [], $('body')).constructor.name)
-            .toStrictEqual(Tools.name)
-        expect(tools.controller(Tools, [], $('body')).constructor.name)
-            .toStrictEqual(Tools.name)
+        expect((tools.controller($.Tools.class, [], $('body')) as Tools)
+            .constructor.name
+        ).toStrictEqual(Tools.name)
+        expect((tools.controller(Tools, [], $('body')) as Tools)
+            .constructor.name
+        ).toStrictEqual(Tools.name)
     })
     // / endregion
     // / region date time

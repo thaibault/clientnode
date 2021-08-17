@@ -141,26 +141,28 @@ export const determine$:(() => $Function) = ():$Function => {
             $ === null ||
             typeof $ === 'object' && Object.keys($).length === 0
         ) {
-            const selector:any = globalContext.document?.querySelectorAll ?
+            const selector = globalContext.document?.querySelectorAll ?
                 globalContext.document.querySelectorAll.bind(
                     globalContext.document
                 ) :
                 ():null => null
 
-            $ = ((parameter:any, ...additionalArguments:Array<any>):any => {
+            $ = ((
+                parameter:unknown, ...additionalArguments:Array<unknown>
+            ):unknown => {
                 let $domNodes:Array<Node>|null|ReturnType<Document['querySelectorAll']> =
                     [] as Array<Node>
                 if (typeof parameter === 'string')
-                    $domNodes = selector(parameter, ...additionalArguments)
+                    $domNodes = selector(parameter)
                 else if (Array.isArray(parameter))
                     $domNodes = parameter
                 else if (
                     typeof HTMLElement === 'object' &&
                     parameter instanceof HTMLElement ||
-                    parameter?.nodeType === 1 &&
-                    typeof parameter?.nodeName === 'string'
+                    (parameter as Node)?.nodeType === 1 &&
+                    typeof (parameter as Node)?.nodeName === 'string'
                 )
-                    $domNodes = [parameter]
+                    $domNodes = [parameter as Node]
 
                 if ($domNodes) {
                     if (($ as unknown as $Function).fn)
@@ -180,7 +182,8 @@ export const determine$:(() => $Function) = ():$Function => {
                 if (Tools.isFunction(parameter) && globalContext.document)
                 /* eslint-enable @typescript-eslint/no-use-before-define */
                     globalContext.document.addEventListener(
-                        'DOMContentLoaded', parameter
+                        'DOMContentLoaded',
+                        parameter as unknown as EventListenerObject
                     )
 
                 return parameter
@@ -591,52 +594,65 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Defines a generic controller for dom node aware plugins.
+     *
      * @param object - The object or class to control. If "object" is a class
      * an instance will be generated.
-     * @param parameter - The initially given arguments object.
+     * @param parameters - The initially given arguments object.
      * @param $domNode - Optionally a $-extended dom node to use as reference.
+     *
      * @returns Returns whatever the initializer method returns.
      */
     controller(
-        object:any,
-        parameter:Array<any>,
+        object:unknown,
+        parameters:Array<unknown>,
         $domNode:null|$DomNode<TElement> = null
-    ):any {
+    ):unknown {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
-            object = new object($domNode)
+            object = new (
+                object as {new ($domNode:null|$DomNode<TElement>):unknown}
+            )($domNode)
             if (!(object instanceof Tools))
                 object = this._self.extend(true, new Tools(), object)
         }
 
-        const name:string = object.constructor._name || object.constructor.name
+        const name:string =
+            (object as {constructor:{_name:string}}).constructor._name ||
+            (object as Tools).constructor.name
 
-        parameter = this._self.arrayMake(parameter)
+        parameters = this._self.arrayMake(parameters)
 
         if ($domNode?.data && !$domNode.data(name))
             // Attach extended object to the associated dom node.
-            $domNode.data(name, object)
+            $domNode.data(
+                name, object as boolean|null|number|object|string|symbol
+            )
 
         if (
-            parameter.length &&
-            typeof parameter[0] === 'string' &&
-            parameter[0] in object
+            parameters.length &&
+            typeof parameters[0] === 'string' &&
+            parameters[0] in (object as object)
         ) {
-            if (Tools.isFunction(object[parameter[0]]))
-                return object[parameter[0]](...parameter.slice(1))
+            if (Tools.isFunction((object as Mapping<unknown>)[parameters[0]]))
+                return (object as Mapping<Function>)[parameters[0]](
+                    ...parameters.slice(1)
+                )
 
-            return object[parameter[0]]
-
-        } else if (parameter.length === 0 || typeof parameter[0] === 'object')
+            return (object as Mapping<unknown>)[parameters[0]]
+        } else if (
+            parameters.length === 0 || typeof parameters[0] === 'object'
+        )
             /*
                 If an options object or no method name is given the initializer
                 will be called.
             */
-            return object.initialize(...parameter)
+            return (object as Tools).initialize(
+                ...parameters as Parameters<Tools['initialize']>
+            )
 
-        if (parameter.length && typeof parameter[0] === 'string')
+        if (parameters.length && typeof parameters[0] === 'string')
             throw new Error(
-                `Method "${parameter[0]}" does not exist on $-extended dom ` +
+                `Method "${parameters[0]}" does not exist on $-extended dom ` +
                 `node "${name}".`
             )
     }
