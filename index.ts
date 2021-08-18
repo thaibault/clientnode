@@ -48,6 +48,7 @@ import {
     ProcessErrorCallback,
     ProcessHandler,
     ProxyHandler,
+    ProxyType,
     RecursiveEvaluateable,
     RecursivePartial,
     RelativePosition,
@@ -1993,7 +1994,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         methodNames:Mapping = {},
         deep:boolean = true,
         typesToExtend:Array<unknown> = [Object]
-    ):T & {__target__?:T} {
+    ):ProxyType<T>|T {
         if (deep && typeof object === 'object')
             if (Array.isArray(object)) {
                 let index:number = 0
@@ -2077,7 +2078,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             )
                     const {proxy, revoke} = Proxy.revocable({}, handler)
 
-                    return proxy as T & {__target__:T}
+                    return proxy as ProxyType<T>
                 }
 
         return object as T
@@ -2912,7 +2913,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         )
                     ) {
                         const backup:object = value as object
-                        (data as Mapping<typeof Proxy>)[key] = new Proxy(
+                        (data as Mapping<ProxyType>)[key] = new Proxy(
                             value as object,
                             {
                                 get: (
@@ -2990,14 +2991,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                     return Object.getOwnPropertyNames(target)
                                 }
                             }
-                        ) as typeof Proxy
+                        ) as ProxyType
 
                         /*
                             NOTE: Known proxy polyfills does not provide the
                             "__target__" api.
                         */
-                        if (!data[key as keyof object].__target__)
-                            data[key as keyof object].__target__ = backup
+                        if (!(data as Mapping<ProxyType>)[key].__target__)
+                            (data as Mapping<ProxyType>)[key].__target__ =
+                                backup
                     }
                 }
 
@@ -3006,29 +3008,32 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         const resolve:Function = (data:unknown):unknown => {
             if (data !== null && typeof data === 'object') {
-                if (data.__target__) {
+                if ((data as ProxyType).__target__) {
                     // NOTE: We have to skip "ownKeys" proxy trap here.
                     for (const type of [
                         expressionIndicatorKey, executionIndicatorKey
                     ])
                         if (Object.prototype.hasOwnProperty.call(data, type))
-                            return data[type]
+                            return data![type as keyof object]
 
-                    data = data.__target__
+                    data = (data as ProxyType).__target__
                 }
 
-                for (const key in data)
+                for (const key in data as object)
                     if (Object.prototype.hasOwnProperty.call(data, key)) {
                         if ([
                             expressionIndicatorKey, executionIndicatorKey
                         ].includes(key)) {
                             if (typeof Proxy === 'undefined')
-                                return resolve(evaluate(data[key]))
+                                return resolve(evaluate(
+                                    (data as Mapping)[key]
+                                ))
 
-                            return data[key]
+                            return (data as Mapping)[key]
                         }
 
-                        data[key] = resolve(data[key])
+                        (data as Mapping)[key] =
+                            resolve((data as Mapping)[key])
                     }
             }
 
@@ -3042,13 +3047,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     if (
                         Object.prototype.hasOwnProperty.call(data, key) &&
                         key !== '__target__' &&
-                        data[key] !== null &&
-                        ['function', 'undefined'].includes(typeof data[key])
+                        (data as Mapping)[key] !== null &&
+                        ['function', 'undefined'].includes(
+                            typeof (data as Mapping)[key]
+                        )
                     ) {
-                        const target:unknown = data[key].__target__
+                        const target:unknown =
+                            (data as Mapping<ProxyType>)[key].__target__
                         if (typeof target !== 'undefined')
-                            data[key] = target
-                        removeProxyRecursively(data[key])
+                            (data as Mapping<unknown>)[key] = target
+                        removeProxyRecursively((data as Mapping)[key])
                     }
 
             return data

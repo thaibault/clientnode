@@ -61,6 +61,7 @@ import {
     PlainObject,
     ProcessCloseReason,
     ProcessError,
+    ProxyType,
     SecondParameter,
     TimeoutPromise,
     $DomNode
@@ -930,16 +931,16 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(Tools.addDynamicGetterAndSetter({}))
             .not.toHaveProperty('__target__')
         expect(
-            Tools.addDynamicGetterAndSetter(
+            (Tools.addDynamicGetterAndSetter(
                 {}, (value:unknown):unknown => value
-            ).__target__
+            ) as ProxyType).__target__
         ).toBeInstanceOf(Object)
         const mockup = {}
         expect(Tools.addDynamicGetterAndSetter(mockup)).toStrictEqual(mockup)
         expect(
-            Tools.addDynamicGetterAndSetter(
+            (Tools.addDynamicGetterAndSetter(
                 mockup, (value:unknown):unknown => value
-            ).__target__
+            ) as ProxyType).__target__
         ).toStrictEqual(mockup)
         expect(
             Tools.addDynamicGetterAndSetter(

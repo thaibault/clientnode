@@ -44,6 +44,9 @@ export type ThenParameterRecursive<Type> =
 export type ToolsFunction<TElement = HTMLElement, LockType = string> =
     ((...parameter:Array<any>) => any|Tools<TElement, LockType>) &
     {class:typeof Tools}
+export type ProxyType<T = unknown> = T & {
+    __target__:T
+}
 export type StaticScope =
     ((parameter:any, ...additionalArguments:Array<any>) => any) &
     {
