@@ -1807,7 +1807,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 [['a', new Map([['a', [3, 4]]])]]
             )
         ],
-        [undefined, [1, 2], undefined],
+        [[1, 2], [1, 2], undefined],
+        [undefined, true, [1, 2], undefined],
         [null, [1, 2], null]
     )
     testEach<typeof Tools.getSubstructure>(

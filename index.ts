@@ -537,8 +537,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
         */
-        this._options = this._self.extend(
-            true, {}, this._defaultOptions, this._options, options
+        this._options = this._self.extend<Options>(
+            true,
+            {} as Options,
+            this._defaultOptions,
+            this._options as Options,
+            options as Options
         )
         /*
             The selector prefix should be parsed after extending options
@@ -3119,12 +3123,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static extend<T = Mapping<unknown>>(
         targetOrDeepIndicator:boolean|typeof IgnoreNullAndUndefinedSymbol|T,
-        targetOrSource:Mapping<unknown>,
-        ...additionalSources:Array<Mapping<unknown>>
+        targetOrSource?:T,
+        ...additionalSources:Array<T>
     ):any {
         let deep:boolean|typeof IgnoreNullAndUndefinedSymbol = false
-        const sources:Array<Mapping<unknown>> = additionalSources
-        let target:T
+        let sources:Array<T> = additionalSources
+        let target:T|undefined
 
         if (
             targetOrDeepIndicator === IgnoreNullAndUndefinedSymbol ||
@@ -3135,7 +3139,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             target = targetOrSource
         } else {
             target = targetOrDeepIndicator
-            sources.unshift(targetOrSource)
+            if (targetOrSource !== null && typeof targetOrSource === 'object')
+                sources = [targetOrSource, ...sources]
+            else if (targetOrSource !== undefined)
+                target = targetOrSource
         }
 
         const mergeValue = (targetValue:any, value:any):any => {
@@ -3192,7 +3199,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             ) &&
                             !(
                                 deep === IgnoreNullAndUndefinedSymbol &&
-                                [null, undefined].includes(source[key])
+                                [null, undefined].includes(
+                                    source[key] as unknown as null
+                                )
                             )
                         )
                             target[key] = mergeValue(target[key], source[key])
