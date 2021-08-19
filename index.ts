@@ -3109,17 +3109,22 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Extends given target object with given sources object. As target and
      * sources many expandable types are allowed but target and sources have to
      * to come from the same type.
+     *
      * @param targetOrDeepIndicator - Maybe the target or deep indicator.
-     * @param targetAndOrSources - Target and at least one source object.
+     * @param targetOrSource - Target or source object; depending on first
+     * argument.
+     * @param additionalSources - Source objects to extend into target.
+     *
      * @returns Returns given target extended with all given sources.
      */
-    static extend(
-        targetOrDeepIndicator:typeof IgnoreNullAndUndefinedSymbol|boolean|any,
-        ...targetAndOrSources:Array<any>
+    static extend<T = Mapping<unknown>>(
+        targetOrDeepIndicator:boolean|typeof IgnoreNullAndUndefinedSymbol|T,
+        targetOrSource:Mapping<unknown>,
+        ...additionalSources:Array<Mapping<unknown>>
     ):any {
-        let index:number = 0
         let deep:boolean|typeof IgnoreNullAndUndefinedSymbol = false
-        let target:any
+        const sources:Array<Mapping<unknown>> = additionalSources
+        let target:T
 
         if (
             targetOrDeepIndicator === IgnoreNullAndUndefinedSymbol ||
@@ -3127,10 +3132,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         ) {
             // Handle a deep copy situation and skip deep indicator and target.
             deep = targetOrDeepIndicator
-            target = targetAndOrSources[index]
-            index = 1
-        } else
+            target = targetOrSource
+        } else {
             target = targetOrDeepIndicator
+            sources.unshift(targetOrSource)
+        }
 
         const mergeValue = (targetValue:any, value:any):any => {
             if (value === targetValue)
@@ -3157,8 +3163,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
             return value
         }
-        while (index < targetAndOrSources.length) {
-            const source:any = targetAndOrSources[index]
+
+        for (const source of sources) {
             let targetType:string = typeof target
             let sourceType:string = typeof source
 
@@ -3185,8 +3191,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                 source, key
                             ) &&
                             !(
-                                targetOrDeepIndicator ===
-                                    IgnoreNullAndUndefinedSymbol &&
+                                deep === IgnoreNullAndUndefinedSymbol &&
                                 [null, undefined].includes(source[key])
                             )
                         )
@@ -3195,8 +3200,6 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     target = source
             else
                 target = source
-
-            index += 1
         }
 
         return target
