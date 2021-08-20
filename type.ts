@@ -34,8 +34,10 @@ export type FunctionTestPromiseTuple<FunctionType extends AnyFunction> =
     [ThenParameter<ReturnType<FunctionType>>, ...Parameters<FunctionType>]
 export type FunctionTestPromiseRejectionTuple<FunctionType extends AnyFunction> =
     [Error, ...Parameters<FunctionType>]
-export type BaseSelector = number|string|((target:any) => any)
-export type Selector = Array<BaseSelector>|BaseSelector
+export type BaseSelector<T = unknown, E = unknown> =
+    number|string|((target:T) => E)
+export type Selector<T = unknown, E = unknown> =
+    Array<BaseSelector<T, E>>|BaseSelector<T, E>
 export type TestSymbol =
     typeof DefinedSymbol|typeof ThrowSymbol|typeof UndefinedSymbol
 export type ThenParameter<Type> = Type extends PromiseLike<infer U> ? U : Type

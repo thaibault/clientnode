@@ -1829,12 +1829,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [
             3,
             {a: {b: {c: [1, 3, 2]}}},
-            (root:{a:{b:{c:Array<number>}}}):number => root.a.b.c[1]
+            (root:unknown):number =>
+                (root as {a:{b:{c:Array<number>}}}).a.b.c[1]
         ],
         [
             3,
             {a: {b: {c: [1, 3, 2]}}},
-            ['a', (root:{b:{c:Array<number>}}):number => root.b.c[1]]
+            ['a', (root:unknown):number =>
+                (root as {b:{c:Array<number>}}).b.c[1]]
         ]
     )
     test('getProxyHandler', ():void => {

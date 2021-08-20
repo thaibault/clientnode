@@ -3234,14 +3234,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Determined sub structure of given data or "undefined".
      */
-    static getSubstructure(
-        target:any,
-        selector:Selector,
+    static getSubstructure<T = unknown, E = unknown>(
+        target:T,
+        selector:Selector<T, E>,
         skipMissingLevel:boolean = true,
         delimiter:string = '.'
-    ):any {
-        let path:Array<BaseSelector> = []
-        for (const component of ([] as Array<BaseSelector>).concat(selector))
+    ):E {
+        let path:Array<BaseSelector<T, E>> = []
+        for (const component of ([] as Array<BaseSelector<T, E>>).concat(
+            selector
+        ))
             if (typeof component === 'string') {
                 const parts:Array<string> = component.split(delimiter)
                 for (const part of parts) {
@@ -3252,7 +3254,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         for (const subPart of subParts) {
                             const [all, prefix, indexAssignment] =
                                 subPart.match(/(.*?)(\[[0-9]+\])/) as
-                                    [string, string, string] 
+                                    [string, string, string]
                             if (prefix)
                                 path.push(prefix)
                             // Trim bracket padding "[index]" => "index".
@@ -3266,7 +3268,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             } else
                 path = path.concat(component)
 
-        let result:any = target
+        let result:unknown = target
         for (const selector of path)
             if (
                 result !== null &&
@@ -3276,15 +3278,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     typeof selector === 'string' &&
                     Object.prototype.hasOwnProperty.call(result, selector)
                 )
-                    result = result[selector]
+                    result = result![selector as keyof unknown]
                 else if (Tools.isFunction(selector))
-                    result = selector(result)
+                    result = selector(result as unknown as T)
                 else if (!skipMissingLevel)
-                    return undefined
+                    return undefined as unknown as E
             } else if (!skipMissingLevel)
-                return undefined
+                return undefined as unknown as E
 
-        return result
+        return result as E
     }
     /**
      * Generates a proxy handler which forwards all operations to given object
@@ -3434,6 +3436,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Modifies given target corresponding to given source and removes source
      * modification infos.
+     *
      * @param target - Object to modify.
      * @param source - Source object to load modifications from.
      * @param removeIndicatorKey - Indicator property name or value to mark a
@@ -3450,26 +3453,27 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * (usually only needed internally).
      * @param parentKey - Source key in given source context to remove
      * modification info from (usually only needed internally).
+     *
      * @returns Given target modified with given source.
      */
-    static modifyObject(
-        target:any,
-        source:any,
+    static modifyObject<T = unknown>(
+        target:T,
+        source:unknown,
         removeIndicatorKey:string = '__remove__',
         prependIndicatorKey:string = '__prepend__',
         appendIndicatorKey:string = '__append__',
         positionPrefix:string = '__',
         positionSuffix:string = '__',
-        parentSource:any = null,
-        parentKey:any = null
-    ):any {
+        parentSource:unknown = null,
+        parentKey:unknown = null
+    ):T|null {
         /* eslint-disable curly */
         if (Tools.isMap(source) && Tools.isMap(target)) {
             for (const [key, value] of source)
                 if (target.has(key))
-                    Tools.modifyObject(
-                        target.get(key),
-                        value,
+                    Tools.modifyObject<ValueOf<T>>(
+                        target.get(key) as ValueOf<T>,
+                        value as Map<unknown, unknown>|Mapping<unknown>|null,
                         removeIndicatorKey,
                         prependIndicatorKey,
                         appendIndicatorKey,
@@ -3494,8 +3498,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     ].includes(key)) {
                         if (Array.isArray(target))
                             if (key === removeIndicatorKey) {
-                                const values:Array<any> =
-                                    [].concat(source[key])
+                                const values:Array<unknown> =
+                                    ([] as Array<unknown>).concat(
+                                        (source as Mapping<unknown>)[key]
+                                    )
                                 for (const value of values)
                                     if (
                                         typeof value === 'string' &&
@@ -3521,42 +3527,60 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                     )
                                         target.splice(value, 1)
                             } else if (key === prependIndicatorKey)
-                                target = ([] as Array<any>)
-                                    .concat(source[key])
-                                    .concat(target)
+                                target = ([] as Array<unknown>)
+                                    .concat((source as Mapping<unknown>)[key])
+                                    .concat(target) as unknown as T
                             else
-                                target = target.concat(source[key])
+                                target = target.concat(
+                                    (source as Mapping<unknown>)[key]
+                                ) as unknown as T
                         else if (key === removeIndicatorKey)
-                            for (const value of [].concat(source[key]))
-                                if (Object.prototype.hasOwnProperty.call(
-                                    target, value
-                                ))
-                                    delete target[value]
-                        delete source[key]
-                        if (parentSource && parentKey)
-                            delete parentSource[parentKey]
+                            for (const value of ([] as Array<unknown>).concat(
+                                (source as Mapping<unknown>)[key]
+                            ))
+                                if (
+                                    typeof value === 'string' &&
+                                    Object.prototype.hasOwnProperty.call(
+                                        target, value
+                                    )
+                                )
+                                    delete (
+                                        target as unknown as Mapping<unknown>
+                                    )[value]
+                        delete (source as Mapping<unknown>)[key]
+
+                        if (parentSource && typeof parentKey === 'string')
+                            delete (
+                                parentSource as Mapping<unknown>
+                            )[parentKey]
                     } else if (
                         target !== null &&
                         Object.prototype.hasOwnProperty.call(target, key)
                     )
-                        target[key] = Tools.modifyObject(
-                            target[key],
-                            source[key],
-                            removeIndicatorKey,
-                            prependIndicatorKey,
-                            appendIndicatorKey,
-                            positionPrefix,
-                            positionSuffix,
-                            source,
-                            key
-                        )
+                        (target as unknown as Mapping<unknown>)[key] =
+                            Tools.modifyObject<ValueOf<T>>(
+                                (
+                                    target as unknown as Mapping<ValueOf<T>>
+                                )[key],
+                                (source as Mapping<unknown>)[key],
+                                removeIndicatorKey,
+                                prependIndicatorKey,
+                                appendIndicatorKey,
+                                positionPrefix,
+                                positionSuffix,
+                                source,
+                                key
+                            )
+
         return target
     }
     /**
      * Interprets a date object from given artefact.
+     *
      * @param value - To interpret.
      * @param interpretAsUTC - Identifies if given date should be interpret as
      * utc.
+     *
      * @returns Interpreted date object or "null" if given value couldn't be
      * interpret.
      */
@@ -3608,11 +3632,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             skip = true
                             break
                         }
+
                     if (skip)
                         continue
                 }
-                ;(object as Array<any>)[index] =
+
+                ;(object as Array<unknown>)[index] =
                     Tools.removeKeys(subObject, resolvedKeys)
+
                 index += 1
             }
         } else if (Tools.isSet(object))
@@ -3669,6 +3696,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     /**
      * Represents given object as formatted string.
+     *
      * @param object - Object to represent.
      * @param indention - String (usually whitespaces) to use as indention.
      * @param initialIndention - String (usually whitespaces) to use as
@@ -3677,18 +3705,19 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * which are out of specified bounds to traverse.
      * @param numberOfLevels - Specifies number of levels to traverse given
      * data structure.
+     *
      * @returns Representation string.
      */
     static represent(
-        object:any,
+        object:unknown,
         indention:string = '    ',
         initialIndention:string = '',
-        maximumNumberOfLevelsReachedIdentifier:any =
+        maximumNumberOfLevelsReachedIdentifier:number|string =
             '__maximum_number_of_levels_reached__',
         numberOfLevels:number = 8
     ):string {
         if (numberOfLevels === 0)
-            return maximumNumberOfLevelsReachedIdentifier
+            return `${maximumNumberOfLevelsReachedIdentifier}`
 
         if (object === null)
             return 'null'
@@ -3803,7 +3832,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
             result += `\n${initialIndention}${indention}${key}: ` +
                 Tools.represent(
-                    object[key],
+                    (object as Mapping<unknown>)[key],
                     indention,
                     `${initialIndention}${indention}`,
                     maximumNumberOfLevelsReachedIdentifier,
@@ -3825,8 +3854,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param object - Object which keys should be sorted.
      * @returns Sorted list of given keys.
      */
-    static sort(object:any):Array<any> {
-        const keys:Array<any> = []
+    static sort(object:unknown):Array<unknown> {
+        const keys:Array<unknown> = []
 
         if (Array.isArray(object))
             for (let index:number = 0; index < object.length; index++)
