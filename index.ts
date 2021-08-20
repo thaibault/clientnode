@@ -618,7 +618,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 object as {new ($domNode:null|$DomNode<TElement>):unknown}
             )($domNode)
             if (!(object instanceof Tools))
-                object = this._self.extend(true, new Tools(), object)
+                object = this._self.extend<Tools>(
+                    true, new Tools(), object as Tools
+                )
         }
 
         const name:string =
@@ -3122,13 +3124,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns given target extended with all given sources.
      */
     static extend<T = Mapping<unknown>>(
-        targetOrDeepIndicator:boolean|typeof IgnoreNullAndUndefinedSymbol|T,
-        targetOrSource?:T,
-        ...additionalSources:Array<T>
-    ):any {
+        targetOrDeepIndicator:boolean|typeof IgnoreNullAndUndefinedSymbol|Partial<T>,
+        targetOrSource?:Partial<T>,
+        ...additionalSources:Array<Partial<T>>
+    ):T {
         let deep:boolean|typeof IgnoreNullAndUndefinedSymbol = false
-        let sources:Array<T> = additionalSources
-        let target:T|undefined
+        let sources:Array<Partial<T>> = additionalSources
+        let target:Partial<T>|undefined
 
         if (
             targetOrDeepIndicator === IgnoreNullAndUndefinedSymbol ||
@@ -3145,7 +3147,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 target = targetOrSource
         }
 
-        const mergeValue = (targetValue:any, value:any):any => {
+        const mergeValue = (targetValue:ValueOf<T>, value:ValueOf<T>):ValueOf<T> => {
             if (value === targetValue)
                 return targetValue
 
@@ -3155,17 +3157,17 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 value &&
                 (Tools.isPlainObject(value) || Tools.isMap(value))
             ) {
-                let clone:any
+                let clone:ValueOf<T>
                 if (Tools.isMap(value))
                     clone = (targetValue && Tools.isMap(targetValue)) ?
                         targetValue :
-                        new Map()
+                        new Map() as unknown as ValueOf<T>
                 else
                     clone = (targetValue && Tools.isPlainObject(targetValue)) ?
                         targetValue :
-                        {}
+                        {} as unknown as ValueOf<T>
 
-                return Tools.extend(deep, clone, value)
+                return Tools.extend<ValueOf<T>>(deep, clone, value)
             }
 
             return value
@@ -3183,7 +3185,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (targetType === sourceType && target !== source)
                 if (Tools.isMap(target) && Tools.isMap(source))
                     for (const [key, value] of source)
-                        target.set(key, mergeValue(target.get(key), value))
+                        target.set(
+                            key,
+                            mergeValue(
+                                target.get(key) as ValueOf<T>,
+                                value as ValueOf<T>
+                            )
+                        )
                 else if (
                     target !== null &&
                     !Array.isArray(target) &&
@@ -3204,14 +3212,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                 )
                             )
                         )
-                            target[key] = mergeValue(target[key], source[key])
+                            target[key as keyof T] = mergeValue(
+                                target[key as keyof T]!, source[key]!
+                            )
                 } else
                     target = source
             else
                 target = source
         }
 
-        return target
+        return target as T
     }
     /**
      * Retrieves substructure in given object referenced by given selector

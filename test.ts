@@ -1638,7 +1638,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 a: {__evaluate__: 'toString(self.b)'},
                 b: {__evaluate__: `'a'`}
             },
-            {toString: (value:any):string => value.toString()}
+            {toString: (value:string):string => value.toString()}
         ],
         [
             {a: ['a'], b: {a: 2}},
@@ -1763,7 +1763,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [{a: {_a: 1, b: 2}}, true, {a: {_a: 1}}, {a: {b: 2}}],
         [{a: 2, _a: 1}, false, {_a: 1}, {a: 2}],
         [false, true, {a: {a: [1, 2]}}, false],
-        [undefined, true, {a: {a: [1, 2]}}, undefined],
+        [
+            undefined,
+            true,
+            {a: {a: [1, 2]}},
+            undefined as unknown as Partial<unknown>
+        ],
         [{a: 3}, true, {a: 1}, {a: 2}, {a: 3}],
         [[1, 2], true, [1], [1, 2]],
         [[1], true, [1, 2], [1]],
@@ -1808,8 +1813,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             )
         ],
         [[1, 2], [1, 2], undefined],
-        [undefined, true, [1, 2], undefined],
-        [null, [1, 2], null]
+        [undefined, true, [1, 2], undefined as unknown as Partial<unknown>],
+        [null, [1, 2], null as unknown as Partial<unknown>]
     )
     testEach<typeof Tools.getSubstructure>(
         'getSubstructure',
@@ -3077,16 +3082,18 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         'stringEvaluate(`%s`, %p...)[%p] === %p',
         (
             expression:string,
-            scope:any,
+            scope:Mapping<unknown>,
             resultKey:string,
-            expected:any = undefined,
-            binding:any = undefined
+            expected:unknown = undefined,
+            binding:unknown = undefined
         ):void => {
             const evaluation:EvaluationResult = Tools.stringEvaluate(
                 expression,
                 scope,
                 false,
-                ...[].concat(binding === undefined ? [] : binding)
+                ...([] as Array<unknown>).concat(
+                    binding === undefined ? [] : binding
+                )
             )
             expect(evaluation).toHaveProperty(resultKey)
             if (expected !== undefined)
@@ -3147,10 +3154,10 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         'IE 11: stringEvaluate(`%s`, %p...)[%p] === %p',
         (
             expression:string,
-            scope:any,
+            scope:Mapping<unknown>,
             resultKey:string,
-            expected:any = undefined,
-            binding:any = undefined
+            expected:unknown = undefined,
+            binding:unknown = undefined
         ):void => {
             const backup:number = Tools.maximalSupportedInternetExplorerVersion
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
@@ -3160,7 +3167,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 expression,
                 scope,
                 false,
-                ...[].concat(binding === undefined ? [] : binding)
+                ...([] as Array<unknown>).concat(
+                    binding === undefined ? [] : binding
+                )
             )
             expect(evaluation).toHaveProperty(resultKey)
             if (expected !== undefined)
@@ -3191,23 +3200,28 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[0, 4], 'hans', 'hans'],
         [[1, 4], 'hans', 'ans'],
         [[1, 4], 'hans hans', 'ans'],
-        [[2, 5], ' hAns ', 'ans', (value:any):string => value.toLowerCase()],
+        [
+            [2, 5],
+            ' hAns ',
+            'ans',
+            (value:string):string => value.toLowerCase()
+        ],
         [
             [2, 8],
             'a straße b', 'strasse',
-            (value:any):string => value.replace(/ß/g, 'ss').toLowerCase()
+            (value:string):string => value.replace(/ß/g, 'ss').toLowerCase()
         ],
         [
             [2, 9],
             'a strasse b',
             'strasse',
-            (value:any):string => value.replace(/ß/g, 'ss').toLowerCase()
+            (value:string):string => value.replace(/ß/g, 'ss').toLowerCase()
         ],
         [
             [2, 9],
             'a strasse b',
             'straße',
-            (value:any):string => value.replace(/ß/g, 'ss').toLowerCase()
+            (value:string):string => value.replace(/ß/g, 'ss').toLowerCase()
         ]
     )
     testEach<typeof Tools.stringFormat>(
@@ -3315,7 +3329,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [
             't<a>e</a>st',
             'test', 'e',
-            (value:any):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         ['t<a>e</a>st', 'test', ['e'], Tools.identity, '<a>{1}</a>'],
@@ -3323,28 +3337,28 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             't<a>e</a>st',
             'test',
             'E',
-            (value:any):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         [
             't<a>E</a>st',
             'tEst',
             'e',
-            (value:any):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         [
             '<a>t</a>es<a>T</a>',
             'tesT',
             't',
-            (value:any):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         [
             '<a>t - t</a>es<a>T - T</a>',
             'tesT',
             't',
-            (value:any):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value}`.toLowerCase(),
             '<a>{1} - {1}</a>'
         ],
         ['test', 'test', 'E', Tools.identity, '<a>{1}</a>'],
@@ -3373,21 +3387,21 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             'a <a>EBikes</a> <a>München</a>',
             'a EBikes München',
             ['ebikes', 'münchen'],
-            (value:any):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         [
             'a <a>E-Bikes</a> <a>München</a>',
             'a E-Bikes München',
             ['ebikes', 'münchen'],
-            (value:any):string => `${value}`.toLowerCase().replace('-', ''),
+            (value:unknown):string => `${value}`.toLowerCase().replace('-', ''),
             '<a>{1}</a>'
         ],
         [
             'a <a>str.</a> <a>2</a>',
             'a str. 2',
             ['straße', '2'],
-            (value:any):string =>
+            (value:unknown):string =>
                 `${value}`
                     .toLowerCase()
                     .replace('str.', 'strasse')
@@ -3398,7 +3412,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             'EGO Movement Store <a>E-Bikes</a> <a>München</a>',
             'EGO Movement Store E-Bikes München',
             ['eBikes', 'München'],
-            (value:any):string =>
+            (value:unknown):string =>
                 `${value}`
                     .toLowerCase()
                     .replace(/[-_]+/g, '')
@@ -3411,7 +3425,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             '<a>str.</a>A <a>strasse</a> B <a>straße</a> C <a>str.</a> D',
             'str.A strasse B straße C str. D',
             ['str.'],
-            (value:any):string =>
+            (value:unknown):string =>
                 `${value}`
                     .toLowerCase()
                     .replace(/[-_]+/g, '')
@@ -3424,35 +3438,35 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             '<mark>test</mark> <a>link</a>',
             'test <a>link</a>',
             ['test'],
-            (value:any):string => value,
+            Tools.identity,
             '<mark>{1}</mark>'
         ],
         [
             'test <a><mark>link</mark></a>',
             'test <a>link</a>',
             ['link'],
-            (value:any):string => value,
+            Tools.identity,
             '<mark>{1}</mark>'
         ],
         [
             'test <a href="foo">link</a>',
             'test <a href="foo">link</a>',
             ['foo'],
-            (value:any):string => value,
+            Tools.identity,
             '<mark>{1}</mark>'
         ],
         [
             'test <a href="foo">a <mark>foo</mark> link</a>',
             'test <a href="foo">a foo link</a>',
             ['foo'],
-            (value:any):string => value,
+            Tools.identity,
             '<mark>{1}</mark>'
         ],
         [
             '<mark>foo</mark> <mark>foo</mark> <mark>foo</mark>',
             'foo foo foo',
             ['foo'],
-            (value:any):string => value,
+            Tools.identity,
             '<mark>{1}</mark>'
         ]
     )
