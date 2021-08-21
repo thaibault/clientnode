@@ -868,6 +868,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         return Tools.determineType(value) === 'map'
     }
     /**
+     * Checks whether given object is a proxy.
+     * @param value - Value to check.
+     * @returns Value "true" if given object is a proxy and "false" otherwise.
+     */
+    static isProxy(value:unknown):value is ProxyType {
+        return Boolean((value as ProxyType).__target__)
+    }
+    /**
      * Checks whether given object is a function.
      * @param value - Value to check.
      * @returns Value "true" if given object is a function and "false"
@@ -3014,7 +3022,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         const resolve:Function = (data:unknown):unknown => {
             if (data !== null && typeof data === 'object') {
-                if ((data as ProxyType).__target__) {
+                if (Tools.isProxy(data)) {
                     // NOTE: We have to skip "ownKeys" proxy trap here.
                     for (const type of [
                         expressionIndicatorKey, executionIndicatorKey
@@ -3022,7 +3030,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         if (Object.prototype.hasOwnProperty.call(data, type))
                             return data![type as keyof object]
 
-                    data = (data as ProxyType).__target__
+                    data = data.__target__
                 }
 
                 for (const key in data as object)
@@ -3873,25 +3881,34 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     /**
      * Removes a proxy from given data structure recursively.
+     *
      * @param object - Object to proxy.
      * @param seenObjects - Tracks all already processed objects to avoid
      * endless loops (usually only needed for internal purpose).
+     *
      * @returns Returns given object unwrapped from a dynamic proxy.
      */
-    static unwrapProxy(object:any, seenObjects:Set<any> = new Set()):any {
+    static unwrapProxy<T = unknown>(
+        object:T, seenObjects:Set<unknown> = new Set<unknown>()
+    ):T {
         if (object !== null && typeof object === 'object') {
             if (seenObjects.has(object))
                 return object
+
             try {
-                if (object.__revoke__) {
-                    object = object.__target__
-                    object.__revoke__()
+                if (Tools.isFunction(
+                    (object as unknown as ProxyType).__revoke__
+                )) {
+                    if (Tools.isProxy(object))
+                        object = object.__target__ as T
+                    ;(object as unknown as {__revoke__:Function}).__revoke__()
                 }
             } catch (error) {
                 return object
             } finally {
                 seenObjects.add(object)
             }
+
             if (Array.isArray(object)) {
                 let index:number = 0
                 for (const value of object) {
@@ -3902,11 +3919,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 for (const [key, value] of object)
                     object.set(key, Tools.unwrapProxy(value, seenObjects))
             else if (Tools.isSet(object)) {
-                const cache:Array<any> = []
+                const cache:Array<unknown> = []
+
                 for (const value of object) {
                     object.delete(value)
                     cache.push(Tools.unwrapProxy(value, seenObjects))
                 }
+
                 for (const value of cache)
                     object.add(value)
             } else
@@ -3916,30 +3935,39 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             object[key], seenObjects
                         )
         }
+
         return object
     }
     // / endregion
     // / region array
     /**
      * Summarizes given property of given item list.
+     *
      * @param data - Array of objects with given property name.
      * @param propertyName - Property name to summarize.
      * @param defaultValue - Value to return if property values doesn't match.
-     * @returns Summarized array.
+     *
+     * @returns Aggregated value.
      */
-    static arrayAggregatePropertyIfEqual(
-        data:Array<Mapping<any>>, propertyName:string, defaultValue:any = ''
-    ):any {
-        let result:any = defaultValue
+    static arrayAggregatePropertyIfEqual<T = unknown>(
+        data:Array<Mapping<unknown>>,
+        propertyName:string,
+        defaultValue:T = '' as unknown as T
+    ):T {
+        let result:T = defaultValue
+
         if (
-            data?.length &&
+            Array.isArray(data) &&
+            data.length &&
             Object.prototype.hasOwnProperty.call(data[0], propertyName)
         ) {
-            result = data[0][propertyName]
+            result = data[0][propertyName] as T
+
             for (const item of Tools.arrayMake(data))
                 if (item[propertyName] !== result)
                     return defaultValue
         }
+
         return result
     }
     /**
@@ -3947,18 +3975,20 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * names. If given property names are empty each attribute will be
      * considered. The empty string, "null" and "undefined" will be interpreted
      * as empty.
+     *
      * @param data - Data to filter.
      * @param propertyNames - Properties to consider.
+     *
      * @returns Given data without empty items.
      */
-    static arrayDeleteEmptyItems(
-        data:any, propertyNames:Array<string> = []
-    ):any {
-        if (!data)
-            return data
-        const result:Array<any> = []
+    static arrayDeleteEmptyItems<T = Mapping<unknown>>(
+        data:Array<T>, propertyNames:Array<string|symbol> = []
+    ):Array<T> {
+        const result:Array<T> = []
+
         for (const item of Tools.arrayMake(data)) {
             let empty:boolean = true
+
             for (const propertyName in item)
                 if (Object.prototype.hasOwnProperty.call(item, propertyName))
                     if (
@@ -3972,35 +4002,44 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         empty = false
                         break
                     }
+
             if (!empty)
                 result.push(item)
         }
+
         return result
     }
     /**
      * Extracts all properties from all items wich occur in given property
      * names.
+     *
      * @param data - Data where each item should be sliced.
      * @param propertyNames - Property names to extract.
+     *
      * @returns Data with sliced items.
      */
-    static arrayExtract(
-        data:Array<Mapping<any>>, propertyNames:Array<string>
-    ):Array<Object> {
-        const result:Array<Mapping<any>> = []
+    static arrayExtract<T = Mapping<unknown>>(
+        data:Array<T>, propertyNames:Array<string|symbol>
+    ):Array<T> {
+        const result:Array<T> = []
+
         for (const item of Tools.arrayMake(data)) {
-            const newItem:Mapping<any> = {}
+            const newItem:T = {} as T
             for (const propertyName of Tools.arrayMake(propertyNames))
                 if (Object.prototype.hasOwnProperty.call(item, propertyName))
-                    newItem[propertyName] = item[propertyName]
+                    newItem[propertyName as keyof T] = item[propertyName]
+
             result.push(newItem)
         }
+
         return result
     }
     /**
      * Extracts all values which matches given regular expression.
+     *
      * @param data - Data to filter.
      * @param regularExpression - Pattern to match for.
+     *
      * @returns Filtered data.
      */
     static arrayExtractIfMatches(
@@ -4008,6 +4047,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     ):Array<string> {
         if (!regularExpression)
             return Tools.arrayMake(data)
+
         const result:Array<string> = []
         for (const value of Tools.arrayMake(data))
             if (
@@ -4017,12 +4057,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 ).test(value)
             )
                 result.push(value)
+
         return result
     }
     /**
      * Filters given data if given property is set or not.
+     *
      * @param data - Data to filter.
      * @param propertyName - Property name to check for existence.
+     *
      * @returns Given data without the items which doesn't have specified
      * property.
      */

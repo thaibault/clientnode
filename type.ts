@@ -47,6 +47,7 @@ export type ToolsFunction<TElement = HTMLElement, LockType = string> =
     ((...parameter:Array<any>) => any|Tools<TElement, LockType>) &
     {class:typeof Tools}
 export type ProxyType<T = unknown> = T & {
+    __revoke__?:AnyFunction
     __target__:T
 }
 export type StaticScope =
