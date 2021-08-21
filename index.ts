@@ -3963,7 +3963,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         ) {
             result = data[0][propertyName] as T
 
-            for (const item of Tools.arrayMake(data))
+            for (const item of Tools.arrayMake<Mapping<unknown>>(data))
                 if (item[propertyName] !== result)
                     return defaultValue
         }
@@ -3986,13 +3986,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     ):Array<T> {
         const result:Array<T> = []
 
-        for (const item of Tools.arrayMake(data)) {
+        for (const item of Tools.arrayMake<T>(data)) {
             let empty:boolean = true
 
             for (const propertyName in item)
                 if (Object.prototype.hasOwnProperty.call(item, propertyName))
                     if (
-                        !['', null, undefined].includes(item[propertyName]) &&
+                        !['', null, undefined].includes(
+                            item[propertyName] as unknown as null
+                        ) &&
                         (
                             !propertyNames.length ||
                             Tools.arrayMake(propertyNames).includes(
@@ -4019,15 +4021,18 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Data with sliced items.
      */
     static arrayExtract<T = Mapping<unknown>>(
-        data:Array<T>, propertyNames:Array<string|symbol>
+        data:unknown, propertyNames:Array<string>
     ):Array<T> {
         const result:Array<T> = []
 
-        for (const item of Tools.arrayMake(data)) {
+        for (const item of Tools.arrayMake<Mapping<unknown>>(data)) {
             const newItem:T = {} as T
-            for (const propertyName of Tools.arrayMake(propertyNames))
+            for (const propertyName of Tools.arrayMake<string>(
+                propertyNames
+            ))
                 if (Object.prototype.hasOwnProperty.call(item, propertyName))
-                    newItem[propertyName as keyof T] = item[propertyName]
+                    newItem[propertyName as keyof T] =
+                        item[propertyName] as ValueOf<T>
 
             result.push(newItem)
         }
@@ -4043,13 +4048,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Filtered data.
      */
     static arrayExtractIfMatches(
-        data:Array<string>, regularExpression:string|RegExp
+        data:unknown, regularExpression:string|RegExp
     ):Array<string> {
         if (!regularExpression)
-            return Tools.arrayMake(data)
+            return Tools.arrayMake<string>(data)
 
         const result:Array<string> = []
-        for (const value of Tools.arrayMake(data))
+        for (const value of Tools.arrayMake<string>(data))
             if (
                 ((typeof regularExpression === 'string') ?
                     new RegExp(regularExpression) :
@@ -4069,25 +4074,32 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Given data without the items which doesn't have specified
      * property.
      */
-    static arrayExtractIfPropertyExists(data:any, propertyName:string):any {
+    static arrayExtractIfPropertyExists<T = unknown>(
+        data:unknown, propertyName:string
+    ):T {
         if (data && propertyName) {
-            const result:Array<Object> = []
-            for (const item of Tools.arrayMake(data)) {
+            const result:Array<T> = []
+            for (const item of Tools.arrayMake<T>(data)) {
                 let exists:boolean = false
                 for (const key in item)
                     if (
                         key === propertyName &&
                         Object.prototype.hasOwnProperty.call(item, key) &&
-                        ![null, undefined].includes(item[key])
+                        ![null, undefined].includes(
+                            item[key] as unknown as null
+                        )
                     ) {
                         exists = true
                         break
                     }
+
                 if (exists)
                     result.push(item)
             }
+
             return result
         }
+
         return data
     }
     /**
@@ -4230,11 +4242,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     /**
      * Converts given object into an array.
+     *
      * @param object - Target to convert.
+     *
      * @returns Generated array.
      */
-    static arrayMake(object:any):Array<any> {
-        const result:Array<any> = []
+    static arrayMake<T = unknown>(object:unknown):Array<T> {
+        const result:Array<unknown> = []
         if (![null, undefined].includes(object))
             if (Tools.isArrayLike(Object(object)))
                 Tools.arrayMerge(
@@ -4242,6 +4256,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 )
             else
                 result.push(object)
+
         return result
     }
     /**
