@@ -2407,7 +2407,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     )
     test('arrayRemove([], 2, true) -> throws Exception', ():void =>
         expect(():Array<number> =>
-            Tools.arrayRemove<Array<number>>([], 2, true)
+            Tools.arrayRemove<number>([], 2, true)
         ).toThrow(new Error(`Given target doesn't exists in given list.`))
     )
     testEach<typeof Tools.arraySortTopological>(
@@ -2520,7 +2520,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         Tools.stringGetDomainName,
 
         ['www.test.de', 'https://www.test.de/site/subSite?param=value#hash'],
-        [true, 'a', true],
+        ['', 'a', ''],
         ['www.test.de', 'http://www.test.de'],
         ['a.de', 'http://a.de'],
         ['localhost', 'http://localhost'],

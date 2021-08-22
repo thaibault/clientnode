@@ -4326,15 +4326,18 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param source - Source array.
      * @returns Target array with merged given source one.
      */
-    static arrayMerge(target:Array<any>, source:Array<any>):Array<any> {
+    static arrayMerge<T = unknown>(target:Array<T>, source:Array<T>):Array<T> {
         if (!Array.isArray(source))
             source = Array.prototype.slice.call(source)
+
         for (const value of source)
             target.push(value)
+
         return target
     }
     /**
      * Generates a list if pagination symbols to render a pagination from.
+     *
      * @param options - Configure bounds and current page of pagination to
      * determine.
      * @param options.boundaryCount - Indicates where to start pagination
@@ -4353,6 +4356,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param options.siblingCount - Number of sibling page symbols next to
      * current page symbol.
      * @param options.total - Number of all items to paginate.
+     *
      * @returns A list of pagination symbols.
      */
     static arrayPaginate(options:Partial<PaginateOptions> = {}):Array<Page> {
@@ -4491,11 +4495,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param data - Array like object.
      * @returns Array of permuted arrays.
      */
-    static arrayPermutate(data:Array<any>):Array<Array<any>> {
-        const result:Array<Array<any>> = []
+    static arrayPermutate<T = unknown>(data:Array<T>):Array<Array<T>> {
+        const result:Array<Array<T>> = []
 
         const permute:Function = (
-            currentData:Array<any>, dataToMixin:Array<any> = []
+            currentData:Array<T>, dataToMixin:Array<T> = []
         ):void => {
             if (currentData.length === 0)
                 result.push(dataToMixin)
@@ -4509,6 +4513,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         }
 
         permute(data)
+
         return result
     }
     /**
@@ -4518,20 +4523,22 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * should be.
      * @returns Array of permuted arrays.
      */
-    static arrayPermutateLength(
-        data:Array<any>, minimalSubsetLength:number = 1
-    ):Array<Array<any>> {
-        const result:Array<Array<any>> = []
+    static arrayPermutateLength<T = unknown>(
+        data:Array<T>, minimalSubsetLength:number = 1
+    ):Array<Array<T>> {
+        const result:Array<Array<T>> = []
         if (data.length === 0)
             return result
+
         const generate:Function = (
-            index:number, source:Array<any>, rest:Array<any>
+            index:number, source:Array<T>, rest:Array<T>
         ):void => {
             if (index === 0) {
                 if (rest.length > 0)
                     result[result.length] = rest
                 return
             }
+
             for (
                 let sourceIndex:number = 0;
                 sourceIndex < source.length;
@@ -4543,13 +4550,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     rest.concat([source[sourceIndex]])
                 )
         }
+
         for (
             let index:number = minimalSubsetLength;
             index < data.length;
             index++
         )
             generate(index, data, [])
+
         result.push(data)
+
         return result
     }
     /**
@@ -4558,58 +4568,66 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param propertyName - Property name to sum up its value.
      * @returns The aggregated value.
      */
-    static arraySumUpProperty(data:any, propertyName:string):number {
+    static arraySumUpProperty(data:unknown, propertyName:string):number {
         let result:number = 0
+
         if (Array.isArray(data) && data.length)
             for (const item of data)
                 if (Object.prototype.hasOwnProperty.call(item, propertyName))
                     result += parseFloat(item[propertyName] || 0)
+
         return result
     }
     /**
      * Adds an item to another item as array connection (many to one).
+     *
      * @param item - Item where the item should be appended to.
      * @param target - Target to add to given item.
      * @param name - Name of the target connection.
      * @param checkIfExists - Indicates if duplicates are allowed in resulting
      * list (will result in linear runtime instead of constant one).
+     *
      * @returns Item with the appended target.
      */
-    static arrayAppendAdd(
-        item:Mapping<any>,
-        target:any,
+    static arrayAppendAdd<T = unknown>(
+        item:Mapping<T>,
+        target:unknown,
         name:string,
         checkIfExists:boolean = true
-    ):Mapping<any> {
+    ):Mapping<T> {
         if (Object.prototype.hasOwnProperty.call(item, name)) {
-            if (!(checkIfExists && item[name].includes(target)))
-                item[name].push(target)
+            if (!(
+                checkIfExists &&
+                (item[name] as unknown as Array<unknown>).includes(target)
+            ))
+                (item[name] as unknown as Array<unknown>).push(target)
         } else
-            item[name] = [target]
+            (item as Mapping<unknown>)[name] = [target]
+
         return item
     }
     /**
      * Removes given target on given list.
+     *
      * @param list - Array to splice.
      * @param target - Target to remove from given list.
      * @param strict - Indicates whether to fire an exception if given target
      * doesn't exists given list.
+     *
      * @returns Item with the appended target.
      */
-    static arrayRemove<T = Array<any>>(
-        list:T, target:any, strict:boolean = false
-    ):T {
-        if (Array.isArray(list)) {
-            const index:number = list.indexOf(target)
-            if (index === -1) {
-                if (strict)
-                    throw new Error(
-                        `Given target doesn't exists in given list.`
-                    )
-            } else
-                ;(list as Array<any>).splice(index, 1)
-        } else if (strict)
-            throw new Error(`Given target isn't an array.`)
+    static arrayRemove<T = unknown>(
+        list:Array<T>, target:T, strict:boolean = false
+    ):Array<T> {
+        const index:number = list.indexOf(target)
+        if (index === -1) {
+            if (strict)
+                throw new Error(
+                    `Given target doesn't exists in given list.`
+                )
+        } else
+            list.splice(index, 1)
+
         return list
     }
     /**
@@ -4820,7 +4838,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Value "true" if given prefix occur and "false" otherwise.
      */
     static stringHasPathPrefix(
-        prefix:any|string = '/admin',
+        prefix:unknown = '/admin',
         path:string = $.location?.pathname || '',
         separator:string = '/'
     ):boolean {
@@ -4829,9 +4847,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 prefix += separator
 
             return (
-                path === prefix.substring(
-                    0, prefix.length - separator.length
-                ) ||
+                path ===
+                    prefix.substring(0, prefix.length - separator.length) ||
                 path.startsWith(prefix)
             )
         }
@@ -4851,8 +4868,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static stringGetDomainName(
         url:string = $.location?.href || '',
-        fallback:any = $.location?.hostname || ''
-    ):any {
+        fallback:string = $.location?.hostname || ''
+    ):string {
         const result:Array<string>|null =
             /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
 
@@ -5104,7 +5121,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param url - Uniform resource locator to represent.
      * @returns Represented result.
      */
-    static stringRepresentURL(url:any):string {
+    static stringRepresentURL(url:unknown):string {
         if (typeof url === 'string')
             return url
                 .replace(/^(https?)?:?\/+/, '')
@@ -5278,12 +5295,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param scope - Scope to extract names from.
      * @param execute - Indicates whether to execute or evaluate.
      *
-     * @returns Object of prepared scope name mappings and compiled
-     * function or error string message if given expression couldn't be
-     * compiled.
+     * @returns Object of prepared scope name mappings and compiled function or
+     * error string message if given expression couldn't be compiled.
      */
     static stringCompile(
-        expression:string, scope:any = [], execute:boolean = false
+        expression:string,
+        scope:Array<string>|Mapping<unknown>|string = [],
+        execute:boolean = false
     ):CompilationResult {
         const result:CompilationResult = {
             error: null,
@@ -5354,17 +5372,19 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     /**
      * Evaluates a given string as expression against given scope.
+     *
      * @param expression - The string to interpret.
      * @param scope - Scope to render against.
      * @param binding - Object to apply as "this" in evaluation scope.
      * @param execute - Indicates whether to execute or evaluate.
+     *
      * @returns Object with error message during parsing / running or result.
      */
     static stringEvaluate(
         expression:string,
-        scope:any = {},
+        scope:Mapping<unknown> = {},
         execute:boolean = false,
-        binding?:any
+        binding?:unknown
     ):EvaluationResult {
         const {error, originalScopeNames, scopeNames, templateFunction} =
             this.stringCompile(expression, scope, execute)
@@ -5416,42 +5436,52 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Start and end index of matching range.
      */
     static stringFindNormalizedMatchRange(
-        target:any,
-        query:any,
-        normalizer:Function = (value:any):string => `${value}`.toLowerCase(),
+        target:unknown,
+        query:unknown,
+        normalizer:Function =
+            (value:unknown):string => `${value}`.toLowerCase(),
         skipTags:boolean = true
     ):Array<number>|null {
-        query = normalizer(query)
-        if (normalizer(target) && query) {
+        const normalizedQuery:string = normalizer(query)
+        const normalizedTarget:string = normalizer(target)
+
+        const stringTarget = typeof target === 'string' ?
+            target :
+            normalizedTarget
+
+        if (normalizedTarget && normalizedQuery) {
             let inTag:boolean = false
-            for (let index = 0; index < target.length; index += 1) {
+            for (let index = 0; index < stringTarget.length; index += 1) {
 
                 if (inTag) {
-                    if (target.charAt(index) === '>')
+                    if (stringTarget.charAt(index) === '>')
                         inTag = false
                     continue
                 }
-                if (skipTags && target.charAt(index) === '<') {
+                if (skipTags && stringTarget.charAt(index) === '<') {
                     inTag = true
                     continue
                 }
 
-                if (normalizer(target.substring(index)).startsWith(query)) {
-                    if (query.length === 1)
+                if (normalizer(stringTarget.substring(index)).startsWith(
+                    normalizedQuery
+                )) {
+                    if (normalizedQuery.length === 1)
                         return [index, index + 1]
 
                     for (
-                        let subIndex = target.length;
+                        let subIndex = stringTarget.length;
                         subIndex > index;
                         subIndex -= 1
                     )
-                        if (!normalizer(target.substring(
+                        if (!normalizer(stringTarget.substring(
                             index, subIndex
-                        )).startsWith(query))
+                        )).startsWith(normalizedQuery))
                             return [index, subIndex + 1]
                 }
             }
         }
+
         return null
     }
     /**
@@ -5465,14 +5495,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns The formatted string.
      */
     static stringFormat(
-        string:string, ...additionalArguments:Array<any>
+        string:string, ...additionalArguments:Array<unknown>
     ):string {
         additionalArguments.unshift(string)
+
         let index:number = 0
         for (const value of additionalArguments) {
             string = string.replace(
                 new RegExp(`\\{${index}\\}`, 'gm'), `${value}`
             )
+
             index += 1
         }
 
@@ -5849,6 +5881,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     break
                 }
             }
+
             if (matched)
                 break
             monthNumber += 1
