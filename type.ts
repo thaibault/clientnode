@@ -34,8 +34,10 @@ export type FunctionTestPromiseTuple<FunctionType extends AnyFunction> =
     [ThenParameter<ReturnType<FunctionType>>, ...Parameters<FunctionType>]
 export type FunctionTestPromiseRejectionTuple<FunctionType extends AnyFunction> =
     [Error, ...Parameters<FunctionType>]
-export type BaseSelector = number|string|((target:any) => any)
-export type Selector = Array<BaseSelector>|BaseSelector
+export type BaseSelector<T = unknown, E = unknown> =
+    number|string|((target:T) => E)
+export type Selector<T = unknown, E = unknown> =
+    Array<BaseSelector<T, E>>|BaseSelector<T, E>
 export type TestSymbol =
     typeof DefinedSymbol|typeof ThrowSymbol|typeof UndefinedSymbol
 export type ThenParameter<Type> = Type extends PromiseLike<infer U> ? U : Type
@@ -44,6 +46,10 @@ export type ThenParameterRecursive<Type> =
 export type ToolsFunction<TElement = HTMLElement, LockType = string> =
     ((...parameter:Array<any>) => any|Tools<TElement, LockType>) &
     {class:typeof Tools}
+export type ProxyType<T = unknown> = T & {
+    __revoke__?:AnyFunction
+    __target__:T
+}
 export type StaticScope =
     ((parameter:any, ...additionalArguments:Array<any>) => any) &
     {
@@ -194,11 +200,11 @@ export interface Options<Type = string> {
     domNodeSelectorPrefix:string
     logging:boolean
 }
-export interface ProxyHandler {
-    deleteProperty:(target:any, key:any) => boolean
-    get:(target:any, key:string) => any
-    has:(target:any, key:string) => boolean
-    set:(target:any, key:string, value:any) => boolean
+export interface ProxyHandler <T = unknown>{
+    deleteProperty:(target:T, key:any) => boolean
+    get:(target:T, key:string) => unknown
+    has:(target:T, key:string) => boolean
+    set:(target:T, key:string, value:unknown) => boolean
 }
 export type TemplateFunction = (...parameter:Array<any>) => any
 export interface CompilationResult {

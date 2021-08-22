@@ -49,7 +49,7 @@ export const UndefinedSymbol = Symbol.for('clientnodeTestHelperUndefined')
  * @param wrap - Indicates whether to wrap with an expect function call.
  * @returns Nothing.
  */
-export const testExpectedType = <Type = any>(
+export const testExpectedType = <Type = unknown>(
     givenResult:jest.JestMatchers<Type>|Type,
     expected:TestSymbol|Type,
     wrap:boolean = true
@@ -60,10 +60,13 @@ export const testExpectedType = <Type = any>(
 
     if (expected === DefinedSymbol)
         return result.toBeDefined()
+
     if (expected === ThrowSymbol)
         return result.toThrow()
+
     if (expected === UndefinedSymbol)
         return result.not.toBeDefined()
+
     return result.toStrictEqual(expected)
 }
 /**

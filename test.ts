@@ -61,6 +61,7 @@ import {
     PlainObject,
     ProcessCloseReason,
     ProcessError,
+    ProxyType,
     SecondParameter,
     TimeoutPromise,
     $DomNode
@@ -130,10 +131,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     // / region  object orientation
     test('controller', ():void => {
         expect(tools.controller(tools, [])).toStrictEqual(tools)
-        expect(tools.controller($.Tools.class, [], $('body')).constructor.name)
-            .toStrictEqual(Tools.name)
-        expect(tools.controller(Tools, [], $('body')).constructor.name)
-            .toStrictEqual(Tools.name)
+        expect((tools.controller($.Tools.class, [], $('body')) as Tools)
+            .constructor.name
+        ).toStrictEqual(Tools.name)
+        expect((tools.controller(Tools, [], $('body')) as Tools)
+            .constructor.name
+        ).toStrictEqual(Tools.name)
     })
     // / endregion
     // / region date time
@@ -387,23 +390,22 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         new Boolean()
     )
     // / endregion
-    // / region language fixes
-    test('mouseOutEventHandlerFix', ():void =>
-        expect(Tools.mouseOutEventHandlerFix(():void => {})).toBeTruthy()
-    )
-    // / endregion
     // / region logging
-    test('log', ():void => expect(tools.log('test')).toStrictEqual(tools))
+    test('log', ():void => expect(tools.log('test')).toStrictEqual(undefined))
     test('info', ():void =>
-        expect(tools.info('test {0}')).toStrictEqual(tools)
+        expect(tools.info('test {0}')).toStrictEqual(undefined)
     )
-    test('debug', ():void => expect(tools.debug('test')).toStrictEqual(tools))
+    test('debug', ():void =>
+        expect(tools.debug('test')).toStrictEqual(undefined)
+    )
     // NOTE: This test breaks javaScript modules in strict mode.
     test.skip(`${testEnvironment}-error`, ():void =>
         expect(tools.error('ignore this error, it is only a {1}', 'test'))
-            .toStrictEqual(tools)
+            .toStrictEqual(undefined)
     )
-    test('warn', ():void => expect(tools.warn('test')).toStrictEqual(tools))
+    test('warn', ():void =>
+        expect(tools.warn('test')).toStrictEqual(undefined)
+    )
     test('show', ():void =>
         /* eslint-disable no-control-regex */
         expect(/^.+\(Type: "function"\)$/su.test(Tools.show(Tools.noop)))
@@ -413,6 +415,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     testEach<typeof Tools.show>(
         'show',
         Tools.show,
+
         ['1 (Type: "number")', 1],
         ['null (Type: "null")', null],
         ['/a/ (Type: "regexp")', /a/],
@@ -839,21 +842,19 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(await Tools.timeout(0)).toStrictEqual(false)
         expect(await Tools.timeout(1)).toStrictEqual(false)
         expect(Tools.timeout()).toBeInstanceOf(Promise)
-        expect(Tools.timeout().hasOwnProperty('clear')).toStrictEqual(true)
+        expect(Tools.timeout()).toHaveProperty('clear')
 
-        let test:boolean = false
+        const callback = jest.fn()
+
         const result:TimeoutPromise = Tools.timeout(10 ** 20, true)
-        result.catch(():void => {
-            test = true
-        })
+        result.catch(callback)
         result.clear()
+        await Tools.timeout()
+        expect(callback).toHaveBeenCalledTimes(1)
+        expect(callback).toHaveBeenLastCalledWith(true)
 
-        let test2:boolean = false
-        expect(await Tools.timeout(():void => {
-            test2 = true
-        })).toStrictEqual(false)
-        expect(test).toStrictEqual(true)
-        expect(test2).toStrictEqual(true)
+        expect(await Tools.timeout(callback)).toStrictEqual(false)
+        expect(callback).toHaveBeenCalledTimes(2)
     })
     // / endregion
     // / region event
@@ -870,11 +871,11 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         debouncedCallback()
         expect(callback).toHaveBeenCalledTimes(1)
 
-        const debouncedAsyncronousCallback = Tools.debounce(async (
-        ):Promise<boolean> => {
-            await Tools.timeout()
-            return true
-        })
+        const debouncedAsyncronousCallback =
+            Tools.debounce(async ():Promise<boolean> => {
+                await Tools.timeout()
+                return true
+            })
         expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
         expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
         expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
@@ -927,47 +928,44 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(Tools.addDynamicGetterAndSetter(null)).toStrictEqual(null)
         expect(Tools.addDynamicGetterAndSetter(true)).toStrictEqual(true)
         expect(Tools.addDynamicGetterAndSetter({a: 2})).toStrictEqual({a: 2})
-        expect(Tools.addDynamicGetterAndSetter({}).__target__)
-            .not.toBeInstanceOf(Object)
+        expect(Tools.addDynamicGetterAndSetter({}))
+            .not.toHaveProperty('__target__')
         expect(
-            Tools.addDynamicGetterAndSetter(
-                {}, (value:any):any => value
-            ).__target__
+            (Tools.addDynamicGetterAndSetter(
+                {}, (value:unknown):unknown => value
+            ) as ProxyType).__target__
         ).toBeInstanceOf(Object)
         const mockup = {}
         expect(Tools.addDynamicGetterAndSetter(mockup)).toStrictEqual(mockup)
         expect(
-            Tools.addDynamicGetterAndSetter(
-                mockup, (value:any):any => value
-            ).__target__
+            (Tools.addDynamicGetterAndSetter(
+                mockup, (value:unknown):unknown => value
+            ) as ProxyType).__target__
         ).toStrictEqual(mockup)
         expect(
             Tools.addDynamicGetterAndSetter(
-                {a: 1}, (value:any):any => value + 2
+                {a: 1}, (value:number):number => value + 2
             ).a
         ).toStrictEqual(3)
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: {a: 1}},
-                (value:any):any => (value instanceof Object) ?
-                    value :
-                    value + 2
+                (value:number|object):number|object =>
+                    value instanceof Object ? value : value + 2
             ).a.a
         ).toStrictEqual(3)
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: {a: [{a: 1}]}},
-                (value:any):any => (value instanceof Object) ?
-                    value :
-                    value + 2
+                (value:number|object):number|object =>
+                    value instanceof Object ? value : value + 2
             ).a.a[0].a
         ).toStrictEqual(3)
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: {a: 1}},
-                (value:any):any => (value instanceof Object) ?
-                    value :
-                    value + 2,
+                (value:number|object):number|object =>
+                    value instanceof Object ? value : value + 2,
                 null,
                 {has: 'hasOwnProperty'},
                 false
@@ -976,8 +974,8 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: 1},
-                (value:any):any =>
-                    (value instanceof Object) ? value : value + 2,
+                (value:number|object):number|object =>
+                    value instanceof Object ? value : value + 2,
                 null,
                 {has: 'hasOwnProperty'},
                 false,
@@ -985,15 +983,15 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             ).a
         ).toStrictEqual(1)
         expect(
-            Tools.addDynamicGetterAndSetter(
+            (Tools.addDynamicGetterAndSetter(
                 {a: new Map([['a', 1]])},
-                (value:any):any =>
-                    (value instanceof Object) ? value : value + 2,
+                (value:number|object):number|object =>
+                    value instanceof Object ? value : value + 2,
                 null,
                 {delete: 'delete', get: 'get', set: 'set', has: 'has'},
                 true,
                 [Map]
-            ).a.a
+            ).a as unknown as {a:number}).a
         ).toStrictEqual(3)
     })
     test('convertCircularObjectToJSON', ():void => {
@@ -1640,7 +1638,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 a: {__evaluate__: 'toString(self.b)'},
                 b: {__evaluate__: `'a'`}
             },
-            {toString: (value:any):string => value.toString()}
+            {toString: (value:string):string => value.toString()}
         ],
         [
             {a: ['a'], b: {a: 2}},
@@ -1765,7 +1763,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [{a: {_a: 1, b: 2}}, true, {a: {_a: 1}}, {a: {b: 2}}],
         [{a: 2, _a: 1}, false, {_a: 1}, {a: 2}],
         [false, true, {a: {a: [1, 2]}}, false],
-        [undefined, true, {a: {a: [1, 2]}}, undefined],
+        [
+            undefined,
+            true,
+            {a: {a: [1, 2]}},
+            undefined as unknown as Partial<unknown>
+        ],
         [{a: 3}, true, {a: 1}, {a: 2}, {a: 3}],
         [[1, 2], true, [1], [1, 2]],
         [[1], true, [1, 2], [1]],
@@ -1809,8 +1812,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 [['a', new Map([['a', [3, 4]]])]]
             )
         ],
-        [undefined, [1, 2], undefined],
-        [null, [1, 2], null]
+        [[1, 2], [1, 2], undefined],
+        [undefined, true, [1, 2], undefined as unknown as Partial<unknown>],
+        [null, [1, 2], null as unknown as Partial<unknown>]
     )
     testEach<typeof Tools.getSubstructure>(
         'getSubstructure',
@@ -1825,12 +1829,14 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [
             3,
             {a: {b: {c: [1, 3, 2]}}},
-            (root:{a:{b:{c:Array<number>}}}):number => root.a.b.c[1]
+            (root:unknown):number =>
+                (root as {a:{b:{c:Array<number>}}}).a.b.c[1]
         ],
         [
             3,
             {a: {b: {c: [1, 3, 2]}}},
-            ['a', (root:{b:{c:Array<number>}}):number => root.b.c[1]]
+            ['a', (root:unknown):number =>
+                (root as {b:{c:Array<number>}}).b.c[1]]
         ]
     )
     test('getProxyHandler', ():void => {
@@ -2401,7 +2407,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
     )
     test('arrayRemove([], 2, true) -> throws Exception', ():void =>
         expect(():Array<number> =>
-            Tools.arrayRemove<Array<number>>([], 2, true)
+            Tools.arrayRemove<number>([], 2, true)
         ).toThrow(new Error(`Given target doesn't exists in given list.`))
     )
     testEach<typeof Tools.arraySortTopological>(
@@ -2514,7 +2520,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         Tools.stringGetDomainName,
 
         ['www.test.de', 'https://www.test.de/site/subSite?param=value#hash'],
-        [true, 'a', true],
+        ['', 'a', ''],
         ['www.test.de', 'http://www.test.de'],
         ['a.de', 'http://a.de'],
         ['localhost', 'http://localhost'],
@@ -3078,16 +3084,18 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         'stringEvaluate(`%s`, %p...)[%p] === %p',
         (
             expression:string,
-            scope:any,
+            scope:Mapping<unknown>,
             resultKey:string,
-            expected:any = undefined,
-            binding:any = undefined
+            expected:unknown = undefined,
+            binding:unknown = undefined
         ):void => {
             const evaluation:EvaluationResult = Tools.stringEvaluate(
                 expression,
                 scope,
                 false,
-                ...[].concat(binding === undefined ? [] : binding)
+                ...([] as Array<unknown>).concat(
+                    binding === undefined ? [] : binding
+                )
             )
             expect(evaluation).toHaveProperty(resultKey)
             if (expected !== undefined)
@@ -3148,10 +3156,10 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         'IE 11: stringEvaluate(`%s`, %p...)[%p] === %p',
         (
             expression:string,
-            scope:any,
+            scope:Mapping<unknown>,
             resultKey:string,
-            expected:any = undefined,
-            binding:any = undefined
+            expected:unknown = undefined,
+            binding:unknown = undefined
         ):void => {
             const backup:number = Tools.maximalSupportedInternetExplorerVersion
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
@@ -3161,7 +3169,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 expression,
                 scope,
                 false,
-                ...[].concat(binding === undefined ? [] : binding)
+                ...([] as Array<unknown>).concat(
+                    binding === undefined ? [] : binding
+                )
             )
             expect(evaluation).toHaveProperty(resultKey)
             if (expected !== undefined)
@@ -3192,23 +3202,28 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [[0, 4], 'hans', 'hans'],
         [[1, 4], 'hans', 'ans'],
         [[1, 4], 'hans hans', 'ans'],
-        [[2, 5], ' hAns ', 'ans', (value:any):string => value.toLowerCase()],
+        [
+            [2, 5],
+            ' hAns ',
+            'ans',
+            (value:string):string => value.toLowerCase()
+        ],
         [
             [2, 8],
             'a straße b', 'strasse',
-            (value:any):string => value.replace(/ß/g, 'ss').toLowerCase()
+            (value:string):string => value.replace(/ß/g, 'ss').toLowerCase()
         ],
         [
             [2, 9],
             'a strasse b',
             'strasse',
-            (value:any):string => value.replace(/ß/g, 'ss').toLowerCase()
+            (value:string):string => value.replace(/ß/g, 'ss').toLowerCase()
         ],
         [
             [2, 9],
             'a strasse b',
             'straße',
-            (value:any):string => value.replace(/ß/g, 'ss').toLowerCase()
+            (value:string):string => value.replace(/ß/g, 'ss').toLowerCase()
         ]
     )
     testEach<typeof Tools.stringFormat>(
@@ -3316,7 +3331,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         [
             't<a>e</a>st',
             'test', 'e',
-            (value:any):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         ['t<a>e</a>st', 'test', ['e'], Tools.identity, '<a>{1}</a>'],
@@ -3324,28 +3339,28 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             't<a>e</a>st',
             'test',
             'E',
-            (value:any):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         [
             't<a>E</a>st',
             'tEst',
             'e',
-            (value:any):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         [
             '<a>t</a>es<a>T</a>',
             'tesT',
             't',
-            (value:any):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         [
             '<a>t - t</a>es<a>T - T</a>',
             'tesT',
             't',
-            (value:any):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value}`.toLowerCase(),
             '<a>{1} - {1}</a>'
         ],
         ['test', 'test', 'E', Tools.identity, '<a>{1}</a>'],
@@ -3374,21 +3389,21 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             'a <a>EBikes</a> <a>München</a>',
             'a EBikes München',
             ['ebikes', 'münchen'],
-            (value:any):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         [
             'a <a>E-Bikes</a> <a>München</a>',
             'a E-Bikes München',
             ['ebikes', 'münchen'],
-            (value:any):string => `${value}`.toLowerCase().replace('-', ''),
+            (value:unknown):string => `${value}`.toLowerCase().replace('-', ''),
             '<a>{1}</a>'
         ],
         [
             'a <a>str.</a> <a>2</a>',
             'a str. 2',
             ['straße', '2'],
-            (value:any):string =>
+            (value:unknown):string =>
                 `${value}`
                     .toLowerCase()
                     .replace('str.', 'strasse')
@@ -3399,7 +3414,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             'EGO Movement Store <a>E-Bikes</a> <a>München</a>',
             'EGO Movement Store E-Bikes München',
             ['eBikes', 'München'],
-            (value:any):string =>
+            (value:unknown):string =>
                 `${value}`
                     .toLowerCase()
                     .replace(/[-_]+/g, '')
@@ -3412,7 +3427,7 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             '<a>str.</a>A <a>strasse</a> B <a>straße</a> C <a>str.</a> D',
             'str.A strasse B straße C str. D',
             ['str.'],
-            (value:any):string =>
+            (value:unknown):string =>
                 `${value}`
                     .toLowerCase()
                     .replace(/[-_]+/g, '')
@@ -3425,35 +3440,35 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             '<mark>test</mark> <a>link</a>',
             'test <a>link</a>',
             ['test'],
-            (value:any):string => value,
+            Tools.identity,
             '<mark>{1}</mark>'
         ],
         [
             'test <a><mark>link</mark></a>',
             'test <a>link</a>',
             ['link'],
-            (value:any):string => value,
+            Tools.identity,
             '<mark>{1}</mark>'
         ],
         [
             'test <a href="foo">link</a>',
             'test <a href="foo">link</a>',
             ['foo'],
-            (value:any):string => value,
+            Tools.identity,
             '<mark>{1}</mark>'
         ],
         [
             'test <a href="foo">a <mark>foo</mark> link</a>',
             'test <a href="foo">a foo link</a>',
             ['foo'],
-            (value:any):string => value,
+            Tools.identity,
             '<mark>{1}</mark>'
         ],
         [
             '<mark>foo</mark> <mark>foo</mark> <mark>foo</mark>',
             'foo foo foo',
             ['foo'],
-            (value:any):string => value,
+            Tools.identity,
             '<mark>{1}</mark>'
         ]
     )
