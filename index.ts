@@ -106,7 +106,7 @@ export const currentRequire =
             __non_webpack_require__ :
     */
     eval(`typeof require === 'undefined' ? null : require`)
-export const optionalRequire = <Type>(
+export const optionalRequire = (
     ...parameter:Parameters<typeof require>
 ):null|ReturnType<typeof require> => {
     try {
@@ -5588,7 +5588,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         value:string, interpretAsUTC:boolean = true
     ):Date|null {
         // NOTE: All patterns can assume lower cased strings.
+
         // TODO handle am/pm
+
         if (!Tools._dateTimePatternCache.length) {
             // region pre-compile regular expressions
             // / region pattern
@@ -5852,10 +5854,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                 }
             // endregion
         }
+
         // region pre-process
         value = value.toLowerCase()
         // Reduce each none alphanumeric symbol to a single one.
         value = value.replace(/([^0-9a-z])[^0-9a-z]+/g, '$1')
+
         let monthNumber:number = 1
         for (const monthVariation of [
             ['jan', 'january?', 'janvier'],
@@ -5884,19 +5888,24 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
             if (matched)
                 break
+
             monthNumber += 1
         }
+
         value = Tools.stringSliceWeekday(value)
+
         const timezonePattern:RegExp = /(.+)\+(.+)$/
-        const timezoneMatch:Array<any>|null = value.match(timezonePattern)
+        const timezoneMatch:Array<string>|null = value.match(timezonePattern)
         if (timezoneMatch)
             value = value.replace(timezonePattern, '$1')
+
         for (const wordToSlice of ['', 'Uhr', `o'clock`] as const)
             value = value.replace(wordToSlice, '')
+
         value = value.trim()
         // endregion
         for (const dateTimePattern of Tools._dateTimePatternCache) {
-            let match:any = null
+            let match:ReturnType<String['match']> = null
 
             try {
                 match = value.match(dateTimePattern)
@@ -5906,7 +5915,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 const get:Function = (
                     name:string, fallback:number = 0
                 ):number =>
-                    name in match.groups ?
+                    match?.groups && name in match.groups ?
                         parseInt(match.groups[name], 10) :
                         fallback
 
@@ -5952,21 +5961,25 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     /**
      * Wraps given mark strings in given target with given marker.
+     *
      * @param target - String to search for marker.
      * @param words - String or array of strings to search in target for.
      * @param normalizer - Pure normalisation function to use before searching
      * for matches.
      * @param marker - HTML template string to mark.
+     *
      * @returns Processed result.
      */
     static stringMark(
-        target:any,
+        target:unknown,
         givenWords?:Array<string>|string,
-        normalizer:Function = (value:any):string => `${value}`.toLowerCase(),
+        normalizer:Function =
+            (value:unknown):string => `${value}`.toLowerCase(),
         marker:string = '<span class="tools-mark">{1}</span>'
-    ):any {
+    ):unknown {
         if (typeof target === 'string' && givenWords?.length) {
-            target = target.trim()
+            let markedTarget:string = target.trim()
+
             const words:Array<string> = ([] as Array<string>).concat(givenWords)
             let index:number = 0
             for (const word of words) {
@@ -5974,11 +5987,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 index += 1
             }
 
-            let restTarget:string = target
+            let restTarget:string = markedTarget
             let offset:number = 0
             while (true) {
                 let nearestRange:Array<number>|null = null
                 let currentRange:Array<number>|null = null
+
                 for (const word of words) {
                     currentRange = Tools.stringFindNormalizedMatchRange(
                         restTarget, word, normalizer
@@ -5991,23 +6005,27 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 }
 
                 if (nearestRange) {
-                    target =
-                        target.substring(0, offset + nearestRange[0]) +
+                    markedTarget =
+                        markedTarget.substring(0, offset + nearestRange[0]) +
                         Tools.stringFormat(
                             marker,
-                            target.substring(
+                            markedTarget.substring(
                                 offset + nearestRange[0],
                                 offset + nearestRange[1]
                             )
                         ) +
-                        target.substring(offset + nearestRange[1])
+                        markedTarget.substring(offset + nearestRange[1])
+
                     offset += nearestRange[1] + (marker.length - '{1}'.length)
-                    if (target.length <= offset)
+                    if (markedTarget.length <= offset)
                         break
-                    restTarget = target.substring(offset)
+
+                    restTarget = markedTarget.substring(offset)
                 } else
                     break
             }
+
+            return markedTarget
         }
 
         return target
@@ -6046,8 +6064,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 unsignedModule2PowerOf32Addition(a, q),
                 unsignedModule2PowerOf32Addition(x, t)
             )
+
             return unsignedModule2PowerOf32Addition(
-                (a << s) | (a >>> (32 - s)), b)
+                (a << s) | (a >>> (32 - s)), b
+            )
         }
         /**
          * First algorithm part.
@@ -6228,6 +6248,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             state[1] = unsignedModule2PowerOf32Addition(b, state[1])
             state[2] = unsignedModule2PowerOf32Addition(c, state[2])
             state[3] = unsignedModule2PowerOf32Addition(d, state[3])
+
             return state
         }
         // / endregion
@@ -6241,9 +6262,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             let hexString:string = ''
             for (let round:number = 0; round < 4; round++)
                 // NOTE: "+=" can not be used here since the minifier breaks.
-                hexString = hexString + hexCharacters[(character >> (
-                    round * 8 + 4
-                )) & 0x0F] + hexCharacters[(character >> (round * 8)) & 0x0F]
+                hexString =
+                    hexString +
+                    hexCharacters[(character >> (round * 8 + 4)) & 0x0F] +
+                    hexCharacters[(character >> (round * 8)) & 0x0F]
+
             return hexString
         }
         /**
@@ -6254,6 +6277,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         const convertToHexCode = (value:Array<any>):string => {
             for (let index:number = 0; index < value.length; index++)
                 value[index] = convertCharactorToHexCode(value[index])
+
             return value.join('')
         }
         /* eslint-disable jsdoc/require-description-complete-sentence */
@@ -6281,6 +6305,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     (value.charCodeAt(blockNumber + 1) << 8) +
                     (value.charCodeAt(blockNumber + 2) << 16) +
                     (value.charCodeAt(blockNumber + 3) << 24)
+
             return blocks
         }
         /* eslint-enable jsdoc/require-description-complete-sentence */
@@ -6312,24 +6337,28 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const tail:Array<number> = [
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             for (blockNumber = 0; blockNumber < value.length; blockNumber++)
-                tail[blockNumber >> 2] |= value.charCodeAt(blockNumber) << ((
-                    blockNumber % 4
-                ) << 3)
+                tail[blockNumber >> 2] |=
+                    value.charCodeAt(blockNumber) << ((blockNumber % 4) << 3)
+
             tail[blockNumber >> 2] |= 0x80 << ((blockNumber % 4) << 3)
+
             if (blockNumber > 55) {
                 cycle(state, tail)
+
                 for (let index:number = 0; index < 16; index++)
                     tail[index] = 0
             }
+
             tail[14] = length * 8
             cycle(state, tail)
 
             return state
         }
         // region final call
-        if (convertToHexCode(main(
-            'hello'
-        )) !== '5d41402abc4b2a76b9719d911017c592')
+        if (
+            convertToHexCode(main('hello')) !==
+                '5d41402abc4b2a76b9719d911017c592'
+        )
             /**
              * This function is much faster, so if possible we use it. Some IEs
              * are the only ones I know of that need the idiotic second
@@ -6344,10 +6373,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             ):number => {
                 const lsw = (first & 0xFFFF) + (second & 0xFFFF)
                 const msw = (first >> 16) + (second >> 16) + (lsw >> 16)
+
                 return (msw << 16) | (lsw & 0xFFFF)
             }
-        return convertToHexCode(main((onlyAscii) ? value : unescape(
-            encodeURIComponent(value))))
+
+        return convertToHexCode(main(
+            onlyAscii ? value : unescape(encodeURIComponent(value))
+        ))
         // endregion
     }
     /**
