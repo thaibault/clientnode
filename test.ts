@@ -3617,10 +3617,12 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
         Tools.numberGetUTCTimestamp,
 
         [0, new Date(0)],
+        [0, 0],
         [0.001, new Date(1)],
         [0, new Date(0), true],
         [1, new Date(1000), false],
         [1000, new Date(1000), true],
+        [1000, 1000, true],
         [0, new Date(0), false]
     )
     testEach<typeof Tools.numberIsNotANumber>(

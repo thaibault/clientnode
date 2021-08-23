@@ -6155,11 +6155,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
          * @param blocks - Blocks to cycle through.
          * @returns Returns given state.
          */
-        const cycle = (state:Array<any>, blocks:Array<any>):Array<any> => {
-            let a:any = state[0]
-            let b:any = state[1]
-            let c:any = state[2]
-            let d:any = state[3]
+        const cycle = (
+            state:Array<number>, blocks:Array<number>
+        ):Array<number> => {
+            let a:number = state[0]
+            let b:number = state[1]
+            let c:number = state[2]
+            let d:number = state[3]
             // region round 1
             a = ff(a, b, c, d, blocks[0], 7, -680876936)
             d = ff(d, a, b, c, blocks[1], 12, -389564586)
@@ -6258,12 +6260,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
          * @param character - Character to convert.
          * @returns Converted hex code string.
          */
-        const convertCharactorToHexCode = (character:any):string => {
+        const convertCharactorToHexCode = (character:number):string => {
             let hexString:string = ''
+
             for (let round:number = 0; round < 4; round++)
-                // NOTE: "+=" can not be used here since the minifier breaks.
-                hexString =
-                    hexString +
+                hexString +=
                     hexCharacters[(character >> (round * 8 + 4)) & 0x0F] +
                     hexCharacters[(character >> (round * 8)) & 0x0F]
 
@@ -6274,11 +6275,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
          * @param value - Array of characters to convert.
          * @returns Converted hex code.
          */
-        const convertToHexCode = (value:Array<any>):string => {
-            for (let index:number = 0; index < value.length; index++)
-                value[index] = convertCharactorToHexCode(value[index])
+        const convertToHexCode = (value:Array<number>):string => {
+            const result:Array<string> = []
 
-            return value.join('')
+            for (let index:number = 0; index < value.length; index++)
+                result[index] = convertCharactorToHexCode(value[index])
+
+            return result.join('')
         }
         /* eslint-disable jsdoc/require-description-complete-sentence */
         /**
@@ -6295,8 +6298,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
          * @param value - Value to process with each block.
          * @returns Converted byte array.
          */
-        const handleBlock = (value:string):Array<any> => {
-            const blocks:Array<any> = []
+        const handleBlock = (value:string):Array<number> => {
+            const blocks:Array<number> = []
             for (
                 let blockNumber:number = 0; blockNumber < 64; blockNumber += 4
             )
@@ -6316,9 +6319,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
          * @param value - String to convert to its md5 representation.
          * @returns Array of blocks.
          */
-        const main = (value:string):Array<any> => {
+        const main = (value:string):Array<number> => {
             const length:number = value.length
-            const state:Array<any> = [
+            const state:Array<number> = [
                 1732584193, -271733879, -1732584194, 271733878
             ]
 
@@ -6378,27 +6381,35 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
 
         return convertToHexCode(main(
-            onlyAscii ? value : unescape(encodeURIComponent(value))
+            onlyAscii ?
+                value :
+                // NOTE: Converts unicode characters into utf8 bytes.
+                unescape(encodeURIComponent(value))
         ))
         // endregion
     }
     /**
      * Normalizes given phone number for automatic dialing or comparison.
+     *
      * @param value - Number to normalize.
      * @param dialable - Indicates whether the result should be dialed or
      * represented as lossless data.
+     *
      * @returns Normalized number.
      */
-    static stringNormalizePhoneNumber(value:any, dialable = true):string {
+    static stringNormalizePhoneNumber(value:unknown, dialable = true):string {
         if (typeof value === 'string' || typeof value === 'number') {
-            value = `${value}`.trim()
+            let normalizedValue:string = `${value}`.trim()
+
             // Normalize country code prefix.
-            value = value.replace(/^[^0-9]*\+/, '00')
+            normalizedValue = normalizedValue.replace(/^[^0-9]*\+/, '00')
+
             if (dialable)
-                return value.replace(/[^0-9]+/g, '')
+                return normalizedValue.replace(/[^0-9]+/g, '')
+
             const separatorPattern:string = '(?:[ /\\-]+)'
             // Remove unneeded area code zero in brackets.
-            value = value.replace(
+            normalizedValue = normalizedValue.replace(
                 new RegExp(
                     `^(.+?)${separatorPattern}?\\(0\\)${separatorPattern}?` +
                     '(.+)$'
@@ -6406,7 +6417,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 '$1-$2'
             )
             // Remove unneeded area code brackets.
-            value = value.replace(
+            normalizedValue = normalizedValue.replace(
                 new RegExp(
                     `^(.+?)${separatorPattern}?\\((.+)\\)` +
                     `${separatorPattern}?(.+)$`
@@ -6423,9 +6434,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 `^(00[0-9]+)${separatorPattern}([0-9]+)${separatorPattern}` +
                 '(.+)$'
             )
-            if (compiledPattern.test(value))
+
+            if (compiledPattern.test(normalizedValue))
                 // Country code and area code matched.
-                value = value.replace(compiledPattern, (
+                normalizedValue = normalizedValue.replace(compiledPattern, (
                     match:string,
                     countryCode:string,
                     areaCode:string,
@@ -6441,22 +6453,24 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     2: Number
                 */
                 compiledPattern = /^([0-9 ]+)[\/-](.+)$/
-                const replacer:Function = (
+                const replacer = (
                     match:string, prefixCode:string, number:string
                 ):string =>
                     `${prefixCode.replace(/ +/, '')}-` +
                     Tools.stringSliceAllExceptNumberAndLastSeperator(number)
-                if (compiledPattern.test(value))
+
+                if (compiledPattern.test(normalizedValue))
                     // Prefer "/" or "-" over " " as area code separator.
-                    value = value.replace(compiledPattern, replacer)
+                    normalizedValue =
+                        normalizedValue.replace(compiledPattern, replacer)
                 else
-                    value = value.replace(
+                    normalizedValue = normalizedValue.replace(
                         new RegExp(`^([0-9]+)${separatorPattern}(.+)$`),
                         replacer
                     )
             }
 
-            return value.replace(/[^0-9-]+/g, '')
+            return normalizedValue.replace(/[^0-9-]+/g, '')
         }
 
         return ''
@@ -6466,7 +6480,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param value - Number to normalize.
      * @returns Normalized number.
      */
-    static stringNormalizeZipCode(value:any):string {
+    static stringNormalizeZipCode(value:unknown):string {
         if (typeof value === 'string' || typeof value === 'number')
             return `${value}`.trim().replace(/[^0-9]+/g, '')
 
@@ -6498,7 +6512,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             serializedObject = eval('Buffer')
                 .from(serializedObject, 'base64')
                 .toString('utf8')
-        const result:any =
+
+        const result:EvaluationResult =
             Tools.stringEvaluate(serializedObject, {[name]: scope})
 
         if (typeof result.result === 'object')
@@ -6512,36 +6527,41 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param value - Number to format.
      * @returns Formatted number.
      */
-    static stringRepresentPhoneNumber(value:any):string {
+    static stringRepresentPhoneNumber(value:unknown):string {
         if (
             ['number', 'string'].includes(Tools.determineType(value)) &&
             value
         ) {
             // Represent country code and leading area code zero.
-            value = `${value}`.replace(
-                /^(00|\+)([0-9]+)-([0-9-]+)$/, '+$2 (0) $3')
+            let normalizedValue:string =
+                `${value}`.replace(/^(00|\+)([0-9]+)-([0-9-]+)$/, '+$2 (0) $3')
+
             // Add German country code if not exists.
-            value = value.replace(/^0([1-9][0-9-]+)$/, '+49 (0) $1')
+            normalizedValue =
+                normalizedValue.replace(/^0([1-9][0-9-]+)$/, '+49 (0) $1')
             // Separate area code from base number.
-            value = value.replace(/^([^-]+)-([0-9-]+)$/, '$1 / $2')
+            normalizedValue =
+                normalizedValue.replace(/^([^-]+)-([0-9-]+)$/, '$1 / $2')
 
             // Partition base number in one triple and tuples or tuples only.
-            return value.replace(/^(.*?)([0-9]+)(-?[0-9]*)$/, (
-                match:string, prefix:string, number:string, suffix:string
-            ):string =>
-                prefix +
+            return normalizedValue.replace(
+                /^(.*?)([0-9]+)(-?[0-9]*)$/,
                 (
-                    (number.length % 2 === 0) ?
-                        number.replace(/([0-9]{2})/g, '$1 ') :
-                        number.replace(
-                            /^([0-9]{3})([0-9]+)$/,
-                            (
-                                match:string, triple:string, rest:string
-                            ):string =>
-                                `${triple} ` +
-                                rest.replace(/([0-9]{2})/g, '$1 ').trim()
-                        ) + suffix
-                ).trim()
+                    match:string, prefix:string, number:string, suffix:string
+                ):string =>
+                    prefix +
+                    (
+                        (number.length % 2 === 0) ?
+                            number.replace(/([0-9]{2})/g, '$1 ') :
+                            number.replace(
+                                /^([0-9]{3})([0-9]+)$/,
+                                (
+                                    match:string, triple:string, rest:string
+                                ):string =>
+                                    `${triple} ` +
+                                    rest.replace(/([0-9]{2})/g, '$1 ').trim()
+                            ) + suffix
+                    ).trim()
             ).trim()
         }
 
@@ -6577,7 +6597,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static stringSliceWeekday(value:string):string {
         const weekdayPattern:RegExp = /[a-z]{2}\.+ *([^ ].*)$/i
-        const weekdayMatch:Array<any>|null = value.match(weekdayPattern)
+        const weekdayMatch:ReturnType<String['match']> =
+            value.match(weekdayPattern)
 
         if (weekdayMatch)
             return value.replace(weekdayPattern, '$1')
@@ -6605,16 +6626,20 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     // / region number
     /**
      * Determines corresponding utc timestamp for given date object.
+     *
      * @param value - Date to convert.
      * @param inMilliseconds - Indicates whether given number should be in
      * seconds (default) or milliseconds.
+     *
      * @returns Determined numerous value.
      */
     static numberGetUTCTimestamp(
-        value:any, inMilliseconds:boolean = false
+        value?:Date|null|number|string, inMilliseconds:boolean = false
     ):number {
-        const date:Date =
-            [undefined, null].includes(value) ? new Date() : new Date(value)
+        const date:Date = [null, undefined].includes(value as null) ?
+            new Date() :
+            new Date(value!)
+
         return (
             Date.UTC(
                 date.getUTCFullYear(),
@@ -6630,11 +6655,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     /**
      * Checks if given object is java scripts native "Number.NaN" object.
-     * @param object - Object to Check.
+     * @param value - Value to check.
      * @returns Returns whether given value is not a number or not.
      */
-    static numberIsNotANumber(object:any):boolean {
-        return Tools.determineType(object) === 'number' && isNaN(object)
+    static numberIsNotANumber(value:unknown):boolean {
+        return (
+            Tools.determineType(value) === 'number' && isNaN(value as number)
+        )
     }
     /**
      * Rounds a given number accurate to given number of digits.
@@ -6649,6 +6676,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     // / region data transfer
     /**
      * Checks if given url response with given status code.
+     *
      * @param url - Url to check reachability.
      * @param wait - Boolean indicating if we should retry until a status code
      * will be given.
@@ -6661,6 +6689,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param expectedIntermediateStatusCodes - A list of expected but
      * unwanted response codes. If detecting them waiting will continue until
      * an expected (positiv) code occurs or timeout is reached.
+     *
      * @returns A promise which will be resolved if a request to given url has
      * finished and resulting status code matches given expected status code.
      * Otherwise returned promise will be rejected.
@@ -6678,7 +6707,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             ([] as Array<number>).concat(givenExpectedStatusCodes)
         const expectedIntermediateStatusCodes:Array<number> =
             ([] as Array<number>).concat(givenExpectedIntermediateStatusCodes)
-        const isStatusCodeExpected:Function = (
+
+        const isStatusCodeExpected = (
             response:any, expectedStatusCodes:Array<number>
         ):boolean => Boolean(
             response !== null &&
@@ -6686,21 +6716,25 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             'status' in response &&
             expectedStatusCodes.includes(response.status)
         )
-        const checkAndThrow:Function = (response:any):any => {
+
+        const checkAndThrow = (response:any):any => {
             if (!isStatusCodeExpected(response, expectedStatusCodes))
                 throw new Error(
                     `Given status code ${response.status} differs from ` +
                     `${expectedStatusCodes.join(', ')}.`
                 )
+
             return response
         }
+
         if (wait)
             return new Promise(async (
                 resolve:Function, reject:Function
             ):Promise<void> => {
                 let timedOut:boolean = false
-                const timer:TimeoutPromise = Tools.timeout(
-                    timeoutInSeconds * 1000)
+                const timer:TimeoutPromise =
+                    Tools.timeout(timeoutInSeconds * 1000)
+
                 const retryErrorHandler = <ErrorType=Error>(
                     error:ErrorType
                 ):ErrorType => {
@@ -6716,8 +6750,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         */
                         currentlyRunningTimer.catch(Tools.noop)
                     }
+
                     return error
                 }
+
                 const wrapper = async ():Promise<any> => {
                     let response:FetchResponse
                     try {
@@ -6725,6 +6761,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     } catch (error) {
                         return retryErrorHandler(error)
                     }
+
                     try {
                         resolve(checkAndThrow(response))
                         timer.clear()
@@ -6733,25 +6770,33 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             response, expectedIntermediateStatusCodes
                         ))
                             return retryErrorHandler(error)
+
                         reject(error)
                         timer.clear()
                     }
+
                     return response
                 }
+
                 let currentlyRunningTimer = Tools.timeout(wrapper)
+
                 try {
                     await timer
                 } catch (error) {}
+
                 timedOut = true
                 currentlyRunningTimer.clear()
+
                 reject(new Error(
                     `Timeout of ${timeoutInSeconds} seconds reached.`
                 ))
             })
+
         return checkAndThrow(await fetch(url, options))
     }
     /**
      * Checks if given url isn't reachable.
+     *
      * @param url - Url to check reachability.
      * @param wait - Boolean indicating if we should retry until a status code
      * will be given.
@@ -6761,6 +6806,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * url.
      * @param unexpectedStatusCodes - Status codes to check for.
      * @param options - Fetch options to use.
+     *
      * @returns A promise which will be resolved if a request to given url
      * couldn't finished. Otherwise returned promise will be rejected. If
      * "wait" is set to "true" we will resolve to another promise still
@@ -6779,25 +6825,28 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (unexpectedStatusCodes) {
                 unexpectedStatusCodes =
                     ([] as Array<number>).concat(unexpectedStatusCodes)
+
                 if (
                     response !== null &&
                     typeof response === 'object' &&
                     'status' in response &&
-                    (unexpectedStatusCodes as Array<number>).includes(
-                        response.status
-                    )
+                    (unexpectedStatusCodes as Array<number>)
+                        .includes(response.status)
                 )
                     throw new Error(
                         `Given url "${url}" is reachable and responses with ` +
                         `unexpected status code "${response.status}".`
                     )
+
                 return new Error(
                     'Given status code is not "' +
                     `${(unexpectedStatusCodes as Array<number>).join(', ')}".`
                 )
             }
+
             return null
         }
+
         if (wait)
             return new Promise(async (
                 resolve:Function, reject:Function
@@ -6808,19 +6857,24 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     try {
                         const response:FetchResponse =
                             await fetch(url, options)
+
                         if (timedOut)
                             return response
+
                         const result:Error|null = check(response)
                         if (result) {
                             timer.clear()
                             resolve(result)
+
                             return result
                         }
+
                         /* eslint-disable no-use-before-define */
                         currentlyRunningTimer = Tools.timeout(
                             pollIntervallInSeconds * 1000, wrapper
                         )
                         /* eslint-enable no-use-before-define */
+
                         /*
                             NOTE: A timer rejection is expected. Avoid throwing
                             errors about unhandled promise rejections.
@@ -6831,23 +6885,28 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         timer.clear()
                         /* eslint-enable no-use-before-define */
                         resolve(error)
+
                         return error
                     }
+
                     return null
                 }
+
                 let currentlyRunningTimer = Tools.timeout(wrapper)
-                const timer:TimeoutPromise = Tools.timeout(
-                    timeoutInSeconds * 1000
-                )
+                const timer:TimeoutPromise =
+                    Tools.timeout(timeoutInSeconds * 1000)
+
                 try {
                     await timer
                 } catch (error) {}
+
                 timedOut = true
                 currentlyRunningTimer.clear()
                 reject(new Error(
                     `Timeout of ${timeoutInSeconds} seconds reached.`
                 ))
             })
+
         try {
             const result:Error|null = check(await fetch(url, options))
             if (result)
@@ -6855,10 +6914,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         } catch (error) {
             return error
         }
+
         throw new Error(`Given url "${url}" is reachable.`)
     }
     /**
      * Send given data to a given iframe.
+     *
      * @param target - Name of the target iframe or the target iframe itself.
      * @param url - URL to send to data to.
      * @param data - Data holding object to send data to.
@@ -6867,6 +6928,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param removeAfterLoad - Indicates if created iframe should be removed
      * right after load event. Only works if an iframe object is given instead
      * of a simple target name.
+     *
      * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
@@ -6880,6 +6942,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             (typeof target === 'string') ?
                 $<HTMLIFrameElement>(`iframe[name"${target}"]`) :
                 $(target as HTMLIFrameElement)
+
         const $formDomNode:$DomNode<HTMLFormElement> =
             $<HTMLFormElement>('<form>').attr({
                 action: url,
@@ -6888,9 +6951,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             })
         for (const name in data)
             if (Object.prototype.hasOwnProperty.call(data, name))
-                $formDomNode.append($('<input>').attr({
-                    name, type: 'hidden', value: data[name]
-                }))
+                $formDomNode.append(
+                    $('<input>')
+                        .attr({name, type: 'hidden', value: data[name]})
+                )
+
         /*
             NOTE: The given target form have to be injected into document
             object model to successfully submit.
@@ -6899,9 +6964,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             $targetDomNode.on('load', ():$DomNode<HTMLIFrameElement> =>
                 $targetDomNode.remove()
             )
+
         $formDomNode.insertAfter($targetDomNode)
         $formDomNode[0].submit()
         $formDomNode.remove()
+
         return $targetDomNode
     }
     /**
@@ -6929,10 +6996,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     (new Date()).getTime()
                 )
                 .hide()
+
         if (this.$domNode)
             this.$domNode.append($iFrameDomNode)
         this._self.sendToIFrame(
             $iFrameDomNode, url, data, requestType, removeAfterLoad)
+
         return $iFrameDomNode
     }
     // / endregion
@@ -7200,13 +7269,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 path: filePath,
                 stats: null
             }
+
             try {
                 file.stats = await fileSystem.stat(filePath)
             } catch (error) {
                 file.error = error
             }
+
             files.push(file)
         }
+
         if (callback)
             /*
                 NOTE: Directories have to be iterated first to potentially
@@ -7216,43 +7288,56 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 if (firstFile.error) {
                     if (secondFile.error)
                         return 0
+
                     return 1
                 }
+
                 if (firstFile.stats?.isDirectory()) {
                     if (secondFile.error || secondFile.stats?.isDirectory())
                         return 0
+
                     return -1
                 }
+
                 if (secondFile.error)
                     return -1
+
                 if (secondFile.stats?.isDirectory())
                     return 1
+
                 return 0
             })
         let finalFiles:Array<File> = []
         for (const file of files) {
             finalFiles.push(file)
             let result:any = callback(file)
+
             if (result === null)
                 break
+
             if (typeof result === 'object' && 'then' in result)
                 result = await result
+
             if (result === null)
                 break
+
             if (result !== false && file.stats?.isDirectory())
                 finalFiles = finalFiles.concat(
                     Tools.walkDirectoryRecursivelySync(file.path, callback)
                 )
         }
+
         return finalFiles
     }
     /**
      * Iterates through given directory structure recursively and calls given
      * callback for each found file. Callback gets file path and corresponding
      * stats object as argument.
+     *
      * @param directoryPath - Path to directory structure to traverse.
      * @param callback - Function to invoke for each traversed file.
      * @param options - Options to use for nested "readdir" calls.
+     *
      * @returns Determined list if all files.
      */
     static walkDirectoryRecursivelySync(
@@ -7261,6 +7346,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         options:PlainObject|string = 'utf8'
     ):Array<File> {
         const files:Array<File> = []
+
         for (const fileName of synchronousFileSystem.readdirSync(
             directoryPath, options
         )) {
@@ -7279,6 +7365,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
             files.push(file)
         }
+
         if (callback)
             /*
                 NOTE: Directories have to be iterated first to potentially
@@ -7288,30 +7375,40 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 if (firstFile.error) {
                     if (secondFile.error)
                         return 0
+
                     return 1
                 }
+
                 if (firstFile.stats?.isDirectory()) {
                     if (secondFile.error || secondFile.stats?.isDirectory())
                         return 0
+
                     return -1
                 }
+
                 if (secondFile.error)
                     return -1
+
                 if (secondFile.stats?.isDirectory())
                     return 1
+
                 return 0
             })
+
         let finalFiles:Array<File> = []
         for (const file of files) {
             finalFiles.push(file)
             const result:any = callback(file)
+
             if (result === null)
                 break
+
             if (result !== false && file.stats?.isDirectory())
                 finalFiles = finalFiles.concat(
                     Tools.walkDirectoryRecursivelySync(file.path, callback)
                 )
         }
+
         return finalFiles
     }
     // / endregion
@@ -7322,11 +7419,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * will be generated if return code is not zero. The generated Error has
      * a property "returnCode" which provides corresponding process return
      * code.
+     *
      * @param resolve - Promise's resolve function.
      * @param reject - Promise's reject function.
      * @param reason - Promise target if process has a zero return code.
      * @param callback - Optional function to call of process has successfully
      * finished.
+     *
      * @returns Process close handler function.
      */
     static getProcessCloseHandler(
@@ -7336,6 +7435,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         callback:Function = Tools.noop
     ):ProcessHandler {
         let finished:boolean = false
+
         return (returnCode:any, ...parameter:Array<any>):void => {
             if (finished)
                 finished = true
@@ -7366,10 +7466,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             childProcess.stdout.pipe(process.stdout)
         if (childProcess.stderr)
             childProcess.stderr.pipe(process.stderr)
+
         childProcess.on('close', (returnCode:number):void => {
             if (returnCode !== 0)
                 console.error(`Task exited with error code ${returnCode}`)
         })
+
         return childProcess
     }
     // / endregion
@@ -7392,6 +7494,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (!eventFunctionName)
             eventFunctionName = removeEvent ? 'off' : 'on'
+
         const $domNode:$DomNode<TElement> = $(parameter[0])
         if (
             this._self.determineType(parameter[1]) === 'object' && !removeEvent
@@ -7406,14 +7509,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     )($domNode, eventType, parameter[1][eventType])
             return $domNode
         }
+
         parameter = this._self.arrayMake(parameter).slice(1)
         if (parameter.length === 0)
             parameter.push('')
         if (!parameter[0].includes('.'))
             parameter[0] += `.${this._self._name}`
-        return (
-            $domNode[eventFunctionName as keyof $DomNode] as Function
-        ).apply($domNode, parameter)
+
+        return ($domNode[eventFunctionName as keyof $DomNode] as Function)
+            .apply($domNode, parameter)
     }
     // endregion
 }
@@ -7445,14 +7549,17 @@ export default Tools
 // region handle $ extending
 export const augment$ = (value:$Function):void => {
     $ = value
+
     if (!$.global)
         $.global = globalContext
+
     if ($.global.window) {
         if (!$.document && $.global.window.document)
             $.document = $.global.window.document
         if (!$.location && $.global.window.location)
             $.location = $.global.window.location
     }
+
     if ($.fn)
         $.fn.Tools = function<TElement = HTMLElement, LockType = string|void>(
             this:$DomNode<TElement>, ...parameter:Array<any>
@@ -7461,10 +7568,12 @@ export const augment$ = (value:$Function):void => {
                 Tools, parameter, this as $DomNode<TElement>
             )
         } as ToolsFunction
+
     $.Tools = ((...parameter:Array<any>):any =>
         (new Tools()).controller(Tools, parameter)
     ) as ToolsFunction
     $.Tools.class = Tools
+
     if ($.fn) {
         // region prop fix for comments and text nodes
         const nativePropFunction = $.fn.prop
@@ -7490,15 +7599,18 @@ export const augment$ = (value:$Function):void => {
             ) {
                 if (additionalParameter.length === 0)
                     return this[0][key as keyof Element]
+
                 if (additionalParameter.length === 1) {
                     /*
                         NOTE: "textContent" represents a writable element
                         property.
                     */
                     this[0][key as 'textContent'] = additionalParameter[0]
+
                     return this
                 }
             }
+
             return nativePropFunction.call(
                 this, key, ...(additionalParameter as [])
             )
