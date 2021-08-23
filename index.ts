@@ -451,6 +451,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * replaced with this plugin name suffix ("tools"). You don't have to use
      * "{1}" but it can help you to write code which is more reconcilable with
      * the dry concept.
+     *
      * @param $domNode - $-extended dom node to use as reference in various
      * methods.
      * @param options - Options to change runtime behavior.
@@ -458,6 +459,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * options instance.
      * @param locks - Mapping of a lock description to callbacks for calling
      * when given lock should be released.
+     *
      * @returns Nothing.
      */
     constructor(
@@ -6709,7 +6711,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             ([] as Array<number>).concat(givenExpectedIntermediateStatusCodes)
 
         const isStatusCodeExpected = (
-            response:any, expectedStatusCodes:Array<number>
+            response:FetchResponse, expectedStatusCodes:Array<number>
         ):boolean => Boolean(
             response !== null &&
             typeof response === 'object' &&
@@ -6717,7 +6719,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             expectedStatusCodes.includes(response.status)
         )
 
-        const checkAndThrow = (response:any):any => {
+        const checkAndThrow = (response:FetchResponse):FetchResponse => {
             if (!isStatusCodeExpected(response, expectedStatusCodes))
                 throw new Error(
                     `Given status code ${response.status} differs from ` +
@@ -6735,13 +6737,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 const timer:TimeoutPromise =
                     Tools.timeout(timeoutInSeconds * 1000)
 
-                const retryErrorHandler = <ErrorType=Error>(
-                    error:ErrorType
-                ):ErrorType => {
+                const retryErrorHandler = (error:Error):Error => {
                     if (!timedOut) {
                         /* eslint-disable no-use-before-define */
                         currentlyRunningTimer = Tools.timeout(
-                            pollIntervallInSeconds * 1000, wrapper)
+                            pollIntervallInSeconds * 1000, wrapper
+                        )
                         /* eslint-enable no-use-before-define */
                         /*
                             NOTE: A timer rejection is expected. Avoid
@@ -6754,7 +6755,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     return error
                 }
 
-                const wrapper = async ():Promise<any> => {
+                const wrapper = async ():Promise<Error|FetchResponse> => {
                     let response:FetchResponse
                     try {
                         response = await fetch(url, options)
@@ -6934,7 +6935,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static sendToIFrame(
         target:$DomNode|HTMLIFrameElement|string,
         url:string,
-        data:Mapping<any>,
+        data:Mapping<unknown>,
         requestType:string = 'post',
         removeAfterLoad:boolean = false
     ):$DomNode {
@@ -6949,6 +6950,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 method: requestType,
                 target: $targetDomNode.attr('name')
             })
+
         for (const name in data)
             if (Object.prototype.hasOwnProperty.call(data, name))
                 $formDomNode.append(
@@ -6973,17 +6975,19 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     /**
      * Send given data to a temporary created iframe.
+     *
      * @param url - URL to send to data to.
      * @param data - Data holding object to send data to.
      * @param requestType - The forms action attribute value. If nothing is
      * provided "post" will be used as default.
      * @param removeAfterLoad - Indicates if created iframe should be removed
      * right after load event.
+     *
      * @returns Returns the dynamically created iframe.
      */
     sendToExternalURL = (
         url:string,
-        data:Mapping<any>,
+        data:Mapping<unknown>,
         requestType:string = 'post',
         removeAfterLoad:boolean = true
     ):$DomNode<HTMLIFrameElement> => {
@@ -6999,8 +7003,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         if (this.$domNode)
             this.$domNode.append($iFrameDomNode)
+
         this._self.sendToIFrame(
-            $iFrameDomNode, url, data, requestType, removeAfterLoad)
+            $iFrameDomNode, url, data, requestType, removeAfterLoad
+        )
 
         return $iFrameDomNode
     }
@@ -7245,10 +7251,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Iterates through given directory structure recursively and calls given
      * callback for each found file. Callback gets file path and corresponding
      * stat object as argument.
+     *
      * @param directoryPath - Path to directory structure to traverse.
      * @param callback - Function to invoke for each traversed file and
      * potentially manipulate further traversing.
      * @param options - Options to use for nested "readdir" calls.
+     *
      * @returns A promise holding the determined files.
      */
     static async walkDirectoryRecursively(
@@ -7310,12 +7318,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         let finalFiles:Array<File> = []
         for (const file of files) {
             finalFiles.push(file)
-            let result:any = callback(file)
+            let result:unknown = callback(file)
 
             if (result === null)
                 break
 
-            if (typeof result === 'object' && 'then' in result)
+            if (typeof result === 'object' && 'then' in result!)
                 result = await result
 
             if (result === null)
@@ -7398,7 +7406,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         let finalFiles:Array<File> = []
         for (const file of files) {
             finalFiles.push(file)
-            const result:any = callback(file)
+            const result:unknown = callback(file)
 
             if (result === null)
                 break
@@ -7431,25 +7439,27 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static getProcessCloseHandler(
         resolve:ProcessCloseCallback,
         reject:ProcessErrorCallback,
-        reason:any = null,
+        reason:unknown = null,
         callback:Function = Tools.noop
     ):ProcessHandler {
         let finished:boolean = false
 
-        return (returnCode:any, ...parameter:Array<any>):void => {
+        return (returnCode:unknown, ...parameters:Array<unknown>):void => {
             if (finished)
                 finished = true
             else {
                 finished = true
                 if (typeof returnCode !== 'number' || returnCode === 0) {
                     callback()
-                    resolve({reason, parameter})
+                    resolve({reason, parameters})
                 } else {
                     const error:ProcessError = new Error(
                         `Task exited with error code ${returnCode}`
                     ) as ProcessError
+
                     error.returnCode = returnCode
-                    error.parameter = parameter
+                    error.parameters = parameters
+
                     reject(error)
                 }
             }
@@ -7480,14 +7490,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Helper method for attach/remove event handler methods.
+     *
      * @param parameter - Arguments object given to methods like "on()" or
      * "off()".
      * @param removeEvent - Indicates if handler should be attached or removed.
      * @param eventFunctionName - Name of function to wrap.
+     *
      * @returns Returns $'s wrapped dom node.
      */
     _bindEventHelper = <TElement = HTMLElement>(
-        parameter:Array<any>,
+        parameters:Array<unknown>,
         removeEvent:boolean = false,
         eventFunctionName?:string
     ):$DomNode<TElement> => {
@@ -7495,29 +7507,37 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (!eventFunctionName)
             eventFunctionName = removeEvent ? 'off' : 'on'
 
-        const $domNode:$DomNode<TElement> = $(parameter[0])
+        const $domNode:$DomNode<TElement> = $(parameters[0])
         if (
-            this._self.determineType(parameter[1]) === 'object' && !removeEvent
+            this._self.determineType(parameters[1]) === 'object' &&
+            !removeEvent
         ) {
-            for (const eventType in parameter[1])
+            for (const eventType in parameters[1] as object)
                 if (Object.prototype.hasOwnProperty.call(
-                    parameter[1], eventType
+                    parameters[1], eventType
                 ))
                     (
-                        this[eventFunctionName as keyof Tools<TElement, LockType>] as
-                            Function
-                    )($domNode, eventType, parameter[1][eventType])
+                        this[
+                            eventFunctionName as
+                                keyof Tools<TElement, LockType>
+                        ] as Function
+                    )(
+                        $domNode,
+                        eventType,
+                        (parameters[1] as Mapping<unknown>)[eventType]
+                    )
+
             return $domNode
         }
 
-        parameter = this._self.arrayMake(parameter).slice(1)
-        if (parameter.length === 0)
-            parameter.push('')
-        if (!parameter[0].includes('.'))
-            parameter[0] += `.${this._self._name}`
+        parameters = this._self.arrayMake(parameters).slice(1)
+        if (parameters.length === 0)
+            parameters.push('')
+        if (!(parameters[0] as Array<string>).includes('.'))
+            parameters[0] += `.${this._self._name}`
 
         return ($domNode[eventFunctionName as keyof $DomNode] as Function)
-            .apply($domNode, parameter)
+            .apply($domNode, parameters)
     }
     // endregion
 }
@@ -7534,13 +7554,15 @@ export class BoundTools<
      * this plugin name suffix ("tools"). You don't have to use "{1}" but it
      * can help you to write code which is more reconcilable with the dry
      * concept.
+     *
      * @param $domNode - $-extended dom node to use as reference in various
      * methods.
-     * @param options - Options to change runtime behavior.
+     * @param parameters - Additional parameters to call super method with.
+     *
      * @returns Nothing.
      */
-    constructor($domNode:$DomNode<TElement>, ...parameter:Array<any>) {
-        super($domNode, ...parameter)
+    constructor($domNode:$DomNode<TElement>, ...parameters:Array<any>) {
+        super($domNode, ...parameters)
         this.$domNode = $domNode
     }
 }
@@ -7562,15 +7584,15 @@ export const augment$ = (value:$Function):void => {
 
     if ($.fn)
         $.fn.Tools = function<TElement = HTMLElement, LockType = string|void>(
-            this:$DomNode<TElement>, ...parameter:Array<any>
+            this:$DomNode<TElement>, ...parameters:Array<unknown>
         ):any {
             return (new Tools<TElement, LockType>()).controller(
-                Tools, parameter, this as $DomNode<TElement>
+                Tools, parameters, this as $DomNode<TElement>
             )
         } as ToolsFunction
 
-    $.Tools = ((...parameter:Array<any>):any =>
-        (new Tools()).controller(Tools, parameter)
+    $.Tools = ((...parameters:Array<unknown>):unknown =>
+        (new Tools()).controller(Tools, parameters)
     ) as ToolsFunction
     $.Tools.class = Tools
 

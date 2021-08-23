@@ -67,7 +67,7 @@ declare global {
     interface JQueryStatic extends StaticScope {}
 }
 export interface ProcessError extends Error {
-    parameter:Array<any>
+    parameters:Array<unknown>
     returnCode:number
 }
 export interface TimeoutPromise extends Promise<boolean> {
@@ -182,8 +182,8 @@ export interface Position extends Offset {
 }
 export type ProcessHandler = (returnCode:any, ...parameter:Array<any>) => void
 export interface ProcessCloseReason {
-    parameter:Array<any>
-    reason:any
+    parameters:Array<unknown>
+    reason:unknown
 }
 export type ProcessCloseCallback = (reason:ProcessCloseReason) => void
 export type ProcessErrorCallback = (reason:ProcessError) => void
