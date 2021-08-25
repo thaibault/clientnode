@@ -1364,15 +1364,18 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Determines where current dom node is relative to current view port
      * position.
+     *
      * @param givenDelta - Allows deltas for "top", "left", "bottom" and
      * "right" for determining positions.
+     *
      * @returns Returns one of "above", "left", "below", "right" or "in".
      */
     getPositionRelativeToViewport(
         givenDelta:{bottom?:number;left?:number;right?:number;top?:number} = {}
     ):RelativePosition {
         const delta:Position = this._self.extend(
-            {bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
+            {bottom: 0, left: 0, right: 0, top: 0}, givenDelta
+        )
         const $domNode:null|$DomNode<TElement> = this.$domNode
         if (
             $.global.window &&
@@ -2287,9 +2290,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Replaces given pattern in each value in given object recursively with
      * given string replacement.
+     *
      * @param object - Object to convert substrings in.
      * @param pattern - Regular expression to replace.
      * @param replacement - String to use as replacement for found patterns.
+     *
      * @returns Converted object with replaced patterns.
      */
     static convertSubstringInPlainObject<Type extends object = PlainObject>(
