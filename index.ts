@@ -39,6 +39,7 @@ import {
     Page,
     PageType,
     PaginateOptions,
+    ParametersExceptFirst,
     PlainObject,
     Position,
     Primitive,
@@ -609,16 +610,17 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Returns whatever the initializer method returns.
      */
-    controller(
+    controller<RT = ReturnType<Tools['initialize']>>(
         object:unknown,
-        parameters:Array<unknown>,
+        parameters:unknown,
         $domNode:null|$DomNode<TElement> = null
-    ):unknown {
+    ):RT|void {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
             object = new (
                 object as {new ($domNode:null|$DomNode<TElement>):unknown}
             )($domNode)
+
             if (!(object instanceof Tools))
                 object = this._self.extend<Tools>(
                     true, new Tools(), object as Tools
@@ -629,7 +631,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             (object as {constructor:{_name:string}}).constructor._name ||
             (object as Tools).constructor.name
 
-        parameters = this._self.arrayMake(parameters)
+        const normalizedParameters:Array<unknown> =
+            this._self.arrayMake(parameters)
 
         if ($domNode?.data && !$domNode.data(name))
             // Attach extended object to the associated dom node.
@@ -638,31 +641,37 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             )
 
         if (
-            parameters.length &&
-            typeof parameters[0] === 'string' &&
-            parameters[0] in (object as object)
+            normalizedParameters.length &&
+            typeof normalizedParameters[0] === 'string' &&
+            normalizedParameters[0] in (object as object)
         ) {
-            if (Tools.isFunction((object as Mapping<unknown>)[parameters[0]]))
-                return (object as Mapping<Function>)[parameters[0]](
-                    ...parameters.slice(1)
+            if (Tools.isFunction(
+                (object as Mapping<unknown>)[normalizedParameters[0]]
+            ))
+                return (object as Mapping<Function>)[normalizedParameters[0]](
+                    ...normalizedParameters.slice(1)
                 )
 
-            return (object as Mapping<unknown>)[parameters[0]]
+            return (object as Mapping<unknown>)[normalizedParameters[0]] as RT
         } else if (
-            parameters.length === 0 || typeof parameters[0] === 'object'
+            normalizedParameters.length === 0 ||
+            typeof normalizedParameters[0] === 'object'
         )
             /*
                 If an options object or no method name is given the initializer
                 will be called.
             */
             return (object as Tools).initialize(
-                ...parameters as Parameters<Tools['initialize']>
-            )
+                ...normalizedParameters as Parameters<Tools['initialize']>
+            ) as unknown as RT
 
-        if (parameters.length && typeof parameters[0] === 'string')
+        if (
+            normalizedParameters.length &&
+            typeof normalizedParameters[0] === 'string'
+        )
             throw new Error(
-                `Method "${parameters[0]}" does not exist on $-extended dom ` +
-                `node "${name}".`
+                `Method "${normalizedParameters[0]}" does not exist on ` +
+                `$-extended dom node "${name}".`
             )
     }
     // / endregion
@@ -7557,12 +7566,17 @@ export class BoundTools<
      *
      * @param $domNode - $-extended dom node to use as reference in various
      * methods.
-     * @param parameters - Additional parameters to call super method with.
+     * @param additionalParameters - Additional parameters to call super method
+     * with.
      *
      * @returns Nothing.
      */
-    constructor($domNode:$DomNode<TElement>, ...parameters:Array<any>) {
-        super($domNode, ...parameters)
+    constructor(
+        $domNode:$DomNode<TElement>,
+         ...additionalParameters:ParametersExceptFirst<Tools['constructor']>
+    ) {
+        super($domNode, ...additionalParameters)
+
         this.$domNode = $domNode
     }
 }
@@ -7583,12 +7597,17 @@ export const augment$ = (value:$Function):void => {
     }
 
     if ($.fn)
-        $.fn.Tools = function<TElement = HTMLElement, LockType = string|void>(
-            this:$DomNode<TElement>, ...parameters:Array<unknown>
-        ):any {
-            return (new Tools<TElement, LockType>()).controller(
+        $.fn.Tools = function<
+            TElement = HTMLElement,
+            RT = ReturnType<Tools['initialize']>,
+            LockType = string|void
+        >(
+            this:$DomNode<TElement>,
+            ...parameters:ParametersExceptFirst<Tools['controller']>
+        ):RT {
+            return (new Tools<TElement, LockType>()).controller<RT>(
                 Tools, parameters, this as $DomNode<TElement>
-            )
+            ) as RT
         } as ToolsFunction
 
     $.Tools = ((...parameters:Array<unknown>):unknown =>
@@ -7602,41 +7621,48 @@ export const augment$ = (value:$Function):void => {
         /**
          * Scopes native prop implementation ignores properties for text nodes,
          * comments and attribute nodes.
+         *
          * @param key - Name of property to retrieve from current dom node.
-         * @param additionalParameter - Additional parameter will be forwarded
+         * @param additionalParameters - Additional parameter will be forwarded
          * to native prop function also.
+         *
          * @returns Returns value if used as getter or current dom node if used
          * as setter.
          */
         $.fn.prop = function(
-            this:Array<Element>, key:any, ...additionalParameter:Array<any>
-        ):any {
+            this:Array<Element>,
+            key:keyof Element,
+            ...additionalParameters:ParametersExceptFirst<
+                (typeof $)['fn']['prop']
+            >
+        ):ReturnType<(typeof $)['fn']['prop']> {
             if (
-                additionalParameter.length < 2 &&
+                additionalParameters.length < 2 &&
                 this.length &&
                 ['#text', '#comment'].includes(
                     this[0].nodeName.toLowerCase()
                 ) &&
                 key in this[0]
             ) {
-                if (additionalParameter.length === 0)
+                if (additionalParameters.length === 0)
                     return this[0][key as keyof Element]
 
-                if (additionalParameter.length === 1) {
+                if (additionalParameters.length === 1) {
                     /*
                         NOTE: "textContent" represents a writable element
                         property.
                     */
-                    this[0][key as 'textContent'] = additionalParameter[0]
+                    this[0][key as 'textContent'] =
+                        (additionalParameters as unknown as [string])[0]
 
                     return this
                 }
             }
 
             return nativePropFunction.call(
-                this, key, ...(additionalParameter as [])
+                this, key, ...(additionalParameters as [])
             )
-        }
+        } as (typeof $)['fn']['prop']
         // endregion
     }
 }
