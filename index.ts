@@ -6518,7 +6518,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             serializedObject = synchronousFileSystem.readFileSync(
                 serializedObject, {encoding: 'utf-8'}
             )
+
         serializedObject = serializedObject.trim()
+
         if (!serializedObject.startsWith('{'))
             serializedObject = eval('Buffer')
                 .from(serializedObject, 'base64')
