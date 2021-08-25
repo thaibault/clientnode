@@ -28,6 +28,11 @@ export type FirstParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[0]
 export type SecondParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[1]
+export type ParametersExceptFirst<FunctionType> = FunctionType extends
+    (parameter:any, ...additionalParameters:infer AdditionalParameters) =>
+        any ?
+            AdditionalParameters :
+            []
 export type FunctionTestTuple<FunctionType extends AnyFunction> =
     [ReturnType<FunctionType>, ...Parameters<FunctionType>]
 export type FunctionTestPromiseTuple<FunctionType extends AnyFunction> =
