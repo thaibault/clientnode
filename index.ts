@@ -107,15 +107,13 @@ export const currentRequire =
             __non_webpack_require__ :
     */
     eval(`typeof require === 'undefined' ? null : require`)
-export const optionalRequire = (
-    ...parameter:Parameters<typeof require>
-):null|ReturnType<typeof require> => {
+export const optionalRequire:typeof require = ((id:string):null|unknown => {
     try {
-        return currentRequire(...parameter)
+        return currentRequire(id)
     } catch (error) {
         return null
     }
-}
+}) as typeof require
 const fetch = globalContext.fetch ?
     globalContext.fetch :
     optionalRequire('node-fetch')
