@@ -3450,6 +3450,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                 copy[key as keyof Type],
                                 {exclude: mask.exclude[key]}
                             ) as ValueOf<Type>
+
                         if (copy[key as keyof Type] !== current)
                             useCopy = true
                     }
