@@ -3116,7 +3116,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param expressionIndicators - Property key to remove.
      * @returns Given object with removed properties.
      */
-    static removeEvaluationInDynamicData(
+    static removeKeysInEvaluation(
         data:PlainObject,
         expressionIndicators:Array<string> = ['__evaluate__', '__execute__']
     ):PlainObject {
@@ -3130,7 +3130,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             )
                 delete data[key]
             else if (Tools.isPlainObject(data[key]))
-                Tools.removeEvaluationInDynamicData(data[key] as PlainObject)
+                Tools.removeKeysInEvaluation(
+                    data[key] as PlainObject, expressionIndicators
+                )
+
         return data
     }
     /**
@@ -3383,8 +3386,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Slices all properties from given object which does not match provided
      * object mask. Items can be explicitly white listed via "include" mask
      * configuration or black listed via "exclude" mask configuration.
+     *
      * @param object - Object to slice.
      * @param mask - Mask configuration.
+     *
      * @returns Given but sliced object. If (nested) object will be modified a
      * flat copy of that object will be returned.
      */
@@ -3611,6 +3616,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     ):Date|null {
         if (value === null)
             return new Date()
+
         if (typeof value === 'string')
             /*
                 We make a simple precheck to determine if it could be a date
@@ -3621,18 +3627,24 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 value
             )) {
                 value = Tools.stringInterpretDateTime(value, interpretAsUTC)
+
                 if (value === null)
                     return value
+
             } else {
                 const floatRepresentation:number = parseFloat(value)
                 if (`${floatRepresentation}` === value)
                     value = floatRepresentation
             }
+
         if (typeof value === 'number')
             return new Date(value * 1000)
+
         const result:Date = new Date(value)
+
         if (isNaN(result.getDate()))
             return null
+
         return result
     }
     /**
@@ -3641,8 +3653,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param keys - List of keys to remove.
      * @returns Processed given object.
      */
-    static removeKeys<T>(object:T, keys:Array<string>|string = '#'):T {
+    static removeKeyPrefixes<T>(object:T, keys:Array<string>|string = '#'):T {
         const resolvedKeys:Array<string> = ([] as Array<string>).concat(keys)
+
         if (Array.isArray(object)) {
             let index:number = 0
             for (const subObject of object.slice()) {
@@ -3660,13 +3673,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 }
 
                 ;(object as Array<unknown>)[index] =
-                    Tools.removeKeys(subObject, resolvedKeys)
+                    Tools.removeKeyPrefixes(subObject, resolvedKeys)
 
                 index += 1
             }
         } else if (Tools.isSet(object))
             for (const subObject of new Set(object)) {
                 let skip:boolean = false
+
                 if (typeof subObject === 'string') {
                     for (const key of resolvedKeys)
                         if (subObject.startsWith(`${key}:`)) {
@@ -3674,14 +3688,17 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             skip = true
                             break
                         }
+
                     if (skip)
                         continue
                 }
-                Tools.removeKeys(subObject, resolvedKeys)
+
+                Tools.removeKeyPrefixes(subObject, resolvedKeys)
             }
         else if (Tools.isMap(object))
             for (const [key, subObject] of new Map(object)) {
                 let skip:boolean = false
+
                 if (typeof key === 'string') {
                     for (const resolvedKey of resolvedKeys) {
                         const escapedKey:string =
@@ -3692,28 +3709,38 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             break
                         }
                     }
+
                     if (skip)
                         continue
                 }
-                object.set(key, Tools.removeKeys(subObject, resolvedKeys))
+
+                object.set(
+                    key, Tools.removeKeyPrefixes(subObject, resolvedKeys)
+                )
             }
         else if (object !== null && typeof object === 'object')
             for (const key in Object.assign({}, object))
                 if (Object.prototype.hasOwnProperty.call(object, key)) {
                     let skip:boolean = false
+
                     for (const resolvedKey of resolvedKeys) {
                         const escapedKey:string =
                             Tools.stringEscapeRegularExpressions(resolvedKey)
+
                         if (new RegExp(`^${escapedKey}[0-9]*$`).test(key)) {
                             delete object[key]
                             skip = true
                             break
                         }
                     }
+
                     if (skip)
                         continue
-                    object[key] = Tools.removeKeys(object[key], resolvedKeys)
+
+                    object[key] =
+                        Tools.removeKeyPrefixes(object[key], resolvedKeys)
                 }
+
         return object
     }
     /**
