@@ -33,7 +33,6 @@ import {
     GetterFunction,
     LockCallbackFunction,
     Mapping,
-    Noop,
     ObjectMaskConfiguration,
     Options,
     Page,
@@ -412,7 +411,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         return version
     })()
     /* eslint-disable @typescript-eslint/no-empty-function */
-    static noop:Noop = $.noop ? $.noop as Noop : ():void => {}
+    static noop:AnyFunction = $.noop ? $.noop as AnyFunction : ():void => {}
     /* eslint-enable @typescript-eslint/no-empty-function */
     static plainObjectPrototypes:Array<FirstParameter<
         typeof Object.getPrototypeOf
@@ -484,7 +483,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             ($.global as unknown as {console:{}}).console = {}
         for (const methodName of ConsoleOutputMethods)
             if (!(methodName in $.global.console))
-                $.global.console[methodName as keyof Console] = this._self.noop
+                $.global.console[methodName as 'log'] =
+                    this._self.noop as Console['log']
         if (
             !this._self._javaScriptDependentContentHandled &&
             $.document &&
@@ -928,7 +928,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             force ||
             ['error', 'critical'].includes(level)
         ) {
-            let message
+            let message:unknown
+
             if (avoidAnnotation)
                 message = object
             else if (typeof object === 'string')
@@ -944,6 +945,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 this.log(object, force, true)
                 this.log(`'--------------------------------------------'`)
             }
+
             if (message)
                 if (
                     !($.global.console && level in $.global.console) ||
@@ -952,7 +954,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     if ($.global.window?.alert)
                         $.global.window.alert(message)
                 } else
-                    $.global.console[level](message)
+                    ($.global.console[level] as Console['log'])(message)
         }
     }
     /**
@@ -6802,7 +6804,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     try {
                         response = await fetch(url, options)
                     } catch (error) {
-                        return retryErrorHandler(error)
+                        return retryErrorHandler(error as Error)
                     }
 
                     try {
@@ -6812,7 +6814,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         if (isStatusCodeExpected(
                             response, expectedIntermediateStatusCodes
                         ))
-                            return retryErrorHandler(error)
+                            return retryErrorHandler(error as Error)
 
                         reject(error)
                         timer.clear()
@@ -6929,7 +6931,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         /* eslint-enable no-use-before-define */
                         resolve(error)
 
-                        return error
+                        return error as Error
                     }
 
                     return null
@@ -6955,7 +6957,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (result)
                 return result
         } catch (error) {
-            return error
+            return error as Error
         }
 
         throw new Error(`Given url "${url}" is reachable.`)
@@ -7058,12 +7060,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Copies given source directory via path to given target directory
      * location with same target name as source file has or copy to given
      * complete target directory path.
+     *
      * @param sourcePath - Path to directory to copy.
      * @param targetPath - Target directory or complete directory location to
      * copy in.
      * @param callback - Function to invoke for each traversed file.
      * @param readOptions - Options to use for reading source file.
      * @param writeOptions - Options to use for writing to target file.
+     *
      * @returns Promise holding the determined target directory path.
      */
     static async copyDirectoryRecursive(
@@ -7077,10 +7081,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         sourcePath = path.resolve(sourcePath)
         if (await Tools.isDirectory(targetPath))
             targetPath = path.resolve(targetPath, path.basename(sourcePath))
+
         try {
             await fileSystem.mkdir(targetPath)
         } catch (error) {
-            if (error.code !== 'EEXIST')
+            if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                 throw error
         }
         for (
@@ -7090,11 +7095,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const currentTargetPath:string = path.join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
+
             if (currentSourceFile.stats?.isDirectory())
                 try {
                     await fileSystem.mkdir(currentTargetPath)
                 } catch (error) {
-                    if (error.code !== 'EEXIST')
+                    if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                         throw error
                 }
             else
@@ -7105,18 +7111,21 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     writeOptions
                 )
         }
+
         return targetPath
     }
     /**
      * Copies given source directory via path to given target directory
      * location with same target name as source file has or copy to given
      * complete target directory path.
+     *
      * @param sourcePath - Path to directory to copy.
      * @param targetPath - Target directory or complete directory location to
      * copy in.
      * @param callback - Function to invoke for each traversed file.
      * @param readOptions - Options to use for reading source file.
      * @param writeOptions - Options to use for writing to target file.
+     *
      * @returns Determined target directory path.
      */
     static copyDirectoryRecursiveSync(
@@ -7133,7 +7142,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         try {
             synchronousFileSystem.mkdirSync(targetPath)
         } catch (error) {
-            if (error.code !== 'EEXIST')
+            if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                 throw error
         }
         for (
@@ -7147,7 +7156,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 try {
                     synchronousFileSystem.mkdirSync(currentTargetPath)
                 } catch (error) {
-                    if (error.code !== 'EEXIST')
+                    if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                         throw error
                 }
             else
@@ -7164,11 +7173,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Copies given source file via path to given target directory location
      * with same target name as source file has or copy to given complete
      * target file path.
+     *
      * @param sourcePath - Path to file to copy.
      * @param targetPath - Target directory or complete file location to copy
      * to.
      * @param readOptions - Options to use for reading source file.
      * @param writeOptions - Options to use for writing to target file.
+     *
      * @returns Determined target file path.
      */
     static async copyFile(
@@ -7193,11 +7204,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Copies given source file via path to given target directory location
      * with same target name as source file has or copy to given complete
      * target file path.
+     *
      * @param sourcePath - Path to file to copy.
      * @param targetPath - Target directory or complete file location to copy
      * to.
      * @param readOptions - Options to use for reading source file.
      * @param writeOptions - Options to use for writing to target file.
+     *
      * @returns Determined target file path.
      */
     static copyFileSync(
@@ -7223,7 +7236,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Checks if given path points to a valid directory.
      * @param filePath - Path to directory.
      * @returns A promise holding a boolean which indicates directory
-     * existents.
+     * existence.
      */
     static async isDirectory(filePath:string):Promise<boolean> {
         try {
@@ -7231,9 +7244,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
-                ['ENOENT', 'ENOTDIR'].includes(error.code)
+                ['ENOENT', 'ENOTDIR'].includes(
+                    (error as NodeJS.ErrnoException).code!
+                )
             )
                 return false
+
             throw error
         }
     }
@@ -7248,9 +7264,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
-                ['ENOENT', 'ENOTDIR'].includes(error.code)
+                ['ENOENT', 'ENOTDIR'].includes(
+                    (error as NodeJS.ErrnoException).code!
+                )
             )
                 return false
+
             throw error
         }
     }
@@ -7258,7 +7277,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Checks if given path points to a valid file.
      * @param filePath - Path to directory.
      * @returns A promise holding a boolean which indicates directory
-     * existents.
+     * existence.
      */
     static async isFile(filePath:string):Promise<boolean> {
         try {
@@ -7266,16 +7285,19 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
-                ['ENOENT', 'ENOTDIR'].includes(error.code)
+                ['ENOENT', 'ENOTDIR'].includes(
+                    (error as NodeJS.ErrnoException).code!
+                )
             )
                 return false
+
             throw error
         }
     }
     /**
      * Checks if given path points to a valid file.
      * @param filePath - Path to file.
-     * @returns A boolean which indicates file existents.
+     * @returns A boolean which indicates file existence.
      */
     static isFileSync(filePath:string):boolean {
         try {
@@ -7283,9 +7305,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
-                ['ENOENT', 'ENOTDIR'].includes(error.code)
+                ['ENOENT', 'ENOTDIR'].includes(
+                    (error as NodeJS.ErrnoException).code!
+                )
             )
                 return false
+
             throw error
         }
     }
@@ -7323,7 +7348,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             try {
                 file.stats = await fileSystem.stat(filePath)
             } catch (error) {
-                file.error = error
+                file.error = error as NodeJS.ErrnoException
             }
 
             files.push(file)
@@ -7411,7 +7436,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             try {
                 file.stats = synchronousFileSystem.statSync(filePath)
             } catch (error) {
-                file.error = error
+                file.error = error as NodeJS.ErrnoException
             }
             files.push(file)
         }
