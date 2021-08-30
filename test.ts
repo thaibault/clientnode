@@ -1686,9 +1686,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             }
         ]
     )
-    testEach<typeof Tools.removeEvaluationInDynamicData>(
-        'removeEvaluationInDynamicData',
-        Tools.removeEvaluationInDynamicData,
+    testEach<typeof Tools.removeKeysInEvaluation>(
+        'removeKeysInEvaluation',
+        Tools.removeKeysInEvaluation,
 
         [{}, {}],
         [{a: 2}, {a: 2}],
@@ -2011,9 +2011,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
                 Tools.normalizeDateTime(parameter, false), expected
             )).toStrictEqual(true)
     )
-    testEach<typeof Tools.removeKeys>(
-        'removeKeys',
-        Tools.removeKeys,
+    testEach<typeof Tools.removeKeyPrefixes>(
+        'removeKeyPrefixes',
+        Tools.removeKeyPrefixes,
 
         [{}, {}, []],
         [new Set(), new Set(), '#'],
