@@ -109,7 +109,6 @@ export interface File {
     stats:Stats|null
 }
 export type Mapping<T=string> = {[key:string]:T}
-export type Noop = (...parameter:Array<any>) => any
 // NOTE: Mapping cannot be used here to avoid circular references.
 export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
 export interface ObjectMaskConfiguration {
