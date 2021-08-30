@@ -4562,9 +4562,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     /**
      * Generates all lengths permutations of given iterable.
+     *
      * @param data - Array like object.
      * @param minimalSubsetLength - Defines how long the minimal subset length
      * should be.
+     *
      * @returns Array of permuted arrays.
      */
     static arrayPermutateLength<T = unknown>(
@@ -4580,6 +4582,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (index === 0) {
                 if (rest.length > 0)
                     result[result.length] = rest
+
                 return
             }
 
@@ -4716,6 +4719,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     `Dependency chain: "${predecessors.join('" -> "')}" => "` +
                     `${node}".`
                 )
+
             const index = nodes.indexOf(node)
             // If the node still exists, traverse its dependencies.
             if (index !== -1) {
@@ -4733,9 +4737,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             current node concatenated onto it.
                         */
                         copy = copy || predecessors.concat([node])
-                        // Recurse to node dependencies.
+                        // Recursively traverse to node dependencies.
                         visit(edge[1], copy)
                     }
+
                 sorted.push(node)
             }
         }
@@ -4754,6 +4759,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     if (edge[0] === node)
                         // Recursively traverse to node dependencies.
                         visit(edge[1], [node])
+
                 sorted.push(node)
             }
         }
@@ -4768,12 +4774,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Sliced version of given object.
      */
-    static arrayUnique(data:Array<unknown>):Array<unknown> {
-        const result:Array<unknown> = []
+    static arrayUnique<T = unknown>(data:Array<T>):Array<T> {
+        const result:Array<T> = []
 
         for (const value of Tools.arrayMake(data))
-            if (!result.includes(value))
-                result.push(value)
+            if (!result.includes(value as T))
+                result.push(value as T)
 
         return result
     }
