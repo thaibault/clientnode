@@ -63,6 +63,8 @@ export type StaticScope =
         location?:Location
         Tools:ToolsFunction
     }
+export type QueryParameters =
+    Array<Array<string>|string> & Mapping<Array<string>|string>
 // / region interfaces
 export interface Scope<TElement = HTMLElement> extends Iterable<TElement> {
     Tools:ToolsFunction<TElement>

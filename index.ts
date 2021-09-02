@@ -49,6 +49,7 @@ import {
     ProcessHandler,
     ProxyHandler,
     ProxyType,
+    QueryParameters,
     RecursiveEvaluateable,
     RecursivePartial,
     RelativePosition,
@@ -4998,8 +4999,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Read a page's GET URL variables and return them as an associative array
      * and preserves ordering.
      *
-     * @param keyToGet - If key given the corresponding value is returned and
-     * full object otherwise.
+     * @param keyToGet - If provided the corresponding value for given key is
+     * returned or full object otherwise.
      * @param allowDuplicates - Indicates whether to return arrays of values or
      * single values. If set to "false" (default) last values will overwrite
      * preceding values.
@@ -5030,7 +5031,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         hashedPathIndicator:string = '!',
         givenSearch:null|string = null,
         givenHash:string = $.location?.hash ?? ''
-    ):Array<string>|null|string {
+    ):Array<string>|null|QueryParameters|string {
         // region set search and hash
         let hash:string = givenHash ?? '#'
         let search:string = ''
@@ -5078,7 +5079,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             data = data.concat(search.split('&'))
         // endregion
         // region construct data structure
-        const parameter:Array<string> = []
+        const parameters:QueryParameters = [] as unknown as QueryParameters
         for (let value of data) {
             const keyValuePair:Array<string> = value.split('=')
             let key:string
@@ -5092,33 +5093,29 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             } catch (error) {
                 value = ''
             }
-            parameter.push(key)
+
+            parameters.push(key)
             if (allowDuplicates)
                 if (
-                    Object.prototype.hasOwnProperty.call(parameter, key) &&
-                    Array.isArray(
-                        (parameter as unknown as Mapping<Array<string>>)[key]
-                    )
+                    Object.prototype.hasOwnProperty.call(parameters, key) &&
+                    Array.isArray(parameters[key])
                 )
-                    (parameter as unknown as Mapping<Array<string>>)[key].push(
-                        value
-                    )
+                    (parameters[key] as Array<string>).push(value)
                 else
-                    (parameter as unknown as Mapping<Array<string>>)[key] =
-                        [value]
+                    parameters[key] = [value]
             else
-                (parameter as unknown as Mapping)[key] = value
+                parameters[key] = value
         }
         // endregion
 
         if (keyToGet) {
-            if (Object.prototype.hasOwnProperty.call(parameter, keyToGet))
-                return (parameter as unknown as Mapping)[keyToGet]
+            if (Object.prototype.hasOwnProperty.call(parameters, keyToGet))
+                return parameters[keyToGet]
 
             return null
         }
 
-        return parameter
+        return parameters
     }
     /**
      * Checks if given url points to another "service" than second given url.
