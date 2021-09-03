@@ -498,7 +498,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns the current instance.
      */
     initialize(
-        options:Partial<Options> = {}
+        options:RecursivePartial<Options> = {}
     ):Promise<$DomNode<TElement>>|Promise<Tools>|Tools<TElement, LockType>|Tools {
         /*
             NOTE: We have to create a new options object instance to avoid
@@ -585,8 +585,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             )($domNode)
 
             if (!(object instanceof Tools))
-                object =
-                    Tools.extend<Tools>(true, new Tools(), object as Tools)
+                object = Tools.extend<Tools>(
+                    true, new Tools<HTMLElement>(), object as Tools
+                )
         }
 
         const name:string =
@@ -1334,10 +1335,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     getPositionRelativeToViewport(
         givenDelta:{bottom?:number;left?:number;right?:number;top?:number} = {}
     ):RelativePosition {
-        const delta:Position = Tools.extend(
+        const delta:Position = Tools.extend<Position>(
             {bottom: 0, left: 0, right: 0, top: 0}, givenDelta
         )
+
         const $domNode:null|$DomNode<TElement> = this.$domNode
+
         if (
             $.global.window &&
             $domNode?.length &&
@@ -3167,20 +3170,21 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns given target extended with all given sources.
      */
     static extend<T = Mapping<unknown>>(
-        targetOrDeepIndicator:boolean|typeof IgnoreNullAndUndefinedSymbol|Partial<T>,
-        targetOrSource?:Partial<T>,
-        ...additionalSources:Array<Partial<T>>
+        targetOrDeepIndicator:boolean|typeof IgnoreNullAndUndefinedSymbol|Partial<T>|RecursivePartial<T>,
+        targetOrSource?:Partial<T>|RecursivePartial<T>,
+        ...additionalSources:Array<Partial<T>|RecursivePartial<T>>
     ):T {
         let deep:boolean|typeof IgnoreNullAndUndefinedSymbol = false
-        let sources:Array<Partial<T>> = additionalSources
-        let target:Partial<T>|undefined
+        let sources:Array<Partial<T>|RecursivePartial<T>> = additionalSources
+        let target:Partial<T>|RecursivePartial<T>|undefined
 
         if (
             targetOrDeepIndicator === IgnoreNullAndUndefinedSymbol ||
             typeof targetOrDeepIndicator === 'boolean'
         ) {
             // Handle a deep copy situation and skip deep indicator and target.
-            deep = targetOrDeepIndicator
+            deep = targetOrDeepIndicator as
+                boolean|typeof IgnoreNullAndUndefinedSymbol
             target = targetOrSource
         } else {
             target = targetOrDeepIndicator
@@ -3256,7 +3260,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             )
                         )
                             target[key as keyof T] = mergeValue(
-                                target[key as keyof T]!, source[key]!
+                                target[key as keyof T] as ValueOf<T>,
+                                source[key] as unknown as ValueOf<T>
                             )
                 } else
                     target = source
