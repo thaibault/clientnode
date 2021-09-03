@@ -424,7 +424,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
     static _dateTimePatternCache:Array<RegExp> = []
 
-    static _defaultOptions:Options = {
+    /*
+        NOTE: Define entity as partial to be able to extend this class without
+        repeating all this content.
+    */
+    static _defaultOptions:Partial<Options> = {
         domNodes: {
             hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
             showJavaScriptEnabled: '.tools-visible-on-javascript-enabled'
@@ -466,7 +470,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if ($domNode)
             this.$domNode = $domNode
 
-        this.options = Tools._defaultOptions
+        this.options = Tools._defaultOptions as Options
 
         this.locks = locks
         // Avoid errors in browsers that lack a console.
