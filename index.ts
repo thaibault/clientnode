@@ -585,8 +585,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             )($domNode)
 
             if (!(object instanceof Tools))
-                object =
-                    Tools.extend<Tools>(true, new Tools(), object as Tools)
+                object = Tools.extend<Tools>(
+                    true, new Tools<HTMLElement>(), object as Tools
+                )
         }
 
         const name:string =
@@ -1334,10 +1335,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     getPositionRelativeToViewport(
         givenDelta:{bottom?:number;left?:number;right?:number;top?:number} = {}
     ):RelativePosition {
-        const delta:Position = Tools.extend(
+        const delta:Position = Tools.extend<Position>(
             {bottom: 0, left: 0, right: 0, top: 0}, givenDelta
         )
+
         const $domNode:null|$DomNode<TElement> = this.$domNode
+
         if (
             $.global.window &&
             $domNode?.length &&
@@ -3172,15 +3175,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         ...additionalSources:Array<Partial<T>|RecursivePartial<T>>
     ):T {
         let deep:boolean|typeof IgnoreNullAndUndefinedSymbol = false
-        let sources:Array<Partial<T>> = additionalSources
-        let target:RecursivePartial<T>|undefined
+        let sources:Array<Partial<T>|RecursivePartial<T>> = additionalSources
+        let target:Partial<T>|RecursivePartial<T>|undefined
 
         if (
             targetOrDeepIndicator === IgnoreNullAndUndefinedSymbol ||
             typeof targetOrDeepIndicator === 'boolean'
         ) {
             // Handle a deep copy situation and skip deep indicator and target.
-            deep = targetOrDeepIndicator
+            deep = targetOrDeepIndicator as
+                boolean|typeof IgnoreNullAndUndefinedSymbol
             target = targetOrSource
         } else {
             target = targetOrDeepIndicator
@@ -3256,7 +3260,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             )
                         )
                             target[key as keyof T] = mergeValue(
-                                target[key as keyof T]!, source[key]!
+                                target[key as keyof T] as ValueOf<T>,
+                                source[key] as unknown as ValueOf<T>
                             )
                 } else
                     target = source
