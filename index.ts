@@ -61,6 +61,7 @@ import {
     ToolsFunction,
     ValueOf,
     $DomNode,
+    $DomNodes,
     $Function,
     $Global
 } from './type'
@@ -1532,18 +1533,21 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Converts an object of dom selectors to an array of $ wrapped dom nodes.
      * Note if selector description as one of "class" or "id" as suffix element
      * will be ignored.
+     *
      * @param domNodeSelectors - An object with dom node selectors.
      * @param wrapperDomNode - A dom node to be the parent or wrapper of all
      * retrieved dom nodes.
+     *
      * @returns Returns All $ wrapped dom nodes corresponding to given
      * selectors.
      */
     grabDomNode(
         domNodeSelectors:Mapping,
         wrapperDomNode:Node|null|string|$DomNode = null
-    ):Mapping<$DomNode> {
+    ):$DomNodes {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-        const domNodes:Mapping<$DomNode> = {}
+        const domNodes:$DomNodes = {} as $DomNodes
+
         if (domNodeSelectors)
             if (wrapperDomNode) {
                 const $wrapperDomNode:$DomNode = $(wrapperDomNode)
@@ -1551,9 +1555,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     if (Object.prototype.hasOwnProperty.call(
                         domNodeSelectors, name
                     ))
-                        domNodes[name] = $wrapperDomNode.find(
-                            domNodeSelectors[name]
-                        )
+                        domNodes[name] =
+                            $wrapperDomNode.find(domNodeSelectors[name])
             } else
                 for (const name in domNodeSelectors)
                     if (Object.prototype.hasOwnProperty.call(
@@ -1576,13 +1579,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             domNodeSelectors[name]
                         ))
                     }
+
         if (this._options.domNodeSelectorPrefix)
             domNodes.parent = $(this._options.domNodeSelectorPrefix)
         if ($.global.window) {
             domNodes.window = $($.global.window as unknown as HTMLElement)
+
             if ($.document)
                 domNodes.document = $($.document as unknown as HTMLElement)
         }
+
         return domNodes
     }
     // / endregion
