@@ -205,6 +205,7 @@ export interface Options<Type = string> {
     domNodes:DomNodes<Type>
     domNodeSelectorPrefix:string
     logging:boolean
+    name:string
 }
 export interface ProxyHandler <T = unknown>{
     deleteProperty:(target:T, key:any) => boolean
