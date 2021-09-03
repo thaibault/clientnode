@@ -555,6 +555,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             this._options.domNodeSelectorPrefix as string,
             this._self.stringCamelCaseToDelimited(this._self._name)
         )
+
         return this
     }
     // / endregion
