@@ -194,7 +194,7 @@ export interface ProcessCloseReason {
 export type ProcessCloseCallback = (reason:ProcessCloseReason) => void
 export type ProcessErrorCallback = (reason:ProcessError) => void
 export type RelativePosition = 'above'|'below'|'in'|'left'|'right'
-export interface DomNodes<Type = string> {
+export type DomNodes<Type = string> = Mapping<Type> & {
     hideJavaScriptEnabled:Type
     parent?:Type
     showJavaScriptEnabled:Type
