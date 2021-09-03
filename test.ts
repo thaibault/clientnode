@@ -86,7 +86,7 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
 const hasDOM:boolean = ['browser', 'node-with-dom'].includes(testEnvironment)
 // endregion
 // region semaphore
-describe(`${Semaphore._name} (${testEnvironment})`, ():void => {
+describe(`Semaphore (${testEnvironment})`, ():void => {
     test('constructor', ():void => {
         expect(new Semaphore()).toHaveProperty('numberOfResources', 2)
         expect(new Semaphore()).toHaveProperty(
@@ -104,14 +104,14 @@ describe(`${Semaphore._name} (${testEnvironment})`, ():void => {
 })
 // endregion
 // region tools
-describe(`${Tools._name} (${testEnvironment})`, ():void => {
+describe(`Tools (${testEnvironment})`, ():void => {
     const now:Date = new Date()
     const tools:Tools = new Tools()
     // region public methods
     // / region special
     test('constructor', ():void => {
         expect(Tools).toHaveProperty('abbreviations')
-        expect(new Tools()).toHaveProperty('_options')
+        expect(new Tools()).toHaveProperty('options')
     })
     test('destructor', ():void =>
         expect(tools.destructor()).toStrictEqual(tools)
@@ -122,9 +122,9 @@ describe(`${Tools._name} (${testEnvironment})`, ():void => {
             domNodeSelectorPrefix: 'body.{1} div.{1}'
         })
 
-        expect(tools._options).toHaveProperty('logging', false)
-        expect(secondToolsInstance._options).toHaveProperty('logging', true)
-        expect(thirdToolsInstance._options.domNodeSelectorPrefix)
+        expect(tools.options).toHaveProperty('logging', false)
+        expect(secondToolsInstance.options).toHaveProperty('logging', true)
+        expect(thirdToolsInstance.options.domNodeSelectorPrefix)
             .toStrictEqual('body.tools div.tools')
     })
     // / endregion

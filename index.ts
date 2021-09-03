@@ -216,15 +216,11 @@ export let $:$Function = determine$()
  * @property numberOfFreeResources - Number free allowed concurrent resource
  * uses.
  * @property numberOfResources - Number of allowed concurrent resource uses.
- *
- * @property static:_name - Holds this class name (not minifyable).
  */
 export class Semaphore {
     queue:Array<Function> = []
     numberOfResources:number
     numberOfFreeResources:number
-
-    static readonly _name:'Semaphore' = 'Semaphore'
     /**
      * Initializes number of resources.
      * @param numberOfResources - Number of resources to manage.
@@ -287,6 +283,20 @@ export class Semaphore {
  *
  * @property static:_dateTimePatternCache - Caches compiled date tine pattern
  * regular expressions.
+ *
+ * @property static:_defaultOptions - Fallback options if not overwritten by
+ * the options given to the constructor method.
+ * @property static:_defaultOptions.logging {boolean} - Indicates whether
+ * logging should be active.
+ * @property static:_defaultOptions.domNodeSelectorPrefix {string} - Selector
+ * prefix for all needed dom nodes.
+ * @property static:_defaultOptions.domNodes {Object.<string, string>} -
+ * Mapping of names to needed dom nodes referenced by there selector.
+ * @property static:_defaultOptions.domNodes.hideJavaScriptEnabled {string} -
+ * Selector to dom nodes which should be hidden if javaScript is available.
+ * @property static:_defaultOptions.domNodes.showJavaScriptEnabled {string} -
+ * Selector to dom nodes which should be visible if javaScript is available.
+ *
  * @property static:_javaScriptDependentContentHandled - Indicates whether
  * javaScript dependent content where hide or shown.
  *
@@ -295,22 +305,10 @@ export class Semaphore {
  * @property locks - Mapping of lock descriptions to there corresponding
  * callbacks.
  *
- * @property _options - Options given to the constructor.
- * @property _defaultOptions - Fallback options if not overwritten by the
- * options given to the constructor method.
- * @property _defaultOptions.logging {boolean} - Indicates whether logging
- * should be active.
- * @property _defaultOptions.domNodeSelectorPrefix {string} - Selector prefix
- * for all needed dom nodes.
- * @property _defaultOptions.domNodes {Object.<string, string>} - Mapping of
- * names to needed dom nodes referenced by there selector.
- * @property _defaultOptions.domNodes.hideJavaScriptEnabled {string} - Selector
- * to dom nodes which should be hidden if javaScript is available.
- * @property _defaultOptions.domNodes.showJavaScriptEnabled {string} - Selector
- * to dom nodes which should be visible if javaScript is available.
+ * @property options - Options given to the constructor.
  */
 export class Tools<TElement = HTMLElement, LockType = string|void> {
-    // region static properties
+    // region sta tic properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href'
     ]
@@ -425,22 +423,24 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         'webkitTransitionEnd oTransitionEnd MSTransitionEnd'
 
     static _dateTimePatternCache:Array<RegExp> = []
+
+    static _defaultOptions:Options = {
+        domNodes: {
+            hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
+            showJavaScriptEnabled: '.tools-visible-on-javascript-enabled'
+        },
+        domNodeSelectorPrefix: 'body',
+        logging: false,
+        name: 'Tools'
+    }
+
     static _javaScriptDependentContentHandled = false
-    /*
-        NOTE: Cannot be "name" to avoid conflicts with native "Function.name"
-        property.
-        NOTE: Type cannot be value type "Tools" to enable subclasses to
-        overwrite with their specific name.
-    */
-    static readonly _name:string = 'Tools'
     // endregion
     // region dynamic properties
     $domNode:null|$DomNode<TElement> = null
     locks:Mapping<Array<LockCallbackFunction<LockType>>>
 
-    _defaultOptions:Options
-    _options:RecursivePartial<Options>
-    readonly _self:typeof Tools = Tools
+    options:Options
     // endregion
     // region public methods
     // / region special
@@ -454,9 +454,6 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @param $domNode - $-extended dom node to use as reference in various
      * methods.
-     * @param options - Options to change runtime behavior.
-     * @param defaultOptions - Default options to ensure to be present in any
-     * options instance.
      * @param locks - Mapping of a lock description to callbacks for calling
      * when given lock should be released.
      *
@@ -464,21 +461,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     constructor(
         $domNode?:$DomNode<TElement>,
-        options?:RecursivePartial<Options>,
-        defaultOptions:Options = {
-            domNodes: {
-                hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
-                showJavaScriptEnabled: '.tools-visible-on-javascript-enabled'
-            },
-            domNodeSelectorPrefix: 'body',
-            logging: false
-        },
         locks:Mapping<Array<LockCallbackFunction<LockType>>> = {}
     ) {
         if ($domNode)
             this.$domNode = $domNode
-        this._defaultOptions = defaultOptions
-        this._options = options ? options as Options : this._defaultOptions
+
+        this.options = Tools._defaultOptions
+
         this.locks = locks
         // Avoid errors in browsers that lack a console.
         if (!$.global.console)
@@ -486,36 +475,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         for (const methodName of ConsoleOutputMethods)
             if (!(methodName in $.global.console))
                 $.global.console[methodName as 'log'] =
-                    this._self.noop as Console['log']
-        if (
-            !this._self._javaScriptDependentContentHandled &&
-            $.document &&
-            'filter' in $ &&
-            'hide' in $ &&
-            'show' in $
-        ) {
-            this._self._javaScriptDependentContentHandled = true;
-            ($ as $Function)(
-                `${this._defaultOptions.domNodeSelectorPrefix} ` +
-                this._defaultOptions.domNodes.hideJavaScriptEnabled
-            )
-                .filter(
-                    (index:number, domNode:HTMLElement):boolean =>
-                        !$(domNode).data('javaScriptDependentContentHide')
-                )
-                .data('javaScriptDependentContentHide', true)
-                .hide();
-            ($ as $Function)(
-                `${this._defaultOptions.domNodeSelectorPrefix} ` +
-                this._defaultOptions.domNodes.showJavaScriptEnabled
-            )
-                .filter(
-                    (index:number, domNode:HTMLElement):boolean =>
-                        !$(domNode).data('javaScriptDependentContentShow')
-                )
-                .data('javaScriptDependentContentShow', true)
-                .show()
-        }
+                    Tools.noop as Console['log']
     }
     /**
      * This method could be overwritten normally. It acts like a destructor.
@@ -534,27 +494,25 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns the current instance.
      */
     initialize(
-        options:object = {}
+        options:Partial<Options> = {}
     ):Promise<$DomNode<TElement>>|Promise<Tools>|Tools<TElement, LockType>|Tools {
         /*
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
         */
-        this._options = this._self.extend<Options>(
-            true,
-            {} as Options,
-            this._defaultOptions,
-            this._options as Options,
-            options as Options
+        this.options = Tools.extend<Options>(
+            true, {} as Options, Tools._defaultOptions, options
         )
         /*
             The selector prefix should be parsed after extending options
             because the selector would be overwritten otherwise.
         */
-        this._options.domNodeSelectorPrefix = this._self.stringFormat(
-            this._options.domNodeSelectorPrefix as string,
-            this._self.stringCamelCaseToDelimited(this._self._name)
+        this.options.domNodeSelectorPrefix = Tools.stringFormat(
+            this.options.domNodeSelectorPrefix,
+            Tools.stringCamelCaseToDelimited(this.options.name)
         )
+
+        this.renderJavaScriptDependentVisibility()
 
         return this
     }
@@ -623,17 +581,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             )($domNode)
 
             if (!(object instanceof Tools))
-                object = this._self.extend<Tools>(
-                    true, new Tools(), object as Tools
-                )
+                object =
+                    Tools.extend<Tools>(true, new Tools(), object as Tools)
         }
 
         const name:string =
-            (object as {constructor:{_name:string}}).constructor._name ||
-            (object as Tools).constructor.name
+            this.options.name || (object as Tools).constructor.name
 
-        const normalizedParameters:Array<unknown> =
-            this._self.arrayMake(parameters)
+        const normalizedParameters:Array<unknown> = Tools.arrayMake(parameters)
 
         if ($domNode?.data && !$domNode.data(name))
             // Attach extended object to the associated dom node.
@@ -927,7 +882,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         ...additionalArguments:Array<unknown>
     ):void {
         if (
-            this._options.logging ||
+            this.options.logging ||
             force ||
             ['error', 'critical'].includes(level)
         ) {
@@ -937,12 +892,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 message = object
             else if (typeof object === 'string')
                 message =
-                    `${this._self._name} (${level}): ` +
-                    this._self.stringFormat(object, ...additionalArguments)
-            else if (
-                this._self.isNumeric(object) || typeof object === 'boolean'
-            )
-                message = `${this._self._name} (${level}): ${object.toString()}`
+                    `${this.options.name} (${level}): ` +
+                    Tools.stringFormat(object, ...additionalArguments)
+            else if (Tools.isNumeric(object) || typeof object === 'boolean')
+                message =
+                    `${this.options.name} (${level}): ${object.toString()}`
             else {
                 this.log(',--------------------------------------------,')
                 this.log(object, force, true)
@@ -952,7 +906,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (message)
                 if (
                     !($.global.console && level in $.global.console) ||
-                    ($.global.console[level] === this._self.noop)
+                    ($.global.console[level] === Tools.noop)
                 ) {
                     if ($.global.window?.alert)
                         $.global.window.alert(message)
@@ -1182,9 +1136,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     if (serializedStyles)
                         $domNode.attr(
                             styleName,
-                            this._self.stringCompressStyleValue(
+                            Tools.stringCompressStyleValue(
                                 (
-                                    this._self
+                                    Tools
                                         .stringCompressStyleValue(
                                             serializedStyles
                                         )
@@ -1226,7 +1180,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             index < styleProperties.length;
                             index += 1
                         )
-                            result[this._self.stringDelimitedToCamelCase(
+                            result[Tools.stringDelimitedToCamelCase(
                                 styleProperties[index]
                             )] =
                                 styleProperties.getPropertyValue(
@@ -1237,7 +1191,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             if (Object.prototype.hasOwnProperty.call(
                                 styleProperties, propertyName
                             ))
-                                result[this._self.stringDelimitedToCamelCase(
+                                result[Tools.stringDelimitedToCamelCase(
                                     propertyName
                                 )] =
                                     propertyName in styleProperties &&
@@ -1376,7 +1330,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     getPositionRelativeToViewport(
         givenDelta:{bottom?:number;left?:number;right?:number;top?:number} = {}
     ):RelativePosition {
-        const delta:Position = this._self.extend(
+        const delta:Position = Tools.extend(
             {bottom: 0, left: 0, right: 0, top: 0}, givenDelta
         )
         const $domNode:null|$DomNode<TElement> = this.$domNode
@@ -1432,8 +1386,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     removeDirective(directiveName:string):null|$DomNode<TElement> {
         if (this.$domNode === null)
             return null
+
         const delimitedName:string =
-            this._self.stringCamelCaseToDelimited(directiveName)
+            Tools.stringCamelCaseToDelimited(directiveName)
+
         return this.$domNode
             .removeClass(delimitedName)
             .removeAttr(delimitedName)
@@ -1443,6 +1399,44 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             .removeAttr(delimitedName.replace('-', '_'))
     }
     /**
+     * Hide or show all marked nodes which should be displayed depending on
+     * java script availability.
+     * @returns Nothing.
+     */
+    renderJavaScriptDependentVisibility():void {
+        if (
+            !Tools._javaScriptDependentContentHandled &&
+            $.document &&
+            'filter' in $ &&
+            'hide' in $ &&
+            'show' in $
+        ) {
+            ;($ as $Function)(
+                `${this.options.domNodeSelectorPrefix} ` +
+                this.options.domNodes.hideJavaScriptEnabled
+            )
+                .filter(
+                    (index:number, domNode:HTMLElement):boolean =>
+                        !$(domNode).data('javaScriptDependentContentHide')
+                )
+                .data('javaScriptDependentContentHide', true)
+                .hide()
+
+            ;($ as $Function)(
+                `${this.options.domNodeSelectorPrefix} ` +
+                this.options.domNodes.showJavaScriptEnabled
+            )
+                .filter(
+                    (index:number, domNode:HTMLElement):boolean =>
+                        !$(domNode).data('javaScriptDependentContentShow')
+                )
+                .data('javaScriptDependentContentShow', true)
+                .show()
+
+            Tools._javaScriptDependentContentHandled = true
+        }
+    }
+    /**
      * Determines a normalized camel case directive name representation.
      * @param directiveName - The directive name.
      * @returns Returns the corresponding name.
@@ -1450,20 +1444,26 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static getNormalizedDirectiveName(directiveName:string):string {
         for (const delimiter of ['-', ':', '_'] as const) {
             let prefixFound = false
+
             for (
                 const prefix of [`data${delimiter}`, `x${delimiter}`] as const
             )
                 if (directiveName.startsWith(prefix)) {
                     directiveName = directiveName.substring(prefix.length)
                     prefixFound = true
+
                     break
                 }
+
             if (prefixFound)
                 break
+
         }
+
         for (const delimiter of ['-', ':', '_'] as const)
             directiveName =
                 Tools.stringDelimitedToCamelCase(directiveName, delimiter)
+
         return directiveName
     }
     /**
@@ -1475,8 +1475,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     getDirectiveValue(directiveName:string):null|string {
         if (this.$domNode === null)
             return null
+
         const delimitedName:string =
-            this._self.stringCamelCaseToDelimited(directiveName)
+            Tools.stringCamelCaseToDelimited(directiveName)
+
         for (const attributeName of [
             delimitedName,
             `data-${delimitedName}`,
@@ -1484,9 +1486,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             delimitedName.replace('-', '\\:')
         ]) {
             const value:string|undefined = this.$domNode.attr(attributeName)
+
             if (typeof value === 'string')
                 return value
         }
+
         return null
     }
     /**
@@ -1497,12 +1501,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     sliceDomNodeSelectorPrefix(domNodeSelector:string):string {
         if (
-            this._options.domNodeSelectorPrefix &&
-            domNodeSelector.startsWith(this._options.domNodeSelectorPrefix)
+            this.options.domNodeSelectorPrefix &&
+            domNodeSelector.startsWith(this.options.domNodeSelectorPrefix)
         )
             return domNodeSelector
                 .substring(
-                    (this._options.domNodeSelectorPrefix as string).length
+                    (this.options.domNodeSelectorPrefix as string).length
                 )
                 .trim()
         return domNodeSelector
@@ -1581,8 +1585,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         ))
                     }
 
-        if (this._options.domNodeSelectorPrefix)
-            domNodes.parent = $(this._options.domNodeSelectorPrefix)
+        if (this.options.domNodeSelectorPrefix)
+            domNodes.parent = $(this.options.domNodeSelectorPrefix)
         if ($.global.window) {
             domNodes.window = $($.global.window as unknown as HTMLElement)
 
@@ -1946,11 +1950,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         ...additionalArguments:Array<unknown>
     ):unknown {
         const eventHandlerName:string =
-            `on${this._self.stringCapitalize(eventName)}`
+            `on${Tools.stringCapitalize(eventName)}`
 
         interface Scope {
             callable:Function
-            _options:{[key:string]:Function}
+            options:Mapping<Function>
         }
         const castedScope:Scope = scope as Scope
 
@@ -1965,11 +1969,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 )
 
         if (
-            castedScope._options &&
-            eventHandlerName in castedScope._options &&
-            castedScope._options[eventHandlerName] !== this._self.noop
+            castedScope.options &&
+            eventHandlerName in castedScope.options &&
+            castedScope.options[eventHandlerName] !== Tools.noop
         )
-            return castedScope._options[eventHandlerName].call(
+            return castedScope.options[eventHandlerName].call(
                 this, ...additionalArguments
             )
 
@@ -6668,8 +6672,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     stringNormalizeDomNodeSelector = (selector:string):string => {
         let domNodeSelectorPrefix:string = ''
-        if (this._options.domNodeSelectorPrefix)
-            domNodeSelectorPrefix = `${this._options.domNodeSelectorPrefix} `
+        if (this.options.domNodeSelectorPrefix)
+            domNodeSelectorPrefix = `${this.options.domNodeSelectorPrefix} `
         if (!(
             selector.startsWith(domNodeSelectorPrefix) ||
             selector.trim().startsWith('<')
@@ -7049,8 +7053,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             $<HTMLIFrameElement>('<iframe>')
                 .attr(
                     'name',
-                    this._self._name.charAt(0).toLowerCase() +
-                    this._self._name.substring(1) +
+                    this.options.name.charAt(0).toLowerCase() +
+                    this.options.name.substring(1) +
                     (new Date()).getTime()
                 )
                 .hide()
@@ -7058,7 +7062,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (this.$domNode)
             this.$domNode.append($iFrameDomNode)
 
-        this._self.sendToIFrame(
+        Tools.sendToIFrame(
             $iFrameDomNode, url, data, requestType, removeAfterLoad
         )
 
@@ -7585,10 +7589,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             eventFunctionName = removeEvent ? 'off' : 'on'
 
         const $domNode:$DomNode<TElement> = $(parameters[0])
-        if (
-            this._self.determineType(parameters[1]) === 'object' &&
-            !removeEvent
-        ) {
+        if (Tools.determineType(parameters[1]) === 'object' && !removeEvent) {
             for (const eventType in parameters[1] as object)
                 if (Object.prototype.hasOwnProperty.call(
                     parameters[1], eventType
@@ -7607,11 +7608,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             return $domNode
         }
 
-        parameters = this._self.arrayMake(parameters).slice(1)
+        parameters = Tools.arrayMake(parameters).slice(1)
         if (parameters.length === 0)
             parameters.push('')
         if (!(parameters[0] as Array<string>).includes('.'))
-            parameters[0] += `.${this._self._name}`
+            parameters[0] += `.${this.options.name}`
 
         return ($domNode[eventFunctionName as keyof $DomNode] as Function)
             .apply($domNode, parameters)
