@@ -498,7 +498,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns the current instance.
      */
     initialize(
-        options:Partial<Options> = {}
+        options:RecursivePartial<Options> = {}
     ):Promise<$DomNode<TElement>>|Promise<Tools>|Tools<TElement, LockType>|Tools {
         /*
             NOTE: We have to create a new options object instance to avoid
@@ -3167,13 +3167,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns given target extended with all given sources.
      */
     static extend<T = Mapping<unknown>>(
-        targetOrDeepIndicator:boolean|typeof IgnoreNullAndUndefinedSymbol|Partial<T>,
-        targetOrSource?:Partial<T>,
-        ...additionalSources:Array<Partial<T>>
+        targetOrDeepIndicator:boolean|typeof IgnoreNullAndUndefinedSymbol|Partial<T>|RecursivePartial<T>,
+        targetOrSource?:Partial<T>|RecursivePartial<T>,
+        ...additionalSources:Array<Partial<T>|RecursivePartial<T>>
     ):T {
         let deep:boolean|typeof IgnoreNullAndUndefinedSymbol = false
         let sources:Array<Partial<T>> = additionalSources
-        let target:Partial<T>|undefined
+        let target:RecursivePartial<T>|undefined
 
         if (
             targetOrDeepIndicator === IgnoreNullAndUndefinedSymbol ||
