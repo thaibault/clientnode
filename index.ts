@@ -7217,10 +7217,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         */
         if (await Tools.isDirectory(targetPath))
             targetPath = path.resolve(targetPath, path.basename(sourcePath))
+
         const data:object|string = await fileSystem.readFile(
             sourcePath, readOptions
         )
+
         fileSystem.writeFile(targetPath, data, writeOptions)
+
         return targetPath
     }
     /**
