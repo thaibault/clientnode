@@ -573,7 +573,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Returns whatever the initializer method returns.
      */
-    controller<RT = ReturnType<Tools['initialize']>>(
+    static controller<
+        TElement = HTMLElement, RT = ReturnType<Tools['initialize']>
+    >(
         object:unknown,
         parameters:unknown,
         $domNode:null|$DomNode<TElement> = null
@@ -590,16 +592,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 )
         }
 
-        const name:string =
-            this.options.name || (object as Tools).constructor.name
-
         const normalizedParameters:Array<unknown> = Tools.arrayMake(parameters)
-
-        if ($domNode?.data && !$domNode.data(name))
-            // Attach extended object to the associated dom node.
-            $domNode.data(
-                name, object as boolean|null|number|object|string|symbol
-            )
 
         if (
             normalizedParameters.length &&
@@ -617,14 +610,27 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         } else if (
             normalizedParameters.length === 0 ||
             typeof normalizedParameters[0] === 'object'
-        )
+        ) {
             /*
                 If an options object or no method name is given the initializer
                 will be called.
             */
-            return (object as Tools).initialize(
+            const result:RT = (object as Tools).initialize(
                 ...normalizedParameters as Parameters<Tools['initialize']>
             ) as unknown as RT
+
+            const name:string =
+                (object as Tools).options.name ||
+                (object as Tools).constructor.name
+
+            if ($domNode?.data && !$domNode.data(name))
+                // Attach extended object to the associated dom node.
+                $domNode.data(
+                    name, object as boolean|null|number|object|string|symbol
+                )
+
+            return result
+        }
 
         if (
             normalizedParameters.length &&
@@ -7684,15 +7690,15 @@ export const augment$ = (value:$Function):void => {
             LockType = string|void
         >(
             this:$DomNode<TElement>,
-            ...parameters:ParametersExceptFirst<Tools['controller']>
+            ...parameters:ParametersExceptFirst<(typeof Tools)['controller']>
         ):RT {
-            return (new Tools<TElement, LockType>()).controller<RT>(
+            return Tools.controller<TElement, RT>(
                 Tools, parameters, this as $DomNode<TElement>
             ) as RT
         } as ToolsFunction
 
     $.Tools = ((...parameters:Array<unknown>):unknown =>
-        (new Tools()).controller(Tools, parameters)
+        Tools.controller(Tools, parameters)
     ) as ToolsFunction
     $.Tools.class = Tools
 
