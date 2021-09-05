@@ -7692,9 +7692,8 @@ export const augment$ = (value:$Function):void => {
             this:$DomNode<TElement>,
             ...parameters:ParametersExceptFirst<(typeof Tools)['controller']>
         ):RT {
-            return Tools.controller<TElement, RT>(
-                Tools, parameters, this as $DomNode<TElement>
-            ) as RT
+            return Tools.controller<TElement, RT>(Tools, parameters, this) as
+                RT
         } as ToolsFunction
 
     $.Tools = ((...parameters:Array<unknown>):unknown =>
