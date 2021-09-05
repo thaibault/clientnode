@@ -308,7 +308,7 @@ export class Semaphore {
  * @property options - Options given to the constructor.
  */
 export class Tools<TElement = HTMLElement, LockType = string|void> {
-    // region sta tic properties
+    // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href'
     ]
