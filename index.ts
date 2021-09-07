@@ -3143,22 +3143,22 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param expressionIndicators - Property key to remove.
      * @returns Given object with removed properties.
      */
-    static removeKeysInEvaluation(
-        data:PlainObject,
+    static removeKeysInEvaluation<T = PlainObject>(
+        data:T,
         expressionIndicators:Array<string> = ['__evaluate__', '__execute__']
-    ):PlainObject {
+    ):T {
         for (const key in data)
             if (
-                data.hasOwnProperty(key) &&
+                (data as unknown as object).hasOwnProperty(key) &&
                 !expressionIndicators.includes(key) &&
                 expressionIndicators.some((name:string):boolean =>
-                    data.hasOwnProperty(name)
+                    (data as unknown as object).hasOwnProperty(name)
                 )
             )
                 delete data[key]
             else if (Tools.isPlainObject(data[key]))
-                Tools.removeKeysInEvaluation(
-                    data[key] as PlainObject, expressionIndicators
+                Tools.removeKeysInEvaluation<ValueOf<T>>(
+                    data[key], expressionIndicators
                 )
 
         return data
@@ -6570,9 +6570,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns The parsed object if possible and null otherwise.
      */
-    static stringParseEncodedObject(
+    static stringParseEncodedObject<T = PlainObject>(
         serializedObject:string, scope:object = {}, name:string = 'scope'
-    ):null|PlainObject {
+    ):null|T {
         if (
             serializedObject.endsWith('.json') &&
             Tools.isFileSync(serializedObject)
