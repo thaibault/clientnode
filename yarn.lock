@@ -3119,9 +3119,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.815"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.815.tgz#68f640522fda5109ac4ce8a12633b5c23e503eb8"
-  integrity sha512-NjwNzwoJa8icYcdpg8u8QYSX1VUvyWKF0BY9esuwOhecskh+soY/yYqzhR8PFiEPV4ZI3YEUYWjJ5Y8UpbqefA==
+  version "3.0.816"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.816.tgz#72af3edaf19cd043d470084345732be85bfb3cbf"
+  integrity sha512-VqoJuYI/ZIaHSUwIpUslFLy/nDrIm0chp/jEySsY3HMOxECBeIog7ZaFD7Si1hLO2tUqf3PyMBe7NiOupXXRTA==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -3583,9 +3583,9 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 documentation-website@*:
-  version "1.0.240"
-  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.240.tgz#7d8235aa8919861f1f1baa144427c32f946dc15c"
-  integrity sha512-KrTtp2IC1TaPM8nnbILaoWAqQ7u7l+BtThtYvDz36yIW5lBESTJN6pppT4enB5h7Z6xZH1lnZvnxAVWgNK8g8w==
+  version "1.0.241"
+  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.241.tgz#d7117151c614dbe543b86208d610cda14c6dc910"
+  integrity sha512-e7PuVITOxr5mhXekjELpPLXoM6OyXYqvkdu6IIjvbhPpQC1m3+rulQThWipcJiJMYbyR0Vq/sXgniojsUfh5Ow==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
     boostnode "*"
@@ -7824,9 +7824,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.1067"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1067.tgz#a5698b6285b2e6b2121638b2bec21e5ba48bf3d8"
-  integrity sha512-r0Ifn5E/DrdDEklsEsCh7e99QCipUnXTrRsvi5HF3jacS8Lliib+GG80TMj3L1SL6azACCgOm+s4fmJzzmUSFw==
+  version "2.0.1069"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1069.tgz#8459b21e719c7ed86b796c3ac518a698716b0a8d"
+  integrity sha512-L/nQhuVGM2vilvriNlFBQrfKv4ND5by+bbpw7U5zO+00MvRp9bU6ONohGCNVsfZfXMpuy/zLCOUMY1NrVHLQOw==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
