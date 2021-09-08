@@ -2486,7 +2486,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         source.source,
                         modifier ? modifier[0] : undefined
                     ) as unknown as Type
-                    (destination as unknown as RegExp).lastIndex = source.lastIndex
+                    (destination as unknown as RegExp).lastIndex =
+                        source.lastIndex
+
                     return destination
                 }
 
