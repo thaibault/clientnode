@@ -3119,9 +3119,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.819"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.819.tgz#59f473c9fe87b2ea2f2ffa4b79894fdd3fb21ecb"
-  integrity sha512-w/gunLK3b2jgf6JfvOhovkIBGYImxzV7lCWbLW8pmJxPVcjo+I64BnKo/QDHjPRT7GHbSpohtK6e6W/8iYR1AA==
+  version "3.0.820"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.820.tgz#cc6100f54258bf38f536f2bf3487d65283960c79"
+  integrity sha512-uOstEHiaW6cQNyAUxRN8Ft8e6jD8qaTr6qn+IFdpnObBiTFDAygNFyeLiF29hWFlCiXtaKtHq52CCgSi6wIsZA==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -7799,9 +7799,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.1071"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1071.tgz#e018e13b748e3640b112b13b1576d5af182f13cd"
-  integrity sha512-mzcMjg+sxoBkRWJGfd30NdgHkH47A1jbdkbhG29MPMZQRjt1/uf0h3UiTdtuKdwhEJLaXhEOgCh97HM28zfiOQ==
+  version "2.0.1073"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1073.tgz#b55b1096634161eb80078226bbb0f75b94a8fab3"
+  integrity sha512-jHqyv7RYG9Kq6rrP2Os6srHuu4BgFCF9lAf6VEJ4Upz7WyJ0dNfLnnJnFgNPc6qeUatTmdtBKh8ocX+70t9pHQ==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
@@ -7907,9 +7907,9 @@ webpack-sources@*, webpack-sources@^3.2.0:
   integrity sha512-fahN08Et7P9trej8xz/Z7eRu8ltyiygEo/hnRi9KqBUs80KeDcnf96ZJo++ewWd84fEf3xSX9bp4ZS9hbw0OBw==
 
 webpack@*:
-  version "5.52.0"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.52.0.tgz#88d997c2c3ebb62abcaa453d2a26e0fd917c71a3"
-  integrity sha512-yRZOat8jWGwBwHpco3uKQhVU7HYaNunZiJ4AkAVQkPCUGoZk/tiIXiwG+8HIy/F+qsiZvSOa+GLQOj3q5RKRYg==
+  version "5.52.1"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.52.1.tgz#2dc1d9029ecb7acfb80da7bf67baab67baa517a7"
+  integrity sha512-wkGb0hLfrS7ML3n2xIKfUIwHbjB6gxwQHyLmVHoAqEQBw+nWo+G6LoHL098FEXqahqximsntjBLuewStrnJk0g==
   dependencies:
     "@types/eslint-scope" "^3.7.0"
     "@types/estree" "^0.0.50"
