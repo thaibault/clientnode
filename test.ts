@@ -3664,22 +3664,19 @@ describe(`Tools (${testEnvironment})`, ():void => {
         Tools.checkReachability,
         DefinedSymbol,
 
-        ['unknownURL', false],
-        ['unknownURL', false, {expectedStatusCodes: 301}],
+        ['unknownURL'],
+        ['unknownURL', {statusCodes: 301}],
         [
             'http://unknownHostName',
-            true,
-            {expectedStatusCodes: 200, timeoutInSeconds: .025}
+            {statusCodes: 200, timeoutInSeconds: .025, wait: true}
         ],
         [
             'http://unknownHostName',
-            true,
-            {expectedStatusCodes: [200], timeoutInSeconds: .025}
+            {statusCodes: [200], timeoutInSeconds: .025, wait: true}
         ],
         [
             'http://unknownHostName',
-            true,
-            {expecedStatusCodes: [200, 301], timeoutInSeconds: .025}
+            {statusCodes: [200, 301], timeoutInSeconds: .025, wait: true}
         ]
     )
     testEachPromiseAgainstSameExpectation<typeof Tools.checkUnreachability>(
@@ -3687,21 +3684,54 @@ describe(`Tools (${testEnvironment})`, ():void => {
         Tools.checkUnreachability,
         DefinedSymbol,
 
-        ['unknownURL', false, 10, 0.1, 200],
-        ['unknownURL', true, 10, 0.1, 200],
-        ['unknownURL', true, 10, 0.1, [200]],
-        ['unknownURL', true, 10, 0.1, [200, 301]],
-        ['http://unknownHostName', true]
+        [
+            'unknownURL',
+            {
+                pollIntervallInSeconds: .1,
+                statusCodes: 200,
+                timeoutInSeconds: 10
+            }
+        ],
+        [
+            'unknownURL',
+            {
+                pollIntervallInSeconds: .1,
+                statusCodes: 200,
+                timeoutInSeconds: 10,
+                wait: true
+            }
+        ],
+        [
+            'unknownURL',
+            {
+                pollIntervallInSeconds: .1,
+                statusCodes: [200],
+                timeoutInSeconds: 10,
+                wait: true
+            }
+        ],
+        [
+            'unknownURL',
+            {
+                pollIntervallInSeconds: .1,
+                statusCodes: [200, 301],
+                timeoutInSeconds: 10,
+                wait: true
+            }
+        ],
+        ['http://unknownHostName', {wait: true}]
     )
     if (TARGET_TECHNOLOGY !== 'node') {
         test('sendToIFrame', ():void => {
             const $iFrame:$DomNode<HTMLIFrameElement> =
                 $<HTMLIFrameElement>('<iframe>').hide().attr('name', 'test')
             $('body').append($iFrame)
+
             expect(Tools.sendToIFrame(
                 $iFrame, window.document.URL, {test: 5}, 'get', true
             )).toBeDefined()
         })
+
         test('sendToExternalURL', ():void =>
             expect(tools.sendToExternalURL(window.document.URL, {test: 5}))
                 .toBeDefined()
