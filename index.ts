@@ -18,13 +18,12 @@
 */
 // region imports
 import {ChildProcess} from 'child_process'
-import {
-    Response as FetchResponse, RequestInit as FetchOptions
-} from 'node-fetch'
+import {Response as FetchResponse} from 'node-fetch'
 
 import {
     AnyFunction,
     BaseSelector,
+    CheckReachabilityOptions,
     CompareOptions,
     CompilationResult,
     EvaluationResult,
@@ -6755,17 +6754,22 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Checks if given url response with given status code.
      *
      * @param url - Url to check reachability.
-     * @param wait - Boolean indicating if we should retry until a status code
-     * will be given.
-     * @param expectedStatusCodes - Status codes to check for.
-     * @param timeoutInSeconds - Delay after assuming given resource isn't
+     * @param givenOptions - Options to configure check:
+     *
+     * wait: Boolean indicating if we should retry until a status code will be
+     * given.
+     *
+     * statusCodes: Status codes to check for.
+     *
+     * timeoutInSeconds: Delay after assuming given resource isn't
      * available if no response is coming.
-     * @param pollIntervallInSeconds - Seconds between two tries to reach given
-     * url.
-     * @param options - Fetch options to use.
-     * @param expectedIntermediateStatusCodes - A list of expected but
-     * unwanted response codes. If detecting them waiting will continue until
-     * an expected (positiv) code occurs or timeout is reached.
+     *
+     * pollIntervallInSeconds: Seconds between two tries to reach given url.
+     * 
+     * options: Fetch options to use.
+     * expectedIntermediateStatusCodes: A list of expected but unwanted
+     * response codes. If detecting them waiting will continue until an
+     * expected (positiv) code occurs or timeout is reached.
      *
      * @returns A promise which will be resolved if a request to given url has
      * finished and resulting status code matches given expected status code.
@@ -6773,50 +6777,60 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static async checkReachability(
         url:string,
-        wait:boolean = false,
-        givenExpectedStatusCodes:Array<number>|number = 200,
-        timeoutInSeconds:number = 10,
-        pollIntervallInSeconds:number = 0.1,
-        options:FetchOptions = {},
-        givenExpectedIntermediateStatusCodes:Array<number>|number = []
+        givenOptions:RecursivePartial<CheckReachabilityOptions> = {}
     ):Promise<FetchResponse> {
-        const expectedStatusCodes:Array<number> =
-            ([] as Array<number>).concat(givenExpectedStatusCodes)
+        const options:CheckReachabilityOptions = Tools.extend(
+            true,
+            {},
+            givenOptions,
+            {
+                wait: false,
+                statusCodes: 200,
+                timeoutInSeconds: 10,
+                pollIntervallInSeconds: 0.1,
+                options: {},
+                expectedIntermediateStatusCodes: []
+            }
+        )
+
+        const statusCodes:Array<number> =
+            ([] as Array<number>).concat(options.statusCodes)
         const expectedIntermediateStatusCodes:Array<number> =
-            ([] as Array<number>).concat(givenExpectedIntermediateStatusCodes)
+            ([] as Array<number>)
+                .concat(options.expectedIntermediateStatusCodes)
 
         const isStatusCodeExpected = (
-            response:FetchResponse, expectedStatusCodes:Array<number>
+            response:FetchResponse, statusCodes:Array<number>
         ):boolean => Boolean(
             response !== null &&
             typeof response === 'object' &&
             'status' in response &&
-            expectedStatusCodes.includes(response.status)
+            statusCodes.includes(response.status)
         )
 
         const checkAndThrow = (response:FetchResponse):FetchResponse => {
-            if (!isStatusCodeExpected(response, expectedStatusCodes))
+            if (!isStatusCodeExpected(response, statusCodes))
                 throw new Error(
                     `Given status code ${response.status} differs from ` +
-                    `${expectedStatusCodes.join(', ')}.`
+                    `${statusCodes.join(', ')}.`
                 )
 
             return response
         }
 
-        if (wait)
+        if (options.wait)
             return new Promise(async (
                 resolve:Function, reject:Function
             ):Promise<void> => {
                 let timedOut:boolean = false
                 const timer:TimeoutPromise =
-                    Tools.timeout(timeoutInSeconds * 1000)
+                    Tools.timeout(options.timeoutInSeconds * 1000)
 
                 const retryErrorHandler = (error:Error):Error => {
                     if (!timedOut) {
                         /* eslint-disable no-use-before-define */
                         currentlyRunningTimer = Tools.timeout(
-                            pollIntervallInSeconds * 1000, wrapper
+                            options.pollIntervallInSeconds * 1000, wrapper
                         )
                         /* eslint-enable no-use-before-define */
                         /*
@@ -6833,7 +6847,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 const wrapper = async ():Promise<Error|FetchResponse> => {
                     let response:FetchResponse
                     try {
-                        response = await fetch(url, options)
+                        response = await fetch(url, options.options)
                     } catch (error) {
                         return retryErrorHandler(error as Error)
                     }
@@ -6864,24 +6878,29 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 currentlyRunningTimer.clear()
 
                 reject(new Error(
-                    `Timeout of ${timeoutInSeconds} seconds reached.`
+                    `Timeout of ${options.timeoutInSeconds} seconds reached.`
                 ))
             })
 
-        return checkAndThrow(await fetch(url, options))
+        return checkAndThrow(await fetch(url, options.options))
     }
     /**
      * Checks if given url isn't reachable.
      *
      * @param url - Url to check reachability.
-     * @param wait - Boolean indicating if we should retry until a status code
-     * will be given.
-     * @param timeoutInSeconds - Delay after assuming given resource will stay
+     * @param givenOptions - Options to configure check:
+     *
+     * wait: Boolean indicating if we should retry until a status code will be
+     * given.
+     *
+     * timeoutInSeconds: Delay after assuming given resource will stay
      * available.
-     * @param pollIntervallInSeconds - Seconds between two tries to reach given
-     * url.
-     * @param unexpectedStatusCodes - Status codes to check for.
-     * @param options - Fetch options to use.
+     *
+     * pollIntervallInSeconds: Seconds between two tries to reach given url.
+     * 
+     * statusCodes: Status codes to check for.
+     *
+     * options: Fetch options to use.
      *
      * @returns A promise which will be resolved if a request to given url
      * couldn't finished. Otherwise returned promise will be rejected. If
@@ -6891,39 +6910,45 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static async checkUnreachability(
         url:string,
-        wait:boolean = false,
-        timeoutInSeconds:number = 10,
-        pollIntervallInSeconds:number = 0.1,
-        unexpectedStatusCodes:null|number|Array<number> = null,
-        options:FetchOptions = {}
+        givenOptions:RecursivePartial<CheckReachabilityOptions> = {}
     ):Promise<Error|null|Promise<Error|null>> {
-        const check = (response:FetchResponse):Error|null => {
-            if (unexpectedStatusCodes) {
-                unexpectedStatusCodes =
-                    ([] as Array<number>).concat(unexpectedStatusCodes)
+        const options:CheckReachabilityOptions = Tools.extend(
+            true,
+            {},
+            givenOptions,
+            {
+                wait: false,
+                timeoutInSeconds: 10,
+                pollIntervallInSeconds: 0.1,
+                statusCodes: [],
+                options: {}
+            }
+        )
 
+        const check = (response:FetchResponse):Error|null => {
+            const statusCodes:Array<number> =
+                ([] as Array<number>).concat(options.statusCodes)
+            if (statusCodes.length) {
                 if (
                     response !== null &&
                     typeof response === 'object' &&
                     'status' in response &&
-                    (unexpectedStatusCodes as Array<number>)
-                        .includes(response.status)
+                    statusCodes.includes(response.status)
                 )
                     throw new Error(
                         `Given url "${url}" is reachable and responses with ` +
-                        `unexpected status code "${response.status}".`
+                        `status code "${response.status}".`
                     )
 
                 return new Error(
-                    'Given status code is not "' +
-                    `${(unexpectedStatusCodes as Array<number>).join(', ')}".`
+                    `Given status code is not "${statusCodes.join(', ')}".`
                 )
             }
 
             return null
         }
 
-        if (wait)
+        if (options.wait)
             return new Promise(async (
                 resolve:Function, reject:Function
             ):Promise<void> => {
@@ -6947,7 +6972,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
                         /* eslint-disable no-use-before-define */
                         currentlyRunningTimer = Tools.timeout(
-                            pollIntervallInSeconds * 1000, wrapper
+                            options.pollIntervallInSeconds * 1000, wrapper
                         )
                         /* eslint-enable no-use-before-define */
 
@@ -6970,7 +6995,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
                 let currentlyRunningTimer = Tools.timeout(wrapper)
                 const timer:TimeoutPromise =
-                    Tools.timeout(timeoutInSeconds * 1000)
+                    Tools.timeout(options.timeoutInSeconds * 1000)
 
                 try {
                     await timer
@@ -6979,12 +7004,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 timedOut = true
                 currentlyRunningTimer.clear()
                 reject(new Error(
-                    `Timeout of ${timeoutInSeconds} seconds reached.`
+                    `Timeout of ${options.timeoutInSeconds} seconds reached.`
                 ))
             })
 
         try {
-            const result:Error|null = check(await fetch(url, options))
+            const result:Error|null = check(await fetch(url, options.options))
             if (result)
                 return result
         } catch (error) {
