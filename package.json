@@ -196,6 +196,17 @@
           }
         }
       }
+    },
+    "test": {
+      "external": {
+        "implicit": {
+          "exclude": {
+            "__append__": {
+              "__evaluate__": "/^(.+\\/)?node-fetch(\\/.+)?$/"
+            }
+          }
+        }
+      }
     }
   },
   "dependencies": {
