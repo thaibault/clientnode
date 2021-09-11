@@ -3659,17 +3659,28 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     // / endregion
     // / region data transfer
-    /* TODO leaves with open handlers!
     testEachPromiseRejectionAgainstSameExpectation<typeof Tools.checkReachability>(
         'checkReachability',
         Tools.checkReachability,
         DefinedSymbol,
 
         ['unknownURL', false],
-        ['unknownURL', false, 301],
-        ['http://unknownHostName', true, 200, 0.025],
-        ['http://unknownHostName', true, [200], 0.025],
-        ['http://unknownHostName', true, [200, 301], 0.025]
+        ['unknownURL', false, {expectedStatusCodes: 301}],
+        [
+            'http://unknownHostName',
+            true,
+            {expectedStatusCodes: 200, timeoutInSeconds: .025}
+        ],
+        [
+            'http://unknownHostName',
+            true,
+            {expectedStatusCodes: [200], timeoutInSeconds: .025}
+        ],
+        [
+            'http://unknownHostName',
+            true,
+            {expecedStatusCodes: [200, 301], timeoutInSeconds: .025}
+        ]
     )
     testEachPromiseAgainstSameExpectation<typeof Tools.checkUnreachability>(
         'checkUnreachability',
@@ -3682,7 +3693,6 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['unknownURL', true, 10, 0.1, [200, 301]],
         ['http://unknownHostName', true]
     )
-    */
     if (TARGET_TECHNOLOGY !== 'node') {
         test('sendToIFrame', ():void => {
             const $iFrame:$DomNode<HTMLIFrameElement> =

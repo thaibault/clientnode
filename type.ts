@@ -110,6 +110,16 @@ export type SetterFunction = (key:any, value:any, target:any) => any
 // // endregion
 // / endregion
 // / region clientnode helper
+export interface CheckReachabilityOptions {
+    // TODO sort
+    wait:boolean
+    expectedStatusCodes:Array<number>|number
+    timeoutInSeconds:number
+    pollIntervallInSeconds:number
+    options:FetchOptions
+    expectedIntermediateStatusCodes:Array<number>|number
+}
+
 export interface CompareOptions {
     compareBlobs:boolean
     deep:number

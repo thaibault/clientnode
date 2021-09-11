@@ -25,6 +25,7 @@ import {
 import {
     AnyFunction,
     BaseSelector,
+    CheckReachabilityOptions,
     CompareOptions,
     CompilationResult,
     EvaluationResult,
@@ -6755,17 +6756,22 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Checks if given url response with given status code.
      *
      * @param url - Url to check reachability.
-     * @param wait - Boolean indicating if we should retry until a status code
-     * will be given.
-     * @param expectedStatusCodes - Status codes to check for.
-     * @param timeoutInSeconds - Delay after assuming given resource isn't
+     * @param options - Options to configure check:
+     *
+     * wait: Boolean indicating if we should retry until a status code will be
+     * given.
+     *
+     * expectedStatusCodes: Status codes to check for.
+     *
+     * timeoutInSeconds: Delay after assuming given resource isn't
      * available if no response is coming.
-     * @param pollIntervallInSeconds - Seconds between two tries to reach given
-     * url.
-     * @param options - Fetch options to use.
-     * @param expectedIntermediateStatusCodes - A list of expected but
-     * unwanted response codes. If detecting them waiting will continue until
-     * an expected (positiv) code occurs or timeout is reached.
+     *
+     * pollIntervallInSeconds: Seconds between two tries to reach given url.
+     * 
+     * options: Fetch options to use.
+     * expectedIntermediateStatusCodes: A list of expected but unwanted
+     * response codes. If detecting them waiting will continue until an
+     * expected (positiv) code occurs or timeout is reached.
      *
      * @returns A promise which will be resolved if a request to given url has
      * finished and resulting status code matches given expected status code.
@@ -6773,17 +6779,27 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static async checkReachability(
         url:string,
-        wait:boolean = false,
-        givenExpectedStatusCodes:Array<number>|number = 200,
-        timeoutInSeconds:number = 10,
-        pollIntervallInSeconds:number = 0.1,
-        options:FetchOptions = {},
-        givenExpectedIntermediateStatusCodes:Array<number>|number = []
+        options:RecursivePartial<CheckReachabilityOptions> = {}
     ):Promise<FetchResponse> {
+        Tools.extend(
+            true,
+            {},
+            options,
+            {
+                wait:boolean = false,
+                expectedStatusCodes:Array<number>|number = 200,
+                timeoutInSeconds:number = 10,
+                pollIntervallInSeconds:number = 0.1,
+                options:FetchOptions = {},
+                expectedIntermediateStatusCodes:Array<number>|number = []
+            }
+        )
+
         const expectedStatusCodes:Array<number> =
-            ([] as Array<number>).concat(givenExpectedStatusCodes)
+            ([] as Array<number>).concat(options.expectedStatusCodes)
         const expectedIntermediateStatusCodes:Array<number> =
-            ([] as Array<number>).concat(givenExpectedIntermediateStatusCodes)
+            ([] as Array<number>)
+                .concat(options.expectedIntermediateStatusCodes)
 
         const isStatusCodeExpected = (
             response:FetchResponse, expectedStatusCodes:Array<number>
@@ -6804,19 +6820,19 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             return response
         }
 
-        if (wait)
+        if (options.wait)
             return new Promise(async (
                 resolve:Function, reject:Function
             ):Promise<void> => {
                 let timedOut:boolean = false
                 const timer:TimeoutPromise =
-                    Tools.timeout(timeoutInSeconds * 1000)
+                    Tools.timeout(options.timeoutInSeconds * 1000)
 
                 const retryErrorHandler = (error:Error):Error => {
                     if (!timedOut) {
                         /* eslint-disable no-use-before-define */
                         currentlyRunningTimer = Tools.timeout(
-                            pollIntervallInSeconds * 1000, wrapper
+                            options.pollIntervallInSeconds * 1000, wrapper
                         )
                         /* eslint-enable no-use-before-define */
                         /*
@@ -6833,7 +6849,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 const wrapper = async ():Promise<Error|FetchResponse> => {
                     let response:FetchResponse
                     try {
-                        response = await fetch(url, options)
+                        response = await fetch(url, options.options)
                     } catch (error) {
                         return retryErrorHandler(error as Error)
                     }
@@ -6864,11 +6880,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 currentlyRunningTimer.clear()
 
                 reject(new Error(
-                    `Timeout of ${timeoutInSeconds} seconds reached.`
+                    `Timeout of ${options.timeoutInSeconds} seconds reached.`
                 ))
             })
 
-        return checkAndThrow(await fetch(url, options))
+        return checkAndThrow(await fetch(url, options.options))
     }
     /**
      * Checks if given url isn't reachable.
