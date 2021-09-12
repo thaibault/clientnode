@@ -17,7 +17,6 @@
 */
 // region imports
 import JQuery from 'jquery'
-import {RequestInit as FetchOptions} from 'node-fetch'
 import {Stats} from 'fs'
 
 import Tools from './index'
@@ -113,7 +112,7 @@ export type SetterFunction = (key:any, value:any, target:any) => any
 // / region clientnode helper
 export interface CheckReachabilityOptions {
     expectedIntermediateStatusCodes:Array<number>|number
-    options:FetchOptions
+    options:RequestInit
     pollIntervallInSeconds:number
     statusCodes:Array<number>|number
     timeoutInSeconds:number
