@@ -18,7 +18,6 @@
 */
 // region imports
 import {ChildProcess} from 'child_process'
-import FetchType, {Response as FetchResponse} from 'node-fetch'
 
 import {
     AnyFunction,
@@ -120,13 +119,12 @@ export const optionalRequire:typeof require = ((id:string):null|unknown => {
 }) as typeof require
 globalContext.fetch =
     globalContext.fetch ??
-    optionalRequire('node-fetch') ??
-    ((...parameters:Parameters<typeof FetchType>):ReturnType<
-        typeof FetchType
-    > => import(/* webpackIgnore: true */ 'node-fetch')
-        .then(({default: fetch}) =>
-            fetch(...parameters)
-        )
+    optionalRequire('node-fetch')?.default ??
+    ((...parameters:Parameters<typeof fetch>):ReturnType<typeof fetch> =>
+        import(/* webpackIgnore: true */ 'node-fetch')
+            .then(({default: nodeFetch}):ReturnType<typeof fetch> =>
+                (nodeFetch as unknown as typeof fetch)(...parameters)
+            )
     )
 const synchronousFileSystem = optionalRequire('fs')
 const fileSystem = synchronousFileSystem ?
@@ -6789,7 +6787,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static async checkReachability(
         url:string,
         givenOptions:RecursivePartial<CheckReachabilityOptions> = {}
-    ):Promise<FetchResponse> {
+    ):ReturnType<typeof fetch> {
         const options:CheckReachabilityOptions = Tools.extend(
             true,
             {},
@@ -6811,7 +6809,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 .concat(options.expectedIntermediateStatusCodes)
 
         const isStatusCodeExpected = (
-            response:FetchResponse, statusCodes:Array<number>
+            response:Response, statusCodes:Array<number>
         ):boolean => Boolean(
             response !== null &&
             typeof response === 'object' &&
@@ -6819,7 +6817,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             statusCodes.includes(response.status)
         )
 
-        const checkAndThrow = (response:FetchResponse):FetchResponse => {
+        const checkAndThrow = (response:Response):Response => {
             if (!isStatusCodeExpected(response, statusCodes))
                 throw new Error(
                     `Given status code ${response.status} differs from ` +
@@ -6855,8 +6853,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     return error
                 }
 
-                const wrapper = async ():Promise<Error|FetchResponse> => {
-                    let response:FetchResponse
+                const wrapper = async ():Promise<Error|Response> => {
+                    let response:Response
                     try {
                         response =
                             await globalContext.fetch(url, options.options)
@@ -6937,7 +6935,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
         )
 
-        const check = (response:FetchResponse):Error|null => {
+        const check = (response:Response):Error|null => {
             const statusCodes:Array<number> =
                 ([] as Array<number>).concat(options.statusCodes)
             if (statusCodes.length) {
@@ -6966,10 +6964,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             ):Promise<void> => {
                 let timedOut:boolean = false
                 const wrapper:Function = async (
-                ):Promise<Error|FetchResponse|null> => {
+                ):Promise<Error|Response|null> => {
                     try {
-                        const response:FetchResponse =
-                            await globalContext.fetch(url, options)
+                        const response:Response =
+                            await globalContext.fetch(url, options.options)
 
                         if (timedOut)
                             return response
