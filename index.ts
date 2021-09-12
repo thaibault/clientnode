@@ -18,7 +18,7 @@
 */
 // region imports
 import {ChildProcess} from 'child_process'
-import {Response as FetchResponse} from 'node-fetch'
+import FetchType, {Response as FetchResponse} from 'node-fetch'
 
 import {
     AnyFunction,
@@ -118,23 +118,15 @@ export const optionalRequire:typeof require = ((id:string):null|unknown => {
         return null
     }
 }) as typeof require
-const fetch =
+globalContext.fetch =
     globalContext.fetch ??
     optionalRequire('node-fetch') ??
-    // TODO
-    ((...parameters) => {
-        try {
-            console.log('A')
-            return require('node-fetch').default(...parameters)
-            console.log('B')
-        } catch (error) {
-            console.log('E', error)
-            return import(/* webpackIgnore: true */ 'node-fetch')
-                .then(({default: fetch}) =>
-                    fetch(...parameters)
-                )
-        }
-    }
+    ((...parameters:Parameters<typeof FetchType>):ReturnType<
+        typeof FetchType
+    > => import(/* webpackIgnore: true */ 'node-fetch')
+        .then(({default: fetch}) =>
+            fetch(...parameters)
+        )
     )
 const synchronousFileSystem = optionalRequire('fs')
 const fileSystem = synchronousFileSystem ?
@@ -6798,8 +6790,6 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         url:string,
         givenOptions:RecursivePartial<CheckReachabilityOptions> = {}
     ):Promise<FetchResponse> {
-        const localFetch = fetch || globalContext.fetch
-
         const options:CheckReachabilityOptions = Tools.extend(
             true,
             {},
@@ -6868,7 +6858,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 const wrapper = async ():Promise<Error|FetchResponse> => {
                     let response:FetchResponse
                     try {
-                        response = await localFetch(url, options.options)
+                        response =
+                            await globalContext.fetch(url, options.options)
                     } catch (error) {
                         return retryErrorHandler(error as Error)
                     }
@@ -6903,7 +6894,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 ))
             })
 
-        return checkAndThrow(await localFetch(url, options.options))
+        return checkAndThrow(await globalContext.fetch(url, options.options))
     }
     /**
      * Checks if given url isn't reachable.
@@ -6933,8 +6924,6 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         url:string,
         givenOptions:RecursivePartial<CheckReachabilityOptions> = {}
     ):Promise<Error|null|Promise<Error|null>> {
-        const localFetch = fetch || globalContext.fetch
-
         const options:CheckReachabilityOptions = Tools.extend(
             true,
             {},
@@ -6980,7 +6969,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 ):Promise<Error|FetchResponse|null> => {
                     try {
                         const response:FetchResponse =
-                            await localFetch(url, options)
+                            await globalContext.fetch(url, options)
 
                         if (timedOut)
                             return response
@@ -7033,7 +7022,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         try {
             const result:Error|null =
-                check(await localFetch(url, options.options))
+                check(await globalContext.fetch(url, options.options))
             if (result)
                 return result
         } catch (error) {
