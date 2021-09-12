@@ -25,22 +25,16 @@
     )
 */
 // region imports
-if (!('fetch' in globalContext))
-    try {
-        globalContext.fetch = eval('require')('node-fetch')
-    } catch (error) {}
-try {
-    /* eslint-disable no-var */
-    var ChildProcess = eval('require')('child_process').ChildProcess
-    /* eslint-enable no-var */
-} catch (error) {}
 import FileSystemType from 'fs'
+import fetch from 'node-fetch'
 import PathType from 'path'
 import RemoveDirectoryRecursivelyType from 'rimraf'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
 
-import Tools, {globalContext, Semaphore, ValueCopySymbol, $} from './index'
+import Tools, {
+    globalContext, optionalRequire, Semaphore, ValueCopySymbol, $
+} from './index'
 import {
     DefinedSymbol,
     testEach,
@@ -71,6 +65,8 @@ import {
 declare var TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
+globalContext.fetch = fetch
+const {ChildProcess} = optionalRequire('child_process')
 let path:typeof PathType
 let removeDirectoryRecursivelySync:(typeof RemoveDirectoryRecursivelyType)['sync']
 let synchronousFileSystem:typeof FileSystemType
@@ -3659,7 +3655,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     // / endregion
     // / region data transfer
-    testEachPromiseRejectionAgainstSameExpectation<typeof Tools.checkReachability>(
+    testEachPromiseRejectionAgainstSameExpectation<
+        typeof Tools.checkReachability
+    >(
         'checkReachability',
         Tools.checkReachability,
         DefinedSymbol,

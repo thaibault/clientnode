@@ -18,7 +18,7 @@
 */
 // region imports
 import {ChildProcess} from 'child_process'
-import {Response as FetchResponse} from 'node-fetch'
+import FetchType, {Response as FetchResponse} from 'node-fetch'
 
 import {
     AnyFunction,
@@ -82,13 +82,17 @@ export const determineGlobalContext:(() => $Global) = ():$Global => {
             if (typeof global === 'undefined')
                 return ((typeof module === 'undefined') ? {} : module) as
                     $Global
+
             if (global.window)
                 return (global as typeof globalThis).window as unknown as
                     $Global
+
             return global as unknown as $Global
         }
+
         return window as unknown as $Global
     }
+
     return globalThis as unknown as $Global
 }
 export let globalContext:$Global = determineGlobalContext()
@@ -114,9 +118,16 @@ export const optionalRequire:typeof require = ((id:string):null|unknown => {
         return null
     }
 }) as typeof require
-const fetch = globalContext.fetch ?
-    globalContext.fetch :
-    optionalRequire('node-fetch')
+globalContext.fetch =
+    globalContext.fetch ??
+    optionalRequire('node-fetch') ??
+    ((...parameters:Parameters<typeof FetchType>):ReturnType<
+        typeof FetchType
+    > => import(/* webpackIgnore: true */ 'node-fetch')
+        .then(({default: fetch}) =>
+            fetch(...parameters)
+        )
+    )
 const synchronousFileSystem = optionalRequire('fs')
 const fileSystem = synchronousFileSystem ?
     synchronousFileSystem.promises :
@@ -6847,7 +6858,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 const wrapper = async ():Promise<Error|FetchResponse> => {
                     let response:FetchResponse
                     try {
-                        response = await fetch(url, options.options)
+                        response =
+                            await globalContext.fetch(url, options.options)
                     } catch (error) {
                         return retryErrorHandler(error as Error)
                     }
@@ -6882,7 +6894,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 ))
             })
 
-        return checkAndThrow(await fetch(url, options.options))
+        return checkAndThrow(await globalContext.fetch(url, options.options))
     }
     /**
      * Checks if given url isn't reachable.
@@ -6957,7 +6969,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 ):Promise<Error|FetchResponse|null> => {
                     try {
                         const response:FetchResponse =
-                            await fetch(url, options)
+                            await globalContext.fetch(url, options)
 
                         if (timedOut)
                             return response
@@ -7009,7 +7021,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             })
 
         try {
-            const result:Error|null = check(await fetch(url, options.options))
+            const result:Error|null =
+                check(await globalContext.fetch(url, options.options))
             if (result)
                 return result
         } catch (error) {
