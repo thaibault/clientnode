@@ -9,7 +9,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: node:latest
+    #container: node:latest
+    container: node:lts
     steps:
       - uses: actions/checkout@v2
 
