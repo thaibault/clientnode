@@ -9,8 +9,7 @@ on:
 jobs:
   test-coverage-report:
     runs-on: ubuntu-latest
-    #container: node:latest
-    container: node:lts
+    container: node:latest
     steps:
       - uses: actions/checkout@v2
 
