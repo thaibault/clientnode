@@ -6790,8 +6790,6 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     ):ReturnType<typeof fetch> {
         const options:CheckReachabilityOptions = Tools.extend(
             true,
-            {},
-            givenOptions,
             {
                 wait: false,
                 statusCodes: 200,
@@ -6799,7 +6797,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 pollIntervallInSeconds: 0.1,
                 options: {},
                 expectedIntermediateStatusCodes: []
-            }
+            },
+            givenOptions
         )
 
         const statusCodes:Array<number> =
@@ -6924,15 +6923,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     ):Promise<Error|null|Promise<Error|null>> {
         const options:CheckReachabilityOptions = Tools.extend(
             true,
-            {},
-            givenOptions,
             {
                 wait: false,
                 timeoutInSeconds: 10,
                 pollIntervallInSeconds: 0.1,
                 statusCodes: [],
                 options: {}
-            }
+            },
+            givenOptions
         )
 
         const check = (response:Response):Error|null => {
@@ -6963,6 +6961,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 resolve:Function, reject:Function
             ):Promise<void> => {
                 let timedOut:boolean = false
+
                 const wrapper:Function = async (
                 ):Promise<Error|Response|null> => {
                     try {
