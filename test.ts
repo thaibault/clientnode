@@ -3655,6 +3655,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     // / endregion
     // / region data transfer
+    /*
     testEachPromiseRejectionAgainstSameExpectation<
         typeof Tools.checkReachability
     >(
@@ -3719,6 +3720,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ],
         ['http://unknownHostName', {wait: true}]
     )
+    */
     if (TARGET_TECHNOLOGY !== 'node') {
         test('sendToIFrame', ():void => {
             const $iFrame:$DomNode<HTMLIFrameElement> =
