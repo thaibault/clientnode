@@ -129,8 +129,8 @@ globalContext.fetch =
     optionalRequire('node-fetch')?.default ??
     ((...parameters:Parameters<typeof fetch>):ReturnType<typeof fetch> =>
         currentImport(/* webpackIgnore: true */ 'node-fetch')
-            .then(({default: nodeFetch}):ReturnType<typeof fetch> =>
-                (nodeFetch as unknown as typeof fetch)(...parameters)
+            .then((module:unknown):ReturnType<typeof fetch> =>
+                (module as {default:typeof fetch})?.default(...parameters)
             )
     )
 const synchronousFileSystem = optionalRequire('fs')
