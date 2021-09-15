@@ -110,6 +110,13 @@ export const currentRequire =
             __non_webpack_require__ :
     */
     eval(`typeof require === 'undefined' ? null : require`)
+
+let currentOptionalImport = null
+try {
+    currentOptionalImport = eval(`typeof import === 'undefined' ? null : import`)
+} catch (error) {}
+export const currentImport:(id:string) => Promise<ReturnType<typeof require>> =
+    currentOptionalImport
 export const optionalRequire:typeof require = ((id:string):null|unknown => {
     try {
         return currentRequire(id)
@@ -121,7 +128,7 @@ globalContext.fetch =
     globalContext.fetch ??
     optionalRequire('node-fetch')?.default ??
     ((...parameters:Parameters<typeof fetch>):ReturnType<typeof fetch> =>
-        import(/* webpackIgnore: true */ 'node-fetch')
+        currentImport(/* webpackIgnore: true */ 'node-fetch')
             .then(({default: nodeFetch}):ReturnType<typeof fetch> =>
                 (nodeFetch as unknown as typeof fetch)(...parameters)
             )
