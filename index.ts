@@ -538,7 +538,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     // / endregion
     // / region data time
     static dateTimeFormat(
-        format:string,
+        format:string = 'full',
         dateTime:Date = new Date(),
         options:SecondParameter<typeof Intl.DateTimeFormat> = {},
         locales:Array<string>|string = Tools.locales
@@ -553,12 +553,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         const scope:Mapping<Array<string>|string> = {}
         for (const style of ['full', 'long', 'medium', 'short'] as const) {
             scope[`${style}Literals`] = []
+
             const dateTimeFormat:Intl.DateTimeFormat = new Intl.DateTimeFormat(
                 ([] as Array<string>).concat(locales, 'en-US'),
                 {dateStyle: style, timeStyle: style, ...options} as
                     SecondParameter<typeof Intl.DateTimeFormat>
             )
+
             scope[style] = dateTimeFormat.format(dateTime)
+
             for (const item of dateTimeFormat.formatToParts(dateTime))
                 if (item.type === 'literal')
                     (scope[`${style}Literals`] as Array<string>)
