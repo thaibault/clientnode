@@ -3321,6 +3321,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (typeof component === 'string') {
                 const parts:Array<string> = component.split(delimiter)
                 for (const part of parts) {
+                    if (!part)
+                        continue
+
                     const subParts:Array<string>|null =
                         part.match(/(.*?)(\[[0-9]+\])/g)
                     if (subParts)
