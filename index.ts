@@ -3321,6 +3321,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (typeof component === 'string') {
                 const parts:Array<string> = component.split(delimiter)
                 for (const part of parts) {
+                    if (!part)
+                        continue
+
                     const subParts:Array<string>|null =
                         part.match(/(.*?)(\[[0-9]+\])/g)
                     if (subParts)
@@ -3329,8 +3332,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             const [all, prefix, indexAssignment] =
                                 subPart.match(/(.*?)(\[[0-9]+\])/) as
                                     [string, string, string]
+
                             if (prefix)
                                 path.push(prefix)
+
                             // Trim bracket padding "[index]" => "index".
                             path.push(indexAssignment.substring(
                                 1, indexAssignment.length - 1
@@ -3344,10 +3349,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         let result:unknown = target
         for (const selector of path)
-            if (
-                result !== null &&
-                typeof result === 'object'
-            ) {
+            if (result !== null && typeof result === 'object') {
                 if (
                     typeof selector === 'string' &&
                     Object.prototype.hasOwnProperty.call(result, selector)
