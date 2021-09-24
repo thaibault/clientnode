@@ -3196,13 +3196,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns given target extended with all given sources.
      */
     static extend<T = Mapping<unknown>>(
-        targetOrDeepIndicator:boolean|typeof IgnoreNullAndUndefinedSymbol|Partial<T>|RecursivePartial<T>,
-        targetOrSource?:Partial<T>|RecursivePartial<T>,
-        ...additionalSources:Array<Partial<T>|RecursivePartial<T>>
+        targetOrDeepIndicator:boolean|typeof IgnoreNullAndUndefinedSymbol|RecursivePartial<T>,
+        targetOrSource?:RecursivePartial<T>,
+        ...additionalSources:Array<RecursivePartial<T>>
     ):T {
         let deep:boolean|typeof IgnoreNullAndUndefinedSymbol = false
-        let sources:Array<Partial<T>|RecursivePartial<T>> = additionalSources
-        let target:Partial<T>|RecursivePartial<T>|undefined
+        let sources:Array<RecursivePartial<T>> = additionalSources
+        let target:RecursivePartial<T>|undefined
 
         if (
             targetOrDeepIndicator === IgnoreNullAndUndefinedSymbol ||
@@ -3446,7 +3446,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static mask<Type = object>(
         object:Type, mask:ObjectMaskConfiguration
-    ):Partial<Type>|RecursivePartial<Type> {
+    ):RecursivePartial<Type> {
         mask = {exclude: false, include: true, ...mask}
 
         if (
@@ -3481,7 +3481,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (Tools.isPlainObject(mask.exclude)) {
 
             let useCopy:boolean = false
-            const copy:Partial<Type>|RecursivePartial<Type> = {...result}
+            const copy:RecursivePartial<Type> = {...result}
 
             for (const key in mask.exclude)
                 if (

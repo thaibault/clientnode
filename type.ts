@@ -66,15 +66,17 @@ export type RecursiveNonNullable<Type> = {
                 RecursiveNonNullable<Type[Property]> :
                 NonNullable<Type[Property]>
 }
-export type RecursivePartial<Type> = {
-    [Property in keyof Type]?:Type[Property] extends (infer OtherType)[] ?
-        RecursivePartial<OtherType>[] :
-        Type[Property] extends Function ?
-            Partial<Type[Property]> :
-            Type[Property] extends object ?
-                RecursivePartial<Type[Property]> :
-                Partial<Type[Property]>
-}
+export type RecursivePartial<Type> =
+    Partial<Type> |
+    {
+        [Property in keyof Type]?:Type[Property] extends (infer OtherType)[] ?
+            RecursivePartial<OtherType>[] :
+            Type[Property] extends Function ?
+                Partial<Type[Property]> :
+                Type[Property] extends object ?
+                    RecursivePartial<Type[Property]> :
+                    Partial<Type[Property]>
+    }
 // / endregion
 // / region native
 export type HTMLItem = Comment|Document|HTMLElement|Text
