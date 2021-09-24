@@ -3446,7 +3446,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static mask<Type = object>(
         object:Type, mask:ObjectMaskConfiguration
-    ):RecursivePartial<Type> {
+    ):Partial<Type>|RecursivePartial<Type> {
         mask = {exclude: false, include: true, ...mask}
 
         if (
@@ -3456,7 +3456,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         )
             return {}
 
-        let result:RecursivePartial<Type> = {} as RecursivePartial<Type>
+        let result:Partial<Type> = {} as Partial<Type>
         if (Tools.isPlainObject(mask.include)) {
             for (const key in mask.include)
                 if (
@@ -3481,7 +3481,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (Tools.isPlainObject(mask.exclude)) {
 
             let useCopy:boolean = false
-            const copy:RecursivePartial<Type> = {...result}
+            const copy:Partial<Type>|RecursivePartial<Type> = {...result}
 
             for (const key in mask.exclude)
                 if (
@@ -3496,19 +3496,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         typeof copy[key as keyof Type] === 'object'
                     ) {
                         const current:ValueOf<Type> =
-                            copy[key as keyof Type] as unknown as ValueOf<Type>
-                        ;(
-                            copy[key as keyof Type] as unknown as ValueOf<Type>
-                        ) = Tools.mask(
-                            copy[key as keyof Type],
-                            {exclude: mask.exclude[key]}
-                        ) as unknown as ValueOf<Type>
+                            copy[key as keyof Type] as ValueOf<Type>
+                        ;(copy[key as keyof Type] as ValueOf<Type>) =
+                            Tools.mask(
+                                copy[key as keyof Type],
+                                {exclude: mask.exclude[key]}
+                            ) as ValueOf<Type>
 
                         if (
-                            copy[key as keyof Type] as
-                                unknown as
-                                ValueOf<Type> !==
-                            current
+                            copy[key as keyof Type] as ValueOf<Type> !==
+                                current
                         )
                             useCopy = true
                     }
