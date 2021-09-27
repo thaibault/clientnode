@@ -28,6 +28,7 @@
 import FileSystemType from 'fs'
 import nodeFetch from 'node-fetch'
 import PathType from 'path'
+import {Requireable} from 'prop-types'
 import RemoveDirectoryRecursivelyType from 'rimraf'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
@@ -35,6 +36,7 @@ import {InitializedBrowser} from 'weboptimizer/type'
 import Tools, {
     globalContext, optionalRequire, Semaphore, ValueCopySymbol, $
 } from './index'
+import {DummyTypes} from './property-types'
 import {
     DefinedSymbol,
     testEach,
@@ -80,6 +82,26 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
         'node-with-dom'
 }
 const hasDOM:boolean = ['browser', 'node-with-dom'].includes(testEnvironment)
+// endregion
+// region property-types
+describe(`property-types (${testEnvironment})`, ():void => {
+    test('DummyTypes', ():void => {
+        expect(DummyTypes.any).not.toStrictEqual(DummyTypes.array)
+        expect(DummyTypes.any).toBeInstanceOf(Function)
+        expect((DummyTypes.any as Function)()).toStrictEqual(null)
+
+        expect(DummyTypes.any).toHaveProperty('isRequired')
+        expect((DummyTypes.any as Requireable<unknown>).isRequired)
+            .toBeInstanceOf(Function)
+        expect(
+            ((DummyTypes.any as Requireable<unknown>).isRequired as Function)()
+        ).toStrictEqual(null)
+
+        expect(DummyTypes.arrayOf).toBeInstanceOf(Function)
+        expect((DummyTypes.arrayOf as Function)()).toBeInstanceOf(Function)
+        expect((DummyTypes.arrayOf as Function)()()).toStrictEqual(null)
+    })
+})
 // endregion
 // region semaphore
 describe(`Semaphore (${testEnvironment})`, ():void => {
@@ -940,28 +962,28 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ).toStrictEqual(mockup)
         expect(
             Tools.addDynamicGetterAndSetter(
-                {a: 1}, (value:number):number => value + 2
+                {a: 1}, (value:unknown):number => (value as number) + 2
             ).a
         ).toStrictEqual(3)
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: {a: 1}},
-                (value:number|object):number|object =>
-                    value instanceof Object ? value : value + 2
+                (value:unknown):number|object =>
+                    value instanceof Object ? value : (value as number) + 2
             ).a.a
         ).toStrictEqual(3)
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: {a: [{a: 1}]}},
-                (value:number|object):number|object =>
-                    value instanceof Object ? value : value + 2
+                (value:unknown):number|object =>
+                    value instanceof Object ? value : (value as number) + 2
             ).a.a[0].a
         ).toStrictEqual(3)
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: {a: 1}},
-                (value:number|object):number|object =>
-                    value instanceof Object ? value : value + 2,
+                (value:unknown):number|object =>
+                    value instanceof Object ? value : (value as number) + 2,
                 null,
                 {has: 'hasOwnProperty'},
                 false
@@ -970,8 +992,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: 1},
-                (value:number|object):number|object =>
-                    value instanceof Object ? value : value + 2,
+                (value:unknown):number|object =>
+                    value instanceof Object ? value : (value as number) + 2,
                 null,
                 {has: 'hasOwnProperty'},
                 false,
@@ -981,8 +1003,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         expect(
             (Tools.addDynamicGetterAndSetter(
                 {a: new Map([['a', 1]])},
-                (value:number|object):number|object =>
-                    value instanceof Object ? value : value + 2,
+                (value:unknown):number|object =>
+                    value instanceof Object ? value : (value as number) + 2,
                 null,
                 {delete: 'delete', get: 'get', set: 'set', has: 'has'},
                 true,

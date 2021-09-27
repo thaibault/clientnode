@@ -2071,7 +2071,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 let index:number = 0
                 for (const value of object) {
                     object[index] = Tools.addDynamicGetterAndSetter(
-                        value, getterWrapper, setterWrapper, methodNames, deep)
+                        value, getterWrapper, setterWrapper, methodNames, deep
+                    )
+
                     index += 1
                 }
             } else if (Tools.isMap(object))
@@ -2117,7 +2119,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         Tools.getProxyHandler<T>(object, methodNames)
 
                     if (getterWrapper)
-                        handler.get = (target:T, name:string):unknown => {
+                        handler.get = (
+                            target:T, name:string|symbol
+                        ):unknown => {
                             if (name === '__target__')
                                 return object
 
@@ -2140,7 +2144,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
                     if (setterWrapper)
                         handler.set = (
-                            target:T, name:string, value:unknown
+                            target:T, name:string|symbol, value:unknown
                         ):boolean =>
                             defaultHandler.set(
                                 proxy as T,
