@@ -17,7 +17,7 @@
     endregion
 */
 // region imports
-import PropTypes from 'prop-types'
+import PropTypes, {Requireable} from 'prop-types'
 
 import {ValueOf} from './type'
 // endregion
@@ -46,11 +46,20 @@ export const RealTypes = {
     symbol: PropTypes.symbol
 } as const
 export const createDummy = (
-    result:any = undefined
+    result:Error|null = null
 ):ValueOf<typeof RealTypes> => {
-    const type = ():any => result
+    const type:Requireable<unknown> = ():Error|null => result
+
     type.isRequired = ():null => null
+
     return type
+}
+export class ValidationError extends Function {
+    message:string = 'DummyErrorMessage'
+
+    constructor() {
+        super('return null')
+    }
 }
 /*
     NOTE: Each value has to be different (a real copy) to distinguish them from
@@ -60,21 +69,21 @@ export const createDummy = (
 export const DummyTypes = {
     any: createDummy(),
     array: createDummy(),
-    arrayOf: createDummy(():void => {}),
+    arrayOf: createDummy(new ValidationError()),
     bool: createDummy(),
     boolean: createDummy(),
     element: createDummy(),
-    elementType: createDummy(():void => {}),
+    elementType: createDummy(new ValidationError()),
     exact: createDummy(),
     func: createDummy(),
-    instanceOf: createDummy(():void => {}),
+    instanceOf: createDummy(new ValidationError()),
     node: createDummy(),
     number: createDummy(),
     object: createDummy(),
-    objectOf: createDummy(():void => {}),
-    oneOf: createDummy(():void => {}),
-    oneOfType: createDummy(():void => {}),
-    shape: createDummy(():void => {}),
+    objectOf: createDummy(new ValidationError()),
+    oneOf: createDummy(new ValidationError()),
+    oneOfType: createDummy(new ValidationError()),
+    shape: createDummy(new ValidationError()),
     string: createDummy(),
     symbol: createDummy()
 } as const

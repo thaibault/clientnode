@@ -88,10 +88,10 @@ export type PlainObject<Type = Primitive> = {
 }
 
 export interface ProxyHandler<T = unknown> {
-    deleteProperty:(target:T, key:any) => boolean
-    get:(target:T, key:string) => unknown
-    has:(target:T, key:string) => boolean
-    set:(target:T, key:string, value:unknown) => boolean
+    deleteProperty:(target:T, key:string|symbol) => boolean
+    get:(target:T, key:string|symbol) => unknown
+    has:(target:T, key:string|symbol) => boolean
+    set:(target:T, key:string|symbol, value:unknown) => boolean
 }
 export type ProxyType<T = unknown> = T & {
     __revoke__?:AnyFunction
@@ -107,8 +107,10 @@ export type AsynchronousProcedureFunction = (...parameter:Array<unknown>) =>
 export type ProcedureFunction =
     AsynchronousProcedureFunction|SynchronousProcedureFunction
 
-export type GetterFunction = (keyOrValue:any, key:any, target:any) => any
-export type SetterFunction = (key:any, value:any, target:any) => any
+export type GetterFunction =
+    (keyOrValue:unknown, key:string|symbol, target:unknown) => unknown
+export type SetterFunction =
+    (key:string|Symbol, value:unknown, target:unknown) => unknown
 // // endregion
 // / endregion
 // / region clientnode helper
