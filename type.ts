@@ -79,6 +79,9 @@ export type RecursivePartial<Type> =
     }
 // / endregion
 // / region native
+export type ImportFunction = (_id:string) => Promise<ReturnType<
+    typeof require
+>>
 export type HTMLItem = Comment|Document|HTMLElement|Text
 
 export type Primitive = boolean|null|number|string|undefined
