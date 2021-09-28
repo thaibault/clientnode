@@ -113,18 +113,18 @@ export const currentRequire:null|typeof require =
     eval(`typeof require === 'undefined' ? null : require`) as
         null|typeof require
 
-let currentOptionalImport:null|ImportFunction = null
+let currentOptionalImport:ImportFunction|null = null
 try {
     currentOptionalImport =
         eval(`typeof import === 'undefined' ? null : import`) as
-            null|ImportFunction
+            ImportFunction|null
 } catch (error) {
     // Continue regardless of an error.
 }
 export const currentImport:null|ImportFunction = currentOptionalImport
 export const optionalRequire:typeof require = ((id:string):null|unknown => {
     try {
-        return currentRequire(id)
+        return currentRequire!(id)
     } catch (error) {
         return null
     }
@@ -133,16 +133,16 @@ globalContext.fetch =
     globalContext.fetch ??
     optionalRequire('node-fetch')?.default ??
     ((...parameters:Parameters<typeof fetch>):ReturnType<typeof fetch> =>
-        currentImport(/* webpackIgnore: true */ 'node-fetch')
+        currentImport!(/* webpackIgnore: true */ 'node-fetch')
             .then((module:unknown):ReturnType<typeof fetch> =>
                 (module as {default:typeof fetch})?.default(...parameters)
             )
     )
-const synchronousFileSystem:Module|null = optionalRequire('fs')
-const fileSystem:Module|undefined = synchronousFileSystem ?
-    (synchronousFileSystem as {promises:Module}).promises :
-    undefined
-const path:Module|null = optionalRequire('path')
+const synchronousFileSystem:null|typeof import('fs') = optionalRequire('fs')
+const fileSystem:null|typeof import('fs').promises = synchronousFileSystem ?
+    synchronousFileSystem.promises :
+    null
+const path:null|typeof import('path') = optionalRequire('path')
 // / endregion
 // / region $
 export const determine$:(() => $Function) = ():$Function => {
@@ -440,8 +440,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static readonly specialRegexSequences:Array<string> = [
         '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}'
     ]
-    static readonly transitionEndEventNames:string = 'transitionend ' +
-        'webkitTransitionEnd oTransitionEnd MSTransitionEnd'
+    static readonly transitionEndEventNames =
+        'transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd'
 
     static _dateTimePatternCache:Array<RegExp> = []
 
@@ -897,7 +897,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Value "true" if given object is a function and "false"
      * otherwise.
      */
-    static isFunction(value:unknown):value is Function {
+    static isFunction(value:unknown):value is AnyFunction {
         return (
             Boolean(value) &&
             ['[object AsyncFunction]', '[object Function]'].includes(
@@ -1673,10 +1673,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns The function name.
      */
     static determineUniqueScopeName(
-        prefix:string = 'callback',
-        suffix:string = '',
+        prefix = 'callback',
+        suffix = '',
         scope:object = $.global,
-        initialUniqueName:string = ''
+        initialUniqueName = ''
     ):string {
         if (initialUniqueName.length && !(initialUniqueName in scope))
             return initialUniqueName
@@ -1788,7 +1788,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static timeout(...parameters:Array<unknown>):TimeoutPromise {
         let callback:AnyFunction = Tools.noop
         let delayInMilliseconds:number = 0
-        let throwOnTimeoutClear:boolean = false
+        let throwOnTimeoutClear = false
 
         for (const value of parameters)
             if (typeof value === 'number' && !isNaN(value))
@@ -1870,7 +1870,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         thresholdInMilliseconds:number = 600,
         ...additionalArguments:Array<unknown>
     ):((...parameters:Array<unknown>) => Promise<T>) {
-        let waitForNextSlot:boolean = false
+        let waitForNextSlot = false
         let parametersForNextSlot:Array<unknown>|null = null
         // NOTE: Type "T" will be added via "then" method when called.
         let resolveNextSlotPromise:AnyFunction
@@ -1982,7 +1982,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     fireEvent(
         eventName:string,
-        callOnlyOptionsMethod:boolean = false,
+        callOnlyOptionsMethod = false,
         scope:unknown = this,
         ...additionalArguments:Array<unknown>
     ):unknown {
@@ -2066,7 +2066,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         getterWrapper:GetterFunction|null = null,
         setterWrapper:null|SetterFunction = null,
         methodNames:Mapping = {},
-        deep:boolean = true,
+        deep = true,
         typesToExtend:Array<unknown> = [Object]
     ):ProxyType<T>|T {
         if (deep && typeof object === 'object')
@@ -2237,9 +2237,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given map as object.
      */
-    static convertMapToPlainObject(
-        object:unknown, deep:boolean = true
-    ):unknown {
+    static convertMapToPlainObject(object:unknown, deep = true):unknown {
         if (typeof object === 'object') {
             if (Tools.isMap(object)) {
                 const newObject:Mapping<unknown> = {}
@@ -2290,9 +2288,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param deep - Indicates whether to perform a recursive conversion.
      * @returns Given object as map.
      */
-    static convertPlainObjectToMap(
-        object:unknown, deep:boolean = true
-    ):unknown {
+    static convertPlainObjectToMap(object:unknown, deep = true):unknown {
         if (typeof object === 'object') {
             if (Tools.isPlainObject(object)) {
                 const newObject:Map<number|string, unknown> = new Map()
@@ -2387,7 +2383,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         recursionLimit:number = -1,
         recursionEndValue:unknown = ValueCopySymbol,
         destination:null|Type = null,
-        cyclic:boolean = false,
+        cyclic = false,
         knownReferences:Array<unknown> = [],
         recursionLevel:number = 0
     ):Type {
@@ -2786,7 +2782,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 /* eslint-enable curly */
                     for (const value of first as Set<unknown>)
                         if (options.deep !== 0) {
-                            let equal:boolean = false
+                            let equal = false
                             const subPromises:Array<Promise<boolean|string>> =
                                 []
                             /*
@@ -2850,7 +2846,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             )
                                 break
 
-                            let doBreak:boolean = false
+                            let doBreak = false
                             for (
                                 const exceptionPrefix of
                                 options.exceptionPrefixes
@@ -2937,9 +2933,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static evaluateDynamicData<Type = unknown>(
         object:null|RecursiveEvaluateable<Type>,
         scope:Mapping<unknown> = {},
-        selfReferenceName:string = 'self',
-        expressionIndicatorKey:string = '__evaluate__',
-        executionIndicatorKey:string = '__execute__'
+        selfReferenceName = 'self',
+        expressionIndicatorKey = '__evaluate__',
+        executionIndicatorKey = '__execute__'
     ):Type {
         if (typeof object !== 'object' || object === null)
             return object as unknown as Type
@@ -3312,8 +3308,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static getSubstructure<T = unknown, E = unknown>(
         target:T,
         selector:Selector<T, E>,
-        skipMissingLevel:boolean = true,
-        delimiter:string = '.'
+        skipMissingLevel = true,
+        delimiter = '.'
     ):E {
         let path:Array<BaseSelector<T, E>> = []
         for (const component of ([] as Array<BaseSelector<T, E>>).concat(
@@ -3479,7 +3475,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         if (Tools.isPlainObject(mask.exclude)) {
 
-            let useCopy:boolean = false
+            let useCopy = false
             const copy:RecursivePartial<Type> = {...result}
 
             for (const key in mask.exclude)
@@ -3540,11 +3536,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static modifyObject<T = unknown>(
         target:T,
         source:unknown,
-        removeIndicatorKey:string = '__remove__',
-        prependIndicatorKey:string = '__prepend__',
-        appendIndicatorKey:string = '__append__',
-        positionPrefix:string = '__',
-        positionSuffix:string = '__',
+        removeIndicatorKey = '__remove__',
+        prependIndicatorKey = '__prepend__',
+        appendIndicatorKey = '__append__',
+        positionPrefix = '__',
+        positionSuffix = '__',
         parentSource:unknown = null,
         parentKey:unknown = null
     ):T|null {
@@ -3665,7 +3661,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * interpret.
      */
     static normalizeDateTime(
-        value:string|null|number|Date = null, interpretAsUTC:boolean = true
+        value:string|null|number|Date = null, interpretAsUTC = true
     ):Date|null {
         if (value === null)
             return new Date()
@@ -3712,7 +3708,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (Array.isArray(object)) {
             let index:number = 0
             for (const subObject of object.slice()) {
-                let skip:boolean = false
+                let skip = false
                 if (typeof subObject === 'string') {
                     for (const key of resolvedKeys)
                         if (subObject.startsWith(`${key}:`)) {
@@ -3732,7 +3728,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
         } else if (Tools.isSet(object))
             for (const subObject of new Set(object)) {
-                let skip:boolean = false
+                let skip = false
 
                 if (typeof subObject === 'string') {
                     for (const key of resolvedKeys)
@@ -3750,7 +3746,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
         else if (Tools.isMap(object))
             for (const [key, subObject] of new Map(object)) {
-                let skip:boolean = false
+                let skip = false
 
                 if (typeof key === 'string') {
                     for (const resolvedKey of resolvedKeys) {
@@ -3774,7 +3770,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         else if (object !== null && typeof object === 'object')
             for (const key in Object.assign({}, object))
                 if (Object.prototype.hasOwnProperty.call(object, key)) {
-                    let skip:boolean = false
+                    let skip = false
 
                     for (const resolvedKey of resolvedKeys) {
                         const escapedKey:string =
@@ -3811,8 +3807,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static represent(
         object:unknown,
-        indention:string = '    ',
-        initialIndention:string = '',
+        indention = '    ',
+        initialIndention = '',
         maximumNumberOfLevelsReachedIdentifier:number|string =
             '__maximum_number_of_levels_reached__',
         numberOfLevels:number = 8
@@ -3833,9 +3829,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             return `${object}`
 
         if (Array.isArray(object)) {
-            let result:string = '['
+            let result = '['
 
-            let firstSeen:boolean = false
+            let firstSeen = false
             for (const item of object) {
                 if (firstSeen)
                     result += ','
@@ -3862,9 +3858,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         }
 
         if (Tools.isMap(object)) {
-            let result:string = ''
+            let result = ''
 
-            let firstSeen:boolean = false
+            let firstSeen = false
             for (const [key, item] of object) {
                 if (firstSeen)
                     result += `,\n${initialIndention}${indention}`
@@ -3896,9 +3892,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         }
 
         if (Tools.isSet(object)) {
-            let result:string = '{'
+            let result = '{'
 
-            let firstSeen:boolean = false
+            let firstSeen = false
             for (const item of object) {
                 if (firstSeen)
                     result += ','
@@ -3924,9 +3920,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             return result
         }
 
-        let result:string = '{'
+        let result = '{'
         const keys:Array<string> = Object.getOwnPropertyNames(object).sort()
-        let firstSeen:boolean = false
+        let firstSeen = false
         for (const key of keys) {
             if (firstSeen)
                 result += ','
@@ -4078,7 +4074,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         const result:Array<T> = []
 
         for (const item of Tools.arrayMake<T>(data)) {
-            let empty:boolean = true
+            let empty = true
 
             for (const propertyName in item)
                 if (Object.prototype.hasOwnProperty.call(item, propertyName))
@@ -4169,7 +4165,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const result:Array<T> = []
 
             for (const item of Tools.arrayMake<T>(data)) {
-                let exists:boolean = false
+                let exists = false
                 for (const key in item)
                     if (
                         key === propertyName &&
@@ -4206,7 +4202,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const result:Array<T> = []
 
             for (const item of Tools.arrayMake<T>(data)) {
-                let matches:boolean = true
+                let matches = true
                 for (const propertyName in propertyPattern)
                     if (!(
                         propertyPattern[propertyName] &&
@@ -4249,7 +4245,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         first:unknown,
         second:unknown,
         keys:Array<string>|Mapping<number|string> = [],
-        strict:boolean = true
+        strict = true
     ):Array<T> {
         const containingData:Array<T> = []
 
@@ -4287,7 +4283,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         for (const firstItem of Tools.arrayMake<T>(first))
             if (Tools.isPlainObject(firstItem))
                 for (const secondItem of (second as Array<T>)) {
-                    let exists:boolean = true
+                    let exists = true
                     let iterateGivenKeys:boolean
                     const keysAreAnArray:boolean = Array.isArray(keys)
 
@@ -4378,7 +4374,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static arrayMakeRange(
         range:number|[number]|[number, number]|Array<number>,
         step:number = 1,
-        ignoreLastStep:boolean = false
+        ignoreLastStep = false
     ):Array<number> {
         range = ([] as Array<number>).concat(range)
 
@@ -4678,7 +4674,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         item:Mapping<T>,
         target:unknown,
         name:string,
-        checkIfExists:boolean = true
+        checkIfExists = true
     ):Mapping<T> {
         if (Object.prototype.hasOwnProperty.call(item, name)) {
             if (!(
@@ -4701,7 +4697,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Item with the appended target.
      */
     static arrayRemove<T = unknown>(
-        list:Array<T>, target:T, strict:boolean = false
+        list:Array<T>, target:T, strict = false
     ):Array<T> {
         const index:number = list.indexOf(target)
         if (index === -1) {
@@ -4857,7 +4853,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Converted name is returned.
      */
     static stringConvertToValidVariableName(
-        name:string, allowedSymbols:string = '0-9a-zA-Z_$'
+        name:string, allowedSymbols = '0-9a-zA-Z_$'
     ):string {
         if (['class', 'default'].includes(name))
             return `_${name}`
@@ -4882,9 +4878,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Encoded given url.
      */
-    static stringEncodeURIComponent(
-        url:string, encodeSpaces:boolean = false
-    ):string {
+    static stringEncodeURIComponent(url:string, encodeSpaces = false):string {
         return encodeURIComponent(url)
             .replace(/%40/gi, '@')
             .replace(/%3A/gi, ':')
@@ -4899,9 +4893,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns The appended path.
      */
-    static stringAddSeparatorToPath(
-        path:string, pathSeparator:string = '/'
-    ):string {
+    static stringAddSeparatorToPath(path:string, pathSeparator = '/'):string {
         path = path.trim()
 
         if (path.substr(-1) !== pathSeparator && path.length)
@@ -4921,7 +4913,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static stringHasPathPrefix(
         prefix:unknown = '/admin',
         path:string = $.location?.pathname || '',
-        separator:string = '/'
+        separator = '/'
     ):boolean {
         if (typeof prefix === 'string') {
             if (!prefix.endsWith(separator))
@@ -5051,16 +5043,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static stringGetURLParameter(
         keyToGet:null|string = null,
-        allowDuplicates:boolean = false,
+        allowDuplicates = false,
         givenInput:null|string = null,
-        subDelimiter:string = '$',
-        hashedPathIndicator:string = '!',
+        subDelimiter = '$',
+        hashedPathIndicator = '!',
         givenSearch:null|string = null,
         givenHash:string = $.location?.hash ?? ''
     ):Array<string>|null|QueryParameters|string {
         // region set search and hash
         let hash:string = givenHash ?? '#'
-        let search:string = ''
+        let search = ''
         if (givenSearch)
             search = givenSearch
         else if (hashedPathIndicator && hash.startsWith(hashedPathIndicator)) {
@@ -5085,7 +5077,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         // region determine data from search and hash if specified
         const both:boolean = input === '&'
         if (both || input === '#') {
-            let decodedHash:string = ''
+            let decodedHash = ''
             try {
                 decodedHash = decodeURIComponent(hash)
             } catch (error) {
@@ -5215,9 +5207,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns The formatted string.
      */
     static stringCamelCaseToDelimited(
-        string:string,
-        delimiter:string = '-',
-        abbreviations:Array<string>|null = null
+        string:string, delimiter = '-', abbreviations:Array<string>|null = null
     ):string {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (!abbreviations)
@@ -5227,7 +5217,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             Tools.stringGetRegularExpressionValidated(delimiter)
 
         if (abbreviations.length) {
-            let abbreviationPattern:string = ''
+            let abbreviationPattern = ''
             for (const abbreviation of abbreviations) {
                 if (abbreviationPattern)
                     abbreviationPattern += '|'
@@ -5304,10 +5294,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static stringDelimitedToCamelCase(
         string:string,
-        delimiter:string = '-',
+        delimiter = '-',
         abbreviations:Array<string>|null = null,
-        preserveWrongFormattedAbbreviations:boolean = false,
-        removeMultipleDelimiter:boolean = false
+        preserveWrongFormattedAbbreviations = false,
+        removeMultipleDelimiter = false
     ):string {
         let escapedDelimiter:string =
             Tools.stringGetRegularExpressionValidated(delimiter)
@@ -5327,7 +5317,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
         }
 
-        let stringStartsWithDelimiter:boolean = false
+        let stringStartsWithDelimiter = false
         if (string.startsWith(delimiter)) {
             string = string.substring(delimiter.length)
             stringStartsWithDelimiter = true
@@ -5373,7 +5363,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static stringCompile(
         expression:string,
         scope:Array<string>|Mapping<unknown>|string = [],
-        execute:boolean = false
+        execute = false
     ):CompilationResult {
         const result:CompilationResult = {
             error: null,
@@ -5399,7 +5389,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 ).code
             else if (expression.startsWith('`') && expression.endsWith('`')
             ) {
-                const escapeMarker:string = '####'
+                const escapeMarker = '####'
                 // Convert template string into legacy string concatenations.
                 expression = expression
                     // Mark simple escape sequences.
@@ -5454,7 +5444,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static stringEvaluate(
         expression:string,
         scope:Mapping<unknown> = {},
-        execute:boolean = false,
+        execute = false,
         binding?:unknown
     ):EvaluationResult {
         const {error, originalScopeNames, scopeNames, templateFunction} =
@@ -5510,7 +5500,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         query:unknown,
         normalizer:AnyFunction =
             (value:unknown):string => `${value}`.toLowerCase(),
-        skipTags:boolean = true
+        skipTags = true
     ):Array<number>|null {
         const normalizedQuery:string = normalizer(query)
         const normalizedTarget:string = normalizer(target)
@@ -5520,7 +5510,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             normalizedTarget
 
         if (normalizedTarget && normalizedQuery) {
-            let inTag:boolean = false
+            let inTag = false
             for (let index = 0; index < stringTarget.length; index += 1) {
 
                 if (inTag) {
@@ -5654,7 +5644,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Interpret date time object.
      */
     static stringInterpretDateTime(
-        value:string, interpretAsUTC:boolean = true
+        value:string, interpretAsUTC = true
     ):Date|null {
         // NOTE: All patterns can assume lower cased strings.
 
@@ -5674,8 +5664,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 '(?<hour>(?:0?[0-9])|(?:1[0-9])|(?:2[0-4]))'
             const dayPattern:string =
                 '(?<day>(?:0?[1-9])|(?:[1-2][0-9])|(?:3[01]))'
-            const monthPattern:string = '(?<month>(?:0?[1-9])|(?:1[0-2]))'
-            const yearPattern:string = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
+            const monthPattern = '(?<month>(?:0?[1-9])|(?:1[0-2]))'
+            const yearPattern = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
             // / endregion
             const patternPresenceCache:Mapping<true> = {}
             for (const timeDelimiter of ['t', ' '] as const)
@@ -5944,7 +5934,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             ['nov', 'novemb(?:er|re)'],
             ['de[cz]', 'd[eé][cz]emb(?:er|re)']
         ]) {
-            let matched:boolean = false
+            let matched = false
             for (const name of monthVariation) {
                 const pattern:RegExp = new RegExp(
                     `(^|[^a-z])${name}([^a-z]|$)`)
@@ -6045,7 +6035,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         givenWords?:Array<string>|string,
         normalizer:AnyFunction =
             (value:unknown):string => `${value}`.toLowerCase(),
-        marker:string = '<span class="tools-mark">{1}</span>'
+        marker = '<span class="tools-mark">{1}</span>'
     ):unknown {
         if (typeof target === 'string' && givenWords?.length) {
             let markedTarget:string = target.trim()
@@ -6108,7 +6098,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Calculated md5 hash value.
      */
-    static stringMD5(value:string, onlyAscii:boolean = false):string {
+    static stringMD5(value:string, onlyAscii = false):string {
         const hexCharacters:Array<string> = '0123456789abcdef'.split('')
         // region sub helper
         /**
@@ -6330,7 +6320,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
          * @returns Converted hex code string.
          */
         const convertCharactorToHexCode = (character:number):string => {
-            let hexString:string = ''
+            let hexString = ''
 
             for (let round:number = 0; round < 4; round++)
                 hexString +=
@@ -6475,7 +6465,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (dialable)
                 return normalizedValue.replace(/[^0-9]+/g, '')
 
-            const separatorPattern:string = '(?:[ /\\-]+)'
+            const separatorPattern = '(?:[ /\\-]+)'
             // Remove unneeded area code zero in brackets.
             normalizedValue = normalizedValue.replace(
                 new RegExp(
@@ -6565,13 +6555,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns The parsed object if possible and null otherwise.
      */
     static stringParseEncodedObject<T = PlainObject>(
-        serializedObject:string, scope:object = {}, name:string = 'scope'
+        serializedObject:string, scope:object = {}, name = 'scope'
     ):null|T {
         if (
             serializedObject.endsWith('.json') &&
             Tools.isFileSync(serializedObject)
         )
-            serializedObject = synchronousFileSystem.readFileSync(
+            serializedObject = synchronousFileSystem!.readFileSync(
                 serializedObject, {encoding: 'utf-8'}
             )
 
@@ -6680,7 +6670,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns given selector prefixed.
      */
     stringNormalizeDomNodeSelector = (selector:string):string => {
-        let domNodeSelectorPrefix:string = ''
+        let domNodeSelectorPrefix = ''
         if (this.options.domNodeSelectorPrefix)
             domNodeSelectorPrefix = `${this.options.domNodeSelectorPrefix} `
         if (!(
@@ -6702,7 +6692,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Determined numerous value.
      */
     static numberGetUTCTimestamp(
-        value?:Date|null|number|string, inMilliseconds:boolean = false
+        value?:Date|null|number|string, inMilliseconds = false
     ):number {
         const date:Date = [null, undefined].includes(value as null) ?
             new Date() :
@@ -6812,7 +6802,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             return new Promise(async (
                 resolve:AnyFunction, reject:AnyFunction
             ):Promise<void> => {
-                let timedOut:boolean = false
+                let timedOut = false
                 const timer:TimeoutPromise =
                     Tools.timeout(options.timeoutInSeconds * 1000)
 
@@ -6943,7 +6933,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             return new Promise(async (
                 resolve:AnyFunction, reject:AnyFunction
             ):Promise<void> => {
-                let timedOut:boolean = false
+                let timedOut = false
 
                 const wrapper:AnyFunction = async (
                 ):Promise<Error|Response|null> => {
@@ -7030,8 +7020,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         target:$DomNode|HTMLIFrameElement|string,
         url:string,
         data:Mapping<unknown>,
-        requestType:string = 'post',
-        removeAfterLoad:boolean = false
+        requestType = 'post',
+        removeAfterLoad = false
     ):$DomNode {
         const $targetDomNode:$DomNode<HTMLIFrameElement> =
             (typeof target === 'string') ?
@@ -7081,8 +7071,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     sendToExternalURL = (
         url:string,
         data:Mapping<unknown>,
-        requestType:string = 'post',
-        removeAfterLoad:boolean = true
+        requestType = 'post',
+        removeAfterLoad = true
     ):$DomNode<HTMLIFrameElement> => {
         const $iFrameDomNode:$DomNode<HTMLIFrameElement> =
             $<HTMLIFrameElement>('<iframe>')
@@ -7126,12 +7116,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):Promise<string> {
         // NOTE: Check if folder needs to be created or integrated.
-        sourcePath = path.resolve(sourcePath)
+        sourcePath = path!.resolve(sourcePath)
         if (await Tools.isDirectory(targetPath))
-            targetPath = path.resolve(targetPath, path.basename(sourcePath))
+            targetPath = path!.resolve(targetPath, path!.basename(sourcePath))
 
         try {
-            await fileSystem.mkdir(targetPath)
+            await fileSystem!.mkdir(targetPath)
         } catch (error) {
             if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                 throw error
@@ -7140,13 +7130,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const currentSourceFile of
             await Tools.walkDirectoryRecursively(sourcePath, callback)
         ) {
-            const currentTargetPath:string = path.join(
+            const currentTargetPath:string = path!.join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
 
             if (currentSourceFile.stats?.isDirectory())
                 try {
-                    await fileSystem.mkdir(currentTargetPath)
+                    await fileSystem!.mkdir(currentTargetPath)
                 } catch (error) {
                     if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                         throw error
@@ -7183,11 +7173,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):string {
         // NOTE: Check if folder needs to be created or integrated.
-        sourcePath = path.resolve(sourcePath)
+        sourcePath = path!.resolve(sourcePath)
         if (Tools.isDirectorySync(targetPath))
-            targetPath = path.resolve(targetPath, path.basename(sourcePath))
+            targetPath = path!.resolve(targetPath, path!.basename(sourcePath))
         try {
-            synchronousFileSystem.mkdirSync(targetPath)
+            synchronousFileSystem!.mkdirSync(targetPath)
         } catch (error) {
             if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                 throw error
@@ -7196,12 +7186,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const currentSourceFile of
             Tools.walkDirectoryRecursivelySync(sourcePath, callback)
         ) {
-            const currentTargetPath:string = path.join(
+            const currentTargetPath:string = path!.join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
             if (currentSourceFile.stats?.isDirectory())
                 try {
-                    synchronousFileSystem.mkdirSync(currentTargetPath)
+                    synchronousFileSystem!.mkdirSync(currentTargetPath)
                 } catch (error) {
                     if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                         throw error
@@ -7239,13 +7229,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             same name will be created.
         */
         if (await Tools.isDirectory(targetPath))
-            targetPath = path.resolve(targetPath, path.basename(sourcePath))
+            targetPath = path!.resolve(targetPath, path!.basename(sourcePath))
 
-        const data:object|string = await fileSystem.readFile(
-            sourcePath, readOptions
-        )
+        const data:object|string =
+            await fileSystem!.readFile(sourcePath, readOptions)
 
-        fileSystem.writeFile(targetPath, data, writeOptions)
+        fileSystem!.writeFile(targetPath, data, writeOptions)
 
         return targetPath
     }
@@ -7272,10 +7261,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             same name will be created.
         */
         if (Tools.isDirectorySync(targetPath))
-            targetPath = path.resolve(targetPath, path.basename(sourcePath))
-        synchronousFileSystem.writeFileSync(
+            targetPath = path!.resolve(targetPath, path!.basename(sourcePath))
+        synchronousFileSystem!.writeFileSync(
             targetPath,
-            synchronousFileSystem.readFileSync(sourcePath, readOptions),
+            synchronousFileSystem!.readFileSync(sourcePath, readOptions),
             writeOptions
         )
         return targetPath
@@ -7288,7 +7277,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static async isDirectory(filePath:string):Promise<boolean> {
         try {
-            return (await fileSystem.stat(filePath)).isDirectory()
+            return (await fileSystem!.stat(filePath)).isDirectory()
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
@@ -7308,7 +7297,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static isDirectorySync(filePath:string):boolean {
         try {
-            return synchronousFileSystem.statSync(filePath).isDirectory()
+            return synchronousFileSystem!.statSync(filePath).isDirectory()
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
@@ -7329,7 +7318,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static async isFile(filePath:string):Promise<boolean> {
         try {
-            return (await fileSystem.stat(filePath)).isFile()
+            return (await fileSystem!.stat(filePath)).isFile()
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
@@ -7349,7 +7338,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static isFileSync(filePath:string):boolean {
         try {
-            return synchronousFileSystem.statSync(filePath).isFile()
+            return synchronousFileSystem!.statSync(filePath).isFile()
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
@@ -7375,15 +7364,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static async walkDirectoryRecursively(
         directoryPath:string,
-        callback:AnyFunction = Tools.noop,
-        options:SecondParameter<typeof fileSystem.readdir> = 'utf8'
+        callback:AnyFunction|null = Tools.noop,
+        options:SecondParameter<typeof import('fs').readdir> = 'utf8'
     ):Promise<Array<File>> {
         const files:Array<File> = []
         // TODO use (everywhere) direct with "withFileTypes" option.
-        for (const fileName of await fileSystem.readdir(
+        for (const fileName of await fileSystem!.readdir(
             directoryPath, options
         )) {
-            const filePath:string = path.resolve(directoryPath, fileName)
+            const filePath:string =
+                path!.resolve(directoryPath, fileName)
             const file:File = {
                 directoryPath,
                 error: null,
@@ -7393,7 +7383,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
 
             try {
-                file.stats = await fileSystem.stat(filePath)
+                file.stats = await fileSystem!.stat(filePath)
             } catch (error) {
                 file.error = error as NodeJS.ErrnoException
             }
@@ -7429,10 +7419,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
                 return 0
             })
+
         let finalFiles:Array<File> = []
         for (const file of files) {
             finalFiles.push(file)
-            let result:unknown = callback(file)
+            let result:unknown = callback!(file)
 
             if (result === null)
                 break
@@ -7463,15 +7454,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static walkDirectoryRecursivelySync(
         directoryPath:string,
-        callback:AnyFunction = Tools.noop,
+        callback:AnyFunction|null = Tools.noop,
         options:PlainObject|string = 'utf8'
     ):Array<File> {
         const files:Array<File> = []
 
-        for (const fileName of synchronousFileSystem.readdirSync(
+        for (const fileName of synchronousFileSystem!.readdirSync(
             directoryPath, options
         )) {
-            const filePath:string = path.resolve(directoryPath, fileName)
+            const filePath:string = path!.resolve(directoryPath, fileName)
             const file:File = {
                 directoryPath,
                 error: null,
@@ -7480,7 +7471,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 stats: null
             }
             try {
-                file.stats = synchronousFileSystem.statSync(filePath)
+                file.stats = synchronousFileSystem!.statSync(filePath)
             } catch (error) {
                 file.error = error as NodeJS.ErrnoException
             }
@@ -7519,7 +7510,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         let finalFiles:Array<File> = []
         for (const file of files) {
             finalFiles.push(file)
-            const result:unknown = callback(file)
+            const result:unknown = callback!(file)
 
             if (result === null)
                 break
@@ -7554,7 +7545,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         reason:unknown = null,
         callback:AnyFunction = Tools.noop
     ):ProcessHandler {
-        let finished:boolean = false
+        let finished = false
 
         return (returnCode:unknown, ...parameters:Array<unknown>):void => {
             if (finished)
@@ -7611,7 +7602,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     _bindEventHelper = <TElement = HTMLElement>(
         parameters:Array<unknown>,
-        removeEvent:boolean = false,
+        removeEvent = false,
         eventFunctionName?:string
     ):$DomNode<TElement> => {
     /* eslint-enable jsdoc/require-description-complete-sentence */
@@ -7644,7 +7635,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (!(parameters[0] as Array<string>).includes('.'))
             parameters[0] += `.${this.options.name}`
 
-        return ($domNode[eventFunctionName as keyof $DomNode] as Function)
+        return ($domNode[eventFunctionName as keyof $DomNode] as AnyFunction)
             .apply($domNode, parameters)
     }
     // endregion
@@ -7671,7 +7662,7 @@ export class BoundTools<
      */
     constructor(
         $domNode:$DomNode<TElement>,
-         ...additionalParameters:ParametersExceptFirst<Tools['constructor']>
+        ...additionalParameters:ParametersExceptFirst<Tools['constructor']>
     ) {
         super($domNode, ...additionalParameters)
 
@@ -7742,7 +7733,7 @@ export const augment$ = (value:$Function):void => {
                 key in this[0]
             ) {
                 if (additionalParameters.length === 0)
-                    return this[0][key as keyof Element]
+                    return this[0][key]
 
                 if (additionalParameters.length === 1) {
                     /*

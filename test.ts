@@ -48,12 +48,11 @@ import {
     ThrowSymbol
 } from './testHelper'
 import {
+    AnyFunction,
     EvaluationResult,
     File,
     FirstParameter,
-    FunctionTestTuple,
     Mapping,
-    ObjectMaskConfiguration,
     PlainObject,
     ProcessCloseReason,
     ProcessError,
@@ -72,7 +71,7 @@ const {ChildProcess} = optionalRequire('child_process')
 let path:typeof PathType
 let removeDirectoryRecursivelySync:(typeof RemoveDirectoryRecursivelyType)['sync']
 let synchronousFileSystem:typeof FileSystemType
-let testEnvironment:string = 'browser'
+let testEnvironment = 'browser'
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     path = require('path')
     removeDirectoryRecursivelySync = require('rimraf').sync
@@ -178,7 +177,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     // / region mutual exclusion
     test(`acquireLock|releaseLock (${testEnvironment})`, async (
     ):Promise<void> => {
-        let testValue:string = 'a'
+        let testValue = 'a'
         await tools.acquireLock('test', ():void => {
             testValue = 'b'
         })
@@ -232,11 +231,13 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 result = await tools.acquireLock(
                     'test',
                     ():Promise<string|void> =>
-                        new Promise(async (resolve:Function):Promise<void> => {
-                            await Tools.timeout()
-                            testValue = 'a'
-                            resolve(testValue)
-                        })
+                        new Promise(
+                            async (resolve:AnyFunction):Promise<void> => {
+                                await Tools.timeout()
+                                testValue = 'a'
+                                resolve(testValue)
+                            }
+                        )
                 )
                 expect(testValue).toStrictEqual('a')
             }
@@ -746,12 +747,12 @@ describe(`Tools (${testEnvironment})`, ():void => {
         expect(Tools.isolateScope({a: 2, b: {a: [1, 2]}}))
             .toStrictEqual({a: 2, b: {a: [1, 2]}})
 
-        let Scope:Function = function(this:Mapping<number>):void {
-            this.a = 2
-        }
+        let Scope:(new () => Mapping<number>) =
+            function(this:Mapping<number>):void {
+                this.a = 2
+            } as unknown as (new () => Mapping<number>)
         Scope.prototype = {_a: 5, b: 2}
-        let scope:Mapping<number|undefined> =
-            new (Scope as (new () => Mapping<number>))()
+        let scope:Mapping<number|undefined> = new Scope()
 
         Tools.isolateScope(scope, ['_'])
         let finalScope:Mapping<number|undefined> = {}
@@ -774,18 +775,15 @@ describe(`Tools (${testEnvironment})`, ():void => {
 
         Scope = function(this:Mapping<number>):void {
             this.a = 2
-        }
+        } as unknown as (new () => Mapping<number>)
         Scope.prototype = {b: 3}
-        scope = Tools.isolateScope(
-            new (Scope as (new () => Mapping<number>))(), ['b']
-        )
+        scope = Tools.isolateScope(new Scope(), ['b'])
         finalScope = {}
         for (const name in scope)
             finalScope[name] = scope[name]
         expect(finalScope).toStrictEqual({a: 2, b: 3})
-        expect(Tools.isolateScope(
-            new (Scope as (new () => Mapping<number|undefined>))()
-        )).toStrictEqual({a: 2, b: undefined})
+        expect(Tools.isolateScope(new Scope())())
+            .toStrictEqual({a: 2, b: undefined})
     })
     test('determineUniqueScopeName', ():void => {
         expect(Tools.determineUniqueScopeName())
@@ -3155,7 +3153,11 @@ describe(`Tools (${testEnvironment})`, ():void => {
             \``.replace(/(\s\s+)|\n+/g, ''),
             {},
             'result',
-            '<div class=\"test\">${Object.keys(item).filter(function(name) {return true}).join(\",\")}</div>'
+            '<div class=\"test\">' +
+            '${Object.keys(item).filter(function(name) {' +
+            'return true' +
+            '}).join(\",\")}' +
+            '</div>'
         ],
         [
             advancedTemplateEvaluationExample,
@@ -3352,7 +3354,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [
             't<a>e</a>st',
             'test', 'e',
-            (value:unknown):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value as string}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         ['t<a>e</a>st', 'test', ['e'], Tools.identity, '<a>{1}</a>'],
@@ -3360,28 +3362,28 @@ describe(`Tools (${testEnvironment})`, ():void => {
             't<a>e</a>st',
             'test',
             'E',
-            (value:unknown):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value as string}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         [
             't<a>E</a>st',
             'tEst',
             'e',
-            (value:unknown):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value as string}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         [
             '<a>t</a>es<a>T</a>',
             'tesT',
             't',
-            (value:unknown):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value as string}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         [
             '<a>t - t</a>es<a>T - T</a>',
             'tesT',
             't',
-            (value:unknown):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value as string}`.toLowerCase(),
             '<a>{1} - {1}</a>'
         ],
         ['test', 'test', 'E', Tools.identity, '<a>{1}</a>'],
@@ -3410,14 +3412,15 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'a <a>EBikes</a> <a>München</a>',
             'a EBikes München',
             ['ebikes', 'münchen'],
-            (value:unknown):string => `${value}`.toLowerCase(),
+            (value:unknown):string => `${value as string}`.toLowerCase(),
             '<a>{1}</a>'
         ],
         [
             'a <a>E-Bikes</a> <a>München</a>',
             'a E-Bikes München',
             ['ebikes', 'münchen'],
-            (value:unknown):string => `${value}`.toLowerCase().replace('-', ''),
+            (value:unknown):string =>
+                `${value as string}`.toLowerCase().replace('-', ''),
             '<a>{1}</a>'
         ],
         [
@@ -3425,7 +3428,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'a str. 2',
             ['straße', '2'],
             (value:unknown):string =>
-                `${value}`
+                `${value as string}`
                     .toLowerCase()
                     .replace('str.', 'strasse')
                     .replace('ß', 'ss'),
@@ -3436,7 +3439,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'EGO Movement Store E-Bikes München',
             ['eBikes', 'München'],
             (value:unknown):string =>
-                `${value}`
+                `${value as string}`
                     .toLowerCase()
                     .replace(/[-_]+/g, '')
                     .replace(/ß/g, 'ss')
@@ -3449,7 +3452,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'str.A strasse B straße C str. D',
             ['str.'],
             (value:unknown):string =>
-                `${value}`
+                `${value as string}`
                     .toLowerCase()
                     .replace(/[-_]+/g, '')
                     .replace(/ß/g, 'ss')
@@ -3623,7 +3626,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['body', '']
     )
     testEach<Tools['stringNormalizeDomNodeSelector']>(
-        "$.Tools({domNodeSelectorPrefix: ''})" +
+        `$.Tools({domNodeSelectorPrefix: ''})` +
         '.stringNormalizeDomNodeSelector',
         $.Tools({domNodeSelectorPrefix: ''}).stringNormalizeDomNodeSelector,
 
@@ -3763,7 +3766,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     // / endregion
     // / region file
     if (TARGET_TECHNOLOGY === 'node') {
-        const testPath:string = './copyDirectoryRecursiveTest.compiled'
+        const testPath = './copyDirectoryRecursiveTest.compiled'
         test('copyDirectoryRecursive', async ():Promise<void> => {
             removeDirectoryRecursivelySync(testPath)
             expect(await Tools.copyDirectoryRecursive(
@@ -3784,7 +3787,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                     `./test.copyFile.${testEnvironment}.compiled.js`
                 )
             } catch (error) {}
-            let result:string = ''
+            let result = ''
             try {
                 result = await Tools.copyFile(
                     path.resolve('./test.ts'),
@@ -3794,7 +3797,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 console.error(error)
             }
             expect(result).toMatch(new RegExp(
-                `\.\/test\.copyFile\.${testEnvironment}\.compiled\.js$`
+                `\\.\\/test\\.copyFile\\.${testEnvironment}\\.compiled\\.js$`
             ))
             /*
                 NOTE: A race condition was identified here. So we need an
@@ -3815,7 +3818,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 path.resolve('./test.ts'),
                 `./test.copyFileSync.${testEnvironment}.compiled.js`
             )).toMatch(new RegExp(
-                `\.\/test\.copyFileSync\.${testEnvironment}\.compiled\.js$`
+                `\\.\\/test\\.copyFileSync\\.${testEnvironment}\\.compiled\\` +
+                '.js$'
             ))
             synchronousFileSystem.unlinkSync(
                 `./test.copyFileSync.${testEnvironment}.compiled.js`
@@ -3823,7 +3827,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         })
         test('isDirectory', async ():Promise<void> => {
             for (const filePath of ['./', '../']) {
-                let result:boolean = false
+                let result = false
                 try {
                     result = await Tools.isDirectory(filePath)
                 } catch (error) {
@@ -3832,7 +3836,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 expect(result).toStrictEqual(true)
             }
             for (const filePath of [path.resolve('./test.ts')]) {
-                let result:boolean = true
+                let result = true
                 try {
                     result = await Tools.isDirectory(filePath)
                 } catch (error) {
@@ -3862,7 +3866,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         )
         test('isFile', async ():Promise<void> => {
             for (const filePath of [path.resolve('./test.ts')]) {
-                let result:boolean = false
+                let result = false
                 try {
                     result = await Tools.isFile(filePath)
                 } catch (error) {
@@ -3872,7 +3876,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             }
 
             for (const filePath of ['./', '../']) {
-                let result:boolean = true
+                let result = true
                 try {
                     result = await Tools.isFile(filePath)
                 } catch (error) {
@@ -3898,8 +3902,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         )
         test('walkDirectoryRecursively', async ():Promise<void> => {
             const filePaths:Array<string> = []
-            const callback:Function = (filePath:string):null => {
+            const callback:AnyFunction = (filePath:string):null => {
                 filePaths.push(filePath)
+
                 return null
             }
             let files:Array<File> = []
@@ -3915,8 +3920,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         })
         test('walkDirectoryRecursivelySync', ():void => {
             const filePaths:Array<string> = []
-            const callback:Function = (filePath:string):null => {
+            const callback:AnyFunction = (filePath:string):null => {
                 filePaths.push(filePath)
+
                 return null
             }
             const files:Array<File> =
@@ -3932,8 +3938,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
     if (TARGET_TECHNOLOGY === 'node') {
         test('getProcessCloseHandler', ():void =>
             expect(typeof Tools.getProcessCloseHandler(
-                (reason:ProcessCloseReason):void => {},
-                (error:ProcessError):void => {}
+                (_reason:ProcessCloseReason):void => {},
+                (_error:ProcessError):void => {}
             )).toStrictEqual('function')
         )
         test('handleChildProcess', ():void => {
@@ -3945,6 +3951,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 /**
                  * Triggers if contents from current stream should be red.
                  * @param _size - Number of bytes to read asynchronously.
+                 *
                  * @returns Red data.
                  */
                 _read(_size?:number):void {}
@@ -3955,10 +3962,11 @@ describe(`Tools (${testEnvironment})`, ():void => {
                  * @param encoding - Specifies encoding to be used as input
                  * data.
                  * @param callback - Will be called if data has been written.
+                 *
                  * @returns Returns Nothing.
                  */
                 _write(
-                    chunk:Buffer|string, encoding:string, callback:Function
+                    chunk:Buffer|string, encoding:string, callback:AnyFunction
                 ):void {
                     callback(new Error('test'))
                 }

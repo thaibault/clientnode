@@ -24,14 +24,14 @@ import {DefinedSymbol, ThrowSymbol, UndefinedSymbol} from './testHelper'
 // endregion
 // region exports
 // / region helper
-export type AnyFunction = (...parameters:Array<any>) => any
+export type AnyFunction = (..._parameters:Array<any>) => any
 
 export type FirstParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[0]
 export type SecondParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[1]
 export type ParametersExceptFirst<FunctionType> = FunctionType extends
-    (parameter:any, ...additionalParameters:infer AdditionalParameters) =>
+    (_parameter:any, ..._additionalParameters:infer AdditionalParameters) =>
         any ?
             AdditionalParameters :
             []
@@ -40,11 +40,12 @@ export type FunctionTestTuple<FunctionType extends AnyFunction> =
     [ReturnType<FunctionType>, ...Parameters<FunctionType>]
 export type FunctionTestPromiseTuple<FunctionType extends AnyFunction> =
     [ThenParameter<ReturnType<FunctionType>>, ...Parameters<FunctionType>]
-export type FunctionTestPromiseRejectionTuple<FunctionType extends AnyFunction> =
-    [Error, ...Parameters<FunctionType>]
+export type FunctionTestPromiseRejectionTuple<
+    FunctionType extends AnyFunction
+> = [Error, ...Parameters<FunctionType>]
 
 export type BaseSelector<T = unknown, E = unknown> =
-    number|string|((target:T) => E)
+    number|string|((_target:T) => E)
 export type Selector<T = unknown, E = unknown> =
     Array<BaseSelector<T, E>>|BaseSelector<T, E>
 
@@ -60,9 +61,9 @@ export type ValueOf<Type> = Type[keyof Type]
 export type RecursiveNonNullable<Type> = {
     [Property in keyof Type]:Type[Property] extends (infer OtherType)[] ?
         RecursiveNonNullable<OtherType>[] :
-        Type[Property] extends Function ?
+        Type[Property] extends AnyFunction ?
             NonNullable<Type[Property]> :
-            Type[Property] extends object ?
+            Type[Property] extends Mapping<unknown> ?
                 RecursiveNonNullable<Type[Property]> :
                 NonNullable<Type[Property]>
 }
@@ -71,49 +72,48 @@ export type RecursivePartial<Type> =
     {
         [Property in keyof Type]?:Type[Property] extends (infer OtherType)[] ?
             RecursivePartial<OtherType>[] :
-            Type[Property] extends Function ?
+            Type[Property] extends AnyFunction ?
                 Partial<Type[Property]> :
-                Type[Property] extends object ?
+                Type[Property] extends Mapping<unknown> ?
                     RecursivePartial<Type[Property]> :
                     Partial<Type[Property]>
     }
 // / endregion
 // / region native
-export type ImportFunction = (_id:string) => Promise<ReturnType<
-    typeof require
->>
+export type ImportFunction =
+    (_id:string) => Promise<ReturnType<typeof require>>
 export type HTMLItem = Comment|Document|HTMLElement|Text
 
 export type Primitive = boolean|null|number|string|undefined
 // NOTE: Mapping cannot be used here to avoid circular references.
-export type PlainObject<Type = Primitive> = {
-    [key:string]:Array<PlainObject<Type>|Type>|PlainObject<Type>|Type
-}
+export type PlainObject<Type = Primitive> = Mapping<
+    Array<PlainObject<Type>|Type>|PlainObject<Type>|Type
+>
 
 export interface ProxyHandler<T = unknown> {
-    deleteProperty:(target:T, key:string|symbol) => boolean
-    get:(target:T, key:string|symbol) => unknown
-    has:(target:T, key:string|symbol) => boolean
-    set:(target:T, key:string|symbol, value:unknown) => boolean
+    deleteProperty:(_target:T, _key:string|symbol) => boolean
+    get:(_target:T, _key:string|symbol) => unknown
+    has:(_target:T, _key:string|symbol) => boolean
+    set:(_target:T, _key:string|symbol, _value:unknown) => boolean
 }
 export type ProxyType<T = unknown> = T & {
     __revoke__?:AnyFunction
     __target__:T
 }
 // // region functions
-export type GenericFunction = (...parameter:Array<unknown>) => unknown
+export type GenericFunction = (..._parameters:Array<unknown>) => unknown
 
-export type SynchronousProcedureFunction = (...parameter:Array<unknown>) =>
+export type SynchronousProcedureFunction = (..._parameters:Array<unknown>) =>
     void
-export type AsynchronousProcedureFunction = (...parameter:Array<unknown>) =>
+export type AsynchronousProcedureFunction = (..._parameters:Array<unknown>) =>
     Promise<void>
 export type ProcedureFunction =
     AsynchronousProcedureFunction|SynchronousProcedureFunction
 
 export type GetterFunction =
-    (keyOrValue:unknown, key:string|symbol, target:unknown) => unknown
+    (_keyOrValue:unknown, _key:string|symbol, _target:unknown) => unknown
 export type SetterFunction =
-    (key:string|Symbol, value:unknown, target:unknown) => unknown
+    (_key:string|symbol, _value:unknown, _target:unknown) => unknown
 // // endregion
 // / endregion
 // / region clientnode helper
@@ -136,7 +136,16 @@ export interface CompareOptions {
 }
 
 export type Encoding =
-    'ascii'|'base64'|'binary'|'hex'|'latin1'|'ucs2'|'ucs-2'|'utf8'|'utf16le'|'utf-8'
+    'ascii' |
+    'base64' |
+    'binary' |
+    'hex' |
+    'latin1' |
+    'ucs2' |
+    'ucs-2' |
+    'utf8' |
+    'utf16le' |
+    'utf-8'
 export interface File {
     directoryPath:string
     error:Error|null
@@ -153,7 +162,7 @@ export interface ProcessError extends Error {
 export type QueryParameters =
     Array<Array<string>|string> & Mapping<Array<string>|string>
 
-    export interface Scope<TElement = HTMLElement> extends Iterable<TElement> {
+export interface Scope<TElement = HTMLElement> extends Iterable<TElement> {
     Tools:ToolsFunction<TElement>
 }
 
@@ -172,13 +181,14 @@ export interface ObjectMaskConfiguration {
 
 export type Evaluateable = {__evaluate__:string}|{__execute__:string}
 export type RecursiveEvaluateable<Type> = Evaluateable|{
-    [Property in keyof Type]:
+    [Property in keyof Type]:(
         Evaluateable|(Type[Property] extends (infer OtherType)[] ?
             RecursiveEvaluateable<OtherType>[] :
-            Type[Property] extends object ?
+            Type[Property] extends Mapping<unknown> ?
                 RecursiveEvaluateable<Type[Property]> :
                 Evaluateable|Type[Property]
         )
+    )
 }
 
 export interface PaginateOptions {
@@ -199,7 +209,8 @@ export interface Page {
     selected:boolean
     type:PageType
 }
-export type PageType = 'end-ellipsis'|'first'|'last'|'next'|'page'|'previous'|'start-ellipsis'
+export type PageType =
+    'end-ellipsis'|'first'|'last'|'next'|'page'|'previous'|'start-ellipsis'
 
 export interface Offset {
     left:number
@@ -210,17 +221,18 @@ export interface Position extends Offset {
     right:number
 }
 
-export type ProcessHandler = (returnCode:any, ...parameter:Array<any>) => void
+export type ProcessHandler =
+    (_returnCode:any, ..._parameters:Array<any>) => void
 export interface ProcessCloseReason {
     parameters:Array<unknown>
     reason:unknown
 }
-export type ProcessCloseCallback = (reason:ProcessCloseReason) => void
-export type ProcessErrorCallback = (reason:ProcessError) => void
+export type ProcessCloseCallback = (_reason:ProcessCloseReason) => void
+export type ProcessErrorCallback = (_reason:ProcessError) => void
 
 export type RelativePosition = 'above'|'below'|'in'|'left'|'right'
 
-export type TemplateFunction = (...parameter:Array<any>) => any
+export type TemplateFunction = (..._parameters:Array<any>) => any
 export interface CompilationResult {
     error:null|string
     originalScopeNames:Array<string>
@@ -235,7 +247,7 @@ export interface EvaluationResult {
     runtimeError:null|string
 }
 
-export type LockCallbackFunction<Type = string> = (description:string) =>
+export type LockCallbackFunction<Type = string> = (_description:string) =>
     Promise<Type>|Type
 // / endregion
 // / region global scope
@@ -257,7 +269,7 @@ export interface Options<Type = string> {
 
 export type $Function = JQueryStatic & StaticScope
 export interface $Global extends Window {
-    Babel?:{transform:(code:string, configuration:PlainObject) => {
+    Babel?:{transform:(_code:string, _configuration:PlainObject) => {
         code:string
     }}
     console:Console
@@ -265,19 +277,19 @@ export interface $Global extends Window {
     $:$Function
 }
 export interface ToolsFunction<TElement = HTMLElement, LockType = string> {
-    (...parameter:Array<any>):any|Tools<TElement, LockType>
+    (..._parameters:Array<any>):any|Tools<TElement, LockType>
     class:typeof Tools
 }
 export interface StaticScope {
-    (parameter:any, ...additionalArguments:Array<any>):any
+    (_parameter:any, ..._additionalParameters:Array<any>):any
     document?:Document
     global:$Global
     location?:Location
     Tools:ToolsFunction
 }
 declare global {
-    interface JQuery<TElement = HTMLElement> extends Scope<TElement> {}
-    interface JQueryStatic extends StaticScope {}
+    type JQuery<TElement = HTMLElement> = Scope<TElement>
+    type JQueryStatic = StaticScope
 }
 // / endregion
 // endregion
