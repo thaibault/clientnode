@@ -268,6 +268,7 @@ export interface Options<Type = string> {
 }
 
 export type $Function = JQueryStatic & StaticScope
+export type $T = JQuery
 export interface $Global extends Window {
     Babel?:{transform:(_code:string, _configuration:PlainObject) => {
         code:string

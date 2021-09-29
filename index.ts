@@ -62,7 +62,8 @@ import {
     $DomNode,
     $DomNodes,
     $Function,
-    $Global
+    $Global,
+    $T
 } from './type'
 // endregion
 export const CloseEventNames = [
@@ -146,7 +147,7 @@ const path:null|typeof import('path') = optionalRequire('path')
 // / endregion
 // / region $
 export const determine$:(() => $Function) = ():$Function => {
-    let $:$Function|undefined
+    let $:$Function = Tools.noop as unknown as $Function
     if (globalContext.$ && globalContext.$ !== null)
         $ = globalContext.$
     else {
@@ -171,31 +172,30 @@ export const determine$:(() => $Function) = ():$Function => {
                 ():null => null
 
             $ = ((parameter:unknown):unknown => {
-                let $domNodes:Array<Node>|null|ReturnType<
-                    Document['querySelectorAll']
-                > = [] as Array<Node>
+                let $domNodes:null|$T = null
                 if (typeof parameter === 'string')
-                    $domNodes = selector(parameter)
+                    $domNodes = selector(parameter) as unknown as null|$T
                 else if (Array.isArray(parameter))
-                    $domNodes = parameter
+                    $domNodes = parameter as unknown as null|$T
                 else if (
                     typeof HTMLElement === 'object' &&
                     parameter instanceof HTMLElement ||
                     (parameter as Node)?.nodeType === 1 &&
                     typeof (parameter as Node)?.nodeName === 'string'
                 )
-                    $domNodes = [parameter as Node]
+                    $domNodes = [parameter] as unknown as $T
 
                 if ($domNodes) {
                     if (($ as unknown as $Function).fn)
-                        for (const key in ($ as unknown as $Function).fn)
+                        for (const key in $.fn)
                             if (Object.prototype.hasOwnProperty.call(
-                                ($ as unknown as $Function).fn, key
+                                $.fn, key
                             ))
-                                $domNodes[key] = (
-                                    ($ as unknown as $Function).fn[key] as
-                                        unknown as AnyFunction
-                                ).bind($domNodes)
+                                $domNodes[key as 'add'] = (
+                                    $.fn[key] as unknown as AnyFunction
+                                ).bind($domNodes) as $T['add']
+
+                    $domNodes.jquery = 'clientnode'
 
                     return $domNodes
                 }
@@ -211,7 +211,7 @@ export const determine$:(() => $Function) = ():$Function => {
                 return parameter
             }) as $Function
 
-            ;($.fn as Mapping<AnyFunction>) = {}
+            ;($ as {fn:$Function['fn']}).fn = {} as $Function['fn']
         }
     }
 
@@ -2235,6 +2235,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * object.
      * @param object - Map to convert to.
      * @param deep - Indicates whether to perform a recursive conversion.
+     *
      * @returns Given map as object.
      */
     static convertMapToPlainObject(object:unknown, deep = true):unknown {
@@ -2255,9 +2256,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 if (Tools.isPlainObject(object)) {
                     for (const key in object)
                         if (Object.prototype.hasOwnProperty.call(object, key))
-                            object[key] = Tools.convertMapToPlainObject(
-                                object[key], deep
-                            ) as Primitive
+                            (object as Mapping<unknown>)[key] =
+                                Tools.convertMapToPlainObject(
+                                    object[key], deep
+                                )
                 } else if (Array.isArray(object)) {
                     let index:number = 0
 
