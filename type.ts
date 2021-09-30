@@ -17,7 +17,7 @@
 */
 // region imports
 import JQuery from 'jquery'
-import {Stats} from 'fs'
+import {Dirent as DirectoryEntry, Stats as FileStats} from 'fs'
 
 import Tools from './index'
 import {DefinedSymbol, ThrowSymbol, UndefinedSymbol} from './testHelper'
@@ -147,10 +147,11 @@ export type Encoding =
     'utf-8'
 export interface File {
     directoryPath:string
+    directoryEntry:DirectoryEntry|null
     error:Error|null
     name:string
     path:string
-    stats:Stats|null
+    stats:FileStats|null
 }
 
 export interface ProcessError extends Error {
@@ -246,13 +247,15 @@ export type LockCallbackFunction<Type = string> = (_description:string) =>
     Promise<Type>|Type
 // / endregion
 // / region global scope
-export type DomNodes<Type = string> = Mapping<Type> & {
-    hideJavaScriptEnabled:Type
-    parent?:Type
-    showJavaScriptEnabled:Type
-    window?:Type
-}
-export type $DomNode<TElement = HTMLElement> = JQuery<TElement>
+export type DomNodes<Type = string> =
+    Mapping<Type> &
+    {
+        hideJavaScriptEnabled:Type
+        parent?:Type
+        showJavaScriptEnabled:Type
+        window?:Type
+    }
+export type $DomNode<TElement = HTMLElement> = $T<TElement>
 export type $DomNodes = DomNodes<$DomNode>
 
 export interface Options<Type = string> {
@@ -263,14 +266,14 @@ export interface Options<Type = string> {
 }
 
 export type $TStatic = JQueryStatic
-export type $T = JQuery & JQueryStatic
+export type $T<TElement = HTMLElement> = JQuery<TElement>
 export interface $Global extends Window {
     Babel?:{transform:(_code:string, _configuration:PlainObject) => {
         code:string
     }}
     console:Console
     dataLayer:Array<PlainObject>
-    $:$T
+    $:$TStatic
 }
 export interface ToolsFunction<TElement = HTMLElement, LockType = string> {
     (..._parameters:Array<any>):any|Tools<TElement, LockType>

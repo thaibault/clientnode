@@ -724,19 +724,22 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['a', '<a></a>']
     )
     if (hasDOM)
-        test('grabDomNode', async ():Promise<void> => {
+        test('grabDomNodes', async ():Promise<void> => {
             const browser:InitializedBrowser = await getInitializedBrowser()
-            for (const test of [
-                [[{a: 'div'}], {a: $('div'), parent: $('body')}],
+
+            for (const [expected, parameters] of [
+                [{a: $('div'), parent: $('body')}, [{a: 'div'}]],
                 [
-                    [{a: 'script'}, 'body'],
-                    {a: $('body').find('script'), parent: $('body')}
+                    {a: $('body').find('script'), parent: $('body')},
+                    [{a: 'script'}, 'body']
                 ]
-            ] as Array<[[Mapping, string?], Mapping<$DomNode>]>) {
-                const $domNodes = tools.grabDomNode(...test[0])
+            ] as Array<[Mapping<$DomNode>, [Mapping, string?]]>) {
+                const $domNodes = tools.grabDomNodes(...parameters)
+
                 delete $domNodes.window
                 delete $domNodes.document
-                expect($domNodes).toStrictEqual(test[1])
+
+                expect($domNodes).toStrictEqual(expected)
             }
         })
     // / endregion

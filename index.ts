@@ -62,7 +62,8 @@ import {
     $DomNode,
     $DomNodes,
     $Global,
-    $T
+    $T,
+    $TStatic
 } from './type'
 // endregion
 export const CloseEventNames = [
@@ -138,15 +139,26 @@ globalContext.fetch =
                 (module as {default:typeof fetch})?.default(...parameters)
             )
     )
-const synchronousFileSystem:null|typeof import('fs') = optionalRequire('fs')
-const fileSystem:null|typeof import('fs').promises = synchronousFileSystem ?
-    synchronousFileSystem.promises :
-    null
-const path:null|typeof import('path') = optionalRequire('path')
+const {
+    mkdirSync = null,
+    readdirSync = null,
+    readFileSync = null,
+    statSync = null,
+    writeFileSync = null
+} = optionalRequire('fs') || {}
+const {
+    mkdir = null,
+    readdir = null,
+    readFile = null,
+    stat = null,
+    writeFile = null
+} = optionalRequire('fs/promises') || {}
+const {basename = null, join = null, resolve = null} =
+    optionalRequire('path') || {}
 // / endregion
 // / region $
-export const determine$:(() => $T) = ():$T => {
-    let $:$T = (():void => {}) as unknown as $T
+export const determine$:(() => $TStatic) = ():$TStatic => {
+    let $:$TStatic = (():void => {}) as unknown as $TStatic
     if (globalContext.$ && globalContext.$ !== null)
         $ = globalContext.$
     else {
@@ -185,7 +197,7 @@ export const determine$:(() => $T) = ():$T => {
                     $domNodes = [parameter] as unknown as $T
 
                 if ($domNodes) {
-                    if (($ as unknown as $T).fn)
+                    if ($.fn)
                         for (const key in $.fn)
                             if (Object.prototype.hasOwnProperty.call(
                                 $.fn, key
@@ -208,9 +220,9 @@ export const determine$:(() => $T) = ():$T => {
                     )
 
                 return parameter
-            }) as $T
+            }) as $TStatic
 
-            ;($ as {fn:$T['fn']}).fn = {} as $T['fn']
+            ;($ as {fn:$T}).fn = {} as $T
         }
     }
 
@@ -226,7 +238,7 @@ export const determine$:(() => $T) = ():$T => {
 
     return $
 }
-export let $:$T = determine$()
+export let $:$TStatic = determine$()
 // / endregion
 // endregion
 // region plugins/classes
@@ -1075,6 +1087,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Gets a cookie value by given name.
      * @param name - Name to identify requested value.
+     *
      * @returns Requested value.
      */
     static getCookie(name:string):string|null {
@@ -1103,6 +1116,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * connections.
      * @param httpOnly - Indicates if this cookie should be accessible from
      * client or not.
+     *
      * @returns A boolean indicating whether cookie could be set or not.
      */
     static setCookie(
@@ -1139,6 +1153,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     // / region dom node
     /**
      * Normalizes class name order of current dom node.
+     *
      * @returns Current instance.
      */
     get normalizedClassNames():Tools<TElement, LockType> {
@@ -1280,8 +1295,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns true if both dom representations are equivalent.
      */
     static isEquivalentDOM(
-        first:Node|string|$DomNode,
-        second:Node|string|$DomNode,
+        first:Node|string|$DomNode<Node>,
+        second:Node|string|$DomNode<Node>,
         forceHTMLString = false
     ):boolean {
         if (first === second)
@@ -1290,8 +1305,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (first && second) {
             const detemermineHTMLPattern =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
-            const inputs:Mapping<Node|string|$DomNode> = {first, second}
-            const $domNodes:Mapping<$DomNode> = {
+            const inputs:Mapping<Node|string|$DomNode<Node>> = {first, second}
+            const $domNodes:Mapping<$DomNode<Node>> = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
 
@@ -1316,10 +1331,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     $domNodes[type] = $(`<div>${inputs[type]}</div>`)
                 else
                     try {
-                        const $copiedDomNode:$DomNode =
-                            $(inputs[type]).clone()
+                        const $copiedDomNode:$DomNode<Node> = $(
+                            inputs[type] as
+                                unknown as
+                                Node|JQuery.PlainObject|$DomNode<Node>
+                        ).clone()
                         if ($copiedDomNode.length)
-                            $domNodes[type] = $('<div>').append($copiedDomNode)
+                            $domNodes[type] = $('<div>').append(
+                                $copiedDomNode as $DomNode<JQuery.Node>
+                            )
                         else
                             return false
                     } catch (error) {
@@ -1590,16 +1610,17 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns All $ wrapped dom nodes corresponding to given
      * selectors.
      */
-    grabDomNode(
+    grabDomNodes(
         domNodeSelectors:Mapping,
-        wrapperDomNode:Node|null|string|$DomNode = null
+        wrapperDomNode?:Node|null|string|$DomNode<Node>
     ):$DomNodes {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         const domNodes:$DomNodes = {} as $DomNodes
 
         if (domNodeSelectors)
             if (wrapperDomNode) {
-                const $wrapperDomNode:$DomNode = $(wrapperDomNode)
+                const $wrapperDomNode:$DomNode<Node> =
+                    $(wrapperDomNode as Node) as $DomNode<Node>
                 for (const name in domNodeSelectors)
                     if (Object.prototype.hasOwnProperty.call(
                         domNodeSelectors, name
@@ -6572,9 +6593,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             serializedObject.endsWith('.json') &&
             Tools.isFileSync(serializedObject)
         )
-            serializedObject = synchronousFileSystem!.readFileSync(
-                serializedObject, {encoding: 'utf-8'}
-            )
+            serializedObject =
+                readFileSync!(serializedObject, {encoding: 'utf-8'})
 
         serializedObject = serializedObject.trim()
 
@@ -7127,12 +7147,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):Promise<string> {
         // NOTE: Check if folder needs to be created or integrated.
-        sourcePath = path!.resolve(sourcePath)
+        sourcePath = resolve!(sourcePath)
         if (await Tools.isDirectory(targetPath))
-            targetPath = path!.resolve(targetPath, path!.basename(sourcePath))
+            targetPath = resolve!(targetPath, basename!(sourcePath))
 
         try {
-            await fileSystem!.mkdir(targetPath)
+            await mkdir!(targetPath)
         } catch (error) {
             if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                 throw error
@@ -7141,13 +7161,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const currentSourceFile of
             await Tools.walkDirectoryRecursively(sourcePath, callback)
         ) {
-            const currentTargetPath:string = path!.join(
+            const currentTargetPath:string = join!(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
 
             if (currentSourceFile.stats?.isDirectory())
                 try {
-                    await fileSystem!.mkdir(currentTargetPath)
+                    await mkdir!(currentTargetPath)
                 } catch (error) {
                     if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                         throw error
@@ -7184,11 +7204,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):string {
         // NOTE: Check if folder needs to be created or integrated.
-        sourcePath = path!.resolve(sourcePath)
+        sourcePath = resolve!(sourcePath)
         if (Tools.isDirectorySync(targetPath))
-            targetPath = path!.resolve(targetPath, path!.basename(sourcePath))
+            targetPath = resolve!(targetPath, basename!(sourcePath))
         try {
-            synchronousFileSystem!.mkdirSync(targetPath)
+            mkdirSync!(targetPath)
         } catch (error) {
             if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                 throw error
@@ -7197,12 +7217,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const currentSourceFile of
             Tools.walkDirectoryRecursivelySync(sourcePath, callback)
         ) {
-            const currentTargetPath:string = path!.join(
+            const currentTargetPath:string = join!(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
             if (currentSourceFile.stats?.isDirectory())
                 try {
-                    synchronousFileSystem!.mkdirSync(currentTargetPath)
+                    mkdirSync!(currentTargetPath)
                 } catch (error) {
                     if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                         throw error
@@ -7240,12 +7260,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             same name will be created.
         */
         if (await Tools.isDirectory(targetPath))
-            targetPath = path!.resolve(targetPath, path!.basename(sourcePath))
+            targetPath = resolve!(targetPath, basename!(sourcePath))
 
-        const data:object|string =
-            await fileSystem!.readFile(sourcePath, readOptions)
-
-        fileSystem!.writeFile(targetPath, data, writeOptions)
+        await writeFile!(
+            targetPath, await readFile!(sourcePath, readOptions), writeOptions
+        )
 
         return targetPath
     }
@@ -7272,12 +7291,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             same name will be created.
         */
         if (Tools.isDirectorySync(targetPath))
-            targetPath = path!.resolve(targetPath, path!.basename(sourcePath))
-        synchronousFileSystem!.writeFileSync(
+            targetPath = resolve!(targetPath, basename!(sourcePath))
+
+        writeFileSync!(
             targetPath,
-            synchronousFileSystem!.readFileSync(sourcePath, readOptions),
+            readFileSync(sourcePath, readOptions),
             writeOptions
         )
+
         return targetPath
     }
     /**
@@ -7288,7 +7309,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static async isDirectory(filePath:string):Promise<boolean> {
         try {
-            return (await fileSystem!.stat(filePath)).isDirectory()
+            return (await stat!(filePath)).isDirectory()
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
@@ -7304,11 +7325,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Checks if given path points to a valid directory.
      * @param filePath - Path to directory.
+     *
      * @returns A boolean which indicates directory existents.
      */
     static isDirectorySync(filePath:string):boolean {
         try {
-            return synchronousFileSystem!.statSync(filePath).isDirectory()
+            return statSync!(filePath).isDirectory()
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
@@ -7324,12 +7346,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Checks if given path points to a valid file.
      * @param filePath - Path to directory.
+     *
      * @returns A promise holding a boolean which indicates directory
      * existence.
      */
     static async isFile(filePath:string):Promise<boolean> {
         try {
-            return (await fileSystem!.stat(filePath)).isFile()
+            return (await stat!(filePath)).isFile()
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
@@ -7345,11 +7368,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Checks if given path points to a valid file.
      * @param filePath - Path to file.
+     *
      * @returns A boolean which indicates file existence.
      */
     static isFileSync(filePath:string):boolean {
         try {
-            return synchronousFileSystem!.statSync(filePath).isFile()
+            return statSync!(filePath).isFile()
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
@@ -7376,25 +7400,29 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static async walkDirectoryRecursively(
         directoryPath:string,
         callback:AnyFunction|null = Tools.noop,
-        options:SecondParameter<typeof import('fs').readdir> = 'utf8'
+        options:SecondParameter<typeof import('fs').readdir> =
+            {encoding: 'utf8', withFileTypes: true}
     ):Promise<Array<File>> {
         const files:Array<File> = []
-        // TODO use (everywhere) direct with "withFileTypes" option.
-        for (const fileName of await fileSystem!.readdir(
-            directoryPath, options
+        for (const directoryEntry of await readdir!(
+            directoryPath,
+            typeof options === 'string' ?
+                {encoding: options, withFileTypes: true} :
+                {...options, withFileTypes: true}
         )) {
             const filePath:string =
-                path!.resolve(directoryPath, fileName)
+                resolve!(directoryPath, directoryEntry.name)
             const file:File = {
                 directoryPath,
+                directoryEntry,
                 error: null,
-                name: fileName,
+                name: directoryEntry.name,
                 path: filePath,
                 stats: null
             }
 
             try {
-                file.stats = await fileSystem!.stat(filePath)
+                file.stats = await stat!(filePath)
             } catch (error) {
                 file.error = error as NodeJS.ErrnoException
             }
@@ -7466,23 +7494,29 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static walkDirectoryRecursivelySync(
         directoryPath:string,
         callback:AnyFunction|null = Tools.noop,
-        options:PlainObject|string = 'utf8'
+        options:SecondParameter<typeof import('fs').readdirSync> =
+            {encoding: 'utf8', withFileTypes: true}
     ):Array<File> {
         const files:Array<File> = []
 
-        for (const fileName of synchronousFileSystem!.readdirSync(
-            directoryPath, options
+        for (const directoryEntry of readdirSync!(
+            directoryPath,
+            typeof options === 'string' ?
+                {encoding: options, withFileTypes: true} :
+                {...options, withFileTypes: true}
         )) {
-            const filePath:string = path!.resolve(directoryPath, fileName)
+            const filePath:string =
+                resolve!(directoryPath, directoryEntry.name)
             const file:File = {
                 directoryPath,
+                directoryEntry,
                 error: null,
-                name: fileName,
+                name: directoryEntry.name,
                 path: filePath,
                 stats: null
             }
             try {
-                file.stats = synchronousFileSystem!.statSync(filePath)
+                file.stats = statSync!(filePath)
             } catch (error) {
                 file.error = error as NodeJS.ErrnoException
             }
@@ -7620,7 +7654,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (!eventFunctionName)
             eventFunctionName = removeEvent ? 'off' : 'on'
 
-        const $domNode:$DomNode<TElement> = $(parameters[0])
+        const $domNode:$DomNode<TElement> = $(parameters[0] as TElement)
         if (Tools.determineType(parameters[1]) === 'object' && !removeEvent) {
             for (const eventType in parameters[1] as object)
                 if (Object.prototype.hasOwnProperty.call(
@@ -7683,7 +7717,7 @@ export class BoundTools<
 export default Tools
 // endregion
 // region handle $ extending
-export const augment$ = (value:$T):void => {
+export const augment$ = (value:$TStatic):void => {
     $ = value
 
     if (!$.global)
