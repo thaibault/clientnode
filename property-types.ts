@@ -54,9 +54,16 @@ export const createDummy = (
 
     return type
 }
+/**
+ * Dummy validation class.
+ * @property message - Holds error message as string.
+ */
 export class ValidationError extends Function {
-    message:string = 'DummyErrorMessage'
+    message = 'DummyErrorMessage'
 
+    /**
+     * Initializes dummy validation error instance.
+     */
     constructor() {
         super('return null')
     }
