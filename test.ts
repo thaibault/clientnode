@@ -782,7 +782,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         for (const name in scope)
             finalScope[name] = scope[name]
         expect(finalScope).toStrictEqual({a: 2, b: 3})
-        expect(Tools.isolateScope(new Scope())())
+        expect(Tools.isolateScope(new Scope()))
             .toStrictEqual({a: 2, b: undefined})
     })
     test('determineUniqueScopeName', ():void => {

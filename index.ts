@@ -61,7 +61,6 @@ import {
     ValueOf,
     $DomNode,
     $DomNodes,
-    $Function,
     $Global,
     $T
 } from './type'
@@ -146,8 +145,8 @@ const fileSystem:null|typeof import('fs').promises = synchronousFileSystem ?
 const path:null|typeof import('path') = optionalRequire('path')
 // / endregion
 // / region $
-export const determine$:(() => $Function) = ():$Function => {
-    let $:$Function = Tools.noop as unknown as $Function
+export const determine$:(() => $T) = ():$T => {
+    let $:$T = (():void => {}) as unknown as $T
     if (globalContext.$ && globalContext.$ !== null)
         $ = globalContext.$
     else {
@@ -186,7 +185,7 @@ export const determine$:(() => $Function) = ():$Function => {
                     $domNodes = [parameter] as unknown as $T
 
                 if ($domNodes) {
-                    if (($ as unknown as $Function).fn)
+                    if (($ as unknown as $T).fn)
                         for (const key in $.fn)
                             if (Object.prototype.hasOwnProperty.call(
                                 $.fn, key
@@ -209,9 +208,9 @@ export const determine$:(() => $Function) = ():$Function => {
                     )
 
                 return parameter
-            }) as $Function
+            }) as $T
 
-            ;($ as {fn:$Function['fn']}).fn = {} as $Function['fn']
+            ;($ as {fn:$T['fn']}).fn = {} as $T['fn']
         }
     }
 
@@ -227,7 +226,7 @@ export const determine$:(() => $Function) = ():$Function => {
 
     return $
 }
-export let $:$Function = determine$()
+export let $:$T = determine$()
 // / endregion
 // endregion
 // region plugins/classes
@@ -493,10 +492,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         this.options = Tools._defaultOptions as Options
 
         this.locks = locks
+
         // Avoid errors in browsers that lack a console.
         if (!$.global.console)
             ($.global as unknown as {console:Mapping<AnyFunction>}).console =
                 {}
+
         for (const methodName of ConsoleOutputMethods)
             if (!(methodName in $.global.console))
                 $.global.console[methodName as 'log'] =
@@ -504,6 +505,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     /**
      * This method could be overwritten normally. It acts like a destructor.
+     *
      * @returns Returns the current instance.
      */
     destructor():Tools<TElement, LockType> {
@@ -516,6 +518,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * This method should be overwritten normally. It is triggered if current
      * object was created via the "new" keyword and is called now.
      * @param options - An options object.
+     *
      * @returns Returns the current instance.
      */
     initialize(
@@ -1453,7 +1456,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             'hide' in $ &&
             'show' in $
         ) {
-            ;($ as $Function)(
+            $(
                 `${this.options.domNodeSelectorPrefix} ` +
                 this.options.domNodes.hideJavaScriptEnabled
             )
@@ -1464,7 +1467,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 .data('javaScriptDependentContentHide', true)
                 .hide()
 
-            ;($ as $Function)(
+            $(
                 `${this.options.domNodeSelectorPrefix} ` +
                 this.options.domNodes.showJavaScriptEnabled
             )
@@ -1644,6 +1647,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param scope - A scope where inherited names will be removed.
      * @param prefixesToIgnore - Name prefixes to ignore during deleting names
      * in given scope.
+     *
      * @returns The isolated scope.
      */
     static isolateScope<T extends Object>(
@@ -2258,26 +2262,28 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         if (Object.prototype.hasOwnProperty.call(object, key))
                             (object as Mapping<unknown>)[key] =
                                 Tools.convertMapToPlainObject(
-                                    object[key], deep
+                                    (object as Mapping<unknown>)[key], deep
                                 )
                 } else if (Array.isArray(object)) {
                     let index:number = 0
 
-                    for (const value of object) {
-                        object[index] =
+                    for (const value of object as Array<unknown>) {
+                        ;(object as Array<unknown>)[index] =
                             Tools.convertMapToPlainObject(value, deep)
+
                         index += 1
                     }
                 } else if (Tools.isSet(object)) {
                     const cache:Array<unknown> = []
 
-                    for (const value of object) {
-                        object.delete(value)
+                    for (const value of object as Set<unknown>) {
+                        (object as Set<unknown>).delete(value)
+
                         cache.push(Tools.convertMapToPlainObject(value, deep))
                     }
 
                     for (const value of cache)
-                        object.add(value)
+                        (object as Set<unknown>).add(value)
                 }
         }
 
@@ -2288,6 +2294,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * corresponding map.
      * @param object - Object to convert to.
      * @param deep - Indicates whether to perform a recursive conversion.
+     *
      * @returns Given object as map.
      */
     static convertPlainObjectToMap(object:unknown, deep = true):unknown {
@@ -2297,10 +2304,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 for (const key in object)
                     if (Object.prototype.hasOwnProperty.call(object, key)) {
                         if (deep)
-                            object[key] = Tools.convertPlainObjectToMap(
-                                object[key], deep
-                            ) as Primitive
-                        newObject.set(key, object[key])
+                            (object as Mapping<unknown>)[key] =
+                                Tools.convertPlainObjectToMap(
+                                    (object as Mapping<unknown>)[key], deep
+                                ) as Primitive
+
+                        newObject.set(key, (object as Mapping<unknown>)[key])
                     }
                 return newObject
             }
@@ -2308,10 +2317,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (deep)
                 if (Array.isArray(object)) {
                     let index:number = 0
-                    for (const value of object) {
-                        object[index] = Tools.convertPlainObjectToMap(
-                            value, deep
-                        )
+                    for (const value of object as Array<unknown>) {
+                        (object as Array<unknown>)[index] =
+                            Tools.convertPlainObjectToMap(value, deep)
+
                         index += 1
                     }
                 } else if (Tools.isMap(object))
@@ -7674,7 +7683,7 @@ export class BoundTools<
 export default Tools
 // endregion
 // region handle $ extending
-export const augment$ = (value:$Function):void => {
+export const augment$ = (value:$T):void => {
     $ = value
 
     if (!$.global)

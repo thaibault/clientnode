@@ -86,9 +86,8 @@ export type HTMLItem = Comment|Document|HTMLElement|Text
 
 export type Primitive = boolean|null|number|string|undefined
 // NOTE: Mapping cannot be used here to avoid circular references.
-export type PlainObject<Type = Primitive> = Mapping<
-    Array<PlainObject<Type>|Type>|PlainObject<Type>|Type
->
+export type PlainObject<Type = Primitive> =
+    {[key:string]:Array<PlainObject<Type>|Type>|PlainObject<Type>|Type}
 
 export interface ProxyHandler<T = unknown> {
     deleteProperty:(_target:T, _key:string|symbol) => boolean
@@ -161,10 +160,6 @@ export interface ProcessError extends Error {
 
 export type QueryParameters =
     Array<Array<string>|string> & Mapping<Array<string>|string>
-
-export interface Scope<TElement = HTMLElement> extends Iterable<TElement> {
-    Tools:ToolsFunction<TElement>
-}
 
 export interface TimeoutPromise extends Promise<boolean> {
     clear:() => void
@@ -267,30 +262,37 @@ export interface Options<Type = string> {
     name:string
 }
 
-export type $Function = JQueryStatic & StaticScope
-export type $T = JQuery
+export type $TStatic = JQueryStatic
+export type $T = JQuery & JQueryStatic
 export interface $Global extends Window {
     Babel?:{transform:(_code:string, _configuration:PlainObject) => {
         code:string
     }}
     console:Console
     dataLayer:Array<PlainObject>
-    $:$Function
+    $:$T
 }
 export interface ToolsFunction<TElement = HTMLElement, LockType = string> {
     (..._parameters:Array<any>):any|Tools<TElement, LockType>
     class:typeof Tools
 }
+
 export interface StaticScope {
-    (_parameter:any, ..._additionalParameters:Array<any>):any
     document?:Document
     global:$Global
     location?:Location
     Tools:ToolsFunction
 }
 declare global {
-    type JQuery<TElement = HTMLElement> = Scope<TElement>
-    type JQueryStatic = StaticScope
+    interface JQuery<TElement = HTMLElement> {
+        Tools:ToolsFunction<TElement>
+    }
+    interface JQueryStatic {
+        document?:Document
+        global:$Global
+        location?:Location
+        Tools:ToolsFunction
+    }
 }
 // / endregion
 // endregion
