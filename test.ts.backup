@@ -3107,16 +3107,15 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'result',
             '<div class="idle">loading...</div>'
         ]
-        // TODO
-    ].map((parameters) => parameters.concat(undefined, undefined)))(
+    ])(
         'stringEvaluate(`%s`, %p...)[%p] === %p',
-        async (
+        (
             expression:string,
             scope:Mapping<unknown>,
             resultKey:string,
-            expected?:unknown,
-            binding?:unknown
-        ):Promise<void> => {
+            expected:unknown = undefined,
+            binding:unknown = undefined
+        ):void => {
             const evaluation:EvaluationResult = Tools.stringEvaluate(
                 expression,
                 scope,
@@ -3125,9 +3124,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                     binding === undefined ? [] : binding
                 )
             )
-
             expect(evaluation).toHaveProperty(resultKey)
-
             if (expected !== undefined)
                 if (
                     resultKey === 'result' &&
@@ -3186,15 +3183,14 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'result',
             '<div class="idle">loading...</div>'
         ]
-        // TODO
-    ].map((parameters) => parameters.concat(undefined, undefined)))(
+    ])(
         'IE 11: stringEvaluate(`%s`, %p...)[%p] === %p',
         (
             expression:string,
             scope:Mapping<unknown>,
             resultKey:string,
-            expected?:unknown,
-            binding?:unknown
+            expected:unknown = undefined,
+            binding:unknown = undefined
         ):void => {
             const backup:number = Tools.maximalSupportedInternetExplorerVersion
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
@@ -3208,9 +3204,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                     binding === undefined ? [] : binding
                 )
             )
-
             expect(evaluation).toHaveProperty(resultKey)
-
             if (expected !== undefined)
                 if (
                     resultKey === 'result' &&

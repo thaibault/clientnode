@@ -25,6 +25,7 @@ import {
     CheckReachabilityOptions,
     CompareOptions,
     CompilationResult,
+    Encoding,
     EvaluationResult,
     File,
     FirstParameter,
@@ -125,7 +126,7 @@ try {
 export const currentImport:null|ImportFunction = currentOptionalImport
 export const optionalRequire:typeof require = ((id:string):null|unknown => {
     try {
-        return currentRequire!(id)
+        return currentRequire ? currentRequire(id) : null
     } catch (error) {
         return null
     }
@@ -572,6 +573,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Formatted date time string.
      */
     static dateTimeFormat(
+        this:void,
         format = 'full',
         dateTime:Date = new Date(),
         options:SecondParameter<typeof Intl.DateTimeFormat> = {},
@@ -627,6 +629,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static controller<
         TElement = HTMLElement, RT = ReturnType<Tools['initialize']>
     >(
+        this:void,
         object:unknown,
         parameters:unknown,
         $domNode:null|$DomNode<TElement> = null
@@ -773,7 +776,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns The requested semaphore instance.
      */
-    static getSemaphore(numberOfResources = 2):Semaphore {
+    static getSemaphore(this:void, numberOfResources = 2):Semaphore {
         return new Semaphore(numberOfResources)
     }
     // / endregion
@@ -781,10 +784,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Determines whether its argument represents a JavaScript number.
      * @param value - Value to analyze.
+     *
      * @returns A boolean value indicating whether given object is numeric
      * like.
      */
-    static isNumeric(value:unknown):value is number {
+    static isNumeric(this:void, value:unknown):value is number {
         const type:string = Tools.determineType(value)
         /*
             NOTE: "parseFloat" "NaNs" numeric-cast false positives ("") but
@@ -799,9 +803,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Determine whether the argument is a window.
      * @param value - Value to check for.
+     *
      * @returns Boolean value indicating the result.
      */
-    static isWindow(value:unknown):value is Window {
+    static isWindow(this:void, value:unknown):value is Window {
         return (
             ![null, undefined].includes(value as null) &&
             typeof value === 'object' &&
@@ -812,9 +817,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Checks if given object is similar to an array and can be handled like an
      * array.
      * @param object - Object to check behavior for.
+     *
      * @returns A boolean value indicating whether given object is array like.
      */
-    static isArrayLike(object:unknown):boolean {
+    static isArrayLike(this:void, object:unknown):boolean {
         let length:number|boolean
         try {
             length = Boolean(object) && (object as Array<unknown>).length
@@ -846,11 +852,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Checks whether one of the given pattern matches given string.
      * @param target - Target to check in pattern for.
      * @param pattern - List of pattern to check for.
-     * @returns Value "true" if given object is matches by at leas one of the
      *
+     * @returns Value "true" if given object is matches by at leas one of the
      * given pattern and "false" otherwise.
      */
-    static isAnyMatching(target:string, pattern:Array<string|RegExp>):boolean {
+    static isAnyMatching(
+        this:void, target:string, pattern:Array<string|RegExp>
+    ):boolean {
         for (const currentPattern of pattern)
             if (typeof currentPattern === 'string') {
                 if (currentPattern === target)
@@ -863,19 +871,21 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Checks whether given object is a native object but not null.
      * @param value - Value to check.
+     *
      * @returns Value "true" if given object is a plain javaScript object and
      * "false" otherwise.
      */
-    static isObject(value:unknown):value is object {
+    static isObject(this:void, value:unknown):value is object {
         return value !== null && typeof value === 'object'
     }
     /**
      * Checks whether given object is a plain native object.
      * @param value - Value to check.
+     *
      * @returns Value "true" if given object is a plain javaScript object and
      * "false" otherwise.
      */
-    static isPlainObject(value:unknown):value is PlainObject {
+    static isPlainObject(this:void, value:unknown):value is PlainObject {
         return (
             value !== null &&
             typeof value === 'object' &&
@@ -885,34 +895,38 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Checks whether given object is a set.
      * @param value - Value to check.
+     *
      * @returns Value "true" if given object is a set and "false" otherwise.
      */
-    static isSet(value:unknown):value is Set<unknown> {
+    static isSet(this:void, value:unknown):value is Set<unknown> {
         return Tools.determineType(value) === 'set'
     }
     /**
      * Checks whether given object is a map.
      * @param value - Value to check.
+     *
      * @returns Value "true" if given object is a map and "false" otherwise.
      */
-    static isMap(value:unknown):value is Map<unknown, unknown> {
+    static isMap(this:void, value:unknown):value is Map<unknown, unknown> {
         return Tools.determineType(value) === 'map'
     }
     /**
      * Checks whether given object is a proxy.
      * @param value - Value to check.
+     *
      * @returns Value "true" if given object is a proxy and "false" otherwise.
      */
-    static isProxy(value:unknown):value is ProxyType {
+    static isProxy(this:void, value:unknown):value is ProxyType {
         return Boolean((value as ProxyType).__target__)
     }
     /**
      * Checks whether given object is a function.
      * @param value - Value to check.
+     *
      * @returns Value "true" if given object is a function and "false"
      * otherwise.
      */
-    static isFunction(value:unknown):value is AnyFunction {
+    static isFunction(this:void, value:unknown):value is AnyFunction {
         return (
             Boolean(value) &&
             ['[object AsyncFunction]', '[object Function]'].includes(
@@ -1078,9 +1092,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Deletes a cookie value by given name.
      * @param name - Name to identify requested value.
+     *
      * @returns Nothing.
      */
-    static deleteCookie(name:string):void {
+    static deleteCookie(this:void, name:string):void {
         if ($.document)
             $.document.cookie = `${name}=; Max-Age=-99999999;`
     }
@@ -1090,7 +1105,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Requested value.
      */
-    static getCookie(name:string):string|null {
+    static getCookie(this:void, name:string):string|null {
         if ($.document) {
             const key = `${name}=`
             const decodedCookie:string = decodeURIComponent($.document.cookie)
@@ -1120,6 +1135,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns A boolean indicating whether cookie could be set or not.
      */
     static setCookie(
+        this:void,
         name:string,
         value:string,
         domain = '',
@@ -1295,6 +1311,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns true if both dom representations are equivalent.
      */
     static isEquivalentDOM(
+        this:void,
         first:Node|string|$DomNode<Node>,
         second:Node|string|$DomNode<Node>,
         forceHTMLString = false
@@ -1427,16 +1444,19 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     return 'right'
             }
         }
+
         return 'in'
     }
     /**
      * Generates a directive name corresponding selector string.
      * @param directiveName - The directive name.
+     *
      * @returns Returns generated selector.
      */
-    static generateDirectiveSelector(directiveName:string):string {
-        const delimitedName:string = Tools.stringCamelCaseToDelimited(
-            directiveName)
+    static generateDirectiveSelector(this:void, directiveName:string):string {
+        const delimitedName:string =
+            Tools.stringCamelCaseToDelimited(directiveName)
+
         return `${delimitedName}, .${delimitedName}, [${delimitedName}], ` +
             `[data-${delimitedName}], [x-${delimitedName}]` + (
             (delimitedName.includes('-') ? (
@@ -1504,9 +1524,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Determines a normalized camel case directive name representation.
      * @param directiveName - The directive name.
+     *
      * @returns Returns the corresponding name.
      */
-    static getNormalizedDirectiveName(directiveName:string):string {
+    static getNormalizedDirectiveName(this:void, directiveName:string):string {
         for (const delimiter of ['-', ':', '_'] as const) {
             let prefixFound = false
 
@@ -1534,6 +1555,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Determines a directive attribute value.
      * @param directiveName - The directive name.
+     *
      * @returns Returns the corresponding attribute value or "null" if no
      * attribute value exists.
      */
@@ -1580,6 +1602,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Determines the dom node name of a given dom node string.
      * @param domNodeSelector - A given to dom node selector to determine its
      * name.
+     *
      * @returns Returns The dom node name.
      * @example
      * // returns 'div'
@@ -1591,11 +1614,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * // returns 'br'
      * $.Tools.getDomNodeName('&lt;br/&gt;')
      */
-    static getDomNodeName(domNodeSelector:string):null|string {
+    static getDomNodeName(this:void, domNodeSelector:string):null|string {
         const match:Array<string>|null = /^<?([a-zA-Z]+).*>?.*/.exec(
             domNodeSelector)
+
         if (match)
             return match[1]
+
         return null
     }
     /* eslint-disable jsdoc/require-description-complete-sentence */
@@ -1672,7 +1697,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns The isolated scope.
      */
     static isolateScope<T extends Object>(
-        scope:T, prefixesToIgnore:Array<string> = []
+        this:void, scope:T, prefixesToIgnore:Array<string> = []
     ):T {
         for (const name in scope)
             if (!(
@@ -1698,6 +1723,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns The function name.
      */
     static determineUniqueScopeName(
+        this:void,
         prefix = 'callback',
         suffix = '',
         scope:object = $.global,
@@ -1722,20 +1748,25 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Determines all parameter names from given callable (function or class,
      * ...).
      * @param callable - Function or function code to inspect.
+     *
      * @returns List of parameter names.
      */
-    static getParameterNames(callable:AnyFunction|string):Array<string> {
+    static getParameterNames(
+        this:void, callable:AnyFunction|string
+    ):Array<string> {
         const functionCode:string = (
             (typeof callable === 'string') ?
                 callable :
                 // Strip comments.
                 callable.toString()
         ).replace(/((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg, '')
+
         if (functionCode.startsWith('class'))
             return Tools.getParameterNames(
                 'function ' +
                 functionCode.replace(/.*(constructor\([^)]+\))/m, '$1')
             )
+
         // Try classic function declaration.
         let parameter:Array<string>|null = functionCode.match(
             /^function\s*[^\(]*\(\s*([^\)]*)\)/m)
@@ -1745,6 +1776,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (parameter === null)
             // Try one argument and without brackets arrow function declaration.
             parameter = functionCode.match(/([^= ]+) *=>.*/m)
+
         const names:Array<string> = []
         if (parameter && parameter.length > 1 && parameter[1].trim().length) {
             for (const name of parameter[1].split(','))
@@ -1752,23 +1784,26 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 names.push(name.replace(/=.+$/g, '').trim())
             return names
         }
+
         return names
     }
     /**
      * Implements the identity function.
      * @param value - A value to return.
+     *
      * @returns Returns the given value.
      */
-    static identity<T>(value:T):T {
+    static identity<T>(this:void, value:T):T {
         return value
     }
     /**
      * Inverted filter helper to inverse each given filter.
      * @param filter - A function that filters an array.
+     *
      * @returns The inverted filter.
      */
     static invertArrayFilter<T extends AnyFunction = (
-        data:Array<unknown>, ...additionalParameter:Array<unknown>
+        this:void, data:Array<unknown>, ...additionalParameter:Array<unknown>
     ) => Array<unknown>>(filter:T):T {
         return ((
             data:Array<unknown>, ...additionalParameter:Array<unknown>
@@ -1810,7 +1845,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * holds a boolean indicating whether timeout has been canceled or
      * resolved.
      */
-    static timeout(...parameters:Array<unknown>):TimeoutPromise {
+    static timeout(this:void, ...parameters:Array<unknown>):TimeoutPromise {
         let callback:AnyFunction = Tools.noop
         let delayInMilliseconds:number = 0
         let throwOnTimeoutClear = false
@@ -1891,6 +1926,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns the wrapped method.
      */
     static debounce<T = unknown>(
+        this:void,
         callback:AnyFunction,
         thresholdInMilliseconds:number = 600,
         ...additionalArguments:Array<unknown>
@@ -2087,6 +2123,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns given object wrapped with a dynamic getter proxy.
      */
     static addDynamicGetterAndSetter<T = unknown>(
+        this:void,
         object:T,
         getterWrapper:GetterFunction|null = null,
         setterWrapper:null|SetterFunction = null,
@@ -2201,6 +2238,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns The formatted json string.
      */
     static convertCircularObjectToJSON(
+        this:void,
         object:unknown,
         determineCircularReferenceValue:((
             serializedValue:null|unknown,
@@ -2263,7 +2301,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Given map as object.
      */
-    static convertMapToPlainObject(object:unknown, deep = true):unknown {
+    static convertMapToPlainObject(
+        this:void, object:unknown, deep = true
+    ):unknown {
         if (typeof object === 'object') {
             if (Tools.isMap(object)) {
                 const newObject:Mapping<unknown> = {}
@@ -2318,7 +2358,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Given object as map.
      */
-    static convertPlainObjectToMap(object:unknown, deep = true):unknown {
+    static convertPlainObjectToMap(
+        this:void, object:unknown, deep = true
+    ):unknown {
         if (typeof object === 'object') {
             if (Tools.isPlainObject(object)) {
                 const newObject:Map<number|string, unknown> = new Map()
@@ -2374,7 +2416,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Converted object with replaced patterns.
      */
     static convertSubstringInPlainObject<Type extends object = PlainObject>(
-        object:Type, pattern:RegExp|string, replacement:string
+        this:void,
+        object:Type,
+        pattern:RegExp|string,
+        replacement:string
     ):Type {
         for (const key in object)
             if (Object.prototype.hasOwnProperty.call(object, key))
@@ -2411,6 +2456,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Value "true" if both objects are equal and "false" otherwise.
      */
     static copy<Type = unknown>(
+        this:void,
         source:Type,
         recursionLimit:number = -1,
         recursionEndValue:unknown = ValueCopySymbol,
@@ -2563,9 +2609,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Determine the internal JavaScript [[Class]] of an object.
      * @param value - Value to analyze.
+     *
      * @returns Name of determined type.
      */
-    static determineType(value:unknown = undefined):string {
+    static determineType(this:void, value:unknown = undefined):string {
         if ([null, undefined].includes(value as null|undefined))
             return `${value}`
 
@@ -2614,6 +2661,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * determined boolean values is returned.
      */
     static equals(
+        this:void,
         firstValue:unknown,
         secondValue:unknown,
         givenOptions:Partial<CompareOptions> = {}
@@ -2963,6 +3011,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Evaluated given mapping.
      */
     static evaluateDynamicData<Type = unknown>(
+        this:void,
         object:null|RecursiveEvaluateable<Type>,
         scope:Mapping<unknown> = {},
         selfReferenceName = 'self',
@@ -3192,9 +3241,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Removes properties in objects where a dynamic indicator lives.
      * @param data - Object to traverse recursively.
      * @param expressionIndicators - Property key to remove.
+     *
      * @returns Given object with removed properties.
      */
     static removeKeysInEvaluation<T = PlainObject>(
+        this:void,
         data:T,
         expressionIndicators:Array<string> = ['__evaluate__', '__execute__']
     ):T {
@@ -3226,6 +3277,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns given target extended with all given sources.
      */
     static extend<T = Mapping<unknown>>(
+        this:void,
         targetOrDeepIndicator:boolean|typeof IgnoreNullAndUndefinedSymbol|RecursivePartial<T>,
         targetOrSource?:RecursivePartial<T>,
         ...additionalSources:Array<RecursivePartial<T>>
@@ -3338,6 +3390,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Determined sub structure of given data or "undefined".
      */
     static getSubstructure<T = unknown, E = unknown>(
+        this:void,
         target:T,
         selector:Selector<T, E>,
         skipMissingLevel = true,
@@ -3403,7 +3456,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Determined proxy handler.
      */
     static getProxyHandler<T = unknown>(
-        target:T, methodNames:Mapping = {}
+        this:void, target:T, methodNames:Mapping = {}
     ):ProxyHandler<T> {
         methodNames = {
             delete: '[]',
@@ -3472,7 +3525,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * flat copy of that object will be returned.
      */
     static mask<Type = object>(
-        object:Type, mask:ObjectMaskConfiguration
+        this:void, object:Type, mask:ObjectMaskConfiguration
     ):RecursivePartial<Type> {
         mask = {exclude: false, include: true, ...mask}
 
@@ -3566,6 +3619,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Given target modified with given source.
      */
     static modifyObject<T = unknown>(
+        this:void,
         target:T,
         source:unknown,
         removeIndicatorKey = '__remove__',
@@ -3693,7 +3747,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * interpret.
      */
     static normalizeDateTime(
-        value:string|null|number|Date = null, interpretAsUTC = true
+        this:void, value:string|null|number|Date = null, interpretAsUTC = true
     ):Date|null {
         if (value === null)
             return new Date()
@@ -3732,9 +3786,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Removes given key from given object recursively.
      * @param object - Object to process.
      * @param keys - List of keys to remove.
+     *
      * @returns Processed given object.
      */
-    static removeKeyPrefixes<T>(object:T, keys:Array<string>|string = '#'):T {
+    static removeKeyPrefixes<T>(
+        this:void, object:T, keys:Array<string>|string = '#'
+    ):T {
         const resolvedKeys:Array<string> = ([] as Array<string>).concat(keys)
 
         if (Array.isArray(object)) {
@@ -3838,6 +3895,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Representation string.
      */
     static represent(
+        this:void,
         object:unknown,
         indention = '    ',
         initialIndention = '',
@@ -3981,9 +4039,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Sort given objects keys.
      * @param object - Object which keys should be sorted.
+     *
      * @returns Sorted list of given keys.
      */
-    static sort(object:unknown):Array<unknown> {
+    static sort(this:void, object:unknown):Array<unknown> {
         const keys:Array<unknown> = []
 
         if (Array.isArray(object))
@@ -4009,7 +4068,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns given object unwrapped from a dynamic proxy.
      */
     static unwrapProxy<T = unknown>(
-        object:T, seenObjects:Set<unknown> = new Set<unknown>()
+        this:void, object:T, seenObjects:Set<unknown> = new Set<unknown>()
     ):T {
         if (object !== null && typeof object === 'object') {
             if (seenObjects.has(object))
@@ -4070,6 +4129,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Aggregated value.
      */
     static arrayAggregatePropertyIfEqual<T = unknown>(
+        this:void,
         data:Array<Mapping<unknown>>,
         propertyName:string,
         defaultValue:T = '' as unknown as T
@@ -4101,7 +4161,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Given data without empty items.
      */
     static arrayDeleteEmptyItems<T = Mapping<unknown>>(
-        data:Array<T>, propertyNames:Array<string|symbol> = []
+        this:void, data:Array<T>, propertyNames:Array<string|symbol> = []
     ):Array<T> {
         const result:Array<T> = []
 
@@ -4139,7 +4199,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Data with sliced items.
      */
     static arrayExtract<T = Mapping<unknown>>(
-        data:unknown, propertyNames:Array<string>
+        this:void, data:unknown, propertyNames:Array<string>
     ):Array<T> {
         const result:Array<T> = []
 
@@ -4165,7 +4225,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Filtered data.
      */
     static arrayExtractIfMatches(
-        data:unknown, regularExpression:string|RegExp
+        this:void, data:unknown, regularExpression:string|RegExp
     ):Array<string> {
         if (!regularExpression)
             return Tools.arrayMake<string>(data)
@@ -4191,7 +4251,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * property.
      */
     static arrayExtractIfPropertyExists<T = unknown>(
-        data:unknown, propertyName:string
+        this:void, data:unknown, propertyName:string
     ):Array<T> {
         if (data && propertyName) {
             const result:Array<T> = []
@@ -4228,7 +4288,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Filtered data.
      */
     static arrayExtractIfPropertyMatches<T = unknown>(
-        data:unknown, propertyPattern:Mapping<RegExp|string>
+        this:void, data:unknown, propertyPattern:Mapping<RegExp|string>
     ):Array<T> {
         if (data && propertyPattern) {
             const result:Array<T> = []
@@ -4274,6 +4334,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Data which does exit in given initial data.
      */
     static arrayIntersect<T = unknown>(
+        this:void,
         first:unknown,
         second:unknown,
         keys:Array<string>|Mapping<number|string> = [],
@@ -4380,7 +4441,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Generated array.
      */
-    static arrayMake<T = unknown>(object:unknown):Array<T> {
+    static arrayMake<T = unknown>(this:void, object:unknown):Array<T> {
         const result:Array<unknown> = []
         if (![null, undefined].includes(object as null))
             if (Tools.isArrayLike(Object(object)))
@@ -4401,9 +4462,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * numbers are provided given range will be returned.
      * @param step - Space between two consecutive values.
      * @param ignoreLastStep - Removes last step.
+     *
      * @returns Produced array of integers.
      */
     static arrayMakeRange(
+        this:void,
         range:number|[number]|[number, number]|Array<number>,
         step:number = 1,
         ignoreLastStep = false
@@ -4437,9 +4500,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Merge the contents of two arrays together into the first array.
      * @param target - Target array.
      * @param source - Source array.
+     *
      * @returns Target array with merged given source one.
      */
-    static arrayMerge<T = unknown>(target:Array<T>, source:Array<T>):Array<T> {
+    static arrayMerge<T = unknown>(
+        this:void, target:Array<T>, source:Array<T>
+    ):Array<T> {
         if (!Array.isArray(source))
             source = Array.prototype.slice.call(source)
 
@@ -4471,7 +4537,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns A list of pagination symbols.
      */
-    static arrayPaginate(options:Partial<PaginateOptions> = {}):Array<Page> {
+    static arrayPaginate(
+        this:void, options:Partial<PaginateOptions> = {}
+    ):Array<Page> {
         const {
             boundaryCount = 1,
             disabled = false,
@@ -4605,9 +4673,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Generates all permutations of given iterable.
      * @param data - Array like object.
+     *
      * @returns Array of permuted arrays.
      */
-    static arrayPermutate<T = unknown>(data:Array<T>):Array<Array<T>> {
+    static arrayPermutate<T = unknown>(
+        this:void, data:Array<T>
+    ):Array<Array<T>> {
         const result:Array<Array<T>> = []
 
         const permute:AnyFunction = (
@@ -4637,7 +4708,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Array of permuted arrays.
      */
     static arrayPermutateLength<T = unknown>(
-        data:Array<T>, minimalSubsetLength:number = 1
+        this:void, data:Array<T>, minimalSubsetLength:number = 1
     ):Array<Array<T>> {
         const result:Array<Array<T>> = []
         if (data.length === 0)
@@ -4680,9 +4751,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Sums up given property of given item list.
      * @param data - The objects with specified property to sum up.
      * @param propertyName - Property name to sum up its value.
+     *
      * @returns The aggregated value.
      */
-    static arraySumUpProperty(data:unknown, propertyName:string):number {
+    static arraySumUpProperty(
+        this:void, data:unknown, propertyName:string
+    ):number {
         let result:number = 0
 
         if (Array.isArray(data) && data.length)
@@ -4703,6 +4777,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Item with the appended target.
      */
     static arrayAppendAdd<T = unknown>(
+        this:void,
         item:Mapping<T>,
         target:unknown,
         name:string,
@@ -4729,7 +4804,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Item with the appended target.
      */
     static arrayRemove<T = unknown>(
-        list:Array<T>, target:T, strict = false
+        this:void, list:Array<T>, target:T, strict = false
     ):Array<T> {
         const index:number = list.indexOf(target)
         if (index === -1) {
@@ -4745,10 +4820,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Sorts given object of dependencies in a topological order.
      * @param items - Items to sort.
+     *
      * @returns Sorted array of given items respecting their dependencies.
      */
     static arraySortTopological(
-        items:Mapping<Array<string>|string>
+        this:void, items:Mapping<Array<string>|string>
     ):Array<string> {
         const edges:Array<Array<string>> = []
 
@@ -4838,7 +4914,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Sliced version of given object.
      */
-    static arrayUnique<T = unknown>(data:Array<T>):Array<T> {
+    static arrayUnique<T = unknown>(this:void, data:Array<T>):Array<T> {
         const result:Array<T> = []
 
         for (const value of Tools.arrayMake(data))
@@ -4859,7 +4935,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Converted string.
      */
     static stringEscapeRegularExpressions(
-        value:string, excludeSymbols:Array<string> = []
+        this:void, value:string, excludeSymbols:Array<string> = []
     ):string {
         // NOTE: This is only for performance improvements.
         if (value.length === 1 && !Tools.specialRegexSequences.includes(value))
@@ -4885,7 +4961,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Converted name is returned.
      */
     static stringConvertToValidVariableName(
-        name:string, allowedSymbols = '0-9a-zA-Z_$'
+        this:void, name:string, allowedSymbols = '0-9a-zA-Z_$'
     ):string {
         if (['class', 'default'].includes(name))
             return `_${name}`
@@ -4910,7 +4986,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Encoded given url.
      */
-    static stringEncodeURIComponent(url:string, encodeSpaces = false):string {
+    static stringEncodeURIComponent(
+        this:void, url:string, encodeSpaces = false
+    ):string {
         return encodeURIComponent(url)
             .replace(/%40/gi, '@')
             .replace(/%3A/gi, ':')
@@ -4925,7 +5003,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns The appended path.
      */
-    static stringAddSeparatorToPath(path:string, pathSeparator = '/'):string {
+    static stringAddSeparatorToPath(
+        this:void, path:string, pathSeparator = '/'
+    ):string {
         path = path.trim()
 
         if (path.substr(-1) !== pathSeparator && path.length)
@@ -4943,6 +5023,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Value "true" if given prefix occur and "false" otherwise.
      */
     static stringHasPathPrefix(
+        this:void,
         prefix:unknown = '/admin',
         path:string = $.location?.pathname || '',
         separator = '/'
@@ -4971,6 +5052,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Extracted domain.
      */
     static stringGetDomainName(
+        this:void,
         url:string = $.location?.href || '',
         fallback:string = $.location?.hostname || ''
     ):string {
@@ -4997,6 +5079,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Extracted port number.
      */
     static stringGetPortNumber(
+        this:void,
         url:string = $.location?.href || '',
         fallback:null|number = $.location?.port ?
             parseInt($.location.port) :
@@ -5033,6 +5116,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Extracted protocol.
      */
     static stringGetProtocolName(
+        this:void,
         url:string = $.location?.href || '',
         fallback:string =
             $.location?.protocol &&
@@ -5074,6 +5158,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * key doesn't exist "undefined" is returned.
      */
     static stringGetURLParameter(
+        this:void,
         keyToGet:null|string = null,
         allowDuplicates = false,
         givenInput:null|string = null,
@@ -5179,7 +5264,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * second (or current).
      */
     static stringServiceURLEquals(
-        url:string, referenceURL:string = $.location?.href || ''
+        this:void, url:string, referenceURL:string = $.location?.href || ''
     ):boolean {
         const domain:string = Tools.stringGetDomainName(url, '')
         const protocol:string = Tools.stringGetProtocolName(url, '')
@@ -5200,9 +5285,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Normalized given website url.
      * @param url - Uniform resource locator to normalize.
+     *
      * @returns Normalized result.
      */
-    static stringNormalizeURL(url:string):string {
+    static stringNormalizeURL(this:void, url:string):string {
         if (typeof url === 'string') {
             url = url.replace(/^:?\/+/, '').replace(/\/+$/, '').trim()
 
@@ -5217,9 +5303,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Represents given website url.
      * @param url - Uniform resource locator to represent.
+     *
      * @returns Represented result.
      */
-    static stringRepresentURL(url:unknown):string {
+    static stringRepresentURL(this:void, url:unknown):string {
         if (typeof url === 'string')
             return url
                 .replace(/^(https?)?:?\/+/, '')
@@ -5232,14 +5319,18 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Converts a camel cased string to its delimited string version.
-     * @param string - The string to format.
+     * @param value - The string to format.
      * @param delimiter - Delimiter string
      * @param abbreviations - Collection of shortcut words to represent upper
      * cased.
+     *
      * @returns The formatted string.
      */
     static stringCamelCaseToDelimited(
-        string:string, delimiter = '-', abbreviations:Array<string>|null = null
+        /*this:void,*/
+        string:string,
+        delimiter = '-',
+        abbreviations:Array<string>|null = null
     ):string {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (!abbreviations)
@@ -5277,18 +5368,20 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Converts a string to its capitalize representation.
      * @param string - The string to format.
+     *
      * @returns The formatted string.
      */
-    static stringCapitalize(string:string):string {
+    static stringCapitalize(this:void, string:string):string {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return string.charAt(0).toUpperCase() + string.substring(1)
     }
     /**
      * Compresses given style attribute value.
      * @param styleValue - Style value to compress.
+     *
      * @returns The compressed value.
      */
-    static stringCompressStyleValue(styleValue:string):string {
+    static stringCompressStyleValue(this:void, styleValue:string):string {
         return styleValue
             .replace(/ *([:;]) */g, '$1')
             .replace(/ +/g, ' ')
@@ -5299,9 +5392,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Decodes all html symbols in text nodes in given html string.
      * @param htmlString - HTML string to decode.
+     *
      * @returns Decoded html string.
      */
-    static stringDecodeHTMLEntities(htmlString:string):null|string {
+    static stringDecodeHTMLEntities(this:void, htmlString:string):null|string {
         if ($.document) {
             const textareaDomNode = $.document.createElement('textarea')
             textareaDomNode.innerHTML = htmlString
@@ -5325,7 +5419,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns The formatted string.
      */
     static stringDelimitedToCamelCase(
-        string:string,
+        this:void,
+        value:string,
         delimiter = '-',
         abbreviations:Array<string>|null = null,
         preserveWrongFormattedAbbreviations = false,
@@ -5349,13 +5444,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
         }
 
-        let stringStartsWithDelimiter = false
-        if (string.startsWith(delimiter)) {
-            string = string.substring(delimiter.length)
-            stringStartsWithDelimiter = true
-        }
+        const stringStartsWithDelimiter:boolean = value.startsWith(delimiter)
+        if (stringStartsWithDelimiter)
+            value = value.substring(delimiter.length)
 
-        string = string.replace(
+        value = value.replace(
             new RegExp(
                 `(${escapedDelimiter})(${abbreviationPattern})` +
                 `(${escapedDelimiter}|$)`,
@@ -5372,16 +5465,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (removeMultipleDelimiter)
             escapedDelimiter = `(?:${escapedDelimiter})+`
 
-        string = string.replace(
+        value = value.replace(
             new RegExp(`${escapedDelimiter}([a-zA-Z0-9])`, 'g'),
             (fullMatch:string, firstLetter:string):string =>
                 firstLetter.toUpperCase()
         )
 
         if (stringStartsWithDelimiter)
-            string = delimiter + string
+            value = delimiter + value
 
-        return string
+        return value
     }
     /**
      * Compiles a given string as expression with given scope names.
@@ -5392,19 +5485,20 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Object of prepared scope name mappings and compiled function or
      * error string message if given expression couldn't be compiled.
      */
-    static stringCompile(
+    static stringCompile<T = string>(
+        this:void,
         expression:string,
         scope:Array<string>|Mapping<unknown>|string = [],
         execute = false
-    ):CompilationResult {
-        const result:CompilationResult = {
+    ):CompilationResult<T> {
+        const result:CompilationResult<T> = {
             error: null,
             originalScopeNames: Array.isArray(scope) ?
                 scope :
                 typeof scope === 'string' ? [scope] : Object.keys(scope),
             scopeNameMapping: {},
             scopeNames: [],
-            templateFunction: ():null => null
+            templateFunction: ():T => null as unknown as T
         }
 
         for (const name of result.originalScopeNames) {
@@ -5454,7 +5548,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             result.templateFunction = new Function(
                 ...result.scopeNames,
                 `${execute ? '' : 'return '}${expression}`
-            ) as TemplateFunction
+            ) as TemplateFunction<T>
         } catch (error) {
             result.error =
                 `Given expression "${expression}" could not be compiled ` +
@@ -5473,23 +5567,26 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Object with error message during parsing / running or result.
      */
-    static stringEvaluate(
+    static stringEvaluate<T = string>(
+        this:void,
         expression:string,
         scope:Mapping<unknown> = {},
         execute = false,
         binding?:unknown
-    ):EvaluationResult {
+    ):EvaluationResult<T> {
         const {error, originalScopeNames, scopeNames, templateFunction} =
-            this.stringCompile(expression, scope, execute)
-        const result:EvaluationResult = {
-            compileError:null,
-            error:null,
-            result:null,
-            runtimeError:null
+            Tools.stringCompile<T>(expression, scope, execute)
+
+        const result:EvaluationResult<T> = {
+            compileError: null,
+            error: null,
+            result: null as unknown as T,
+            runtimeError: null
         }
 
         if (error) {
             result.compileError = result.error = error
+
             return result
         }
 
@@ -5507,7 +5604,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     )
                 )
         } catch (error) {
-            result.error = result.runtimeError = (
+            result.error =
+            result.runtimeError = (
                 `Given expression "${expression}" could not be evaluated ` +
                 `with given scope names "${scopeNames.join('", "')}": ` +
                 Tools.represent(error)
@@ -5528,6 +5626,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Start and end index of matching range.
      */
     static stringFindNormalizedMatchRange(
+        this:void,
         target:unknown,
         query:unknown,
         normalizer:AnyFunction =
@@ -5586,7 +5685,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns The formatted string.
      */
     static stringFormat(
-        string:string, ...additionalArguments:Array<unknown>
+        this:void, string:string, ...additionalArguments:Array<unknown>
     ):string {
         additionalArguments.unshift(string)
 
@@ -5605,9 +5704,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Calculates the edit (levenstein) distance between two given strings.
      * @param first - First string to compare.
      * @param second - Second string to compare.
+     *
      * @returns The distance as number.
      */
-    static stringGetEditDistance(first:string, second:string):number {
+    static stringGetEditDistance(
+        this:void, first:string, second:string
+    ):number {
         /*
             Create empty edit distance matrix for all possible modifications of
             substrings of "first" to substrings of "second".
@@ -5662,21 +5764,25 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Validates the current string for using in a regular expression pattern.
      * Special regular expression chars will be escaped.
-     * @param string - The string to format.
+     * @param value - The string to format.
+     *
      * @returns The formatted string.
      */
-    static stringGetRegularExpressionValidated(string:string):string {
-        return string.replace(/([\\|.*$^+[\]()?\-{}])/g, '\\$1')
+    static stringGetRegularExpressionValidated(
+        this:void, value:string
+    ):string {
+        return value.replace(/([\\|.*$^+[\]()?\-{}])/g, '\\$1')
     }
     /**
      * Interprets given content string as date time.
      * @param value - Date time string to interpret.
      * @param interpretAsUTC - Identifies if given date should be interpret as
      * utc.
+     *
      * @returns Interpret date time object.
      */
     static stringInterpretDateTime(
-        value:string, interpretAsUTC = true
+        this:void, value:string, interpretAsUTC = true
     ):Date|null {
         // NOTE: All patterns can assume lower cased strings.
 
@@ -6047,9 +6153,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Converts a string to its lower case representation.
      * @param string - The string to format.
+     *
      * @returns The formatted string.
      */
-    static stringLowerCase(string:string):string {
+    static stringLowerCase(this:void, string:string):string {
         return string.charAt(0).toLowerCase() + string.substring(1)
     }
     /**
@@ -6063,6 +6170,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Processed result.
      */
     static stringMark(
+        this:void,
         target:unknown,
         givenWords?:Array<string>|string,
         normalizer:AnyFunction =
@@ -6130,7 +6238,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Calculated md5 hash value.
      */
-    static stringMD5(value:string, onlyAscii = false):string {
+    static stringMD5(this:void, value:string, onlyAscii = false):string {
         const hexCharacters:Array<string> = '0123456789abcdef'.split('')
         // region sub helper
         /**
@@ -6487,7 +6595,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Normalized number.
      */
-    static stringNormalizePhoneNumber(value:unknown, dialable = true):string {
+    static stringNormalizePhoneNumber(
+        this:void, value:unknown, dialable = true
+    ):string {
         if (typeof value === 'string' || typeof value === 'number') {
             let normalizedValue:string = `${value}`.trim()
 
@@ -6570,7 +6680,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param value - Number to normalize.
      * @returns Normalized number.
      */
-    static stringNormalizeZipCode(value:unknown):string {
+    static stringNormalizeZipCode(this:void, value:unknown):string {
         if (typeof value === 'string' || typeof value === 'number')
             return `${value}`.trim().replace(/[^0-9]+/g, '')
 
@@ -6587,7 +6697,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns The parsed object if possible and null otherwise.
      */
     static stringParseEncodedObject<T = PlainObject>(
-        serializedObject:string, scope:object = {}, name = 'scope'
+        this:void, serializedObject:string, scope:object = {}, name = 'scope'
     ):null|T {
         if (
             serializedObject.endsWith('.json') &&
@@ -6615,9 +6725,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Represents given phone number. NOTE: Currently only support german phone
      * numbers.
      * @param value - Number to format.
+     *
      * @returns Formatted number.
      */
-    static stringRepresentPhoneNumber(value:unknown):string {
+    static stringRepresentPhoneNumber(this:void, value:unknown):string {
         if (
             ['number', 'string'].includes(Tools.determineType(value)) &&
             value
@@ -6660,9 +6771,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Slices all none numbers but preserves last separator.
      * @param value - String to process.
+     *
      * @returns - Sliced given value.
      */
-    static stringSliceAllExceptNumberAndLastSeperator(value:string):string {
+    static stringSliceAllExceptNumberAndLastSeperator(
+        this:void, value:string
+    ):string {
         /*
             1: baseNumber
             2: directDialingNumberSuffix
@@ -6683,9 +6797,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Slice weekday from given date representation.
      * @param value - String to process.
+     *
      * @returns Sliced given string.
      */
-    static stringSliceWeekday(value:string):string {
+    static stringSliceWeekday(this:void, value:string):string {
         const weekdayPattern:RegExp = /[a-z]{2}\.+ *([^ ].*)$/i
         const weekdayMatch:ReturnType<String['match']> =
             value.match(weekdayPattern)
@@ -6698,6 +6813,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Converts a dom selector to a prefixed dom selector string.
      * @param selector - A dom node selector.
+     *
      * @returns Returns given selector prefixed.
      */
     stringNormalizeDomNodeSelector = (selector:string):string => {
@@ -6723,7 +6839,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Determined numerous value.
      */
     static numberGetUTCTimestamp(
-        value?:Date|null|number|string, inMilliseconds = false
+        this:void, value?:Date|null|number|string, inMilliseconds = false
     ):number {
         const date:Date = [null, undefined].includes(value as null) ?
             new Date() :
@@ -6745,9 +6861,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Checks if given object is java scripts native "Number.NaN" object.
      * @param value - Value to check.
+     *
      * @returns Returns whether given value is not a number or not.
      */
-    static numberIsNotANumber(value:unknown):boolean {
+    static numberIsNotANumber(this:void, value:unknown):boolean {
         return (
             Tools.determineType(value) === 'number' && isNaN(value as number)
         )
@@ -6756,9 +6873,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Rounds a given number accurate to given number of digits.
      * @param number - The number to round.
      * @param digits - The number of digits after comma.
+     *
      * @returns Returns the rounded number.
      */
-    static numberRound(number:number, digits:number = 0):number {
+    static numberRound(this:void, number:number, digits:number = 0):number {
         return Math.round(number * Math.pow(10, digits)) / Math.pow(10, digits)
     }
     // / endregion
@@ -6788,6 +6906,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Otherwise returned promise will be rejected.
      */
     static async checkReachability(
+        this:void,
         url:string,
         givenOptions:RecursivePartial<CheckReachabilityOptions> = {}
     ):ReturnType<typeof fetch> {
@@ -6922,6 +7041,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * (after some tries).
      */
     static async checkUnreachability(
+        this:void,
         url:string,
         givenOptions:RecursivePartial<CheckReachabilityOptions> = {}
     ):Promise<Error|null|Promise<Error|null>> {
@@ -7048,6 +7168,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
+        this:void,
         target:$DomNode|HTMLIFrameElement|string,
         url:string,
         data:Mapping<unknown>,
@@ -7140,6 +7261,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Promise holding the determined target directory path.
      */
     static async copyDirectoryRecursive(
+        this:void,
         sourcePath:string,
         targetPath:string,
         callback:AnyFunction = Tools.noop,
@@ -7197,6 +7319,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Determined target directory path.
      */
     static copyDirectoryRecursiveSync(
+        this:void,
         sourcePath:string,
         targetPath:string,
         callback:AnyFunction = Tools.noop,
@@ -7250,6 +7373,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Determined target file path.
      */
     static async copyFile(
+        this:void,
         sourcePath:string,
         targetPath:string,
         readOptions:PlainObject = {encoding: null, flag: 'r'},
@@ -7281,6 +7405,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Determined target file path.
      */
     static copyFileSync(
+        this:void,
         sourcePath:string,
         targetPath:string,
         readOptions:PlainObject = {encoding: null, flag: 'r'},
@@ -7304,10 +7429,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /**
      * Checks if given path points to a valid directory.
      * @param filePath - Path to directory.
+     *
      * @returns A promise holding a boolean which indicates directory
      * existence.
      */
-    static async isDirectory(filePath:string):Promise<boolean> {
+    static async isDirectory(this:void, filePath:string):Promise<boolean> {
         try {
             return (await stat!(filePath)).isDirectory()
         } catch (error) {
@@ -7328,7 +7454,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns A boolean which indicates directory existents.
      */
-    static isDirectorySync(filePath:string):boolean {
+    static isDirectorySync(this:void, filePath:string):boolean {
         try {
             return statSync!(filePath).isDirectory()
         } catch (error) {
@@ -7350,7 +7476,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns A promise holding a boolean which indicates directory
      * existence.
      */
-    static async isFile(filePath:string):Promise<boolean> {
+    static async isFile(this:void, filePath:string):Promise<boolean> {
         try {
             return (await stat!(filePath)).isFile()
         } catch (error) {
@@ -7371,7 +7497,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns A boolean which indicates file existence.
      */
-    static isFileSync(filePath:string):boolean {
+    static isFileSync(this:void, filePath:string):boolean {
         try {
             return statSync!(filePath).isFile()
         } catch (error) {
@@ -7398,10 +7524,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns A promise holding the determined files.
      */
     static async walkDirectoryRecursively(
+        this:void,
         directoryPath:string,
         callback:AnyFunction|null = Tools.noop,
-        options:SecondParameter<typeof import('fs').readdir> =
-            {encoding: 'utf8', withFileTypes: true}
+        options:Encoding|SecondParameter<typeof import('fs').readdir> = 'utf8'
     ):Promise<Array<File>> {
         const files:Array<File> = []
         for (const directoryEntry of await readdir!(
@@ -7492,10 +7618,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Determined list if all files.
      */
     static walkDirectoryRecursivelySync(
+        this:void,
         directoryPath:string,
         callback:AnyFunction|null = Tools.noop,
-        options:SecondParameter<typeof import('fs').readdirSync> =
-            {encoding: 'utf8', withFileTypes: true}
+        options:Encoding|SecondParameter<typeof import('fs').readdirSync> =
+            'utf8'
     ):Array<File> {
         const files:Array<File> = []
 
@@ -7585,6 +7712,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Process close handler function.
      */
     static getProcessCloseHandler(
+        this:void,
         resolve:ProcessCloseCallback,
         reject:ProcessErrorCallback,
         reason:unknown = null,
@@ -7617,9 +7745,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Forwards given child process communication channels to corresponding
      * current process communication channels.
      * @param childProcess - Child process meta data.
+     *
      * @returns Given child process meta data.
      */
-    static handleChildProcess(childProcess:ChildProcess):ChildProcess {
+    static handleChildProcess(
+        this:void, childProcess:ChildProcess
+    ):ChildProcess {
         if (childProcess.stdout)
             childProcess.stdout.pipe(process.stdout)
         if (childProcess.stderr)

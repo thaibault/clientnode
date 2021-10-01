@@ -190,12 +190,14 @@ export const testEachSingleParameterAgainstSameExpectation = <
         test.each<FirstParameter<FunctionType>>([...parameters])(
             `${Tools.represent(expected)} === ${functionName}(%p)`,
             (parameter:FirstParameter<FunctionType>):void =>
+                /* eslint-disable @typescript-eslint/no-unsafe-return */
                 testExpectedType<ReturnType<FunctionType>>(
                     expected === ThrowSymbol ?
                         ():ReturnType<FunctionType> => callback(parameter) :
                         callback(parameter),
                     expected
                 ) as void
+                /* eslint-enable @typescript-eslint/no-unsafe-return */
         )
 /**
  * Tests each given single parameter against same given expected value. It
@@ -282,6 +284,7 @@ export const testEachAgainstSameExpectation = <
         test.each<Parameters<FunctionType>>([...functionParameters])(
             `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
             (...parameters:Parameters<FunctionType>):void =>
+                /* eslint-disable @typescript-eslint/no-unsafe-return */
                 testExpectedType<ReturnType<FunctionType>>(
                     expected === ThrowSymbol ?
                         ():ReturnType<FunctionType> =>
@@ -289,6 +292,7 @@ export const testEachAgainstSameExpectation = <
                         callback(...parameters),
                     expected
                 ) as void
+                /* eslint-enable @typescript-eslint/no-unsafe-return */
         )
 /**
  * Tests each given test set (various list of function parameters) against same

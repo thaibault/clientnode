@@ -24,17 +24,21 @@ import {DefinedSymbol, ThrowSymbol, UndefinedSymbol} from './testHelper'
 // endregion
 // region exports
 // / region helper
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type AnyFunction = (..._parameters:Array<any>) => any
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export type FirstParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[0]
 export type SecondParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[1]
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type ParametersExceptFirst<FunctionType> = FunctionType extends
     (_parameter:any, ..._additionalParameters:infer AdditionalParameters) =>
         any ?
             AdditionalParameters :
             []
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export type FunctionTestTuple<FunctionType extends AnyFunction> =
     [ReturnType<FunctionType>, ...Parameters<FunctionType>]
@@ -130,7 +134,7 @@ export interface CompareOptions {
     deep:number
     exceptionPrefixes:Array<string>
     ignoreFunctions:boolean
-    properties:Array<any>|null
+    properties:Array<string>|null
     returnReasonIfNotEqual:boolean
 }
 
@@ -218,7 +222,7 @@ export interface Position extends Offset {
 }
 
 export type ProcessHandler =
-    (_returnCode:any, ..._parameters:Array<any>) => void
+    (_returnCode:unknown, ..._parameters:Array<unknown>) => void
 export interface ProcessCloseReason {
     parameters:Array<unknown>
     reason:unknown
@@ -228,23 +232,24 @@ export type ProcessErrorCallback = (_reason:ProcessError) => void
 
 export type RelativePosition = 'above'|'below'|'in'|'left'|'right'
 
-export type TemplateFunction = (..._parameters:Array<any>) => any
-export interface CompilationResult {
+export type TemplateFunction<Type = string> =
+    (..._parameters:Array<unknown>) => Type
+export interface CompilationResult<Type = string> {
     error:null|string
     originalScopeNames:Array<string>
     scopeNameMapping:Mapping<string>
     scopeNames:Array<string>
-    templateFunction:TemplateFunction
+    templateFunction:TemplateFunction<Type>
 }
-export interface EvaluationResult {
+export interface EvaluationResult<Type = string> {
     compileError:null|string
     error:null|string
-    result:any
+    result:Type
     runtimeError:null|string
 }
 
-export type LockCallbackFunction<Type = string> = (_description:string) =>
-    Promise<Type>|Type
+export type LockCallbackFunction<Type = string> =
+    (_description:string) => Promise<Type>|Type
 // / endregion
 // / region global scope
 export type DomNodes<Type = string> =
@@ -276,7 +281,9 @@ export interface $Global extends Window {
     $:$TStatic
 }
 export interface ToolsFunction<TElement = HTMLElement, LockType = string> {
-    (..._parameters:Array<any>):any|Tools<TElement, LockType>
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    (..._parameters:Array<unknown>):any|Tools<TElement, LockType>
+    /* eslint-enable @typescript-eslint/no-explicit-any */
     class:typeof Tools
 }
 
