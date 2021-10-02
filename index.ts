@@ -1060,7 +1060,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Returns the serialized version of given object.
      */
-    static show(object:unknown, level = 3, currentLevel = 0):string {
+    static show(
+        this:void, object:unknown, level = 3, currentLevel = 0
+    ):string {
         let output = ''
 
         if (Tools.determineType(object) === 'object') {
@@ -5327,7 +5329,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns The formatted string.
      */
     static stringCamelCaseToDelimited(
-        /*this:void,*/
+        this:void,
         string:string,
         delimiter = '-',
         abbreviations:Array<string>|null = null
@@ -7769,7 +7771,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Helper method for attach/remove event handler methods.
-     * @param parameter - Arguments object given to methods like "on()" or
+     * @param parameters - Arguments object given to methods like "on()" or
      * "off()".
      * @param removeEvent - Indicates if handler should be attached or removed.
      * @param eventFunctionName - Name of function to wrap.
@@ -7787,7 +7789,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         const $domNode:$DomNode<TElement> = $(parameters[0] as TElement)
         if (Tools.determineType(parameters[1]) === 'object' && !removeEvent) {
-            for (const eventType in parameters[1] as object)
+            for (const eventType in parameters[1] as Mapping<unknown>)
                 if (Object.prototype.hasOwnProperty.call(
                     parameters[1], eventType
                 ))
@@ -7795,7 +7797,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         this[
                             eventFunctionName as
                                 keyof Tools<TElement, LockType>
-                        ] as Function
+                        ] as AnyFunction
                     )(
                         $domNode,
                         eventType,
@@ -7816,6 +7818,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     }
     // endregion
 }
+/**
+ * Dom bound version of Tools class.
+ */
 export class BoundTools<
     TElement extends HTMLElement = HTMLElement, LockType = string|void
 > extends Tools<TElement, LockType> {
@@ -7885,7 +7890,7 @@ export const augment$ = (value:$TStatic):void => {
         /**
          * Scopes native prop implementation ignores properties for text nodes,
          * comments and attribute nodes.
-         *
+         * @param this - List of elements to retrieve property from.
          * @param key - Name of property to retrieve from current dom node.
          * @param additionalParameters - Additional parameter will be forwarded
          * to native prop function also.
