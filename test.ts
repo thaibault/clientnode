@@ -25,6 +25,8 @@
     )
 */
 // region imports
+import {ChildProcess as ChildProcessType} from 'child_process'
+import {Duplex as DuplexType} from 'stream'
 import FileSystemType from 'fs'
 import nodeFetch from 'node-fetch'
 import PathType from 'path'
@@ -54,8 +56,6 @@ import {
     FirstParameter,
     Mapping,
     PlainObject,
-    ProcessCloseReason,
-    ProcessError,
     ProxyType,
     SecondParameter,
     TimeoutPromise,
@@ -63,13 +63,15 @@ import {
 } from './type'
 // endregion
 // region declaration
-declare var TARGET_TECHNOLOGY:string
+declare const TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
 globalContext.fetch = nodeFetch as unknown as typeof fetch
-const {ChildProcess} = optionalRequire('child_process')
+const {ChildProcess = null} = optionalRequire('child_process') || {}
 let path:typeof PathType
-let removeDirectoryRecursivelySync:(typeof RemoveDirectoryRecursivelyType)['sync']
+let removeDirectoryRecursivelySync:(
+    typeof RemoveDirectoryRecursivelyType
+)['sync']
 let synchronousFileSystem:typeof FileSystemType
 let testEnvironment = 'browser'
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
@@ -87,18 +89,20 @@ describe(`property-types (${testEnvironment})`, ():void => {
     test('DummyTypes', ():void => {
         expect(DummyTypes.any).not.toStrictEqual(DummyTypes.array)
         expect(DummyTypes.any).toBeInstanceOf(Function)
-        expect((DummyTypes.any as Function)()).toStrictEqual(null)
+        expect((DummyTypes.any as AnyFunction)()).toStrictEqual(null)
 
         expect(DummyTypes.any).toHaveProperty('isRequired')
         expect((DummyTypes.any as Requireable<unknown>).isRequired)
             .toBeInstanceOf(Function)
         expect(
-            ((DummyTypes.any as Requireable<unknown>).isRequired as Function)()
+            ((DummyTypes.any as Requireable<unknown>).isRequired as
+                AnyFunction
+            )()
         ).toStrictEqual(null)
 
         expect(DummyTypes.arrayOf).toBeInstanceOf(Function)
-        expect((DummyTypes.arrayOf as Function)()).toBeInstanceOf(Function)
-        expect((DummyTypes.arrayOf as Function)()()).toStrictEqual(null)
+        expect((DummyTypes.arrayOf as AnyFunction)()).toBeInstanceOf(Function)
+        expect((DummyTypes.arrayOf as AnyFunction)()()).toStrictEqual(null)
     })
 })
 // endregion
@@ -390,10 +394,16 @@ describe(`Tools (${testEnvironment})`, ():void => {
         true,
 
         Object,
+        /* eslint-disable @typescript-eslint/no-implied-eval */
         new Function('return 1'),
-        function():void {},
-        ():void => {},
-        async ():Promise<void> => {}
+        /* eslint-enable @typescript-eslint/no-implied-eval */
+        function():void {
+            // Do nothing.
+        },
+        Tools.noop,
+        async ():Promise<void> => {
+            // Do nothing.
+        }
     )
     testEachSingleParameterAgainstSameExpectation<typeof Tools.isFunction>(
         'isFunction',
@@ -515,7 +525,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 $('<div style=";width: 50px ; height:100px">')
                     .Tools('normalizedStyles')
                     .$domNode
-                    .prop('outerHTML'),
+                    .prop('outerHTML')
             ).toStrictEqual(
                 $('<div style="height:100px;width:50px">').prop('outerHTML')
             )
@@ -877,7 +887,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     })
     // / endregion
     // / region event
-    test('debounce', async ():Promise<void> => {
+    test('debounce', ():void => {
         let testValue = false
         Tools.debounce(():void => {
             testValue = true
@@ -907,7 +917,14 @@ describe(`Tools (${testEnvironment})`, ():void => {
             $.Tools({onClick: ():false => false}).fireEvent('click', true)
         ).toStrictEqual(false)
         expect(tools.fireEvent('click')).toStrictEqual(true)
+        /**
+         * Mock plugin class.
+         */
         class Plugin extends Tools {
+            /**
+             * On click handler.
+             * @returns Number 3.
+             */
             onClick():3 {
                 return 3
             }
@@ -969,22 +986,22 @@ describe(`Tools (${testEnvironment})`, ():void => {
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: {a: 1}},
-                (value:unknown):number|object =>
-                    value instanceof Object ? value : (value as number) + 2
+                (value:unknown):number|PlainObject =>
+                    Tools.isPlainObject(value) ? value : (value as number) + 2
             ).a.a
         ).toStrictEqual(3)
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: {a: [{a: 1}]}},
-                (value:unknown):number|object =>
-                    value instanceof Object ? value : (value as number) + 2
+                (value:unknown):number|PlainObject =>
+                    Tools.isPlainObject(value) ? value : (value as number) + 2
             ).a.a[0].a
         ).toStrictEqual(3)
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: {a: 1}},
-                (value:unknown):number|object =>
-                    value instanceof Object ? value : (value as number) + 2,
+                (value:unknown):number|PlainObject =>
+                    Tools.isPlainObject(value) ? value : (value as number) + 2,
                 null,
                 {has: 'hasOwnProperty'},
                 false
@@ -993,8 +1010,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         expect(
             Tools.addDynamicGetterAndSetter(
                 {a: 1},
-                (value:unknown):number|object =>
-                    value instanceof Object ? value : (value as number) + 2,
+                (value:unknown):number|PlainObject =>
+                    Tools.isPlainObject(value) ? value : (value as number) + 2,
                 null,
                 {has: 'hasOwnProperty'},
                 false,
@@ -1004,8 +1021,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         expect(
             (Tools.addDynamicGetterAndSetter(
                 {a: new Map([['a', 1]])},
-                (value:unknown):number|object =>
-                    value instanceof Object ? value : (value as number) + 2,
+                (value:unknown):number|PlainObject =>
+                    Tools.isPlainObject(value) ? value : (value as number) + 2,
                 null,
                 {delete: 'delete', get: 'get', set: 'set', has: 'has'},
                 true,
@@ -1014,15 +1031,15 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ).toStrictEqual(3)
     })
     test('convertCircularObjectToJSON', ():void => {
-        const object:{a:object, b?:object} = {a: {}}
+        const object:{a:PlainObject, b?:PlainObject} = {a: {}}
         object.b = object.a
 
         expect(Tools.convertCircularObjectToJSON(object))
             .toStrictEqual('{"a":{},"b":{}}')
     })
     test('convertCircularObjectToJSON', ():void => {
-        const object:{a?:object} = {}
-        const subObject:{a:object} = {a: object}
+        const object:{a?:PlainObject} = {}
+        const subObject:{a:PlainObject} = {a: object}
         object.a = subObject
 
         expect(Tools.convertCircularObjectToJSON(object))
@@ -1258,8 +1275,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['string', new String('')],
         ['string', 'test'],
         ['string', new String('test')],
-        ['function', function():void {}],
-        ['function', ():void => {}],
+        ['function', function():void {
+            // Do nothing.
+        }],
+        ['function', Tools.noop],
         ['array', []],
         /* eslint-disable no-array-constructor */
         // TODO ['array', new Array()],
@@ -1395,9 +1414,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 ],
                 [
                     {
-                        a: new Set([[new Map([['a', new Blob(['a'], {
-                            type: 'text/plain'
-                        })]])]]),
+                        a: new Set([[new Map([[
+                            'a', new Blob(['a'], {type: 'text/plain'})
+                        ]])]]),
                         b: 2
                     },
                     {
@@ -1423,23 +1442,29 @@ describe(`Tools (${testEnvironment})`, ():void => {
             Tools.equals,
 
             [
-                '>>> Blob("data:text/plain;base64,YQ==\") !== Blob(\"data:text/plain;base64,Yg==")',
+                '>>> Blob("data:text/plain;base64,YQ==") !== ' +
+                'Blob("data:text/plain;base64,Yg==")',
                 new Blob(['a'], {type: 'text/plain'}),
                 new Blob(['b'], {type: 'text/plain'}),
                 {compareBlobs: true, returnReasonIfNotEqual: true}
             ],
             [
-                'a[1].a.get(1) >>> Blob("data:text/plain;base64,YQ==\") !== Blob(\"data:text/plain;base64,Yg==\")',
+                'a[1].a.get(1) >>> Blob("data:text/plain;base64,YQ==") !== ' +
+                'Blob("data:text/plain;base64,Yg==")',
                 {
                     a: [
                         1,
-                        {a: new Map([[1, new Blob(['a'], {type: 'text/plain'})]])}
+                        {a: new Map(
+                            [[1, new Blob(['a'], {type: 'text/plain'})]]
+                        )}
                     ]
                 },
                 {
                     a: [
                         1,
-                        {a: new Map([[1, new Blob(['b'], {type: 'text/plain'})]])}
+                        {a: new Map(
+                            [[1, new Blob(['b'], {type: 'text/plain'})]]
+                        )}
                     ]
                 },
                 {compareBlobs: true, returnReasonIfNotEqual: true}
@@ -1470,8 +1495,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [1, 2, {deep: 0}],
         [[{a: 1}, {b: 1}], [{a: 1}], {deep: 1}],
         [
-            ():void => {},
-            ():void => {},
+            Tools.noop,
+            ():void => {
+                // Do nothing.
+            },
             {deep: -1, ignoreFunctions: false, properties: []}
         ]
     )
@@ -1649,7 +1676,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 b: {__evaluate__: '"t" + "es" + "t"'},
                 c: {__evaluate__: 'removeS(self.a.b)'}
             }},
-            {removeS: (value:string):string => value.replace('s', '')},
+            {removeS: (value:string):string => value.replace('s', '')}
         ],
         [
             {a: 'a', b: 'a'},
@@ -1775,9 +1802,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             {a: 2, b: {b: 1}}
         ],
         [{a: {a: [3, 4]}}, true, {a: {a: [1, 2]}}, {a: {a: [3, 4]}}],
-        [
-            {a: {a: null}}, true, {a: {a: [1, 2]}}, {a: {a: null}},
-        ],
+        [{a: {a: null}}, true, {a: {a: [1, 2]}}, {a: {a: null}}],
         [{a: true}, true, {a: {a: [1, 2]}}, {a: true}],
         [{a: {_a: 1, b: 2}}, true, {a: {_a: 1}}, {a: {b: 2}}],
         [{a: 2, _a: 1}, false, {_a: 1}, {a: 2}],
@@ -1987,7 +2012,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             {a: ['s']},
             {},
             {a: [2, 2]},
-            {a: {__prepend__: 's', __remove__: [2, 2]}},
+            {a: {__prepend__: 's', __remove__: [2, 2]}}
         ],
         [
             {a: ['s', 1, 'a']},
@@ -2118,7 +2143,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [{}, {}],
         [{a: 'a'}, {a: 'a'}],
         [{a: 'aa'}, {a: 'aa'}],
-        [{a: 2}, {a: {__revoke__: ():void => {}, __target__: 2}}]
+        [{a: 2}, {a: {__revoke__: Tools.noop, __target__: 2}}]
     )
     // / endregion
     // / region array
@@ -2445,7 +2470,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [['a', 'b', 'c'], {c: 'b', a: [], b: ['a']}],
         [['a', 'b', 'c'], {b: ['a'], a: [], c: ['a', 'b']}]
     )
-    testEachSingleParameterAgainstSameExpectation<typeof Tools.arraySortTopological>(
+    testEachSingleParameterAgainstSameExpectation<
+        typeof Tools.arraySortTopological
+    >(
         'arraySortTopological',
         Tools.arraySortTopological,
         ThrowSymbol,
@@ -2853,7 +2880,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['function', '5 === 3', ['name']],
         ['function', '', []]
     ])(
-        "'%s' === typeof stringCompile('%s', %p).templateFunction",
+        `'%s' === typeof stringCompile('%s', %p).templateFunction`,
         (
             expected:string,
             ...parameters:Parameters<typeof Tools.stringCompile>
@@ -2862,12 +2889,14 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 typeof Tools.stringCompile(...parameters).templateFunction
             ).toStrictEqual(expected)
     )
+    // // region compile / evaluation
+    // // / region compile
     test.each<[string, ...Parameters<typeof Tools.stringCompile>]>([
         ['string', '= null', []],
         ['string', '{', {}],
         ['object', '', {}]
     ])(
-        "'%s' === typeof stringCompile('%s', %p).error",
+        `'%s' === typeof stringCompile('%s', %p).error`,
         (
             expected:string,
             ...parameters:Parameters<typeof Tools.stringCompile>
@@ -2910,7 +2939,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 return \`test \\\${test} value\`
                 }
             `,
-            '`test \\\${test} value`'
+            '`test \\${test} value`'
         ]
     ])(
         '"%s" === String(stringCompile("%s").templateFunction)',
@@ -2947,7 +2976,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 return "test "+(name)+" '-' "+(other)+" value"
                 }
             `,
-            "`test ${name} '-' ${other} value`"
+            '`test ${name} \'-\' ${other} value`'
         ],
         [
             `
@@ -2993,7 +3022,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 return '[: '+(a ? '<div class="idle">loading...</div>' : results.join(''))+' :]'
                 }
             `,
-            `\`[: \${a ? '<div class="idle">loading...</div>' : results.join('')} :]\``
+            `\`[: \${a ?\n '<div class="idle">loading...</div>' : results.join('')} :]\``
         ],
         [
             `
@@ -3034,7 +3063,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 return 'test \\\${test} value \\\${test}'
                 }
             `,
-            '`test \\\${test} value \\\${test}`'
+            '`test \\${test} value \\${test}`'
         ]
     ])(
         'IE 11: "%s" === String(stringCompile("%s").templateFunction)',
@@ -3053,7 +3082,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 .maximalSupportedInternetExplorerVersion = backup
         }
     )
-
+    // // / endregion
+    // // / region evaluate
     const advancedTemplateEvaluationExample:string = `\`\${loading ?
         '<div class="idle">loading...</div>' :
         results.map(function(result) {
@@ -3069,7 +3099,18 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '</ul>')
         }).join('')
     }\``.replace('\n', '')
-    test.each([
+    type MandatoryGivenStringEvaluateTestTuple = [
+        FirstParameter<typeof Tools.stringEvaluate>,
+        Mapping<unknown>,
+        'compileError'|'result'|'runtimeError'
+    ]
+    type GivenStringEvaluateTestTuple = [
+        ...MandatoryGivenStringEvaluateTestTuple, unknown?, unknown?
+    ]
+    type StringEvaluateTestTuple = [
+        ...MandatoryGivenStringEvaluateTestTuple, unknown, unknown
+    ]
+    test.each<StringEvaluateTestTuple>(([
         ['null', {}, 'result', null],
         ['5', {}, 'result', 5],
         ['a', {a: 2}, 'result', 2],
@@ -3079,10 +3120,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['}', {a: 2}, 'compileError'],
         ['}', {}, 'compileError'],
         [
-            '`test \\\${test} value \\\${test}`',
+            '`test \\${test} value \\${test}`',
             {},
             'result',
-            'test \${test} value \${test}'
+            'test ${test} value ${test}'
         ],
         [
             advancedTemplateEvaluationExample,
@@ -3102,14 +3143,19 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'result',
             '<div class="idle">loading...</div>'
         ]
-    ])(
+    ] as Array<GivenStringEvaluateTestTuple>).map((
+        parameters:GivenStringEvaluateTestTuple
+    ):StringEvaluateTestTuple =>
+        parameters.concat(undefined, undefined).slice(0, 5) as
+            StringEvaluateTestTuple
+    ))(
         'stringEvaluate(`%s`, %p...)[%p] === %p',
         (
             expression:string,
             scope:Mapping<unknown>,
             resultKey:string,
-            expected:unknown = undefined,
-            binding:unknown = undefined
+            expected:unknown,
+            binding:unknown
         ):void => {
             const evaluation:EvaluationResult = Tools.stringEvaluate(
                 expression,
@@ -3119,7 +3165,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
                     binding === undefined ? [] : binding
                 )
             )
+
             expect(evaluation).toHaveProperty(resultKey)
+
             if (expected !== undefined)
                 if (
                     resultKey === 'result' &&
@@ -3132,16 +3180,16 @@ describe(`Tools (${testEnvironment})`, ():void => {
                         .toStrictEqual(expected)
         }
     )
-    test.each([
+    test.each<StringEvaluateTestTuple>(([
         [
-            '`test \\\${test} value \\\${test}`',
+            '`test \\${test} value \\${test}`',
             {},
             'result',
-            'test \${test} value \${test}'
+            'test ${test} value ${test}'
         ],
         /*
-            Nested quotes in code can work in IE 11 if only one type of quote is
-            used according to escaping.
+            Nested quotes in code can work in IE 11 if only one type of quote
+            is used according to escaping.
         */
         [
             `\`
@@ -3156,10 +3204,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
             \``.replace(/(\s\s+)|\n+/g, ''),
             {},
             'result',
-            '<div class=\"test\">' +
+            '<div class="test">' +
             '${Object.keys(item).filter(function(name) {' +
             'return true' +
-            '}).join(\",\")}' +
+            '}).join(",")}' +
             '</div>'
         ],
         [
@@ -3178,14 +3226,19 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'result',
             '<div class="idle">loading...</div>'
         ]
-    ])(
+    ] as Array<GivenStringEvaluateTestTuple>).map((
+        parameters:GivenStringEvaluateTestTuple
+    ):StringEvaluateTestTuple =>
+        parameters.concat(undefined, undefined).slice(0, 5) as
+            StringEvaluateTestTuple
+    ))(
         'IE 11: stringEvaluate(`%s`, %p...)[%p] === %p',
         (
             expression:string,
             scope:Mapping<unknown>,
             resultKey:string,
-            expected:unknown = undefined,
-            binding:unknown = undefined
+            expected:unknown,
+            binding:unknown
         ):void => {
             const backup:number = Tools.maximalSupportedInternetExplorerVersion
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
@@ -3199,7 +3252,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
                     binding === undefined ? [] : binding
                 )
             )
+
             expect(evaluation).toHaveProperty(resultKey)
+
             if (expected !== undefined)
                 if (
                     resultKey === 'result' &&
@@ -3215,7 +3270,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 .maximalSupportedInternetExplorerVersion = backup
         }
     )
-
+    // // / endregion
+    // // endregion
     testEach<typeof Tools.stringFindNormalizedMatchRange>(
         'stringFindNormalizedMatchRange',
         Tools.stringFindNormalizedMatchRange,
@@ -3789,7 +3845,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 synchronousFileSystem.unlinkSync(
                     `./test.copyFile.${testEnvironment}.compiled.js`
                 )
-            } catch (error) {}
+            } catch (error) {
+                // Continue regardless of an error.
+            }
             let result = ''
             try {
                 result = await Tools.copyFile(
@@ -3816,7 +3874,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 synchronousFileSystem.unlinkSync(
                     `./test.copyFileSync.${testEnvironment}.compiled.js`
                 )
-            } catch (error) {}
+            } catch (error) {
+                // Continue regardless of an error.
+            }
             expect(Tools.copyFileSync(
                 path.resolve('./test.ts'),
                 `./test.copyFileSync.${testEnvironment}.compiled.js`
@@ -3940,24 +4000,24 @@ describe(`Tools (${testEnvironment})`, ():void => {
     // / region process handler
     if (TARGET_TECHNOLOGY === 'node') {
         test('getProcessCloseHandler', ():void =>
-            expect(typeof Tools.getProcessCloseHandler(
-                (_reason:ProcessCloseReason):void => {},
-                (_error:ProcessError):void => {}
-            )).toStrictEqual('function')
+            expect(typeof Tools.getProcessCloseHandler(Tools.noop, Tools.noop))
+                .toStrictEqual('function')
         )
         test('handleChildProcess', ():void => {
             /**
              * A mockup duplex stream for mocking "stdout" and "strderr"
              * process connections.
              */
-            class MockupDuplexStream extends require('stream').Duplex {
+            class MockupDuplexStream extends (
+                require('stream') as typeof import('stream')
+            ).Duplex implements DuplexType {
                 /**
                  * Triggers if contents from current stream should be red.
-                 * @param _size - Number of bytes to read asynchronously.
-                 *
                  * @returns Red data.
                  */
-                _read(_size?:number):void {}
+                _read():void {
+                    // Do noyything.
+                }
                 /**
                  * Triggers if contents should be written on current stream.
                  * @param chunk - The chunk to be written. Will always be a
@@ -3978,7 +4038,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 new MockupDuplexStream()
             const stderrMockupDuplexStream:MockupDuplexStream =
                 new MockupDuplexStream()
-            const childProcess:typeof ChildProcess = new ChildProcess()
+            const childProcess:ChildProcessType = new ChildProcess()
             childProcess.stdout = stdoutMockupDuplexStream
             childProcess.stderr = stderrMockupDuplexStream
 
