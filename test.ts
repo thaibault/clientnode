@@ -3074,7 +3074,18 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '</ul>')
         }).join('')
     }\``.replace('\n', '')
-    test.each([
+    type MandatoryGivenStringEvaluateTestTuple = [
+        FirstParameter<typeof Tools.stringEvaluate>,
+        Mapping<unknown>,
+        'compileError'|'result'|'runtimeError'
+    ]
+    type GivenStringEvaluateTestTuple = [
+        ...MandatoryGivenStringEvaluateTestTuple, unknown?, unknown?
+    ]
+    type StringEvaluateTestTuple = [
+        ...MandatoryGivenStringEvaluateTestTuple, unknown, unknown
+    ]
+    test.each<StringEvaluateTestTuple>(([
         ['null', {}, 'result', null],
         ['5', {}, 'result', 5],
         ['a', {a: 2}, 'result', 2],
@@ -3107,15 +3118,19 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'result',
             '<div class="idle">loading...</div>'
         ]
-        // TODO
-    ].map((parameters) => parameters.concat(undefined, undefined)))(
+    ] as Array<GivenStringEvaluateTestTuple>).map((
+        parameters:GivenStringEvaluateTestTuple
+    ):StringEvaluateTestTuple =>
+        parameters.concat(undefined, undefined).slice(0, 5) as
+            StringEvaluateTestTuple
+    ))(
         'stringEvaluate(`%s`, %p...)[%p] === %p',
         async (
             expression:string,
             scope:Mapping<unknown>,
             resultKey:string,
-            expected?:unknown,
-            binding?:unknown
+            expected:unknown,
+            binding:unknown
         ):Promise<void> => {
             const evaluation:EvaluationResult = Tools.stringEvaluate(
                 expression,
@@ -3140,7 +3155,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                         .toStrictEqual(expected)
         }
     )
-    test.each([
+    test.each<StringEvaluateTestTuple>(([
         [
             '`test \\\${test} value \\\${test}`',
             {},
@@ -3186,15 +3201,19 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'result',
             '<div class="idle">loading...</div>'
         ]
-        // TODO
-    ].map((parameters) => parameters.concat(undefined, undefined)))(
+    ] as Array<GivenStringEvaluateTestTuple>).map((
+        parameters:GivenStringEvaluateTestTuple
+    ):StringEvaluateTestTuple =>
+        parameters.concat(undefined, undefined).slice(0, 5) as
+            StringEvaluateTestTuple
+    ))(
         'IE 11: stringEvaluate(`%s`, %p...)[%p] === %p',
         (
             expression:string,
             scope:Mapping<unknown>,
             resultKey:string,
-            expected?:unknown,
-            binding?:unknown
+            expected:unknown,
+            binding:unknown
         ):void => {
             const backup:number = Tools.maximalSupportedInternetExplorerVersion
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})

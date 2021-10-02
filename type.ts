@@ -32,6 +32,8 @@ export type FirstParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[0]
 export type SecondParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[1]
+export type ThirdParameter<FunctionType extends AnyFunction> =
+    Parameters<FunctionType>[2]
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type ParametersExceptFirst<FunctionType> = FunctionType extends
     (_parameter:any, ..._additionalParameters:infer AdditionalParameters) =>
