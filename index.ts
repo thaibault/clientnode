@@ -6699,14 +6699,17 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns The parsed object if possible and null otherwise.
      */
     static stringParseEncodedObject<T = PlainObject>(
-        this:void, serializedObject:string, scope:object = {}, name = 'scope'
+        this:void,
+        serializedObject:string,
+        scope:Mapping<unknown> = {},
+        name = 'scope'
     ):null|T {
         if (
             serializedObject.endsWith('.json') &&
             Tools.isFileSync(serializedObject)
         )
             serializedObject =
-                readFileSync!(serializedObject, {encoding: 'utf-8'})
+                readFileSync(serializedObject, {encoding: 'utf-8'})
 
         serializedObject = serializedObject.trim()
 
@@ -7271,9 +7274,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):Promise<string> {
         // NOTE: Check if folder needs to be created or integrated.
-        sourcePath = resolve!(sourcePath)
+        sourcePath = resolve(sourcePath)
         if (await Tools.isDirectory(targetPath))
-            targetPath = resolve!(targetPath, basename!(sourcePath))
+            targetPath = resolve(targetPath, basename(sourcePath))
 
         try {
             await mkdir!(targetPath)
@@ -7285,7 +7288,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const currentSourceFile of
             await Tools.walkDirectoryRecursively(sourcePath, callback)
         ) {
-            const currentTargetPath:string = join!(
+            const currentTargetPath:string = join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
 
@@ -7329,11 +7332,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
     ):string {
         // NOTE: Check if folder needs to be created or integrated.
-        sourcePath = resolve!(sourcePath)
+        sourcePath = resolve(sourcePath)
         if (Tools.isDirectorySync(targetPath))
-            targetPath = resolve!(targetPath, basename!(sourcePath))
+            targetPath = resolve(targetPath, basename(sourcePath))
         try {
-            mkdirSync!(targetPath)
+            mkdirSync(targetPath)
         } catch (error) {
             if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                 throw error
@@ -7342,12 +7345,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const currentSourceFile of
             Tools.walkDirectoryRecursivelySync(sourcePath, callback)
         ) {
-            const currentTargetPath:string = join!(
+            const currentTargetPath:string = join(
                 targetPath, currentSourceFile.path.substring(sourcePath.length)
             )
             if (currentSourceFile.stats?.isDirectory())
                 try {
-                    mkdirSync!(currentTargetPath)
+                    mkdirSync(currentTargetPath)
                 } catch (error) {
                     if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                         throw error
@@ -7386,10 +7389,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             same name will be created.
         */
         if (await Tools.isDirectory(targetPath))
-            targetPath = resolve!(targetPath, basename!(sourcePath))
+            targetPath = resolve(targetPath, basename(sourcePath))
 
-        await writeFile!(
-            targetPath, await readFile!(sourcePath, readOptions), writeOptions
+        await writeFile(
+            targetPath, await readFile(sourcePath, readOptions), writeOptions
         )
 
         return targetPath
@@ -7418,9 +7421,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             same name will be created.
         */
         if (Tools.isDirectorySync(targetPath))
-            targetPath = resolve!(targetPath, basename!(sourcePath))
+            targetPath = resolve(targetPath, basename(sourcePath))
 
-        writeFileSync!(
+        writeFileSync(
             targetPath,
             readFileSync(sourcePath, readOptions),
             writeOptions
@@ -7437,7 +7440,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static async isDirectory(this:void, filePath:string):Promise<boolean> {
         try {
-            return (await stat!(filePath)).isDirectory()
+            return (await stat(filePath)).isDirectory()
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
@@ -7458,7 +7461,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static isDirectorySync(this:void, filePath:string):boolean {
         try {
-            return statSync!(filePath).isDirectory()
+            return statSync(filePath).isDirectory()
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
@@ -7480,7 +7483,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static async isFile(this:void, filePath:string):Promise<boolean> {
         try {
-            return (await stat!(filePath)).isFile()
+            return (await stat(filePath)).isFile()
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
@@ -7501,7 +7504,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static isFileSync(this:void, filePath:string):boolean {
         try {
-            return statSync!(filePath).isFile()
+            return statSync(filePath).isFile()
         } catch (error) {
             if (
                 Object.prototype.hasOwnProperty.call(error, 'code') &&
@@ -7538,8 +7541,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 {encoding: options, withFileTypes: true} :
                 {...options, withFileTypes: true}
         )) {
-            const filePath:string =
-                resolve!(directoryPath, directoryEntry.name)
+            const filePath:string = resolve(directoryPath, directoryEntry.name)
             const file:File = {
                 directoryPath,
                 directoryEntry,
@@ -7550,7 +7552,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
 
             try {
-                file.stats = await stat!(filePath)
+                file.stats = await stat(filePath)
             } catch (error) {
                 file.error = error as NodeJS.ErrnoException
             }
@@ -7628,14 +7630,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     ):Array<File> {
         const files:Array<File> = []
 
-        for (const directoryEntry of readdirSync!(
+        for (const directoryEntry of readdirSync(
             directoryPath,
             typeof options === 'string' ?
                 {encoding: options, withFileTypes: true} :
                 {...options, withFileTypes: true}
         )) {
-            const filePath:string =
-                resolve!(directoryPath, directoryEntry.name)
+            const filePath:string = resolve(directoryPath, directoryEntry.name)
             const file:File = {
                 directoryPath,
                 directoryEntry,
@@ -7645,14 +7646,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 stats: null
             }
             try {
-                file.stats = statSync!(filePath)
+                file.stats = statSync(filePath)
             } catch (error) {
                 file.error = error as NodeJS.ErrnoException
             }
             files.push(file)
         }
 
-        if (callback)
+        let finalFiles:Array<File> = []
+
+        if (callback) {
             /*
                 NOTE: Directories have to be iterated first to potentially
                 avoid deeper iterations.
@@ -7681,18 +7684,18 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 return 0
             })
 
-        let finalFiles:Array<File> = []
-        for (const file of files) {
-            finalFiles.push(file)
-            const result:unknown = callback!(file)
+            for (const file of files) {
+                finalFiles.push(file)
+                const result:unknown = callback(file)
 
-            if (result === null)
-                break
+                if (result === null)
+                    break
 
-            if (result !== false && file.stats?.isDirectory())
-                finalFiles = finalFiles.concat(
-                    Tools.walkDirectoryRecursivelySync(file.path, callback)
-                )
+                if (result !== false && file.stats?.isDirectory())
+                    finalFiles = finalFiles.concat(
+                        Tools.walkDirectoryRecursivelySync(file.path, callback)
+                    )
+            }
         }
 
         return finalFiles
@@ -7868,9 +7871,7 @@ export const augment$ = (value:$TStatic):void => {
 
     if ($.fn)
         $.fn.Tools = function<
-            TElement = HTMLElement,
-            RT = ReturnType<Tools['initialize']>,
-            LockType = string|void
+            TElement = HTMLElement, RT = ReturnType<Tools['initialize']>
         >(
             this:$DomNode<TElement>,
             ...parameters:ParametersExceptFirst<(typeof Tools)['controller']>
@@ -7886,7 +7887,9 @@ export const augment$ = (value:$TStatic):void => {
 
     if ($.fn) {
         // region prop fix for comments and text nodes
+        /* eslint-disable @typescript-eslint/unbound-method */
         const nativePropFunction = $.fn.prop
+        /* eslint-enable @typescript-eslint/unbound-method */
         /**
          * Scopes native prop implementation ignores properties for text nodes,
          * comments and attribute nodes.

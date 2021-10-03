@@ -217,36 +217,35 @@ describe(`Tools (${testEnvironment})`, ():void => {
             }
         )).toBeInstanceOf(Promise)
         expect(testValue).toStrictEqual('b')
-        tools.releaseLock('test')
+        await tools.releaseLock('test')
         expect(testValue).toStrictEqual('a')
-        tools.releaseLock('test')
+        await tools.releaseLock('test')
         expect(testValue).toStrictEqual('b')
         const promise:Promise<void> = tools.acquireLock('test').then(
             async (result:string|void):Promise<void> => {
                 expect(result).toStrictEqual('test')
                 Tools.timeout(():Promise<string|void> =>
                     tools.releaseLock('test')
-                )
+                ).then(Tools.noop, Tools.noop)
                 result = await tools.acquireLock('test')
                 expect(result).toStrictEqual('test')
                 Tools.timeout(():Promise<string|void> =>
                     tools.releaseLock('test')
-                )
+                ).then(Tools.noop, Tools.noop)
                 result = await tools.acquireLock(
                     'test',
                     ():Promise<string|void> =>
-                        new Promise(
-                            async (resolve:AnyFunction):Promise<void> => {
-                                await Tools.timeout()
+                        new Promise((resolve:AnyFunction):void => {
+                            Tools.timeout(():void => {
                                 testValue = 'a'
                                 resolve(testValue)
-                            }
-                        )
+                            }).then(Tools.noop, Tools.noop)
+                        })
                 )
                 expect(testValue).toStrictEqual('a')
             }
         )
-        tools.releaseLock('test')
+        await tools.releaseLock('test')
         await promise
     })
     test('getSemaphore', async ():Promise<void> => {
@@ -261,10 +260,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
         await semaphore.acquire()
         expect(semaphore.queue.length).toStrictEqual(0)
         expect(semaphore.numberOfFreeResources).toStrictEqual(0)
-        semaphore.acquire()
+        semaphore.acquire().then(Tools.noop, Tools.noop)
         expect(semaphore.queue.length).toStrictEqual(1)
         expect(semaphore.numberOfFreeResources).toStrictEqual(0)
-        semaphore.acquire()
+        semaphore.acquire().then(Tools.noop, Tools.noop)
         expect(semaphore.queue.length).toStrictEqual(2)
         expect(semaphore.numberOfFreeResources).toStrictEqual(0)
         semaphore.release()
@@ -458,6 +457,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         test(`get normalizedClassNames (${testEnvironment})`, async (
         ):Promise<void> => {
             await getInitializedBrowser()
+
             expect(
                 $('<div>')
                     .Tools('normalizedClassNames')
@@ -560,15 +560,17 @@ describe(`Tools (${testEnvironment})`, ():void => {
             `get style '%s' => %p (${testEnvironment})`,
             (html:string, css:Mapping):void => {
                 const $domNode:$DomNode = $(html)
+
                 $('body').append($domNode)
+
                 const styles:Mapping = $domNode.Tools('style')
                 for (const propertyName in css)
-                    if (css.hasOwnProperty(propertyName)) {
-                        expect(styles.hasOwnProperty(propertyName))
-                            .toStrictEqual(true)
-                        expect(styles[propertyName])
-                            .toStrictEqual(css[propertyName])
-                    }
+                    if (Object.prototype.hasOwnProperty.call(
+                        css, propertyName
+                    ))
+                        expect(styles)
+                            .toHaveProperty(propertyName, css[propertyName])
+
                 $domNode.remove()
             }
         )
@@ -689,7 +691,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
     if (hasDOM)
         test('removeDirective', async ():Promise<void> => {
             await getInitializedBrowser()
+
             const $localBodyDomNode = $('body').Tools('removeDirective', 'a')
+
             expect($localBodyDomNode.Tools().removeDirective('a'))
                 .toStrictEqual($localBodyDomNode)
         })
@@ -705,6 +709,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     if (hasDOM)
         test('getDirectiveValue', async ():Promise<void> => {
             await getInitializedBrowser()
+
             expect($('body').Tools('getDirectiveValue', 'a'))
                 .toStrictEqual(null)
         })
@@ -735,7 +740,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     if (hasDOM)
         test('grabDomNodes', async ():Promise<void> => {
-            const browser:InitializedBrowser = await getInitializedBrowser()
+            await getInitializedBrowser()
 
             for (const [expected, parameters] of [
                 [{a: $('div'), parent: $('body')}, [{a: 'div'}]],
@@ -769,15 +774,21 @@ describe(`Tools (${testEnvironment})`, ():void => {
 
         Tools.isolateScope(scope, ['_'])
         let finalScope:Mapping<number|undefined> = {}
+        /* eslint-disable guard-for-in */
         for (const name in scope)
             finalScope[name] = scope[name]
+        /* eslint-enable guard-for-in */
+
         expect(finalScope).toStrictEqual({_a: 5, a: 2, b: undefined})
 
         scope.b = 3
         Tools.isolateScope(scope, ['_'])
         finalScope = {}
+        /* eslint-disable guard-for-in */
         for (const name in scope)
             finalScope[name] = scope[name]
+        /* eslint-enable guard-for-in */
+
         expect(finalScope).toStrictEqual({_a: 5, a: 2, b: 3})
         expect(Tools.isolateScope(scope))
             .toStrictEqual({_a: undefined, a: 2, b: 3})
@@ -792,8 +803,11 @@ describe(`Tools (${testEnvironment})`, ():void => {
         Scope.prototype = {b: 3}
         scope = Tools.isolateScope(new Scope(), ['b'])
         finalScope = {}
+        /* eslint-disable guard-for-in */
         for (const name in scope)
             finalScope[name] = scope[name]
+        /* eslint-enable guard-for-in */
+
         expect(finalScope).toStrictEqual({a: 2, b: 3})
         expect(Tools.isolateScope(new Scope()))
             .toStrictEqual({a: 2, b: undefined})
@@ -822,7 +836,12 @@ describe(`Tools (${testEnvironment})`, ():void => {
         'getParameterNames',
         Tools.getParameterNames,
 
-        [[], function():void {}],
+        [
+            [],
+            function():void {
+                // Do nothing.
+            }
+        ],
         [[], 'function() {}'],
         [['a', 'b', 'c'], 'function(a, /* dummy*/ b, c/**/) {}'],
         [['a', 'b', 'c'], '(a, /*dummy*/b, c/**/) => {}'],
@@ -891,23 +910,26 @@ describe(`Tools (${testEnvironment})`, ():void => {
         let testValue = false
         Tools.debounce(():void => {
             testValue = true
-        })()
+        })().then(Tools.noop, Tools.noop)
         expect(testValue).toStrictEqual(true)
 
         const callback = jest.fn()
         const debouncedCallback = Tools.debounce(callback, 1000)
-        debouncedCallback()
-        debouncedCallback()
+        debouncedCallback().then(Tools.noop, Tools.noop)
+        debouncedCallback().then(Tools.noop, Tools.noop)
         expect(callback).toHaveBeenCalledTimes(1)
 
         const debouncedAsyncronousCallback =
             Tools.debounce(async ():Promise<boolean> => {
                 await Tools.timeout()
+
                 return true
             })
+        /* eslint-disable @typescript-eslint/no-floating-promises */
         expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
         expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
         expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
+        /* eslint-enable @typescript-eslint/no-floating-promises */
     })
     test('fireEvent', ():void => {
         expect(
