@@ -27,11 +27,8 @@
 // region imports
 import {ChildProcess as ChildProcessType} from 'child_process'
 import {Duplex as DuplexType} from 'stream'
-import FileSystemType from 'fs'
 import nodeFetch from 'node-fetch'
-import PathType from 'path'
 import {Requireable} from 'prop-types'
-import RemoveDirectoryRecursivelyType from 'rimraf'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
 
@@ -67,21 +64,25 @@ declare const TARGET_TECHNOLOGY:string
 // endregion
 // region determine technology specific implementations
 globalContext.fetch = nodeFetch as unknown as typeof fetch
-const {ChildProcess = null} = optionalRequire('child_process') || {}
-let path:typeof PathType
-let removeDirectoryRecursivelySync:(
-    typeof RemoveDirectoryRecursivelyType
-)['sync']
-let synchronousFileSystem:typeof FileSystemType
-let testEnvironment = 'browser'
-if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
-    path = require('path')
-    removeDirectoryRecursivelySync = require('rimraf').sync
-    synchronousFileSystem = require('fs')
-    testEnvironment = typeof document === 'undefined' ?
+
+const {ChildProcess = null} =
+    optionalRequire<typeof import('child_process')>('child_process') || {}
+/* eslint-disable @typescript-eslint/unbound-method */
+const {resolve = null} = optionalRequire<typeof import('path')>('path') || {}
+/* eslint-enable @typescript-eslint/unbound-method */
+const {sync: removeDirectoryRecursivelySync = null} =
+    optionalRequire<typeof import('rimraf')>('rimraf') || {}
+const {unlink} =
+    optionalRequire<typeof import('fs/promises')>('fs/promises') || {}
+
+const testEnvironment:string = (
+    typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node'
+) ?
+    typeof document === 'undefined' ?
         'node' :
-        'node-with-dom'
-}
+        'node-with-dom' :
+    'browser'
+
 const hasDOM:boolean = ['browser', 'node-with-dom'].includes(testEnvironment)
 // endregion
 // region property-types
@@ -3849,31 +3850,29 @@ describe(`Tools (${testEnvironment})`, ():void => {
     if (TARGET_TECHNOLOGY === 'node') {
         const testPath = './copyDirectoryRecursiveTest.compiled'
         test('copyDirectoryRecursive', async ():Promise<void> => {
-            removeDirectoryRecursivelySync(testPath)
+            removeDirectoryRecursivelySync!(testPath)
             expect(await Tools.copyDirectoryRecursive(
                 './node_modules/.bin', testPath, Tools.noop
             )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
-            removeDirectoryRecursivelySync(testPath)
+            removeDirectoryRecursivelySync!(testPath)
         })
         test('copyDirectoryRecursiveSync', ():void => {
-            removeDirectoryRecursivelySync(testPath)
+            removeDirectoryRecursivelySync!(testPath)
             expect(Tools.copyDirectoryRecursiveSync(
                 './node_modules/.bin', testPath, Tools.noop
             )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
-            removeDirectoryRecursivelySync(testPath)
+            removeDirectoryRecursivelySync!(testPath)
         })
         test('copyFile', async ():Promise<void> => {
             try {
-                synchronousFileSystem.unlinkSync(
-                    `./test.copyFile.${testEnvironment}.compiled.js`
-                )
+                await unlink!(`./test.copyFile.${testEnvironment}.compiled.js`)
             } catch (error) {
                 // Continue regardless of an error.
             }
             let result = ''
             try {
                 result = await Tools.copyFile(
-                    path.resolve('./test.ts'),
+                    resolve!('./test.ts'),
                     `./test.copyFile.${testEnvironment}.compiled.js`
                 )
             } catch (error) {
@@ -3887,28 +3886,26 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 additional digest loop to have this test artefact placed here.
             */
             await Tools.timeout()
-            synchronousFileSystem.unlinkSync(
-                `./test.copyFile.${testEnvironment}.compiled.js`
-            )
+            await unlink!(`./test.copyFile.${testEnvironment}.compiled.js`)
         })
-        test('copyFileSync', ():void => {
+        test('copyFileSync', async ():Promise<void> => {
             try {
-                synchronousFileSystem.unlinkSync(
+                await unlink!(
                     `./test.copyFileSync.${testEnvironment}.compiled.js`
                 )
             } catch (error) {
                 // Continue regardless of an error.
             }
+
             expect(Tools.copyFileSync(
-                path.resolve('./test.ts'),
+                resolve!('./test.ts'),
                 `./test.copyFileSync.${testEnvironment}.compiled.js`
             )).toMatch(new RegExp(
                 `\\.\\/test\\.copyFileSync\\.${testEnvironment}\\.compiled\\` +
                 '.js$'
             ))
-            synchronousFileSystem.unlinkSync(
-                `./test.copyFileSync.${testEnvironment}.compiled.js`
-            )
+
+            await unlink!(`./test.copyFileSync.${testEnvironment}.compiled.js`)
         })
         test('isDirectory', async ():Promise<void> => {
             for (const filePath of ['./', '../']) {
@@ -3920,7 +3917,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 }
                 expect(result).toStrictEqual(true)
             }
-            for (const filePath of [path.resolve('./test.ts')]) {
+            for (const filePath of [resolve!('./test.ts')]) {
                 let result = true
                 try {
                     result = await Tools.isDirectory(filePath)
@@ -3947,10 +3944,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
             Tools.isDirectorySync,
             false,
 
-            path.resolve('./test.ts')
+            resolve!('./test.ts')
         )
         test('isFile', async ():Promise<void> => {
-            for (const filePath of [path.resolve('./test.ts')]) {
+            for (const filePath of [resolve!('./test.ts')]) {
                 let result = false
                 try {
                     result = await Tools.isFile(filePath)
@@ -3975,7 +3972,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             Tools.isFileSync,
             true,
 
-            path.resolve('./test.ts')
+            resolve!('./test.ts')
         )
         testEachSingleParameterAgainstSameExpectation<typeof Tools.isFileSync>(
             'isFileSync',
@@ -4031,7 +4028,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
              * process connections.
              */
             class MockupDuplexStream extends (
-                require('stream') as typeof import('stream')
+                optionalRequire('stream') as typeof import('stream')
             ).Duplex implements DuplexType {
                 /**
                  * Triggers if contents from current stream should be red.
@@ -4060,7 +4057,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 new MockupDuplexStream()
             const stderrMockupDuplexStream:MockupDuplexStream =
                 new MockupDuplexStream()
-            const childProcess:ChildProcessType = new ChildProcess()
+            const childProcess:ChildProcessType = new ChildProcess!()
             childProcess.stdout = stdoutMockupDuplexStream
             childProcess.stderr = stderrMockupDuplexStream
 
