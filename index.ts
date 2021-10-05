@@ -164,13 +164,11 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
         $ = globalContext.$
     else {
         if (!globalContext.$ && globalContext.document)
-            /* eslint-disable no-empty */
             try {
                 $ = require('jquery')
             } catch (error) {
                 // Continue regardless of an error.
             }
-            /* eslint-enable no-empty */
 
         if (
             typeof $ === 'undefined' ||
@@ -212,9 +210,8 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
                     return $domNodes
                 }
 
-                /* eslint-disable @typescript-eslint/no-use-before-define */
+                // eslint-disable-next-line @typescript-eslint/no-use-before-define
                 if (Tools.isFunction(parameter) && globalContext.document)
-                /* eslint-enable @typescript-eslint/no-use-before-define */
                     globalContext.document.addEventListener(
                         'DOMContentLoaded',
                         parameter as unknown as EventListenerObject
@@ -417,12 +414,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 whitespace. If the conditional markup isn't in a commend.
                 Otherwise there shouldn't be any whitespace!
             */
-            /* eslint-disable no-useless-concat */
             div.innerHTML = (
+                // eslint-disable-next-line no-useless-concat
                 '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' + '->'
             )
 
-            /* eslint-enable no-useless-concat */
             if (div.getElementsByTagName('i').length === 0)
                 break
         }
@@ -443,9 +439,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         return version
     })()
-    /* eslint-disable @typescript-eslint/no-empty-function */
-    static noop:AnyFunction = $.noop ? $.noop as AnyFunction : ():void => {}
-    /* eslint-enable @typescript-eslint/no-empty-function */
+    static noop:AnyFunction =
+        $.noop ?
+            $.noop as AnyFunction :
+            ():void => {
+                // Do nothing.
+            }
     static plainObjectPrototypes:Array<FirstParameter<
         typeof Object.getPrototypeOf
     >> = [Object.prototype]
@@ -843,9 +842,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         if (typeof length === 'number' && length > 0)
             try {
-                /* eslint-disable no-unused-expressions */
+                // eslint-disable-next-line no-unused-expressions
                 (object as Array<unknown>)[length - 1]
-                /* eslint-enable no-unused-expressions */
+
                 return true
             } catch (error) {
                 // Continue regardless of an error.
@@ -1839,13 +1838,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     filter(data, ...additionalParameter)
 
                 let result:Array<unknown> = []
-                /* eslint-disable curly */
                 if (filteredData.length) {
                     for (const date of data)
                         if (!filteredData.includes(date))
                             result.push(date)
                 } else
-                /* eslint-enable curly */
                     result = data
 
                 return result
@@ -3849,6 +3846,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 if (typeof subObject === 'string') {
                     for (const key of resolvedKeys)
                         if (subObject.startsWith(`${key}:`)) {
+                            // eslint-disable-next-line @typescript-eslint/no-extra-semi
                             ;(object as Array<string>).splice(index, 1)
                             skip = true
                             break
@@ -3858,6 +3856,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         continue
                 }
 
+                // eslint-disable-next-line @typescript-eslint/no-extra-semi
                 ;(object as Array<unknown>)[index] =
                     Tools.removeKeyPrefixes(subObject, resolvedKeys)
 
@@ -4672,7 +4671,6 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             ...startPages,
 
             // Start ellipsis
-            // eslint-disable-next-line no-nested-ternary
             ...(
                 siblingsStart > boundaryCount + 2 ?
                     ['start-ellipsis'] :
@@ -4685,7 +4683,6 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             ...Tools.arrayMakeRange([siblingsStart, siblingsEnd]),
 
             // End ellipsis
-            // eslint-disable-next-line no-nested-ternary
             ...(
                 siblingsEnd < numberOfPages - boundaryCount - 1 ?
                     ['end-ellipsis'] :
@@ -5627,12 +5624,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
 
         try {
-            /* eslint-disable @typescript-eslint/no-implied-eval */
+            // eslint-disable-next-line @typescript-eslint/no-implied-eval
             result.templateFunction = new Function(
                 ...result.scopeNames,
                 `${execute ? '' : 'return '}${expression}`
             ) as TemplateFunction<T>
-            /* eslint-enable @typescript-eslint/no-implied-eval */
         } catch (error) {
             result.error =
                 `Given expression "${expression}" could not be compiled ` +
@@ -6193,7 +6189,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
 
             if (match) {
-                const get:AnyFunction = (name:string, fallback = 0):number =>
+                const get = (name:string, fallback = 0):number =>
                     match?.groups && name in match.groups ?
                         parseInt(match.groups[name], 10) :
                         fallback
@@ -6971,7 +6967,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Returns the rounded number.
      */
-    static numberRound(this:void, number:number, digits:number = 0):number {
+    static numberRound(this:void, number:number, digits = 0):number {
         return Math.round(number * Math.pow(10, digits)) / Math.pow(10, digits)
     }
     // / endregion
@@ -7042,20 +7038,19 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         }
 
         if (options.wait)
-            return new Promise(async (
+            return new Promise<Response>((
                 resolve:AnyFunction, reject:AnyFunction
-            ):Promise<void> => {
+            ):void => {
                 let timedOut = false
                 const timer:TimeoutPromise =
                     Tools.timeout(options.timeoutInSeconds * 1000)
 
                 const retryErrorHandler = (error:Error):Error => {
                     if (!timedOut) {
-                        /* eslint-disable no-use-before-define */
+                        // eslint-disable-next-line no-use-before-define
                         currentlyRunningTimer = Tools.timeout(
                             options.pollIntervallInSeconds * 1000, wrapper
                         )
-                        /* eslint-enable no-use-before-define */
                         /*
                             NOTE: A timer rejection is expected. Avoid
                             throwing errors about unhandled promise
@@ -7094,18 +7089,18 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
                 let currentlyRunningTimer = Tools.timeout(wrapper)
 
-                try {
-                    await timer
-                } catch (error) {
-                    // Continue regardless of an error.
-                }
+                timer.then(
+                    ():void => {
+                        timedOut = true
+                        currentlyRunningTimer.clear()
 
-                timedOut = true
-                currentlyRunningTimer.clear()
-
-                reject(new Error(
-                    `Timeout of ${options.timeoutInSeconds} seconds reached.`
-                ))
+                        reject(new Error(
+                            `Timeout of ${options.timeoutInSeconds} seconds ` +
+                            'reached.'
+                        ))
+                    },
+                    Tools.noop
+                )
             })
 
         return checkAndThrow(await globalContext.fetch(url, options.options))
@@ -7172,9 +7167,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         }
 
         if (options.wait)
-            return new Promise(async (
+            return new Promise<Error|null|Promise<Error|null>>((
                 resolve:AnyFunction, reject:AnyFunction
-            ):Promise<void> => {
+            ):void => {
                 let timedOut = false
 
                 const wrapper:AnyFunction = async (
@@ -7194,11 +7189,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             return result
                         }
 
-                        /* eslint-disable no-use-before-define */
+                        // eslint-disable-next-line no-use-before-define
                         currentlyRunningTimer = Tools.timeout(
                             options.pollIntervallInSeconds * 1000, wrapper
                         )
-                        /* eslint-enable no-use-before-define */
 
                         /*
                             NOTE: A timer rejection is expected. Avoid throwing
@@ -7206,9 +7200,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         */
                         currentlyRunningTimer.catch(Tools.noop)
                     } catch (error) {
-                        /* eslint-disable no-use-before-define */
+                        // eslint-disable-next-line no-use-before-define
                         timer.clear()
-                        /* eslint-enable no-use-before-define */
                         resolve(error)
 
                         return error as Error
@@ -7221,17 +7214,19 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 const timer:TimeoutPromise =
                     Tools.timeout(options.timeoutInSeconds * 1000)
 
-                try {
-                    await timer
-                } catch (error) {
-                    // Continue regardless of an error.
-                }
+                timer.then(
+                    () => {
+                        timedOut = true
 
-                timedOut = true
-                currentlyRunningTimer.clear()
-                reject(new Error(
-                    `Timeout of ${options.timeoutInSeconds} seconds reached.`
-                ))
+                        currentlyRunningTimer.clear()
+
+                        reject(new Error(
+                            `Timeout of ${options.timeoutInSeconds} seconds ` +
+                            'reached.'
+                        ))
+                    },
+                    Tools.noop
+                )
             })
 
         try {
@@ -7694,7 +7689,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 break
 
             if (typeof result === 'object' && 'then' in result!)
-                result = await result
+                result = await (result as Promise<unknown>)
 
             if (result === null)
                 break
@@ -7723,7 +7718,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         directoryPath:string,
         callback:AnyFunction|null = Tools.noop,
         options:Encoding|SecondParameter<typeof import('fs').readdirSync> =
-            'utf8'
+        'utf8'
     ):Array<File> {
         const files:Array<File> = []
 
@@ -7987,9 +7982,8 @@ export const augment$ = (value:$TStatic):void => {
 
     if ($.fn) {
         // region prop fix for comments and text nodes
-        /* eslint-disable @typescript-eslint/unbound-method */
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         const nativePropFunction = $.fn.prop
-        /* eslint-enable @typescript-eslint/unbound-method */
         /**
          * Scopes native prop implementation ignores properties for text nodes,
          * comments and attribute nodes.
