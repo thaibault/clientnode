@@ -2802,9 +2802,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (
             Tools.isPlainObject(firstValue) &&
             Tools.isPlainObject(secondValue) &&
-            !(
-                firstValue instanceof RegExp || secondValue instanceof RegExp
-            ) ||
+            !(firstValue instanceof RegExp || secondValue instanceof RegExp) ||
             Array.isArray(firstValue) &&
             Array.isArray(secondValue) &&
             firstValue.length === secondValue.length ||
