@@ -67,9 +67,8 @@ globalContext.fetch = nodeFetch as unknown as typeof fetch
 
 const {ChildProcess = null} =
     optionalRequire<typeof import('child_process')>('child_process') || {}
-/* eslint-disable @typescript-eslint/unbound-method */
+// eslint-disable-next-line @typescript-eslint/unbound-method
 const {resolve = null} = optionalRequire<typeof import('path')>('path') || {}
-/* eslint-enable @typescript-eslint/unbound-method */
 const {sync: removeDirectoryRecursivelySync = null} =
     optionalRequire<typeof import('rimraf')>('rimraf') || {}
 const {unlink} =
@@ -371,9 +370,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
 
         {},
         {a: 1},
-        /* eslint-disable no-new-object */
+        // eslint-disable-next-line no-new-object
         new Object()
-        /* eslint-enable no-new-object */
     )
     testEachSingleParameterAgainstSameExpectation<typeof Tools.isPlainObject>(
         'isPlainObject',
@@ -394,9 +392,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         true,
 
         Object,
-        /* eslint-disable @typescript-eslint/no-implied-eval */
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
         new Function('return 1'),
-        /* eslint-enable @typescript-eslint/no-implied-eval */
         function():void {
             // Do nothing.
         },
@@ -436,10 +433,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         expect(tools.warn('test')).toStrictEqual(undefined)
     )
     test('show', ():void =>
-        /* eslint-disable no-control-regex */
+        // eslint-disable-next-line no-control-regex
         expect(/^.+\(Type: "function"\)$/su.test(Tools.show(Tools.noop)))
             .toStrictEqual(true)
-        /* eslint-enable no-control-regex */
     )
     testEach<typeof Tools.show>(
         'show',
@@ -767,6 +763,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             .toStrictEqual({a: 2, b: {a: [1, 2]}})
 
         let Scope:(new () => Mapping<number>) =
+            // eslint-disable-next-line no-unused-vars
             function(this:Mapping<number>):void {
                 this.a = 2
             } as unknown as (new () => Mapping<number>)
@@ -775,20 +772,18 @@ describe(`Tools (${testEnvironment})`, ():void => {
 
         Tools.isolateScope(scope, ['_'])
         let finalScope:Mapping<number|undefined> = {}
-        /* eslint-disable guard-for-in */
+        // eslint-disable-next-line guard-for-in
         for (const name in scope)
             finalScope[name] = scope[name]
-        /* eslint-enable guard-for-in */
 
         expect(finalScope).toStrictEqual({_a: 5, a: 2, b: undefined})
 
         scope.b = 3
         Tools.isolateScope(scope, ['_'])
         finalScope = {}
-        /* eslint-disable guard-for-in */
+        // eslint-disable-next-line guard-for-in
         for (const name in scope)
             finalScope[name] = scope[name]
-        /* eslint-enable guard-for-in */
 
         expect(finalScope).toStrictEqual({_a: 5, a: 2, b: 3})
         expect(Tools.isolateScope(scope))
@@ -798,16 +793,16 @@ describe(`Tools (${testEnvironment})`, ():void => {
         expect(Tools.isolateScope(scope, ['_']))
             .toStrictEqual({_a: 6, a: 2, b: 3})
 
+        // eslint-disable-next-line no-unused-vars
         Scope = function(this:Mapping<number>):void {
             this.a = 2
         } as unknown as (new () => Mapping<number>)
         Scope.prototype = {b: 3}
         scope = Tools.isolateScope(new Scope(), ['b'])
         finalScope = {}
-        /* eslint-disable guard-for-in */
+        // eslint-disable-next-line guard-for-in
         for (const name in scope)
             finalScope[name] = scope[name]
-        /* eslint-enable guard-for-in */
 
         expect(finalScope).toStrictEqual({a: 2, b: 3})
         expect(Tools.isolateScope(new Scope()))
@@ -1303,9 +1298,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         }],
         ['function', Tools.noop],
         ['array', []],
-        /* eslint-disable no-array-constructor */
+        // eslint-disable-next-line no-array-constructor
         // TODO ['array', new Array()],
-        /* eslint-enable no-array-constructor */
         ['date', now],
         ['error', new Error()],
         ['map', new Map()],
@@ -3045,7 +3039,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 return '[: '+(a ? '<div class="idle">loading...</div>' : results.join(''))+' :]'
                 }
             `,
-            `\`[: \${a ?\n '<div class="idle">loading...</div>' : results.join('')} :]\``
+            `\`[: \${a ?\n '<div class="idle">loading...</div>' : ` +
+            `results.join('')} :]\``
         ],
         [
             `
@@ -3289,6 +3284,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                     expect(evaluation[resultKey as keyof EvaluationResult])
                         .toStrictEqual(expected)
 
+            // eslint-disable-next-line indent
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
                 .maximalSupportedInternetExplorerVersion = backup
         }

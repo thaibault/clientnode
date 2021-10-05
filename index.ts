@@ -132,6 +132,7 @@ export const optionalRequire = <T = unknown>(id:string):null|T => {
     }
 }
 globalContext.fetch =
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     globalContext.fetch ??
     optionalRequire<{default:typeof fetch}>('node-fetch')?.default ??
     ((...parameters:Parameters<typeof fetch>):ReturnType<typeof fetch> =>
@@ -154,23 +155,24 @@ const {
     stat = null,
     writeFile = null
 } = optionalRequire<typeof import('fs/promises')>('fs/promises') || {}
+// eslint-disable-next-line @typescript-eslint/unbound-method
 const {basename = null, join = null, resolve = null} =
     optionalRequire<typeof import('path')>('path') || {}
 // / endregion
 // / region $
 export const determine$:(() => $TStatic) = ():$TStatic => {
-    let $:$TStatic = (():void => {}) as unknown as $TStatic
+    let $:$TStatic = (():void => {
+        // Do nothing.
+    }) as unknown as $TStatic
     if (globalContext.$ && globalContext.$ !== null)
         $ = globalContext.$
     else {
         if (!globalContext.$ && globalContext.document)
-            /* eslint-disable no-empty */
             try {
                 $ = require('jquery')
             } catch (error) {
                 // Continue regardless of an error.
             }
-            /* eslint-enable no-empty */
 
         if (
             typeof $ === 'undefined' ||
@@ -214,11 +216,11 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
 
                 /* eslint-disable @typescript-eslint/no-use-before-define */
                 if (Tools.isFunction(parameter) && globalContext.document)
-                /* eslint-enable @typescript-eslint/no-use-before-define */
                     globalContext.document.addEventListener(
                         'DOMContentLoaded',
                         parameter as unknown as EventListenerObject
                     )
+                /* eslint-enable @typescript-eslint/no-use-before-define */
 
                 return parameter
             }) as $TStatic
@@ -417,12 +419,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 whitespace. If the conditional markup isn't in a commend.
                 Otherwise there shouldn't be any whitespace!
             */
-            /* eslint-disable no-useless-concat */
             div.innerHTML = (
+                // eslint-disable-next-line no-useless-concat
                 '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' + '->'
             )
 
-            /* eslint-enable no-useless-concat */
             if (div.getElementsByTagName('i').length === 0)
                 break
         }
@@ -443,9 +444,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         return version
     })()
-    /* eslint-disable @typescript-eslint/no-empty-function */
-    static noop:AnyFunction = $.noop ? $.noop as AnyFunction : ():void => {}
-    /* eslint-enable @typescript-eslint/no-empty-function */
+    static noop:AnyFunction =
+        $.noop ?
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            $.noop as AnyFunction :
+            ():void => {
+                // Do nothing.
+            }
     static plainObjectPrototypes:Array<FirstParameter<
         typeof Object.getPrototypeOf
     >> = [Object.prototype]
@@ -638,7 +643,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
             object = new (
-                object as {new ($domNode:null|$DomNode<TElement>):unknown}
+                object as {new (_$domNode:null|$DomNode<TElement>):unknown}
             )($domNode)
 
             if (!(object instanceof Tools))
@@ -695,7 +700,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         )
             throw new Error(
                 `Method "${normalizedParameters[0]}" does not exist on ` +
-                `$-extended dom node "${name}".`
+                `$-extended dom node "${object as string}".`
             )
     }
     // / endregion
@@ -718,7 +723,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         callback?:LockCallbackFunction<LockType>,
         autoRelease = false
     ):Promise<LockType> {
-        return new Promise((resolve:AnyFunction):void => {
+        return new Promise<LockType>((resolve:AnyFunction):void => {
             const wrappedCallback:LockCallbackFunction<LockType> = (
                 description:string
             ):Promise<LockType>|LockType => {
@@ -729,6 +734,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 const finish = (value:LockType):LockType => {
                     if (autoRelease)
                         this.releaseLock(description)
+                            .then(Tools.noop, Tools.noop)
 
                     resolve(value)
 
@@ -747,7 +753,17 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 this.locks[description].push(wrappedCallback)
             else {
                 this.locks[description] = []
+
+
+                /*
+                    eslint-disable
+                        @typescript-eslint/no-floating-promises
+                */
                 wrappedCallback(description)
+                /*
+                    eslint-enable
+                        @typescript-eslint/no-floating-promises
+                */
             }
         })
     }
@@ -843,9 +859,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         if (typeof length === 'number' && length > 0)
             try {
-                /* eslint-disable no-unused-expressions */
+                // eslint-disable-next-line no-unused-expressions
                 (object as Array<unknown>)[length - 1]
-                /* eslint-enable no-unused-expressions */
+
                 return true
             } catch (error) {
                 // Continue regardless of an error.
@@ -882,7 +898,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Value "true" if given object is a plain javaScript object and
      * "false" otherwise.
      */
-    static isObject(this:void, value:unknown):value is object {
+    static isObject(this:void, value:unknown):value is Mapping<unknown> {
         return value !== null && typeof value === 'object'
     }
     /**
@@ -1079,18 +1095,18 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         let output = ''
 
         if (Tools.determineType(object) === 'object') {
-            for (const key in object as object)
+            for (const key in object as Mapping<unknown>)
                 if (Object.prototype.hasOwnProperty.call(object, key)) {
                     output += `${key.toString()}: `
 
                     if (currentLevel <= level)
                         output += Tools.show(
-                            (object as object)[key as keyof object],
+                            (object as Mapping<unknown>)[key],
                             level,
                             currentLevel + 1
                         )
                     else
-                        output += `${(object as object)[key as keyof object]}`
+                        output += `${(object as Mapping)[key]}`
 
                     output += '\n'
                 }
@@ -1363,7 +1379,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         )
                     )
                 )
-                    $domNodes[type] = $(`<div>${inputs[type]}</div>`)
+                    $domNodes[type] = $(`<div>${inputs[type] as string}</div>`)
                 else
                     try {
                         const $copiedDomNode:$DomNode<Node> = $(
@@ -1680,7 +1696,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         domNodeSelectors, name
                     )) {
                         const match:Array<string>|null =
-                            domNodeSelectors[name].match(', *')
+                            /, */.exec(domNodeSelectors[name])
                         if (match)
                             domNodeSelectors[name] +=
                                 domNodeSelectors[name]
@@ -1719,7 +1735,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns The isolated scope.
      */
-    static isolateScope<T extends Object>(
+    static isolateScope<T extends Mapping<unknown>>(
         this:void, scope:T, prefixesToIgnore:Array<string> = []
     ):T {
         for (const name in scope)
@@ -1750,11 +1766,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         this:void,
         prefix = 'callback',
         suffix = '',
-        scope:object = $.global,
+        scope:Mapping<unknown> = $.global as unknown as Mapping<unknown>,
         initialUniqueName = ''
     ):string {
         if (initialUniqueName.length && !(initialUniqueName in scope))
             return initialUniqueName
+
         let uniqueName:string = prefix + suffix
         while (true) {
             uniqueName =
@@ -1764,6 +1781,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (!(uniqueName in scope))
                 break
         }
+
         return uniqueName
     }
     // / endregion
@@ -1822,15 +1840,18 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static identity<T>(this:void, value:T):T {
         return value
     }
+    /* eslint-disable space-before-function-paren */
     /**
      * Inverted filter helper to inverse each given filter.
+     * @param this - Indicates an unbound method.
      * @param filter - A function that filters an array.
      *
      * @returns The inverted filter.
      */
     static invertArrayFilter<T extends AnyFunction = (
-        this:void, data:Array<unknown>, ...additionalParameter:Array<unknown>
-    ) => Array<unknown>>(filter:T):T {
+        _data:Array<unknown>, ..._additionalParameter:Array<unknown>
+    ) => Array<unknown>>(this:void, filter:T):T {
+    /* eslint-enable space-before-function-paren */
         return ((
             data:Array<unknown>, ...additionalParameter:Array<unknown>
         ):Array<unknown> => {
@@ -1839,13 +1860,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     filter(data, ...additionalParameter)
 
                 let result:Array<unknown> = []
-                /* eslint-disable curly */
                 if (filteredData.length) {
                     for (const date of data)
                         if (!filteredData.includes(date))
                             result.push(date)
                 } else
-                /* eslint-enable curly */
                     result = data
 
                 return result
@@ -1958,13 +1977,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         callback:AnyFunction,
         thresholdInMilliseconds = 600,
         ...additionalArguments:Array<unknown>
-    ):((...parameters:Array<unknown>) => Promise<T>) {
+    ):((..._parameters:Array<unknown>) => Promise<T>) {
         let waitForNextSlot = false
         let parametersForNextSlot:Array<unknown>|null = null
         // NOTE: Type "T" will be added via "then" method when called.
         let resolveNextSlotPromise:AnyFunction
         let rejectNextSlotPromise:AnyFunction
-        let nextSlotPromise:Promise<T> = new Promise((
+        let nextSlotPromise:Promise<T> = new Promise<T>((
             resolve:AnyFunction, reject:AnyFunction
         ):void => {
             resolveNextSlotPromise = resolve
@@ -2047,7 +2066,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             })
                         }
                     }
-                )
+                ).then(Tools.noop, Tools.noop)
             })
 
             return currentSlotPromise
@@ -2269,7 +2288,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         this:void,
         object:unknown,
         determineCircularReferenceValue:((
-            serializedValue:null|unknown,
+            _serializedValue:null|unknown,
             _key:null|string,
             _value:unknown,
             _seenObjects:Map<unknown, null|unknown>
@@ -2361,8 +2380,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     let index = 0
 
                     for (const value of object as Array<unknown>) {
+                        /* eslint-disable @typescript-eslint/no-extra-semi */
                         ;(object as Array<unknown>)[index] =
                             Tools.convertMapToPlainObject(value, deep)
+                        /* eslint-enable @typescript-eslint/no-extra-semi */
 
                         index += 1
                     }
@@ -2449,7 +2470,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Converted object with replaced patterns.
      */
-    static convertSubstringInPlainObject<Type extends object = PlainObject>(
+    static convertSubstringInPlainObject<
+        Type extends Mapping<unknown> = PlainObject
+    >(
         this:void,
         object:Type,
         pattern:RegExp|string,
@@ -2459,8 +2482,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (Object.prototype.hasOwnProperty.call(object, key))
                 if (Tools.isPlainObject(object[key]))
                     object[key as keyof Type] =
-                        Tools.convertSubstringInPlainObject(
-                            object[key as keyof Type] as unknown as object,
+                        Tools.convertSubstringInPlainObject<PlainObject>(
+                            object[key as keyof Type] as
+                                unknown as
+                                PlainObject,
                             pattern,
                             replacement
                         ) as unknown as ValueOf<Type>
@@ -2471,6 +2496,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         return object
     }
+    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Copies given object (of any type) into optionally given destination.
      * @param this - Indicates an unbound method.
@@ -2500,6 +2526,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         knownReferences:Array<unknown> = [],
         recursionLevel = 0
     ):Type {
+    /* eslint-enable jsdoc/require-description-complete-sentence */
         if (source !== null && typeof source === 'object')
             if (destination) {
                 if (source === destination)
@@ -2655,7 +2682,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
         if (
             ['function', 'object'].includes(type) &&
-            (value as object).toString
+            (value as Mapping).toString
         ) {
             const stringRepresentation:string =
                 Tools.classToTypeMapping.toString.call(value)
@@ -2831,12 +2858,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     let index = 0
                     for (const value of first as Array<unknown>) {
                         if (options.deep !== 0) {
-                            const result:boolean|Promise<boolean|string>|string =
-                                Tools.equals(
-                                    value,
-                                    (second as Array<unknown>)[index],
-                                    {...options, deep: options.deep - 1}
-                                )
+                            const result:(
+                                boolean|Promise<boolean|string>|string
+                            ) = Tools.equals(
+                                value,
+                                (second as Array<unknown>)[index],
+                                {...options, deep: options.deep - 1}
+                            )
 
                             if (!result)
                                 return false
@@ -2847,7 +2875,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                 result:boolean|string
                             ):boolean|string =>
                                 typeof result === 'string' ?
-                                    `[${currentIndex}]${{'[': '', '>': ' '}[result[0]] ?? '.'}${result}` :
+                                    `[${currentIndex}]` +
+                                    ({'[': '', '>': ' '}[result[0]] ?? '.') +
+                                    result :
                                     result
 
                             if ((result as Promise<boolean|string>)?.then)
@@ -2865,12 +2895,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 } else if (firstIsMap) {
                     for (const [key, value] of first as Map<unknown, unknown>)
                         if (options.deep !== 0) {
-                            const result:boolean|Promise<boolean|string>|string =
-                                Tools.equals(
-                                    value,
-                                    (second as Map<unknown, unknown>).get(key),
-                                    {...options, deep: options.deep - 1}
-                                )
+                            const result:(
+                                boolean|Promise<boolean|string>|string
+                            ) = Tools.equals(
+                                value,
+                                (second as Map<unknown, unknown>).get(key),
+                                {...options, deep: options.deep - 1}
+                            )
 
                             if (!result)
                                 return false
@@ -2904,12 +2935,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                 equally.
                             */
                             for (const secondValue of second as Set<unknown>) {
-                                const result:boolean|Promise<boolean|string>|string =
-                                    Tools.equals(
-                                        value,
-                                        secondValue,
-                                        {...options, deep: options.deep - 1}
-                                    )
+                                const result:(
+                                    boolean|Promise<boolean|string>|string
+                                ) = Tools.equals(
+                                    value,
+                                    secondValue,
+                                    {...options, deep: options.deep - 1}
+                                )
 
                                 if (typeof result === 'boolean') {
                                     if (result) {
@@ -2941,19 +2973,24 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                 continue
 
                             if (subPromises.length)
-                                promises.push(new Promise(async (
+                                promises.push(new Promise<boolean|string>((
                                     resolve:AnyFunction
-                                ):Promise<void> =>
-                                    resolve(determineResult(
-                                        (await Promise.all(subPromises))
-                                            .some(Tools.identity)
-                                    ))
-                                ))
+                                ):void => {
+                                    Promise.all<boolean|string>(
+                                        subPromises
+                                    ).then(
+                                        (results:Array<boolean|string>):void =>
+                                            resolve(determineResult(
+                                                results.some(Tools.identity)
+                                            )),
+                                        Tools.noop
+                                    )
+                                }))
 
                             return determineResult(false)
                         }
                 } else
-                    for (const key in first as object)
+                    for (const key in first as Mapping<unknown>)
                         if (Object.prototype.hasOwnProperty.call(first, key)) {
                             if (
                                 options.properties &&
@@ -2977,12 +3014,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                 break
 
                             if (options.deep !== 0) {
-                                const result:boolean|Promise<boolean|string>|string =
-                                    Tools.equals(
-                                        (first as Mapping<unknown>)[key],
-                                        (second as Mapping<unknown>)[key],
-                                        {...options, deep: options.deep - 1}
-                                    )
+                                const result:(
+                                    boolean|Promise<boolean|string>|string
+                                ) = Tools.equals(
+                                    (first as Mapping<unknown>)[key],
+                                    (second as Mapping<unknown>)[key],
+                                    {...options, deep: options.deep - 1}
+                                )
 
                                 if (!result)
                                     return false
@@ -3012,16 +3050,23 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
 
             if (promises.length)
-                return new Promise(
-                    async (resolve:AnyFunction):Promise<void> => {
-                        for (const result of await Promise.all(promises))
-                            if (!result || typeof result === 'string') {
-                                resolve(result)
-                                break
-                            }
+                return new Promise<boolean|string>((
+                    resolve:AnyFunction
+                ):void => {
+                    Promise.all(promises).then(
+                        (results:Array<boolean|string>):void => {
+                            for (const result of results)
+                                if (!result || typeof result === 'string') {
+                                    resolve(result)
 
-                        resolve(true)
-                    })
+                                    break
+                                }
+
+                            resolve(true)
+                        },
+                        Tools.noop
+                    )
+                })
 
             return true
         }
@@ -3085,10 +3130,16 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 if (
                     Object.prototype.hasOwnProperty.call(data, key) &&
                     key !== '__target__' &&
-                    data[key as keyof object] !== null &&
-                    typeof data[key as keyof object] === 'object'
+                    (data as Mapping<unknown>)[
+                        key as keyof Mapping<unknown>
+                    ] !== null &&
+                    typeof (data as Mapping<unknown>)[
+                        key as keyof Mapping<unknown>
+                    ] === 'object'
                 ) {
-                    const value:unknown = data[key as keyof object]
+                    const value:unknown = (data as Mapping<unknown>)[
+                        key as keyof Mapping<unknown>
+                    ]
 
                     addProxyRecursively(value)
                     /*
@@ -3103,12 +3154,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             value, executionIndicatorKey
                         )
                     ) {
-                        const backup:object = value as object
+                        const backup:Mapping<unknown> =
+                            value as Mapping<unknown>
                         (data as Mapping<ProxyType>)[key] = new Proxy(
-                            value as object,
+                            value as {[key:string|symbol]:unknown},
                             {
                                 get: (
-                                    target:object, key:keyof object
+                                    target:{[key:string|symbol]:unknown},
+                                    key:string|symbol
                                 ):unknown => {
                                     if (key === '__target__')
                                         return target
@@ -3129,7 +3182,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                                 evaluate(target[key], type)
                                             )
 
-                                    const resolvedTarget:object =
+                                    const resolvedTarget:Mapping<unknown> =
                                         resolve(target)
                                     if (key === 'toString') {
                                         const result:Mapping<AnyFunction> =
@@ -3139,9 +3192,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                     }
 
                                     if (typeof key !== 'string') {
-                                        const result:Mapping<
-                                            AnyFunction|null
-                                        > = evaluate(resolvedTarget)
+                                        const result:{
+                                            [key:string|symbol]:AnyFunction|null
+                                        } = evaluate(resolvedTarget)
 
                                         if (result[key]?.call)
                                             return result[key]!.bind(result)
@@ -3163,7 +3216,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                     return resolvedTarget[key]
                                     // End of complicated stuff.
                                 },
-                                ownKeys: (target:object):Array<string> => {
+                                ownKeys: (
+                                    target:Mapping<unknown>
+                                ):Array<string> => {
                                     for (const type of [
                                         expressionIndicatorKey,
                                         executionIndicatorKey
@@ -3174,7 +3229,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                                             return Object.getOwnPropertyNames(
                                                 resolve(evaluate(
                                                     target[
-                                                        type as keyof object
+                                                        type as keyof Mapping<
+                                                            unknown
+                                                        >
                                                     ],
                                                     type
                                                 ))
@@ -3206,26 +3263,30 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         expressionIndicatorKey, executionIndicatorKey
                     ])
                         if (Object.prototype.hasOwnProperty.call(data, type))
-                            return data[type as keyof object]
+                            return (data as Mapping<unknown>)[
+                                type as keyof Mapping<unknown>
+                            ]
 
                     data = data.__target__
                 }
 
-                for (const key in data as object)
+                for (const key in data as Mapping<unknown>)
                     if (Object.prototype.hasOwnProperty.call(data, key)) {
                         if ([
                             expressionIndicatorKey, executionIndicatorKey
                         ].includes(key)) {
                             if (typeof Proxy === 'undefined')
                                 return resolve(evaluate(
-                                    (data as Mapping)[key]
+                                    (data as Mapping<unknown>)[key]
                                 ))
 
-                            return (data as Mapping)[key]
+                            return (data as Mapping<unknown>)[key]
                         }
 
-                        (data as Mapping)[key] =
-                            resolve((data as Mapping)[key])
+                        /* eslint-disable @typescript-eslint/no-extra-semi */
+                        ;(data as Mapping)[key] =
+                            resolve((data as Mapping<unknown>)[key])
+                        /* eslint-enable @typescript-eslint/no-extra-semi */
                     }
             }
 
@@ -3290,12 +3351,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         for (const key in data)
             if (
                 Object.prototype.hasOwnProperty.call(
-                    data as unknown as object, key
+                    data as unknown as Mapping<unknown>, key
                 ) &&
                 !expressionIndicators.includes(key) &&
                 expressionIndicators.some((name:string):boolean =>
                     Object.prototype.hasOwnProperty.call(
-                        data as unknown as object, name
+                        data as unknown as Mapping<unknown>, name
                     )
                 )
             )
@@ -3321,7 +3382,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static extend<T = Mapping<unknown>>(
         this:void,
-        targetOrDeepIndicator:boolean|typeof IgnoreNullAndUndefinedSymbol|RecursivePartial<T>,
+        targetOrDeepIndicator:(
+            boolean|typeof IgnoreNullAndUndefinedSymbol|RecursivePartial<T>
+        ),
         targetOrSource?:RecursivePartial<T>,
         ...additionalSources:Array<RecursivePartial<T>>
     ):T {
@@ -3457,7 +3520,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     if (subParts)
                         // NOTE: We add index assignments into path array.
                         for (const subPart of subParts) {
-                            const [all, prefix, indexAssignment] =
+                            const [, prefix, indexAssignment] =
                                 /(.*?)(\[[0-9]+\])/.exec(subPart)!
 
                             if (prefix)
@@ -3520,7 +3583,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     return (
                         target[methodNames.delete as keyof T] as
                             unknown as
-                            (key:string|symbol) => boolean
+                            (_key:string|symbol) => boolean
                     )(key)
 
                 return true
@@ -3532,7 +3595,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 return (
                     target[methodNames.get as keyof T] as
                         unknown as
-                        (key:string|symbol) => unknown
+                        (_key:string|symbol) => unknown
                 )(key)
             },
             has: (targetObject:T, key:string|symbol):boolean => {
@@ -3542,7 +3605,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 return (
                     target[methodNames.has as keyof T] as
                         unknown as
-                        (key:string|symbol) => boolean
+                        (_key:string|symbol) => boolean
                 )(key)
             },
             set: (
@@ -3553,7 +3616,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 else
                     return (target[methodNames.set as keyof T] as
                         unknown as
-                        (key:string|symbol, value:unknown) => boolean
+                        (_key:string|symbol, _value:unknown) => boolean
                     )(key, value)
 
                 return true
@@ -3571,7 +3634,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Given but sliced object. If (nested) object will be modified a
      * flat copy of that object will be returned.
      */
-    static mask<Type = object>(
+    static mask<Type = Mapping<unknown>>(
         this:void, object:Type, mask:ObjectMaskConfiguration
     ):RecursivePartial<Type> {
         mask = {exclude: false, include: true, ...mask}
@@ -3591,16 +3654,17 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     Object.prototype.hasOwnProperty.call(object, key)
                 )
                     if (mask.include[key] === true)
-                        result[key as keyof object] =
-                            object[key as keyof object]
+                        result[key as keyof Type] = object[key as keyof Type]
                     else if (
                         Tools.isPlainObject(mask.include[key]) &&
-                        typeof object[key as keyof object] === 'object'
+                        typeof object[key as keyof Type] === 'object'
                     )
-                        (result[key as keyof object] as object) = Tools.mask(
-                            object[key as keyof object],
-                            {include: mask.include[key]}
-                        )
+                        (result[key as keyof Type] as
+                            RecursivePartial<ValueOf<Type>>
+                        ) = Tools.mask(
+                                    object[key as keyof Type],
+                                    {include: mask.include[key]}
+                                )
         } else
             // In this branch "mask.include === true" holds.
             result = object
@@ -3616,6 +3680,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 )
                     if (mask.exclude[key] === true) {
                         useCopy = true
+
                         delete copy[key as keyof Type]
                     } else if (
                         Tools.isPlainObject(mask.exclude[key]) &&
@@ -3623,6 +3688,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     ) {
                         const current:ValueOf<Type> =
                             copy[key as keyof Type] as ValueOf<Type>
+
                         ;(copy[key as keyof Type] as ValueOf<Type>) =
                             Tools.mask(
                                 copy[key as keyof Type],
@@ -3849,7 +3915,13 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 if (typeof subObject === 'string') {
                     for (const key of resolvedKeys)
                         if (subObject.startsWith(`${key}:`)) {
+                            /*
+                                eslint-disable @typescript-eslint/no-extra-semi
+                            */
                             ;(object as Array<string>).splice(index, 1)
+                            /*
+                                eslint-enable @typescript-eslint/no-extra-semi
+                            */
                             skip = true
                             break
                         }
@@ -3858,6 +3930,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         continue
                 }
 
+                // eslint-disable-next-line @typescript-eslint/no-extra-semi
                 ;(object as Array<unknown>)[index] =
                     Tools.removeKeyPrefixes(subObject, resolvedKeys)
 
@@ -4132,6 +4205,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     if (Tools.isProxy(object))
                         object = object.__target__ as T
 
+                    // eslint-disable-next-line indent
                     ;(object as unknown as {__revoke__:AnyFunction})
                         .__revoke__()
                 }
@@ -4672,7 +4746,6 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             ...startPages,
 
             // Start ellipsis
-            // eslint-disable-next-line no-nested-ternary
             ...(
                 siblingsStart > boundaryCount + 2 ?
                     ['start-ellipsis'] :
@@ -4685,7 +4758,6 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             ...Tools.arrayMakeRange([siblingsStart, siblingsEnd]),
 
             // End ellipsis
-            // eslint-disable-next-line no-nested-ternary
             ...(
                 siblingsEnd < numberOfPages - boundaryCount - 1 ?
                     ['end-ellipsis'] :
@@ -5627,12 +5699,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
 
         try {
-            /* eslint-disable @typescript-eslint/no-implied-eval */
+            // eslint-disable-next-line @typescript-eslint/no-implied-eval
             result.templateFunction = new Function(
                 ...result.scopeNames,
                 `${execute ? '' : 'return '}${expression}`
             ) as TemplateFunction<T>
-            /* eslint-enable @typescript-eslint/no-implied-eval */
         } catch (error) {
             result.error =
                 `Given expression "${expression}" could not be compiled ` +
@@ -6193,7 +6264,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             }
 
             if (match) {
-                const get:AnyFunction = (name:string, fallback = 0):number =>
+                const get = (name:string, fallback = 0):number =>
                     match?.groups && name in match.groups ?
                         parseInt(match.groups[name], 10) :
                         fallback
@@ -6971,7 +7042,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Returns the rounded number.
      */
-    static numberRound(this:void, number:number, digits:number = 0):number {
+    static numberRound(this:void, number:number, digits = 0):number {
         return Math.round(number * Math.pow(10, digits)) / Math.pow(10, digits)
     }
     // / endregion
@@ -7042,20 +7113,19 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         }
 
         if (options.wait)
-            return new Promise(async (
+            return new Promise<Response>((
                 resolve:AnyFunction, reject:AnyFunction
-            ):Promise<void> => {
+            ):void => {
                 let timedOut = false
                 const timer:TimeoutPromise =
                     Tools.timeout(options.timeoutInSeconds * 1000)
 
                 const retryErrorHandler = (error:Error):Error => {
                     if (!timedOut) {
-                        /* eslint-disable no-use-before-define */
+                        // eslint-disable-next-line no-use-before-define
                         currentlyRunningTimer = Tools.timeout(
                             options.pollIntervallInSeconds * 1000, wrapper
                         )
-                        /* eslint-enable no-use-before-define */
                         /*
                             NOTE: A timer rejection is expected. Avoid
                             throwing errors about unhandled promise
@@ -7094,18 +7164,18 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 
                 let currentlyRunningTimer = Tools.timeout(wrapper)
 
-                try {
-                    await timer
-                } catch (error) {
-                    // Continue regardless of an error.
-                }
+                timer.then(
+                    ():void => {
+                        timedOut = true
+                        currentlyRunningTimer.clear()
 
-                timedOut = true
-                currentlyRunningTimer.clear()
-
-                reject(new Error(
-                    `Timeout of ${options.timeoutInSeconds} seconds reached.`
-                ))
+                        reject(new Error(
+                            `Timeout of ${options.timeoutInSeconds} seconds ` +
+                            'reached.'
+                        ))
+                    },
+                    Tools.noop
+                )
             })
 
         return checkAndThrow(await globalContext.fetch(url, options.options))
@@ -7172,9 +7242,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         }
 
         if (options.wait)
-            return new Promise(async (
+            return new Promise<Error|null|Promise<Error|null>>((
                 resolve:AnyFunction, reject:AnyFunction
-            ):Promise<void> => {
+            ):void => {
                 let timedOut = false
 
                 const wrapper:AnyFunction = async (
@@ -7194,11 +7264,10 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                             return result
                         }
 
-                        /* eslint-disable no-use-before-define */
+                        // eslint-disable-next-line no-use-before-define
                         currentlyRunningTimer = Tools.timeout(
                             options.pollIntervallInSeconds * 1000, wrapper
                         )
-                        /* eslint-enable no-use-before-define */
 
                         /*
                             NOTE: A timer rejection is expected. Avoid throwing
@@ -7206,9 +7275,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                         */
                         currentlyRunningTimer.catch(Tools.noop)
                     } catch (error) {
-                        /* eslint-disable no-use-before-define */
+                        // eslint-disable-next-line no-use-before-define
                         timer.clear()
-                        /* eslint-enable no-use-before-define */
                         resolve(error)
 
                         return error as Error
@@ -7221,17 +7289,19 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 const timer:TimeoutPromise =
                     Tools.timeout(options.timeoutInSeconds * 1000)
 
-                try {
-                    await timer
-                } catch (error) {
-                    // Continue regardless of an error.
-                }
+                timer.then(
+                    () => {
+                        timedOut = true
 
-                timedOut = true
-                currentlyRunningTimer.clear()
-                reject(new Error(
-                    `Timeout of ${options.timeoutInSeconds} seconds reached.`
-                ))
+                        currentlyRunningTimer.clear()
+
+                        reject(new Error(
+                            `Timeout of ${options.timeoutInSeconds} seconds ` +
+                            'reached.'
+                        ))
+                    },
+                    Tools.noop
+                )
             })
 
         try {
@@ -7694,7 +7764,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 break
 
             if (typeof result === 'object' && 'then' in result!)
-                result = await result
+                result = await (result as Promise<unknown>)
 
             if (result === null)
                 break
@@ -7723,7 +7793,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         directoryPath:string,
         callback:AnyFunction|null = Tools.noop,
         options:Encoding|SecondParameter<typeof import('fs').readdirSync> =
-            'utf8'
+        'utf8'
     ):Array<File> {
         const files:Array<File> = []
 
@@ -7987,9 +8057,8 @@ export const augment$ = (value:$TStatic):void => {
 
     if ($.fn) {
         // region prop fix for comments and text nodes
-        /* eslint-disable @typescript-eslint/unbound-method */
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         const nativePropFunction = $.fn.prop
-        /* eslint-enable @typescript-eslint/unbound-method */
         /**
          * Scopes native prop implementation ignores properties for text nodes,
          * comments and attribute nodes.
