@@ -3036,7 +3036,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
             `
                 function anonymous(
                 ) {
-                return '[: '+(a ? '<div class="idle">loading...</div>' : results.join(''))+' :]'
+                return '[: '+(a ? '<div class="idle">loading...</div>' : ` +
+            `results.join(''))+' :]'
                 }
             `,
             `\`[: \${a ?\n '<div class="idle">loading...</div>' : ` +
@@ -3046,7 +3047,17 @@ describe(`Tools (${testEnvironment})`, ():void => {
             `
                 function anonymous(
                 ) {
-                return ' '+(loading ?                '<div class="idle">loading...</div>' :                results.map(function(result) {                    return ('<ul>' +                        '<li>' +                            Object.keys(result)                                .filter(function(name) {                                    return ['number', 'string']                                        .includes(typeof result[name])                                })                                .join('') +                        '</li>' +                    '</ul>')                }).join('')            )+''
+                return ' '+(loading ?                ` +
+            `'<div class="idle">loading...</div>' :                ` +
+            `results.map(function(result) {                    ` +
+            `return ('<ul>' +                        '<li>' +               ` +
+            `             Object.keys(result)                               ` +
+            ` .filter(function(name) {                                    ` +
+            `return ['number', 'string']                                    ` +
+            `    .includes(typeof result[name])                             ` +
+            `   })                                .join('') +               ` +
+            `         '</li>' +                    '</ul>')                ` +
+            `}).join('')            )+''
                 }
             `,
             `\` \${loading ?
