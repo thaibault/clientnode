@@ -56,7 +56,7 @@ import {
     ProxyType,
     SecondParameter,
     TimeoutPromise,
-    $DomNode
+    $T
 } from './type'
 // endregion
 // region declaration
@@ -556,7 +556,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ])(
             `get style '%s' => %p (${testEnvironment})`,
             (html:string, css:Mapping):void => {
-                const $domNode:$DomNode = $(html)
+                const $domNode:$T = $(html)
 
                 $('body').append($domNode)
 
@@ -745,7 +745,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                     {a: $('body').find('script'), parent: $('body')},
                     [{a: 'script'}, 'body']
                 ]
-            ] as Array<[Mapping<$DomNode>, [Mapping, string?]]>) {
+            ] as Array<[Mapping<$T>, [Mapping, string?]]>) {
                 const $domNodes = tools.grabDomNodes(...parameters)
 
                 delete $domNodes.window
@@ -3838,7 +3838,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     if (TARGET_TECHNOLOGY !== 'node') {
         test('sendToIFrame', ():void => {
-            const $iFrame:$DomNode<HTMLIFrameElement> =
+            const $iFrame:$T<HTMLIFrameElement> =
                 $<HTMLIFrameElement>('<iframe>').hide().attr('name', 'test')
             $('body').append($iFrame)
 

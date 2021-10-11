@@ -262,8 +262,7 @@ export type DomNodes<Type = string> =
         showJavaScriptEnabled:Type
         window?:Type
     }
-export type $DomNode<TElement = HTMLElement> = $T<TElement>
-export type $DomNodes = DomNodes<$DomNode>
+export type $DomNodes<TElement = HTMLElement> = DomNodes<$T<TElement>>
 
 export interface Options<Type = string> {
     domNodes:DomNodes<Type>

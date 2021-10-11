@@ -60,7 +60,6 @@ import {
     TimeoutPromise,
     ToolsFunction,
     ValueOf,
-    $DomNode,
     $DomNodes,
     $Global,
     $T,
@@ -169,7 +168,8 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
     else {
         if (!globalContext.$ && globalContext.document)
             try {
-                $ = require('jquery')
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                $ = require('jquery') as $TStatic
             } catch (error) {
                 // Continue regardless of an error.
             }
@@ -479,7 +479,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     static _javaScriptDependentContentHandled = false
     // endregion
     // region dynamic properties
-    $domNode:null|$DomNode<TElement> = null
+    $domNode:null|$T<TElement> = null
     locks:Mapping<Array<LockCallbackFunction<LockType>>>
 
     options:Options
@@ -501,7 +501,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @returns Nothing.
      */
     constructor(
-        $domNode?:$DomNode<TElement>,
+        $domNode?:$T<TElement>,
         locks:Mapping<Array<LockCallbackFunction<LockType>>> = {}
     ) {
         if ($domNode)
@@ -540,7 +540,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     initialize(
         options:RecursivePartial<Options> = {}
-    ):Promise<$DomNode<TElement>>|Promise<Tools>|Tools<
+    ):Promise<$T<TElement>>|Promise<Tools>|Tools<
         TElement, LockType
     >|Tools {
         /*
@@ -638,12 +638,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         this:void,
         object:unknown,
         parameters:unknown,
-        $domNode:null|$DomNode<TElement> = null
+        $domNode:null|$T<TElement> = null
     ):RT|void {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
             object = new (
-                object as {new (_$domNode:null|$DomNode<TElement>):unknown}
+                object as {new (_$domNode:null|$T<TElement>):unknown}
             )($domNode)
 
             if (!(object instanceof Tools))
@@ -662,9 +662,9 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             if (Tools.isFunction(
                 (object as Mapping<unknown>)[normalizedParameters[0]]
             ))
-                return (object as Mapping<AnyFunction>)[
-                    normalizedParameters[0]
-                ](...normalizedParameters.slice(1))
+                return (object as
+                    Mapping<(..._parameters:Array<unknown>) => RT>
+                )[normalizedParameters[0]](...normalizedParameters.slice(1))
 
             return (object as Mapping<unknown>)[normalizedParameters[0]] as RT
         } else if (
@@ -1212,7 +1212,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 .find('*')
                 .addBack()
                 .each((index:number, domNode:HTMLElement):void => {
-                    const $domNode:$DomNode = $(domNode)
+                    const $domNode:$T = $(domNode)
                     const classValue:string|undefined = $domNode.attr(
                         className)
                     if (classValue)
@@ -1238,7 +1238,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 .find('*')
                 .addBack()
                 .each((index:number, domNode:HTMLElement):void => {
-                    const $domNode:$DomNode = $(domNode)
+                    const $domNode:$T = $(domNode)
                     const serializedStyles:string|undefined =
                         $domNode.attr(styleName)
 
@@ -1272,7 +1272,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     get style():Mapping<number|string> {
         const result:Mapping<number|string> = {}
-        const $domNode:null|$DomNode<TElement> = this.$domNode
+        const $domNode:null|$T<TElement> = this.$domNode
 
         if ($domNode?.length) {
             let styleProperties:CSSStyleDeclaration
@@ -1346,8 +1346,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static isEquivalentDOM(
         this:void,
-        first:Node|string|$DomNode<Node>,
-        second:Node|string|$DomNode<Node>,
+        first:Node|string|$T<Node>,
+        second:Node|string|$T<Node>,
         forceHTMLString = false
     ):boolean {
         if (first === second)
@@ -1356,8 +1356,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (first && second) {
             const detemermineHTMLPattern =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
-            const inputs:Mapping<Node|string|$DomNode<Node>> = {first, second}
-            const $domNodes:Mapping<$DomNode<Node>> = {
+            const inputs:Mapping<Node|string|$T<Node>> = {first, second}
+            const $domNodes:Mapping<$T<Node>> = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
 
@@ -1382,14 +1382,11 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     $domNodes[type] = $(`<div>${inputs[type] as string}</div>`)
                 else
                     try {
-                        const $copiedDomNode:$DomNode<Node> = $(
-                            inputs[type] as
-                                unknown as
-                                Node|JQuery.PlainObject|$DomNode<Node>
-                        ).clone()
+                        const $copiedDomNode:$T<Node> =
+                            $<Node>(inputs[type] as Node).clone()
                         if ($copiedDomNode.length)
                             $domNodes[type] = $('<div>').append(
-                                $copiedDomNode as $DomNode<JQuery.Node>
+                                $copiedDomNode as $T<JQuery.Node>
                             )
                         else
                             return false
@@ -1452,7 +1449,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             {bottom: 0, left: 0, right: 0, top: 0}, givenDelta
         )
 
-        const $domNode:null|$DomNode<TElement> = this.$domNode
+        const $domNode:null|$T<TElement> = this.$domNode
 
         if (
             $.global.window &&
@@ -1460,7 +1457,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             $domNode[0] &&
             'getBoundingClientRect' in $domNode[0]
         ) {
-            const $window:$DomNode<Window> = $($.global.window)
+            const $window:$T<Window> = $($.global.window)
             const rectangle:Position = ($domNode[0] as unknown as Element)
                 .getBoundingClientRect()
             if (rectangle) {
@@ -1507,7 +1504,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * @param directiveName - The directive name.
      * @returns Returns current dom node.
      */
-    removeDirective(directiveName:string):null|$DomNode<TElement> {
+    removeDirective(directiveName:string):null|$T<TElement> {
         if (this.$domNode === null)
             return null
 
@@ -1675,15 +1672,15 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     grabDomNodes(
         domNodeSelectors:Mapping,
-        wrapperDomNode?:Node|null|string|$DomNode<Node>
+        wrapperDomNode?:Node|null|string|$T<Node>
     ):$DomNodes {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         const domNodes:$DomNodes = {} as $DomNodes
 
         if (domNodeSelectors)
             if (wrapperDomNode) {
-                const $wrapperDomNode:$DomNode<Node> =
-                    $(wrapperDomNode as Node) as $DomNode<Node>
+                const $wrapperDomNode:$T<Node> =
+                    $(wrapperDomNode as Node) as $T<Node>
                 for (const name in domNodeSelectors)
                     if (Object.prototype.hasOwnProperty.call(
                         domNodeSelectors, name
@@ -2132,9 +2129,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Returns $'s grabbed dom node.
      */
-    on<TElement = HTMLElement>(...parameters:Array<unknown>):$DomNode<
-        TElement
-    > {
+    on<TElement = HTMLElement>(...parameters:Array<unknown>):$T<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper<TElement>(parameters, false)
     }
@@ -2147,9 +2142,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      *
      * @returns Returns $'s grabbed dom node.
      */
-    off<TElement = HTMLElement>(...parameters:Array<unknown>):$DomNode<
-        TElement
-    > {
+    off<TElement = HTMLElement>(...parameters:Array<unknown>):$T<TElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper<TElement>(parameters, true)
     }
@@ -7329,18 +7322,18 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     static sendToIFrame(
         this:void,
-        target:$DomNode|HTMLIFrameElement|string,
+        target:$T|HTMLIFrameElement|string,
         url:string,
         data:Mapping<unknown>,
         requestType = 'post',
         removeAfterLoad = false
-    ):$DomNode {
-        const $targetDomNode:$DomNode<HTMLIFrameElement> =
+    ):$T {
+        const $targetDomNode:$T<HTMLIFrameElement> =
             (typeof target === 'string') ?
                 $<HTMLIFrameElement>(`iframe[name"${target}"]`) :
                 $(target as HTMLIFrameElement)
 
-        const $formDomNode:$DomNode<HTMLFormElement> =
+        const $formDomNode:$T<HTMLFormElement> =
             $<HTMLFormElement>('<form>').attr({
                 action: url,
                 method: requestType,
@@ -7359,7 +7352,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             object model to successfully submit.
         */
         if (removeAfterLoad)
-            $targetDomNode.on('load', ():$DomNode<HTMLIFrameElement> =>
+            $targetDomNode.on('load', ():$T<HTMLIFrameElement> =>
                 $targetDomNode.remove()
             )
 
@@ -7385,8 +7378,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         data:Mapping<unknown>,
         requestType = 'post',
         removeAfterLoad = true
-    ):$DomNode<HTMLIFrameElement> => {
-        const $iFrameDomNode:$DomNode<HTMLIFrameElement> =
+    ):$T<HTMLIFrameElement> => {
+        const $iFrameDomNode:$T<HTMLIFrameElement> =
             $<HTMLIFrameElement>('<iframe>')
                 .attr(
                     'name',
@@ -7953,12 +7946,12 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         parameters:Array<unknown>,
         removeEvent = false,
         eventFunctionName?:string
-    ):$DomNode<TElement> => {
+    ):$T<TElement> => {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (!eventFunctionName)
             eventFunctionName = removeEvent ? 'off' : 'on'
 
-        const $domNode:$DomNode<TElement> = $(parameters[0] as TElement)
+        const $domNode:$T<TElement> = $(parameters[0] as TElement)
         if (Tools.determineType(parameters[1]) === 'object' && !removeEvent) {
             for (const eventType in parameters[1] as Mapping<unknown>)
                 if (Object.prototype.hasOwnProperty.call(
@@ -7984,7 +7977,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
         if (!(parameters[0] as Array<string>).includes('.'))
             parameters[0] += `.${this.options.name}`
 
-        return ($domNode[eventFunctionName as keyof $DomNode] as AnyFunction)
+        return ($domNode[eventFunctionName as keyof $T] as AnyFunction)
             .apply($domNode, parameters)
     }
     // endregion
@@ -7995,7 +7988,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
 export class BoundTools<
     TElement extends HTMLElement = HTMLElement, LockType = string|void
 > extends Tools<TElement, LockType> {
-    $domNode:$DomNode<TElement>
+    $domNode:$T<TElement>
     readonly self:typeof BoundTools = BoundTools
     /**
      * This method should be overwritten normally. It is triggered if current
@@ -8013,7 +8006,7 @@ export class BoundTools<
      * @returns Nothing.
      */
     constructor(
-        $domNode:$DomNode<TElement>,
+        $domNode:$T<TElement>,
         ...additionalParameters:ParametersExceptFirst<Tools['constructor']>
     ) {
         super($domNode, ...additionalParameters)
@@ -8041,7 +8034,7 @@ export const augment$ = (value:$TStatic):void => {
         $.fn.Tools = function<
             TElement = HTMLElement, RT = ReturnType<Tools['initialize']>
         >(
-            this:$DomNode<TElement>,
+            this:$T<TElement>,
             ...parameters:ParametersExceptFirst<(typeof Tools)['controller']>
         ):RT {
             return Tools.controller<TElement, RT>(Tools, parameters, this) as
