@@ -281,11 +281,12 @@ export interface $Global extends Window {
     dataLayer:Array<PlainObject>
     $:$TStatic
 }
-export interface ToolsFunction<TElement = HTMLElement, LockType = string> {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    (..._parameters:Array<unknown>):any|Tools<TElement, LockType>
-    /* eslint-enable @typescript-eslint/no-explicit-any */
+export interface ToolsFunction<
+    TElement = HTMLElement, RT = ReturnType<Tools['initialize']>
+> {
     class:typeof Tools
+
+    (this:$T<TElement>, ..._parameters:Array<unknown>):RT
 }
 
 export interface StaticScope {

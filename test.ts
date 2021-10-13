@@ -33,7 +33,7 @@ import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
 
 import Tools, {
-    globalContext, optionalRequire, Semaphore, ValueCopySymbol, $
+    globalContext, Lock, optionalRequire, Semaphore, ValueCopySymbol, $
 } from './index'
 import {DummyTypes} from './property-types'
 import {
@@ -106,6 +106,79 @@ describe(`property-types (${testEnvironment})`, ():void => {
     })
 })
 // endregion
+// region lock
+describe(`Lock (${testEnvironment})`, ():void => {
+    test(`acquire|release (${testEnvironment})`, async ():Promise<void> => {
+        const lock:Lock = new Lock()
+
+        let testValue = 'a'
+        await lock.acquire('test', ():void => {
+            testValue = 'b'
+        })
+        expect(testValue).toStrictEqual('b')
+        expect(lock.acquire(
+            'test',
+            ():void => {
+                testValue = 'a'
+            }
+        )).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual('b')
+        expect($.Tools().release('test')).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual('b')
+        expect(lock.release('test')).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual('a')
+        expect(lock.release('test')).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual('a')
+        await lock.acquire('test', ():void => {
+            testValue = 'b'
+        })
+        expect(testValue).toStrictEqual('b')
+        expect(lock.acquire(
+            'test',
+            ():void => {
+                testValue = 'a'
+            }
+        )).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual('b')
+        expect(lock.acquire(
+            'test',
+            ():void => {
+                testValue = 'b'
+            }
+        )).toBeInstanceOf(Promise)
+        expect(testValue).toStrictEqual('b')
+        await lock.release('test')
+        expect(testValue).toStrictEqual('a')
+        await lock.release('test')
+        expect(testValue).toStrictEqual('b')
+        const promise:Promise<void> = lock.acquire('test').then(
+            async (result:string|void):Promise<void> => {
+                expect(result).toStrictEqual('test')
+                Tools.timeout(():Promise<string|void> => lock.release('test'))
+                    .then(Tools.noop, Tools.noop)
+                result = await lock.acquire('test')
+                expect(result).toStrictEqual('test')
+                Tools.timeout(():Promise<string|void> =>
+                    lock.release('test')
+                ).then(Tools.noop, Tools.noop)
+                result = await lock.acquire(
+                    'test',
+                    ():Promise<string|void> =>
+                        new Promise((resolve:AnyFunction):void => {
+                            Tools.timeout(():void => {
+                                testValue = 'a'
+                                resolve(testValue)
+                            }).then(Tools.noop, Tools.noop)
+                        })
+                )
+                expect(testValue).toStrictEqual('a')
+            }
+        )
+        await lock.release('test')
+        await promise
+    })
+})
+// endregion
 // region semaphore
 describe(`Semaphore (${testEnvironment})`, ():void => {
     test('constructor', ():void => {
@@ -115,12 +188,66 @@ describe(`Semaphore (${testEnvironment})`, ():void => {
         )
     })
     test('acquire/release', async ():Promise<void> => {
-        const semaphore = new Semaphore()
-        expect(semaphore.numberOfFreeResources).toStrictEqual(2)
-        expect(await semaphore.acquire()).toStrictEqual(1)
-        expect(semaphore.numberOfFreeResources).toStrictEqual(1)
-        semaphore.release()
-        expect(semaphore.numberOfFreeResources).toStrictEqual(2)
+        const semaphore1 = new Semaphore()
+
+        expect(semaphore1.numberOfFreeResources).toStrictEqual(2)
+        expect(await semaphore1.acquire()).toStrictEqual(1)
+        expect(semaphore1.numberOfFreeResources).toStrictEqual(1)
+
+        semaphore1.release()
+
+        expect(semaphore1.numberOfFreeResources).toStrictEqual(2)
+
+        const semaphore2:Semaphore = new Semaphore(2)
+
+        expect(semaphore2.queue.length).toStrictEqual(0)
+        expect(semaphore2.numberOfFreeResources).toStrictEqual(2)
+        expect(semaphore2.numberOfResources).toStrictEqual(2)
+
+        await semaphore2.acquire()
+
+        expect(semaphore2.queue.length).toStrictEqual(0)
+        expect(semaphore2.numberOfFreeResources).toStrictEqual(1)
+        expect(semaphore2.numberOfResources).toStrictEqual(2)
+
+        await semaphore2.acquire()
+
+        expect(semaphore2.queue.length).toStrictEqual(0)
+        expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
+
+        semaphore2.acquire().then(Tools.noop, Tools.noop)
+
+        expect(semaphore2.queue.length).toStrictEqual(1)
+        expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
+
+        semaphore2.acquire().then(Tools.noop, Tools.noop)
+
+        expect(semaphore2.queue.length).toStrictEqual(2)
+        expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
+        semaphore2.release()
+
+        expect(semaphore2.queue.length).toStrictEqual(1)
+        expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
+
+        semaphore2.release()
+
+        expect(semaphore2.queue.length).toStrictEqual(0)
+        expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
+
+        semaphore2.release()
+
+        expect(semaphore2.queue.length).toStrictEqual(0)
+        expect(semaphore2.numberOfFreeResources).toStrictEqual(1)
+
+        semaphore2.release()
+
+        expect(semaphore2.queue.length).toStrictEqual(0)
+        expect(semaphore2.numberOfFreeResources).toStrictEqual(2)
+
+        semaphore2.release()
+
+        expect(semaphore2.queue.length).toStrictEqual(0)
+        expect(semaphore2.numberOfFreeResources).toStrictEqual(3)
     })
 })
 // endregion
@@ -177,111 +304,6 @@ describe(`Tools (${testEnvironment})`, ():void => {
             {timeZone: 'UTC'}
         ]
     )
-    // / endregion
-    // / region mutual exclusion
-    test(`acquireLock|releaseLock (${testEnvironment})`, async (
-    ):Promise<void> => {
-        let testValue = 'a'
-        await tools.acquireLock('test', ():void => {
-            testValue = 'b'
-        })
-        expect(testValue).toStrictEqual('b')
-        expect(tools.acquireLock(
-            'test',
-            ():void => {
-                testValue = 'a'
-            }
-        )).toBeInstanceOf(Promise)
-        expect(testValue).toStrictEqual('b')
-        expect($.Tools().releaseLock('test')).toBeInstanceOf(Promise)
-        expect(testValue).toStrictEqual('b')
-        expect(tools.releaseLock('test')).toBeInstanceOf(Promise)
-        expect(testValue).toStrictEqual('a')
-        expect(tools.releaseLock('test')).toBeInstanceOf(Promise)
-        expect(testValue).toStrictEqual('a')
-        await tools.acquireLock('test', ():void => {
-            testValue = 'b'
-        })
-        expect(testValue).toStrictEqual('b')
-        expect(tools.acquireLock(
-            'test',
-            ():void => {
-                testValue = 'a'
-            }
-        )).toBeInstanceOf(Promise)
-        expect(testValue).toStrictEqual('b')
-        expect(tools.acquireLock(
-            'test',
-            ():void => {
-                testValue = 'b'
-            }
-        )).toBeInstanceOf(Promise)
-        expect(testValue).toStrictEqual('b')
-        await tools.releaseLock('test')
-        expect(testValue).toStrictEqual('a')
-        await tools.releaseLock('test')
-        expect(testValue).toStrictEqual('b')
-        const promise:Promise<void> = tools.acquireLock('test').then(
-            async (result:string|void):Promise<void> => {
-                expect(result).toStrictEqual('test')
-                Tools.timeout(():Promise<string|void> =>
-                    tools.releaseLock('test')
-                ).then(Tools.noop, Tools.noop)
-                result = await tools.acquireLock('test')
-                expect(result).toStrictEqual('test')
-                Tools.timeout(():Promise<string|void> =>
-                    tools.releaseLock('test')
-                ).then(Tools.noop, Tools.noop)
-                result = await tools.acquireLock(
-                    'test',
-                    ():Promise<string|void> =>
-                        new Promise((resolve:AnyFunction):void => {
-                            Tools.timeout(():void => {
-                                testValue = 'a'
-                                resolve(testValue)
-                            }).then(Tools.noop, Tools.noop)
-                        })
-                )
-                expect(testValue).toStrictEqual('a')
-            }
-        )
-        await tools.releaseLock('test')
-        await promise
-    })
-    test('getSemaphore', async ():Promise<void> => {
-        const semaphore:Semaphore = Tools.getSemaphore(2)
-        expect(semaphore.queue.length).toStrictEqual(0)
-        expect(semaphore.numberOfFreeResources).toStrictEqual(2)
-        expect(semaphore.numberOfResources).toStrictEqual(2)
-        await semaphore.acquire()
-        expect(semaphore.queue.length).toStrictEqual(0)
-        expect(semaphore.numberOfFreeResources).toStrictEqual(1)
-        expect(semaphore.numberOfResources).toStrictEqual(2)
-        await semaphore.acquire()
-        expect(semaphore.queue.length).toStrictEqual(0)
-        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
-        semaphore.acquire().then(Tools.noop, Tools.noop)
-        expect(semaphore.queue.length).toStrictEqual(1)
-        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
-        semaphore.acquire().then(Tools.noop, Tools.noop)
-        expect(semaphore.queue.length).toStrictEqual(2)
-        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
-        semaphore.release()
-        expect(semaphore.queue.length).toStrictEqual(1)
-        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
-        semaphore.release()
-        expect(semaphore.queue.length).toStrictEqual(0)
-        expect(semaphore.numberOfFreeResources).toStrictEqual(0)
-        semaphore.release()
-        expect(semaphore.queue.length).toStrictEqual(0)
-        expect(semaphore.numberOfFreeResources).toStrictEqual(1)
-        semaphore.release()
-        expect(semaphore.queue.length).toStrictEqual(0)
-        expect(semaphore.numberOfFreeResources).toStrictEqual(2)
-        semaphore.release()
-        expect(semaphore.queue.length).toStrictEqual(0)
-        expect(semaphore.numberOfFreeResources).toStrictEqual(3)
-    })
     // / endregion
     // / region boolean
     testEachSingleParameterAgainstSameExpectation<typeof Tools.isNumeric>(

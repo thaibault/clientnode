@@ -246,14 +246,116 @@ export let $:$TStatic = determine$()
 // endregion
 // region plugins/classes
 /**
+ * Represents the lock state.
+ *
+ * @property locks - Mapping of lock descriptions to there corresponding
+ * callbacks.
+ */
+export class Lock<Type = string|void> {
+    locks:Mapping<Array<LockCallbackFunction<Type>>>
+    /**
+     * Initializes locks.
+     * @param locks - Mapping of a lock description to callbacks for calling
+     * when given lock should be released.
+     *
+     * @returns Nothing.
+     */
+    constructor(locks:Mapping<Array<LockCallbackFunction<Type>>> = {}) {
+        this.locks = locks
+    }
+    /**
+     * Calling this method introduces a starting point for a critical area with
+     * potential race conditions. The area will be binded to given description
+     * string. So don't use same names for different areas.
+     * @param description - A short string describing the critical areas
+     * properties.
+     * @param callback - A procedure which should only be executed if the
+     * interpreter isn't in the given critical area. The lock description
+     * string will be given to the callback function.
+     * @param autoRelease - Release the lock after execution of given callback.
+     *
+     * @returns Returns a promise which will be resolved after releasing lock.
+     */
+    acquire(
+        description:string,
+        callback?:LockCallbackFunction<Type>,
+        autoRelease = false
+    ):Promise<Type> {
+        return new Promise<Type>((resolve:AnyFunction):void => {
+            const wrappedCallback:LockCallbackFunction<Type> = (
+                description:string
+            ):Promise<Type>|Type => {
+                let result:Promise<Type>|Type|undefined
+                if (callback)
+                    result = callback(description)
+
+                const finish = (value:Type):Type => {
+                    if (autoRelease)
+                        this.release(description).then(Tools.noop, Tools.noop)
+
+                    resolve(value)
+
+                    return value
+                }
+
+                if ((result as Promise<Type>)?.then)
+                    return (result as Promise<Type>).then(finish)
+
+                finish(description as unknown as Type)
+
+                return result!
+            }
+
+            if (Object.prototype.hasOwnProperty.call(this.locks, description))
+                this.locks[description].push(wrappedCallback)
+            else {
+                this.locks[description] = []
+
+
+                /*
+                    eslint-disable
+                        @typescript-eslint/no-floating-promises
+                */
+                wrappedCallback(description)
+                /*
+                    eslint-enable
+                        @typescript-eslint/no-floating-promises
+                */
+            }
+        })
+    }
+    /**
+     * Calling this method  causes the given critical area to be finished and
+     * all functions given to "acquire()" will be executed in right order.
+     * @param description - A short string describing the critical areas
+     * properties.
+     *
+     * @returns Returns the return (maybe promise resolved) value of the
+     * callback given to the "acquire" method.
+     */
+    async release(description:string):Promise<Type|void> {
+        if (Object.prototype.hasOwnProperty.call(this.locks, description)) {
+            const callback:LockCallbackFunction<Type>|undefined =
+                this.locks[description].shift()
+
+            if (callback === undefined)
+                delete this.locks[description]
+            else
+                return await callback(description)
+        }
+    }
+}
+/**
  * Represents the semaphore state.
  * @property queue - List of waiting resource requests.
+ *
  * @property numberOfFreeResources - Number free allowed concurrent resource
  * uses.
  * @property numberOfResources - Number of allowed concurrent resource uses.
  */
 export class Semaphore {
     queue:Array<AnyFunction> = []
+
     numberOfResources:number
     numberOfFreeResources:number
     /**
@@ -267,8 +369,8 @@ export class Semaphore {
     }
     /**
      * Acquires a new resource and runs given callback if available.
-     * @returns A promise which will be resolved if requested resource
-     * is available.
+     * @returns A promise which will be resolved if requested resource is
+     * available.
      */
     acquire():Promise<number> {
         return new Promise<number>((resolve:AnyFunction):void => {
@@ -276,6 +378,7 @@ export class Semaphore {
                 this.queue.push(resolve)
             else {
                 this.numberOfFreeResources -= 1
+
                 resolve(this.numberOfFreeResources)
             }
         })
@@ -337,12 +440,10 @@ export class Semaphore {
  *
  * @property $domNode - $-extended dom node if one was given to the constructor
  * method.
- * @property locks - Mapping of lock descriptions to there corresponding
- * callbacks.
  *
  * @property options - Options given to the constructor.
  */
-export class Tools<TElement = HTMLElement, LockType = string|void> {
+export class Tools<TElement = HTMLElement> {
     // region static properties
     static abbreviations:Array<string> = [
         'html', 'id', 'url', 'us', 'de', 'api', 'href'
@@ -480,8 +581,6 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
     // endregion
     // region dynamic properties
     $domNode:null|$T<TElement> = null
-    locks:Mapping<Array<LockCallbackFunction<LockType>>>
-
     options:Options
     // endregion
     // region public methods
@@ -495,21 +594,14 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * the dry concept.
      * @param $domNode - $-extended dom node to use as reference in various
      * methods.
-     * @param locks - Mapping of a lock description to callbacks for calling
-     * when given lock should be released.
      *
      * @returns Nothing.
      */
-    constructor(
-        $domNode?:$T<TElement>,
-        locks:Mapping<Array<LockCallbackFunction<LockType>>> = {}
-    ) {
+    constructor($domNode?:$T<TElement>) {
         if ($domNode)
             this.$domNode = $domNode
 
         this.options = Tools._defaultOptions as Options
-
-        this.locks = locks
 
         // Avoid errors in browsers that lack a console.
         if (!$.global.console)
@@ -525,7 +617,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * This method could be overwritten normally. It acts like a destructor.
      * @returns Returns the current instance.
      */
-    destructor():Tools<TElement, LockType> {
+    destructor():Tools<TElement> {
         if (($.fn as {off?:AnyFunction})?.off)
             this.off('*')
 
@@ -540,9 +632,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      */
     initialize(
         options:RecursivePartial<Options> = {}
-    ):Promise<$T<TElement>>|Promise<Tools>|Tools<
-        TElement, LockType
-    >|Tools {
+    ):Promise<$T<TElement>>|Promise<Tools>|Tools<TElement>|Tools {
         /*
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
@@ -702,100 +792,6 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 `Method "${normalizedParameters[0]}" does not exist on ` +
                 `$-extended dom node "${object as string}".`
             )
-    }
-    // / endregion
-    // / region mutual exclusion
-    /**
-     * Calling this method introduces a starting point for a critical area with
-     * potential race conditions. The area will be binded to given description
-     * string. So don't use same names for different areas.
-     * @param description - A short string describing the critical areas
-     * properties.
-     * @param callback - A procedure which should only be executed if the
-     * interpreter isn't in the given critical area. The lock description
-     * string will be given to the callback function.
-     * @param autoRelease - Release the lock after execution of given callback.
-     *
-     * @returns Returns a promise which will be resolved after releasing lock.
-     */
-    acquireLock(
-        description:string,
-        callback?:LockCallbackFunction<LockType>,
-        autoRelease = false
-    ):Promise<LockType> {
-        return new Promise<LockType>((resolve:AnyFunction):void => {
-            const wrappedCallback:LockCallbackFunction<LockType> = (
-                description:string
-            ):Promise<LockType>|LockType => {
-                let result:Promise<LockType>|LockType|undefined
-                if (callback)
-                    result = callback(description)
-
-                const finish = (value:LockType):LockType => {
-                    if (autoRelease)
-                        this.releaseLock(description)
-                            .then(Tools.noop, Tools.noop)
-
-                    resolve(value)
-
-                    return value
-                }
-
-                if ((result as Promise<LockType>)?.then)
-                    return (result as Promise<LockType>).then(finish)
-
-                finish(description as unknown as LockType)
-
-                return result!
-            }
-
-            if (Object.prototype.hasOwnProperty.call(this.locks, description))
-                this.locks[description].push(wrappedCallback)
-            else {
-                this.locks[description] = []
-
-
-                /*
-                    eslint-disable
-                        @typescript-eslint/no-floating-promises
-                */
-                wrappedCallback(description)
-                /*
-                    eslint-enable
-                        @typescript-eslint/no-floating-promises
-                */
-            }
-        })
-    }
-    /**
-     * Calling this method  causes the given critical area to be finished and
-     * all functions given to "acquireLock()" will be executed in right order.
-     * @param description - A short string describing the critical areas
-     * properties.
-     *
-     * @returns Returns the return (maybe promise resolved) value of the
-     * callback given to the "acquireLock" method.
-     */
-    async releaseLock(description:string):Promise<LockType|void> {
-        if (Object.prototype.hasOwnProperty.call(this.locks, description)) {
-            const callback:LockCallbackFunction<LockType>|undefined =
-                this.locks[description].shift()
-
-            if (callback === undefined)
-                delete this.locks[description]
-            else
-                return await callback(description)
-        }
-    }
-    /**
-     * Generate a semaphore object with given number of resources.
-     * @param this - Indicates an unbound method.
-     * @param numberOfResources - Number of allowed concurrent resource uses.
-     *
-     * @returns The requested semaphore instance.
-     */
-    static getSemaphore(this:void, numberOfResources = 2):Semaphore {
-        return new Semaphore(numberOfResources)
     }
     // / endregion
     // / region boolean
@@ -1205,7 +1201,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Normalizes class name order of current dom node.
      * @returns Current instance.
      */
-    get normalizedClassNames():Tools<TElement, LockType> {
+    get normalizedClassNames():Tools<TElement> {
         if (this.$domNode) {
             const className = 'class'
             this.$domNode
@@ -1230,7 +1226,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
      * Normalizes style attributes order of current dom node.
      * @returns Returns current instance.
      */
-    get normalizedStyles():Tools<TElement, LockType> {
+    get normalizedStyles():Tools<TElement> {
         if (this.$domNode) {
             const styleName = 'style'
 
@@ -1357,7 +1353,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
             const detemermineHTMLPattern =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
             const inputs:Mapping<Node|string|$T<Node>> = {first, second}
-            const $domNodes:Mapping<$T<Node>> = {
+            const $domNodes:Mapping<$T> = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
 
@@ -1382,8 +1378,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                     $domNodes[type] = $(`<div>${inputs[type] as string}</div>`)
                 else
                     try {
-                        const $copiedDomNode:$T<Node> =
-                            $<Node>(inputs[type] as Node).clone()
+                        const $copiedDomNode:$T<JQuery.Node> =
+                            $<JQuery.Node>(inputs[type] as JQuery.Node).clone()
                         if ($copiedDomNode.length)
                             $domNodes[type] = $('<div>').append(
                                 $copiedDomNode as $T<JQuery.Node>
@@ -7959,8 +7955,7 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
                 ))
                     (
                         this[
-                            eventFunctionName as
-                                keyof Tools<TElement, LockType>
+                            eventFunctionName as keyof Tools<TElement>
                         ] as AnyFunction
                     )(
                         $domNode,
@@ -7986,8 +7981,8 @@ export class Tools<TElement = HTMLElement, LockType = string|void> {
  * Dom bound version of Tools class.
  */
 export class BoundTools<
-    TElement extends HTMLElement = HTMLElement, LockType = string|void
-> extends Tools<TElement, LockType> {
+    TElement extends HTMLElement = HTMLElement
+> extends Tools<TElement> {
     $domNode:$T<TElement>
     readonly self:typeof BoundTools = BoundTools
     /**
@@ -8039,7 +8034,7 @@ export const augment$ = (value:$TStatic):void => {
         ):RT {
             return Tools.controller<TElement, RT>(Tools, parameters, this) as
                 RT
-        } as ToolsFunction
+        }
 
     $.Tools = ((...parameters:Array<unknown>):unknown =>
         Tools.controller(Tools, parameters)
