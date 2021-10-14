@@ -110,6 +110,7 @@ describe(`property-types (${testEnvironment})`, ():void => {
 describe(`Lock (${testEnvironment})`, ():void => {
     test(`acquire|release (${testEnvironment})`, async ():Promise<void> => {
         const lock:Lock = new Lock()
+        const anotherLock:Lock = new Lock()
 
         let testValue = 'a'
         await lock.acquire('test', ():void => {
@@ -123,7 +124,7 @@ describe(`Lock (${testEnvironment})`, ():void => {
             }
         )).toBeInstanceOf(Promise)
         expect(testValue).toStrictEqual('b')
-        expect($.Tools().release('test')).toBeInstanceOf(Promise)
+        expect(anotherLock.release('test')).toBeInstanceOf(Promise)
         expect(testValue).toStrictEqual('b')
         expect(lock.release('test')).toBeInstanceOf(Promise)
         expect(testValue).toStrictEqual('a')
