@@ -245,6 +245,7 @@ export let $:$TStatic = determine$()
 // / endregion
 // endregion
 // region plugins/classes
+// / region lock
 /**
  * Represents the lock state.
  *
@@ -345,6 +346,8 @@ export class Lock<Type = string|void> {
         }
     }
 }
+// / endregion
+// / region semaphore
 /**
  * Represents the semaphore state.
  * @property queue - List of waiting resource requests.
@@ -395,6 +398,8 @@ export class Semaphore {
             callback(this.numberOfFreeResources)
     }
 }
+// / endregion
+// / region static tools
 /**
  * This plugin provides such interface logic like generic controller logic for
  * integrating plugins into $, mutual exclusion for depending gui elements,
@@ -617,7 +622,7 @@ export class Tools<TElement = HTMLElement> {
      * This method could be overwritten normally. It acts like a destructor.
      * @returns Returns the current instance.
      */
-    destructor():Tools<TElement> {
+    destructor():this {
         if (($.fn as {off?:AnyFunction})?.off)
             this.off('*')
 
@@ -630,9 +635,7 @@ export class Tools<TElement = HTMLElement> {
      *
      * @returns Returns the current instance.
      */
-    initialize(
-        options:RecursivePartial<Options> = {}
-    ):Promise<$T<TElement>>|Promise<Tools>|Tools<TElement>|Tools {
+    initialize<R = this>(options:RecursivePartial<Options> = {}):R {
         /*
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
@@ -651,7 +654,7 @@ export class Tools<TElement = HTMLElement> {
 
         this.renderJavaScriptDependentVisibility()
 
-        return this
+        return this as unknown as R
     }
     // / endregion
     // / region data time
@@ -722,14 +725,12 @@ export class Tools<TElement = HTMLElement> {
      *
      * @returns Returns whatever the initializer method returns.
      */
-    static controller<
-        TElement = HTMLElement, RT = ReturnType<Tools['initialize']>
-    >(
+    static controller<TElement = HTMLElement>(
         this:void,
         object:unknown,
         parameters:unknown,
         $domNode:null|$T<TElement> = null
-    ):RT|void {
+    ):unknown {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
             object = new (
@@ -753,10 +754,10 @@ export class Tools<TElement = HTMLElement> {
                 (object as Mapping<unknown>)[normalizedParameters[0]]
             ))
                 return (object as
-                    Mapping<(..._parameters:Array<unknown>) => RT>
+                    Mapping<(..._parameters:Array<unknown>) => unknown>
                 )[normalizedParameters[0]](...normalizedParameters.slice(1))
 
-            return (object as Mapping<unknown>)[normalizedParameters[0]] as RT
+            return (object as Mapping<unknown>)[normalizedParameters[0]]
         } else if (
             normalizedParameters.length === 0 ||
             typeof normalizedParameters[0] === 'object'
@@ -765,9 +766,9 @@ export class Tools<TElement = HTMLElement> {
                 If an options object or no method name is given the initializer
                 will be called.
             */
-            const result:RT = (object as Tools).initialize(
+            const result:unknown = (object as Tools).initialize(
                 ...normalizedParameters as Parameters<Tools['initialize']>
-            ) as unknown as RT
+            )
 
             const name:string =
                 (object as Tools).options.name ||
@@ -1201,9 +1202,10 @@ export class Tools<TElement = HTMLElement> {
      * Normalizes class name order of current dom node.
      * @returns Current instance.
      */
-    get normalizedClassNames():Tools<TElement> {
+    get normalizedClassNames():this {
         if (this.$domNode) {
             const className = 'class'
+
             this.$domNode
                 .find('*')
                 .addBack()
@@ -1220,13 +1222,14 @@ export class Tools<TElement = HTMLElement> {
                         $domNode.removeAttr(className)
                 })
         }
+
         return this
     }
     /**
      * Normalizes style attributes order of current dom node.
      * @returns Returns current instance.
      */
-    get normalizedStyles():Tools<TElement> {
+    get normalizedStyles():this {
         if (this.$domNode) {
             const styleName = 'style'
 
@@ -1259,6 +1262,7 @@ export class Tools<TElement = HTMLElement> {
                         $domNode.removeAttr(styleName)
                 })
         }
+
         return this
     }
     /**
@@ -1498,6 +1502,7 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Removes a directive name corresponding class or attribute.
      * @param directiveName - The directive name.
+     *
      * @returns Returns current dom node.
      */
     removeDirective(directiveName:string):null|$T<TElement> {
@@ -7954,9 +7959,7 @@ export class Tools<TElement = HTMLElement> {
                     parameters[1], eventType
                 ))
                     (
-                        this[
-                            eventFunctionName as keyof Tools<TElement>
-                        ] as AnyFunction
+                        this[eventFunctionName as keyof this] as AnyFunction
                     )(
                         $domNode,
                         eventType,
@@ -7977,12 +7980,14 @@ export class Tools<TElement = HTMLElement> {
     }
     // endregion
 }
+// / endregion
+// / region bound tools
 /**
  * Dom bound version of Tools class.
  */
 export class BoundTools<
     TElement extends HTMLElement = HTMLElement
-> extends Tools<TElement> {
+> extends Tools<TElement, InitializedResult> {
     $domNode:$T<TElement>
     readonly self:typeof BoundTools = BoundTools
     /**
@@ -8009,6 +8014,7 @@ export class BoundTools<
         this.$domNode = $domNode
     }
 }
+// / endregion
 export default Tools
 // endregion
 // region handle $ extending
@@ -8026,15 +8032,12 @@ export const augment$ = (value:$TStatic):void => {
     }
 
     if ($.fn)
-        $.fn.Tools = function<
-            TElement = HTMLElement, RT = ReturnType<Tools['initialize']>
-        >(
+        $.fn.Tools = function<TElement = HTMLElement>(
             this:$T<TElement>,
             ...parameters:ParametersExceptFirst<(typeof Tools)['controller']>
-        ):RT {
-            return Tools.controller<TElement, RT>(Tools, parameters, this) as
-                RT
-        }
+        ) {
+            return Tools.controller<TElement>(Tools, parameters, this)
+        } as ToolsFunction
 
     $.Tools = ((...parameters:Array<unknown>):unknown =>
         Tools.controller(Tools, parameters)

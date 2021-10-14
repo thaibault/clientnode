@@ -281,12 +281,11 @@ export interface $Global extends Window {
     dataLayer:Array<PlainObject>
     $:$TStatic
 }
-export interface ToolsFunction<
-    TElement = HTMLElement, RT = ReturnType<Tools['initialize']>
-> {
+export interface ToolsFunction<TElement = HTMLElement> {
     class:typeof Tools
 
-    (this:$T<TElement>, ..._parameters:Array<unknown>):RT
+    (this:$T<TElement>, methodName:'normalizedClassNames'):this
+    (this:$T<TElement>, ..._parameters:Array<unknown>):this
 }
 
 export interface StaticScope {
