@@ -22,6 +22,7 @@ import {ChildProcess} from 'child_process'
 import {
     AnyFunction,
     BaseSelector,
+    BoundToolsFunction,
     CheckReachabilityOptions,
     CompareOptions,
     CompilationResult,
@@ -1402,15 +1403,15 @@ export class Tools<TElement = HTMLElement> {
                 $domNodes.first = $domNodes
                     .first
                     .Tools('normalizedClassNames')
-                    .$domNode
+                    .$domNode!
                     .Tools('normalizedStyles')
-                    .$domNode
+                    .$domNode!
                 $domNodes.second = $domNodes
                     .second
                     .Tools('normalizedClassNames')
-                    .$domNode
+                    .$domNode!
                     .Tools('normalizedStyles')
-                    .$domNode
+                    .$domNode!
 
                 let index = 0
                 for (const domNode of (
@@ -1457,20 +1458,24 @@ export class Tools<TElement = HTMLElement> {
             $domNode[0] &&
             'getBoundingClientRect' in $domNode[0]
         ) {
-            const $window:$T<Window> = $($.global.window)
+            const $window:$T<Window & typeof globalThis> = $($.global.window)
+
             const rectangle:Position = ($domNode[0] as unknown as Element)
                 .getBoundingClientRect()
             if (rectangle) {
                 if (rectangle.top && (rectangle.top + delta.top) < 0)
                     return 'above'
+
                 if ((rectangle.left + delta.left) < 0)
                     return 'left'
+
                 const windowHeight:number|undefined = $window.height()
                 if (
                     typeof windowHeight === 'number' &&
                     windowHeight < (rectangle.bottom + delta.bottom)
                 )
                     return 'below'
+
                 const windowWidth:number|undefined = $window.width()
                 if (
                     typeof windowWidth === 'number' &&
@@ -7323,12 +7328,12 @@ export class Tools<TElement = HTMLElement> {
      */
     static sendToIFrame(
         this:void,
-        target:$T|HTMLIFrameElement|string,
+        target:$T<HTMLIFrameElement>|HTMLIFrameElement|string,
         url:string,
         data:Mapping<unknown>,
         requestType = 'post',
         removeAfterLoad = false
-    ):$T {
+    ):$T<HTMLIFrameElement> {
         const $targetDomNode:$T<HTMLIFrameElement> =
             (typeof target === 'string') ?
                 $<HTMLIFrameElement>(`iframe[name"${target}"]`) :
@@ -7344,8 +7349,10 @@ export class Tools<TElement = HTMLElement> {
         for (const name in data)
             if (Object.prototype.hasOwnProperty.call(data, name))
                 $formDomNode.append(
-                    $('<input>')
-                        .attr({name, type: 'hidden', value: data[name]})
+                    $<HTMLInputElement>('<input>')
+                        .attr({name, type: 'hidden', value: data[name]}) as
+                            unknown as
+                            JQuery.Node
                 )
 
         /*
@@ -7357,7 +7364,7 @@ export class Tools<TElement = HTMLElement> {
                 $targetDomNode.remove()
             )
 
-        $formDomNode.insertAfter($targetDomNode)
+        $formDomNode.insertAfter($targetDomNode as unknown as JQuery.Node)
         $formDomNode[0].submit()
         $formDomNode.remove()
 
@@ -7391,7 +7398,7 @@ export class Tools<TElement = HTMLElement> {
                 .hide()
 
         if (this.$domNode)
-            this.$domNode.append($iFrameDomNode)
+            this.$domNode.append($iFrameDomNode as unknown as JQuery.Node)
 
         Tools.sendToIFrame(
             $iFrameDomNode, url, data, requestType, removeAfterLoad
@@ -7958,9 +7965,7 @@ export class Tools<TElement = HTMLElement> {
                 if (Object.prototype.hasOwnProperty.call(
                     parameters[1], eventType
                 ))
-                    (
-                        this[eventFunctionName as keyof this] as AnyFunction
-                    )(
+                    this[eventFunctionName as 'on'](
                         $domNode,
                         eventType,
                         (parameters[1] as Mapping<unknown>)[eventType]
@@ -7987,7 +7992,7 @@ export class Tools<TElement = HTMLElement> {
  */
 export class BoundTools<
     TElement extends HTMLElement = HTMLElement
-> extends Tools<TElement, InitializedResult> {
+> extends Tools<TElement> {
     $domNode:$T<TElement>
     readonly self:typeof BoundTools = BoundTools
     /**
@@ -8037,7 +8042,7 @@ export const augment$ = (value:$TStatic):void => {
             ...parameters:ParametersExceptFirst<(typeof Tools)['controller']>
         ) {
             return Tools.controller<TElement>(Tools, parameters, this)
-        } as ToolsFunction
+        } as BoundToolsFunction
 
     $.Tools = ((...parameters:Array<unknown>):unknown =>
         Tools.controller(Tools, parameters)
