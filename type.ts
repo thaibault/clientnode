@@ -19,7 +19,7 @@
 import JQuery from 'jquery'
 import {Dirent as DirectoryEntry, Stats as FileStats} from 'fs'
 
-import Tools from './index'
+import Tools, {BoundTools} from './index'
 import {DefinedSymbol, ThrowSymbol, UndefinedSymbol} from './testHelper'
 // endregion
 // region exports
@@ -281,11 +281,19 @@ export interface $Global extends Window {
     dataLayer:Array<PlainObject>
     $:$TStatic
 }
-export interface ToolsFunction<TElement = HTMLElement, LockType = string> {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    (..._parameters:Array<unknown>):any|Tools<TElement, LockType>
-    /* eslint-enable @typescript-eslint/no-explicit-any */
+export interface ToolsFunction<TElement = HTMLElement> {
     class:typeof Tools
+
+    (this:$T<TElement>, ..._parameters:Array<unknown>):Tools
+}
+export interface BoundToolsFunction<
+    TElement extends HTMLElement = HTMLElement
+> {
+    class:typeof BoundTools
+
+    (this:$T<TElement>, methodName:'normalizedClassNames'):BoundTools<TElement>
+    (this:$T<TElement>, methodName:'normalizedStyles'):BoundTools<TElement>
+    (this:$T<TElement>, ..._parameters:Array<unknown>):BoundTools<TElement>
 }
 
 export interface StaticScope {
