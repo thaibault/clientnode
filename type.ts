@@ -293,6 +293,7 @@ export interface BoundToolsFunction<
 
     (this:$T<TElement>, methodName:'normalizedClassNames'):BoundTools<TElement>
     (this:$T<TElement>, methodName:'normalizedStyles'):BoundTools<TElement>
+    (this:$T<TElement>, methodName:'style'):Mapping<number|string>
     (this:$T<TElement>, ..._parameters:Array<unknown>):BoundTools<TElement>
 }
 
