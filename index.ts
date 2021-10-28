@@ -7042,6 +7042,28 @@ export class Tools<TElement = HTMLElement> {
     static numberRound(this:void, number:number, digits = 0):number {
         return Math.round(number * Math.pow(10, digits)) / Math.pow(10, digits)
     }
+    /**
+     * Rounds a given number up accurate to given number of digits.
+     * @param this - Indicates an unbound method.
+     * @param number - The number to round.
+     * @param digits - The number of digits after comma.
+     *
+     * @returns Returns the rounded number.
+     */
+    static numberCeil(this:void, number:number, digits = 0):number {
+        return Math.ceil(number * Math.pow(10, digits)) / Math.pow(10, digits)
+    }
+    /**
+     * Rounds a given number down accurate to given number of digits.
+     * @param this - Indicates an unbound method.
+     * @param number - The number to round.
+     * @param digits - The number of digits after comma.
+     *
+     * @returns Returns the rounded number.
+     */
+    static numberFloor(this:void, number:number, digits = 0):number {
+        return Math.floor(number * Math.pow(10, digits)) / Math.pow(10, digits)
+    }
     // / endregion
     // / region data transfer
     /**
