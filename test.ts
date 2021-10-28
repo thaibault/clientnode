@@ -3793,6 +3793,44 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [700, 650, -2],
         [600, 649, -2]
     )
+    testEach<typeof Tools.numberFloor>(
+        'numberFloor',
+        Tools.numberFloor,
+
+        [1, 1.5, 0],
+        [1, 1.4, 0],
+        [0, 1.4, -1],
+        [1000, 1000, -2],
+        [900, 999, -2],
+        [900, 950, -2],
+        [900, 949, -2],
+        [1, 1.2345],
+        [1.23, 1.2345, 2],
+        [1.234, 1.2345, 3],
+        [1.2345, 1.2345, 4],
+        [600, 699, -2],
+        [600, 650, -2],
+        [600, 649, -2]
+    )
+    testEach<typeof Tools.numberCeil>(
+        'numberCeil',
+        Tools.numberCeil,
+
+        [2, 1.5, 0],
+        [2, 1.4, 0],
+        [10, 1.4, -1],
+        [1000, 1000, -2],
+        [1000, 999, -2],
+        [1000, 950, -2],
+        [1000, 949, -2],
+        [2, 1.2345],
+        [1.24, 1.2345, 2],
+        [1.235, 1.2345, 3],
+        [1.2345, 1.2345, 4],
+        [700, 699, -2],
+        [700, 650, -2],
+        [700, 649, -2]
+    )
     // / endregion
     // / region data transfer
     testEachPromiseRejectionAgainstSameExpectation<
