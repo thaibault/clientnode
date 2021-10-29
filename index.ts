@@ -8012,9 +8012,7 @@ export class Tools<TElement = HTMLElement> {
 /**
  * Dom bound version of Tools class.
  */
-export class BoundTools<
-    TElement extends HTMLElement = HTMLElement
-> extends Tools<TElement> {
+export class BoundTools<TElement = HTMLElement> extends Tools<TElement> {
     $domNode:$T<TElement>
     readonly self:typeof BoundTools = BoundTools
     /**

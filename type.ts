@@ -284,13 +284,9 @@ export interface $Global extends Window {
 export interface ToolsFunction<TElement = HTMLElement> {
     class:typeof Tools
 
-    (this:$T<TElement>, ..._parameters:Array<unknown>):Tools
+    (this:$TStatic, ..._parameters:Array<unknown>):Tools<TElement>
 }
-export interface BoundToolsFunction<
-    TElement extends HTMLElement = HTMLElement
-> {
-    class:typeof BoundTools
-
+export interface BoundToolsFunction<TElement = HTMLElement> {
     (this:$T<TElement>, methodName:'normalizedClassNames'):BoundTools<TElement>
     (this:$T<TElement>, methodName:'normalizedStyles'):BoundTools<TElement>
     (this:$T<TElement>, methodName:'style'):Mapping<number|string>
@@ -305,7 +301,7 @@ export interface StaticScope {
 }
 declare global {
     interface JQuery<TElement = HTMLElement> {
-        Tools:ToolsFunction<TElement>
+        Tools:BoundToolsFunction<TElement>
     }
     interface JQueryStatic {
         document?:Document

@@ -579,7 +579,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ])(
             `get style '%s' => %p (${testEnvironment})`,
             (html:string, css:Mapping):void => {
-                const $domNode:$T = $(html)
+                const $domNode:$T = $<HTMLElement>(html)
 
                 $('body').append($domNode)
 
