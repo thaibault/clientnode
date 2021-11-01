@@ -284,13 +284,14 @@ export interface $Global extends Window {
 export interface ToolsFunction<TElement = HTMLElement> {
     class:typeof Tools
 
-    (this:$TStatic, ..._parameters:Array<unknown>):Tools<TElement>
+    (..._parameters:Array<unknown>):Tools<TElement>
 }
 export interface BoundToolsFunction<TElement = HTMLElement> {
-    (this:$T<TElement>, methodName:'normalizedClassNames'):BoundTools<TElement>
-    (this:$T<TElement>, methodName:'normalizedStyles'):BoundTools<TElement>
-    (this:$T<TElement>, methodName:'style'):Mapping<number|string>
-    (this:$T<TElement>, ..._parameters:Array<unknown>):BoundTools<TElement>
+    (_methodName:'normalizedClassNames'):BoundTools<TElement>
+    (_methodName:'normalizedStyles'):BoundTools<TElement>
+    (_methodName:'removeDirective', _directiveName:string):$T<TElement>
+    (_methodName:'style'):Mapping<number|string>
+    (..._parameters:Array<unknown>):BoundTools<TElement>
 }
 
 export interface StaticScope {

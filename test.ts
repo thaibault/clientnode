@@ -95,9 +95,9 @@ describe(`property-types (${testEnvironment})`, ():void => {
         expect((DummyTypes.any as Requireable<unknown>).isRequired)
             .toBeInstanceOf(Function)
         expect(
-            ((DummyTypes.any as Requireable<unknown>).isRequired as
-                AnyFunction
-            )()
+            ((DummyTypes.any as Requireable<unknown>).isRequired)(
+                {}, '', '', '', ''
+            )
         ).toStrictEqual(null)
 
         expect(DummyTypes.arrayOf).toBeInstanceOf(Function)
@@ -581,9 +581,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             (html:string, css:Mapping):void => {
                 const $domNode:$T = $<HTMLElement>(html)
 
-                $('body').append($domNode)
+                $('body').append($domNode[0])
 
-                const styles:Mapping = $domNode.Tools('style')
+                const styles:Mapping<number|string> = $domNode.Tools('style')
                 for (const propertyName in css)
                     if (Object.prototype.hasOwnProperty.call(
                         css, propertyName
@@ -620,7 +620,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ['<div></div>', '<div>'],
             ['<div class="a"></div>', '<div class="a"></div>'],
             [
-                $('<a target="_blank" class="a"></a>'),
+                $<HTMLElement>('<a target="_blank" class="a"></a>'),
                 '<a class="a" target="_blank"></a>'
             ],
             [
@@ -712,7 +712,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         test('removeDirective', async ():Promise<void> => {
             await getInitializedBrowser()
 
-            const $localBodyDomNode = $('body').Tools('removeDirective', 'a')
+            const $localBodyDomNode:$T<HTMLElement> =
+                $<HTMLElement>('body').Tools('removeDirective', 'a')
 
             expect($localBodyDomNode.Tools().removeDirective('a'))
                 .toStrictEqual($localBodyDomNode)
@@ -3901,7 +3902,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         test('sendToIFrame', ():void => {
             const $iFrame:$T<HTMLIFrameElement> =
                 $<HTMLIFrameElement>('<iframe>').hide().attr('name', 'test')
-            $('body').append($iFrame)
+
+            $('body').append($iFrame[0])
 
             expect(Tools.sendToIFrame(
                 $iFrame, window.document.URL, {test: 5}, 'get', true

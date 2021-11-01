@@ -249,7 +249,6 @@ export let $:$TStatic = determine$()
 // / region lock
 /**
  * Represents the lock state.
- *
  * @property locks - Mapping of lock descriptions to there corresponding
  * callbacks.
  */
@@ -1347,8 +1346,8 @@ export class Tools<TElement = HTMLElement> {
      */
     static isEquivalentDOM(
         this:void,
-        first:Node|string|$T<Node>,
-        second:Node|string|$T<Node>,
+        first:Node|string|$T<HTMLElement>|$T<Node>,
+        second:Node|string|$T<HTMLElement>|$T<Node>,
         forceHTMLString = false
     ):boolean {
         if (first === second)
@@ -1357,7 +1356,8 @@ export class Tools<TElement = HTMLElement> {
         if (first && second) {
             const detemermineHTMLPattern =
                 /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
-            const inputs:Mapping<Node|string|$T<Node>> = {first, second}
+            const inputs:Mapping<Node|string|$T<HTMLElement>|$T<Node>> =
+                {first, second}
             const $domNodes:Mapping<$T> = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
@@ -1385,10 +1385,9 @@ export class Tools<TElement = HTMLElement> {
                     try {
                         const $copiedDomNode:$T<JQuery.Node> =
                             $<JQuery.Node>(inputs[type] as JQuery.Node).clone()
+
                         if ($copiedDomNode.length)
-                            $domNodes[type] = $('<div>').append(
-                                $copiedDomNode as $T<JQuery.Node>
-                            )
+                            $domNodes[type] = $('<div>').append($copiedDomNode)
                         else
                             return false
                     } catch (error) {
@@ -1403,15 +1402,15 @@ export class Tools<TElement = HTMLElement> {
                 $domNodes.first = $domNodes
                     .first
                     .Tools('normalizedClassNames')
-                    .$domNode!
+                    .$domNode
                     .Tools('normalizedStyles')
-                    .$domNode!
+                    .$domNode
                 $domNodes.second = $domNodes
                     .second
                     .Tools('normalizedClassNames')
-                    .$domNode!
+                    .$domNode
                     .Tools('normalizedStyles')
-                    .$domNode!
+                    .$domNode
 
                 let index = 0
                 for (const domNode of (
