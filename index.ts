@@ -61,6 +61,7 @@ import {
     TemplateFunction,
     TimeoutPromise,
     ToolsFunction,
+    UnknownFunction,
     ValueOf,
     $DomNodes,
     $Global,
@@ -1974,17 +1975,17 @@ export class Tools<TElement = HTMLElement> {
      */
     static debounce<T = unknown>(
         this:void,
-        callback:AnyFunction,
+        callback:UnknownFunction,
         thresholdInMilliseconds = 600,
         ...additionalArguments:Array<unknown>
     ):((..._parameters:Array<unknown>) => Promise<T>) {
         let waitForNextSlot = false
         let parametersForNextSlot:Array<unknown>|null = null
         // NOTE: Type "T" will be added via "then" method when called.
-        let resolveNextSlotPromise:AnyFunction
-        let rejectNextSlotPromise:AnyFunction
+        let resolveNextSlotPromise:(_value:T) => void
+        let rejectNextSlotPromise:(_reason:unknown) => void
         let nextSlotPromise:Promise<T> = new Promise<T>((
-            resolve:AnyFunction, reject:AnyFunction
+            resolve:(_value:T) => void, reject:(_reason:unknown) => void
         ):void => {
             resolveNextSlotPromise = resolve
             rejectNextSlotPromise = reject
@@ -2010,7 +2011,7 @@ export class Tools<TElement = HTMLElement> {
             const rejectCurrentSlotPromise = rejectNextSlotPromise
 
             // NOTE: We call callback synchronously if possible.
-            const result:Promise<T>|T = callback(...parameters)
+            const result:Promise<T>|T = callback(...parameters) as Promise<T>|T
 
             if ((result as Promise<T>)?.then)
                 (result as Promise<T>).then(
@@ -2018,7 +2019,7 @@ export class Tools<TElement = HTMLElement> {
                     (reason:unknown):void => rejectCurrentSlotPromise(reason)
                 )
             else
-                resolveCurrentSlotPromise(result)
+                resolveCurrentSlotPromise(result as T)
 
             /*
                 Initialize new promise which will be used for next call request
@@ -2043,7 +2044,8 @@ export class Tools<TElement = HTMLElement> {
                         // NOTE: Check if this slot should be used.
                         if (parametersForNextSlot) {
                             const result:Promise<T>|T =
-                                callback(...parametersForNextSlot)
+                                callback(...parametersForNextSlot) as
+                                    Promise<T>|T
                             parametersForNextSlot = null
 
                             if ((result as Promise<T>)?.then)

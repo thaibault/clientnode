@@ -56,6 +56,7 @@ import {
     ProxyType,
     SecondParameter,
     TimeoutPromise,
+    UnknownFunction,
     $T
 } from './type'
 // endregion
@@ -89,7 +90,7 @@ describe(`property-types (${testEnvironment})`, ():void => {
     test('DummyTypes', ():void => {
         expect(DummyTypes.any).not.toStrictEqual(DummyTypes.array)
         expect(DummyTypes.any).toBeInstanceOf(Function)
-        expect((DummyTypes.any as AnyFunction)()).toStrictEqual(null)
+        expect((DummyTypes.any as UnknownFunction)()).toStrictEqual(null)
 
         expect(DummyTypes.any).toHaveProperty('isRequired')
         expect((DummyTypes.any as Requireable<unknown>).isRequired)
@@ -101,8 +102,10 @@ describe(`property-types (${testEnvironment})`, ():void => {
         ).toStrictEqual(null)
 
         expect(DummyTypes.arrayOf).toBeInstanceOf(Function)
-        expect((DummyTypes.arrayOf as AnyFunction)()).toBeInstanceOf(Function)
-        expect((DummyTypes.arrayOf as AnyFunction)()()).toStrictEqual(null)
+        expect((DummyTypes.arrayOf as UnknownFunction)())
+            .toBeInstanceOf(Function)
+        expect(((DummyTypes.arrayOf as UnknownFunction)() as () => null)())
+            .toStrictEqual(null)
     })
 })
 // endregion
@@ -165,7 +168,7 @@ describe(`Lock (${testEnvironment})`, ():void => {
                 result = await lock.acquire(
                     'test',
                     ():Promise<string|void> =>
-                        new Promise((resolve:AnyFunction):void => {
+                        new Promise((resolve:(_value:string) => void):void => {
                             Tools.timeout(():void => {
                                 testValue = 'a'
                                 resolve(testValue)
@@ -4054,7 +4057,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         )
         test('walkDirectoryRecursively', async ():Promise<void> => {
             const filePaths:Array<string> = []
-            const callback:AnyFunction = (filePath:string):null => {
+            const callback = (filePath:string):null => {
                 filePaths.push(filePath)
 
                 return null
@@ -4072,7 +4075,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         })
         test('walkDirectoryRecursivelySync', ():void => {
             const filePaths:Array<string> = []
-            const callback:AnyFunction = (filePath:string):null => {
+            const callback = (filePath:string):null => {
                 filePaths.push(filePath)
 
                 return null
