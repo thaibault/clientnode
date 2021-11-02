@@ -56,6 +56,7 @@ import {
     ProxyType,
     SecondParameter,
     TimeoutPromise,
+    UnknownFunction,
     $T
 } from './type'
 // endregion
@@ -89,7 +90,7 @@ describe(`property-types (${testEnvironment})`, ():void => {
     test('DummyTypes', ():void => {
         expect(DummyTypes.any).not.toStrictEqual(DummyTypes.array)
         expect(DummyTypes.any).toBeInstanceOf(Function)
-        expect((DummyTypes.any as AnyFunction)()).toStrictEqual(null)
+        expect((DummyTypes.any as UnknownFunction)()).toStrictEqual(null)
 
         expect(DummyTypes.any).toHaveProperty('isRequired')
         expect((DummyTypes.any as Requireable<unknown>).isRequired)
@@ -101,8 +102,10 @@ describe(`property-types (${testEnvironment})`, ():void => {
         ).toStrictEqual(null)
 
         expect(DummyTypes.arrayOf).toBeInstanceOf(Function)
-        expect((DummyTypes.arrayOf as AnyFunction)()).toBeInstanceOf(Function)
-        expect((DummyTypes.arrayOf as AnyFunction)()()).toStrictEqual(null)
+        expect((DummyTypes.arrayOf as UnknownFunction)())
+            .toBeInstanceOf(Function)
+        expect(((DummyTypes.arrayOf as UnknownFunction)() as () => null)())
+            .toStrictEqual(null)
     })
 })
 // endregion
@@ -165,7 +168,7 @@ describe(`Lock (${testEnvironment})`, ():void => {
                 result = await lock.acquire(
                     'test',
                     ():Promise<string|void> =>
-                        new Promise((resolve:AnyFunction):void => {
+                        new Promise((resolve:(_value:string) => void):void => {
                             Tools.timeout(():void => {
                                 testValue = 'a'
                                 resolve(testValue)
@@ -3342,24 +3345,27 @@ describe(`Tools (${testEnvironment})`, ():void => {
             [2, 5],
             ' hAns ',
             'ans',
-            (value:string):string => value.toLowerCase()
+            (value:unknown):string => (value as string).toLowerCase()
         ],
         [
             [2, 8],
             'a straße b', 'strasse',
-            (value:string):string => value.replace(/ß/g, 'ss').toLowerCase()
+            (value:unknown):string =>
+                (value as string).replace(/ß/g, 'ss').toLowerCase()
         ],
         [
             [2, 9],
             'a strasse b',
             'strasse',
-            (value:string):string => value.replace(/ß/g, 'ss').toLowerCase()
+            (value:unknown):string =>
+                (value as string).replace(/ß/g, 'ss').toLowerCase()
         ],
         [
             [2, 9],
             'a strasse b',
             'straße',
-            (value:string):string => value.replace(/ß/g, 'ss').toLowerCase()
+            (value:unknown):string =>
+                (value as string).replace(/ß/g, 'ss').toLowerCase()
         ]
     )
     testEach<typeof Tools.stringFormat>(
@@ -3470,7 +3476,13 @@ describe(`Tools (${testEnvironment})`, ():void => {
             (value:unknown):string => `${value as string}`.toLowerCase(),
             '<a>{1}</a>'
         ],
-        ['t<a>e</a>st', 'test', ['e'], Tools.identity, '<a>{1}</a>'],
+        [
+            't<a>e</a>st',
+            'test',
+            ['e'],
+            Tools.identity as (_value:unknown) => string,
+            '<a>{1}</a>'
+        ],
         [
             't<a>e</a>st',
             'test',
@@ -3499,7 +3511,13 @@ describe(`Tools (${testEnvironment})`, ():void => {
             (value:unknown):string => `${value as string}`.toLowerCase(),
             '<a>{1} - {1}</a>'
         ],
-        ['test', 'test', 'E', Tools.identity, '<a>{1}</a>'],
+        [
+            'test',
+            'test',
+            'E',
+            Tools.identity as (_value:unknown) => string,
+            '<a>{1}</a>'
+        ],
         [
             '<span class="tools-mark">a</span>b' +
             '<span class="tools-mark">c</span>d',
@@ -3577,35 +3595,35 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '<mark>test</mark> <a>link</a>',
             'test <a>link</a>',
             ['test'],
-            Tools.identity,
+            Tools.identity as (_value:unknown) => string,
             '<mark>{1}</mark>'
         ],
         [
             'test <a><mark>link</mark></a>',
             'test <a>link</a>',
             ['link'],
-            Tools.identity,
+            Tools.identity as (_value:unknown) => string,
             '<mark>{1}</mark>'
         ],
         [
             'test <a href="foo">link</a>',
             'test <a href="foo">link</a>',
             ['foo'],
-            Tools.identity,
+            Tools.identity as (_value:unknown) => string,
             '<mark>{1}</mark>'
         ],
         [
             'test <a href="foo">a <mark>foo</mark> link</a>',
             'test <a href="foo">a foo link</a>',
             ['foo'],
-            Tools.identity,
+            Tools.identity as (_value:unknown) => string,
             '<mark>{1}</mark>'
         ],
         [
             '<mark>foo</mark> <mark>foo</mark> <mark>foo</mark>',
             'foo foo foo',
             ['foo'],
-            Tools.identity,
+            Tools.identity as (_value:unknown) => string,
             '<mark>{1}</mark>'
         ]
     )
@@ -4054,7 +4072,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         )
         test('walkDirectoryRecursively', async ():Promise<void> => {
             const filePaths:Array<string> = []
-            const callback:AnyFunction = (filePath:string):null => {
+            const callback = (filePath:string):null => {
                 filePaths.push(filePath)
 
                 return null
@@ -4072,7 +4090,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         })
         test('walkDirectoryRecursivelySync', ():void => {
             const filePaths:Array<string> = []
-            const callback:AnyFunction = (filePath:string):null => {
+            const callback = (filePath:string):null => {
                 filePaths.push(filePath)
 
                 return null

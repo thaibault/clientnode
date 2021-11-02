@@ -102,11 +102,14 @@ export interface ProxyHandler<T = unknown> {
     set:(_target:T, _key:string|symbol, _value:unknown) => boolean
 }
 export type ProxyType<T = unknown> = T & {
-    __revoke__?:AnyFunction
+    __revoke__?:() => void
     __target__:T
 }
 // // region functions
-export type GenericFunction = (..._parameters:Array<unknown>) => unknown
+export type UnknownFunction = (..._parameters:Array<unknown>) => unknown
+export type ArrayTransformer<T = unknown, R = unknown, P = unknown> = (
+    _data:Array<T>, ..._additionalParameter:Array<P>
+) => Array<R>
 
 export type SynchronousProcedureFunction = (..._parameters:Array<unknown>) =>
     void
