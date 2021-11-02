@@ -21,6 +21,7 @@ import {ChildProcess} from 'child_process'
 
 import {
     AnyFunction,
+    ArrayTransformer,
     BaseSelector,
     BoundToolsFunction,
     CheckReachabilityOptions,
@@ -1842,7 +1843,6 @@ export class Tools<TElement = HTMLElement> {
     static identity<T>(this:void, value:T):T {
         return value
     }
-    /* eslint-disable space-before-function-paren */
     /**
      * Inverted filter helper to inverse each given filter.
      * @param this - Indicates an unbound method.
@@ -1850,16 +1850,14 @@ export class Tools<TElement = HTMLElement> {
      *
      * @returns The inverted filter.
      */
-    static invertArrayFilter<T extends AnyFunction = (
-        _data:Array<unknown>, ..._additionalParameter:Array<unknown>
-    ) => Array<unknown>>(this:void, filter:T):T {
-    /* eslint-enable space-before-function-paren */
+    static invertArrayFilter<T>(this:void, filter:T):T {
         return ((
             data:Array<unknown>, ...additionalParameter:Array<unknown>
         ):Array<unknown> => {
             if (data) {
-                const filteredData:Array<unknown> =
-                    filter(data, ...additionalParameter)
+                const filteredData:Array<unknown> = (
+                    filter as unknown as ArrayTransformer
+                )(data, ...additionalParameter)
 
                 let result:Array<unknown> = []
                 if (filteredData.length) {
@@ -1873,7 +1871,7 @@ export class Tools<TElement = HTMLElement> {
             }
 
             return data
-        }) as T
+        }) as unknown as T
     }
     /**
      * Triggers given callback after given duration. Supports unlimited
