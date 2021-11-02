@@ -27,10 +27,6 @@ import {DefinedSymbol, ThrowSymbol, UndefinedSymbol} from './testHelper'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type AnyFunction = (..._parameters:Array<any>) => any
 /* eslint-enable @typescript-eslint/no-explicit-any */
-export type UnknownFunction = (..._parameters:Array<unknown>) => unknown
-export type ArrayTransformer<T = unknown, R = unknown, P = unknown> = (
-    _data:Array<T>, ..._additionalParameter:Array<P>
-) => Array<R>
 
 export type FirstParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[0]
@@ -110,7 +106,10 @@ export type ProxyType<T = unknown> = T & {
     __target__:T
 }
 // // region functions
-export type GenericFunction = (..._parameters:Array<unknown>) => unknown
+export type UnknownFunction = (..._parameters:Array<unknown>) => unknown
+export type ArrayTransformer<T = unknown, R = unknown, P = unknown> = (
+    _data:Array<T>, ..._additionalParameter:Array<P>
+) => Array<R>
 
 export type SynchronousProcedureFunction = (..._parameters:Array<unknown>) =>
     void

@@ -2026,7 +2026,7 @@ export class Tools<TElement = HTMLElement> {
                 and is marked as delayed.
             */
             nextSlotPromise = new Promise<T>((
-                resolve:AnyFunction, reject:AnyFunction
+                resolve:(_value:T) => void, reject:(_reason:unknown) => void
             ):void => {
                 resolveNextSlotPromise = resolve
                 rejectNextSlotPromise = reject
@@ -2054,7 +2054,7 @@ export class Tools<TElement = HTMLElement> {
                                     (reason:unknown):void => reject(reason)
                                 )
                             else
-                                resolve(result)
+                                resolve(result as T)
 
                             /*
                                 Initialize new promise which will be used for
@@ -2544,7 +2544,7 @@ export class Tools<TElement = HTMLElement> {
                     knownReferences.push(source)
                 }
 
-                const copyValue:AnyFunction = <V>(value:V):null|V => {
+                const copyValue = <V>(value:V):null|V => {
                     if (
                         recursionLimit !== -1 &&
                         recursionLimit < recursionLevel + 1
@@ -2591,7 +2591,8 @@ export class Tools<TElement = HTMLElement> {
                     for (const key in source)
                         if (Object.prototype.hasOwnProperty.call(source, key))
                             try {
-                                destination[key] = copyValue(source[key])
+                                (destination as Type)[key as keyof Type] =
+                                    copyValue<ValueOf<Type>>(source[key])!
                             } catch (error) {
                                 throw new Error(
                                     'Failed to copy property value object "' +

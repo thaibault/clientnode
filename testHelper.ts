@@ -33,9 +33,9 @@ import {
     FunctionTestTuple,
     FunctionTestPromiseTuple,
     FunctionTestPromiseRejectionTuple,
-    GenericFunction,
     TestSymbol,
-    ThenParameter
+    ThenParameter,
+    UnknownFunction
 } from './type'
 // endregion
 export const DefinedSymbol = Symbol.for('clientnodeTestHelperDefined')
@@ -81,7 +81,7 @@ export const testExpectedType = <Type = unknown>(
  *
  * @returns Nothing.
  */
-export const testEach = <FunctionType extends AnyFunction = GenericFunction>(
+export const testEach = <FunctionType extends AnyFunction = UnknownFunction>(
     functionName:string,
     callback:FunctionType,
     ...functionTestTuple:Array<FunctionTestTuple<FunctionType>>
@@ -93,7 +93,9 @@ export const testEach = <FunctionType extends AnyFunction = GenericFunction>(
                 ...parameters:Parameters<FunctionType>
             ):void =>
                 testExpectedType<ReturnType<FunctionType>>(
+                    /* eslint-disable @typescript-eslint/no-unsafe-argument */
                     callback(...parameters), expected
+                    /* eslint-enable @typescript-eslint/no-unsafe-argument */
                 ) as void
         )
 /**
@@ -108,7 +110,7 @@ export const testEach = <FunctionType extends AnyFunction = GenericFunction>(
  * @returns Nothing.
  */
 export const testEachPromise = <
-    FunctionType extends AnyFunction = GenericFunction
+    FunctionType extends AnyFunction = UnknownFunction
 >(
         functionName:string,
         callback:FunctionType,
@@ -144,7 +146,7 @@ export const testEachPromise = <
  * @returns Nothing.
  */
 export const testEachPromiseRejection = <
-    FunctionType extends AnyFunction = GenericFunction
+    FunctionType extends AnyFunction = UnknownFunction
 >(
         functionName:string,
         callback:FunctionType,
@@ -180,7 +182,7 @@ export const testEachPromiseRejection = <
  * @returns Nothing.
  */
 export const testEachSingleParameterAgainstSameExpectation = <
-    FunctionType extends AnyFunction = GenericFunction
+    FunctionType extends AnyFunction = UnknownFunction
 >(
         functionName:string,
         callback:FunctionType,
@@ -192,7 +194,9 @@ export const testEachSingleParameterAgainstSameExpectation = <
             (parameter:FirstParameter<FunctionType>):void =>
                 /* eslint-disable @typescript-eslint/no-unsafe-return */
                 testExpectedType<ReturnType<FunctionType>>(
+                    /* eslint-disable @typescript-eslint/no-unsafe-argument */
                     expected === ThrowSymbol ?
+                    /* eslint-enable @typescript-eslint/no-unsafe-argument */
                         ():ReturnType<FunctionType> => callback(parameter) :
                         callback(parameter),
                     expected
@@ -211,7 +215,7 @@ export const testEachSingleParameterAgainstSameExpectation = <
  * @returns Nothing.
  */
 export const testEachSingleParameterAgainstSamePromisedExpectation = <
-    FunctionType extends AnyFunction = GenericFunction
+    FunctionType extends AnyFunction = UnknownFunction
 >(
         functionName:string,
         callback:FunctionType,
@@ -243,7 +247,7 @@ export const testEachSingleParameterAgainstSamePromisedExpectation = <
  * @returns Nothing.
  */
 export const testEachSingleParameterAgainstSameRejectedExpectation = <
-    FunctionType extends AnyFunction = GenericFunction
+    FunctionType extends AnyFunction = UnknownFunction
 >(
         functionName:string,
         callback:FunctionType,
@@ -274,7 +278,7 @@ export const testEachSingleParameterAgainstSameRejectedExpectation = <
  * @returns Nothing.
  */
 export const testEachAgainstSameExpectation = <
-    FunctionType extends AnyFunction = GenericFunction
+    FunctionType extends AnyFunction = UnknownFunction
 >(
         functionName:string,
         callback:FunctionType,
@@ -286,7 +290,9 @@ export const testEachAgainstSameExpectation = <
             (...parameters:Parameters<FunctionType>):void =>
                 /* eslint-disable @typescript-eslint/no-unsafe-return */
                 testExpectedType<ReturnType<FunctionType>>(
+                    /* eslint-disable @typescript-eslint/no-unsafe-argument */
                     expected === ThrowSymbol ?
+                    /* eslint-enable @typescript-eslint/no-unsafe-argument */
                         ():ReturnType<FunctionType> =>
                             callback(...parameters) :
                         callback(...parameters),
@@ -307,7 +313,7 @@ export const testEachAgainstSameExpectation = <
  * @returns Nothing.
  */
 export const testEachPromiseAgainstSameExpectation = <
-    FunctionType extends AnyFunction = GenericFunction
+    FunctionType extends AnyFunction = UnknownFunction
 >(
         functionName:string,
         callback:FunctionType,
@@ -340,7 +346,7 @@ export const testEachPromiseAgainstSameExpectation = <
  * @returns Nothing.
  */
 export const testEachPromiseRejectionAgainstSameExpectation = <
-    FunctionType extends AnyFunction = GenericFunction
+    FunctionType extends AnyFunction = UnknownFunction
 >(
         functionName:string,
         callback:FunctionType,
