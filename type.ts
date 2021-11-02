@@ -102,7 +102,7 @@ export interface ProxyHandler<T = unknown> {
     set:(_target:T, _key:string|symbol, _value:unknown) => boolean
 }
 export type ProxyType<T = unknown> = T & {
-    __revoke__?:AnyFunction
+    __revoke__?:() => void
     __target__:T
 }
 // // region functions

@@ -3345,24 +3345,27 @@ describe(`Tools (${testEnvironment})`, ():void => {
             [2, 5],
             ' hAns ',
             'ans',
-            (value:string):string => value.toLowerCase()
+            (value:unknown):string => (value as string).toLowerCase()
         ],
         [
             [2, 8],
             'a straße b', 'strasse',
-            (value:string):string => value.replace(/ß/g, 'ss').toLowerCase()
+            (value:unknown):string =>
+                (value as string).replace(/ß/g, 'ss').toLowerCase()
         ],
         [
             [2, 9],
             'a strasse b',
             'strasse',
-            (value:string):string => value.replace(/ß/g, 'ss').toLowerCase()
+            (value:unknown):string =>
+                (value as string).replace(/ß/g, 'ss').toLowerCase()
         ],
         [
             [2, 9],
             'a strasse b',
             'straße',
-            (value:string):string => value.replace(/ß/g, 'ss').toLowerCase()
+            (value:unknown):string =>
+                (value as string).replace(/ß/g, 'ss').toLowerCase()
         ]
     )
     testEach<typeof Tools.stringFormat>(
@@ -3473,7 +3476,13 @@ describe(`Tools (${testEnvironment})`, ():void => {
             (value:unknown):string => `${value as string}`.toLowerCase(),
             '<a>{1}</a>'
         ],
-        ['t<a>e</a>st', 'test', ['e'], Tools.identity, '<a>{1}</a>'],
+        [
+            't<a>e</a>st',
+            'test',
+            ['e'],
+            Tools.identity as (_value:unknown) => string,
+            '<a>{1}</a>'
+        ],
         [
             't<a>e</a>st',
             'test',
@@ -3502,7 +3511,13 @@ describe(`Tools (${testEnvironment})`, ():void => {
             (value:unknown):string => `${value as string}`.toLowerCase(),
             '<a>{1} - {1}</a>'
         ],
-        ['test', 'test', 'E', Tools.identity, '<a>{1}</a>'],
+        [
+            'test',
+            'test',
+            'E',
+            Tools.identity as (_value:unknown) => string,
+            '<a>{1}</a>'
+        ],
         [
             '<span class="tools-mark">a</span>b' +
             '<span class="tools-mark">c</span>d',
@@ -3580,35 +3595,35 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '<mark>test</mark> <a>link</a>',
             'test <a>link</a>',
             ['test'],
-            Tools.identity,
+            Tools.identity as (_value:unknown) => string,
             '<mark>{1}</mark>'
         ],
         [
             'test <a><mark>link</mark></a>',
             'test <a>link</a>',
             ['link'],
-            Tools.identity,
+            Tools.identity as (_value:unknown) => string,
             '<mark>{1}</mark>'
         ],
         [
             'test <a href="foo">link</a>',
             'test <a href="foo">link</a>',
             ['foo'],
-            Tools.identity,
+            Tools.identity as (_value:unknown) => string,
             '<mark>{1}</mark>'
         ],
         [
             'test <a href="foo">a <mark>foo</mark> link</a>',
             'test <a href="foo">a foo link</a>',
             ['foo'],
-            Tools.identity,
+            Tools.identity as (_value:unknown) => string,
             '<mark>{1}</mark>'
         ],
         [
             '<mark>foo</mark> <mark>foo</mark> <mark>foo</mark>',
             'foo foo foo',
             ['foo'],
-            Tools.identity,
+            Tools.identity as (_value:unknown) => string,
             '<mark>{1}</mark>'
         ]
     )

@@ -209,7 +209,7 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
                                 $.fn, key
                             ))
                                 $domNodes[key as 'add'] = (
-                                    $.fn[key] as unknown as AnyFunction
+                                    $.fn[key] as unknown as UnknownFunction
                                 ).bind($domNodes) as $T['add']
 
                     $domNodes.jquery = 'clientnode'
@@ -284,7 +284,7 @@ export class Lock<Type = string|void> {
         callback?:LockCallbackFunction<Type>,
         autoRelease = false
     ):Promise<Type> {
-        return new Promise<Type>((resolve:AnyFunction):void => {
+        return new Promise<Type>((resolve:(_value:Type) => void):void => {
             const wrappedCallback:LockCallbackFunction<Type> = (
                 description:string
             ):Promise<Type>|Type => {
@@ -378,7 +378,7 @@ export class Semaphore {
      * available.
      */
     acquire():Promise<number> {
-        return new Promise<number>((resolve:AnyFunction):void => {
+        return new Promise<number>((resolve:(_value:number) => void):void => {
             if (this.numberOfFreeResources <= 0)
                 this.queue.push(resolve)
             else {
@@ -1905,11 +1905,11 @@ export class Tools<TElement = HTMLElement> {
             else if (Tools.isFunction(value))
                 callback = value
 
-        let rejectCallback:AnyFunction
-        let resolveCallback:AnyFunction
+        let rejectCallback:(_reason:true) => void
+        let resolveCallback:(_value:boolean) => void
 
-        const result:TimeoutPromise = new Promise((
-            resolve:AnyFunction, reject:AnyFunction
+        const result:TimeoutPromise = new Promise<boolean>((
+            resolve:(_value:boolean) => void, reject:(_reason:true) => void
         ):void => {
             rejectCallback = reject
             resolveCallback = resolve
@@ -1934,7 +1934,7 @@ export class Tools<TElement = HTMLElement> {
             const finalTimeoutDuration:number =
                 delayInMilliseconds % maximumTimeoutDelayInMilliseconds
 
-            const delay:AnyFunction = ():void => {
+            const delay = ():void => {
                 if (numberOfRemainingTimeouts > 0) {
                     numberOfRemainingTimeouts -= 1
 
@@ -2061,7 +2061,8 @@ export class Tools<TElement = HTMLElement> {
                                 next call request without waiting.
                             */
                             nextSlotPromise = new Promise<T>((
-                                resolve:AnyFunction, reject:AnyFunction
+                                resolve:(_value:T) => void,
+                                reject:(_reason:unknown) => void
                             ):void => {
                                 resolveNextSlotPromise = resolve
                                 rejectNextSlotPromise = reject
@@ -2180,7 +2181,7 @@ export class Tools<TElement = HTMLElement> {
             if (Array.isArray(object)) {
                 let index = 0
                 for (const value of object) {
-                    object[index] = Tools.addDynamicGetterAndSetter(
+                    object[index] = Tools.addDynamicGetterAndSetter<unknown>(
                         value, getterWrapper, setterWrapper, methodNames, deep
                     )
 
@@ -2591,7 +2592,7 @@ export class Tools<TElement = HTMLElement> {
                     for (const key in source)
                         if (Object.prototype.hasOwnProperty.call(source, key))
                             try {
-                                (destination as Type)[key as keyof Type] =
+                                destination[key as keyof Type] =
                                     copyValue<ValueOf<Type>>(source[key])!
                             } catch (error) {
                                 throw new Error(
@@ -2758,7 +2759,7 @@ export class Tools<TElement = HTMLElement> {
             ) ||
             options.compareBlobs &&
             eval('typeof Buffer') !== 'undefined' &&
-            eval('Buffer').isBuffer &&
+            (eval('Buffer') as typeof Buffer).isBuffer &&
             firstValue instanceof eval('Buffer') &&
             secondValue instanceof eval('Buffer') &&
             (firstValue as Buffer).toString('base64') ===
@@ -2772,7 +2773,9 @@ export class Tools<TElement = HTMLElement> {
             firstValue instanceof Blob &&
             secondValue instanceof Blob
         )
-            return new Promise((resolve:AnyFunction):void => {
+            return new Promise<boolean|string>((
+                resolve:(_value:boolean|string) => void
+            ):void => {
                 const values:Array<ArrayBuffer|null|string> = []
                 for (const value of [firstValue, secondValue]) {
                     const fileReader:FileReader = new FileReader()
@@ -2971,7 +2974,7 @@ export class Tools<TElement = HTMLElement> {
 
                             if (subPromises.length)
                                 promises.push(new Promise<boolean|string>((
-                                    resolve:AnyFunction
+                                    resolve:(_value:boolean|string) => void
                                 ):void => {
                                     Promise.all<boolean|string>(
                                         subPromises
@@ -3048,7 +3051,7 @@ export class Tools<TElement = HTMLElement> {
 
             if (promises.length)
                 return new Promise<boolean|string>((
-                    resolve:AnyFunction
+                    resolve:(_value:boolean|string) => void
                 ):void => {
                     Promise.all(promises).then(
                         (results:Array<boolean|string>):void => {
@@ -3102,7 +3105,7 @@ export class Tools<TElement = HTMLElement> {
         if (!(selfReferenceName in scope))
             scope[selfReferenceName] = object
 
-        const evaluate:AnyFunction = (
+        const evaluate = (
             code:string, type:string = expressionIndicatorKey
         ):unknown => {
             const evaluated:EvaluationResult = Tools.stringEvaluate(
@@ -3115,7 +3118,7 @@ export class Tools<TElement = HTMLElement> {
             return evaluated.result
         }
 
-        const addProxyRecursively:AnyFunction = (data:unknown):unknown => {
+        const addProxyRecursively = (data:unknown):unknown => {
             if (
                 typeof data !== 'object' ||
                 data === null ||
@@ -3168,33 +3171,43 @@ export class Tools<TElement = HTMLElement> {
 
                                     /*
                                         NOTE: Very complicated section, do only
-                                        changes while having a lot of tests.
+                                        changes while having good tests.
                                     */
                                     for (const type of [
                                         expressionIndicatorKey,
                                         executionIndicatorKey
                                     ])
-                                        if (key === type)
-                                            return resolve(
-                                                evaluate(target[key], type)
-                                            )
+                                        if (
+                                            key === type &&
+                                            typeof target[key] === 'string'
+                                        )
+                                            return resolve(evaluate(
+                                                target[key] as string, type
+                                            ))
 
-                                    const resolvedTarget:Mapping<unknown> =
+                                    const resolvedTarget:unknown =
                                         resolve(target)
                                     if (key === 'toString') {
-                                        const result:Mapping<AnyFunction> =
-                                            evaluate(resolvedTarget)
+                                        const result:Mapping<UnknownFunction> =
+                                            evaluate(
+                                                resolvedTarget as string
+                                            ) as Mapping<UnknownFunction>
 
                                         return result[key].bind(result)
                                     }
 
                                     if (typeof key !== 'string') {
-                                        const result:{
-                                            [key:string|symbol]:AnyFunction|null
-                                        } = evaluate(resolvedTarget)
+                                        const result:{[key:symbol]:unknown} =
+                                            evaluate(
+                                                resolvedTarget as string
+                                            ) as {[key:symbol]:unknown}
 
-                                        if (result[key]?.call)
-                                            return result[key]!.bind(result)
+                                        if ((
+                                            result[key] as null|UnknownFunction
+                                        )?.bind)
+                                            return (
+                                                result[key] as UnknownFunction
+                                            ).bind(result)
 
                                         return result[key]
                                     }
@@ -3206,11 +3219,13 @@ export class Tools<TElement = HTMLElement> {
                                         if (Object.prototype.hasOwnProperty
                                             .call(target, type)
                                         )
-                                            return evaluate(
-                                                resolvedTarget, type
-                                            )[key]
+                                            return (evaluate(
+                                                resolvedTarget as string, type
+                                            ) as Mapping<unknown>)[key]
 
-                                    return resolvedTarget[key]
+                                    return (
+                                        resolvedTarget as Mapping<unknown>
+                                    )[key]
                                     // End of complicated stuff.
                                 },
                                 ownKeys: (
@@ -3229,7 +3244,7 @@ export class Tools<TElement = HTMLElement> {
                                                         type as keyof Mapping<
                                                             unknown
                                                         >
-                                                    ],
+                                                    ] as string,
                                                     type
                                                 ))
                                             )
@@ -3252,7 +3267,7 @@ export class Tools<TElement = HTMLElement> {
             return data
         }
 
-        const resolve:AnyFunction = (data:unknown):unknown => {
+        const resolve = (data:unknown):unknown => {
             if (data !== null && typeof data === 'object') {
                 if (Tools.isProxy(data)) {
                     // NOTE: We have to skip "ownKeys" proxy trap here.
@@ -3274,14 +3289,14 @@ export class Tools<TElement = HTMLElement> {
                         ].includes(key)) {
                             if (typeof Proxy === 'undefined')
                                 return resolve(evaluate(
-                                    (data as Mapping<unknown>)[key]
+                                    (data as Mapping)[key]
                                 ))
 
                             return (data as Mapping<unknown>)[key]
                         }
 
                         /* eslint-disable @typescript-eslint/no-extra-semi */
-                        ;(data as Mapping)[key] =
+                        ;(data as Mapping<unknown>)[key] =
                             resolve((data as Mapping<unknown>)[key])
                         /* eslint-enable @typescript-eslint/no-extra-semi */
                     }
@@ -3291,7 +3306,7 @@ export class Tools<TElement = HTMLElement> {
         }
 
         scope.resolve = resolve
-        const removeProxyRecursively:AnyFunction = (data:unknown):unknown => {
+        const removeProxyRecursively = (data:unknown):unknown => {
             if (data !== null && typeof data === 'object')
                 for (const key in data)
                     if (
@@ -3318,7 +3333,7 @@ export class Tools<TElement = HTMLElement> {
             ))
                 return evaluate(object[
                     expressionIndicatorKey as keyof RecursiveEvaluateable<Type>
-                ])
+                ]) as Type
             else if (Object.prototype.hasOwnProperty.call(
                 object, executionIndicatorKey
             ))
@@ -3328,9 +3343,10 @@ export class Tools<TElement = HTMLElement> {
                             keyof RecursiveEvaluateable<Type>
                     ],
                     executionIndicatorKey
-                )
+                ) as Type
 
-        return removeProxyRecursively(resolve(addProxyRecursively(object)))
+        return removeProxyRecursively(resolve(addProxyRecursively(object))) as
+            Type
     }
     /**
      * Removes properties in objects where a dynamic indicator lives.
@@ -4189,22 +4205,21 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns given object unwrapped from a dynamic proxy.
      */
     static unwrapProxy<T = unknown>(
-        this:void, object:T, seenObjects:Set<unknown> = new Set<unknown>()
+        this:void,
+        object:ProxyType<T>|T,
+        seenObjects:Set<unknown> = new Set<unknown>()
     ):T {
         if (object !== null && typeof object === 'object') {
             if (seenObjects.has(object))
                 return object
 
             try {
-                if (Tools.isFunction(
-                    (object as unknown as ProxyType).__revoke__
-                )) {
+                if (Tools.isFunction((object as ProxyType<T>).__revoke__)) {
                     if (Tools.isProxy(object))
-                        object = object.__target__ as T
+                        object = object.__target__
 
                     // eslint-disable-next-line indent
-                    ;(object as unknown as {__revoke__:AnyFunction})
-                        .__revoke__()
+                    ;(object as unknown as ProxyType<T>).__revoke__!()
                 }
             } catch (error) {
                 return object
@@ -4215,7 +4230,8 @@ export class Tools<TElement = HTMLElement> {
             if (Array.isArray(object)) {
                 let index = 0
                 for (const value of object) {
-                    object[index] = Tools.unwrapProxy(value, seenObjects)
+                    object[index] =
+                        Tools.unwrapProxy<unknown>(value, seenObjects)
 
                     index += 1
                 }
@@ -4233,10 +4249,10 @@ export class Tools<TElement = HTMLElement> {
                 for (const value of cache)
                     object.add(value)
             } else
-                for (const key in object)
+                for (const key in object as unknown as object)
                     if (Object.prototype.hasOwnProperty.call(object, key))
-                        object[key] = Tools.unwrapProxy(
-                            object[key], seenObjects
+                        (object as T)[key as keyof T] = Tools.unwrapProxy(
+                            (object as T)[key as keyof T], seenObjects
                         )
         }
 
@@ -4641,7 +4657,7 @@ export class Tools<TElement = HTMLElement> {
         this:void, target:Array<T>, source:Array<T>
     ):Array<T> {
         if (!Array.isArray(source))
-            source = Array.prototype.slice.call(source)
+            source = Array.prototype.slice.call(source) as Array<T>
 
         for (const value of source)
             target.push(value)
@@ -4815,7 +4831,7 @@ export class Tools<TElement = HTMLElement> {
     ):Array<Array<T>> {
         const result:Array<Array<T>> = []
 
-        const permute:AnyFunction = (
+        const permute = (
             currentData:Array<T>, dataToMixin:Array<T> = []
         ):void => {
             if (currentData.length === 0)
@@ -4847,7 +4863,7 @@ export class Tools<TElement = HTMLElement> {
         if (data.length === 0)
             return result
 
-        const generate:AnyFunction = (
+        const generate = (
             index:number, source:Array<T>, rest:Array<T>
         ):void => {
             if (index === 0) {
@@ -4894,7 +4910,11 @@ export class Tools<TElement = HTMLElement> {
         if (Array.isArray(data) && data.length)
             for (const item of data)
                 if (Object.prototype.hasOwnProperty.call(item, propertyName))
-                    result += parseFloat(item[propertyName] || 0)
+                    result += parseFloat(
+                        ((item as Mapping)[propertyName] || 0) as
+                            unknown as
+                            string
+                    )
 
         return result
     }
@@ -4984,9 +5004,7 @@ export class Tools<TElement = HTMLElement> {
 
         const sorted:Array<string> = []
         // Define a visitor function that recursively traverses dependencies.
-        const visit:AnyFunction = (
-            node:string, predecessors:Array<string>
-        ):void => {
+        const visit = (node:string, predecessors:Array<string>):void => {
             // Check if a node is dependent of itself.
             if (predecessors.length !== 0 && predecessors.includes(node))
                 throw new Error(
@@ -5783,7 +5801,7 @@ export class Tools<TElement = HTMLElement> {
         this:void,
         target:unknown,
         query:unknown,
-        normalizer:AnyFunction = (value:unknown):string =>
+        normalizer = (value:unknown):string =>
             `${value as string}`.toLowerCase(),
         skipTags = true
     ):Array<number>|null {
@@ -5872,7 +5890,7 @@ export class Tools<TElement = HTMLElement> {
         */
         const distanceMatrix:Array<Array<number>> =
             Array(second.length + 1).fill(null).map(():Array<number> =>
-                Array(first.length + 1).fill(null)
+                Array(first.length + 1).fill(null) as Array<number>
             )
         /*
             Fill the first row of the matrix.
@@ -6323,7 +6341,7 @@ export class Tools<TElement = HTMLElement> {
         this:void,
         target:unknown,
         givenWords?:Array<string>|string,
-        normalizer:AnyFunction = (value:unknown):string =>
+        normalizer = (value:unknown):string =>
             `${value as string}`.toLowerCase(),
         marker = '<span class="tools-mark">{1}</span>'
     ):unknown {
@@ -6866,7 +6884,7 @@ export class Tools<TElement = HTMLElement> {
         serializedObject = serializedObject.trim()
 
         if (!serializedObject.startsWith('{'))
-            serializedObject = eval('Buffer')
+            serializedObject = (eval('Buffer') as typeof Buffer)
                 .from(serializedObject, 'base64')
                 .toString('utf8')
 
@@ -7133,7 +7151,8 @@ export class Tools<TElement = HTMLElement> {
 
         if (options.wait)
             return new Promise<Response>((
-                resolve:AnyFunction, reject:AnyFunction
+                resolve:(_reason:Response) => void,
+                reject:(_reason:Error) => void
             ):void => {
                 let timedOut = false
                 const timer:TimeoutPromise =
@@ -7174,7 +7193,9 @@ export class Tools<TElement = HTMLElement> {
                         ))
                             return retryErrorHandler(error as Error)
 
-                        reject(error)
+                        /* eslint-disable prefer-promise-reject-errors */
+                        reject(error as Error)
+                        /* eslint-enable prefer-promise-reject-errors */
                         timer.clear()
                     }
 
@@ -7262,12 +7283,12 @@ export class Tools<TElement = HTMLElement> {
 
         if (options.wait)
             return new Promise<Error|null|Promise<Error|null>>((
-                resolve:AnyFunction, reject:AnyFunction
+                resolve:(_value:Error|null) => void,
+                reject:(_reason:Error) => void
             ):void => {
                 let timedOut = false
 
-                const wrapper:AnyFunction = async (
-                ):Promise<Error|Response|null> => {
+                const wrapper = async ():Promise<Error|Response|null> => {
                     try {
                         const response:Response =
                             await globalContext.fetch(url, options.options)
@@ -7296,7 +7317,7 @@ export class Tools<TElement = HTMLElement> {
                     } catch (error) {
                         // eslint-disable-next-line no-use-before-define
                         timer.clear()
-                        resolve(error)
+                        resolve(error as Error)
 
                         return error as Error
                     }
@@ -8002,8 +8023,8 @@ export class Tools<TElement = HTMLElement> {
         if (!(parameters[0] as Array<string>).includes('.'))
             parameters[0] += `.${this.options.name}`
 
-        return ($domNode[eventFunctionName as keyof $T] as AnyFunction)
-            .apply($domNode, parameters)
+        return ($domNode[eventFunctionName as keyof $T] as UnknownFunction)
+            .apply($domNode, parameters) as $T<TElement>
     }
     // endregion
 }
