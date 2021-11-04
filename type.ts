@@ -30,7 +30,7 @@ export type AnyFunction = (..._parameters:Array<any>) => any
 
 export type Unpacked<T> = T extends (infer U)[] ?
     U :
-    T extends (...args: any[]) => infer U ?
+    T extends (..._parameters:Array<unknown>) => infer U ?
         U :
         T extends Promise<infer U> ?
             U :
