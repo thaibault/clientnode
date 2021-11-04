@@ -28,6 +28,14 @@ import {DefinedSymbol, ThrowSymbol, UndefinedSymbol} from './testHelper'
 export type AnyFunction = (..._parameters:Array<any>) => any
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+export type Unpacked<T> = T extends (infer U)[] ?
+    U :
+    T extends (...args: any[]) => infer U ?
+        U :
+        T extends Promise<infer U> ?
+            U :
+            T
+
 export type FirstParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[0]
 export type SecondParameter<FunctionType extends AnyFunction> =
