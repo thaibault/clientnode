@@ -3038,9 +3038,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.853"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.853.tgz#785f57cfe7440e35b17fbb050cd6c6eb5847c935"
-  integrity sha512-vMeHJ7Dc1p7YhBKhV+O+DkTsfujF0BuJHQ4QwqdG2kzbzwYV4fjMVZuCCiDcjt6Fue+C2ZRIJB+BD1mUu6BptA==
+  version "3.0.854"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.854.tgz#02b7e1ba7be8d2cee6993d9aac1d3734b6be9734"
+  integrity sha512-hDvkqUIU876T7ZMcp4w2Y+ajDydQ6rBN1p8l8h2nAGgoOsZIU8I9ui3FQMkU24djlCAE1ZeQ6IHedfp83nVpeg==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -3679,9 +3679,9 @@ eslint-visitor-keys@^2.0.0, eslint-visitor-keys@^2.1.0:
   integrity sha512-0rSmRBzXgDzIsD6mGdJgevzgezI534Cer5L/vyMX0kHzT/jiB43jRhd9YUlMGYLQy2zprNmoT8qasCGtY+QaKw==
 
 eslint-visitor-keys@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-3.0.0.tgz#e32e99c6cdc2eb063f204eda5db67bfe58bb4186"
-  integrity sha512-mJOZa35trBTb3IyRmo8xmKBZlxf+N7OnUl4+ZhJHs/r+0770Wh/LEACE2pqMGMe27G/4y8P2bYGk4J70IC5k1Q==
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-3.1.0.tgz#eee4acea891814cda67a7d8812d9647dd0179af2"
+  integrity sha512-yWJFpu4DtjsWKkt5GeNBBuZMlNcYVs6vRCLoCVEJrTjaSB6LC98gFipNK/erM2Heg/E8mIK+hXG/pJMLK+eRZA==
 
 eslint@*:
   version "8.2.0"
@@ -7252,9 +7252,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.1096"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1096.tgz#c20799e150b7f641071c73909b950278b404494b"
-  integrity sha512-wyjp4WJFcG65P0HmBkBbS1EfATC9MTVR+mSCMxnQYyw+me+hHKPSgzOQD60efNY/gLHSTdqdzG8kR0o/HYCQwQ==
+  version "2.0.1097"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1097.tgz#6fcf616505c7bfd1f455264a9cae518a8c0453d2"
+  integrity sha512-1aXkytLYlqBac9iXmcPxjeevWslEdCeBP5byPgc7T25RexTVne3HuCZUvcCsrJrWD8ag9d2JSdoCl+cQ/17ClA==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-decorators" "*"
