@@ -184,7 +184,7 @@ export interface TimeoutPromise extends Promise<boolean> {
     timeoutID:NodeJS.Timeout
 }
 
-export type Mapping<T=string> = {[key:string]:T}
+export type Mapping<T = string> = {[key:string]:T}
 // NOTE: Mapping cannot be used here to avoid circular references.
 export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
 export interface ObjectMaskConfiguration {
