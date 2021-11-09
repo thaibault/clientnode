@@ -15,7 +15,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-// region imports
+// region imports 
 import JQuery from 'jquery'
 import {Dirent as DirectoryEntry, Stats as FileStats} from 'fs'
 
@@ -302,15 +302,10 @@ export interface BoundToolsFunction<TElement = HTMLElement> {
     (_methodName:'normalizedStyles'):BoundTools<TElement>
     (_methodName:'removeDirective', _directiveName:string):$T<TElement>
     (_methodName:'style'):Mapping<number|string>
+    (_methodName:'text'):string
     (..._parameters:Array<unknown>):BoundTools<TElement>
 }
 
-export interface StaticScope {
-    document?:Document
-    global:$Global
-    location?:Location
-    Tools:ToolsFunction
-}
 declare global {
     interface JQuery<TElement = HTMLElement> {
         Tools:BoundToolsFunction<TElement>

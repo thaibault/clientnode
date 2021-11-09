@@ -7,7 +7,7 @@ License
 -------
 
 This library written by Torben Sickert stand under a creative commons naming
-3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
+3.0 unported license. See https://creativecommons.org/licenses/by/3.0/deed.de
 endregion -->
 
 Project status
@@ -24,9 +24,11 @@ Project status
 
 [![code coverage](https://coveralls.io/repos/github/thaibault/clientnode/badge.svg)](https://coveralls.io/github/thaibault/clientnode)
 
+<!-- Too unstable yet
 [![dependencies](https://img.shields.io/david/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode)
 [![development dependencies](https://img.shields.io/david/dev/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode?type=dev)
 [![peer dependencies](https://img.shields.io/david/peer/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode?type=peer)
+-->
 [![documentation website](https://img.shields.io/website-up-down-green-red/https/torben.website/clientnode.svg?label=documentation-website)](https://torben.website/clientnode)
 
 <!--|deDE:Einsatz-->
