@@ -302,6 +302,7 @@ export interface BoundToolsFunction<TElement = HTMLElement> {
     (_methodName:'normalizedStyles'):BoundTools<TElement>
     (_methodName:'removeDirective', _directiveName:string):$T<TElement>
     (_methodName:'style'):Mapping<number|string>
+    (_methodName:'text'):string
     (..._parameters:Array<unknown>):BoundTools<TElement>
 }
 
