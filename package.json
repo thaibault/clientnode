@@ -157,6 +157,7 @@
         "clientnode$": "../../index",
         "clientnode/property-types$": "../../property-types",
         "clientnode/type$": "../../type",
+        "formdata-polyfill/esm.min.js$": "formdata-polyfill",
         "jquery$": "jquery/dist/jquery.min"
       },
       "optimizer": {
