@@ -2618,17 +2618,25 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['a.de', 'http://a.de'],
         ['localhost', 'http://localhost'],
         ['a', 'localhost', 'a'],
-        [$.location?.hostname || '', 'a', $.location?.hostname],
+        /*
+            NOTE: "$.location?.hostname" does not work since experiencing a
+            compiler bug.
+        */
+        [
+            $.location && $.location.hostname || '',
+            'a',
+            $.location && $.location.hostname
+        ],
         ['a', '//a'],
         [
-            $.location?.hostname || '',
+            $.location && $.location.hostname || '',
             'a/site/subSite?param=value#hash',
-            $.location?.hostname
+            $.location && $.location.hostname
         ],
         [
-            $.location?.hostname || '',
+            $.location && $.location.hostname || '',
             '/a/site/subSite?param=value#hash',
-            $.location?.hostname
+            $.location && $.location.hostname
         ],
         [
             'alternate.local',
@@ -2658,44 +2666,48 @@ describe(`Tools (${testEnvironment})`, ():void => {
 
         ['https', 'https://www.test.de/site/subSite?param=value#hash'],
         ['http', 'http://www.test.de'],
+        /*
+            NOTE: "$.location?.hostname" does not work since experiencing a
+            compiler bug.
+        */
         [
-            $.location?.protocol
-                .substring(0, $.location.protocol.length - 1) ||
+            $.location &&
+            $.location.protocol.substring(0, $.location.protocol.length - 1) ||
                 '',
             '//www.test.de',
-            $.location?.protocol
-                .substring(0, $.location.protocol.length - 1)
+            $.location &&
+            $.location.protocol.substring(0, $.location.protocol.length - 1)
         ],
         ['http', 'http://a.de'],
         ['ftp', 'ftp://localhost'],
         [
-            $.location?.protocol
-                .substring(0, $.location.protocol.length - 1) ||
-            '',
+            $.location &&
+            $.location.protocol.substring(0, $.location.protocol.length - 1) ||
+                '',
             'a',
-            $.location?.protocol
-                .substring(0, $.location.protocol.length - 1)
+            $.location &&
+            $.location.protocol.substring(0, $.location.protocol.length - 1)
 
         ],
         [
-            $.location?.protocol
-                .substring(0, $.location.protocol.length - 1) ||
+            $.location &&
+            $.location.protocol.substring(0, $.location.protocol.length - 1) ||
                 '',
             'a/site/subSite?param=value#hash',
-            $.location?.protocol
-                .substring(0, $.location.protocol.length - 1)
+            $.location &&
+            $.location.protocol.substring(0, $.location.protocol.length - 1)
 
         ],
         ['a', '/a/site/subSite?param=value#hash', 'a'],
         ['b', 'alternate.local/a/site/subSite?param=value#hash', 'b'],
         ['c', 'alternate.local/', 'c'],
         [
-            $.location?.protocol
-                .substring(0, $.location.protocol.length - 1) ||
+            $.location &&
+            $.location.protocol.substring(0, $.location.protocol.length - 1) ||
                 '',
             '',
-            $.location?.protocol
-                .substring(0, $.location.protocol.length - 1)
+            $.location &&
+            $.location.protocol.substring(0, $.location.protocol.length - 1)
         ]
     )
     test.each<Parameters<typeof Tools.stringGetURLParameter>>([
@@ -2761,11 +2773,15 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '//www.test.de/site/subSite?param=value#hash',
             '//www.test.de/site/subSite?param=value#hash'
         ],
+        /*
+            NOTE: "$.location?.hostname" does not work since experiencing a
+            compiler bug.
+        */
         [
-            `${$.location?.protocol || 'http:'}//www.test.de/site/subSite` +
-                '?param=value#hash',
-            `${$.location?.protocol || 'http:'}//www.test.de/site/subSite` +
-                `?param=value#hash`
+            `${$.location && $.location.protocol || 'http:'}//www.test.de/` +
+                'site/subSite?param=value#hash',
+            `${$.location && $.location.protocol || 'http:'}//www.test.de/` +
+                'site/subSite?param=value#hash'
         ],
         [
             'https://www.test.de:443/site/subSite?param=value#hash',
@@ -2776,21 +2792,25 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '//www.test.de/site/subSite?param=value#hash'
         ],
         [
-            $.location?.href || 'http://localhost',
-            $.location?.href || 'http://localhost'
+            $.location && $.location.href || 'http://localhost',
+            $.location && $.location.href || 'http://localhost'
         ],
-        ['1', $.location?.href || 'http://localhost'],
-        ['#1', $.location?.href || 'http://localhost'],
-        ['/a', $.location?.href || 'http://localhost']
+        ['1', $.location && $.location.href || 'http://localhost'],
+        ['#1', $.location && $.location.href || 'http://localhost'],
+        ['/a', $.location && $.location.href || 'http://localhost']
     )
     testEachAgainstSameExpectation<typeof Tools.stringServiceURLEquals>(
         'stringServiceURLEquals',
         Tools.stringServiceURLEquals,
         false,
 
+        /*
+            NOTE: "$.location?.hostname" does not work since experiencing a
+            compiler bug.
+        */
         [
-            `${$.location?.protocol || 'http:'}//www.test.de/site/subSite` +
-                '?param=value#hash',
+            `${$.location && $.location.protocol || 'http:'}//www.test.de/` +
+                'site/subSite?param=value#hash',
             'ftp://www.test.de/site/subSite?param=value#hash'
         ],
         [
@@ -2802,14 +2822,14 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'test.de/site/subSite?param=value#hash'
         ],
         [
-            `${$.location?.protocol || 'http:'}//www.test.de:` +
-            `${$.location?.port || 80}/site/subSite` +
+            `${$.location && $.location.protocol || 'http:'}//www.test.de:` +
+            `${$.location && $.location.port || 80}/site/subSite` +
             '?param=value#hash/site/subSite?param=value#hash',
-            $.location?.href || 'http://localhost:8080'
+            $.location && $.location.href || 'http://localhost:8080'
         ],
         [
-            `http://www.test.de:${$.location?.port || 80}/site/subSite?` +
-                'param=value#hash',
+            `http://www.test.de:${$.location && $.location.port || 80}/` +
+                'site/subSite?param=value#hash',
             'https://www.test.de/site/subSite?param=value#hash'
         ]
     )

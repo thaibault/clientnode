@@ -1184,8 +1184,10 @@ export class Tools<TElement = HTMLElement> {
                 now.getTime() +
                 (numberOfDaysUntilExpiration * 24 * 60 * 60 * 1000)
             )
+
             if (domain === '' && $.location?.hostname)
                 domain = $.location.hostname
+
             $.document.cookie =
                 `${name}=${value};` +
                 `Expires="${now.toUTCString()};` +
@@ -1194,8 +1196,10 @@ export class Tools<TElement = HTMLElement> {
                 (sameSite ? `;SameSite=${sameSite}` : '') +
                 (secure ? ';Secure' : '') +
                 (httpOnly ? ';HttpOnly' : '')
+
             return true
         }
+
         return false
     }
     // / endregion
@@ -2111,7 +2115,7 @@ export class Tools<TElement = HTMLElement> {
                     ...additionalArguments
                 )
             else if (`_${eventHandlerName}` in castedScope)
-                castedScope[`_${eventHandlerName}` as 'callable'](
+                castedScope[`_${eventHandlerName}` as unknown as 'callable'](
                     ...additionalArguments
                 )
 
