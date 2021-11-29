@@ -3561,7 +3561,7 @@ export class Tools<TElement = HTMLElement> {
                     typeof selector === 'string' &&
                     Object.prototype.hasOwnProperty.call(result, selector)
                 )
-                    result = result![selector as keyof unknown]
+                    result = (result as Mapping<unknown>)[selector]
                 else if (Tools.isFunction(selector))
                     result = selector(result as unknown as T)
                 else if (!skipMissingLevel)
@@ -7809,7 +7809,7 @@ export class Tools<TElement = HTMLElement> {
             if (result === null)
                 break
 
-            if (typeof result === 'object' && 'then' in result!)
+            if (typeof result === 'object' && 'then' in result)
                 result = await (result as Promise<unknown>)
 
             if (result === null)
