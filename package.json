@@ -65,6 +65,7 @@
     "@types/ejs": "*",
     "@types/favicons": "*",
     "@types/html-minifier": "*",
+    "@types/imagemin": "*",
     "@types/jest": "*",
     "@types/jquery": "*",
     "@types/jsdom": "*",
