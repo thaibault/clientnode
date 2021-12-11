@@ -294,7 +294,7 @@ export class Lock<Type = string|void> {
 
                 const finish = (value:Type):Type => {
                     if (autoRelease)
-                        this.release(description).then(Tools.noop, Tools.noop)
+                        void this.release(description)
 
                     resolve(value)
 
@@ -2036,7 +2036,7 @@ export class Tools<TElement = HTMLElement> {
                 rejectNextSlotPromise = reject
 
                 // Initialize new time slot to trigger given callback.
-                Tools.timeout(
+                void Tools.timeout(
                     thresholdInMilliseconds,
                     ():void => {
                         /*
@@ -2073,7 +2073,7 @@ export class Tools<TElement = HTMLElement> {
                             })
                         }
                     }
-                ).then(Tools.noop, Tools.noop)
+                )
             })
 
             return currentSlotPromise
