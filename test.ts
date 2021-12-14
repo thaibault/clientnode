@@ -158,21 +158,22 @@ describe(`Lock (${testEnvironment})`, ():void => {
         const promise:Promise<void> = lock.acquire('test').then(
             async (result:string|void):Promise<void> => {
                 expect(result).toStrictEqual('test')
-                Tools.timeout(():Promise<string|void> => lock.release('test'))
-                    .then(Tools.noop, Tools.noop)
+                void Tools.timeout(
+                    ():Promise<string|void> => lock.release('test')
+                )
                 result = await lock.acquire('test')
                 expect(result).toStrictEqual('test')
-                Tools.timeout(():Promise<string|void> =>
+                void Tools.timeout(():Promise<string|void> =>
                     lock.release('test')
-                ).then(Tools.noop, Tools.noop)
+                )
                 result = await lock.acquire(
                     'test',
                     ():Promise<string|void> =>
                         new Promise((resolve:(_value:string) => void):void => {
-                            Tools.timeout(():void => {
+                            void Tools.timeout(():void => {
                                 testValue = 'a'
                                 resolve(testValue)
-                            }).then(Tools.noop, Tools.noop)
+                            })
                         })
                 )
                 expect(testValue).toStrictEqual('a')
@@ -219,12 +220,12 @@ describe(`Semaphore (${testEnvironment})`, ():void => {
         expect(semaphore2.queue.length).toStrictEqual(0)
         expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
 
-        semaphore2.acquire().then(Tools.noop, Tools.noop)
+        void semaphore2.acquire()
 
         expect(semaphore2.queue.length).toStrictEqual(1)
         expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
 
-        semaphore2.acquire().then(Tools.noop, Tools.noop)
+        void semaphore2.acquire()
 
         expect(semaphore2.queue.length).toStrictEqual(2)
         expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
@@ -931,15 +932,15 @@ describe(`Tools (${testEnvironment})`, ():void => {
     // / region event
     test('debounce', ():void => {
         let testValue = false
-        Tools.debounce(():void => {
+        void Tools.debounce(():void => {
             testValue = true
-        })().then(Tools.noop, Tools.noop)
+        })()
         expect(testValue).toStrictEqual(true)
 
         const callback = jest.fn()
         const debouncedCallback = Tools.debounce(callback, 1000)
-        debouncedCallback().then(Tools.noop, Tools.noop)
-        debouncedCallback().then(Tools.noop, Tools.noop)
+        void debouncedCallback()
+        void debouncedCallback()
         expect(callback).toHaveBeenCalledTimes(1)
 
         const debouncedAsyncronousCallback =
