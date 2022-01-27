@@ -299,13 +299,38 @@ describe(`Tools (${testEnvironment})`, ():void => {
         Tools.dateTimeFormat,
 
         ['', ''],
+        ['', '', 0],
+        ['', '', '1970-01-01T00:00:00.000Z'],
         ['', '', testDate],
+
         ['1/1/70, 12:00 AM', '${short}', testDate, {timeZone: 'UTC'}],
+        ['1/1/70, 12:00 AM', '${short}', 0, {timeZone: 'UTC'}],
+        [
+            '1/1/70, 12:00 AM',
+            '${short}',
+            '1970-01-01T00:00:00.000Z',
+            {timeZone: 'UTC'}
+        ],
+
         [
             '1.1.1970 12:00:00',
             '${shortDay}.${shortMonth}.${fullYear} ' +
             '${shortHour}:${shortMinute}:${mediumSecond}',
             testDate,
+            {timeZone: 'UTC'}
+        ],
+        [
+            '1.1.1970 12:00:00',
+            '${shortDay}.${shortMonth}.${fullYear} ' +
+            '${shortHour}:${shortMinute}:${mediumSecond}',
+            0,
+            {timeZone: 'UTC'}
+        ],
+        [
+            '1.1.1970 12:00:00',
+            '${shortDay}.${shortMonth}.${fullYear} ' +
+            '${shortHour}:${shortMinute}:${mediumSecond}',
+            '1970-01-01T00:00:00.000Z',
             {timeZone: 'UTC'}
         ]
     )
