@@ -675,16 +675,25 @@ export class Tools<TElement = HTMLElement> {
     static dateTimeFormat(
         this:void,
         format = 'full',
-        dateTime:Date = new Date(),
+        dateTime:Date|number|string = new Date(),
         options:SecondParameter<typeof Intl.DateTimeFormat> = {},
         locales:Array<string>|string = Tools.locales
     ):string {
+        if (typeof dateTime === 'number')
+            /*
+                NOTE: "Date" constructor expects milliseconds as unit instead
+                of more common used seconds.
+            */
+            dateTime *= 1000
+
+        const normalizedDateTime:Date = new Date(dateTime)
+
         if (['full', 'long', 'medium', 'short'].includes(format))
             return new Intl.DateTimeFormat(
                 ([] as Array<string>).concat(locales, 'en-US'),
                 {dateStyle: format, timeStyle: format, ...options} as
                     SecondParameter<typeof Intl.DateTimeFormat>
-            ).format(dateTime)
+            ).format(normalizedDateTime)
 
         const scope:Mapping<Array<string>|string> = {}
         for (const style of ['full', 'long', 'medium', 'short'] as const) {
@@ -696,9 +705,11 @@ export class Tools<TElement = HTMLElement> {
                     SecondParameter<typeof Intl.DateTimeFormat>
             )
 
-            scope[style] = dateTimeFormat.format(dateTime)
+            scope[style] = dateTimeFormat.format(normalizedDateTime)
 
-            for (const item of dateTimeFormat.formatToParts(dateTime))
+            for (const item of dateTimeFormat.formatToParts(
+                normalizedDateTime
+            ))
                 if (item.type === 'literal')
                     (scope[`${style}Literals`] as Array<string>)
                         .push(item.value)
