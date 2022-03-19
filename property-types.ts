@@ -122,6 +122,8 @@ export const shape = PropertyTypes.shape
 export const string = PropertyTypes.string
 export const symbol = PropertyTypes.symbol
 
+export type {Requireable, ValidationMap, Validator} from 'prop-types'
+
 export default PropertyTypes
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
