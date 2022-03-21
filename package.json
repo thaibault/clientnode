@@ -93,12 +93,16 @@
   },
   "peerDependencies": {
     "@babel/runtime": "*",
+    "@types/prop-types": "*",
     "jquery": "*",
     "node-fetch": "*",
     "prop-types": "*"
   },
   "peerDependenciesMeta": {
     "@babel/runtime": {
+      "optional": true
+    },
+    "@types/prop-types": {
       "optional": true
     },
     "jquery": {
