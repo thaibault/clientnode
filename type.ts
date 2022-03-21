@@ -23,7 +23,7 @@ import Tools, {BoundTools} from './index'
 import {DefinedSymbol, ThrowSymbol, UndefinedSymbol} from './testHelper'
 // endregion
 // region exports
-// / region helper
+/// region helper
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type AnyFunction = (..._parameters:Array<any>) => any
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -92,8 +92,8 @@ export type RecursivePartial<Type> =
                     RecursivePartial<Type[Property]> :
                     Partial<Type[Property]>
     }
-// / endregion
-// / region native
+/// endregion
+/// region native
 export type ImportFunction =
     (_id:string) => Promise<ReturnType<typeof require>>
 export type HTMLItem = Comment|Document|HTMLElement|Text
@@ -113,7 +113,7 @@ export type ProxyType<T = unknown> = T & {
     __revoke__?:() => void
     __target__:T
 }
-// // region functions
+//// region functions
 export type UnknownFunction = (..._parameters:Array<unknown>) => unknown
 export type ArrayTransformer<T = unknown, R = unknown, P = unknown> = (
     _data:Array<T>, ..._additionalParameter:Array<P>
@@ -130,9 +130,9 @@ export type GetterFunction =
     (_keyOrValue:unknown, _key:string|symbol, _target:unknown) => unknown
 export type SetterFunction =
     (_key:string|symbol, _value:unknown, _target:unknown) => unknown
-// // endregion
-// / endregion
-// / region clientnode helper
+//// endregion
+/// endregion
+/// region clientnode helper
 export interface CheckReachabilityOptions {
     expectedIntermediateStatusCodes:Array<number>|number
     options:RequestInit
@@ -263,8 +263,8 @@ export interface EvaluationResult<Type = string> {
 
 export type LockCallbackFunction<Type = string> =
     (_description:string) => Promise<Type>|Type
-// / endregion
-// / region global scope
+/// endregion
+/// region global scope
 export type DomNodes<Type = string> =
     Mapping<Type> &
     {
@@ -317,7 +317,7 @@ declare global {
         Tools:ToolsFunction
     }
 }
-// / endregion
+/// endregion
 // endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:

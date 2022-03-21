@@ -261,7 +261,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     const now:Date = new Date()
     const tools:Tools = new Tools()
     // region public methods
-    // / region special
+    /// region special
     test('constructor', ():void => {
         expect(Tools).toHaveProperty('abbreviations')
         expect(new Tools()).toHaveProperty('options')
@@ -280,8 +280,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         expect(thirdToolsInstance.options.domNodeSelectorPrefix)
             .toStrictEqual('body.tools div.tools')
     })
-    // / endregion
-    // / region  object orientation
+    /// endregion
+    /// region  object orientation
     test('controller', ():void => {
         expect(Tools.controller(tools, [])).toStrictEqual(tools)
         expect((Tools.controller($.Tools.class, [], $('body')) as Tools)
@@ -291,8 +291,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
             .constructor.name
         ).toStrictEqual(Tools.name)
     })
-    // / endregion
-    // / region date time
+    /// endregion
+    /// region date time
     const testDate:Date = new Date(0)
     testEach<typeof Tools.dateTimeFormat>(
         `dateTimeFormat (${testEnvironment})`,
@@ -334,8 +334,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
             {timeZone: 'UTC'}
         ]
     )
-    // / endregion
-    // / region boolean
+    /// endregion
+    /// region boolean
     testEachSingleParameterAgainstSameExpectation<typeof Tools.isNumeric>(
         'isNumeric',
         Tools.isNumeric,
@@ -467,8 +467,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         {},
         new Boolean()
     )
-    // / endregion
-    // / region logging
+    /// endregion
+    /// region logging
     test('log', ():void => expect(tools.log('test')).toStrictEqual(undefined))
     test('info', ():void =>
         expect(tools.info('test {0}')).toStrictEqual(undefined)
@@ -499,8 +499,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['hans (Type: "string")', 'hans'],
         ['A: a (Type: "string")\nB: b (Type: "string")', {A: 'a', B: 'b'}]
     )
-    // / endregion
-    // / region dom node handling
+    /// endregion
+    /// region dom node handling
     if (hasDOM) {
         // region getter
         test(`get normalizedClassNames (${testEnvironment})`, async (
@@ -807,8 +807,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 expect($domNodes).toStrictEqual(expected)
             }
         })
-    // / endregion
-    // / region scope
+    /// endregion
+    /// region scope
     test('isolateScope', ():void => {
         expect(Tools.isolateScope({})).toStrictEqual({})
         expect(Tools.isolateScope({a: 2})).toStrictEqual({a: 2})
@@ -879,8 +879,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         expect(name).toStrictEqual(expect.stringMatching(/klaus$/))
         expect(name.length).toBeGreaterThan('hans'.length + 'klaus'.length)
     })
-    // / endregion
-    // / region function handling
+    /// endregion
+    /// region function handling
     testEach<typeof Tools.getParameterNames>(
         'getParameterNames',
         Tools.getParameterNames,
@@ -953,8 +953,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         expect(await Tools.timeout(callback)).toStrictEqual(false)
         expect(callback).toHaveBeenCalledTimes(2)
     })
-    // / endregion
-    // / region event
+    /// endregion
+    /// region event
     test('debounce', ():void => {
         let testValue = false
         void Tools.debounce(():void => {
@@ -1029,8 +1029,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
             expect(testValue).toStrictEqual(false)
         })
     }
-    // / endregion
-    // / region object
+    /// endregion
+    /// region object
     test('addDynamicGetterAndSetter', ():void => {
         expect(Tools.addDynamicGetterAndSetter(null)).toStrictEqual(null)
         expect(Tools.addDynamicGetterAndSetter(true)).toStrictEqual(true)
@@ -2215,8 +2215,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [{a: 'aa'}, {a: 'aa'}],
         [{a: 2}, {a: {__revoke__: Tools.noop, __target__: 2}}]
     )
-    // / endregion
-    // / region array
+    /// endregion
+    /// region array
     testEach<typeof Tools.arrayAggregatePropertyIfEqual>(
         'arrayAggregatePropertyIfEqual',
         Tools.arrayAggregatePropertyIfEqual,
@@ -2560,8 +2560,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [[], []],
         [[1, 2, 3], [1, 2, 3]]
     )
-    // / endregion
-    // / region string
+    /// endregion
+    /// region string
     testEach<typeof Tools.stringEscapeRegularExpressions>(
         'stringEscapeRegularExpressions',
         Tools.stringEscapeRegularExpressions,
@@ -2589,7 +2589,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['aA', '-a--a'],
         ['aA', '--a--a']
     )
-    // // region url handling
+    //// region url handling
     testEach<typeof Tools.stringEncodeURIComponent>(
         'stringEncodeURIComponent',
         Tools.stringEncodeURIComponent,
@@ -2882,7 +2882,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['', ''],
         ['', ' ']
     )
-    // // endregion
+    //// endregion
     testEach<typeof Tools.stringCamelCaseToDelimited>(
         'stringCamelCaseToDelimited',
         Tools.stringCamelCaseToDelimited,
@@ -2979,8 +2979,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 typeof Tools.stringCompile(...parameters).templateFunction
             ).toStrictEqual(expected)
     )
-    // // region compile / evaluation
-    // // / region compile
+    //// region compile / evaluation
+    ///// region compile
     test.each<[string, ...Parameters<typeof Tools.stringCompile>]>([
         ['string', '= null', []],
         ['string', '{', {}],
@@ -3184,8 +3184,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 .maximalSupportedInternetExplorerVersion = backup
         }
     )
-    // // / endregion
-    // // / region evaluate
+    ///// endregion
+    ///// region evaluate
     const advancedTemplateEvaluationExample:string = `\`\${loading ?
         '<div class="idle">loading...</div>' :
         results.map(function(result) {
@@ -3373,8 +3373,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 .maximalSupportedInternetExplorerVersion = backup
         }
     )
-    // // / endregion
-    // // endregion
+    ///// endregion
+    //// endregion
     testEach<typeof Tools.stringFindNormalizedMatchRange>(
         'stringFindNormalizedMatchRange',
         Tools.stringFindNormalizedMatchRange,
@@ -3811,8 +3811,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['div', 'div'],
         ['div, p', 'div, p']
     )
-    // / endregion
-    // / region number
+    /// endregion
+    /// region number
     testEach<typeof Tools.numberGetUTCTimestamp>(
         'numberGetUTCTimestamp',
         Tools.numberGetUTCTimestamp,
@@ -3896,8 +3896,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [700, 650, -2],
         [700, 649, -2]
     )
-    // / endregion
-    // / region data transfer
+    /// endregion
+    /// region data transfer
     testEachPromiseRejectionAgainstSameExpectation<
         typeof Tools.checkReachability
     >(
@@ -3979,8 +3979,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 .toBeDefined()
         )
     }
-    // / endregion
-    // / region file
+    /// endregion
+    /// region file
     if (TARGET_TECHNOLOGY === 'node') {
         const testPath = './copyDirectoryRecursiveTest.compiled'
         test('copyDirectoryRecursive', async ():Promise<void> => {
@@ -4149,8 +4149,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
             expect(filePaths).toHaveLength(1)
         })
     }
-    // / endregion
-    // / region process handler
+    /// endregion
+    /// region process handler
     if (TARGET_TECHNOLOGY === 'node') {
         test('getProcessCloseHandler', ():void =>
             expect(typeof Tools.getProcessCloseHandler(Tools.noop, Tools.noop))
@@ -4199,7 +4199,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 .toStrictEqual(childProcess)
         })
     }
-    // / endregion
+    /// endregion
     // endregion
     // region protected
     if (testEnvironment !== 'node')

@@ -79,7 +79,7 @@ export const ValueCopySymbol = Symbol.for('clientnodeValue')
 export const IgnoreNullAndUndefinedSymbol =
     Symbol.for('clientnodeIgnoreNullAndUndefined')
 // region determine environment
-// / region context
+/// region context
 export const determineGlobalContext:(() => $Global) = ():$Global => {
     if (typeof globalThis === 'undefined') {
         if (typeof window === 'undefined') {
@@ -160,8 +160,8 @@ const {
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const {basename = null, join = null, resolve = null} =
     optionalRequire<typeof import('path')>('path') || {}
-// / endregion
-// / region $
+/// endregion
+/// region $
 export const determine$:(() => $TStatic) = ():$TStatic => {
     let $:$TStatic = (():void => {
         // Do nothing.
@@ -245,10 +245,10 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
     return $
 }
 export let $:$TStatic = determine$()
-// / endregion
+/// endregion
 // endregion
 // region plugins/classes
-// / region lock
+/// region lock
 /**
  * Represents the lock state.
  * @property locks - Mapping of lock descriptions to there corresponding
@@ -348,8 +348,8 @@ export class Lock<Type = string|void> {
         }
     }
 }
-// / endregion
-// / region semaphore
+/// endregion
+/// region semaphore
 /**
  * Represents the semaphore state.
  * @property queue - List of waiting resource requests.
@@ -400,8 +400,8 @@ export class Semaphore {
             callback(this.numberOfFreeResources)
     }
 }
-// / endregion
-// / region static tools
+/// endregion
+/// region static tools
 /**
  * This plugin provides such interface logic like generic controller logic for
  * integrating plugins into $, mutual exclusion for depending gui elements,
@@ -591,7 +591,7 @@ export class Tools<TElement = HTMLElement> {
     options:Options
     // endregion
     // region public methods
-    // / region special
+    /// region special
     /**
      * Triggered if current object is created via the "new" keyword. The dom
      * node selector prefix enforces to not globally select any dom nodes which
@@ -658,8 +658,8 @@ export class Tools<TElement = HTMLElement> {
 
         return this as unknown as R
     }
-    // / endregion
-    // / region data time
+    /// endregion
+    /// region data time
     /**
      * Formats given date or current via given format specification.
      * @param this - Indicates an unbound method.
@@ -725,8 +725,8 @@ export class Tools<TElement = HTMLElement> {
 
         return evaluated.result
     }
-    // / endregion
-    // / region object orientation
+    /// endregion
+    /// region object orientation
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Defines a generic controller for dom node aware plugins.
@@ -807,8 +807,8 @@ export class Tools<TElement = HTMLElement> {
                 `$-extended dom node "${object as string}".`
             )
     }
-    // / endregion
-    // / region boolean
+    /// endregion
+    /// region boolean
     /**
      * Determines whether its argument represents a JavaScript number.
      * @param this - Indicates an unbound method.
@@ -972,8 +972,8 @@ export class Tools<TElement = HTMLElement> {
             )
         )
     }
-    // / endregion
-    // / region logging
+    /// endregion
+    /// region logging
     /**
      * Shows the given object's representation in the browsers console if
      * possible or in a standalone alert-window as fallback.
@@ -1128,8 +1128,8 @@ export class Tools<TElement = HTMLElement> {
 
         return `${output} (Type: "${Tools.determineType(object)}")`
     }
-    // / endregion
-    // / region cookie
+    /// endregion
+    /// region cookie
     /**
      * Deletes a cookie value by given name.
      * @param this - Indicates an unbound method.
@@ -1213,8 +1213,8 @@ export class Tools<TElement = HTMLElement> {
 
         return false
     }
-    // / endregion
-    // / region dom node
+    /// endregion
+    /// region dom node
     /**
      * Normalizes class name order of current dom node.
      * @returns Current instance.
@@ -1743,8 +1743,8 @@ export class Tools<TElement = HTMLElement> {
 
         return domNodes
     }
-    // / endregion
-    // / region scope
+    /// endregion
+    /// region scope
     /**
      * Overwrites all inherited variables from parent scope with "undefined".
      * @param this - Indicates an unbound method.
@@ -1803,8 +1803,8 @@ export class Tools<TElement = HTMLElement> {
 
         return uniqueName
     }
-    // / endregion
-    // / region function
+    /// endregion
+    /// region function
     /**
      * Determines all parameter names from given callable (function or class,
      * ...).
@@ -1973,8 +1973,8 @@ export class Tools<TElement = HTMLElement> {
 
         return result
     }
-    // / endregion
-    // / region event
+    /// endregion
+    /// region event
     /**
      * Prevents event functions from triggering to often by defining a minimal
      * span between each function call. Additional arguments given to this
@@ -2167,8 +2167,8 @@ export class Tools<TElement = HTMLElement> {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper<TElement>(parameters, true)
     }
-    // / endregion
-    // / region object
+    /// endregion
+    /// region object
     /**
      * Adds dynamic getter and setter to any given data structure such as maps.
      * @param this - Indicates an unbound method.
@@ -4273,8 +4273,8 @@ export class Tools<TElement = HTMLElement> {
 
         return object
     }
-    // / endregion
-    // / region array
+    /// endregion
+    /// region array
     /**
      * Summarizes given property of given item list.
      * @param this - Indicates an unbound method.
@@ -5092,9 +5092,9 @@ export class Tools<TElement = HTMLElement> {
 
         return result
     }
-    // / endregion
-    // / region string
-    // // region url handling
+    /// endregion
+    /// region string
+    //// region url handling
     /**
      * Translates given string into the regular expression validated
      * representation.
@@ -5493,7 +5493,7 @@ export class Tools<TElement = HTMLElement> {
 
         return ''
     }
-    // // endregion
+    //// endregion
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Converts a camel cased string to its delimited string version.
@@ -5977,7 +5977,7 @@ export class Tools<TElement = HTMLElement> {
 
         if (!Tools._dateTimePatternCache.length) {
             // region pre-compile regular expressions
-            // / region pattern
+            /// region pattern
             const millisecondPattern =
                 '(?<millisecond>(?:0{0,3}[0-9])|(?:0{0,2}[1-9]{2})|' +
                 '(?:0?[1-9]{3})|(?:1[1-9]{3}))'
@@ -5988,7 +5988,7 @@ export class Tools<TElement = HTMLElement> {
             const dayPattern = '(?<day>(?:0?[1-9])|(?:[1-2][0-9])|(?:3[01]))'
             const monthPattern = '(?<month>(?:0?[1-9])|(?:1[0-2]))'
             const yearPattern = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
-            // / endregion
+            /// endregion
             const patternPresenceCache:Mapping<true> = {}
             for (const timeDelimiter of ['t', ' '] as const)
                 for (const timeComponentDelimiter of [
@@ -6437,7 +6437,7 @@ export class Tools<TElement = HTMLElement> {
         let unsignedModule2PowerOf32Addition = (
             first:number, second:number
         ):number => (first + second) & 0xFFFFFFFF
-        // / region primary functions needed for the algorithm
+        /// region primary functions needed for the algorithm
         /*
          * Implements the basic operation for each round of the algorithm.
          */
@@ -6637,7 +6637,7 @@ export class Tools<TElement = HTMLElement> {
 
             return state
         }
-        // / endregion
+        /// endregion
         /**
          * Converts given character to its corresponding hex code
          * representation.
@@ -7021,8 +7021,8 @@ export class Tools<TElement = HTMLElement> {
 
         return selector.trim()
     }
-    // / endregion
-    // / region number
+    /// endregion
+    /// region number
     /**
      * Determines corresponding utc timestamp for given date object.
      * @param this - Indicates an unbound method.
@@ -7097,8 +7097,8 @@ export class Tools<TElement = HTMLElement> {
     static numberFloor(this:void, number:number, digits = 0):number {
         return Math.floor(number * Math.pow(10, digits)) / Math.pow(10, digits)
     }
-    // / endregion
-    // / region data transfer
+    /// endregion
+    /// region data transfer
     /**
      * Checks if given url response with given status code.
      * @param this - Indicates an unbound method.
@@ -7464,8 +7464,8 @@ export class Tools<TElement = HTMLElement> {
 
         return $iFrameDomNode
     }
-    // / endregion
-    // / region file
+    /// endregion
+    /// region file
     /**
      * Copies given source directory via path to given target directory
      * location with same target name as source file has or copy to given
@@ -7925,8 +7925,8 @@ export class Tools<TElement = HTMLElement> {
 
         return finalFiles
     }
-    // / endregion
-    // / region process handler
+    /// endregion
+    /// region process handler
     /**
      * Generates a one shot close handler which triggers given promise methods.
      * If a reason is provided it will be given as resolve target. An Error
@@ -7995,7 +7995,7 @@ export class Tools<TElement = HTMLElement> {
 
         return childProcess
     }
-    // / endregion
+    /// endregion
     // endregion
     // region protected methods
     /* eslint-disable jsdoc/require-description-complete-sentence */
@@ -8043,8 +8043,8 @@ export class Tools<TElement = HTMLElement> {
     }
     // endregion
 }
-// / endregion
-// / region bound tools
+/// endregion
+/// region bound tools
 /**
  * Dom bound version of Tools class.
  */
@@ -8075,7 +8075,7 @@ export class BoundTools<TElement = HTMLElement> extends Tools<TElement> {
         this.$domNode = $domNode
     }
 }
-// / endregion
+/// endregion
 export default Tools
 // endregion
 // region handle $ extending
@@ -8158,12 +8158,12 @@ export const augment$ = (value:$TStatic):void => {
     }
 }
 augment$($)
-// / region fix script loading errors with canceling requests
+/// region fix script loading errors with canceling requests
 $.readyException = (error:Error|string):void => {
     if (!(typeof error === 'string' && error === 'canceled'))
         throw error
 }
-// / endregion
+/// endregion
 // endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
