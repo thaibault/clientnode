@@ -1710,27 +1710,24 @@ export class Tools<TElement = HTMLElement> {
                         domNodes[name] =
                             $wrapperDomNode.find(domNodeSelectors[name])
             } else
-                for (const name in domNodeSelectors)
-                    if (Object.prototype.hasOwnProperty.call(
-                        domNodeSelectors, name
-                    )) {
-                        const match:Array<string>|null =
-                            /, */.exec(domNodeSelectors[name])
-                        if (match)
-                            domNodeSelectors[name] +=
-                                domNodeSelectors[name]
-                                    .split(match[0])
-                                    .map((selectorPart:string):string =>
-                                        ', ' +
-                                        this.stringNormalizeDomNodeSelector(
-                                            selectorPart
-                                        )
-                                    )
-                                    .join('')
-                        domNodes[name] = $(this.stringNormalizeDomNodeSelector(
+                for (const name of Object.keys(domNodeSelectors)) {
+                    const match:Array<string>|null =
+                        /, */.exec(domNodeSelectors[name])
+                    if (match)
+                        domNodeSelectors[name] +=
                             domNodeSelectors[name]
-                        ))
-                    }
+                                .split(match[0])
+                                .map((selectorPart:string):string =>
+                                    ', ' +
+                                    this.stringNormalizeDomNodeSelector(
+                                        selectorPart
+                                    )
+                                )
+                                .join('')
+                    domNodes[name] = $(this.stringNormalizeDomNodeSelector(
+                        domNodeSelectors[name]
+                    ))
+                }
 
         if (this.options.domNodeSelectorPrefix)
             domNodes.parent = $(this.options.domNodeSelectorPrefix)
