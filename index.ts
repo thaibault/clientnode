@@ -433,6 +433,8 @@ export class Semaphore {
  * the options given to the constructor method.
  * @property static:_defaultOptions.logging {boolean} - Indicates whether
  * logging should be active.
+ * @property static:_defaultOptions.domNodeSelectorInfix {string} - Selector
+ * infix for all needed dom nodes.
  * @property static:_defaultOptions.domNodeSelectorPrefix {string} - Selector
  * prefix for all needed dom nodes.
  * @property static:_defaultOptions.domNodes {Object.<string, string>} -
@@ -579,6 +581,7 @@ export class Tools<TElement = HTMLElement> {
             hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
             showJavaScriptEnabled: '.tools-visible-on-javascript-enabled'
         },
+        domNodeSelectorInfix: '',
         domNodeSelectorPrefix: 'body',
         logging: false,
         name: 'Tools'
@@ -651,7 +654,11 @@ export class Tools<TElement = HTMLElement> {
         */
         this.options.domNodeSelectorPrefix = Tools.stringFormat(
             this.options.domNodeSelectorPrefix,
-            Tools.stringCamelCaseToDelimited(this.options.name)
+            Tools.stringCamelCaseToDelimited(
+                this.options.domNodeSelectorInfix === null ?
+                    '' :
+                    this.options.domNodeSelectorInfix || this.options.name
+            )
         )
 
         this.renderJavaScriptDependentVisibility()
@@ -1710,7 +1717,7 @@ export class Tools<TElement = HTMLElement> {
                         domNodes[name] =
                             $wrapperDomNode.find(domNodeSelectors[name])
             } else
-                for (const [name, selector] of Object.enrties(
+                for (const [name, selector] of Object.entries(
                     domNodeSelectors
                 )) {
                     const match:Array<string>|null = /, */.exec(selector)
