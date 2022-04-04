@@ -1710,20 +1710,21 @@ export class Tools<TElement = HTMLElement> {
                         domNodes[name] =
                             $wrapperDomNode.find(domNodeSelectors[name])
             } else
-                for (const name of Object.keys(domNodeSelectors)) {
-                    const match:Array<string>|null =
-                        /, */.exec(domNodeSelectors[name])
+                for (const [name, selector] of Object.enrties(
+                    domNodeSelectors
+                )) {
+                    const match:Array<string>|null = /, */.exec(selector)
                     if (match)
-                        domNodeSelectors[name] +=
-                            domNodeSelectors[name]
-                                .split(match[0])
-                                .map((selectorPart:string):string =>
-                                    ', ' +
-                                    this.stringNormalizeDomNodeSelector(
-                                        selectorPart
-                                    )
+                        domNodeSelectors[name] += selector
+                            .split(match[0])
+                            .map((selectorPart:string):string =>
+                                ', ' +
+                                this.stringNormalizeDomNodeSelector(
+                                    selectorPart
                                 )
-                                .join('')
+                            )
+                            .join('')
+
                     domNodes[name] = $(this.stringNormalizeDomNodeSelector(
                         domNodeSelectors[name]
                     ))
