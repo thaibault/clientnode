@@ -277,6 +277,7 @@ export type $DomNodes<TElement = HTMLElement> = DomNodes<$T<TElement>>
 
 export interface Options<Type = string> {
     domNodes:DomNodes<Type>
+    domNodeSelectorInfix:null|string
     domNodeSelectorPrefix:string
     logging:boolean
     name:string
