@@ -7562,6 +7562,7 @@ export class Tools<TElement = HTMLElement> {
             if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                 throw error
         }
+
         for (
             const currentSourceFile of
             Tools.walkDirectoryRecursivelySync(sourcePath, callback)
