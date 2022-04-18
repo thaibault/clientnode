@@ -92,6 +92,8 @@ export type RecursivePartial<Type> =
                     RecursivePartial<Type[Property]> :
                     Partial<Type[Property]>
     }
+
+export type FileTraversionResult = false|null|Promise<false|null|void>|void
 /// endregion
 /// region native
 export type ImportFunction =

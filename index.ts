@@ -30,6 +30,7 @@ import {
     Encoding,
     EvaluationResult,
     File,
+    FileTraversionResult,
     FirstParameter,
     GetterFunction,
     ImportFunction,
@@ -7752,7 +7753,11 @@ export class Tools<TElement = HTMLElement> {
      * @param this - Indicates an unbound method.
      * @param directoryPath - Path to directory structure to traverse.
      * @param callback - Function to invoke for each traversed file and
-     * potentially manipulate further traversing.
+     * potentially manipulate further traversing in alphabetical sorted order.
+     * If it returns "null" or a promise resolving to "null", no further files
+     * will be traversed afterwards.
+     * If it handles a directory and returns "false" or a promise resolving to
+     * "false" no traversing into that directory will occur.
      * @param options - Options to use for nested "readdir" calls.
      *
      * @returns A promise holding the determined files.
@@ -7760,7 +7765,7 @@ export class Tools<TElement = HTMLElement> {
     static async walkDirectoryRecursively(
         this:void,
         directoryPath:string,
-        callback:AnyFunction|null = Tools.noop,
+        callback:null|((_file:File) => FileTraversionResult) = null,
         options:Encoding|SecondParameter<typeof import('fs').readdir> = 'utf8'
     ):Promise<Array<File>> {
         const files:Array<File> = []
@@ -7821,13 +7826,14 @@ export class Tools<TElement = HTMLElement> {
         let finalFiles:Array<File> = []
         for (const file of files) {
             finalFiles.push(file)
-            let result:unknown = callback!(file)
+            let result:FileTraversionResult =
+                callback ? callback(file) : undefined
 
             if (result === null)
                 break
 
             if (typeof result === 'object' && 'then' in result)
-                result = await (result as Promise<unknown>)
+                result = await (result as Promise<false|null|void>)
 
             if (result === null)
                 break
