@@ -4118,17 +4118,19 @@ describe(`Tools (${testEnvironment})`, ():void => {
         )
         test('walkDirectoryRecursively', async ():Promise<void> => {
             const filePaths:Array<string> = []
-            const callback = (filePath:string):null => {
-                filePaths.push(filePath)
+            const callback = (file:File):null => {
+                filePaths.push(file.path)
 
                 return null
             }
+
             let files:Array<File> = []
             try {
                 files = await Tools.walkDirectoryRecursively('./', callback)
             } catch (error) {
                 console.error(error)
             }
+
             expect(files).toHaveLength(1)
             expect(files[0]).toHaveProperty('path')
             expect(files[0]).toHaveProperty('stats')
