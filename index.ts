@@ -3969,7 +3969,7 @@ export class Tools<TElement = HTMLElement> {
                     continue
 
                 // eslint-disable-next-line @typescript-eslint/no-extra-semi
-                ;(object as unknown as Mapping<unknown>)[key] =
+                    ;(object as unknown as Mapping<unknown>)[key] =
                     Tools.removeKeyPrefixes(value, resolvedKeys)
             }
 
@@ -4213,7 +4213,7 @@ export class Tools<TElement = HTMLElement> {
                 ))
                     (object as T)[key as keyof T] = Tools.unwrapProxy(
                         value, seenObjects
-                    )
+                    ) as ValueOf<T>
         }
 
         return object
