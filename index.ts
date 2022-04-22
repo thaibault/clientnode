@@ -3959,7 +3959,7 @@ export class Tools<TElement = HTMLElement> {
                         Tools.stringEscapeRegularExpressions(resolvedKey)
 
                     if (new RegExp(`^${escapedKey}[0-9]*$`).test(key)) {
-                        delete object[key]
+                        delete (object as unknown as Mapping<unknown>)[key]
                         skip = true
                         break
                     }
@@ -3968,7 +3968,9 @@ export class Tools<TElement = HTMLElement> {
                 if (skip)
                     continue
 
-                object[key] = Tools.removeKeyPrefixes(value, resolvedKeys)
+                // eslint-disable-next-line @typescript-eslint/no-extra-semi
+                ;(object as unknown as Mapping<unknown>)[key] =
+                    Tools.removeKeyPrefixes(value, resolvedKeys)
             }
 
         return object
