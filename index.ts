@@ -3272,24 +3272,22 @@ export class Tools<TElement = HTMLElement> {
                     data = data.__target__
                 }
 
-                for (const key in data as Mapping<unknown>)
-                    if (Object.prototype.hasOwnProperty.call(data, key)) {
-                        if ([
-                            expressionIndicatorKey, executionIndicatorKey
-                        ].includes(key)) {
-                            if (typeof Proxy === 'undefined')
-                                return resolve(evaluate(
-                                    (data as Mapping)[key]
-                                ))
+                for (const [key, value] of Object.entries(
+                    data as Mapping<unknown>
+                )) {
+                    if ([
+                        expressionIndicatorKey, executionIndicatorKey
+                    ].includes(key)) {
+                        if (typeof Proxy === 'undefined')
+                            return resolve(evaluate(value as string))
 
-                            return (data as Mapping<unknown>)[key]
-                        }
-
-                        /* eslint-disable @typescript-eslint/no-extra-semi */
-                        ;(data as Mapping<unknown>)[key] =
-                            resolve((data as Mapping<unknown>)[key])
-                        /* eslint-enable @typescript-eslint/no-extra-semi */
+                        return value
                     }
+
+                    /* eslint-disable @typescript-eslint/no-extra-semi */
+                    ;(data as Mapping<unknown>)[key] = resolve(value)
+                    /* eslint-enable @typescript-eslint/no-extra-semi */
+                }
             }
 
             return data
@@ -3298,20 +3296,17 @@ export class Tools<TElement = HTMLElement> {
         scope.resolve = resolve
         const removeProxyRecursively = (data:unknown):unknown => {
             if (data !== null && typeof data === 'object')
-                for (const key in data)
+                for (const [key, value] of Object.entries(data))
                     if (
-                        Object.prototype.hasOwnProperty.call(data, key) &&
                         key !== '__target__' &&
-                        (data as Mapping)[key] !== null &&
-                        ['function', 'undefined'].includes(
-                            typeof (data as Mapping)[key]
-                        )
+                        value !== null &&
+                        ['function', 'undefined'].includes(typeof value)
                     ) {
                         const target:unknown =
-                            (data as Mapping<ProxyType>)[key].__target__
+                            (value as {__target__:unknown}).__target__
                         if (typeof target !== 'undefined')
                             (data as Mapping<unknown>)[key] = target
-                        removeProxyRecursively((data as Mapping)[key])
+                        removeProxyRecursively(value)
                     }
 
             return data
