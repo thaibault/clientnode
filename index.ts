@@ -3346,11 +3346,8 @@ export class Tools<TElement = HTMLElement> {
         data:T,
         expressionIndicators:Array<string> = ['__evaluate__', '__execute__']
     ):T {
-        for (const key in data)
+        for (const [key, value] of Object.entries(data))
             if (
-                Object.prototype.hasOwnProperty.call(
-                    data as unknown as Mapping<unknown>, key
-                ) &&
                 !expressionIndicators.includes(key) &&
                 expressionIndicators.some((name:string):boolean =>
                     Object.prototype.hasOwnProperty.call(
@@ -3358,10 +3355,10 @@ export class Tools<TElement = HTMLElement> {
                     )
                 )
             )
-                delete data[key]
-            else if (Tools.isPlainObject(data[key]))
+                delete (data as unknown as Mapping<unknown>)[key]
+            else if (Tools.isPlainObject(value))
                 Tools.removeKeysInEvaluation<ValueOf<T>>(
-                    data[key], expressionIndicators
+                    value as unknown as ValueOf<T>, expressionIndicators
                 )
 
         return data
@@ -3461,21 +3458,14 @@ export class Tools<TElement = HTMLElement> {
                     !Array.isArray(source) &&
                     typeof source === 'object'
                 ) {
-                    for (const key in source)
-                        if (
-                            Object.prototype.hasOwnProperty.call(
-                                source, key
-                            ) &&
-                            !(
-                                deep === IgnoreNullAndUndefinedSymbol &&
-                                [null, undefined].includes(
-                                    source[key] as unknown as null
-                                )
-                            )
-                        )
+                    for (const [key, value] of Object.entries(source))
+                        if (!(
+                            deep === IgnoreNullAndUndefinedSymbol &&
+                            [null, undefined].includes(value as null)
+                        ))
                             target[key as keyof T] = mergeValue(
                                 target[key as keyof T] as ValueOf<T>,
-                                source[key] as unknown as ValueOf<T>
+                                value as ValueOf<T>
                             )
                 } else
                     target = source
@@ -3646,22 +3636,18 @@ export class Tools<TElement = HTMLElement> {
 
         let result:Partial<Type> = {} as Partial<Type>
         if (Tools.isPlainObject(mask.include)) {
-            for (const key in mask.include)
-                if (
-                    Object.prototype.hasOwnProperty.call(mask.include, key) &&
-                    Object.prototype.hasOwnProperty.call(object, key)
-                )
-                    if (mask.include[key] === true)
+            for (const [key, value] of Object.entries(mask.include))
+                if (Object.prototype.hasOwnProperty.call(object, key))
+                    if (value === true)
                         result[key as keyof Type] = object[key as keyof Type]
                     else if (
-                        Tools.isPlainObject(mask.include[key]) &&
+                        Tools.isPlainObject(value) &&
                         typeof object[key as keyof Type] === 'object'
                     )
                         (result[key as keyof Type] as
                             RecursivePartial<ValueOf<Type>>
                         ) = Tools.mask(
-                                    object[key as keyof Type],
-                                    {include: mask.include[key]}
+                                    object[key as keyof Type], {include: value}
                                 )
         } else
             // In this branch "mask.include === true" holds.
@@ -3671,17 +3657,14 @@ export class Tools<TElement = HTMLElement> {
             let useCopy = false
             const copy:RecursivePartial<Type> = {...result}
 
-            for (const key in mask.exclude)
-                if (
-                    Object.prototype.hasOwnProperty.call(mask.exclude, key) &&
-                    Object.prototype.hasOwnProperty.call(copy, key)
-                )
-                    if (mask.exclude[key] === true) {
+            for (const [key, value] of Object.entries(mask.exclude))
+                if (Object.prototype.hasOwnProperty.call(copy, key))
+                    if (value === true) {
                         useCopy = true
 
                         delete copy[key as keyof Type]
                     } else if (
-                        Tools.isPlainObject(mask.exclude[key]) &&
+                        Tools.isPlainObject(value) &&
                         typeof copy[key as keyof Type] === 'object'
                     ) {
                         const current:ValueOf<Type> =
@@ -3689,8 +3672,7 @@ export class Tools<TElement = HTMLElement> {
 
                         ;(copy[key as keyof Type] as ValueOf<Type>) =
                             Tools.mask(
-                                copy[key as keyof Type],
-                                {exclude: mask.exclude[key]}
+                                copy[key as keyof Type], {exclude: value}
                             ) as ValueOf<Type>
 
                         if (
@@ -3763,88 +3745,79 @@ export class Tools<TElement = HTMLElement> {
             target !== null &&
             typeof target === 'object'
         )
-            for (const key in source)
-                if (Object.prototype.hasOwnProperty.call(source, key))
-                    if ([
-                        removeIndicatorKey,
-                        prependIndicatorKey,
-                        appendIndicatorKey
-                    ].includes(key)) {
-                        if (Array.isArray(target))
-                            if (key === removeIndicatorKey) {
-                                const values:Array<unknown> =
-                                    ([] as Array<unknown>).concat(
-                                        (source as Mapping<unknown>)[key]
-                                    )
-                                for (const value of values)
-                                    if (
-                                        typeof value === 'string' &&
-                                        value.startsWith(positionPrefix) &&
-                                        value.endsWith(positionSuffix)
-                                    )
-                                        target.splice(
-                                            parseInt(
-                                                value.substring(
-                                                    positionPrefix.length,
-                                                    value.length -
-                                                    positionSuffix.length
-                                                ),
-                                                10
-                                            ),
-                                            1
-                                        )
-                                    else if (target.includes(value))
-                                        target.splice(target.indexOf(value), 1)
-                                    else if (
-                                        typeof value === 'number' &&
-                                        value < target.length
-                                    )
-                                        target.splice(value, 1)
-                            } else if (key === prependIndicatorKey)
-                                target = ([] as Array<unknown>)
-                                    .concat((source as Mapping<unknown>)[key])
-                                    .concat(target) as unknown as T
-                            else
-                                target = target.concat(
-                                    (source as Mapping<unknown>)[key]
-                                ) as unknown as T
-                        else if (key === removeIndicatorKey)
-                            for (const value of ([] as Array<unknown>).concat(
-                                (source as Mapping<unknown>)[key]
-                            ))
+            for (const [key, sourceValue] of Object.entries(source))
+                if ([
+                    removeIndicatorKey, prependIndicatorKey, appendIndicatorKey
+                ].includes(key)) {
+                    if (Array.isArray(target))
+                        if (key === removeIndicatorKey) {
+                            const values:Array<unknown> =
+                                ([] as Array<unknown>).concat(sourceValue)
+                            for (const value of values)
                                 if (
                                     typeof value === 'string' &&
-                                    Object.prototype.hasOwnProperty.call(
-                                        target, value
-                                    )
+                                    value.startsWith(positionPrefix) &&
+                                    value.endsWith(positionSuffix)
                                 )
-                                    delete (
-                                        target as unknown as Mapping<unknown>
-                                    )[value]
-                        delete (source as Mapping<unknown>)[key]
-
-                        if (parentSource && typeof parentKey === 'string')
-                            delete (
-                                parentSource as Mapping<unknown>
-                            )[parentKey]
-                    } else if (
-                        target !== null &&
-                        Object.prototype.hasOwnProperty.call(target, key)
-                    )
-                        (target as unknown as Mapping<unknown>)[key] =
-                            Tools.modifyObject<ValueOf<T>>(
-                                (
-                                    target as unknown as Mapping<ValueOf<T>>
-                                )[key],
-                                (source as Mapping<unknown>)[key],
-                                removeIndicatorKey,
-                                prependIndicatorKey,
-                                appendIndicatorKey,
-                                positionPrefix,
-                                positionSuffix,
-                                source,
-                                key
+                                    target.splice(
+                                        parseInt(
+                                            value.substring(
+                                                positionPrefix.length,
+                                                value.length -
+                                                positionSuffix.length
+                                            ),
+                                            10
+                                        ),
+                                        1
+                                    )
+                                else if (target.includes(value))
+                                    target.splice(target.indexOf(value), 1)
+                                else if (
+                                    typeof value === 'number' &&
+                                    value < target.length
+                                )
+                                    target.splice(value, 1)
+                        } else if (key === prependIndicatorKey)
+                            target = ([] as Array<unknown>)
+                                .concat(sourceValue)
+                                .concat(target) as unknown as T
+                        else
+                            target = target.concat(sourceValue) as unknown as T
+                    else if (key === removeIndicatorKey)
+                        for (const value of ([] as Array<unknown>).concat(
+                            sourceValue
+                        ))
+                            if (
+                                typeof value === 'string' &&
+                                Object.prototype.hasOwnProperty.call(
+                                    target, value
+                                )
                             )
+                                delete (
+                                    target as unknown as Mapping<unknown>
+                                )[value]
+                    delete (source as Mapping<unknown>)[key]
+
+                    if (parentSource && typeof parentKey === 'string')
+                        delete (
+                            parentSource as Mapping<unknown>
+                        )[parentKey]
+                } else if (
+                    target !== null &&
+                    Object.prototype.hasOwnProperty.call(target, key)
+                )
+                    (target as unknown as Mapping<unknown>)[key] =
+                        Tools.modifyObject<ValueOf<T>>(
+                            (target as unknown as Mapping<ValueOf<T>>)[key],
+                            sourceValue,
+                            removeIndicatorKey,
+                            prependIndicatorKey,
+                            appendIndicatorKey,
+                            positionPrefix,
+                            positionSuffix,
+                            source,
+                            key
+                        )
 
         return target
     }
@@ -3976,27 +3949,27 @@ export class Tools<TElement = HTMLElement> {
                 )
             }
         else if (object !== null && typeof object === 'object')
-            for (const key in Object.assign({}, object))
-                if (Object.prototype.hasOwnProperty.call(object, key)) {
-                    let skip = false
+            for (const [key, value] of Object.entries(Object.assign(
+                {}, object
+            ))) {
+                let skip = false
 
-                    for (const resolvedKey of resolvedKeys) {
-                        const escapedKey:string =
-                            Tools.stringEscapeRegularExpressions(resolvedKey)
+                for (const resolvedKey of resolvedKeys) {
+                    const escapedKey:string =
+                        Tools.stringEscapeRegularExpressions(resolvedKey)
 
-                        if (new RegExp(`^${escapedKey}[0-9]*$`).test(key)) {
-                            delete object[key]
-                            skip = true
-                            break
-                        }
+                    if (new RegExp(`^${escapedKey}[0-9]*$`).test(key)) {
+                        delete object[key]
+                        skip = true
+                        break
                     }
-
-                    if (skip)
-                        continue
-
-                    object[key] =
-                        Tools.removeKeyPrefixes(object[key], resolvedKeys)
                 }
+
+                if (skip)
+                    continue
+
+                object[key] = Tools.removeKeyPrefixes(value, resolvedKeys)
+            }
 
         return object
     }
@@ -4174,9 +4147,8 @@ export class Tools<TElement = HTMLElement> {
                 for (const keyValuePair of object)
                     keys.push(keyValuePair[0])
             else if (object !== null)
-                for (const key in object)
-                    if (Object.prototype.hasOwnProperty.call(object, key))
-                        keys.push(key)
+                for (const key of Object.keys(object))
+                    keys.push(key)
 
         return keys.sort()
     }
@@ -4234,11 +4206,12 @@ export class Tools<TElement = HTMLElement> {
                 for (const value of cache)
                     object.add(value)
             } else
-                for (const key in object as unknown as object)
-                    if (Object.prototype.hasOwnProperty.call(object, key))
-                        (object as T)[key as keyof T] = Tools.unwrapProxy(
-                            (object as T)[key as keyof T], seenObjects
-                        )
+                for (const [key, value] of Object.entries(
+                    object as unknown as object
+                ))
+                    (object as T)[key as keyof T] = Tools.unwrapProxy(
+                        value, seenObjects
+                    )
         }
 
         return object
@@ -4295,21 +4268,19 @@ export class Tools<TElement = HTMLElement> {
         for (const item of Tools.arrayMake<T>(data)) {
             let empty = true
 
-            for (const propertyName in item)
-                if (Object.prototype.hasOwnProperty.call(item, propertyName))
-                    if (
-                        !['', null, undefined].includes(
-                            item[propertyName] as unknown as null
-                        ) &&
-                        (
-                            !propertyNames.length ||
-                            Tools.arrayMake(propertyNames).includes(
-                                propertyName)
-                        )
-                    ) {
-                        empty = false
-                        break
-                    }
+            for (const [propertyName, value] of Object.entries(item))
+                if (
+                    !['', null, undefined].includes(
+                        value as unknown as null
+                    ) &&
+                    (
+                        !propertyNames.length ||
+                        Tools.arrayMake(propertyNames).includes(propertyName)
+                    )
+                ) {
+                    empty = false
+                    break
+                }
 
             if (!empty)
                 result.push(item)
@@ -4388,13 +4359,10 @@ export class Tools<TElement = HTMLElement> {
 
             for (const item of Tools.arrayMake<T>(data)) {
                 let exists = false
-                for (const key in item)
+                for (const [key, value] of Object.entries(item))
                     if (
                         key === propertyName &&
-                        Object.prototype.hasOwnProperty.call(item, key) &&
-                        ![null, undefined].includes(
-                            item[key] as unknown as null
-                        )
+                        ![null, undefined].includes(value as unknown as null)
                     ) {
                         exists = true
                         break
@@ -4541,21 +4509,18 @@ export class Tools<TElement = HTMLElement> {
                             index += 1
                         }
                     } else
-                        for (const key in keys)
-                            if (
-                                Object.prototype.hasOwnProperty.call(keys, key)
-                            )
-                                if (intersectItem(
-                                    firstItem,
-                                    secondItem as unknown as Mapping<unknown>,
-                                    key,
-                                    keys[key],
-                                    keysAreAnArray,
-                                    iterateGivenKeys
-                                ) === false) {
-                                    exists = false
-                                    break
-                                }
+                        for (const [key, value] of Object.entries(keys))
+                            if (intersectItem(
+                                firstItem,
+                                secondItem as unknown as Mapping<unknown>,
+                                key,
+                                value,
+                                keysAreAnArray,
+                                iterateGivenKeys
+                            ) === false) {
+                                exists = false
+                                break
+                            }
 
                     if (exists) {
                         containingData.push(firstItem)
@@ -4968,17 +4933,14 @@ export class Tools<TElement = HTMLElement> {
     ):Array<string> {
         const edges:Array<Array<string>> = []
 
-        for (const name in items)
-            if (Object.prototype.hasOwnProperty.call(items, name)) {
-                items[name] = ([] as Array<string>).concat(items[name])
-                if (items[name].length > 0)
-                    for (const dependencyName of Tools.arrayMake<string>(
-                        items[name]
-                    ))
-                        edges.push([name, dependencyName])
-                else
-                    edges.push([name])
-            }
+        for (const [name, value] of Object.entries(items)) {
+            items[name] = ([] as Array<string>).concat(value)
+            if (value.length > 0)
+                for (const dependencyName of Tools.arrayMake<string>(value))
+                    edges.push([name, dependencyName])
+            else
+                edges.push([name])
+        }
 
         const nodes:Array<null|string> = []
         // Accumulate unique nodes into a large list.
@@ -7374,14 +7336,13 @@ export class Tools<TElement = HTMLElement> {
                 target: $targetDomNode.attr('name')
             })
 
-        for (const name in data)
-            if (Object.prototype.hasOwnProperty.call(data, name))
-                $formDomNode.append(
-                    $<HTMLInputElement>('<input>')
-                        .attr({name, type: 'hidden', value: data[name]}) as
-                            unknown as
-                            JQuery.Node
-                )
+        for (const [name, value] of Object.entries(data))
+            $formDomNode.append(
+                $<HTMLInputElement>('<input>')
+                    .attr({name, type: 'hidden', value}) as
+                        unknown as
+                        JQuery.Node
+            )
 
         /*
             NOTE: The given target form have to be injected into document
@@ -7995,15 +7956,10 @@ export class Tools<TElement = HTMLElement> {
 
         const $domNode:$T<TElement> = $(parameters[0] as TElement)
         if (Tools.determineType(parameters[1]) === 'object' && !removeEvent) {
-            for (const eventType in parameters[1] as Mapping<unknown>)
-                if (Object.prototype.hasOwnProperty.call(
-                    parameters[1], eventType
-                ))
-                    this[eventFunctionName as 'on'](
-                        $domNode,
-                        eventType,
-                        (parameters[1] as Mapping<unknown>)[eventType]
-                    )
+            for (const [eventType, parameter] of Object.entries(
+                parameters[1] as Mapping<unknown>
+            ))
+                this[eventFunctionName as 'on']($domNode, eventType, parameter)
 
             return $domNode
         }
