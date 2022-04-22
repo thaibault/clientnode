@@ -205,13 +205,10 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
 
                 if ($domNodes) {
                     if ($.fn)
-                        for (const key in $.fn)
-                            if (Object.prototype.hasOwnProperty.call(
-                                $.fn, key
-                            ))
-                                $domNodes[key as 'add'] = (
-                                    $.fn[key] as unknown as UnknownFunction
-                                ).bind($domNodes) as $T['add']
+                        for (const [key, plugin] of Object.entries($.fn))
+                            $domNodes[key as 'add'] = (
+                                plugin as unknown as UnknownFunction
+                            ).bind($domNodes) as $T['add']
 
                     $domNodes.jquery = 'clientnode'
 
@@ -1113,21 +1110,18 @@ export class Tools<TElement = HTMLElement> {
         let output = ''
 
         if (Tools.determineType(object) === 'object') {
-            for (const key in object as Mapping<unknown>)
-                if (Object.prototype.hasOwnProperty.call(object, key)) {
-                    output += `${key.toString()}: `
+            for (const [key, value] of Object.entries(
+                object as Mapping<unknown>
+            )) {
+                output += `${key.toString()}: `
 
-                    if (currentLevel <= level)
-                        output += Tools.show(
-                            (object as Mapping<unknown>)[key],
-                            level,
-                            currentLevel + 1
-                        )
-                    else
-                        output += `${(object as Mapping)[key]}`
+                if (currentLevel <= level)
+                    output += Tools.show(value, level, currentLevel + 1)
+                else
+                    output += `${value as string}`
 
-                    output += '\n'
-                }
+                output += '\n'
+            }
 
             return output.trim()
         }
@@ -1321,18 +1315,14 @@ export class Tools<TElement = HTMLElement> {
                                     styleProperties[index]
                                 )
                     else
-                        for (const propertyName in styleProperties)
-                            if (Object.prototype.hasOwnProperty.call(
-                                styleProperties, propertyName
-                            ))
-                                result[Tools.stringDelimitedToCamelCase(
-                                    propertyName
-                                )] =
-                                    propertyName in styleProperties &&
-                                    styleProperties[propertyName] ||
-                                    styleProperties.getPropertyValue(
-                                        propertyName
-                                    )
+                        for (const [propertyName, value] of Object.entries(
+                            styleProperties
+                        ))
+                            result[Tools.stringDelimitedToCamelCase(
+                                propertyName
+                            )] =
+                                value ||
+                                styleProperties.getPropertyValue(propertyName)
 
                     return result
                 }
@@ -1391,25 +1381,24 @@ export class Tools<TElement = HTMLElement> {
                 NOTE: Assume that strings that start "<" and end with ">" are
                 markup and skip the more expensive regular expression check.
             */
-            for (const type in inputs)
+            for (const [type, tag] of Object.entries(inputs))
                 if (
-                    Object.prototype.hasOwnProperty.call(inputs, type) &&
-                    typeof inputs[type] === 'string' &&
+                    typeof tag === 'string' &&
                     (
                         forceHTMLString ||
                         (
-                            (inputs[type] as string).startsWith('<') &&
-                            (inputs[type] as string).endsWith('>') &&
-                            (inputs[type] as string).length >= 3 ||
-                            detemermineHTMLPattern.test(inputs[type] as string)
+                            tag.startsWith('<') &&
+                            tag.endsWith('>') &&
+                            tag.length >= 3 ||
+                            detemermineHTMLPattern.test(tag)
                         )
                     )
                 )
-                    $domNodes[type] = $(`<div>${inputs[type] as string}</div>`)
+                    $domNodes[type] = $(`<div>${tag}</div>`)
                 else
                     try {
                         const $copiedDomNode:$T<JQuery.Node> =
-                            $<JQuery.Node>(inputs[type] as JQuery.Node).clone()
+                            $<JQuery.Node>(tag as JQuery.Node).clone()
 
                         if ($copiedDomNode.length)
                             $domNodes[type] = $('<div>').append($copiedDomNode)
@@ -1711,12 +1700,10 @@ export class Tools<TElement = HTMLElement> {
             if (wrapperDomNode) {
                 const $wrapperDomNode:$T<Node> =
                     $(wrapperDomNode as Node) as $T<Node>
-                for (const name in domNodeSelectors)
-                    if (Object.prototype.hasOwnProperty.call(
-                        domNodeSelectors, name
-                    ))
-                        domNodes[name] =
-                            $wrapperDomNode.find(domNodeSelectors[name])
+                for (const [name, selector] of Object.entries(
+                    domNodeSelectors
+                ))
+                    domNodes[name] = $wrapperDomNode.find(selector)
             } else
                 for (const [name, selector] of Object.entries(
                     domNodeSelectors
@@ -2225,12 +2212,12 @@ export class Tools<TElement = HTMLElement> {
                 for (const value of cache)
                     object.add(value)
             } else if (object !== null)
-                for (const key in object)
-                    if (Object.prototype.hasOwnProperty.call(object, key))
-                        object[key] = Tools.addDynamicGetterAndSetter<
+                for (const [key, value] of Object.entries(object))
+                    (object as unknown as Mapping<unknown>)[key] =
+                        Tools.addDynamicGetterAndSetter<
                             T[Extract<keyof T, string>]
                         >(
-                            object[key],
+                            value as T[Extract<keyof T, string>],
                             getterWrapper,
                             setterWrapper,
                             methodNames,
@@ -2340,13 +2327,8 @@ export class Tools<TElement = HTMLElement> {
                             result.push(replacer(null, item))
                     } else {
                         result = {}
-                        for (const name in value)
-                            if (Object.prototype.hasOwnProperty.call(
-                                value, name
-                            ))
-                                result[name] = replacer(
-                                    name, value[name as keyof typeof value]
-                                )
+                        for (const [name, subValue] of Object.entries(value))
+                            result[name] = replacer(name, subValue)
                     }
 
                     seenObjects.set(value, result)
@@ -2389,14 +2371,11 @@ export class Tools<TElement = HTMLElement> {
             }
 
             if (deep)
-                if (Tools.isPlainObject(object)) {
-                    for (const key in object)
-                        if (Object.prototype.hasOwnProperty.call(object, key))
-                            (object as Mapping<unknown>)[key] =
-                                Tools.convertMapToPlainObject(
-                                    (object as Mapping<unknown>)[key], deep
-                                )
-                } else if (Array.isArray(object)) {
+                if (Tools.isPlainObject(object))
+                    for (const [key, value] of Object.entries(object))
+                        (object as Mapping<unknown>)[key] =
+                            Tools.convertMapToPlainObject(value, deep)
+                else if (Array.isArray(object)) {
                     let index = 0
 
                     for (const value of object as Array<unknown>) {
@@ -2438,16 +2417,15 @@ export class Tools<TElement = HTMLElement> {
         if (typeof object === 'object') {
             if (Tools.isPlainObject(object)) {
                 const newObject:Map<number|string, unknown> = new Map()
-                for (const key in object)
-                    if (Object.prototype.hasOwnProperty.call(object, key)) {
-                        if (deep)
-                            (object as Mapping<unknown>)[key] =
-                                Tools.convertPlainObjectToMap(
-                                    (object as Mapping<unknown>)[key], deep
-                                ) as Primitive
+                for (const [key, value] of Object.entries(object)) {
+                    if (deep)
+                        (object as Mapping<unknown>)[key] =
+                            Tools.convertPlainObjectToMap(value, deep) as
+                                Primitive
 
-                        newObject.set(key, (object as Mapping<unknown>)[key])
-                    }
+                    newObject.set(key, (object as Mapping<unknown>)[key])
+                }
+
                 return newObject
             }
 
@@ -2498,21 +2476,17 @@ export class Tools<TElement = HTMLElement> {
         pattern:RegExp|string,
         replacement:string
     ):Type {
-        for (const key in object)
-            if (Object.prototype.hasOwnProperty.call(object, key))
-                if (Tools.isPlainObject(object[key]))
-                    object[key as keyof Type] =
-                        Tools.convertSubstringInPlainObject<PlainObject>(
-                            object[key as keyof Type] as
-                                unknown as
-                                PlainObject,
-                            pattern,
-                            replacement
-                        ) as unknown as ValueOf<Type>
-                else if (typeof object[key] === 'string')
-                    (object[key] as unknown as string) =
-                        (object[key] as unknown as string)
-                            .replace(pattern, replacement)
+        for (const [key, value] of Object.entries(object))
+            if (Tools.isPlainObject(value))
+                object[key as keyof Type] =
+                    Tools.convertSubstringInPlainObject<PlainObject>(
+                        value as unknown as PlainObject,
+                        pattern,
+                        replacement
+                    ) as unknown as ValueOf<Type>
+            else if (typeof value === 'string')
+                (object as unknown as Mapping)[key] =
+                    (value as unknown as string).replace(pattern, replacement)
 
         return object
     }
@@ -2610,17 +2584,18 @@ export class Tools<TElement = HTMLElement> {
                         (destination as unknown as Set<unknown>)
                             .add(copyValue(value))
                 else
-                    for (const key in source)
-                        if (Object.prototype.hasOwnProperty.call(source, key))
-                            try {
-                                destination[key as keyof Type] =
-                                    copyValue<ValueOf<Type>>(source[key])!
-                            } catch (error) {
-                                throw new Error(
-                                    'Failed to copy property value object "' +
-                                    `${key}": ${Tools.represent(error)}`
-                                )
-                            }
+                    for (const [key, value] of Object.entries(source))
+                        try {
+                            destination[key as keyof Type] =
+                                copyValue<ValueOf<Type>>(
+                                    value as ValueOf<Type>
+                                )!
+                        } catch (error) {
+                            throw new Error(
+                                'Failed to copy property value object "' +
+                                `${key}": ${Tools.represent(error)}`
+                            )
+                        }
             } else if (source) {
                 if (Array.isArray(source))
                     return Tools.copy(
@@ -3011,63 +2986,64 @@ export class Tools<TElement = HTMLElement> {
                             return determineResult(false)
                         }
                 } else
-                    for (const key in first as Mapping<unknown>)
-                        if (Object.prototype.hasOwnProperty.call(first, key)) {
-                            if (
-                                options.properties &&
-                                !options.properties.includes(key)
-                            )
+                    for (const [key, value] of Object.entries(
+                        first as Mapping<unknown>
+                    )) {
+                        if (
+                            options.properties &&
+                            !options.properties.includes(key)
+                        )
+                            break
+
+                        let doBreak = false
+                        for (
+                            const exceptionPrefix of
+                            options.exceptionPrefixes
+                        )
+                            if (key.toString().startsWith(
+                                exceptionPrefix
+                            )) {
+                                doBreak = true
                                 break
-
-                            let doBreak = false
-                            for (
-                                const exceptionPrefix of
-                                options.exceptionPrefixes
-                            )
-                                if (key.toString().startsWith(
-                                    exceptionPrefix
-                                )) {
-                                    doBreak = true
-                                    break
-                                }
-
-                            if (doBreak)
-                                break
-
-                            if (options.deep !== 0) {
-                                const result:(
-                                    boolean|Promise<boolean|string>|string
-                                ) = Tools.equals(
-                                    (first as Mapping<unknown>)[key],
-                                    (second as Mapping<unknown>)[key],
-                                    {...options, deep: options.deep - 1}
-                                )
-
-                                if (!result)
-                                    return false
-
-                                const determineResult = (
-                                    result:boolean|string
-                                ):boolean|string =>
-                                    typeof result === 'string' ?
-                                        (
-                                            key +
-                                            ({'[': '', '>': ' '}[result[0]] ??
-                                                '.'
-                                            ) +
-                                            result
-                                        ) :
-                                        result
-
-                                if ((result as Promise<boolean|string>)?.then)
-                                    promises.push((
-                                        result as Promise<boolean|string>
-                                    ).then(determineResult))
-
-                                if (typeof result === 'string')
-                                    return determineResult(result)
                             }
+
+                        if (doBreak)
+                            break
+
+                        if (options.deep !== 0) {
+                            const result:(
+                                boolean|Promise<boolean|string>|string
+                            ) = Tools.equals(
+                                value,
+                                (second as Mapping<unknown>)[key],
+                                {...options, deep: options.deep - 1}
+                            )
+
+                            if (!result)
+                                return false
+
+                            const determineResult = (
+                                result:boolean|string
+                            ):boolean|string =>
+                                typeof result === 'string' ?
+                                    (
+                                        key +
+                                        ({'[': '', '>': ' '}[result[0]] ??
+                                            '.'
+                                        ) +
+                                        result
+                                    ) :
+                                    result
+
+                            if ((result as Promise<boolean|string>)?.then)
+                                promises.push((
+                                    result as Promise<boolean|string>
+                                ).then(determineResult))
+
+                            if (typeof result === 'string')
+                                return determineResult(result)
                         }
+                    }
             }
 
             if (promises.length)
@@ -3147,20 +3123,13 @@ export class Tools<TElement = HTMLElement> {
             )
                 return data
 
-            for (const key in data)
+            for (const [key, givenValue] of Object.entries(data))
                 if (
-                    Object.prototype.hasOwnProperty.call(data, key) &&
                     key !== '__target__' &&
-                    (data as Mapping<unknown>)[
-                        key as keyof Mapping<unknown>
-                    ] !== null &&
-                    typeof (data as Mapping<unknown>)[
-                        key as keyof Mapping<unknown>
-                    ] === 'object'
+                    givenValue !== null &&
+                    typeof givenValue === 'object'
                 ) {
-                    const value:unknown = (data as Mapping<unknown>)[
-                        key as keyof Mapping<unknown>
-                    ]
+                    const value:unknown = givenValue
 
                     addProxyRecursively(value)
                     /*
@@ -7833,7 +7802,7 @@ export class Tools<TElement = HTMLElement> {
                 break
 
             if (typeof result === 'object' && 'then' in result)
-                result = await (result as Promise<false|null|void>)
+                result = await result
 
             if (result === null)
                 break
