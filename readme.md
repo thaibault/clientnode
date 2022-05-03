@@ -109,12 +109,18 @@ after needed dependencies:
 
     #!HTML
 
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <!--Inject downloaded file:-->
-    <script src="index.compiled.js"></script>
-    <!--Or integrate via cdn:
-    <script src="https://goo.gl/HEL97d"></script>
+    <script
+        src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+        crossorigin="anonymous"
+    ></script>
+    <!--Inject downloaded file:
+    <script src="index.js"></script>
     -->
+    <!--Or integrate via cdn:-->
+    <script
+        src="https://raw.githubusercontent.com/thaibault/clientnode/gh-pages/data/distributionBundle/index.js"
+    ></script>
 
 The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
 into given context (UMD) as export format: You can use a module bundler if you
@@ -194,9 +200,6 @@ have to provide "$" globally before loading this module.
 
     #!JavaScript
 
-    // !/usr/bin/env node
-    // -*- coding: utf-8 -*-
-    /** @module jQuery-incrementer */
     'use strict'
     import {$} from 'clientnode'
     /**
@@ -238,8 +241,8 @@ Initialisation with given dom node and without:
 Function call from previous generated instance via dom node or instance
 reference:
 <!--deDE:
-    Aufruf einer Plugin-Method anhand der zuvor generierten Instanzreferenz
-    bzw. über den zurückgegebene DOM-Knoten:
+    Aufruf einer Plugin-Methode anhand der zuvor generierten Instanz bzw. über
+    den zurückgegebene DOM-Knoten:
 -->
 
     #!JavaScript
