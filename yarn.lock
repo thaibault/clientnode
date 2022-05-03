@@ -3009,11 +3009,6 @@ boolbase@^1.0.0:
   resolved "https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha1-aN/1++YMUes3cl6p4+0xDcwed24=
 
-boostnode@*:
-  version "1.0.26"
-  resolved "https://registry.yarnpkg.com/boostnode/-/boostnode-1.0.26.tgz#8917c83e2f41d627dc9a9973d291d47bb0cf2f23"
-  integrity sha512-DuiczS5c6kXuEPU4aDXhoNXZq+8azV+fADI26R/MLl7iZM77myqsAjuxsHb4xM08J3tBL/yW7Z5kndgY1QQdDQ==
-
 brace-expansion@^1.1.7:
   version "1.1.11"
   resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-1.1.11.tgz#3c7fcbf529d87226f3d2f52b966ff5271eb441dd"
@@ -3236,9 +3231,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.898"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.898.tgz#18a87ecb64d25e78d00455908bea7a80a0bb4f19"
-  integrity sha512-qLcAC9CX2567sqXLqPTuzrqqYKR7+d8QKtjfZLvQ3KYR+f32FpFRArmm6IvMU1+kvfICaov3hWzMiawNxwdxWA==
+  version "3.0.899"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.899.tgz#f428348ceb4ee30f4a8605d5ec119d48ed49c061"
+  integrity sha512-eabACsVJ9EXbNd2PGi7gRGUj1tYr5SP4Lzlf0iJOp+EgrEXtymhZhaN9Q5O260Bje8EJJdg4Uw8dcWEzRIs98Q==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3635,12 +3630,11 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 documentation-website@*:
-  version "1.0.248"
-  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.248.tgz#4042e59171d603154cdc38ab7aa2a7156140a03d"
-  integrity sha512-IMy1dt+dCo8xIMQtC03kQwtavxx8Z1EBpjqiWEiswbrYagt7IuUEWwp+Ogy41BEl4fSgmcZZS122CsqJqiflVw==
+  version "1.0.249"
+  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.249.tgz#36c74f48a9eb82f0651a76f7548ef38ac587f5c6"
+  integrity sha512-MAxtXNMMJYF04x3ljXDCc93UZfY8D+QQe8m6Onl2EXLKq8TJlIVhetZvucGoFqA7cXFlaNoxp4Qkf6dmBYi7qg==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
-    boostnode "*"
 
 dom-converter@^0.2.0:
   version "0.2.0"
