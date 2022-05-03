@@ -27,8 +27,7 @@
     "property-types.js",
     "testHelper.d.ts",
     "testHelper.js",
-    "type.d.ts",
-    "type.js"
+    "type.d.ts"
   ],
   "repository": {
     "type": "git",
