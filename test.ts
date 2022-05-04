@@ -371,7 +371,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     test('isWindow', async ():Promise<void> => {
         const browser:InitializedBrowser = await getInitializedBrowser()
+
         expect(Tools.isWindow(browser.window)).toStrictEqual(true)
+
         for (const value of [null, {}, browser])
             expect(Tools.isWindow(value)).toStrictEqual(false)
     })
