@@ -119,7 +119,7 @@ after needed dependencies:
     -->
     <!--Or integrate via cdn:-->
     <script
-        src="https://raw.githubusercontent.com/thaibault/clientnode/gh-pages/data/distributionBundle/index.js"
+        src="https://torben.website/clientnode/data/distributionBundle/index.js"
     ></script>
 
 The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
