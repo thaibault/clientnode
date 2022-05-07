@@ -52,7 +52,7 @@ Content
 -------
 
 <!--Place for automatic generated table of contents.-->
-[TOC]
+<div class="doc-toc"></div>
 
 <!--|deDE:Merkmale-->
 Features
