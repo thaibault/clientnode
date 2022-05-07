@@ -107,20 +107,20 @@ after needed dependencies:
     Script-Tag in deine Webseite integrieren:
 -->
 
-    #!HTML
-
-    <script
-        src="https://code.jquery.com/jquery-3.6.0.min.js"
-        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-        crossorigin="anonymous"
-    ></script>
-    <!--Inject downloaded file:
-    <script src="index.js"></script>
-    -->
-    <!--Or integrate via cdn:-->
-    <script
-        src="https://torben.website/clientnode/data/distributionBundle/index.js"
-    ></script>
+```HTML
+<script
+    src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+    crossorigin="anonymous"
+></script>
+<!--Inject downloaded file:
+<script src="index.js"></script>
+-->
+<!--Or integrate via cdn:-->
+<script
+    src="https://torben.website/clientnode/data/distributionBundle/index.js"
+></script>
+```
 
 The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
 into given context (UMD) as export format: You can use a module bundler if you
@@ -141,15 +141,15 @@ If you are using npm as package manager you can simply add this tool to your
     <strong>package.json</strong> erweitern:
 -->
 
-    #!JSON
-
+```JSON
+...
+"dependencies": {
     ...
-    "dependencies": {
-        ...
-        "clientnode": "latest",
-        ...
-    },
+    "clientnode": "latest",
     ...
+},
+...
+```
 
 After updating your packages you can simply depend on this script and let
 a module bundler do the hard stuff or access it via an exported variable name
@@ -160,22 +160,22 @@ in given context.
     Context referenzieren.
 -->
 
-    #!JavaScript
-
-    ...
-    import Tools from 'clientnode'
-    clas Plugin extends Tools...
-    Tools({logging: true}).log('test') // shows "test" in console
-    // or
-    import {$} from 'clientnode'
-    $.Tools().isEquivalentDom('<div>', '<script>') // false
-    // or
-    Tools = require('clientnode').default
-    Tools.arrayMake(2) // [2]
-    // or
-    $ = require('clientnode').$
-    $.Tools().isEquivalentDom('<div>', '<script>') // false
-    ...
+```JavaScript
+...
+import Tools from 'clientnode'
+clas Plugin extends Tools...
+Tools({logging: true}).log('test') // shows "test" in console
+// or
+import {$} from 'clientnode'
+$.Tools().isEquivalentDom('<div>', '<script>') // false
+// or
+Tools = require('clientnode').default
+Tools.arrayMake(2) // [2]
+// or
+$ = require('clientnode').$
+$.Tools().isEquivalentDom('<div>', '<script>') // false
+...
+```
 
 <!--|deDE:Plugin-Vorlage-->
 Plugin pattern
@@ -198,45 +198,45 @@ have to provide "$" globally before loading this module.
     "$" global verfügbar sein bevor das Modul geladen wird.
 -->
 
-    #!JavaScript
-
-    'use strict'
-    import {$} from 'clientnode'
+```JavaScript
+'use strict'
+import {$} from 'clientnode'
+/**
+ * This plugin holds all needed methods to extend input fields to select
+ * numbers very smart.
+ * @extends clientnode:Tools
+ * @property static:_name - Defines this class name to allow retrieving them
+ * after name mangling.
+ * @property _options - Options extended by the options given to the
+ * initializer method.
+ */
+export default class Example extends $.Tools.class {
+    static _name = 'Example';
+    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
-     * This plugin holds all needed methods to extend input fields to select
-     * numbers very smart.
-     * @extends clientnode:Tools
-     * @property static:_name - Defines this class name to allow retrieving them
-     * after name mangling.
-     * @property _options - Options extended by the options given to the
-     * initializer method.
+     * Initializes the plugin. Later needed dom nodes are grabbed.
+     * @param options - An options object.
+     * @returns Returns $'s extended current dom node.
      */
-    export default class Example extends $.Tools.class {
-        static _name = 'Example';
-        /* eslint-disable jsdoc/require-description-complete-sentence */
-        /**
-         * Initializes the plugin. Later needed dom nodes are grabbed.
-         * @param options - An options object.
-         * @returns Returns $'s extended current dom node.
-         */
-        initialize(options = {}) {
-        /* eslint-enable jsdoc/require-description-complete-sentence */
-            this._options = {/*Default options here*/}
-            super.initialize(options)
-            return this.$domNode
-        }
+    initialize(options = {}) {
+    /* eslint-enable jsdoc/require-description-complete-sentence */
+        this._options = {/*Default options here*/}
+        super.initialize(options)
+        return this.$domNode
     }
-    $.fn.Example = function() {
-        return $.Tools().controller(Example, arguments, this)
-    }
+}
+$.fn.Example = function() {
+    return $.Tools().controller(Example, arguments, this)
+}
+```
 
 Initialisation with given dom node and without:
 <!--deDE:Aufruf mit und ohne übergebenen DOM-Knoten:-->
 
-    #!JavaScript
-
-    const $domNode = $('#domNode').Example({firstOption: 'value'});
-    const exampleInstance = $.Example({firstOption: 'value'});
+```JavaScript
+const $domNode = $('#domNode').Example({firstOption: 'value'});
+const exampleInstance = $.Example({firstOption: 'value'});
+```
 
 Function call from previous generated instance via dom node or instance
 reference:
@@ -245,12 +245,12 @@ reference:
     den zurückgegebene DOM-Knoten:
 -->
 
-    #!JavaScript
-
-    const returnValue = $('#domNode').Example('method', 'anArgument')
-    const returnValue = $('#domNode').Example().method('anArgument')
-    const exampleInstance = $.Example({firstOption: 'value'})
-    const returnValue = exampleInstance.method('anArgument')
+```JavaScript
+const returnValue = $('#domNode').Example('method', 'anArgument')
+const returnValue = $('#domNode').Example().method('anArgument')
+const exampleInstance = $.Example({firstOption: 'value'})
+const returnValue = exampleInstance.method('anArgument')
+```
 
 <!-- region modline
 vim: set tabstop=4 shiftwidth=4 expandtab:
