@@ -3617,9 +3617,9 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 documentation-website@*:
-  version "1.0.258"
-  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.258.tgz#e4e963e4be4c188c33efe7807bc6a779cf348e6b"
-  integrity sha512-q1biIdZKl+WebVkmtdbqe9RdUQLXFYkw5/WaZpgvAJWHXbRmzSZo8HTR1OL99Z0v4aDEABL/q8ZSOZFGTsDKcA==
+  version "1.0.260"
+  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.260.tgz#ae8d35a723d803c8db5498d14b3b4d371ec36387"
+  integrity sha512-gUY49vhG5la8X6PFO9w+KKB9JTq6SCzkTxwHiBSgiHSO40mkAopn4e8f/ZsRuosjkbUKma2TzbRkPK+AKidV2g==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -3688,9 +3688,9 @@ ejs@*:
     jake "^10.8.5"
 
 electron-to-chromium@^1.3.47, electron-to-chromium@^1.4.118:
-  version "1.4.136"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.136.tgz#b6a3595a9c29d6d8f60e092d40ac24f997e4e7ef"
-  integrity sha512-GnITX8rHnUrIVnTxU9UlsTnSemHUA2iF+6QrRqxFbp/mf0vfuSc/goEyyQhUX3TUUCE3mv/4BNuXOtaJ4ur0eA==
+  version "1.4.137"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.137.tgz#186180a45617283f1c012284458510cd99d6787f"
+  integrity sha512-0Rcpald12O11BUogJagX3HsCN3FE83DSqWjgXoHo5a72KUKMSfI39XBgJpgNNxS9fuGzytaFjE06kZkiVFy2qA==
 
 emittery@^0.10.2:
   version "0.10.2"
