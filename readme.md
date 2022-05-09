@@ -47,12 +47,12 @@ components is integrated as well.
     verschiedener GUI-Komponenten mitgeliefert.
 -->
 
-<!--|deDE:Inhalt-->
-Content
--------
-
 <!--Place for automatic generated table of contents.-->
-<div class="doc-toc"></div>
+<div class="doc-toc" style="display:none">
+    <!--|deDE:Inhalt-->
+    Content
+    -------
+</div>
 
 <!--|deDE:Merkmale-->
 Features

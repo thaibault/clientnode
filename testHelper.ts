@@ -16,16 +16,14 @@
 
     generic test boilerplate:
 
-    test.each<FunctionTestTuple<FUNCTION>>([
-        [EXPECTED, ...PARAMETERS],
-        ...
-    ])(
+    test.each([[EXPECTED, ...PARAMETERS], ...])(
         '%p === FUNCTION(...%p)',
         (expected:ReturnType<FUNCTION>, ...parameters:Parameters<FUNCTION>) =>
             expect(FUNCTION(...parameters)).toStrictEqual(expected)
     )
 */
 // region imports
+import {expect, jest, test} from '@jest/globals'
 import Tools from './index'
 import {
     AnyFunction,
@@ -86,18 +84,18 @@ export const testEach = <FunctionType extends AnyFunction = UnknownFunction>(
     callback:FunctionType,
     ...functionTestTuple:Array<FunctionTestTuple<FunctionType>>
 ):void =>
-        test.each<FunctionTestTuple<FunctionType>>([...functionTestTuple])(
-            `%p === ${functionName}(%p, ...)`,
-            (
-                expected:ReturnType<FunctionType>|TestSymbol,
-                ...parameters:Parameters<FunctionType>
-            ):void =>
-                testExpectedType<ReturnType<FunctionType>>(
-                    /* eslint-disable @typescript-eslint/no-unsafe-argument */
-                    callback(...parameters), expected
-                    /* eslint-enable @typescript-eslint/no-unsafe-argument */
-                ) as void
-        )
+    test.each([...functionTestTuple])(
+        `%p === ${functionName}(%p, ...)`,
+        (
+            expected:ReturnType<FunctionType>|TestSymbol,
+            ...parameters:Parameters<FunctionType>
+        ):void =>
+            testExpectedType<ReturnType<FunctionType>>(
+                /* eslint-disable @typescript-eslint/no-unsafe-argument */
+                callback(...parameters), expected
+                /* eslint-enable @typescript-eslint/no-unsafe-argument */
+            ) as void
+    )
 /**
  * Tests each given test set (expected value follows by various list of
  * function parameters). It respects function signature to raise compile time
@@ -116,9 +114,7 @@ export const testEachPromise = <
         callback:FunctionType,
         ...functionTestTuple:Array<FunctionTestPromiseTuple<FunctionType>>
     ):void =>
-        test.each<FunctionTestPromiseTuple<FunctionType>>(
-            [...functionTestTuple]
-        )(
+        test.each([...functionTestTuple])(
             `%p === ${functionName}(%p, ...)`,
             (
                 expected:TestSymbol|ThenParameter<ReturnType<FunctionType>>,
@@ -154,9 +150,7 @@ export const testEachPromiseRejection = <
             FunctionType
         >>
     ):void =>
-        test.each<FunctionTestPromiseRejectionTuple<FunctionType>>(
-            [...functionTestTuple]
-        )(
+        test.each([...functionTestTuple])(
             `%p === ${functionName}(%p, ...)`,
             (
                 expected:Error|TestSymbol,
@@ -189,7 +183,7 @@ export const testEachSingleParameterAgainstSameExpectation = <
         expected:ReturnType<FunctionType>|TestSymbol,
         ...parameters:Array<FirstParameter<FunctionType>>
     ):void =>
-        test.each<FirstParameter<FunctionType>>([...parameters])(
+        test.each([...parameters])(
             `${Tools.represent(expected)} === ${functionName}(%p)`,
             (parameter:FirstParameter<FunctionType>):void =>
                 /* eslint-disable @typescript-eslint/no-unsafe-return */
@@ -222,7 +216,7 @@ export const testEachSingleParameterAgainstSamePromisedExpectation = <
         expected:TestSymbol|ThenParameter<ReturnType<FunctionType>>,
         ...parameters:Array<FirstParameter<FunctionType>>
     ):void =>
-        test.each<FirstParameter<FunctionType>>([...parameters])(
+        test.each([...parameters])(
             `${Tools.represent(expected)} === ${functionName}(%p)`,
             (parameter:FirstParameter<FunctionType>):Promise<void> =>
                 testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
@@ -254,7 +248,7 @@ export const testEachSingleParameterAgainstSameRejectedExpectation = <
         expected:Error|TestSymbol,
         ...parameters:Array<FirstParameter<FunctionType>>
     ):void =>
-        test.each<FirstParameter<FunctionType>>([...parameters])(
+        test.each([...parameters])(
             `${Tools.represent(expected)} === ${functionName}(%p)`,
             (parameter:FirstParameter<FunctionType>):Promise<void> =>
                 testExpectedType<Error>(
@@ -285,7 +279,7 @@ export const testEachAgainstSameExpectation = <
         expected:ReturnType<FunctionType>|TestSymbol,
         ...functionParameters:Array<Parameters<FunctionType>>
     ):void =>
-        test.each<Parameters<FunctionType>>([...functionParameters])(
+        test.each([...functionParameters])(
             `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
             (...parameters:Parameters<FunctionType>):void =>
                 /* eslint-disable @typescript-eslint/no-unsafe-return */
@@ -320,7 +314,7 @@ export const testEachPromiseAgainstSameExpectation = <
         expected:TestSymbol|ThenParameter<ReturnType<FunctionType>>,
         ...functionParameters:Array<Parameters<FunctionType>>
     ):void =>
-        test.each<Parameters<FunctionType>>([...functionParameters])(
+        test.each([...functionParameters])(
             `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
             (...parameters:Parameters<FunctionType>):Promise<void> =>
                 testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
@@ -353,7 +347,7 @@ export const testEachPromiseRejectionAgainstSameExpectation = <
         expected:Error|TestSymbol,
         ...functionParameters:Array<Parameters<FunctionType>>
     ):void =>
-        test.each<Parameters<FunctionType>>([...functionParameters])(
+        test.each([...functionParameters])(
             `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
             (...parameters:Parameters<FunctionType>):Promise<void> =>
                 testExpectedType<Error>(
