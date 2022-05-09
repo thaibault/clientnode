@@ -50,8 +50,7 @@ components is integrated as well.
 <!--Place for automatic generated table of contents.-->
 <div class="doc-toc" style="display:none">
     <!--|deDE:Inhalt-->
-    Content
-    -------
+    <h2 id="content">Content</h2>
 </div>
 
 <!--|deDE:Merkmale-->
