@@ -15,16 +15,14 @@
 
     generic test boilerplate:
 
-    test.each<FunctionTestTuple<FUNCTION>>([
-        [EXPECTED, ...PARAMETERS],
-        ...
-    ])(
+    test.each([[EXPECTED, ...PARAMETERS], ...])(
         '%p === FUNCTION(...%p)',
         (expected:ReturnType<FUNCTION>, ...parameters:Parameters<FUNCTION>) =>
             expect(FUNCTION(...parameters)).toStrictEqual(expected)
     )
 */
 // region imports
+import {describe, expect, test} from '@jest/globals'
 import {ChildProcess as ChildProcessType} from 'child_process'
 import {Duplex as DuplexType} from 'stream'
 import nodeFetch from 'node-fetch'
@@ -599,7 +597,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                     .prop('outerHTML')
             )
         })
-        test.each<[string, Mapping]>([
+        test.each([
             ['<span>', {}],
             ['<span>hans</span>', {}],
             ['<span style="display:block"></span>', {display: 'block'}],
@@ -625,7 +623,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 $domNode.remove()
             }
         )
-        test.each<[string, string]>([
+        test.each([
             ['<div>', ''],
             ['<div>hans</div>', 'hans'],
             ['<div><div>hans</div</div>', ''],
@@ -2106,10 +2104,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     test('normalizeDateTime', ():void =>
         expect(typeof Tools.normalizeDateTime()).toStrictEqual('object')
     )
-    test.each<[
-        ReturnType<typeof Tools.normalizeDateTime>,
-        FirstParameter<typeof Tools.normalizeDateTime>
-    ]>([
+    test.each([
         [now, now],
         [new Date(1.2 * 1000), 1.2],
         [new Date(1.2 * 1000), '1.2'],
@@ -2738,9 +2733,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             $.location.protocol.substring(0, $.location.protocol.length - 1)
         ]
     )
-    test.each<Parameters<typeof Tools.stringGetURLParameter>>([
-        [], [null, true, '&'], [null, false, '&'], [null, false, '#']
-    ])(
+    test.each([[], [null, true, '&'], [null, false, '&'], [null, false, '#']])(
         'Array.isArray(stringGetURLParameter(...%p)) === true',
         (...parameters:Parameters<typeof Tools.stringGetURLParameter>):void =>
             expect(Array.isArray(Tools.stringGetURLParameter(...parameters)))
@@ -2965,7 +2958,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['hansUrl', 'hans-Url', '-', [], false],
         ['hansUrl', 'hans--Url', '-', [], false, true]
     )
-    test.each<[string, ...Parameters<typeof Tools.stringCompile>]>([
+    test.each([
         ['function', 'null', []],
         ['function', 'null', {}],
         ['function', '5 === 3', {name: 2}],
@@ -2983,7 +2976,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     //// region compile / evaluation
     ///// region compile
-    test.each<[string, ...Parameters<typeof Tools.stringCompile>]>([
+    test.each([
         ['string', '= null', []],
         ['string', '{', {}],
         ['object', '', {}]
@@ -2996,7 +2989,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             expect<string>(typeof Tools.stringCompile(...parameters).error)
                 .toStrictEqual(expected)
     )
-    test.each<[string, FirstParameter<typeof Tools.stringCompile>]>([
+    test.each([
         [
             `
                 function anonymous(
@@ -3042,7 +3035,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             expect(String(Tools.stringCompile(expression).templateFunction))
                 .toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
     )
-    test.each<[string, FirstParameter<typeof Tools.stringCompile>]>([
+    test.each([
         [
             `
                 function anonymous(
@@ -3214,7 +3207,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     type StringEvaluateTestTuple = [
         ...MandatoryGivenStringEvaluateTestTuple, unknown, unknown
     ]
-    test.each<StringEvaluateTestTuple>(([
+    test.each(([
         ['null', {}, 'result', null],
         ['5', {}, 'result', 5],
         ['a', {a: 2}, 'result', 2],
@@ -3284,7 +3277,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                         .toStrictEqual(expected)
         }
     )
-    test.each<StringEvaluateTestTuple>(([
+    test.each(([
         [
             '`test \\${test} value \\${test}`',
             {},
