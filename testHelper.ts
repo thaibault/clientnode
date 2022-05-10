@@ -23,8 +23,9 @@
     )
 */
 // region imports
-import {expect, jest, test} from '@jest/globals'
+import {expect, test} from '@jest/globals'
 import {Global as JestGlobal} from '@jest/types'
+
 import Tools from './index'
 import {
     AnyFunction,
@@ -32,6 +33,7 @@ import {
     FunctionTestTuple,
     FunctionTestPromiseTuple,
     FunctionTestPromiseRejectionTuple,
+    TestMatchers as Matchers,
     TestSymbol,
     ThenParameter,
     UnknownFunction
@@ -49,14 +51,14 @@ export const UndefinedSymbol = Symbol.for('clientnodeTestHelperUndefined')
  *
  * @returns Nothing.
  */
-export const testExpectedType = <Type = unknown>(
-    givenResult:jest.JestMatchers<Type>|Type,
+export const testExpectedType = <Type = unknown, Result extends void = void>(
+    givenResult:Matchers<Result>|Result,
     expected:TestSymbol|Type,
     wrap = true
-):Promise<void>|void => {
-    const result:jest.JestMatchers<Type> = wrap ?
-        expect(givenResult) :
-        givenResult as jest.JestMatchers<Type>
+):Result => {
+    const result:Matchers<Result> = wrap ?
+        expect<Result>(givenResult as Result) as unknown as Matchers<Result> :
+        givenResult as Matchers<Result>
 
     if (expected === DefinedSymbol)
         return result.toBeDefined()
@@ -95,7 +97,7 @@ export const testEach = <FunctionType extends AnyFunction = UnknownFunction>(
                     /* eslint-disable @typescript-eslint/no-unsafe-argument */
                     callback(...parameters), expected
                     /* eslint-enable @typescript-eslint/no-unsafe-argument */
-                ) as void
+                )
             ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
         )
 /**
@@ -125,12 +127,10 @@ export const testEachPromise = <
                 testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
                     expect(callback(...parameters)).resolves as
                         unknown as
-                        jest.JestMatchers<ThenParameter<ReturnType<
-                            FunctionType
-                        >>>,
+                        Matchers<ThenParameter<ReturnType<FunctionType>>>,
                     expected,
                     false
-                ) as Promise<void>
+                ) as unknown as Promise<void>
             ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
         )
 /**
@@ -160,12 +160,10 @@ export const testEachPromiseRejection = <
                 ...parameters:Parameters<FunctionType>
             ):Promise<void> =>
                 testExpectedType<Error>(
-                    expect(callback(...parameters)).rejects as
-                        unknown as
-                        jest.JestMatchers<Error>,
+                    expect(callback(...parameters)).rejects,
                     expected,
                     false
-                ) as Promise<void>
+                ) as unknown as Promise<void>
             ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
         )
 /**
@@ -198,7 +196,7 @@ export const testEachSingleParameterAgainstSameExpectation = <
                         ():ReturnType<FunctionType> => callback(parameter) :
                         callback(parameter),
                     expected
-                ) as void
+                )
                 /* eslint-enable @typescript-eslint/no-unsafe-return */
             ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
         )
@@ -227,12 +225,10 @@ export const testEachSingleParameterAgainstSamePromisedExpectation = <
                 testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
                     expect(callback(parameter)).resolves as
                         unknown as
-                        jest.JestMatchers<ThenParameter<ReturnType<
-                            FunctionType
-                        >>>,
+                        Matchers<ThenParameter<ReturnType<FunctionType>>>,
                     expected,
                     false
-                ) as Promise<void>
+                ) as unknown as Promise<void>
             ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
         )
 /**
@@ -258,12 +254,8 @@ export const testEachSingleParameterAgainstSameRejectedExpectation = <
             `${Tools.represent(expected)} === ${functionName}(%p)`,
             ((parameter:FirstParameter<FunctionType>):Promise<void> =>
                 testExpectedType<Error>(
-                    expect(callback(parameter)).rejects as
-                        unknown as
-                        jest.JestMatchers<Error>,
-                    expected,
-                    false
-                ) as Promise<void>
+                    expect(callback(parameter)).rejects, expected, false
+                ) as unknown as Promise<void>
             ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
         )
 /**
@@ -298,7 +290,7 @@ export const testEachAgainstSameExpectation = <
                             callback(...parameters) :
                         callback(...parameters),
                     expected
-                ) as void
+                )
                 /* eslint-enable @typescript-eslint/no-unsafe-return */
             ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
         )
@@ -328,12 +320,10 @@ export const testEachPromiseAgainstSameExpectation = <
                 testExpectedType<ThenParameter<ReturnType<FunctionType>>>(
                     expect(callback(...parameters)).resolves as
                         unknown as
-                        jest.JestMatchers<ThenParameter<ReturnType<
-                            FunctionType
-                        >>>,
+                        Matchers<ThenParameter<ReturnType<FunctionType>>>,
                     expected,
                     false
-                ) as Promise<void>
+                ) as unknown as Promise<void>
             ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
         )
 /**
@@ -360,12 +350,8 @@ export const testEachPromiseRejectionAgainstSameExpectation = <
             `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
             ((...parameters:Parameters<FunctionType>):Promise<void> =>
                 testExpectedType<Error>(
-                    expect(callback(...parameters)).rejects as
-                        unknown as
-                        jest.JestMatchers<Error>,
-                    expected,
-                    false
-                ) as Promise<void>
+                    expect(callback(...parameters)).rejects, expected, false
+                ) as unknown as Promise<void>
             ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
         )
 export default testEach

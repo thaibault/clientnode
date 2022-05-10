@@ -16,6 +16,7 @@
     endregion
 */
 // region imports
+import {Matchers} from 'expect'
 import JQuery from 'jquery'
 import {Dirent as DirectoryEntry, Stats as FileStats} from 'fs'
 
@@ -94,6 +95,8 @@ export type RecursivePartial<Type> =
     }
 
 export type FileTraversionResult = false|null|Promise<false|null|void>|void
+
+export type TestMatchers<T extends void> = Matchers<T> & {not:Matchers<T>}
 /// endregion
 /// region native
 export type ImportFunction =

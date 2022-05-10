@@ -22,7 +22,7 @@
     )
 */
 // region imports
-import {describe, expect, test} from '@jest/globals'
+import {describe, expect, jest, test} from '@jest/globals'
 import {ChildProcess as ChildProcessType} from 'child_process'
 import {Duplex as DuplexType} from 'stream'
 import nodeFetch from 'node-fetch'
