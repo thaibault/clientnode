@@ -7723,26 +7723,16 @@ export class Tools<TElement = HTMLElement> {
 
         if (callback)
             /*
-                NOTE: Directories have to be iterated first to potentially
-                avoid deeper iterations.
+                NOTE: Directories and have to be iterated first to be able to
+                avoid deeper unwanted traversing.
             */
-            files.sort((firstFile:File, secondFile:File):number => {
-                if (firstFile.error) {
-                    if (secondFile.error)
-                        return 0
-
-                    return 1
-                }
-
+            files.sort((firstFile:File, secondFile:File):-1|0|1 => {
                 if (firstFile.stats?.isDirectory()) {
-                    if (secondFile.error || secondFile.stats?.isDirectory())
+                    if (secondFile.stats?.isDirectory())
                         return 0
 
                     return -1
                 }
-
-                if (secondFile.error)
-                    return -1
 
                 if (secondFile.stats?.isDirectory())
                     return 1
