@@ -7743,6 +7743,7 @@ export class Tools<TElement = HTMLElement> {
         let finalFiles:Array<File> = []
         for (const file of files) {
             finalFiles.push(file)
+
             let result:FileTraversionResult =
                 callback ? callback(file) : undefined
 
@@ -7757,7 +7758,9 @@ export class Tools<TElement = HTMLElement> {
 
             if (result !== false && file.stats?.isDirectory())
                 finalFiles = finalFiles.concat(
-                    Tools.walkDirectoryRecursivelySync(file.path, callback)
+                    await Tools.walkDirectoryRecursively(
+                        file.path, callback, options
+                    )
                 )
         }
 
@@ -7840,6 +7843,7 @@ export class Tools<TElement = HTMLElement> {
 
             for (const file of files) {
                 finalFiles.push(file)
+
                 const result:unknown = callback(file)
 
                 if (result === null)
@@ -7847,7 +7851,9 @@ export class Tools<TElement = HTMLElement> {
 
                 if (result !== false && file.stats?.isDirectory())
                     finalFiles = finalFiles.concat(
-                        Tools.walkDirectoryRecursivelySync(file.path, callback)
+                        Tools.walkDirectoryRecursivelySync(
+                            file.path, callback, options
+                        )
                     )
             }
         }
