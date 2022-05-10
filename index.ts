@@ -7818,22 +7818,12 @@ export class Tools<TElement = HTMLElement> {
                 avoid deeper iterations.
             */
             files.sort((firstFile:File, secondFile:File):number => {
-                if (firstFile.error) {
-                    if (secondFile.error)
-                        return 0
-
-                    return 1
-                }
-
                 if (firstFile.stats?.isDirectory()) {
-                    if (secondFile.error || secondFile.stats?.isDirectory())
+                    if (secondFile.stats?.isDirectory())
                         return 0
 
                     return -1
                 }
-
-                if (secondFile.error)
-                    return -1
 
                 if (secondFile.stats?.isDirectory())
                     return 1
