@@ -36,7 +36,8 @@
   "scripts": {
     "build": "yarn build:types; yarn build:plain",
     "build:alternate": "command='babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/preset-env,@babel/preset-typescript --source-maps inline --out-file' && $command index.js index.ts && $command property-types.js property-types.ts && yarn make:executable",
-    "build:bundle": "yarn build:types; weboptimizer build '{__reference__: \"target:bundle\"}'",
+    "build:bundle": "yarn build:types; yarn build:bundle:plain",
+    "build:bundle:plain": "weboptimizer build '{__reference__: \"target:bundle\"}'",
     "build:bundle:compatible": "yarn build:types; weboptimizer build '{__reference__: [\"target:bundle\", \"target:compatible\"]}'",
     "build:plain": "weboptimizer build",
     "build:types": "weboptimizer build:types",
