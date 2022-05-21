@@ -500,6 +500,55 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['A: a (Type: "string")\nB: b (Type: "string")', {A: 'a', B: 'b'}]
     )
     /// endregion
+    /// region cookie
+    if (hasDOM) {
+        test(
+            `deleteCookie (${testEnvironment})`, async ():Promise<void> => {
+                await getInitializedBrowser()
+
+                expect($.document!.cookie).toStrictEqual('')
+
+                expect(Tools.setCookie('name', 'value', {minimal: true}))
+                    .toStrictEqual(true)
+                expect(Tools.getCookie('name')).toStrictEqual('value')
+                Tools.deleteCookie('name')
+                expect(Tools.getCookie('name')).toStrictEqual('')
+
+                $.document!.cookie = ''
+            }
+        )
+        test(`getCookie (${testEnvironment})`, async ():Promise<void> => {
+            await getInitializedBrowser()
+
+            expect(Tools.getCookie('')).toStrictEqual('')
+
+            expect(Tools.getCookie('name')).toStrictEqual('')
+
+            expect(Tools.setCookie('name', 'value', {minimal: true}))
+                .toStrictEqual(true)
+            expect(Tools.getCookie('name')).toStrictEqual('value')
+
+            $.document!.cookie = ''
+        })
+        test(`setCookie (${testEnvironment})`, async ():Promise<void> => {
+            await getInitializedBrowser()
+
+            $.document!.cookie = ''
+
+            expect(Tools.setCookie('name', 'value', {minimal: true}))
+                .toStrictEqual(true)
+            expect(Tools.getCookie('name')).toStrictEqual('value')
+
+            $.document!.cookie = ''
+
+            expect(Tools.setCookie('name', '', {minimal: true}))
+                .toStrictEqual(true)
+            expect(Tools.getCookie('name')).toStrictEqual('')
+
+            $.document!.cookie = ''
+        })
+    }
+    /// endregion
     /// region dom node handling
     if (hasDOM) {
         // region getter

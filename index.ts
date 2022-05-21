@@ -24,6 +24,7 @@ import {
     ArrayTransformer,
     BaseSelector,
     BoundToolsFunction,
+    CookieOptions,
     CheckReachabilityOptions,
     CompareOptions,
     CompilationResult,
@@ -664,73 +665,6 @@ export class Tools<TElement = HTMLElement> {
         return this as unknown as R
     }
     /// endregion
-    /// region data time
-    /**
-     * Formats given date or current via given format specification.
-     * @param this - Indicates an unbound method.
-     * @param format - Format specification.
-     * @param dateTime - Date time to format.
-     * @param options - Additional configuration options for
-     *                  "Intl.DateTimeFormat".
-     * @param locales - Locale or list of locales to use for formatting. First
-     *                  one take precedence of latter ones.
-     *
-     * @returns Formatted date time string.
-     */
-    static dateTimeFormat(
-        this:void,
-        format = 'full',
-        dateTime:Date|number|string = new Date(),
-        options:SecondParameter<typeof Intl.DateTimeFormat> = {},
-        locales:Array<string>|string = Tools.locales
-    ):string {
-        if (typeof dateTime === 'number')
-            /*
-                NOTE: "Date" constructor expects milliseconds as unit instead
-                of more common used seconds.
-            */
-            dateTime *= 1000
-
-        const normalizedDateTime:Date = new Date(dateTime)
-
-        if (['full', 'long', 'medium', 'short'].includes(format))
-            return new Intl.DateTimeFormat(
-                ([] as Array<string>).concat(locales, 'en-US'),
-                {dateStyle: format, timeStyle: format, ...options} as
-                    SecondParameter<typeof Intl.DateTimeFormat>
-            ).format(normalizedDateTime)
-
-        const scope:Mapping<Array<string>|string> = {}
-        for (const style of ['full', 'long', 'medium', 'short'] as const) {
-            scope[`${style}Literals`] = []
-
-            const dateTimeFormat:Intl.DateTimeFormat = new Intl.DateTimeFormat(
-                ([] as Array<string>).concat(locales, 'en-US'),
-                {dateStyle: style, timeStyle: style, ...options} as
-                    SecondParameter<typeof Intl.DateTimeFormat>
-            )
-
-            scope[style] = dateTimeFormat.format(normalizedDateTime)
-
-            for (const item of dateTimeFormat.formatToParts(
-                normalizedDateTime
-            ))
-                if (item.type === 'literal')
-                    (scope[`${style}Literals`] as Array<string>)
-                        .push(item.value)
-                else
-                    scope[`${style}${Tools.stringCapitalize(item.type)}`] =
-                        item.value
-        }
-
-        const evaluated:EvaluationResult =
-            Tools.stringEvaluate(`\`${format}\``, scope)
-        if (evaluated.error)
-            throw new Error(evaluated.error)
-
-        return evaluated.result
-    }
-    /// endregion
     /// region object orientation
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
@@ -811,6 +745,73 @@ export class Tools<TElement = HTMLElement> {
                 `Method "${normalizedParameters[0]}" does not exist on ` +
                 `$-extended dom node "${object as string}".`
             )
+    }
+    /// endregion
+    /// region date time
+    /**
+     * Formats given date or current via given format specification.
+     * @param this - Indicates an unbound method.
+     * @param format - Format specification.
+     * @param dateTime - Date time to format.
+     * @param options - Additional configuration options for
+     *                  "Intl.DateTimeFormat".
+     * @param locales - Locale or list of locales to use for formatting. First
+     *                  one take precedence of latter ones.
+     *
+     * @returns Formatted date time string.
+     */
+    static dateTimeFormat(
+        this:void,
+        format = 'full',
+        dateTime:Date|number|string = new Date(),
+        options:SecondParameter<typeof Intl.DateTimeFormat> = {},
+        locales:Array<string>|string = Tools.locales
+    ):string {
+        if (typeof dateTime === 'number')
+            /*
+                NOTE: "Date" constructor expects milliseconds as unit instead
+                of more common used seconds.
+            */
+            dateTime *= 1000
+
+        const normalizedDateTime:Date = new Date(dateTime)
+
+        if (['full', 'long', 'medium', 'short'].includes(format))
+            return new Intl.DateTimeFormat(
+                ([] as Array<string>).concat(locales, 'en-US'),
+                {dateStyle: format, timeStyle: format, ...options} as
+                    SecondParameter<typeof Intl.DateTimeFormat>
+            ).format(normalizedDateTime)
+
+        const scope:Mapping<Array<string>|string> = {}
+        for (const style of ['full', 'long', 'medium', 'short'] as const) {
+            scope[`${style}Literals`] = []
+
+            const dateTimeFormat:Intl.DateTimeFormat = new Intl.DateTimeFormat(
+                ([] as Array<string>).concat(locales, 'en-US'),
+                {dateStyle: style, timeStyle: style, ...options} as
+                    SecondParameter<typeof Intl.DateTimeFormat>
+            )
+
+            scope[style] = dateTimeFormat.format(normalizedDateTime)
+
+            for (const item of dateTimeFormat.formatToParts(
+                normalizedDateTime
+            ))
+                if (item.type === 'literal')
+                    (scope[`${style}Literals`] as Array<string>)
+                        .push(item.value)
+                else
+                    scope[`${style}${Tools.stringCapitalize(item.type)}`] =
+                        item.value
+        }
+
+        const evaluated:EvaluationResult =
+            Tools.stringEvaluate(`\`${format}\``, scope)
+        if (evaluated.error)
+            throw new Error(evaluated.error)
+
+        return evaluated.result
     }
     /// endregion
     /// region boolean
@@ -1131,7 +1132,7 @@ export class Tools<TElement = HTMLElement> {
         return `${output} (Type: "${Tools.determineType(object)}")`
     }
     /// endregion
-    /// region cookie
+    /// region  cookie
     /**
      * Deletes a cookie value by given name.
      * @param this - Indicates an unbound method.
@@ -1157,10 +1158,14 @@ export class Tools<TElement = HTMLElement> {
             for (let date of decodedCookie.split(';')) {
                 while (date.startsWith(' '))
                     date = date.substring(1)
+
                 if (date.startsWith(key))
                     return date.substring(key.length, date.length)
             }
+
+            return ''
         }
+
         return null
     }
     /**
@@ -1168,15 +1173,20 @@ export class Tools<TElement = HTMLElement> {
      * @param this - Indicates an unbound method.
      * @param name - Name to identify given value.
      * @param value - Value to set.
-     * @param domain - Domain to reference with given key-value-pair.
-     * @param sameSite - Set same site policy to "Lax", "None" or "Strict".
-     * @param numberOfDaysUntilExpiration - Number of days until given key
-     * shouldn't be deleted.
-     * @param path - Path to reference with given key-value-pair.
-     * @param secure - Indicates if this cookie is only valid for "https"
-     * connections.
-     * @param httpOnly - Indicates if this cookie should be accessible from
-     * client or not.
+     * @param givenOptions - Cookie set options.
+     * @param givenOptions.domain - Domain to reference with given
+     * key-value-pair.
+     * @param givenOptions.httpOnly - Indicates if this cookie should be
+     * accessible from client or not.
+
+     * @param givenOptions.minimal - Set only minimum number of options.
+     * @param givenOptions.numberOfDaysUntilExpiration - Number of days until
+     * given key shouldn't be deleted.
+     * @param givenOptions.path - Path to reference with given key-value-pair.
+     * @param givenOptions.sameSite - Set same site policy to "Lax", "None" or
+     * "Strict".
+     * @param givenOptions.secure - Indicates if this cookie is only valid for
+     * "https" connections.
      *
      * @returns A boolean indicating whether cookie could be set or not.
      */
@@ -1184,31 +1194,49 @@ export class Tools<TElement = HTMLElement> {
         this:void,
         name:string,
         value:string,
-        domain = '',
-        sameSite:'Lax'|'None'|'Strict'|'' = 'Lax',
-        numberOfDaysUntilExpiration = 365,
-        path = '/',
-        secure = true,
-        httpOnly = false
+        givenOptions:Partial<CookieOptions> = {}
     ):boolean {
         if ($.document) {
-            const now:Date = new Date()
+            const options:CookieOptions = {
+                domain: '',
+                httpOnly: false,
+                minimal: false,
+                numberOfDaysUntilExpiration: 365,
+                path: '/',
+                sameSite: 'Lax',
+                secure: true,
+                ...givenOptions
+            }
+
+            const now = new Date()
             now.setTime(
                 now.getTime() +
-                (numberOfDaysUntilExpiration * 24 * 60 * 60 * 1000)
+                (options.numberOfDaysUntilExpiration * 24 * 60 * 60 * 1000)
             )
 
-            if (domain === '' && $.location?.hostname)
-                domain = $.location.hostname
+            if (options.domain === '' && $.location?.hostname)
+                options.domain = $.location.hostname
 
-            $.document.cookie =
-                `${name}=${value};` +
-                `Expires="${now.toUTCString()};` +
-                `Path=${path};` +
-                `Domain=${domain}` +
-                (sameSite ? `;SameSite=${sameSite}` : '') +
-                (secure ? ';Secure' : '') +
-                (httpOnly ? ';HttpOnly' : '')
+            const newCookie =
+                `${name}=${value}` +
+                (
+                    options.minimal ?
+                        '' :
+                        (
+                            `;Expires="${now.toUTCString()}` +
+                            `;Path=${options.path}` +
+                            `;Domain=${options.domain}` +
+                            (
+                                options.sameSite ?
+                                    `;SameSite=${options.sameSite}` :
+                                    ''
+                            ) +
+                            (options.secure ? ';Secure' : '') +
+                            (options.httpOnly ? ';HttpOnly' : '')
+                        )
+                )
+
+            $.document.cookie = newCookie
 
             return true
         }
