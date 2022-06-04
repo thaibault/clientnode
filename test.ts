@@ -58,6 +58,11 @@ import {
     $T
 } from './type'
 // endregion
+/*
+    NOTE: We have to preload this module to avoid introducing an additional
+    asynchronous chunk.
+*/
+require('node-fetch/src/utils/multipart-parser')
 // region declaration
 declare const TARGET_TECHNOLOGY:string
 // endregion
