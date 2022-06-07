@@ -58,6 +58,11 @@ import {
     $T
 } from './type'
 // endregion
+/*
+    NOTE: We have to preload this module to avoid introducing an additional
+    asynchronous chunk.
+*/
+require('node-fetch/src/utils/multipart-parser')
 // region declaration
 declare const TARGET_TECHNOLOGY:string
 // endregion
@@ -499,6 +504,55 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['hans (Type: "string")', 'hans'],
         ['A: a (Type: "string")\nB: b (Type: "string")', {A: 'a', B: 'b'}]
     )
+    /// endregion
+    /// region cookie
+    if (hasDOM) {
+        test(
+            `deleteCookie (${testEnvironment})`, async ():Promise<void> => {
+                await getInitializedBrowser()
+
+                expect($.document!.cookie).toStrictEqual('')
+
+                expect(Tools.setCookie('name', 'value', {minimal: true}))
+                    .toStrictEqual(true)
+                expect(Tools.getCookie('name')).toStrictEqual('value')
+                Tools.deleteCookie('name')
+                expect(Tools.getCookie('name')).toStrictEqual('')
+
+                $.document!.cookie = ''
+            }
+        )
+        test(`getCookie (${testEnvironment})`, async ():Promise<void> => {
+            await getInitializedBrowser()
+
+            expect(Tools.getCookie('')).toStrictEqual('')
+
+            expect(Tools.getCookie('name')).toStrictEqual('')
+
+            expect(Tools.setCookie('name', 'value', {minimal: true}))
+                .toStrictEqual(true)
+            expect(Tools.getCookie('name')).toStrictEqual('value')
+
+            $.document!.cookie = ''
+        })
+        test(`setCookie (${testEnvironment})`, async ():Promise<void> => {
+            await getInitializedBrowser()
+
+            $.document!.cookie = ''
+
+            expect(Tools.setCookie('name', 'value', {minimal: true}))
+                .toStrictEqual(true)
+            expect(Tools.getCookie('name')).toStrictEqual('value')
+
+            $.document!.cookie = ''
+
+            expect(Tools.setCookie('name', '', {minimal: true}))
+                .toStrictEqual(true)
+            expect(Tools.getCookie('name')).toStrictEqual('')
+
+            $.document!.cookie = ''
+        })
+    }
     /// endregion
     /// region dom node handling
     if (hasDOM) {
@@ -2733,7 +2787,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             $.location.protocol.substring(0, $.location.protocol.length - 1)
         ]
     )
-    test.each([[], [null, true, '&'], [null, false, '&'], [null, false, '#']])(
+    test.each([
+        [null], [null, true, '&'], [null, false, '&'], [null, false, '#']
+    ])(
         'Array.isArray(stringGetURLParameter(...%p)) === true',
         (...parameters:Parameters<typeof Tools.stringGetURLParameter>):void =>
             expect(Array.isArray(Tools.stringGetURLParameter(...parameters)))

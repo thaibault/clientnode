@@ -118,6 +118,16 @@ export type ProxyType<T = unknown> = T & {
     __revoke__?:() => void
     __target__:T
 }
+
+export interface CookieOptions {
+    domain:string
+    httpOnly:boolean
+    minimal:boolean
+    numberOfDaysUntilExpiration:number
+    path:string
+    sameSite:'Lax'|'None'|'Strict'|''
+    secure:boolean
+}
 //// region functions
 export type UnknownFunction = (..._parameters:Array<unknown>) => unknown
 export type ArrayTransformer<T = unknown, R = unknown, P = unknown> = (
