@@ -2787,7 +2787,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             $.location.protocol.substring(0, $.location.protocol.length - 1)
         ]
     )
-    test.each([[], [null, true, '&'], [null, false, '&'], [null, false, '#']])(
+    test.each([
+        [null], [null, true, '&'], [null, false, '&'], [null, false, '#']
+    ])(
         'Array.isArray(stringGetURLParameter(...%p)) === true',
         (...parameters:Parameters<typeof Tools.stringGetURLParameter>):void =>
             expect(Array.isArray(Tools.stringGetURLParameter(...parameters)))

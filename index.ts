@@ -3997,7 +3997,7 @@ export class Tools<TElement = HTMLElement> {
                     continue
 
                 // eslint-disable-next-line @typescript-eslint/no-extra-semi
-                    ;(object as unknown as Mapping<unknown>)[key] =
+                ;(object as unknown as Mapping<unknown>)[key] =
                     Tools.removeKeyPrefixes(value, resolvedKeys)
             }
 
