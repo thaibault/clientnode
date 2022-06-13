@@ -5795,11 +5795,13 @@ export class Tools<TElement = HTMLElement> {
                 if (inTag) {
                     if (stringTarget.charAt(index) === '>')
                         inTag = false
+
                     continue
                 }
 
                 if (skipTags && stringTarget.charAt(index) === '<') {
                     inTag = true
+
                     continue
                 }
 
@@ -6325,7 +6327,8 @@ export class Tools<TElement = HTMLElement> {
         if (typeof target === 'string' && givenWords?.length) {
             let markedTarget:string = target.trim()
 
-            const words:Array<string> = ([] as Array<string>).concat(givenWords)
+            const words:Array<string> =
+                ([] as Array<string>).concat(givenWords)
             let index = 0
             for (const word of words) {
                 words[index] = normalizer(word).trim()
