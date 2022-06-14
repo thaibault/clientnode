@@ -6331,11 +6331,15 @@ export class Tools<TElement = HTMLElement> {
         givenWords?:Array<string>|string,
         normalizer = (value:unknown):string =>
             `${value as string}`.toLowerCase(),
-        marker = '<span class="tools-mark">{1}</span>',
+        marker:(
+            ((foundWord:string, markedTarget:Array<unknown>) => unknown) |
+            string
+        ) = '<span class="tools-mark">{1}</span>',
         skipTagDelimitedParts:null|[string, string] = ['<', '>']
     ):unknown {
         if (typeof target === 'string' && givenWords?.length) {
-            let markedTarget:string = target.trim()
+            target = target.trim()
+            const markedTarget:Array<unknown> = []
 
             const words:Array<string> =
                 ([] as Array<string>).concat(givenWords)
@@ -6346,12 +6350,17 @@ export class Tools<TElement = HTMLElement> {
                 index += 1
             }
 
-            let restTarget:string = markedTarget
+            let restTarget:string = target as string
             let offset = 0
+            /*
+                Search for matches as long there is enough target text
+                remaining to walk through.
+            */
             while (true) {
                 let nearestRange:Array<number>|null = null
                 let currentRange:Array<number>|null = null
 
+                // Find the nearest next matching word.
                 for (const word of words) {
                     currentRange = Tools.stringFindNormalizedMatchRange(
                         restTarget, word, normalizer, skipTagDelimitedParts
@@ -6364,27 +6373,43 @@ export class Tools<TElement = HTMLElement> {
                 }
 
                 if (nearestRange) {
-                    markedTarget =
-                        markedTarget.substring(0, offset + nearestRange[0]) +
-                        Tools.stringFormat(
-                            marker,
-                            markedTarget.substring(
-                                offset + nearestRange[0],
-                                offset + nearestRange[1]
+                    if (nearestRange[0] > 0)
+                        markedTarget.push(
+                            (target as string)
+                                .substring(offset, offset + nearestRange[0])
+                        )
+                    markedTarget.push(
+                        typeof marker === 'string' ?
+                            Tools.stringFormat(
+                                marker,
+                                (target as string).substring(
+                                    offset + nearestRange[0],
+                                    offset + nearestRange[1]
+                                )
+                            ) :
+                            marker(
+                                (target as string).substring(
+                                    offset + nearestRange[0],
+                                    offset + nearestRange[1]
+                                ),
+                                markedTarget
                             )
-                        ) +
-                        markedTarget.substring(offset + nearestRange[1])
+                    )
 
-                    offset += nearestRange[1] + (marker.length - '{1}'.length)
-                    if (markedTarget.length <= offset)
-                        break
+                    offset += nearestRange[1]
 
-                    restTarget = markedTarget.substring(offset)
-                } else
+                    restTarget = (target as string).substring(offset)
+                } else {
+                    if (restTarget.length)
+                        markedTarget.push(restTarget)
+
                     break
+                }
             }
 
-            return markedTarget
+            return typeof marker === 'string' ?
+                markedTarget.join('') :
+                markedTarget
         }
 
         return target

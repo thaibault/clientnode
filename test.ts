@@ -3730,6 +3730,40 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ['foo'],
             Tools.identity as (_value:unknown) => string,
             '<mark>{1}</mark>'
+        ],
+        [
+            [
+                '<mark>foo</mark>',
+                ' ',
+                '<mark>foo</mark>',
+                ' ',
+                '<mark>foo</mark>'
+            ],
+            'foo foo foo',
+            ['foo'],
+            Tools.identity as (_value:unknown) => string,
+            (foundWord:string):string => `<mark>${foundWord}</mark>`
+        ],
+        [
+            [],
+            '',
+            ['foo'],
+            Tools.identity as (_value:unknown) => string,
+            (foundWord:string):string => `<a>${foundWord}</a>`
+        ],
+        [
+            ['<a>a</a>'],
+            'a',
+            ['a'],
+            Tools.identity as (_value:unknown) => string,
+            (foundWord:string):string => `<a>${foundWord}</a>`
+        ],
+        [
+            ['a', {foundWord: 'b'}, 'a'],
+            'aba',
+            ['b'],
+            Tools.identity as (_value:unknown) => string,
+            (foundWord:string):{foundWord:string} => ({foundWord})
         ]
     )
     testEach<typeof Tools.stringMD5>(
