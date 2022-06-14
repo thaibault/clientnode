@@ -3717,6 +3717,14 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '<mark>{1}</mark>'
         ],
         [
+            'test [a href="foo"]a [mark]foo[/mark] link[/a]',
+            'test [a href="foo"]a foo link[/a]',
+            ['foo'],
+            Tools.identity as (_value:unknown) => string,
+            '[mark]{1}[/mark]',
+            ['[', ']']
+        ],
+        [
             '<mark>foo</mark> <mark>foo</mark> <mark>foo</mark>',
             'foo foo foo',
             ['foo'],
