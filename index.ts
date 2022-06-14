@@ -5770,7 +5770,8 @@ export class Tools<TElement = HTMLElement> {
      * @param query - Search string to search for.
      * @param normalizer - Function to use as normalisation for queries and
      * search targets.
-     * @param skipTags - Indicates whether to ignore tags.
+     * @param skipTagDelimitedParts - Indicates whether to for example ignore
+     * html tags via "['<', '>']" (the default).
      *
      * @returns Start and end index of matching range.
      */
@@ -5780,7 +5781,7 @@ export class Tools<TElement = HTMLElement> {
         query:unknown,
         normalizer = (value:unknown):string =>
             `${value as string}`.toLowerCase(),
-        skipTags = true
+        skipTagDelimitedParts:null|[string, string] = ['<', '>']
     ):Array<number>|null {
         const normalizedQuery:string = normalizer(query)
         const normalizedTarget:string = normalizer(target)
@@ -5793,13 +5794,19 @@ export class Tools<TElement = HTMLElement> {
             let inTag = false
             for (let index = 0; index < stringTarget.length; index += 1) {
                 if (inTag) {
-                    if (stringTarget.charAt(index) === '>')
+                    if (
+                        stringTarget.charAt(index) ===
+                            skipTagDelimitedParts![1]
+                    )
                         inTag = false
 
                     continue
                 }
 
-                if (skipTags && stringTarget.charAt(index) === '<') {
+                if (
+                    Array.isArray(skipTagDelimitedParts) &&
+                    stringTarget.charAt(index) === skipTagDelimitedParts[0]
+                ) {
                     inTag = true
 
                     continue
@@ -6313,6 +6320,8 @@ export class Tools<TElement = HTMLElement> {
      * @param normalizer - Pure normalisation function to use before searching
      * for matches.
      * @param marker - HTML template string to mark.
+     * @param skipTagDelimitedParts - Indicates whether to for example ignore
+     * html tags via "['<', '>']" (the default).
      *
      * @returns Processed result.
      */
@@ -6322,7 +6331,8 @@ export class Tools<TElement = HTMLElement> {
         givenWords?:Array<string>|string,
         normalizer = (value:unknown):string =>
             `${value as string}`.toLowerCase(),
-        marker = '<span class="tools-mark">{1}</span>'
+        marker = '<span class="tools-mark">{1}</span>',
+        skipTagDelimitedParts:null|[string, string] = ['<', '>']
     ):unknown {
         if (typeof target === 'string' && givenWords?.length) {
             let markedTarget:string = target.trim()
@@ -6344,7 +6354,7 @@ export class Tools<TElement = HTMLElement> {
 
                 for (const word of words) {
                     currentRange = Tools.stringFindNormalizedMatchRange(
-                        restTarget, word, normalizer
+                        restTarget, word, normalizer, skipTagDelimitedParts
                     )
                     if (
                         currentRange &&
