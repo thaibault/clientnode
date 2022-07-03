@@ -3465,6 +3465,15 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 (value as string).replace(/ß/g, 'ss').toLowerCase()
         ]
     )
+    testEach<typeof Tools.stringFixKnownEncodingErrors>(
+        'stringFixKnownEncodingErrors',
+        Tools.stringFixKnownEncodingErrors,
+
+        ['', ''],
+        ['a', 'a'],
+        ['-', '\x96'],
+        ['a-a', 'a\x96a']
+    )
     testEach<typeof Tools.stringFormat>(
         'stringFormat',
         Tools.stringFormat,
