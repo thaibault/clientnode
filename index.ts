@@ -5834,6 +5834,30 @@ export class Tools<TElement = HTMLElement> {
         return null
     }
     /**
+     * Fixes known encoding problems in given data.
+     * @param this - Indicates an unbound method.
+     * @param data - To process.
+     *
+     * @returns Processed data.
+     */
+    static stringFixKnownEncodingErrors(this:void, data:string):string {
+        const mapping:Mapping = {
+            'Ã\\x84': 'Ä',
+            'Ã\\x96': 'Ö',
+            'Ã\\x9c': 'Ü',
+            'Ã¤': 'ä',
+            'Ã¶': 'ö',
+            'Ã¼': 'ü',
+            'Ã\\x9f': 'ß',
+            '\\x96': '-'
+        }
+
+        for (const [search, replacement] of Object.entries(mapping))
+            data = data.replace(new RegExp(search, 'g'), replacement)
+
+        return data
+    }
+    /**
      * Performs a string formation. Replaces every placeholder "{i}" with the
      * i'th argument.
      * @param this - Indicates an unbound method.
