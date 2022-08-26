@@ -2297,7 +2297,8 @@ export class Tools<TElement = HTMLElement> {
                                 name,
                                 setterWrapper(name, value, object)
                             )
-                    const {proxy, revoke} = Proxy.revocable({}, handler)
+                    const {proxy, revoke} =
+                        Proxy.revocable({}, handler as ProxyHandler<object>)
 
                     return proxy as ProxyType<T>
                 }
@@ -2614,7 +2615,7 @@ export class Tools<TElement = HTMLElement> {
                 else
                     for (const [key, value] of Object.entries(source))
                         try {
-                            destination[key as keyof Type] =
+                            (destination as Mapping<ValueOf<Type>>)[key] =
                                 copyValue<ValueOf<Type>>(
                                     value as ValueOf<Type>
                                 )!
@@ -3369,7 +3370,9 @@ export class Tools<TElement = HTMLElement> {
      *
      * @returns Given object with removed properties.
      */
-    static removeKeysInEvaluation<T = PlainObject>(
+    static removeKeysInEvaluation<
+        T extends Mapping<unknown> = Mapping<unknown>
+    >(
         this:void,
         data:T,
         expressionIndicators:Array<string> = ['__evaluate__', '__execute__']
@@ -3385,9 +3388,7 @@ export class Tools<TElement = HTMLElement> {
             )
                 delete (data as unknown as Mapping<unknown>)[key]
             else if (Tools.isPlainObject(value))
-                Tools.removeKeysInEvaluation<ValueOf<T>>(
-                    value as unknown as ValueOf<T>, expressionIndicators
-                )
+                Tools.removeKeysInEvaluation(value, expressionIndicators)
 
         return data
     }
@@ -3650,7 +3651,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Given but sliced object. If (nested) object will be modified a
      * flat copy of that object will be returned.
      */
-    static mask<Type = Mapping<unknown>>(
+    static mask<Type extends Mapping<unknown> = Mapping<unknown>>(
         this:void, object:Type, mask:ObjectMaskConfiguration
     ):RecursivePartial<Type> {
         mask = {exclude: false, include: true, ...mask}
@@ -3672,11 +3673,11 @@ export class Tools<TElement = HTMLElement> {
                         Tools.isPlainObject(value) &&
                         typeof object[key as keyof Type] === 'object'
                     )
-                        (result[key as keyof Type] as
-                            RecursivePartial<ValueOf<Type>>
-                        ) = Tools.mask(
-                                    object[key as keyof Type], {include: value}
-                                )
+                        (result as Mapping<Mapping<unknown>>)[key] =
+                            Tools.mask(
+                                (object as Mapping<Mapping<unknown>>)[key],
+                                {include: value}
+                            )
         } else
             // In this branch "mask.include === true" holds.
             result = object
@@ -3698,10 +3699,11 @@ export class Tools<TElement = HTMLElement> {
                         const current:ValueOf<Type> =
                             copy[key as keyof Type] as ValueOf<Type>
 
-                        ;(copy[key as keyof Type] as ValueOf<Type>) =
+                        ;(copy as Mapping<Mapping<unknown>>)[key] =
                             Tools.mask(
-                                copy[key as keyof Type], {exclude: value}
-                            ) as ValueOf<Type>
+                                (copy as Mapping<Mapping<unknown>>)[key],
+                                {exclude: value}
+                            )
 
                         if (
                             copy[key as keyof Type] as ValueOf<Type> !==
@@ -4239,9 +4241,8 @@ export class Tools<TElement = HTMLElement> {
                 for (const [key, value] of Object.entries(
                     object as unknown as object
                 ))
-                    (object as T)[key as keyof T] = Tools.unwrapProxy(
-                        value, seenObjects
-                    ) as ValueOf<T>
+                    object[key as keyof T] =
+                        Tools.unwrapProxy(value, seenObjects) as ValueOf<T>
         }
 
         return object
@@ -4290,7 +4291,9 @@ export class Tools<TElement = HTMLElement> {
      *
      * @returns Given data without empty items.
      */
-    static arrayDeleteEmptyItems<T = Mapping<unknown>>(
+    static arrayDeleteEmptyItems<
+        T extends Mapping<unknown> = Mapping<unknown>
+    >(
         this:void, data:Array<T>, propertyNames:Array<string|symbol> = []
     ):Array<T> {
         const result:Array<T> = []
@@ -4300,9 +4303,7 @@ export class Tools<TElement = HTMLElement> {
 
             for (const [propertyName, value] of Object.entries(item))
                 if (
-                    !['', null, undefined].includes(
-                        value as unknown as null
-                    ) &&
+                    !['', null, undefined].includes(value as null) &&
                     (
                         !propertyNames.length ||
                         Tools.arrayMake(propertyNames).includes(propertyName)
@@ -4381,9 +4382,9 @@ export class Tools<TElement = HTMLElement> {
      * @returns Given data without the items which doesn't have specified
      * property.
      */
-    static arrayExtractIfPropertyExists<T = unknown>(
-        this:void, data:unknown, propertyName:string
-    ):Array<T> {
+    static arrayExtractIfPropertyExists<
+        T extends Mapping<unknown> = Mapping<unknown>
+    >(this:void, data:unknown, propertyName:string):Array<T> {
         if (data && propertyName) {
             const result:Array<T> = []
 
@@ -4392,7 +4393,7 @@ export class Tools<TElement = HTMLElement> {
                 for (const [key, value] of Object.entries(item))
                     if (
                         key === propertyName &&
-                        ![null, undefined].includes(value as unknown as null)
+                        ![null, undefined].includes(value as null)
                     ) {
                         exists = true
                         break
@@ -8032,7 +8033,8 @@ export class Tools<TElement = HTMLElement> {
         if (!eventFunctionName)
             eventFunctionName = removeEvent ? 'off' : 'on'
 
-        const $domNode:$T<TElement> = $(parameters[0] as TElement)
+        const $domNode:$T<TElement> =
+            $(parameters[0] as HTMLElement) as unknown as $T<TElement>
         if (Tools.determineType(parameters[1]) === 'object' && !removeEvent) {
             for (const [eventType, parameter] of Object.entries(
                 parameters[1] as Mapping<unknown>

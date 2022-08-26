@@ -966,8 +966,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ]
     )
     test('identity', ():void => {
-        expect(Tools.identity({}) === {}).toStrictEqual(false)
         const testObject = {}
+        expect(Tools.identity(testObject) === Tools.copy(testObject))
+            .toStrictEqual(false)
         expect(Tools.identity(testObject)).toStrictEqual(testObject)
     })
     testEach<typeof Tools.identity>(
