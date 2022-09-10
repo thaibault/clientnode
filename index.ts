@@ -7191,8 +7191,8 @@ export class Tools<TElement = HTMLElement> {
 
         if (options.wait)
             return new Promise<Response>((
-                resolve:(_reason:Response) => void,
-                reject:(_reason:Error) => void
+                resolve:(response:Response) => void,
+                reject:(reason:Error) => void
             ):void => {
                 let timedOut = false
                 const timer:TimeoutPromise =

@@ -4012,15 +4012,15 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['unknownURL', {statusCodes: 301}],
         [
             'http://unknownHostName',
-            {statusCodes: 200, timeoutInSeconds: .025, wait: true}
+            {statusCodes: 200, timeoutInSeconds: .001, wait: true}
         ],
         [
             'http://unknownHostName',
-            {statusCodes: [200], timeoutInSeconds: .025, wait: true}
+            {statusCodes: [200], timeoutInSeconds: .001, wait: true}
         ],
         [
             'http://unknownHostName',
-            {statusCodes: [200, 301], timeoutInSeconds: .025, wait: true}
+            {statusCodes: [200, 301], timeoutInSeconds: .001, wait: true}
         ]
     )
     testEachPromiseAgainstSameExpectation<typeof Tools.checkUnreachability>(
@@ -4028,43 +4028,24 @@ describe(`Tools (${testEnvironment})`, ():void => {
         Tools.checkUnreachability,
         DefinedSymbol,
 
-        [
-            'unknownURL',
-            {
-                pollIntervallInSeconds: .1,
-                statusCodes: 200,
-                timeoutInSeconds: 10
-            }
-        ],
-        [
-            'unknownURL',
-            {
-                pollIntervallInSeconds: .1,
-                statusCodes: 200,
-                timeoutInSeconds: 10,
-                wait: true
-            }
-        ],
-        [
-            'unknownURL',
-            {
-                pollIntervallInSeconds: .1,
-                statusCodes: [200],
-                timeoutInSeconds: 10,
-                wait: true
-            }
-        ],
-        [
-            'unknownURL',
-            {
-                pollIntervallInSeconds: .1,
-                statusCodes: [200, 301],
-                timeoutInSeconds: 10,
-                wait: true
-            }
-        ],
-        ['http://unknownHostName', {wait: true}]
+        ['unknownURL', {statusCodes: 200}],
+        ['unknownURL', {statusCodes: 200, wait: true}],
+        ['unknownURL', {statusCodes: [200], wait: true}],
+        ['unknownURL', {statusCodes: [200, 301], wait: true}]
     )
+    test('checkUnreachability', ():void => {
+        const abortController = new AbortController()
+        void Tools.timeout(0.25, ():void => abortController.abort())
+
+        void expect(Tools.checkUnreachability(
+            'http://unknownHostName',
+            {
+                options: {signal: abortController as unknown as AbortSignal},
+                statusCodes: 200,
+                wait: true
+            }
+        )).resolves.toBeDefined()
+    })
     if (TARGET_TECHNOLOGY !== 'node') {
         test('sendToIFrame', ():void => {
             const $iFrame:$T<HTMLIFrameElement> =
