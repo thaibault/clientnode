@@ -3889,7 +3889,7 @@ export class Tools<TElement = HTMLElement> {
         if (typeof value === 'number')
             return new Date(value * 1000)
 
-        const result:Date = new Date(value)
+        const result = new Date(value)
 
         if (isNaN(result.getDate()))
             return null
