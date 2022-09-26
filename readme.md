@@ -37,7 +37,7 @@ Project status
 Use case
 --------
 
-The main goal of This plugin is providing an generic interface logic like
+The main goal of this plugin is providing an generic interface logic like
 controller for calling instance methods or getting property values of an object
 orientated designed plugin. A set of reusable logic elements for building gui
 components is integrated as well.
