@@ -47,6 +47,7 @@
     "document": "weboptimizer document",
     "lint": "weboptimizer lint",
     "make:executable": "node --eval \"fs.chmodSync('index.js', '700')\"",
+    "postversion": "git push --tags && yarn publish . --tag $npm_package_version && git push",
     "prepare": "if ! yarn build; then echo You should rerun install procedure to resolve dependency cycle. && yarn build:alternate; fi",
     "serve": "weboptimizer serve",
     "start": "yarn serve",
