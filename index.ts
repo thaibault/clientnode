@@ -6363,7 +6363,8 @@ export class Tools<TElement = HTMLElement> {
                 marker: '<span class="tools-mark">{1}</span>',
                 normalizer: (value:unknown):string =>
                     `${value as string}`.toLowerCase(),
-                skipTagDelimitedParts: ['<', '>']
+                skipTagDelimitedParts: ['<', '>'],
+                ...options
             }
 
             target = target.trim()
@@ -6393,8 +6394,8 @@ export class Tools<TElement = HTMLElement> {
                     currentRange = Tools.stringFindNormalizedMatchRange(
                         restTarget,
                         word,
-                        options.normalizer!,
-                        options.skipTagDelimitedParts!
+                        options.normalizer,
+                        options.skipTagDelimitedParts
                     )
                     if (
                         currentRange &&
@@ -6412,7 +6413,7 @@ export class Tools<TElement = HTMLElement> {
                     markedTarget.push(
                         typeof options.marker === 'string' ?
                             Tools.stringFormat(
-                                options.marker!,
+                                options.marker,
                                 (target as string).substring(
                                     offset + nearestRange[0],
                                     offset + nearestRange[1]

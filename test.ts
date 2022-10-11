@@ -3579,51 +3579,71 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['', '', 'test'],
         [
             't<a>e</a>st',
-            'test', 'e',
-            (value:unknown):string => `${value as string}`.toLowerCase(),
-            '<a>{1}</a>'
+            'test',
+            'e',
+            {
+                marker: '<a>{1}</a>',
+                normalizer: (value:unknown):string =>
+                    `${value as string}`.toLowerCase()
+            }
         ],
         [
             't<a>e</a>st',
             'test',
             ['e'],
-            Tools.identity as (_value:unknown) => string,
-            '<a>{1}</a>'
+            {
+                marker: '<a>{1}</a>',
+                normalizer: Tools.identity as (_value:unknown) => string
+            }
         ],
         [
             't<a>e</a>st',
             'test',
             'E',
-            (value:unknown):string => `${value as string}`.toLowerCase(),
-            '<a>{1}</a>'
+            {
+                marker: '<a>{1}</a>',
+                normalizer: (value:unknown):string =>
+                    `${value as string}`.toLowerCase()
+            }
         ],
         [
             't<a>E</a>st',
             'tEst',
             'e',
-            (value:unknown):string => `${value as string}`.toLowerCase(),
-            '<a>{1}</a>'
+            {
+                marker: '<a>{1}</a>',
+                normalizer: (value:unknown):string =>
+                    `${value as string}`.toLowerCase()
+            }
         ],
         [
             '<a>t</a>es<a>T</a>',
             'tesT',
             't',
-            (value:unknown):string => `${value as string}`.toLowerCase(),
-            '<a>{1}</a>'
+            {
+                marker: '<a>{1}</a>',
+                normalizer: (value:unknown):string =>
+                    `${value as string}`.toLowerCase()
+            }
         ],
         [
             '<a>t - t</a>es<a>T - T</a>',
             'tesT',
             't',
-            (value:unknown):string => `${value as string}`.toLowerCase(),
-            '<a>{1} - {1}</a>'
+            {
+                marker: '<a>{1} - {1}</a>',
+                normalizer: (value:unknown):string =>
+                    `${value as string}`.toLowerCase()
+            }
         ],
         [
             'test',
             'test',
             'E',
-            Tools.identity as (_value:unknown) => string,
-            '<a>{1}</a>'
+            {
+                marker: '<a>{1}</a>',
+                normalizer: Tools.identity as (value:unknown) => string
+            }
         ],
         [
             '<span class="tools-mark">a</span>b' +
@@ -3650,96 +3670,119 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'a <a>EBikes</a> <a>München</a>',
             'a EBikes München',
             ['ebikes', 'münchen'],
-            (value:unknown):string => `${value as string}`.toLowerCase(),
-            '<a>{1}</a>'
+            {
+                marker: '<a>{1}</a>',
+                normalizer: (value:unknown):string =>
+                    `${value as string}`.toLowerCase()
+            }
         ],
         [
             'a <a>E-Bikes</a> <a>München</a>',
             'a E-Bikes München',
             ['ebikes', 'münchen'],
-            (value:unknown):string =>
-                `${value as string}`.toLowerCase().replace('-', ''),
-            '<a>{1}</a>'
+            {
+                marker: '<a>{1}</a>',
+                normalizer: (value:unknown):string =>
+                    `${value as string}`.toLowerCase().replace('-', '')
+            }
         ],
         [
             'a <a>str.</a> <a>2</a>',
             'a str. 2',
             ['straße', '2'],
-            (value:unknown):string =>
-                `${value as string}`
-                    .toLowerCase()
-                    .replace('str.', 'strasse')
-                    .replace('ß', 'ss'),
-            '<a>{1}</a>'
+            {
+                marker: '<a>{1}</a>',
+                normalizer: (value:unknown):string =>
+                    `${value as string}`
+                        .toLowerCase()
+                        .replace('str.', 'strasse')
+                        .replace('ß', 'ss')
+            }
         ],
         [
             'EGO Movement Store <a>E-Bikes</a> <a>München</a>',
             'EGO Movement Store E-Bikes München',
             ['eBikes', 'München'],
-            (value:unknown):string =>
-                `${value as string}`
-                    .toLowerCase()
-                    .replace(/[-_]+/g, '')
-                    .replace(/ß/g, 'ss')
-                    .replace(/(^| )str\./g, '$1strasse')
-                    .replace(/[& ]+/g, ' '),
-            '<a>{1}</a>'
+            {
+                marker: '<a>{1}</a>',
+                normalizer: (value:unknown):string =>
+                    `${value as string}`
+                        .toLowerCase()
+                        .replace(/[-_]+/g, '')
+                        .replace(/ß/g, 'ss')
+                        .replace(/(^| )str\./g, '$1strasse')
+                        .replace(/[& ]+/g, ' ')
+            }
         ],
         [
             '<a>str.</a>A <a>strasse</a> B <a>straße</a> C <a>str.</a> D',
             'str.A strasse B straße C str. D',
             ['str.'],
-            (value:unknown):string =>
-                `${value as string}`
-                    .toLowerCase()
-                    .replace(/[-_]+/g, '')
-                    .replace(/ß/g, 'ss')
-                    .replace(/(^| )str\./g, '$1strasse')
-                    .replace(/[& ]+/g, ' '),
-            '<a>{1}</a>'
+            {
+                marker: '<a>{1}</a>',
+                normalizer: (value:unknown):string =>
+                    `${value as string}`
+                        .toLowerCase()
+                        .replace(/[-_]+/g, '')
+                        .replace(/ß/g, 'ss')
+                        .replace(/(^| )str\./g, '$1strasse')
+                        .replace(/[& ]+/g, ' ')
+            }
         ],
         [
             '<mark>test</mark> <a>link</a>',
             'test <a>link</a>',
             ['test'],
-            Tools.identity as (_value:unknown) => string,
-            '<mark>{1}</mark>'
+            {
+                marker: '<mark>{1}</mark>',
+                normalizer: Tools.identity as (value:unknown) => string
+            }
         ],
         [
             'test <a><mark>link</mark></a>',
             'test <a>link</a>',
             ['link'],
-            Tools.identity as (_value:unknown) => string,
-            '<mark>{1}</mark>'
+            {
+                marker: '<mark>{1}</mark>',
+                normalizer: Tools.identity as (value:unknown) => string
+            }
         ],
         [
             'test <a href="foo">link</a>',
             'test <a href="foo">link</a>',
             ['foo'],
-            Tools.identity as (_value:unknown) => string,
-            '<mark>{1}</mark>'
+            {
+                marker: '<mark>{1}</mark>',
+                normalizer: Tools.identity as (value:unknown) => string
+            }
         ],
         [
             'test <a href="foo">a <mark>foo</mark> link</a>',
             'test <a href="foo">a foo link</a>',
             ['foo'],
-            Tools.identity as (_value:unknown) => string,
-            '<mark>{1}</mark>'
+            {
+                marker: '<mark>{1}</mark>',
+                normalizer: Tools.identity as (value:unknown) => string
+            }
         ],
         [
             'test [a href="foo"]a [mark]foo[/mark] link[/a]',
             'test [a href="foo"]a foo link[/a]',
             ['foo'],
-            Tools.identity as (_value:unknown) => string,
-            '[mark]{1}[/mark]',
-            ['[', ']']
+            {
+                marker: '[mark]{1}[/mark]',
+                normalizer: Tools.identity as (value:unknown) => string,
+                skipTagDelimitedParts: ['[', ']']
+            }
         ],
         [
             '<mark>foo</mark> <mark>foo</mark> <mark>foo</mark>',
             'foo foo foo',
             ['foo'],
-            Tools.identity as (_value:unknown) => string,
-            '<mark>{1}</mark>'
+            {
+                marker: '<mark>{1}</mark>',
+                normalizer: Tools.identity as (value:unknown) => string
+            }
         ],
         [
             [
@@ -3751,29 +3794,38 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ],
             'foo foo foo',
             ['foo'],
-            Tools.identity as (_value:unknown) => string,
-            (foundWord:string):string => `<mark>${foundWord}</mark>`
+            {
+                marker: (foundWord:string):string =>
+                    `<mark>${foundWord}</mark>`,
+                normalizer: Tools.identity as (value:unknown) => string
+            }
         ],
         [
             [],
             '',
             ['foo'],
-            Tools.identity as (_value:unknown) => string,
-            (foundWord:string):string => `<a>${foundWord}</a>`
+            {
+                marker: (foundWord:string):string => `<a>${foundWord}</a>`,
+                normalizer: Tools.identity as (value:unknown) => string
+            }
         ],
         [
             ['<a>a</a>'],
             'a',
             ['a'],
-            Tools.identity as (_value:unknown) => string,
-            (foundWord:string):string => `<a>${foundWord}</a>`
+            {
+                marker: (foundWord:string):string => `<a>${foundWord}</a>`,
+                normalizer: Tools.identity as (value:unknown) => string
+            }
         ],
         [
             ['a', {foundWord: 'b'}, 'a'],
             'aba',
             ['b'],
-            Tools.identity as (_value:unknown) => string,
-            (foundWord:string):{foundWord:string} => ({foundWord})
+            {
+                marker: (foundWord:string):{foundWord:string} => ({foundWord}),
+                normalizer: Tools.identity as (value:unknown) => string
+            }
         ]
     )
     testEach<typeof Tools.stringMD5>(
