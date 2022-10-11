@@ -334,6 +334,11 @@ declare global {
     }
 }
 /// endregion
+export interface StringMarkOptions {
+    marker:((foundWord:string, markedTarget:Array<unknown>) => unknown)|string
+    normalizer:(value:unknown) => string
+    skipTagDelimitedParts:null|[string, string]
+}
 // endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:

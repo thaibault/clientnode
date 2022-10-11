@@ -60,6 +60,7 @@ import {
     SecondParameter,
     Selector,
     SetterFunction,
+    StringMarkOptions,
     TemplateFunction,
     TimeoutPromise,
     ToolsFunction,
@@ -6342,11 +6343,12 @@ export class Tools<TElement = HTMLElement> {
      * @param this - Indicates an unbound method.
      * @param target - String to search for marker.
      * @param givenWords - String or array of strings to search in target for.
-     * @param normalizer - Pure normalisation function to use before searching
-     * for matches.
-     * @param marker - HTML template string to mark.
-     * @param skipTagDelimitedParts - Indicates whether to for example ignore
-     * html tags via "['<', '>']" (the default).
+     * @param options - Defines highlighting behavior.
+     * @param options.marker - HTML template string to mark.
+     * @param options.normalizer - Pure normalisation function to use before
+     * searching for matches.
+     * @param options.skipTagDelimitedParts - Indicates whether to for example
+     * ignore html tags via "['<', '>']" (the default).
      *
      * @returns Processed result.
      */
@@ -6354,15 +6356,16 @@ export class Tools<TElement = HTMLElement> {
         this:void,
         target:unknown,
         givenWords?:Array<string>|string,
-        normalizer = (value:unknown):string =>
-            `${value as string}`.toLowerCase(),
-        marker:(
-            ((foundWord:string, markedTarget:Array<unknown>) => unknown) |
-            string
-        ) = '<span class="tools-mark">{1}</span>',
-        skipTagDelimitedParts:null|[string, string] = ['<', '>']
+        options:Partial<StringMarkOptions> = {}
     ):unknown {
         if (typeof target === 'string' && givenWords?.length) {
+            options = {
+                marker: '<span class="tools-mark">{1}</span>',
+                normalizer: (value:unknown):string =>
+                    `${value as string}`.toLowerCase(),
+                skipTagDelimitedParts: ['<', '>']
+            }
+
             target = target.trim()
             const markedTarget:Array<unknown> = []
 
@@ -6370,7 +6373,7 @@ export class Tools<TElement = HTMLElement> {
                 ([] as Array<string>).concat(givenWords)
             let index = 0
             for (const word of words) {
-                words[index] = normalizer(word).trim()
+                words[index] = options.normalizer!(word).trim()
 
                 index += 1
             }
@@ -6388,7 +6391,10 @@ export class Tools<TElement = HTMLElement> {
                 // Find the nearest next matching word.
                 for (const word of words) {
                     currentRange = Tools.stringFindNormalizedMatchRange(
-                        restTarget, word, normalizer, skipTagDelimitedParts
+                        restTarget,
+                        word,
+                        options.normalizer!,
+                        options.skipTagDelimitedParts!
                     )
                     if (
                         currentRange &&
@@ -6404,15 +6410,15 @@ export class Tools<TElement = HTMLElement> {
                                 .substring(offset, offset + nearestRange[0])
                         )
                     markedTarget.push(
-                        typeof marker === 'string' ?
+                        typeof options.marker === 'string' ?
                             Tools.stringFormat(
-                                marker,
+                                options.marker!,
                                 (target as string).substring(
                                     offset + nearestRange[0],
                                     offset + nearestRange[1]
                                 )
                             ) :
-                            marker(
+                            options.marker!(
                                 (target as string).substring(
                                     offset + nearestRange[0],
                                     offset + nearestRange[1]
@@ -6432,7 +6438,7 @@ export class Tools<TElement = HTMLElement> {
                 }
             }
 
-            return typeof marker === 'string' ?
+            return typeof options.marker === 'string' ?
                 markedTarget.join('') :
                 markedTarget
         }
