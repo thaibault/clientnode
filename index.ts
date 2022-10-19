@@ -670,7 +670,6 @@ export class Tools<TElement = HTMLElement> {
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Defines a generic controller for dom node aware plugins.
-     * @param this - Indicates an unbound method.
      * @param object - The object or class to control. If "object" is a class
      * an instance will be generated.
      * @param parameters - The initially given arguments object.
@@ -751,7 +750,6 @@ export class Tools<TElement = HTMLElement> {
     /// region date time
     /**
      * Formats given date or current via given format specification.
-     * @param this - Indicates an unbound method.
      * @param format - Format specification.
      * @param dateTime - Date time to format.
      * @param options - Additional configuration options for
@@ -818,7 +816,6 @@ export class Tools<TElement = HTMLElement> {
     /// region boolean
     /**
      * Determines whether its argument represents a JavaScript number.
-     * @param this - Indicates an unbound method.
      * @param value - Value to analyze.
      *
      * @returns A boolean value indicating whether given object is numeric
@@ -838,7 +835,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Determine whether the argument is a window.
-     * @param this - Indicates an unbound method.
      * @param value - Value to check for.
      *
      * @returns Boolean value indicating the result.
@@ -853,7 +849,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks if given object is similar to an array and can be handled like an
      * array.
-     * @param this - Indicates an unbound method.
      * @param object - Object to check behavior for.
      *
      * @returns A boolean value indicating whether given object is array like.
@@ -888,7 +883,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks whether one of the given pattern matches given string.
-     * @param this - Indicates an unbound method.
      * @param target - Target to check in pattern for.
      * @param pattern - List of pattern to check for.
      *
@@ -909,7 +903,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks whether given object is a native object but not null.
-     * @param this - Indicates an unbound method.
      * @param value - Value to check.
      *
      * @returns Value "true" if given object is a plain javaScript object and
@@ -920,7 +913,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks whether given object is a plain native object.
-     * @param this - Indicates an unbound method.
      * @param value - Value to check.
      *
      * @returns Value "true" if given object is a plain javaScript object and
@@ -935,7 +927,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks whether given object is a set.
-     * @param this - Indicates an unbound method.
      * @param value - Value to check.
      *
      * @returns Value "true" if given object is a set and "false" otherwise.
@@ -945,7 +936,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks whether given object is a map.
-     * @param this - Indicates an unbound method.
      * @param value - Value to check.
      *
      * @returns Value "true" if given object is a map and "false" otherwise.
@@ -955,7 +945,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks whether given object is a proxy.
-     * @param this - Indicates an unbound method.
      * @param value - Value to check.
      *
      * @returns Value "true" if given object is a proxy and "false" otherwise.
@@ -965,7 +954,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks whether given object is a function.
-     * @param this - Indicates an unbound method.
      * @param value - Value to check.
      *
      * @returns Value "true" if given object is a function and "false"
@@ -1098,7 +1086,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Dumps a given object in a human readable format.
-     * @param this - Indicates an unbound method.
      * @param object - Any object to show.
      * @param level - Number of levels to dig into given object recursively.
      * @param currentLevel - Maximal number of recursive function calls to
@@ -1136,7 +1123,6 @@ export class Tools<TElement = HTMLElement> {
     /// region  cookie
     /**
      * Deletes a cookie value by given name.
-     * @param this - Indicates an unbound method.
      * @param name - Name to identify requested value.
      *
      * @returns Nothing.
@@ -1147,7 +1133,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Gets a cookie value by given name.
-     * @param this - Indicates an unbound method.
      * @param name - Name to identify requested value.
      *
      * @returns Requested value.
@@ -1171,7 +1156,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Sets a cookie key-value-pair.
-     * @param this - Indicates an unbound method.
      * @param name - Name to identify given value.
      * @param value - Value to set.
      * @param givenOptions - Cookie set options.
@@ -1379,7 +1363,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks whether given html or text strings are equal.
-     * @param this - Indicates an unbound method.
      * @param first - First html, selector to dom node or text to compare.
      * @param second - Second html, selector to dom node  or text to compare.
      * @param forceHTMLString - Indicates whether given contents are
@@ -1531,7 +1514,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Generates a directive name corresponding selector string.
-     * @param this - Indicates an unbound method.
      * @param directiveName - The directive name.
      *
      * @returns Returns generated selector.
@@ -1607,7 +1589,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Determines a normalized camel case directive name representation.
-     * @param this - Indicates an unbound method.
      * @param directiveName - The directive name.
      *
      * @returns Returns the corresponding name.
@@ -1682,7 +1663,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Determines the dom node name of a given dom node string.
-     * @param this - Indicates an unbound method.
      * @param domNodeSelector - A given to dom node selector to determine its
      * name.
      *
@@ -1769,7 +1749,6 @@ export class Tools<TElement = HTMLElement> {
     /// region scope
     /**
      * Overwrites all inherited variables from parent scope with "undefined".
-     * @param this - Indicates an unbound method.
      * @param scope - A scope where inherited names will be removed.
      * @param prefixesToIgnore - Name prefixes to ignore during deleting names
      * in given scope.
@@ -1795,7 +1774,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Generates a unique name in given scope (useful for jsonp requests).
-     * @param this - Indicates an unbound method.
      * @param prefix - A prefix which will be prepended to unique name.
      * @param suffix - A suffix which will be prepended to unique name.
      * @param scope - A scope where the name should be unique.
@@ -1830,7 +1808,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Determines all parameter names from given callable (function or class,
      * ...).
-     * @param this - Indicates an unbound method.
      * @param callable - Function or function code to inspect.
      *
      * @returns List of parameter names.
@@ -1873,7 +1850,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Implements the identity function.
-     * @param this - Indicates an unbound method.
      * @param value - A value to return.
      *
      * @returns Returns the given value.
@@ -1883,7 +1859,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Inverted filter helper to inverse each given filter.
-     * @param this - Indicates an unbound method.
      * @param filter - A function that filters an array.
      *
      * @returns The inverted filter.
@@ -1915,7 +1890,6 @@ export class Tools<TElement = HTMLElement> {
      * Triggers given callback after given duration. Supports unlimited
      * duration length and returns a promise which will be resolved after given
      * duration has been passed.
-     * @param this - Indicates an unbound method.
      * @param parameters - Observes the first three existing parameters. If one
      * is a number it will be interpret as delay in milliseconds until given
      * callback will be triggered. If one is of type function it will be used
@@ -2001,7 +1975,6 @@ export class Tools<TElement = HTMLElement> {
      * Prevents event functions from triggering to often by defining a minimal
      * span between each function call. Additional arguments given to this
      * function will be forwarded to given event function call.
-     * @param this - Indicates an unbound method.
      * @param callback - The function to call debounced.
      * @param thresholdInMilliseconds - The minimum time span between each
      * function call.
@@ -2193,7 +2166,6 @@ export class Tools<TElement = HTMLElement> {
     /// region object
     /**
      * Adds dynamic getter and setter to any given data structure such as maps.
-     * @param this - Indicates an unbound method.
      * @param object - Object to proxy.
      * @param getterWrapper - Function to wrap each property get.
      * @param setterWrapper - Function to wrap each property set.
@@ -2313,7 +2285,6 @@ export class Tools<TElement = HTMLElement> {
      * This method traverses given object recursively and tracks of seen and
      * already serialized structures to reuse generated strings or mark a
      * circular reference.
-     * @param this - Indicates an unbound method.
      * @param object - Object to serialize.
      * @param determineCircularReferenceValue - Callback to create a fallback
      * value depending on given redundant value.
@@ -2377,7 +2348,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Converts given map and all nested found maps objects to corresponding
      * object.
-     * @param this - Indicates an unbound method.
      * @param object - Map to convert to.
      * @param deep - Indicates whether to perform a recursive conversion.
      *
@@ -2435,7 +2405,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Converts given plain object and all nested found objects to
      * corresponding map.
-     * @param this - Indicates an unbound method.
      * @param object - Object to convert to.
      * @param deep - Indicates whether to perform a recursive conversion.
      *
@@ -2491,7 +2460,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Replaces given pattern in each value in given object recursively with
      * given string replacement.
-     * @param this - Indicates an unbound method.
      * @param object - Object to convert substrings in.
      * @param pattern - Regular expression to replace.
      * @param replacement - String to use as replacement for found patterns.
@@ -2523,7 +2491,6 @@ export class Tools<TElement = HTMLElement> {
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Copies given object (of any type) into optionally given destination.
-     * @param this - Indicates an unbound method.
      * @param source - Object to copy.
      * @param recursionLimit - Specifies how deep we should traverse into given
      * object recursively.
@@ -2695,7 +2662,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Determine the internal JavaScript [[Class]] of an object.
-     * @param this - Indicates an unbound method.
      * @param value - Value to analyze.
      *
      * @returns Name of determined type.
@@ -2725,7 +2691,6 @@ export class Tools<TElement = HTMLElement> {
      * Returns true if given items are equal for given property list. If
      * property list isn't set all properties will be checked. All keys which
      * starts with one of the exception prefixes will be omitted.
-     * @param this - Indicates an unbound method.
      * @param firstValue - First object to compare.
      * @param secondValue - Second object to compare.
      *
@@ -3107,7 +3072,6 @@ export class Tools<TElement = HTMLElement> {
      * Searches for nested mappings with given indicator key and resolves
      * marked values. Additionally all objects are wrapped with a proxy to
      * dynamically resolve nested properties.
-     * @param this - Indicates an unbound method.
      * @param object - Given mapping to resolve.
      * @param scope - Scope to to use evaluate again.
      * @param selfReferenceName - Name to use for reference to given object.
@@ -3365,7 +3329,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Removes properties in objects where a dynamic indicator lives.
-     * @param this - Indicates an unbound method.
      * @param data - Object to traverse recursively.
      * @param expressionIndicators - Property key to remove.
      *
@@ -3397,7 +3360,6 @@ export class Tools<TElement = HTMLElement> {
      * Extends given target object with given sources object. As target and
      * sources many expandable types are allowed but target and sources have to
      * to come from the same type.
-     * @param this - Indicates an unbound method.
      * @param targetOrDeepIndicator - Maybe the target or deep indicator.
      * @param targetOrSource - Target or source object; depending on first
      * argument.
@@ -3508,7 +3470,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Retrieves substructure in given object referenced by given selector
      * path.
-     * @param this - Indicates an unbound method.
      * @param target - Object to search in.
      * @param selector - Selector path.
      * @param skipMissingLevel - Indicates to skip missing level in given path.
@@ -3575,7 +3536,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Generates a proxy handler which forwards all operations to given object
      * as there wouldn't be a proxy.
-     * @param this - Indicates an unbound method.
      * @param target - Object to proxy.
      * @param methodNames - Mapping of operand name to object specific method
      * name.
@@ -3645,7 +3605,6 @@ export class Tools<TElement = HTMLElement> {
      * Slices all properties from given object which does not match provided
      * object mask. Items can be explicitly white listed via "include" mask
      * configuration or black listed via "exclude" mask configuration.
-     * @param this - Indicates an unbound method.
      * @param object - Object to slice.
      * @param mask - Mask configuration.
      *
@@ -3722,7 +3681,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Modifies given target corresponding to given source and removes source
      * modification infos.
-     * @param this - Indicates an unbound method.
      * @param target - Object to modify.
      * @param source - Source object to load modifications from.
      * @param removeIndicatorKey - Indicator property name or value to mark a
@@ -3854,7 +3812,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Interprets a date object from given artefact.
-     * @param this - Indicates an unbound method.
      * @param value - To interpret.
      * @param interpretAsUTC - Identifies if given date should be interpret as
      * utc.
@@ -3899,7 +3856,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Removes given key from given object recursively.
-     * @param this - Indicates an unbound method.
      * @param object - Object to process.
      * @param keys - List of keys to remove.
      *
@@ -4008,7 +3964,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Represents given object as formatted string.
-     * @param this - Indicates an unbound method.
      * @param object - Object to represent.
      * @param indention - String (usually whitespaces) to use as indention.
      * @param initialIndention - String (usually whitespaces) to use as
@@ -4164,7 +4119,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Sort given objects keys.
-     * @param this - Indicates an unbound method.
      * @param object - Object which keys should be sorted.
      *
      * @returns Sorted list of given keys.
@@ -4187,7 +4141,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Removes a proxy from given data structure recursively.
-     * @param this - Indicates an unbound method.
      * @param object - Object to proxy.
      * @param seenObjects - Tracks all already processed objects to avoid
      * endless loops (usually only needed for internal purpose).
@@ -4252,7 +4205,6 @@ export class Tools<TElement = HTMLElement> {
     /// region array
     /**
      * Summarizes given property of given item list.
-     * @param this - Indicates an unbound method.
      * @param data - Array of objects with given property name.
      * @param propertyName - Property name to summarize.
      * @param defaultValue - Value to return if property values doesn't match.
@@ -4286,7 +4238,6 @@ export class Tools<TElement = HTMLElement> {
      * names. If given property names are empty each attribute will be
      * considered. The empty string, "null" and "undefined" will be interpreted
      * as empty.
-     * @param this - Indicates an unbound method.
      * @param data - Data to filter.
      * @param propertyNames - Properties to consider.
      *
@@ -4323,7 +4274,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Extracts all properties from all items wich occur in given property
      * names.
-     * @param this - Indicates an unbound method.
      * @param data - Data where each item should be sliced.
      * @param propertyNames - Property names to extract.
      *
@@ -4350,7 +4300,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Extracts all values which matches given regular expression.
-     * @param this - Indicates an unbound method.
      * @param data - Data to filter.
      * @param regularExpression - Pattern to match for.
      *
@@ -4376,7 +4325,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Filters given data if given property is set or not.
-     * @param this - Indicates an unbound method.
      * @param data - Data to filter.
      * @param propertyName - Property name to check for existence.
      *
@@ -4412,7 +4360,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Extract given data where specified property value matches given
      * patterns.
-     * @param this - Indicates an unbound method.
      * @param data - Data to filter.
      * @param propertyPattern - Mapping of property names to pattern.
      *
@@ -4455,7 +4402,6 @@ export class Tools<TElement = HTMLElement> {
      * Object key which will be compared are given by "keys". If an empty array
      * is given each key will be compared. If an object is given corresponding
      * initial data key will be mapped to referenced new data key.
-     * @param this - Indicates an unbound method.
      * @param first - Referenced data to check for.
      * @param second - Data to check for existence.
      * @param keys - Keys to define equality.
@@ -4566,7 +4512,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Converts given object into an array.
-     * @param this - Indicates an unbound method.
      * @param object - Target to convert.
      *
      * @returns Generated array.
@@ -4586,7 +4531,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Creates a list of items within given range.
-     * @param this - Indicates an unbound method.
      * @param range - Array of lower and upper bounds. If only one value is
      * given lower bound will be assumed to be zero. Both integers have to be
      * positive and will be contained in the resulting array. If more than two
@@ -4629,7 +4573,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Merge the contents of two arrays together into the first array.
-     * @param this - Indicates an unbound method.
      * @param target - Target array.
      * @param source - Source array.
      *
@@ -4648,7 +4591,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Generates a list if pagination symbols to render a pagination from.
-     * @param this - Indicates an unbound method.
      * @param options - Configure bounds and current page of pagination to
      * determine.
      * @param options.boundaryCount - Indicates where to start pagination
@@ -4803,7 +4745,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Generates all permutations of given iterable.
-     * @param this - Indicates an unbound method.
      * @param data - Array like object.
      *
      * @returns Array of permuted arrays.
@@ -4831,7 +4772,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Generates all lengths permutations of given iterable.
-     * @param this - Indicates an unbound method.
      * @param data - Array like object.
      * @param minimalSubsetLength - Defines how long the minimal subset length
      * should be.
@@ -4878,7 +4818,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Sums up given property of given item list.
-     * @param this - Indicates an unbound method.
      * @param data - The objects with specified property to sum up.
      * @param propertyName - Property name to sum up its value.
      *
@@ -4902,7 +4841,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Adds an item to another item as array connection (many to one).
-     * @param this - Indicates an unbound method.
      * @param item - Item where the item should be appended to.
      * @param target - Target to add to given item.
      * @param name - Name of the target connection.
@@ -4931,7 +4869,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Removes given target on given list.
-     * @param this - Indicates an unbound method.
      * @param list - Array to splice.
      * @param target - Target to remove from given list.
      * @param strict - Indicates whether to fire an exception if given target
@@ -4955,7 +4892,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Sorts given object of dependencies in a topological order.
-     * @param this - Indicates an unbound method.
      * @param items - Items to sort.
      *
      * @returns Sorted array of given items respecting their dependencies.
@@ -5042,7 +4978,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Makes all values in given iterable unique by removing duplicates (The
      * first occurrences will be left).
-     * @param this - Indicates an unbound method.
      * @param data - Array like object.
      *
      * @returns Sliced version of given object.
@@ -5062,7 +4997,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Translates given string into the regular expression validated
      * representation.
-     * @param this - Indicates an unbound method.
      * @param value - String to convert.
      * @param excludeSymbols - Symbols not to escape.
      *
@@ -5088,7 +5022,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Translates given name into a valid javaScript one.
-     * @param this - Indicates an unbound method.
      * @param name - Name to convert.
      * @param allowedSymbols - String of symbols which should be allowed within
      * a variable name (not the first character).
@@ -5115,7 +5048,6 @@ export class Tools<TElement = HTMLElement> {
      * component. We need a custom method because "encodeURIComponent()" is too
      * aggressive and encodes stuff that doesn't have to be encoded per
      * "http://tools.ietf.org/html/rfc3986:".
-     * @param this - Indicates an unbound method.
      * @param url - URL to encode.
      * @param encodeSpaces - Indicates whether given url should encode
      * whitespaces as "+" or "%20".
@@ -5134,7 +5066,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Appends a path selector to the given path if there isn't one yet.
-     * @param this - Indicates an unbound method.
      * @param path - The path for appending a selector.
      * @param pathSeparator - The selector for appending to path.
      *
@@ -5152,7 +5083,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks if given path has given path prefix.
-     * @param this - Indicates an unbound method.
      * @param prefix - Path prefix to search for.
      * @param path - Path to search in.
      * @param separator - Delimiter to use in path (default is the posix
@@ -5183,7 +5113,6 @@ export class Tools<TElement = HTMLElement> {
      * Extracts domain name from given url. If no explicit domain name given
      * current domain name will be assumed. If no parameter given current
      * domain name will be determined.
-     * @param this - Indicates an unbound method.
      * @param url - The url to extract domain from.
      * @param fallback - The fallback host name if no one exits in given url
      * (default is current hostname).
@@ -5208,7 +5137,6 @@ export class Tools<TElement = HTMLElement> {
      * and no fallback is defined current port number will be assumed for local
      * links. For external links 80 will be assumed for http protocols and 443
      * for https protocols.
-     * @param this - Indicates an unbound method.
      * @param url - The url to extract port from.
      * @param fallback - Fallback port number if no explicit one was found.
      * Default is derived from current protocol name.
@@ -5245,7 +5173,6 @@ export class Tools<TElement = HTMLElement> {
      * Extracts protocol name from given url. If no explicit url is given,
      * current protocol will be assumed. If no parameter given current protocol
      * number will be determined.
-     * @param this - Indicates an unbound method.
      * @param url - The url to extract protocol from.
      * @param fallback - Fallback port to use if no protocol exists in given
      * url (default is current protocol).
@@ -5271,7 +5198,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Read a page's GET URL variables and return them as an associative array
      * and preserves ordering.
-     * @param this - Indicates an unbound method.
      * @param keyToGet - If provided the corresponding value for given key is
      * returned or full object otherwise.
      * @param allowDuplicates - Indicates whether to return arrays of values or
@@ -5396,7 +5322,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks if given url points to another "service" than second given url.
      * If no second given url provided current url will be assumed.
-     * @param this - Indicates an unbound method.
      * @param url - URL to check against second url.
      * @param referenceURL - URL to check against first url.
      *
@@ -5424,7 +5349,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Normalized given website url.
-     * @param this - Indicates an unbound method.
      * @param url - Uniform resource locator to normalize.
      *
      * @returns Normalized result.
@@ -5443,7 +5367,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Represents given website url.
-     * @param this - Indicates an unbound method.
      * @param url - Uniform resource locator to represent.
      *
      * @returns Represented result.
@@ -5461,7 +5384,6 @@ export class Tools<TElement = HTMLElement> {
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Converts a camel cased string to its delimited string version.
-     * @param this - Indicates an unbound method.
      * @param value - The string to format.
      * @param delimiter - Delimiter string
      * @param abbreviations - Collection of shortcut words to represent upper
@@ -5510,7 +5432,6 @@ export class Tools<TElement = HTMLElement> {
     /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Converts a string to its capitalize representation.
-     * @param this - Indicates an unbound method.
      * @param string - The string to format.
      *
      * @returns The formatted string.
@@ -5521,7 +5442,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Compresses given style attribute value.
-     * @param this - Indicates an unbound method.
      * @param styleValue - Style value to compress.
      *
      * @returns The compressed value.
@@ -5536,7 +5456,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Decodes all html symbols in text nodes in given html string.
-     * @param this - Indicates an unbound method.
      * @param htmlString - HTML string to decode.
      *
      * @returns Decoded html string.
@@ -5553,7 +5472,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Converts a delimited string to its camel case representation.
-     * @param this - Indicates an unbound method.
      * @param value - The string to format.
      * @param delimiter - Delimiter string to use.
      * @param abbreviations - Collection of shortcut words to represent upper
@@ -5625,7 +5543,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Compiles a given string as expression with given scope names.
-     * @param this - Indicates an unbound method.
      * @param expression - The string to interpret.
      * @param scope - Scope to extract names from.
      * @param execute - Indicates whether to execute or evaluate.
@@ -5709,7 +5626,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Evaluates a given string as expression against given scope.
-     * @param this - Indicates an unbound method.
      * @param expression - The string to interpret.
      * @param scope - Scope to render against.
      * @param execute - Indicates whether to execute or evaluate.
@@ -5767,7 +5683,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Finds the string match of given query in given target text by applying
      * given normalisation function to target and query.
-     * @param this - Indicates an unbound method.
      * @param target - Target to search in.
      * @param query - Search string to search for.
      * @param normalizer - Function to use as normalisation for queries and
@@ -5837,7 +5752,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Fixes known encoding problems in given data.
-     * @param this - Indicates an unbound method.
      * @param data - To process.
      *
      * @returns Processed data.
@@ -5862,7 +5776,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Performs a string formation. Replaces every placeholder "{i}" with the
      * i'th argument.
-     * @param this - Indicates an unbound method.
      * @param string - The string to format.
      * @param additionalArguments - Additional arguments are interpreted as
      * replacements for string formatting.
@@ -5887,7 +5800,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Calculates the edit (levenstein) distance between two given strings.
-     * @param this - Indicates an unbound method.
      * @param first - First string to compare.
      * @param second - Second string to compare.
      *
@@ -5946,7 +5858,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Validates the current string for using in a regular expression pattern.
      * Special regular expression chars will be escaped.
-     * @param this - Indicates an unbound method.
      * @param value - The string to format.
      *
      * @returns The formatted string.
@@ -5958,7 +5869,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Interprets given content string as date time.
-     * @param this - Indicates an unbound method.
      * @param value - Date time string to interpret.
      * @param interpretAsUTC - Identifies if given date should be interpret as
      * utc.
@@ -6330,7 +6240,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Converts a string to its lower case representation.
-     * @param this - Indicates an unbound method.
      * @param string - The string to format.
      *
      * @returns The formatted string.
@@ -6340,7 +6249,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Wraps given mark strings in given target with given marker.
-     * @param this - Indicates an unbound method.
      * @param target - String to search for marker.
      * @param givenWords - String or array of strings to search in target for.
      * @param options - Defines highlighting behavior.
@@ -6448,7 +6356,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Implements the md5 hash algorithm.
-     * @param this - Indicates an unbound method.
      * @param value - Value to calculate md5 hash for.
      * @param onlyAscii - Set to true if given input has ascii characters only
      * to get more performance.
@@ -6804,7 +6711,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Normalizes given phone number for automatic dialing or comparison.
-     * @param this - Indicates an unbound method.
      * @param value - Number to normalize.
      * @param dialable - Indicates whether the result should be dialed or
      * represented as lossless data.
@@ -6893,7 +6799,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Normalizes given zip code for automatic address processing.
-     * @param this - Indicates an unbound method.
      * @param value - Number to normalize.
      *
      * @returns Normalized number.
@@ -6907,7 +6812,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Converts given serialized, base64 encoded or file path given object into
      * a native javaScript one if possible.
-     * @param this - Indicates an unbound method.
      * @param serializedObject - Object as string.
      * @param scope - An optional scope which will be used to evaluate given
      * object in.
@@ -6946,7 +6850,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Represents given phone number. NOTE: Currently only support german phone
      * numbers.
-     * @param this - Indicates an unbound method.
      * @param value - Number to format.
      *
      * @returns Formatted number.
@@ -6994,7 +6897,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Slices all none numbers but preserves last separator.
-     * @param this - Indicates an unbound method.
      * @param value - String to process.
      *
      * @returns - Sliced given value.
@@ -7021,7 +6923,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Slice weekday from given date representation.
-     * @param this - Indicates an unbound method.
      * @param value - String to process.
      *
      * @returns Sliced given string.
@@ -7057,7 +6958,6 @@ export class Tools<TElement = HTMLElement> {
     /// region number
     /**
      * Determines corresponding utc timestamp for given date object.
-     * @param this - Indicates an unbound method.
      * @param value - Date to convert.
      * @param inMilliseconds - Indicates whether given number should be in
      * seconds (default) or milliseconds.
@@ -7086,7 +6986,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks if given object is java scripts native "Number.NaN" object.
-     * @param this - Indicates an unbound method.
      * @param value - Value to check.
      *
      * @returns Returns whether given value is not a number or not.
@@ -7098,7 +6997,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Rounds a given number accurate to given number of digits.
-     * @param this - Indicates an unbound method.
      * @param number - The number to round.
      * @param digits - The number of digits after comma.
      *
@@ -7109,7 +7007,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Rounds a given number up accurate to given number of digits.
-     * @param this - Indicates an unbound method.
      * @param number - The number to round.
      * @param digits - The number of digits after comma.
      *
@@ -7120,7 +7017,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Rounds a given number down accurate to given number of digits.
-     * @param this - Indicates an unbound method.
      * @param number - The number to round.
      * @param digits - The number of digits after comma.
      *
@@ -7133,7 +7029,6 @@ export class Tools<TElement = HTMLElement> {
     /// region data transfer
     /**
      * Checks if given url response with given status code.
-     * @param this - Indicates an unbound method.
      * @param url - Url to check reachability.
      *
      * @param givenOptions - Options to configure.
@@ -7269,7 +7164,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks if given url isn't reachable.
-     * @param this - Indicates an unbound method.
      * @param url - Url to check reachability.
      *
      * @param givenOptions - Options to configure.
@@ -7404,7 +7298,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Send given data to a given iframe.
-     * @param this - Indicates an unbound method.
      * @param target - Name of the target iframe or the target iframe itself.
      * @param url - URL to send to data to.
      * @param data - Data holding object to send data to.
@@ -7501,7 +7394,6 @@ export class Tools<TElement = HTMLElement> {
      * Copies given source directory via path to given target directory
      * location with same target name as source file has or copy to given
      * complete target directory path.
-     * @param this - Indicates an unbound method.
      * @param sourcePath - Path to directory to copy.
      * @param targetPath - Target directory or complete directory location to
      * copy in.
@@ -7560,7 +7452,6 @@ export class Tools<TElement = HTMLElement> {
      * Copies given source directory via path to given target directory
      * location with same target name as source file has or copy to given
      * complete target directory path.
-     * @param this - Indicates an unbound method.
      * @param sourcePath - Path to directory to copy.
      * @param targetPath - Target directory or complete directory location to
      * copy in.
@@ -7617,7 +7508,6 @@ export class Tools<TElement = HTMLElement> {
      * Copies given source file via path to given target directory location
      * with same target name as source file has or copy to given complete
      * target file path.
-     * @param this - Indicates an unbound method.
      * @param sourcePath - Path to file to copy.
      * @param targetPath - Target directory or complete file location to copy
      * to.
@@ -7650,7 +7540,6 @@ export class Tools<TElement = HTMLElement> {
      * Copies given source file via path to given target directory location
      * with same target name as source file has or copy to given complete
      * target file path.
-     * @param this - Indicates an unbound method.
      * @param sourcePath - Path to file to copy.
      * @param targetPath - Target directory or complete file location to copy
      * to.
@@ -7683,7 +7572,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks if given path points to a valid directory.
-     * @param this - Indicates an unbound method.
      * @param filePath - Path to directory.
      *
      * @returns A promise holding a boolean which indicates directory
@@ -7706,7 +7594,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks if given path points to a valid directory.
-     * @param this - Indicates an unbound method.
      * @param filePath - Path to directory.
      *
      * @returns A boolean which indicates directory existents.
@@ -7728,7 +7615,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks if given path points to a valid file.
-     * @param this - Indicates an unbound method.
      * @param filePath - Path to directory.
      *
      * @returns A promise holding a boolean which indicates directory
@@ -7751,7 +7637,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /**
      * Checks if given path points to a valid file.
-     * @param this - Indicates an unbound method.
      * @param filePath - Path to file.
      *
      * @returns A boolean which indicates file existence.
@@ -7775,7 +7660,6 @@ export class Tools<TElement = HTMLElement> {
      * Iterates through given directory structure recursively and calls given
      * callback for each found file. Callback gets file path and corresponding
      * stat object as argument.
-     * @param this - Indicates an unbound method.
      * @param directoryPath - Path to directory structure to traverse.
      * @param callback - Function to invoke for each traversed file and
      * potentially manipulate further traversing in alphabetical sorted order.
@@ -7868,7 +7752,6 @@ export class Tools<TElement = HTMLElement> {
      * Iterates through given directory structure recursively and calls given
      * callback for each found file. Callback gets file path and corresponding
      * stats object as argument.
-     * @param this - Indicates an unbound method.
      * @param directoryPath - Path to directory structure to traverse.
      * @param callback - Function to invoke for each traversed file.
      * @param options - Options to use for nested "readdir" calls.
@@ -7956,7 +7839,6 @@ export class Tools<TElement = HTMLElement> {
      * will be generated if return code is not zero. The generated Error has
      * a property "returnCode" which provides corresponding process return
      * code.
-     * @param this - Indicates an unbound method.
      * @param resolve - Promise's resolve function.
      * @param reject - Promise's reject function.
      * @param reason - Promise target if process has a zero return code.
@@ -7998,7 +7880,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Forwards given child process communication channels to corresponding
      * current process communication channels.
-     * @param this - Indicates an unbound method.
      * @param childProcess - Child process meta data.
      *
      * @returns Given child process meta data.
@@ -8131,7 +8012,6 @@ export const augment$ = (value:$TStatic):void => {
         /**
          * Scopes native prop implementation ignores properties for text nodes,
          * comments and attribute nodes.
-         * @param this - List of elements to retrieve property from.
          * @param key - Name of property to retrieve from current dom node.
          * @param additionalParameters - Additional parameter will be forwarded
          * to native prop function also.
