@@ -18,17 +18,12 @@ Project status
 
 [![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/build.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/build.yaml)
 [![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/test.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/test.yaml)
-[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/test:coverage:report.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/test:coverage:report.yaml)
-[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/check:types.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/check:types.yaml)
+[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/test-coverage-report.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/test-coverage-report.yaml)
+[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/check-types.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/check-types.yaml)
 [![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/lint.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/lint.yaml)
 
 [![code coverage](https://coveralls.io/repos/github/thaibault/clientnode/badge.svg)](https://coveralls.io/github/thaibault/clientnode)
 
-<!-- Too unstable yet
-[![dependencies](https://img.shields.io/david/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode)
-[![development dependencies](https://img.shields.io/david/dev/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode?type=dev)
-[![peer dependencies](https://img.shields.io/david/peer/thaibault/clientnode.svg)](https://david-dm.org/thaibault/clientnode?type=peer)
--->
 [![documentation website](https://img.shields.io/website-up-down-green-red/https/torben.website/clientnode.svg?label=documentation-website)](https://torben.website/clientnode)
 
 [![Try out](https://badge.runkitcdn.com/clientnode.svg)](https://npm.runkit.com/clientnode)
