@@ -780,7 +780,8 @@ export class Tools<TElement = HTMLElement> {
                 ([] as Array<string>).concat(locales, 'en-US'),
                 {dateStyle: format, timeStyle: format, ...options} as
                     SecondParameter<typeof Intl.DateTimeFormat>
-            ).format(normalizedDateTime)
+            )
+                .format(normalizedDateTime)
 
         const scope:Mapping<Array<string>|string> = {}
         for (const style of ['full', 'long', 'medium', 'short'] as const) {
