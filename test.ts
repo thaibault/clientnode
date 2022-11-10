@@ -306,10 +306,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['', '', '1970-01-01T00:00:00.000Z'],
         ['', '', testDate],
 
-        ['1/1/70, 12:00 AM', '${short}', testDate, {timeZone: 'UTC'}],
-        ['1/1/70, 12:00 AM', '${short}', 0, {timeZone: 'UTC'}],
+        ['1/1/70, 12:00 AM', '${short}', testDate, {timeZone: 'UTC'}],
+        ['1/1/70, 12:00 AM', '${short}', 0, {timeZone: 'UTC'}],
         [
-            '1/1/70, 12:00 AM',
+            '1/1/70, 12:00 AM',
             '${short}',
             '1970-01-01T00:00:00.000Z',
             {timeZone: 'UTC'}
