@@ -314,16 +314,9 @@ export class Lock<Type = string|void> {
             else {
                 this.locks[description] = []
 
-
-                /*
-                    eslint-disable
-                        @typescript-eslint/no-floating-promises
-                */
+                /* eslint-disable @typescript-eslint/no-floating-promises */
                 wrappedCallback(description)
-                /*
-                    eslint-enable
-                        @typescript-eslint/no-floating-promises
-                */
+                /* eslint-enable @typescript-eslint/no-floating-promises */
             }
         })
     }
