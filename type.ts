@@ -26,12 +26,12 @@ import {DefinedSymbol, ThrowSymbol, UndefinedSymbol} from './testHelper'
 // region exports
 /// region helper
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type AnyFunction = (..._parameters:Array<any>) => any
+export type AnyFunction = (...parameters:Array<any>) => any
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export type Unpacked<T> = T extends (infer U)[] ?
     U :
-    T extends (..._parameters:Array<unknown>) => infer U ?
+    T extends (...parameters:Array<unknown>) => infer U ?
         U :
         T extends Promise<infer U> ?
             U :
@@ -45,7 +45,7 @@ export type ThirdParameter<FunctionType extends AnyFunction> =
     Parameters<FunctionType>[2]
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type ParametersExceptFirst<FunctionType> = FunctionType extends
-    (_parameter:any, ..._additionalParameters:infer AdditionalParameters) =>
+    (parameter:any, ...additionalParameters:infer AdditionalParameters) =>
         any ?
             AdditionalParameters :
             []
@@ -60,7 +60,7 @@ export type FunctionTestPromiseRejectionTuple<
 > = [Error, ...Parameters<FunctionType>]
 
 export type BaseSelector<T = unknown, E = unknown> =
-    number|string|((_target:T) => E)
+    number|string|((target:T) => E)
 export type Selector<T = unknown, E = unknown> =
     Array<BaseSelector<T, E>>|BaseSelector<T, E>
 
@@ -100,7 +100,7 @@ export type TestMatchers<T extends void> = Matchers<T> & {not:Matchers<T>}
 /// endregion
 /// region native
 export type ImportFunction =
-    (_id:string) => Promise<ReturnType<typeof require>>
+    (id:string) => Promise<ReturnType<typeof require>>
 export type HTMLItem = Comment|Document|HTMLElement|Text
 
 export type Primitive = boolean|null|number|string|undefined
@@ -109,10 +109,10 @@ export type PlainObject<Type = Primitive> =
     {[key:string]:Array<PlainObject<Type>|Type>|PlainObject<Type>|Type}
 
 export interface ProxyHandler<T = unknown> {
-    deleteProperty:(_target:T, _key:string|symbol) => boolean
-    get:(_target:T, _key:string|symbol) => unknown
-    has:(_target:T, _key:string|symbol) => boolean
-    set:(_target:T, _key:string|symbol, _value:unknown) => boolean
+    deleteProperty:(target:T, key:string|symbol) => boolean
+    get:(target:T, key:string|symbol) => unknown
+    has:(target:T, key:string|symbol) => boolean
+    set:(target:T, key:string|symbol, value:unknown) => boolean
 }
 export type ProxyType<T = unknown> = T & {
     __revoke__?:() => void
@@ -129,22 +129,22 @@ export interface CookieOptions {
     secure:boolean
 }
 //// region functions
-export type UnknownFunction = (..._parameters:Array<unknown>) => unknown
+export type UnknownFunction = (...parameters:Array<unknown>) => unknown
 export type ArrayTransformer<T = unknown, R = unknown, P = unknown> = (
-    _data:Array<T>, ..._additionalParameter:Array<P>
+    data:Array<T>, ...additionalParameter:Array<P>
 ) => Array<R>
 
-export type SynchronousProcedureFunction = (..._parameters:Array<unknown>) =>
+export type SynchronousProcedureFunction = (...parameters:Array<unknown>) =>
     void
-export type AsynchronousProcedureFunction = (..._parameters:Array<unknown>) =>
+export type AsynchronousProcedureFunction = (...parameters:Array<unknown>) =>
     Promise<void>
 export type ProcedureFunction =
     AsynchronousProcedureFunction|SynchronousProcedureFunction
 
 export type GetterFunction =
-    (_keyOrValue:unknown, _key:string|symbol, _target:unknown) => unknown
+    (keyOrValue:unknown, key:string|symbol, target:unknown) => unknown
 export type SetterFunction =
-    (_key:string|symbol, _value:unknown, _target:unknown) => unknown
+    (key:string|symbol, value:unknown, target:unknown) => unknown
 //// endregion
 /// endregion
 /// region clientnode helper
@@ -250,18 +250,18 @@ export interface Position extends Offset {
 }
 
 export type ProcessHandler =
-    (_returnCode:unknown, ..._parameters:Array<unknown>) => void
+    (returnCode:unknown, ...parameters:Array<unknown>) => void
 export interface ProcessCloseReason {
     parameters:Array<unknown>
     reason:unknown
 }
-export type ProcessCloseCallback = (_reason:ProcessCloseReason) => void
-export type ProcessErrorCallback = (_reason:ProcessError) => void
+export type ProcessCloseCallback = (reason:ProcessCloseReason) => void
+export type ProcessErrorCallback = (reason:ProcessError) => void
 
 export type RelativePosition = 'above'|'below'|'in'|'left'|'right'
 
 export type TemplateFunction<Type = string> =
-    (..._parameters:Array<unknown>) => Type
+    (...parameters:Array<unknown>) => Type
 export interface CompilationResult<Type = string> {
     error:null|string
     originalScopeNames:Array<string>
@@ -277,7 +277,7 @@ export interface EvaluationResult<Type = string> {
 }
 
 export type LockCallbackFunction<Type = string> =
-    (_description:string) => Promise<Type>|Type
+    (description:string) => Promise<Type>|Type
 /// endregion
 /// region global scope
 export type DomNodes<Type = string> =
@@ -301,7 +301,7 @@ export interface Options<Type = string> {
 export type $TStatic = JQueryStatic
 export type $T<TElement = HTMLElement> = JQuery<TElement>
 export interface $Global extends Window {
-    Babel?:{transform:(_code:string, _configuration:PlainObject) => {
+    Babel?:{transform:(code:string, configuration:PlainObject) => {
         code:string
     }}
     console:Console
@@ -311,15 +311,15 @@ export interface $Global extends Window {
 export interface ToolsFunction<TElement = HTMLElement> {
     class:typeof Tools
 
-    (..._parameters:Array<unknown>):Tools<TElement>
+    (...parameters:Array<unknown>):Tools<TElement>
 }
 export interface BoundToolsFunction<TElement = HTMLElement> {
-    (_methodName:'normalizedClassNames'):BoundTools<TElement>
-    (_methodName:'normalizedStyles'):BoundTools<TElement>
-    (_methodName:'removeDirective', _directiveName:string):$T<TElement>
-    (_methodName:'style'):Mapping<number|string>
-    (_methodName:'text'):string
-    (..._parameters:Array<unknown>):BoundTools<TElement>
+    (methodName:'normalizedClassNames'):BoundTools<TElement>
+    (methodName:'normalizedStyles'):BoundTools<TElement>
+    (methodName:'removeDirective', directiveName:string):$T<TElement>
+    (methodName:'style'):Mapping<number|string>
+    (methodName:'text'):string
+    (...parameters:Array<unknown>):BoundTools<TElement>
 }
 
 declare global {
