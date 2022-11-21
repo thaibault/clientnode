@@ -314,16 +314,9 @@ export class Lock<Type = string|void> {
             else {
                 this.locks[description] = []
 
-
-                /*
-                    eslint-disable
-                        @typescript-eslint/no-floating-promises
-                */
+                /* eslint-disable @typescript-eslint/no-floating-promises */
                 wrappedCallback(description)
-                /*
-                    eslint-enable
-                        @typescript-eslint/no-floating-promises
-                */
+                /* eslint-enable @typescript-eslint/no-floating-promises */
             }
         })
     }
@@ -811,7 +804,12 @@ export class Tools<TElement = HTMLElement> {
         if (evaluated.error)
             throw new Error(evaluated.error)
 
-        return evaluated.result
+        /*
+            NOTE: For some reason hidden symbols are injected differently on
+            different platforms, so we have to normalize for predictable
+            testing.
+        */
+        return evaluated.result.replace(/\s/g, ' ')
     }
     /// endregion
     /// region boolean
@@ -1335,8 +1333,9 @@ export class Tools<TElement = HTMLElement> {
                             result[Tools.stringDelimitedToCamelCase(
                                 propertyName
                             )] =
-                                value ||
-                                styleProperties.getPropertyValue(propertyName)
+                                value as number|string ||
+                                (styleProperties as CSSStyleDeclaration)
+                                    .getPropertyValue(propertyName)
 
                     return result
                 }
@@ -1482,7 +1481,7 @@ export class Tools<TElement = HTMLElement> {
             $.global.window &&
             $domNode?.length &&
             $domNode[0] &&
-            'getBoundingClientRect' in $domNode[0]
+            'getBoundingClientRect' in ($domNode[0] as unknown as HTMLElement)
         ) {
             const $window:$T<Window & typeof globalThis> = $($.global.window)
 
@@ -3562,7 +3561,7 @@ export class Tools<TElement = HTMLElement> {
                     return (
                         target[methodNames.delete as keyof T] as
                             unknown as
-                            (_key:string|symbol) => boolean
+                            (key:string|symbol) => boolean
                     )(key)
 
                 return true
@@ -3574,17 +3573,17 @@ export class Tools<TElement = HTMLElement> {
                 return (
                     target[methodNames.get as keyof T] as
                         unknown as
-                        (_key:string|symbol) => unknown
+                        (key:string|symbol) => unknown
                 )(key)
             },
             has: (targetObject:T, key:string|symbol):boolean => {
                 if (methodNames.has === '[]')
-                    return key in target
+                    return key in (target as object)
 
                 return (
                     target[methodNames.has as keyof T] as
                         unknown as
-                        (_key:string|symbol) => boolean
+                        (key:string|symbol) => boolean
                 )(key)
             },
             set: (
@@ -3595,7 +3594,7 @@ export class Tools<TElement = HTMLElement> {
                 else
                     return (target[methodNames.set as keyof T] as
                         unknown as
-                        (_key:string|symbol, _value:unknown) => boolean
+                        (key:string|symbol, value:unknown) => boolean
                     )(key, value)
 
                 return true
