@@ -3791,8 +3791,24 @@ export class Tools<TElement = HTMLElement> {
                                 10
                             )
 
-                            if (index >= 0 && index < target.length)
-                                target[index] = sourceValue as ValueOf<T>
+                            if (
+                                !isNaN(index) &&
+                                index >= 0 &&
+                                index < target.length
+                            )
+                                if (
+                                    typeof target[index] === 'object' &&
+                                    typeof sourceValue === 'object'
+                                )
+                                    Tools.extend(
+                                        true,
+                                        target[index] as
+                                            RecursivePartial<ValueOf<T>>,
+                                        sourceValue as
+                                            RecursivePartial<ValueOf<T>>
+                                    )
+                                else
+                                    target[index] = sourceValue as ValueOf<T>
                             else
                                 continue
                         }
