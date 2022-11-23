@@ -3735,10 +3735,16 @@ export class Tools<TElement = HTMLElement> {
             typeof target === 'object'
         )
             for (const [key, sourceValue] of Object.entries(source))
-                if ([
-                    removeIndicatorKey, prependIndicatorKey, appendIndicatorKey
-                ].includes(key)) {
-                    if (Array.isArray(target))
+                if (
+                    [
+                        removeIndicatorKey,
+                        prependIndicatorKey,
+                        appendIndicatorKey
+                    ].includes(key) ||
+                    key.startsWith(positionPrefix) &&
+                    key.endsWith(positionSuffix)
+                ) {
+                    if (Array.isArray(target)) {
                         if (key === removeIndicatorKey) {
                             const values:Array<unknown> =
                                 ([] as Array<unknown>).concat(sourceValue)
@@ -3766,13 +3772,31 @@ export class Tools<TElement = HTMLElement> {
                                     value < target.length
                                 )
                                     target.splice(value, 1)
-                        } else if (key === prependIndicatorKey)
+                        } else if (key === appendIndicatorKey)
+                            target = target.concat(sourceValue) as unknown as T
+                        else if (key === prependIndicatorKey)
                             target = ([] as Array<unknown>)
                                 .concat(sourceValue)
                                 .concat(target) as unknown as T
-                        else
-                            target = target.concat(sourceValue) as unknown as T
-                    else if (key === removeIndicatorKey)
+                        else if (
+                            key.startsWith(positionPrefix) &&
+                            key.endsWith(positionSuffix)
+                        ) {
+                            const index:number = parseInt(
+                                key.substring(
+                                    positionPrefix.length,
+                                    key.length -
+                                    positionSuffix.length
+                                ),
+                                10
+                            )
+
+                            if (index >= 0)
+                                target[index] = sourceValue as ValueOf<T>
+                            else
+                                continue
+                        }
+                    } else if (key === removeIndicatorKey)
                         for (const value of ([] as Array<unknown>).concat(
                             sourceValue
                         ))
@@ -7056,12 +7080,12 @@ export class Tools<TElement = HTMLElement> {
         const options:CheckReachabilityOptions = Tools.extend(
             true,
             {
-                wait: false,
+                expectedIntermediateStatusCodes: [],
+                options: {},
+                pollIntervallInSeconds: 0.1,
                 statusCodes: 200,
                 timeoutInSeconds: 10,
-                pollIntervallInSeconds: 0.1,
-                options: {},
-                expectedIntermediateStatusCodes: []
+                wait: false
             },
             givenOptions
         )

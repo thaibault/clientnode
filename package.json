@@ -114,8 +114,8 @@
     }
   },
   "engines": {
-    "node": ">=14",
-    "npm": ">=7"
+    "node": ">=19",
+    "npm": ">=8"
   },
   "resolutions": {
     "colors": "1.4.0"
