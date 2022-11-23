@@ -2144,6 +2144,12 @@ describe(`Tools (${testEnvironment})`, ():void => {
             {},
             {a: [2, 1, 2]},
             {a: {__prepend__: 's', __remove__: [2, 2], __append__: 'a'}}
+        ],
+        [
+            {a: [2, 's', 2]},
+            {},
+            {a: [2, 1, 2]},
+            {a: {__1__: 's'}}
         ]
     ])(
         '%p (=> %p) === modifyObject(%p, %p, ...%p)',
