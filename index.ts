@@ -3791,7 +3791,7 @@ export class Tools<TElement = HTMLElement> {
                                 10
                             )
 
-                            if (index >= 0)
+                            if (index >= 0 && index < target.length)
                                 target[index] = sourceValue as ValueOf<T>
                             else
                                 continue
