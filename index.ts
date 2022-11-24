@@ -4142,6 +4142,9 @@ export class Tools<TElement = HTMLElement> {
             return result
         }
 
+        if (Tools.isFunction(object))
+            return '__function__'
+
         let result = '{'
         const keys:Array<string> = Object.getOwnPropertyNames(object).sort()
         let firstSeen = false
