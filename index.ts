@@ -3734,17 +3734,34 @@ export class Tools<TElement = HTMLElement> {
             target !== null &&
             typeof target === 'object'
         )
-            for (const [key, sourceValue] of Object.entries(source))
+            for (const [key, sourceValue] of Object.entries(source)) {
+                let index = NaN
+                if (
+                    Array.isArray(target) &&
+                    key.startsWith(positionPrefix) &&
+                    key.endsWith(positionSuffix)
+                ) {
+                    index = parseInt(
+                        key.substring(
+                            positionPrefix.length,
+                            key.length -
+                            positionSuffix.length
+                        ),
+                        10
+                    )
+                    if (index < 0 || index >= target.length)
+                        index = NaN
+                }
+
                 if (
                     [
                         removeIndicatorKey,
                         prependIndicatorKey,
                         appendIndicatorKey
                     ].includes(key) ||
-                    key.startsWith(positionPrefix) &&
-                    key.endsWith(positionSuffix)
+                    !isNaN(index)
                 ) {
-                    if (Array.isArray(target)) {
+                    if (Array.isArray(target))
                         if (key === removeIndicatorKey) {
                             const values:Array<unknown> =
                                 ([] as Array<unknown>).concat(sourceValue)
@@ -3779,40 +3796,33 @@ export class Tools<TElement = HTMLElement> {
                                 .concat(sourceValue)
                                 .concat(target) as unknown as T
                         else if (
-                            key.startsWith(positionPrefix) &&
-                            key.endsWith(positionSuffix)
-                        ) {
-                            const index:number = parseInt(
-                                key.substring(
-                                    positionPrefix.length,
-                                    key.length -
-                                    positionSuffix.length
-                                ),
-                                10
+                            target[index] !== null &&
+                            typeof target[index] === 'object' &&
+                            sourceValue !== null &&
+                            typeof sourceValue === 'object'
+                        )
+                            Tools.extend(
+                                true,
+                                Tools.modifyObject<
+                                    RecursivePartial<ValueOf<T>>
+                                >(
+                                    target[index] as
+                                        RecursivePartial<ValueOf<T>>,
+                                    sourceValue as
+                                        RecursivePartial<ValueOf<T>>,
+                                    removeIndicatorKey,
+                                    prependIndicatorKey,
+                                    appendIndicatorKey,
+                                    positionPrefix,
+                                    positionSuffix
+                                )!,
+                                target[index] as
+                                    RecursivePartial<ValueOf<T>>,
+                                sourceValue as RecursivePartial<ValueOf<T>>
                             )
-
-                            if (
-                                !isNaN(index) &&
-                                index >= 0 &&
-                                index < target.length
-                            )
-                                if (
-                                    typeof target[index] === 'object' &&
-                                    typeof sourceValue === 'object'
-                                )
-                                    Tools.extend(
-                                        true,
-                                        target[index] as
-                                            RecursivePartial<ValueOf<T>>,
-                                        sourceValue as
-                                            RecursivePartial<ValueOf<T>>
-                                    )
-                                else
-                                    target[index] = sourceValue as ValueOf<T>
-                            else
-                                continue
-                        }
-                    } else if (key === removeIndicatorKey)
+                        else
+                            target[index] = sourceValue as ValueOf<T>
+                    else if (key === removeIndicatorKey)
                         for (const value of ([] as Array<unknown>).concat(
                             sourceValue
                         ))
@@ -3847,6 +3857,7 @@ export class Tools<TElement = HTMLElement> {
                             source,
                             key
                         )
+            }
 
         return target
     }
