@@ -199,7 +199,9 @@ export interface TimeoutPromise extends Promise<boolean> {
     timeoutID:NodeJS.Timeout
 }
 
-export type Mapping<T = string> = {[key:string]:T}
+export type Mapping<V = string, K extends string = string> = {
+    [key in K]:V
+}
 // NOTE: Mapping cannot be used here to avoid circular references.
 export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
 export interface ObjectMaskConfiguration {
@@ -262,12 +264,14 @@ export type RelativePosition = 'above'|'below'|'in'|'left'|'right'
 
 export type TemplateFunction<Type = string> =
     (...parameters:Array<unknown>) => Type
-export interface CompilationResult<Type = string> {
+export interface CompilationResult<
+    T = string, N extends Array<string> = Array<string>
+> {
     error:null|string
-    originalScopeNames:Array<string>
-    scopeNameMapping:Mapping<string>
+    originalScopeNames:N
+    scopeNameMapping:{[key in N[number]]:string}
     scopeNames:Array<string>
-    templateFunction:TemplateFunction<Type>
+    templateFunction:TemplateFunction<T>
 }
 export interface EvaluationResult<Type = string> {
     compileError:null|string

@@ -3224,11 +3224,7 @@ export class Tools<TElement = HTMLElement> {
                                         )
                                             return Object.getOwnPropertyNames(
                                                 resolve(evaluate(
-                                                    target[
-                                                        type as keyof Mapping<
-                                                            unknown
-                                                        >
-                                                    ] as string,
+                                                    target[type] as string,
                                                     type
                                                 ))
                                             )
@@ -3259,9 +3255,7 @@ export class Tools<TElement = HTMLElement> {
                         expressionIndicatorKey, executionIndicatorKey
                     ])
                         if (Object.prototype.hasOwnProperty.call(data, type))
-                            return (data as Mapping<unknown>)[
-                                type as keyof Mapping<unknown>
-                            ]
+                            return (data as Mapping<unknown>)[type]
 
                     data = data.__target__
                 }
@@ -5604,25 +5598,27 @@ export class Tools<TElement = HTMLElement> {
      * @returns Object of prepared scope name mappings and compiled function or
      * error string message if given expression couldn't be compiled.
      */
-    static stringCompile<T = string>(
+    static stringCompile<T = string, N extends Array<string> = Array<string>>(
         this:void,
         expression:string,
-        scope:Array<string>|Mapping<unknown>|string = [],
+        scope:N|Mapping<unknown, N[number]>|N[number] = [] as unknown as N,
         execute = false
-    ):CompilationResult<T> {
-        const result:CompilationResult<T> = {
+    ):CompilationResult<T, N> {
+        const result:CompilationResult<T, N> = {
             error: null,
-            originalScopeNames: Array.isArray(scope) ?
-                scope :
-                typeof scope === 'string' ? [scope] : Object.keys(scope),
-            scopeNameMapping: {},
+            originalScopeNames: (
+                Array.isArray(scope) ?
+                    scope :
+                    typeof scope === 'string' ? [scope] : Object.keys(scope)
+            ) as N,
+            scopeNameMapping: {} as {[key in N[number]]:string},
             scopeNames: [],
             templateFunction: ():T => null as unknown as T
         }
 
         for (const name of result.originalScopeNames) {
             const newName:string = Tools.stringConvertToValidVariableName(name)
-            result.scopeNameMapping[name] = newName
+            result.scopeNameMapping[name as N[number]] = newName
             result.scopeNames.push(newName)
         }
 
@@ -5687,15 +5683,20 @@ export class Tools<TElement = HTMLElement> {
      *
      * @returns Object with error message during parsing / running or result.
      */
-    static stringEvaluate<T = string>(
+    static stringEvaluate<
+        T = string, S extends Mapping<unknown> = Mapping<unknown>
+    >(
         this:void,
         expression:string,
-        scope:Mapping<unknown> = {},
+        scope:S = {} as S,
         execute = false,
         binding?:unknown
     ):EvaluationResult<T> {
+        // NOTE: We extract string only types from given scope type.
+        type N = Array<keyof S extends string ? keyof S : never>
+
         const {error, originalScopeNames, scopeNames, templateFunction} =
-            Tools.stringCompile<T>(expression, scope, execute)
+            Tools.stringCompile<T, N>(expression, scope, execute)
 
         const result:EvaluationResult<T> = {
             compileError: null,
@@ -5719,7 +5720,7 @@ export class Tools<TElement = HTMLElement> {
                         registered getter by retrieving values. So simple using
                         "...Object.values(scope)" is not appreciate here.
                     */
-                    ...originalScopeNames.map((name:string):unknown =>
+                    ...originalScopeNames.map((name:keyof S):ValueOf<S> =>
                         scope[name]
                     )
                 )

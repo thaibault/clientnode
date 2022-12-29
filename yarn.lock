@@ -1622,9 +1622,9 @@
   integrity sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==
 
 "@types/node@*":
-  version "18.11.17"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.17.tgz#5c009e1d9c38f4a2a9d45c0b0c493fe6cdb4bcb5"
-  integrity sha512-HJSUJmni4BeDHhfzn6nF0sVmd1SMezP7/4F0Lq+aXzmp2xm9O7WXrUtHW/CHlYVtZUbByEvWidHqRtcJXGF2Ng==
+  version "18.11.18"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.18.tgz#8dfb97f0da23c2293e554c5a50d61ef134d7697f"
+  integrity sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==
 
 "@types/prettier@^2.1.5":
   version "2.7.2"
@@ -3244,9 +3244,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.999"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.999.tgz#1055e5e3c33b88013b2c559cc6367cdd4e5167d0"
-  integrity sha512-rvenOTQ4yqAZohiuqdlvA8oIN0rJT1mVxFx95VZdVfnEGQHdPMutfMS10ye7s1WyBmyB3MMYtNfitSOqWoaGoQ==
+  version "3.0.1000"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1000.tgz#0f7c17c0d2ccdb78b1559566871cc82768e042ba"
+  integrity sha512-LIXiOyGRau27nJfkBIRsvW3OVBS8XSnmKXIt3N1VSCyj1f6xyanhWVuT3uw1qXK0qmFbfmSaUtO/NHhkoG5QwA==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -7223,9 +7223,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 weboptimizer@*:
-  version "2.0.1264"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1264.tgz#29e30700118e7f06aa57d7bb5203c8b79ce13806"
-  integrity sha512-QfWbIr9OIDaQNoNQNSiBN4IJs6YR8ULsdWYLyJ9jlSt1R+SB6lyuFz4URBq7hbwSptlQi9LRILoto6Mhu9uwDA==
+  version "2.0.1265"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1265.tgz#3c6a894944fd8ae66b61fc0095544ffd7809182c"
+  integrity sha512-z/AwTFuLe95OYgCzy6ExpxaUx6NRGsIcwCcqNIbB2DZun+ESrCmW5YhIynY1WvaQLCmwNy6KJmJ0/xrSgmq8Wg==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-decorators" "*"
