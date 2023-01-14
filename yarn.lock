@@ -5585,9 +5585,9 @@ markdown-it@^12.3.2:
     uc.micro "^1.0.5"
 
 marked@^4.0.10:
-  version "4.2.5"
-  resolved "https://registry.yarnpkg.com/marked/-/marked-4.2.5.tgz#979813dfc1252cc123a79b71b095759a32f42a5d"
-  integrity sha512-jPueVhumq7idETHkb203WDD4fMA3yV9emQ5vLwop58lu8bTclMghBWcYAavlDqIEMaisADinV1TooIFCfqOsYQ==
+  version "4.2.12"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-4.2.12.tgz#d69a64e21d71b06250da995dcd065c11083bebb5"
+  integrity sha512-yr8hSKa3Fv4D3jdZmtMMPghgVt6TWbk86WQaWhDloQjRSQhMMYCAro7jP7VDJrjjdV8pxVxMssXS8B8Y5DZ5aw==
 
 mdurl@^1.0.1:
   version "1.0.1"
@@ -6466,7 +6466,7 @@ reusify@^1.0.4:
   resolved "https://registry.yarnpkg.com/reusify/-/reusify-1.0.4.tgz#90da382b1e126efc02146e90845a88db12925d76"
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
 
-rimraf@*:
+rimraf@*, rimraf@>=4:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-4.0.4.tgz#8d0a91709fdc294d40f59c773f63c44e8dc878f1"
   integrity sha512-R0hoVr9xTwemarQjoWlNt/nb5dEGVTBhVdkRmEX2zEkT8T6onH0XKiGjuaC7rNNj/gYzY2p4NVRJ3sjO1ascHQ==
@@ -7229,9 +7229,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 weboptimizer@*:
-  version "2.0.1272"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1272.tgz#b6d5e6b3fec3db95834720189f88ba2a9ba78e17"
-  integrity sha512-CA9dKVHiOFGwBJ5DcnGhMy7KcxA0g6DzQnsP1bP6+hiHtJZgwanNSIyI3LzYlN/hB+ID+OenxcqhOcwLaafcgA==
+  version "2.0.1275"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1275.tgz#00e3386a31c8b74eb5f96e81a901e13eae23b931"
+  integrity sha512-V8ZahtY3InNYLGa3omwEFggR09QJKeyykRIiaHQXhKGVgkz1SpBOzQNyr342vBmOJaGoTOOIgh48ZWu5foBtTQ==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-decorators" "*"
@@ -7251,7 +7251,7 @@ weboptimizer@*:
     html-webpack-plugin "*"
     imports-loader "*"
     jest-environment-jsdom "*"
-    rimraf "*"
+    rimraf ">=4"
     script-loader "*"
     typescript "*"
     webpack "*"
