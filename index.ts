@@ -1988,14 +1988,14 @@ export class Tools<TElement = HTMLElement> {
         callback:UnknownFunction,
         thresholdInMilliseconds = 600,
         ...additionalArguments:Array<unknown>
-    ):((..._parameters:Array<unknown>) => Promise<T>) {
+    ):((...parameters:Array<unknown>) => Promise<T>) {
         let waitForNextSlot = false
         let parametersForNextSlot:Array<unknown>|null = null
         // NOTE: Type "T" will be added via "then" method when called.
-        let resolveNextSlotPromise:(_value:T) => void
-        let rejectNextSlotPromise:(_reason:unknown) => void
+        let resolveNextSlotPromise:(value:T) => void
+        let rejectNextSlotPromise:(reason:unknown) => void
         let nextSlotPromise:Promise<T> = new Promise<T>((
-            resolve:(_value:T) => void, reject:(_reason:unknown) => void
+            resolve:(value:T) => void, reject:(reason:unknown) => void
         ):void => {
             resolveNextSlotPromise = resolve
             rejectNextSlotPromise = reject
@@ -2036,7 +2036,7 @@ export class Tools<TElement = HTMLElement> {
                 and is marked as delayed.
             */
             nextSlotPromise = new Promise<T>((
-                resolve:(_value:T) => void, reject:(_reason:unknown) => void
+                resolve:(value:T) => void, reject:(reason:unknown) => void
             ):void => {
                 resolveNextSlotPromise = resolve
                 rejectNextSlotPromise = reject
@@ -2071,8 +2071,8 @@ export class Tools<TElement = HTMLElement> {
                                 next call request without waiting.
                             */
                             nextSlotPromise = new Promise<T>((
-                                resolve:(_value:T) => void,
-                                reject:(_reason:unknown) => void
+                                resolve:(value:T) => void,
+                                reject:(reason:unknown) => void
                             ):void => {
                                 resolveNextSlotPromise = resolve
                                 rejectNextSlotPromise = reject
