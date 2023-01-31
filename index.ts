@@ -1119,7 +1119,7 @@ export class Tools<TElement = HTMLElement> {
         return `${output} (Type: "${Tools.determineType(object)}")`
     }
     /// endregion
-    /// region  cookie
+    /// region cookie
     /**
      * Deletes a cookie value by given name.
      * @param name - Name to identify requested value.
