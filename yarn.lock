@@ -3189,9 +3189,9 @@ chrome-trace-event@^1.0.2:
   integrity sha512-p3KULyQg4S7NIHixdwbGX+nFHkoBiA4YQmyWtjb8XngSKV124nJmRysgAeujbUVb15vh+RvFUfCPqU7rXk+hZg==
 
 ci-info@^3.2.0:
-  version "3.7.1"
-  resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.7.1.tgz#708a6cdae38915d597afdf3b145f2f8e1ff55f3f"
-  integrity sha512-4jYS4MOAaCIStSRwiuxc4B8MYhIe676yO1sYGzARnjXkWpmzZMMYxY6zu8WYWDhSuth5zhrQ1rhNSibyyvv4/w==
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.8.0.tgz#81408265a5380c929f0bc665d62256628ce9ef91"
+  integrity sha512-eXTggHWSooYhq49F2opQhuHWgzucfF2YgODK4e1566GQs5BIfP30B0oenwBJHfWxAs2fyPB1s7Mg949zLf61Yw==
 
 cjs-module-lexer@^1.0.0:
   version "1.2.2"
@@ -3230,9 +3230,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.1021"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1021.tgz#60a94a0a6e3fe654ba05b4222b640430539e3cfe"
-  integrity sha512-PJ+JBAcftCyBiilVhvl6c1LfoDB/FxtYYsLj/ooA3wRNPdVmSBKpOIeSXu5ncS4d4XM83x53fPq5GBcVpa6CkA==
+  version "3.0.1022"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1022.tgz#6410e1db115f552d6257e54df40e7e83e92abf40"
+  integrity sha512-FxrDsrQs/rgi2/setuzsyxwDHnNEPYTdTHlAfyavGMXByv3RVBga30kfmo9TxSlywSkEtlG4/fDYBFcZGEZCqA==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3689,9 +3689,9 @@ ejs@*:
     jake "^10.8.5"
 
 electron-to-chromium@^1.3.47, electron-to-chromium@^1.4.284:
-  version "1.4.292"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.292.tgz#e3a3dca3780c8ce01e2c1866b5ec2fbe31c423e3"
-  integrity sha512-ESWOSyJy5odDlE8wvh5NNAMORv4r6assPwIPGHEMWrWD0SONXcG/xT+9aD9CQyeRwyYDPo6dJT4Bbeg5uevVQQ==
+  version "1.4.295"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.295.tgz#911d5df67542bf7554336142eb302c5ec90bba66"
+  integrity sha512-lEO94zqf1bDA3aepxwnWoHUjA8sZ+2owgcSZjYQy0+uOSEclJX0VieZC+r+wLpSxUHRd6gG32znTWmr+5iGzFw==
 
 emittery@^0.13.1:
   version "0.13.1"
@@ -3796,9 +3796,9 @@ eslint-config-google@*:
   integrity sha512-WsbX4WbjuMvTdeVL6+J3rK1RGhCTqjsFjX7UMSMgZiyxxaNLkoJENbrGExzERFeoTpGw3F3FypTiWAP9ZXzkEw==
 
 eslint-plugin-jsdoc@*:
-  version "39.8.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-39.8.0.tgz#9ca38ae31fb6e6de6268c5c041fa175fe1190469"
-  integrity sha512-ZwGmk0jJoJD/NILeDRBKrpq/PCgddUdATjeU5JGTqTzKsOWfeaHOnaAwZjuOh7T8EB4hSoZ/9pR4+Qns2ldQVg==
+  version "40.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-40.0.0.tgz#7f433757aa91721e4b88a527dc17ac0437c3c075"
+  integrity sha512-LOPyIu1vAVvGPkye3ci0moj0iNf3f8bmin6do2DYDj+77NRXWnkmhKRy8swWsatUs3mB5jYPWPUsFg9pyfEiyA==
   dependencies:
     "@es-joy/jsdoccomment" "~0.36.1"
     comment-parser "1.3.1"
@@ -3842,9 +3842,9 @@ eslint-visitor-keys@^3.3.0:
   integrity sha512-mQ+suqKJVyeuwGYHAdjMFqjCyfl8+Ldnxuyp3ldiMBFKkvytrXUZWaiPCEav8qDHKty44bD+qV1IP4T+w+xXRA==
 
 eslint@*:
-  version "8.33.0"
-  resolved "https://registry.yarnpkg.com/eslint/-/eslint-8.33.0.tgz#02f110f32998cb598c6461f24f4d306e41ca33d7"
-  integrity sha512-WjOpFQgKK8VrCnAtl8We0SUOy/oVZ5NHykyMiagV1M9r8IFpIJX7DduK6n1mpfhlG7T1NLWm2SuD8QB7KFySaA==
+  version "8.34.0"
+  resolved "https://registry.yarnpkg.com/eslint/-/eslint-8.34.0.tgz#fe0ab0ef478104c1f9ebc5537e303d25a8fb22d6"
+  integrity sha512-1Z8iFsucw+7kSqXNZVslXS8Ioa4u2KM7GPwuKtkTFAqZ/cHMcEaR+1+Br0wLlot49cNxIiZk5wp8EAbPcYZxTg==
   dependencies:
     "@eslint/eslintrc" "^1.4.1"
     "@humanwhocodes/config-array" "^0.11.8"
@@ -5691,9 +5691,9 @@ minimatch@^5.0.1:
     brace-expansion "^2.0.1"
 
 minimist@^1.2.0, minimist@^1.2.6:
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.7.tgz#daa1c4d91f507390437c6a8bc01078e7000c4d18"
-  integrity sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.8.tgz#c1a464e7693302e082a075cee0c057741ac4772c"
+  integrity sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==
 
 mkdirp@^0.5.1:
   version "0.5.6"
@@ -7232,9 +7232,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 weboptimizer@*:
-  version "2.0.1291"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1291.tgz#0520e1b5f40309716bdd78c84fa29a9c16421d8f"
-  integrity sha512-087pWdK5wzfMJiIOIC0pmMMPMBG48e8xsWlwrQPubI2MhS0MC82jfQDOrMawbdbP+O+NI81DxuvxCVct9P6kyA==
+  version "2.0.1293"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1293.tgz#8400bbe38654cd7943136d357638c8df8fd3659c"
+  integrity sha512-AH0Q1k+s2xIxAaUUlo9xPBkkNpm4tgEtNcaK19FCps5XqbaNoI/U/1LvuQxTJSvOcEIlBRT5biCoAr35EXlT3Q==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-decorators" "*"
