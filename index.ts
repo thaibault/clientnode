@@ -7343,6 +7343,7 @@ export class Tools<TElement = HTMLElement> {
         try {
             const result:Error|null =
                 check(await globalContext.fetch(url, options.options))
+
             if (result)
                 return result
         } catch (error) {
