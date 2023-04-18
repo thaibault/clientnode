@@ -7330,9 +7330,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 weboptimizer@*:
-  version "2.0.1320"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1320.tgz#41b7bd4a4d4df7b5f89643333e86f0692248ca13"
-  integrity sha512-s2l7Ms5wyenF13FT9NsFFpiUz8aBQLjdHDtnUr+axIsHmth9w36IoKI7Kq3pn2FN1qyOiUHBc4EtOp8kIFZ2Sw==
+  version "2.0.1322"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1322.tgz#6764da637aad87c8ddc5687b90f4a1a98afba007"
+  integrity sha512-HRz0EQVmaEIlh4Bc2pTCvZCHCjmvSiM2VzdKlOOsMA/XBjIySm8e3g3A9XCCmMc3JSEHXe7VzJ38pto4FvC7aw==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-decorators" "*"
