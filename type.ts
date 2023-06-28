@@ -104,9 +104,12 @@ export type ImportFunction =
 export type HTMLItem = Comment|Document|HTMLElement|Text
 
 export type Primitive = boolean|null|number|string|undefined
+export type Mapping<V = string, K extends string = string> = {
+    [key in K]:V
+}
 // NOTE: Mapping cannot be used here to avoid circular references.
-export type PlainObject<Type = Primitive> =
-    {[key:string]:Array<PlainObject<Type>|Type>|PlainObject<Type>|Type}
+export type PlainObject<V = Primitive, K extends string = string> =
+    {[key in K]:Array<PlainObject<V, K>|V>|PlainObject<V, K>|V}
 
 export interface ProxyHandler<T = unknown> {
     deleteProperty:(target:T, key:string|symbol) => boolean
@@ -199,9 +202,6 @@ export interface TimeoutPromise extends Promise<boolean> {
     timeoutID:NodeJS.Timeout
 }
 
-export type Mapping<V = string, K extends string = string> = {
-    [key in K]:V
-}
 // NOTE: Mapping cannot be used here to avoid circular references.
 export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
 export interface ObjectMaskConfiguration {
