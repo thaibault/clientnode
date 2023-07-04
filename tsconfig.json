@@ -4,6 +4,6 @@
             "clientnode/type": ["./type"]
         }
     },
-    "extends": "weboptimizer/tsconfig.json",
+    "extends": "weboptimizer/tsconfigLibrary.json",
     "include": ["./*.ts", "./*.tsx"]
 }
