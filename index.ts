@@ -2296,16 +2296,15 @@ export class Tools<TElement = HTMLElement> {
         this:void,
         object:unknown,
         determineCircularReferenceValue:((
-            _serializedValue:null|unknown,
-            _key:null|string,
-            _value:unknown,
-            _seenObjects:Map<unknown, null|unknown>
-        ) => unknown) = (serializedValue:null|unknown):string|unknown =>
+            serializedValue:unknown,
+            key:null|string,
+            value:unknown,
+            seenObjects:Map<unknown, unknown>
+        ) => unknown) = (serializedValue:unknown):unknown =>
             serializedValue ?? '__circularReference__',
         numberOfSpaces = 0
     ):ReturnType<typeof JSON.stringify>|undefined {
-        const seenObjects:Map<unknown, null|unknown> =
-            new Map<unknown, null|unknown>()
+        const seenObjects:Map<unknown, unknown> = new Map<unknown, unknown>()
 
         const stringifier = (object:unknown):string => {
             const replacer = (key:null|string, value:unknown):unknown => {
@@ -2379,10 +2378,8 @@ export class Tools<TElement = HTMLElement> {
                     let index = 0
 
                     for (const value of object as Array<unknown>) {
-                        /* eslint-disable @typescript-eslint/no-extra-semi */
-                        ;(object as Array<unknown>)[index] =
+                        (object as Array<unknown>)[index] =
                             Tools.convertMapToPlainObject(value, deep)
-                        /* eslint-enable @typescript-eslint/no-extra-semi */
 
                         index += 1
                     }
@@ -3272,9 +3269,7 @@ export class Tools<TElement = HTMLElement> {
                         return value
                     }
 
-                    /* eslint-disable @typescript-eslint/no-extra-semi */
-                    ;(data as Mapping<unknown>)[key] = resolve(value)
-                    /* eslint-enable @typescript-eslint/no-extra-semi */
+                    (data as Mapping<unknown>)[key] = resolve(value)
                 }
             }
 
@@ -3918,13 +3913,8 @@ export class Tools<TElement = HTMLElement> {
                 if (typeof subObject === 'string') {
                     for (const key of resolvedKeys)
                         if (subObject.startsWith(`${key}:`)) {
-                            /*
-                                eslint-disable @typescript-eslint/no-extra-semi
-                            */
-                            ;(object as Array<string>).splice(index, 1)
-                            /*
-                                eslint-enable @typescript-eslint/no-extra-semi
-                            */
+                            (object as Array<string>).splice(index, 1)
+
                             skip = true
                             break
                         }
@@ -3933,8 +3923,7 @@ export class Tools<TElement = HTMLElement> {
                         continue
                 }
 
-                // eslint-disable-next-line @typescript-eslint/no-extra-semi
-                ;(object as Array<unknown>)[index] =
+                (object as Array<unknown>)[index] =
                     Tools.removeKeyPrefixes(subObject, resolvedKeys)
 
                 index += 1
@@ -3963,7 +3952,7 @@ export class Tools<TElement = HTMLElement> {
 
                 if (typeof key === 'string') {
                     for (const resolvedKey of resolvedKeys) {
-                        const escapedKey:string =
+                        const escapedKey =
                             Tools.stringEscapeRegularExpressions(resolvedKey)
                         if (new RegExp(`^${escapedKey}[0-9]*$`).test(key)) {
                             object.delete(key)
@@ -7992,7 +7981,7 @@ export class Tools<TElement = HTMLElement> {
         if (parameters.length === 0)
             parameters.push('')
         if (!(parameters[0] as Array<string>).includes('.'))
-            parameters[0] += `.${this.options.name}`
+            (parameters[0] as string) += `.${this.options.name}`
 
         return ($domNode[eventFunctionName as keyof $T] as UnknownFunction)
             .apply($domNode, parameters) as $T<TElement>

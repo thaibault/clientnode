@@ -203,7 +203,7 @@ export interface TimeoutPromise extends Promise<boolean> {
 }
 
 // NOTE: Mapping cannot be used here to avoid circular references.
-export type ObjectMask = boolean|{[key:string]:boolean|ObjectMask}
+export type ObjectMask = boolean|{[key:string]:ObjectMask}
 export interface ObjectMaskConfiguration {
     exclude?:ObjectMask
     include?:ObjectMask
