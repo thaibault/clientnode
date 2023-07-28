@@ -209,7 +209,23 @@ export interface ObjectMaskConfiguration {
     include?:ObjectMask
 }
 
-export type Evaluateable = {__evaluate__:string}|{__execute__:string}
+export interface EvaluateObject {
+    __evaluate__:string
+}
+export interface ExecuteObject {
+    __execute__:string
+}
+export type Evaluateable = EvaluateObject|ExecuteObject
+
+export type EvaluatedObject<Type extends object> = {
+    [Property in keyof Type]:(
+        Type[Property] extends Evaluateable ?
+            unknown :
+            Type[Property] extends object ?
+                EvaluatedObject<Type[Property]> :
+                Type[Property]
+        )
+}
 export type RecursiveEvaluateable<Type> = Evaluateable|{
     [Property in keyof Type]:(
         Evaluateable|(Type[Property] extends (infer OtherType)[] ?
