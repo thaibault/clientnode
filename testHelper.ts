@@ -85,7 +85,7 @@ export const testExpectedType = <
  * @returns Nothing.
  */
 export const testEach = <
-    FunctionType extends UnknownFunction = UnknownFunction
+    FunctionType extends AnyFunction = UnknownFunction
 >(
         functionName:string,
         callback:FunctionType,
@@ -175,7 +175,7 @@ export const testEachPromiseRejection = <
  * @returns Nothing.
  */
 export const testEachSingleParameterAgainstSameExpectation = <
-    FunctionType extends UnknownFunction = UnknownFunction
+    FunctionType extends AnyFunction = UnknownFunction
 >(
         functionName:string,
         callback:FunctionType,
@@ -187,7 +187,7 @@ export const testEachSingleParameterAgainstSameExpectation = <
             ((parameter:FirstParameter<FunctionType>):void =>
                 testExpectedType<ReturnType<FunctionType>>(
                     (expected === ThrowSymbol ?
-                        () => callback(parameter) :
+                        () => callback(parameter) as unknown :
                         callback(parameter)
                     ) as TestMatchers<void>|void,
                     expected
@@ -263,7 +263,7 @@ export const testEachSingleParameterAgainstSameRejectedExpectation = <
  * @returns Nothing.
  */
 export const testEachAgainstSameExpectation = <
-    FunctionType extends UnknownFunction = UnknownFunction
+    FunctionType extends AnyFunction = UnknownFunction
 >(
         functionName:string,
         callback:FunctionType,
@@ -275,8 +275,7 @@ export const testEachAgainstSameExpectation = <
             ((...parameters:Parameters<FunctionType>):void =>
                 testExpectedType<ReturnType<FunctionType>>(
                     (expected === ThrowSymbol ?
-                        () => callback(...parameters) as
-                            ReturnType<FunctionType> :
+                        () => callback(...parameters) as unknown :
                         callback(...parameters)
                     ) as TestMatchers<void>|void,
                     expected
@@ -296,7 +295,7 @@ export const testEachAgainstSameExpectation = <
  * @returns Nothing.
  */
 export const testEachPromiseAgainstSameExpectation = <
-    FunctionType extends UnknownFunction = UnknownFunction
+    FunctionType extends AnyFunction = UnknownFunction
 >(
         functionName:string,
         callback:FunctionType,
