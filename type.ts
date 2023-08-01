@@ -96,7 +96,8 @@ export type RecursivePartial<Type> =
 
 export type FileTraversionResult = false|null|Promise<false|null|void>|void
 
-export type TestMatchers<T extends void> = Matchers<T> & {not:Matchers<T>}
+export type TestMatchers<T extends Promise<void>|void> =
+    Matchers<T> & {not:Matchers<T>}
 /// endregion
 /// region native
 export type ImportFunction =
