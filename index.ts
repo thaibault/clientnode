@@ -166,7 +166,7 @@ const {basename = null, join = null, resolve = null} =
 /// endregion
 /// region $
 export const determine$:(() => $TStatic) = ():$TStatic => {
-    let $:$TStatic = (():void => {
+    let $:$TStatic = (() => {
         // Do nothing.
     }) as unknown as $TStatic
     if (globalContext.$ && globalContext.$ !== null)
@@ -189,7 +189,7 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
                 globalContext.document.querySelectorAll.bind(
                     globalContext.document
                 ) :
-                ():null => null
+                () => null
 
             $ = ((parameter:unknown):unknown => {
                 let $domNodes:null|$T = null
@@ -244,7 +244,7 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
 
     return $
 }
-export let $:$TStatic = determine$()
+export let $ = determine$()
 /// endregion
 // endregion
 // region plugins/classes
