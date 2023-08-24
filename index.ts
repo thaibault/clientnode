@@ -72,6 +72,7 @@ import {
     $TStatic
 } from './type'
 // endregion
+export const DEFAULT_ENCODING:Encoding = 'utf8'
 export const CloseEventNames = [
     'close', 'exit', 'SIGINT', 'SIGTERM', 'SIGQUIT', 'uncaughtException'
 ] as const
@@ -6874,14 +6875,14 @@ export class Tools<TElement = HTMLElement> {
             Tools.isFileSync(serializedObject)
         )
             serializedObject =
-                readFileSync!(serializedObject, {encoding: 'utf-8'})
+                readFileSync!(serializedObject, {encoding: DEFAULT_ENCODING})
 
         serializedObject = serializedObject.trim()
 
         if (!serializedObject.startsWith('{'))
             serializedObject = (eval('Buffer') as typeof Buffer)
                 .from(serializedObject, 'base64')
-                .toString('utf8')
+                .toString(DEFAULT_ENCODING)
 
         const result:EvaluationResult =
             Tools.stringEvaluate(serializedObject, {[name]: scope})
@@ -7453,8 +7454,8 @@ export class Tools<TElement = HTMLElement> {
         sourcePath:string,
         targetPath:string,
         callback:AnyFunction = Tools.noop,
-        readOptions:PlainObject = {encoding: null, flag: 'r'},
-        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+        readOptions = {encoding: null, flag: 'r'},
+        writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
     ):Promise<string> {
         // NOTE: Check if folder needs to be created or integrated.
         sourcePath = resolve!(sourcePath)
@@ -7511,8 +7512,8 @@ export class Tools<TElement = HTMLElement> {
         sourcePath:string,
         targetPath:string,
         callback:AnyFunction = Tools.noop,
-        readOptions:PlainObject = {encoding: null, flag: 'r'},
-        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+        readOptions = {encoding: null, flag: 'r'},
+        writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
     ):string {
         // NOTE: Check if folder needs to be created or integrated.
         sourcePath = resolve!(sourcePath)
@@ -7565,8 +7566,8 @@ export class Tools<TElement = HTMLElement> {
         this:void,
         sourcePath:string,
         targetPath:string,
-        readOptions:PlainObject = {encoding: null, flag: 'r'},
-        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+        readOptions = {encoding: null, flag: 'r'},
+        writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
     ):Promise<string> {
         /*
             NOTE: If target path references a directory a new file with the
@@ -7597,8 +7598,8 @@ export class Tools<TElement = HTMLElement> {
         this:void,
         sourcePath:string,
         targetPath:string,
-        readOptions:PlainObject = {encoding: null, flag: 'r'},
-        writeOptions:PlainObject = {encoding: 'utf8', flag: 'w', mode: 0o666}
+        readOptions = {encoding: null, flag: 'r'},
+        writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
     ):string {
         /*
             NOTE: If target path references a directory a new file with the
@@ -7720,7 +7721,9 @@ export class Tools<TElement = HTMLElement> {
         this:void,
         directoryPath:string,
         callback:null|((_file:File) => FileTraversionResult) = null,
-        options:Encoding|SecondParameter<typeof import('fs').readdir> = 'utf8'
+        options:(
+            Encoding|SecondParameter<typeof import('fs').readdir>
+        ) = DEFAULT_ENCODING
     ):Promise<Array<File>> {
         const files:Array<File> = []
         for (const directoryEntry of await readdir!(
@@ -7807,8 +7810,9 @@ export class Tools<TElement = HTMLElement> {
         this:void,
         directoryPath:string,
         callback:AnyFunction|null = Tools.noop,
-        options:Encoding|SecondParameter<typeof import('fs').readdirSync> =
-        'utf8'
+        options:(
+            Encoding|SecondParameter<typeof import('fs').readdirSync>
+        ) = DEFAULT_ENCODING
     ):Array<File> {
         const files:Array<File> = []
 
