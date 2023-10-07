@@ -3865,6 +3865,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['0', 0],
         ['12345', 12345],
         ['0049172002123', '+49 172 (0) / 0212 - 3'],
+        ['', 'no entry', true],
+        ['', 'no entry', false],
         ['', '', false],
         ['0', '0', false],
         ['0', ' 0  ', false],
