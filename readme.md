@@ -18,11 +18,11 @@ Project status
 
 [![build](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/build.yaml?style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/build.yaml)
 
-[![check types](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/check-types.yaml?style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/check-types.yaml)
-[![lint](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/lint.yaml?style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/lint.yaml)
-[![test](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/test-coverage-report.yaml?style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/test-coverage-report.yaml)
+[![check types](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/check-types.yaml?label=Check%20types&style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/check-types.yaml)
+[![lint](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/lint.yaml?label=lint&style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/lint.yaml)
+[![test](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/test-coverage-report.yaml?label=test&style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/test-coverage-report.yaml)
 
-[![code coverage](https://img.shields.io/coverallsCoverage/github/thaibault/clientnode?style=for-the-badge)](https://coveralls.io/github/thaibault/clientnode)
+[![code coverage](https://img.shields.io/coverallsCoverage/github/thaibault/clientnode?label=code%20coverage&style=for-the-badge)](https://coveralls.io/github/thaibault/clientnode)
 
 [![documentation website](https://img.shields.io/website-up-down-green-red/https/torben.website/clientnode.svg?label=documentation-website&style=for-the-badge)](https://torben.website/clientnode)
 
