@@ -13,20 +13,21 @@ endregion -->
 Project status
 --------------
 
-[![npm](https://img.shields.io/npm/v/clientnode?color=%23d55e5d&label=npm%20package%20version&logoColor=%23d55e5d)](https://www.npmjs.com/package/clientnode)
-[![npm downloads](https://img.shields.io/npm/dy/clientnode.svg)](https://www.npmjs.com/package/clientnode)
+[![npm](https://img.shields.io/npm/v/clientnode?color=%23d55e5d&label=npm%20package%20version&logoColor=%23d55e5d&style=for-the-badge)](https://www.npmjs.com/package/clientnode)
+[![npm downloads](https://img.shields.io/npm/dy/clientnode.svg?style=for-the-badge)](https://www.npmjs.com/package/clientnode)
 
-[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/build.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/build.yaml)
-[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/test.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/test.yaml)
-[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/test-coverage-report.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/test-coverage-report.yaml)
-[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/check-types.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/check-types.yaml)
-[![<LABEL>](https://github.com/thaibault/clientnode/actions/workflows/lint.yaml/badge.svg)](https://github.com/thaibault/clientnode/actions/workflows/lint.yaml)
+[![<LABEL>](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/build.yaml?style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/build.yaml)
 
-[![code coverage](https://coveralls.io/repos/github/thaibault/clientnode/badge.svg)](https://coveralls.io/github/thaibault/clientnode)
+[![<LABEL>](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/test.yaml?style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/test.yaml)
+[![<LABEL>](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/test-coverage-report.yaml?style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/test-coverage-report.yaml)
+[![<LABEL>](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/check-types.yaml?style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/check-types.yaml)
+[![<LABEL>](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/lint.yaml?style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/lint.yaml)
 
-[![documentation website](https://img.shields.io/website-up-down-green-red/https/torben.website/clientnode.svg?label=documentation-website)](https://torben.website/clientnode)
+[![code coverage](https://img.shields.io/coverallsCoverage/github/thaibault/clientnode?style=for-the-badge)](https://coveralls.io/github/thaibault/clientnode)
 
-[![Try out](https://badge.runkitcdn.com/clientnode.svg)](https://npm.runkit.com/clientnode)
+[![documentation website](https://img.shields.io/website-up-down-green-red/https/torben.website/clientnode.svg?label=documentation-website&style=for-the-badge)](https://torben.website/clientnode)
+
+[![Try out](https://img.shields.io/badge/Try%20it%20on%20runkit-%2345cc11?style=for-the-badge)](https://npm.runkit.com/clientnode)
 
 <!--|deDE:Einsatz-->
 Use case
