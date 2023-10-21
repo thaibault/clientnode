@@ -6837,7 +6837,7 @@ export class Tools<TElement = HTMLElement> {
                     )
             }
 
-            return normalizedValue.replace(/[^0-9-]+/g, '')
+            return normalizedValue.replace(/[^0-9-]+/g, '').replace(/^-+$/, '')
         }
 
         return ''
