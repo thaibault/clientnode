@@ -3561,6 +3561,11 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '2014-11-10T08:30:00+02:00',
             false
         ],
+        [
+            new Date(Date.UTC(2023, 10 - 1, 26, 8, 40, 1)),
+            '2023-10-26T08:40:01+00:00',
+            false
+        ],
         [new Date(1970, 1 - 1, 1, 8, 30), '1.1.1970 08:30:00', false],
         [new Date(1970, 1 - 1, 1), 'Mo. 1.1.1970', false],
         [new Date(1970, 1 - 1, 2), 'Di. 2.1.1970', false],
