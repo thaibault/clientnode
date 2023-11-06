@@ -3337,9 +3337,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.1088"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1088.tgz#6205e918a8a4e252a8b0e7feb6015b1f000a3e00"
-  integrity sha512-mPdywe3CLJXO4YCLXS/ETWu3qwkBQWVkoLOB+jmev6NK/7Hz75laYN9lvZ9pQcS5pojdz2g8nk4wvwVRtLoBWg==
+  version "3.0.1089"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1089.tgz#127e6ddf0f0437bb28e7c66336616e03518f489a"
+  integrity sha512-/cbhhQ1lVxPzkJ4LdHPD9Acu7XEhx5Gx6/Wn4TetcMbKC8Iixwz6QaZr05cO2N2VGPXGX6xQoo4iADD6kZ9MlA==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3749,9 +3749,9 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 documentation-website@*:
-  version "1.0.312"
-  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.312.tgz#6585d6ee917927e6d1e3f490582bc172570f067c"
-  integrity sha512-74dojrkLU/xi3adGI5Cq0iy1DkcRVrdyZCfJhvT/VdCmAqUL2HMtkc3C6zI+LffPiTNtwHN87FxqG4cKX0QHtg==
+  version "1.0.314"
+  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.314.tgz#c71893f858cc91da8c36d60888a9d7af6d20febb"
+  integrity sha512-LeQIkkSEUydz2IDckiwGzF3mDebI1QLOJ+S324jiRc1jNSE3LL0xhq90T/NtWsisJm8mdbruJODdo5uBBxgsiQ==
 
 dom-converter@^0.2.0:
   version "0.2.0"
@@ -4183,9 +4183,9 @@ fast-deep-equal@^3.1.1, fast-deep-equal@^3.1.3:
   integrity sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==
 
 fast-glob@^3.2.9:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/fast-glob/-/fast-glob-3.3.1.tgz#784b4e897340f3dbbef17413b3f11acf03c874c4"
-  integrity sha512-kNFPyjhh5cKjrUltxs+wFx+ZkbRaxxmZ+X0ZU31SOsxCEtP9VPgtq2teZw1DebupL5GmDaNQ6yKMMVcM41iqDg==
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/fast-glob/-/fast-glob-3.3.2.tgz#a904501e57cfdd2ffcded45e99a54fef55e46129"
+  integrity sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==
   dependencies:
     "@nodelib/fs.stat" "^2.0.2"
     "@nodelib/fs.walk" "^1.2.3"
@@ -7512,9 +7512,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 weboptimizer@*:
-  version "2.0.1396"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1396.tgz#ca12035cb7d9e002e4333e68ffd5fe7c0ff7b4de"
-  integrity sha512-9bIyR0msspoac7KHN/3YKKSsGSboMDca7cu38SBYuyLdWXJ2nFFVjeMC3QCTS75v4GoGIG0YtasAaDZSdP6Rxw==
+  version "2.0.1397"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1397.tgz#c9f8e0206c8a237f2a6ef3d7b17d2b0617d25f7e"
+  integrity sha512-DOddi5MdQFgTvxCeoATkDi5lySZaa7+YT8mzmrlblfNM/cePCbZUgkxwYvQZUMaqrnLR/NT09I282McZ+Lh7Dw==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
