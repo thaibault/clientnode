@@ -5923,10 +5923,23 @@ export class Tools<TElement = HTMLElement> {
     static stringInterpretDateTime(
         this:void, value:string, interpretAsUTC = true
     ):Date|null {
+        value = value.replace(/^(-?)-*0*([1-9][0-9]*)$/, '$1$2')
+        /*
+            NODE: Do not use "parseFloat" since we want to interpret delimiter
+            as date delimiters.
+        */
+        if (`${parseInt(value)}` === value)
+            return new Date(
+                parseInt(value) * 1000 +
+                (interpretAsUTC ?
+                    0 :
+                    (new Date().getTimezoneOffset() * 60 * 1000)
+                )
+            )
+
         // NOTE: All patterns can assume lower cased strings.
 
         // TODO handle am/pm
-
         if (!Tools._dateTimePatternCache.length) {
             // region pre-compile regular expressions
             /// region pattern
@@ -6190,7 +6203,10 @@ export class Tools<TElement = HTMLElement> {
 
         // region pre-process
         value = value.toLowerCase()
-        // Reduce each none alphanumeric symbol to a single one.
+        /*
+            Reduce each sequence on none alphanumeric symbols to the first
+            symbol.
+        */
         value = value.replace(/([^0-9a-z])[^0-9a-z]+/g, '$1')
 
         let monthNumber = 1
