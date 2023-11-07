@@ -3530,6 +3530,12 @@ describe(`Tools (${testEnvironment})`, ():void => {
         Tools.stringInterpretDateTime,
 
         [null, ''],
+        [new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, 1)), '1'],
+        [new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, -1)), '-1'],
+        [new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, 1)), '01'],
+        [new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, -1)), '--01'],
+        [new Date(1970, 1 - 1, 1, 0, 0, 1), '1', false],
+        [new Date(1970, 1 - 1, 1, 0, 0, 1), '01', false],
         [new Date(1970, 1 - 1, 1, 1), '01:00', false],
         // TODO [new Date(1970, 1 - 1, 1, 1), '01:00 A.M.', false],
         [new Date(1970, 1 - 1, 1, 8, 55), '08:55', false],
