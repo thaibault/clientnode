@@ -3868,7 +3868,7 @@ export class Tools<TElement = HTMLElement> {
 
         if (typeof value === 'string')
             /*
-                We make a simple precheck to determine if it could be a date
+                We make a simple pre-check to determine if it could be a date
                 like representation. Idea: There should be at least some
                 numbers and separators.
             */
@@ -3886,7 +3886,16 @@ export class Tools<TElement = HTMLElement> {
             }
 
         if (typeof value === 'number')
-            return new Date(value * 1000)
+            return new Date(
+                (
+                    value +
+                    (interpretAsUTC ?
+                        0 :
+                        (new Date().getTimezoneOffset() * 60)
+                    )
+                ) *
+                1000
+            )
 
         const result = new Date(value)
 
@@ -5930,11 +5939,14 @@ export class Tools<TElement = HTMLElement> {
         */
         if (`${parseInt(value)}` === value)
             return new Date(
-                parseInt(value) * 1000 +
-                (interpretAsUTC ?
-                    0 :
-                    (new Date().getTimezoneOffset() * 60 * 1000)
-                )
+                (
+                    parseInt(value) +
+                    (interpretAsUTC ?
+                        0 :
+                        (new Date().getTimezoneOffset() * 60)
+                    )
+                ) *
+                1000
             )
 
         // NOTE: All patterns can assume lower cased strings.

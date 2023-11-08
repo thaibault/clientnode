@@ -2174,16 +2174,16 @@ describe(`Tools (${testEnvironment})`, ():void => {
             expect(parameters[1]).toStrictEqual(modified)
         }
     )
-    test('normalizeDateTime', ():void =>
+    test('normalizeDateTime', () =>
         expect(typeof Tools.normalizeDateTime()).toStrictEqual('object')
     )
     test.each([
         [now, now],
         [new Date(1.2 * 1000), 1.2],
         [new Date(1.2 * 1000), '1.2'],
-        [new Date(1970, 1 - 1, 1, 8, 55), '08:55'],
+        [new Date(1970, 1 - 1, 1, 8, 55), '08:55', false],
         [new Date(1 * 1000), 1],
-        [new Date(1970, 2 - 1, 1), '2/1/1970'],
+        [new Date(1970, 2 - 1, 1), '2/1/1970', false],
         [new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, 0, 1)), 0.001],
         [new Date(1970, 1 - 1, 1, 8, 30), new Date(1970, 1 - 1, 1, 8, 30)],
         [null, 'abc'],
@@ -2192,10 +2192,11 @@ describe(`Tools (${testEnvironment})`, ():void => {
         '%p === normalizeDateTime(%p)',
         (
             expected:ReturnType<typeof Tools.normalizeDateTime>,
-            parameter:FirstParameter<typeof Tools.normalizeDateTime>
-        ):void =>
+            value:FirstParameter<typeof Tools.normalizeDateTime>,
+            interpretAsUTC = true
+        ) =>
             expect(Tools.equals(
-                Tools.normalizeDateTime(parameter, false), expected
+                Tools.normalizeDateTime(value, interpretAsUTC), expected
             )).toStrictEqual(true)
     )
     testEach<typeof Tools.removeKeyPrefixes>(
