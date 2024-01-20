@@ -3855,14 +3855,19 @@ export class Tools<TElement = HTMLElement> {
      * Interprets a date object from given artefact.
      * @param value - To interpret.
      * @param interpretAsUTC - Identifies if given date should be interpret as
-     * utc.
+     * utc. If not set given strings will be interpret as it is depending on
+     * given format and numbers as utc.
      *
      * @returns Interpreted date object or "null" if given value couldn't be
      * interpret.
      */
     static normalizeDateTime(
-        this:void, value:string|null|number|Date = null, interpretAsUTC = true
+        this:void,
+        value:string|null|number|Date = null,
+        interpretAsUTC?:null|boolean
     ):Date|null {
+        let resolvedInterpretAsUTC = Boolean(interpretAsUTC)
+
         if (value === null)
             return new Date()
 
@@ -3875,7 +3880,9 @@ export class Tools<TElement = HTMLElement> {
             if (/^.*(?:(?:[0-9]{1,4}[^0-9]){2}|[0-9]{1,4}[^0-9.]).*$/.test(
                 value
             )) {
-                value = Tools.stringInterpretDateTime(value, interpretAsUTC)
+                value = Tools.stringInterpretDateTime(
+                    value, resolvedInterpretAsUTC
+                )
 
                 if (value === null)
                     return value
@@ -3885,18 +3892,23 @@ export class Tools<TElement = HTMLElement> {
                     value = floatRepresentation
             }
 
-        if (typeof value === 'number')
+        if (typeof value === 'number') {
+            if ([null, undefined].includes(interpretAsUTC as null))
+                resolvedInterpretAsUTC = true
+
             return new Date(
                 (
                     value +
-                    (interpretAsUTC ?
+                    (resolvedInterpretAsUTC ?
                         0 :
                         (new Date().getTimezoneOffset() * 60)
                     )
                 ) *
                 1000
             )
+        }
 
+        // Try to deal with types which are either numbers or strings.
         const result = new Date(value)
 
         if (isNaN(result.getDate()))
@@ -5449,7 +5461,7 @@ export class Tools<TElement = HTMLElement> {
             abbreviations = Tools.abbreviations
 
         const escapedDelimiter:string =
-            Tools.stringGetRegularExpressionValidated(delimiter)
+            Tools.stringMaskForRegularExpression(delimiter)
 
         if (abbreviations.length) {
             let abbreviationPattern = ''
@@ -5539,7 +5551,7 @@ export class Tools<TElement = HTMLElement> {
         removeMultipleDelimiter = false
     ):string {
         let escapedDelimiter:string =
-            Tools.stringGetRegularExpressionValidated(delimiter)
+            Tools.stringMaskForRegularExpression(delimiter)
 
         if (!abbreviations)
             abbreviations = Tools.abbreviations
@@ -5916,38 +5928,43 @@ export class Tools<TElement = HTMLElement> {
      *
      * @returns The formatted string.
      */
-    static stringGetRegularExpressionValidated(
-        this:void, value:string
-    ):string {
+    static stringMaskForRegularExpression(this:void, value:string):string {
         return value.replace(/([\\|.*$^+[\]()?\-{}])/g, '\\$1')
     }
     /**
      * Interprets given content string as date time.
      * @param value - Date time string to interpret.
      * @param interpretAsUTC - Identifies if given date should be interpret as
-     * utc.
+     * utc. If not set given strings will be interpret as it is depending on
+     * given format and number like string as utc.
      *
      * @returns Interpret date time object.
      */
     static stringInterpretDateTime(
-        this:void, value:string, interpretAsUTC = true
+        this:void, value:string, interpretAsUTC?:null|boolean
     ):Date|null {
+        let resolvedInterpretAsUTC = Boolean(interpretAsUTC)
+
         value = value.replace(/^(-?)-*0*([1-9][0-9]*)$/, '$1$2')
         /*
             NODE: Do not use "parseFloat" since we want to interpret delimiter
             as date delimiters.
         */
-        if (`${parseInt(value)}` === value)
+        if (`${parseInt(value)}` === value) {
+            if ([null, undefined].includes(interpretAsUTC as null))
+                resolvedInterpretAsUTC = true
+
             return new Date(
                 (
                     parseInt(value) +
-                    (interpretAsUTC ?
+                    (resolvedInterpretAsUTC ?
                         0 :
                         (new Date().getTimezoneOffset() * 60)
                     )
                 ) *
                 1000
             )
+        }
 
         // NOTE: All patterns can assume lower cased strings.
 
@@ -6293,11 +6310,12 @@ export class Tools<TElement = HTMLElement> {
                         Tools.stringInterpretDateTime(timezoneMatch[2], true)
                     if (timeShift)
                         result = new Date(
-                            Date.UTC(...parameter) - timeShift.getTime())
+                            Date.UTC(...parameter) - timeShift.getTime()
+                        )
                 }
 
                 if (!result)
-                    if (interpretAsUTC)
+                    if (resolvedInterpretAsUTC)
                         result = new Date(Date.UTC(...parameter))
                     else
                         result = new Date(...parameter)
@@ -6307,6 +6325,45 @@ export class Tools<TElement = HTMLElement> {
 
                 return result
             }
+        }
+
+        /*
+            Now let's check if we have a simplified iso 8602 date time
+            representation like: "YYYY-MM-DDTHH:mm:ss.sssZ" or similar.
+
+            Please note:
+
+            When the time zone offset is absent, date-only forms are
+            interpreted as a UTC time and date-time forms are
+            interpreted as local time. This is due to a historical spec
+            error that was not consistent with ISO 8601 but could not
+            be changed due to web compatibility.
+        */
+        if (new RegExp(
+            '^' + (
+                // Year, month and day:
+                '[0-9]{4}-[01][0-9]-[1-3][0-9]' +
+                '(?:T' + (
+                    // Hours and minutes:
+                    '[12][0-9]:[0-6][0-9]' +
+                    '(?:' + (
+                        // Seconds:
+                        ':[0-6][0-9]' +
+                        '(?:' + (
+                            '\\.[0-9]+'
+                        ) + ')?'
+                    ) + ')?' +
+                    'Z?'
+                ) + ')|Z?'
+            ) + '$'
+        ).test(value)) {
+            // TODO check interpret utc option "resolvedInterpretAsUTC"
+            const result = new Date(value)
+
+            if (isNaN(result.getDate()))
+                return null
+
+            return result
         }
 
         return null

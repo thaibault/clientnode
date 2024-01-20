@@ -2177,27 +2177,21 @@ describe(`Tools (${testEnvironment})`, ():void => {
     test('normalizeDateTime', () =>
         expect(typeof Tools.normalizeDateTime()).toStrictEqual('object')
     )
-    test.each([
+    testEach<typeof Tools.normalizeDateTime>(
+        'normalizeDateTime',
+        Tools.normalizeDateTime,
+
         [now, now],
+        [new Date('1970-01-01T08:38:00.020Z'), '1970-01-01T08:38:00.020Z'],
         [new Date(1.2 * 1000), 1.2],
         [new Date(1.2 * 1000), '1.2'],
-        [new Date(1970, 1 - 1, 1, 8, 55), '08:55', false],
+        [new Date(1970, 1 - 1, 1, 8, 55), '08:55'],
         [new Date(1 * 1000), 1],
-        [new Date(1970, 2 - 1, 1), '2/1/1970', false],
+        [new Date(1970, 2 - 1, 1), '2/1/1970'],
         [new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, 0, 1)), 0.001],
         [new Date(1970, 1 - 1, 1, 8, 30), new Date(1970, 1 - 1, 1, 8, 30)],
         [null, 'abc'],
         [null, '1+1+1970 08+30+00']
-    ])(
-        '%p === normalizeDateTime(%p)',
-        (
-            expected:ReturnType<typeof Tools.normalizeDateTime>,
-            value:FirstParameter<typeof Tools.normalizeDateTime>,
-            interpretAsUTC = true
-        ) =>
-            expect(Tools.equals(
-                Tools.normalizeDateTime(value, interpretAsUTC), expected
-            )).toStrictEqual(true)
     )
     testEach<typeof Tools.removeKeyPrefixes>(
         'removeKeyPrefixes',
@@ -3517,9 +3511,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [2, 'hbbs', 'hans'],
         [4, 'beer', 'hans']
     )
-    testEach<typeof Tools.stringGetRegularExpressionValidated>(
-        'stringGetRegularExpressionValidated',
-        Tools.stringGetRegularExpressionValidated,
+    testEach<typeof Tools.stringMaskForRegularExpression>(
+        'stringMaskForRegularExpression',
+        Tools.stringMaskForRegularExpression,
 
         [`that's no regex: \\.\\*\\$`, `that's no regex: .*$`],
         ['', ''],
@@ -3531,58 +3525,55 @@ describe(`Tools (${testEnvironment})`, ():void => {
         Tools.stringInterpretDateTime,
 
         [null, ''],
+        [new Date('1970-01-01T08:30:01.021Z'), '1970-01-01T08:30:01.021Z'],
         [new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, 1)), '1'],
         [new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, -1)), '-1'],
         [new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, 1)), '01'],
         [new Date(Date.UTC(1970, 1 - 1, 1, 0, 0, -1)), '--01'],
         [new Date(1970, 1 - 1, 1, 0, 0, 1), '1', false],
         [new Date(1970, 1 - 1, 1, 0, 0, 1), '01', false],
-        [new Date(1970, 1 - 1, 1, 1), '01:00', false],
-        // TODO [new Date(1970, 1 - 1, 1, 1), '01:00 A.M.', false],
-        [new Date(1970, 1 - 1, 1, 8, 55), '08:55', false],
-        [new Date(1970, 1 - 1, 1, 1, 2), '01:02', false],
-        [new Date(1970, 1 - 1, 1, 1), '01:00:00', false],
-        [new Date(1970, 1 - 1, 1, 1, 2), '01:02:00', false],
-        [new Date(1970, 1 - 1, 1, 1, 2, 3), '01:02:03', false],
-        [new Date(1970, 1 - 1, 1, 1, 2, 3), '01:02:03:0', false],
-        [new Date(1970, 1 - 1, 1, 1, 2, 3, 4), '01:02:03:4', false],
-        [new Date(1970, 1 - 1, 1), '1.1.1970', false],
-        [new Date(1970, 2 - 1, 1), '1.2.1970', false],
-        [new Date(1970, 1 - 1, 1, 10), '1.1.1970 10', false],
-        [new Date(1970, 1 - 1, 1, 10, 30), '1.1.1970 10:30', false],
-        [new Date(1970, 1 - 1, 1, 10, 30, 30), '1.1.1970 10:30:30', false],
-        [new Date(2014, 11 - 1, 26, 8, 30), '2014-11-26 08:30:00', false],
-        [new Date(2014, 11 - 1, 26, 8, 30), '2014-11-26T08:30:00', false],
+        [new Date(1970, 1 - 1, 1, 1), '01:00'],
+        // TODO [new Date(1970, 1 - 1, 1, 1), '01:00 A.M.'],
+        [new Date(1970, 1 - 1, 1, 8, 55), '08:55'],
+        [new Date(1970, 1 - 1, 1, 1, 2), '01:02'],
+        [new Date(1970, 1 - 1, 1, 1), '01:00:00'],
+        [new Date(1970, 1 - 1, 1, 1, 2), '01:02:00'],
+        [new Date(1970, 1 - 1, 1, 1, 2, 3), '01:02:03'],
+        [new Date(1970, 1 - 1, 1, 1, 2, 3), '01:02:03:0'],
+        [new Date(1970, 1 - 1, 1, 1, 2, 3, 4), '01:02:03:4'],
+        [new Date(1970, 1 - 1, 1), '1.1.1970'],
+        [new Date(1970, 2 - 1, 1), '1.2.1970'],
+        [new Date(1970, 1 - 1, 1, 10), '1.1.1970 10'],
+        [new Date(1970, 1 - 1, 1, 10, 30), '1.1.1970 10:30'],
+        [new Date(1970, 1 - 1, 1, 10, 30, 30), '1.1.1970 10:30:30'],
+        [new Date(2014, 11 - 1, 26, 8, 30), '2014-11-26 08:30:00'],
+        [new Date(2014, 11 - 1, 26, 8, 30), '2014-11-26T08:30:00'],
         [
             new Date(Date.UTC(2014, 11 - 1, 26, 7, 30)),
-            '2014-11-26T08:30:00+01:00',
-            false
+            '2014-11-26T08:30:00+01:00'
         ],
         [
             new Date(Date.UTC(2014, 11 - 1, 10, 7, 30)),
-            '2014-11-10T08:30:00+01:00',
-            false
+            '2014-11-10T08:30:00+01:00'
         ],
         [
             new Date(Date.UTC(2014, 11 - 1, 10, 6, 30)),
-            '2014-11-10T08:30:00+02:00',
-            false
+            '2014-11-10T08:30:00+02:00'
         ],
         [
             new Date(Date.UTC(2023, 10 - 1, 26, 8, 40, 1)),
-            '2023-10-26T08:40:01+00:00',
-            false
+            '2023-10-26T08:40:01+00:00'
         ],
-        [new Date(1970, 1 - 1, 1, 8, 30), '1.1.1970 08:30:00', false],
-        [new Date(1970, 1 - 1, 1), 'Mo. 1.1.1970', false],
-        [new Date(1970, 1 - 1, 2), 'Di. 2.1.1970', false],
-        [new Date(1970, 1 - 1, 3), 'Fr. 3.1.1970', false],
-        [new Date(1970, 1 - 1, 3), '3.Jan.1970', false],
-        [new Date(1970, 1 - 1, 3), '3. Jan. 1970', false],
-        [new Date(1970, 5 - 1, 3), '3. mai. 1970', false],
-        [new Date(1970, 5 - 1, 3), '3. may 1970', false],
-        [new Date(1970, 3 - 1, 3), '3. märz 1970', false],
-        [new Date(1970, 12 - 1, 3), '3. Dezember 1970', false]
+        [new Date(1970, 1 - 1, 1, 8, 30), '1.1.1970 08:30:00'],
+        [new Date(1970, 1 - 1, 1), 'Mo. 1.1.1970'],
+        [new Date(1970, 1 - 1, 2), 'Di. 2.1.1970'],
+        [new Date(1970, 1 - 1, 3), 'Fr. 3.1.1970'],
+        [new Date(1970, 1 - 1, 3), '3.Jan.1970'],
+        [new Date(1970, 1 - 1, 3), '3. Jan. 1970'],
+        [new Date(1970, 5 - 1, 3), '3. mai. 1970'],
+        [new Date(1970, 5 - 1, 3), '3. may 1970'],
+        [new Date(1970, 3 - 1, 3), '3. märz 1970'],
+        [new Date(1970, 12 - 1, 3), '3. Dezember 1970']
     )
     testEach<typeof Tools.stringLowerCase>(
         'stringLowerCase',
