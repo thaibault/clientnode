@@ -3871,7 +3871,7 @@ export class Tools<TElement = HTMLElement> {
         if (value === null)
             return new Date()
 
-        if (typeof value === 'string')
+        if (typeof value === 'string') {
             /*
                 We make a simple pre-check to determine if it could be a date
                 like representation. Idea: There should be at least some
@@ -3886,11 +3886,14 @@ export class Tools<TElement = HTMLElement> {
 
                 if (value === null)
                     return value
-            } else {
-                const floatRepresentation:number = parseFloat(value)
-                if (`${floatRepresentation}` === value)
-                    value = floatRepresentation
+
+                return value
             }
+
+            const floatRepresentation:number = parseFloat(value)
+            if (`${floatRepresentation}` === value)
+                value = floatRepresentation
+        }
 
         if (typeof value === 'number') {
             if ([null, undefined].includes(interpretAsUTC as null))
@@ -5944,7 +5947,81 @@ export class Tools<TElement = HTMLElement> {
         this:void, value:string, interpretAsUTC?:null|boolean
     ):Date|null {
         let resolvedInterpretAsUTC = Boolean(interpretAsUTC)
+        // region iso format
+        /*
+            Let's first check if we have a simplified iso 8602 date time
+            representation like:
 
+            "YYYY-MM-DDTHH:mm:ss.sssZ" or "YYYY-MM-DDTHH:mm:ss.sss+HH:mm".
+
+            Please note for the native "Date" implementation:
+
+            When the time zone offset is absent, date-only forms are
+            interpreted as a UTC time and date-time forms are
+            interpreted as local time. This is due to a historical spec
+            error that was not consistent with ISO 8601 but could not
+            be changed due to web compatibility.
+        */
+        const hourAndMinutesPattern = '[0-2][0-9]:[0-6][0-9]'
+        const pattern = '^' + (
+            // Year, month and day:
+            '[0-9]{4}-[01][0-9]-[0-3][0-9]' +
+            '(?<time>' + (
+                '(?:T' + (
+                    hourAndMinutesPattern +
+                    '(?:' + (
+                        // Seconds:
+                        ':[0-6][0-9]' +
+                        // Milliseconds:
+                        '(?:\\.[0-9]+)?'
+                    ) + ')?' +
+                    // Timezone definition:
+                    `(?<dateTimeTimezone>Z|(?:[+-]${hourAndMinutesPattern}))?`
+                ) + ')' +
+                '|' +
+                // Timezone definition:
+                `(?<dateTimezone>Z|(?:[+-]${hourAndMinutesPattern}))`
+            ) + ')?'
+        ) + '$'
+        const match = value.match(new RegExp(pattern, 'i'))
+        if (match) {
+            const result = new Date(value)
+
+            if (isNaN(result.getDate()))
+                return null
+
+            const timezone =
+                match.groups?.dateTimeTimezone ?? match.groups?.dateTimezone
+            if (!timezone) {
+                if ([null, undefined].includes(interpretAsUTC as null))
+                    resolvedInterpretAsUTC = false
+
+                if (resolvedInterpretAsUTC) {
+                    if (!match.groups?.time)
+                        /*
+                            NOTE: Date only strings will be interpret as UTC
+                            already.
+                        */
+                        return result
+                } else if (match.groups?.time)
+                    /*
+                        NOTE: Date time strings will be interpret as local
+                        already.
+                    */
+                    return result
+
+                return new Date(
+                    result.getTime() +
+                    (resolvedInterpretAsUTC ?
+                        0 :
+                        (new Date().getTimezoneOffset() * 60) * 1000
+                    )
+                )
+            }
+
+            return result
+        }
+        // endregion
         value = value.replace(/^(-?)-*0*([1-9][0-9]*)$/, '$1$2')
         /*
             NODE: Do not use "parseFloat" since we want to interpret delimiter
@@ -5965,8 +6042,6 @@ export class Tools<TElement = HTMLElement> {
                 1000
             )
         }
-
-        // NOTE: All patterns can assume lower cased strings.
 
         // TODO handle am/pm
         if (!Tools._dateTimePatternCache.length) {
@@ -6231,6 +6306,7 @@ export class Tools<TElement = HTMLElement> {
         }
 
         // region pre-process
+        // NOTE: All patterns can assume lower cased strings.
         value = value.toLowerCase()
         /*
             Reduce each sequence on none alphanumeric symbols to the first
@@ -6325,45 +6401,6 @@ export class Tools<TElement = HTMLElement> {
 
                 return result
             }
-        }
-
-        /*
-            Now let's check if we have a simplified iso 8602 date time
-            representation like: "YYYY-MM-DDTHH:mm:ss.sssZ" or similar.
-
-            Please note:
-
-            When the time zone offset is absent, date-only forms are
-            interpreted as a UTC time and date-time forms are
-            interpreted as local time. This is due to a historical spec
-            error that was not consistent with ISO 8601 but could not
-            be changed due to web compatibility.
-        */
-        if (new RegExp(
-            '^' + (
-                // Year, month and day:
-                '[0-9]{4}-[01][0-9]-[1-3][0-9]' +
-                '(?:T' + (
-                    // Hours and minutes:
-                    '[12][0-9]:[0-6][0-9]' +
-                    '(?:' + (
-                        // Seconds:
-                        ':[0-6][0-9]' +
-                        '(?:' + (
-                            '\\.[0-9]+'
-                        ) + ')?'
-                    ) + ')?' +
-                    'Z?'
-                ) + ')|Z?'
-            ) + '$'
-        ).test(value)) {
-            // TODO check interpret utc option "resolvedInterpretAsUTC"
-            const result = new Date(value)
-
-            if (isNaN(result.getDate()))
-                return null
-
-            return result
         }
 
         return null
