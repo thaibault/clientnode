@@ -6003,19 +6003,25 @@ export class Tools<TElement = HTMLElement> {
                             already.
                         */
                         return result
-                } else if (match.groups?.time)
+
+                    // local to utc
+                    return new Date(
+                        result.getTime() -
+                        (new Date().getTimezoneOffset() * 60) * 1000
+                    )
+                }
+
+                if (match.groups?.time)
                     /*
                         NOTE: Date time strings will be interpret as local
                         already.
                     */
                     return result
 
+                // utc to local
                 return new Date(
                     result.getTime() +
-                    (resolvedInterpretAsUTC ?
-                        0 :
-                        (new Date().getTimezoneOffset() * 60) * 1000
-                    )
+                    (new Date().getTimezoneOffset() * 60) * 1000
                 )
             }
 
@@ -6023,8 +6029,9 @@ export class Tools<TElement = HTMLElement> {
         }
         // endregion
         value = value.replace(/^(-?)-*0*([1-9][0-9]*)$/, '$1$2')
+        // region interpret integer number
         /*
-            NODE: Do not use "parseFloat" since we want to interpret delimiter
+            NOTE: Do not use "parseFloat" since we want to interpret delimiter
             as date delimiters.
         */
         if (`${parseInt(value)}` === value) {
@@ -6042,7 +6049,7 @@ export class Tools<TElement = HTMLElement> {
                 1000
             )
         }
-
+        // endregion
         // TODO handle am/pm
         if (!Tools._dateTimePatternCache.length) {
             // region pre-compile regular expressions
@@ -6304,7 +6311,6 @@ export class Tools<TElement = HTMLElement> {
                                 }
             // endregion
         }
-
         // region pre-process
         // NOTE: All patterns can assume lower cased strings.
         value = value.toLowerCase()
@@ -6357,6 +6363,7 @@ export class Tools<TElement = HTMLElement> {
 
         value = value.trim()
         // endregion
+        // region try to match a pattern
         for (const dateTimePattern of Tools._dateTimePatternCache) {
             let match:ReturnType<string['match']> = null
 
@@ -6402,7 +6409,7 @@ export class Tools<TElement = HTMLElement> {
                 return result
             }
         }
-
+        // endregion
         return null
     }
     /**
