@@ -3239,9 +3239,9 @@ camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30000844, caniuse-lite@^1.0.30001580:
-  version "1.0.30001584"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001584.tgz#5e3ea0625d048d5467670051687655b1f7bf7dfd"
-  integrity sha512-LOz7CCQ9M1G7OjJOF9/mzmqmj3jE/7VOmrfw6Mgs0E8cjOsbRXQJHsPBfmBOXDskXKrHLyyW3n7kpDW/4BsfpQ==
+  version "1.0.30001585"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001585.tgz#0b4e848d84919c783b2a41c13f7de8ce96744401"
+  integrity sha512-yr2BWR1yLXQ8fMpdS/4ZZXpseBgE7o4g41x3a6AJOqZuOi+iE/WdJYAuZ6Y95i4Ohd2Y+9MzIWRR+uGABH4s3Q==
 
 catharsis@^0.9.0:
   version "0.9.0"
@@ -3284,9 +3284,9 @@ char-regex@^1.0.2:
   integrity sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==
 
 chokidar@^3.4.0, chokidar@^3.5.3:
-  version "3.5.3"
-  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.5.3.tgz#1cf37c8707b932bd1af1ae22c0432e2acd1903bd"
-  integrity sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.6.0.tgz#197c6cc669ef2a8dc5e7b4d97ee4e092c3eb0d5b"
+  integrity sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==
   dependencies:
     anymatch "~3.1.2"
     braces "~3.0.2"
@@ -3338,9 +3338,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.1109"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1109.tgz#a247eba463fd36624b0bb7e061ad2a84aae86d5d"
-  integrity sha512-uhrP00YasRe95NBYvI3yczFcsb8f4tcRkpiGLLFR7eTK0n+8JByfZXrJk4klw+hX1X0RXsbOE1uiLWUUxdTe8A==
+  version "3.0.1110"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1110.tgz#7a56f833cfbea8fbeab595d8087f7ad424a3badf"
+  integrity sha512-S2L9R1PJMVKtHU5zK/WD+Xmt+8+jAHcOODfihUKt3QAVB054VyibF/juECUD6ekOK5AfbrCmksOu3vRf3a+gew==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3820,9 +3820,9 @@ ejs@*:
     jake "^10.8.5"
 
 electron-to-chromium@^1.3.47, electron-to-chromium@^1.4.648:
-  version "1.4.657"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.657.tgz#8a07ee3faa552976970843a80a1c94088ea59c9a"
-  integrity sha512-On2ymeleg6QbRuDk7wNgDdXtNqlJLM2w4Agx1D/RiTmItiL+a9oq5p7HUa2ZtkAtGBe/kil2dq/7rPfkbe0r5w==
+  version "1.4.659"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.659.tgz#e93af8119b6610cb4d2614a47508a74543b96ce5"
+  integrity sha512-sRJ3nV3HowrYpBtPF9bASQV7OW49IgZC01Xiq43WfSE3RTCkK0/JidoCmR73Hyc1mN+l/H4Yqx0eNiomvExFZg==
 
 emittery@^0.13.1:
   version "0.13.1"
@@ -7523,9 +7523,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 weboptimizer@*:
-  version "2.0.1418"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1418.tgz#f48013a4f351a476fbe34278031e73883028d044"
-  integrity sha512-KM3+QCwxtrPGx1BgQcaTqVFxT4TFd7LIpMkcDkOc1YRudlbn15nPi/eh5C2bk9J9MVdHTlSF2jA65j36rjZtVQ==
+  version "2.0.1422"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1422.tgz#9e81ffe6ff541b40f15a63f0bdb6faa8cbad8015"
+  integrity sha512-ORP1vXsP6KQBRs4ZwWmbVCA7pp7fEV1E5fXIny1onsSwhq6oiuYesstiWhO36fCCTeqvTGaeqTQKrzilFN6jIw==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
