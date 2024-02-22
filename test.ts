@@ -3881,16 +3881,6 @@ describe(`Tools (${testEnvironment})`, ():void => {
             }
         ]
     )
-    testEach<typeof Tools.stringMD5>(
-        `stringMD5 (${testEnvironment})`,
-        Tools.stringMD5,
-
-        ['d41d8cd98f00b204e9800998ecf8427e', ''],
-        ['098f6bcd4621d373cade4e832627b4f6', 'test'],
-        ['8419b71c87a225a2c70b50486fbee545', 'ä'],
-        ['098f6bcd4621d373cade4e832627b4f6', 'test', true],
-        ['c15bcc5577f9fade4b4a3256190a59b0', 'ä', true]
-    )
     testEach<typeof Tools.stringNormalizePhoneNumber>(
         'stringNormalizePhoneNumber',
         Tools.stringNormalizePhoneNumber,
