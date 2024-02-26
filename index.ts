@@ -5697,9 +5697,7 @@ export class Tools<TElement = HTMLElement> {
      *
      * @returns Object with error message during parsing / running or result.
      */
-    static stringEvaluate<
-        T = string, S extends Mapping<unknown> = Mapping<unknown>
-    >(
+    static stringEvaluate<T = string, S extends object = object>(
         this:void,
         expression:string,
         scope:S = {} as S,
