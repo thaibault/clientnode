@@ -3346,9 +3346,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.1118"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1118.tgz#dd1182b2bc3dd44c90cd6403d049eccebfacddf5"
-  integrity sha512-90d08tnTrY4qt8Xkq9LQO2iyZwobkT9ocn/bCBjC64wvMI7zqlhi/fJllY205jzOEHshh0Lj+Thc9F8OABQNPg==
+  version "3.0.1119"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1119.tgz#ea27186840ace7a46a2c72e75b6bcc865e7b7f51"
+  integrity sha512-7/wqt2pJKoQ5uruhW+SUqWniH8zyX9IALfB05EaYZds6D/X6NM6xc5k8u+M+5r5YhGKg7BrO90pA9kYGhEQhdQ==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3766,9 +3766,9 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 documentation-website@*:
-  version "1.0.324"
-  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.324.tgz#2048b5ccb442b0b34ba88cfbb0a16c311f618815"
-  integrity sha512-7InTdtJnirJAbFLUDGcRG6QGe1HbF+Pn4o1ECeY7xZ9Nq/iXlH0ky6HHzYKqzTee9h/SpfoDx0aq0644WArdFQ==
+  version "1.0.325"
+  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.325.tgz#138182cb9c64c937382073311f4c6e759833fea2"
+  integrity sha512-DwNdQZ0x07x1stIqFgTyPaWzAb5YnHWY80Z2npL4QFEOBLDl4d+aQBhEEs9fBLg31FLmJ1qSFr0RxF5Fa4o1bg==
 
 dom-converter@^0.2.0:
   version "0.2.0"
@@ -7564,9 +7564,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 weboptimizer@*:
-  version "2.0.1428"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1428.tgz#90f04ae32e5bb12423be5828ca7dbf93420a2d1e"
-  integrity sha512-UUQydxGr0DHNwGOhcho6xB0VCOoKjaXOSMyvae2vybCMFlygT0D/OFKItew+UwMq3G142gBhYWNlokKHpJ5glw==
+  version "2.0.1429"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1429.tgz#8360f57f816796e3dea1679deed31c9bdb99ecf9"
+  integrity sha512-MfUCDzp4XRmvATFg4dY0Hsuhy7d26/MFeW2TfK51EG8E+W4lotdw/9lPD26UVDhcsisuZ1yIH/3xJonHcM3Frg==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
