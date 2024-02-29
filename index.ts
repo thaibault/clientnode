@@ -69,7 +69,7 @@ import {
     $DomNodes,
     $Global,
     $T,
-    $TStatic
+    $TStatic, NormalizedObjectMask
 } from './type'
 // endregion
 export const DEFAULT_ENCODING:Encoding = 'utf8'
@@ -3608,19 +3608,36 @@ export class Tools<TElement = HTMLElement> {
 
         if (
             mask.exclude === true ||
+            Array.isArray(mask.exclude) && mask.exclude.length === 0 ||
             mask.include === false ||
             typeof object !== 'object'
         )
             return {}
 
+        const exclude:NormalizedObjectMask = Array.isArray(mask.exclude) ?
+            mask.exclude.reduce(
+                (mask, key) => ({...mask, [key]: true}),
+                {}
+            ) as NormalizedObjectMask :
+            mask.exclude!
+        const include:NormalizedObjectMask = Array.isArray(mask.include) ?
+            mask.include.reduce(
+                (mask, key) => ({...mask, [key]: true}),
+                {}
+            ) as NormalizedObjectMask :
+            mask.include!
+
         let result:Partial<Type> = {} as Partial<Type>
-        if (Tools.isPlainObject(mask.include)) {
-            for (const [key, value] of Object.entries(mask.include))
+        if (Tools.isPlainObject(include)) {
+            for (const [key, value] of Object.entries(include))
                 if (Object.prototype.hasOwnProperty.call(object, key))
                     if (value === true)
                         result[key as keyof Type] = object[key as keyof Type]
                     else if (
-                        Tools.isPlainObject(value) &&
+                        (
+                            Tools.isPlainObject(value) ||
+                            Array.isArray(value) && value.length
+                        ) &&
                         typeof object[key as keyof Type] === 'object'
                     )
                         (result as Mapping<Mapping<unknown>>)[key] =
@@ -3632,18 +3649,21 @@ export class Tools<TElement = HTMLElement> {
             // In this branch "mask.include === true" holds.
             result = object
 
-        if (Tools.isPlainObject(mask.exclude)) {
+        if (Tools.isPlainObject(exclude)) {
             let useCopy = false
             const copy:RecursivePartial<Type> = {...result}
 
-            for (const [key, value] of Object.entries(mask.exclude))
+            for (const [key, value] of Object.entries(exclude))
                 if (Object.prototype.hasOwnProperty.call(copy, key))
                     if (value === true) {
                         useCopy = true
 
                         delete copy[key as keyof Type]
                     } else if (
-                        Tools.isPlainObject(value) &&
+                        (
+                            Tools.isPlainObject(value) ||
+                            Array.isArray(value) && value.length
+                        ) &&
                         typeof copy[key as keyof Type] === 'object'
                     ) {
                         const current:ValueOf<Type> =
