@@ -4541,31 +4541,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:3.0.1121":
-  version: 3.0.1121
-  resolution: "clientnode@npm:3.0.1121"
-  peerDependencies:
-    "@babel/runtime": "*"
-    "@types/prop-types": "*"
-    jquery: "*"
-    node-fetch: "*"
-    prop-types: "*"
-  peerDependenciesMeta:
-    "@babel/runtime":
-      optional: true
-    "@types/prop-types":
-      optional: true
-    jquery:
-      optional: true
-    node-fetch:
-      optional: true
-    prop-types:
-      optional: true
-  checksum: 10c0/eae8c4cb0d3b34197b654b3e64869ed28fd28eb06a48be94f0dd6602af2a7c193cfc6c070cc02cfa8e925748ca43aaea3e3af724ef079f4105ae9d86df418d3b
-  languageName: node
-  linkType: hard
-
-"clientnode@workspace:.":
+"clientnode@npm:^3.0.1121, clientnode@workspace:.":
   version: 0.0.0-use.local
   resolution: "clientnode@workspace:."
   dependencies:
@@ -4594,7 +4570,7 @@ __metadata:
     node-fetch: "npm:*"
     prop-types: "npm:*"
     rimraf: "npm:*"
-    weboptimizer: "npm:^2.0.1441"
+    weboptimizer: "npm:^2.0.1442"
     webpack-dev-server: "npm:*"
   peerDependencies:
     "@babel/runtime": "*"
@@ -10619,9 +10595,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^2.0.1441":
-  version: 2.0.1441
-  resolution: "weboptimizer@npm:2.0.1441"
+"weboptimizer@npm:^2.0.1442":
+  version: 2.0.1442
+  resolution: "weboptimizer@npm:2.0.1442"
   dependencies:
     "@babel/core": "npm:*"
     "@babel/plugin-proposal-class-properties": "npm:*"
@@ -10634,7 +10610,7 @@ __metadata:
     babel-loader: "npm:*"
     babel-plugin-transform-modern-regexp: "npm:*"
     babel-preset-minify: "npm:*"
-    clientnode: "npm:3.0.1121"
+    clientnode: "npm:^3.0.1121"
     ejs: "npm:*"
     exports-loader: "npm:*"
     extract-loader: "npm:*"
@@ -10759,7 +10735,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/d15e45a74e747140a7734877cb96024291873ae835ecf001ed3845668d6515e7bb6f161246458621018acb11d1e11aba39a66d73e9fc129c1b0b8db37da76139
+  checksum: 10c0/438d16f50a7aebebbed8a2ca321fa06a76bd4f8f7b2d3b85bd468f4fe19ebc6653b77a9b103c8f294f1f26fc207b69884a451d601dcc23d6a245a7268d8df620
   languageName: node
   linkType: hard
 

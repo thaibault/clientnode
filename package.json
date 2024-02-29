@@ -86,7 +86,7 @@
     "node-fetch": "*",
     "prop-types": "*",
     "rimraf": "*",
-    "weboptimizer": "^2.0.1441",
+    "weboptimizer": "^2.0.1442",
     "webpack-dev-server": "*"
   },
   "peerDependencies": {
