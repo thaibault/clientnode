@@ -2081,7 +2081,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             {a: {a: {}}},
             {a: {a: {a: {a: 2, b: 3}}}},
             {exclude: {a: {a: {a: true}}}}
-        ]
+        ],
+        [{a: 'a'}, {a: 'a', b: 'b'}, {exclude: ['b']}],
+        [{b: 'b'}, {a: 'a', b: 'b'}, {include: ['b']}]
     )
     test.each([
         [{}, {}, {}, {}],
