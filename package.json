@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.1122",
+  "version": "3.0.1123",
   "description": "upgrade to object orientated rock solid plugins",
   "keywords": [
     "client",
@@ -55,7 +55,7 @@
     "test:browser": "weboptimizer test:browser",
     "test:coverage": "weboptimizer test:coverage",
     "test:coverage:report": "weboptimizer test:coverage:report",
-    "update": "yarn version patch && git push --tags",
+    "update": "yarn version patch && yarn npm publish",
     "update:documentation": "documentation-website",
     "watch": "weboptimizer build --watch"
   },
@@ -85,7 +85,7 @@
     "node-fetch": "*",
     "prop-types": "*",
     "rimraf": "*",
-    "weboptimizer": "*",
+    "weboptimizer": "^2.0.1437",
     "webpack-dev-server": "*"
   },
   "peerDependencies": {
