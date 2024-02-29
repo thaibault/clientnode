@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.1124",
+  "version": "3.0.1125",
   "description": "upgrade to object orientated rock solid plugins",
   "keywords": [
     "client",
@@ -64,6 +64,7 @@
     "@babel/cli": "*",
     "@babel/eslint-parser": "*",
     "@babel/plugin-transform-proto-to-assign": "*",
+    "@babel/runtime": "*",
     "@types/ejs": "*",
     "@types/html-minifier": "*",
     "@types/imagemin": "*",
@@ -85,7 +86,7 @@
     "node-fetch": "*",
     "prop-types": "*",
     "rimraf": "*",
-    "weboptimizer": "^2.0.1437",
+    "weboptimizer": "^2.0.1441",
     "webpack-dev-server": "*"
   },
   "peerDependencies": {

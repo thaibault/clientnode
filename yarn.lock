@@ -4541,9 +4541,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:*":
-  version: 3.0.1120
-  resolution: "clientnode@npm:3.0.1120"
+"clientnode@npm:3.0.1121":
+  version: 3.0.1121
+  resolution: "clientnode@npm:3.0.1121"
   peerDependencies:
     "@babel/runtime": "*"
     "@types/prop-types": "*"
@@ -4561,7 +4561,7 @@ __metadata:
       optional: true
     prop-types:
       optional: true
-  checksum: 10c0/7048d01f446233e04d7e787faf645644c7d5808ddbb24e67e2ad07f64f2644ff1342e7f501006fd51ff4d674f40ed57bb155c684ad08e595e3c47aefa76443fb
+  checksum: 10c0/eae8c4cb0d3b34197b654b3e64869ed28fd28eb06a48be94f0dd6602af2a7c193cfc6c070cc02cfa8e925748ca43aaea3e3af724ef079f4105ae9d86df418d3b
   languageName: node
   linkType: hard
 
@@ -4572,6 +4572,7 @@ __metadata:
     "@babel/cli": "npm:*"
     "@babel/eslint-parser": "npm:*"
     "@babel/plugin-transform-proto-to-assign": "npm:*"
+    "@babel/runtime": "npm:*"
     "@types/ejs": "npm:*"
     "@types/html-minifier": "npm:*"
     "@types/imagemin": "npm:*"
@@ -4593,7 +4594,7 @@ __metadata:
     node-fetch: "npm:*"
     prop-types: "npm:*"
     rimraf: "npm:*"
-    weboptimizer: "npm:^2.0.1437"
+    weboptimizer: "npm:^2.0.1441"
     webpack-dev-server: "npm:*"
   peerDependencies:
     "@babel/runtime": "*"
@@ -10618,9 +10619,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^2.0.1437":
-  version: 2.0.1437
-  resolution: "weboptimizer@npm:2.0.1437"
+"weboptimizer@npm:^2.0.1441":
+  version: 2.0.1441
+  resolution: "weboptimizer@npm:2.0.1441"
   dependencies:
     "@babel/core": "npm:*"
     "@babel/plugin-proposal-class-properties": "npm:*"
@@ -10633,7 +10634,7 @@ __metadata:
     babel-loader: "npm:*"
     babel-plugin-transform-modern-regexp: "npm:*"
     babel-preset-minify: "npm:*"
-    clientnode: "npm:*"
+    clientnode: "npm:3.0.1121"
     ejs: "npm:*"
     exports-loader: "npm:*"
     extract-loader: "npm:*"
@@ -10758,7 +10759,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/fed335507a00a1afcbc172f442bd233d264e10d0d25cd3aa3e38757965f10696c5028b09f9a3ccfc97de4355b049cf01890ca771fd117f11d1c1129064b278f4
+  checksum: 10c0/d15e45a74e747140a7734877cb96024291873ae835ecf001ed3845668d6515e7bb6f161246458621018acb11d1e11aba39a66d73e9fc129c1b0b8db37da76139
   languageName: node
   linkType: hard
 
