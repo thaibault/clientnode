@@ -52,9 +52,9 @@
     "serve": "weboptimizer serve",
     "start": "yarn serve",
     "test": "yarn build && weboptimizer test",
-    "test:browser": "weboptimizer test:browser",
-    "test:coverage": "weboptimizer test:coverage",
-    "test:coverage:report": "weboptimizer test:coverage:report",
+    "test:browser": "yarn build && weboptimizer test:browser",
+    "test:coverage": "yarn build && weboptimizer test:coverage",
+    "test:coverage:report": "yarn build && weboptimizer test:coverage:report",
     "update": "yarn version patch && yarn npm publish",
     "update:documentation": "documentation-website",
     "watch": "weboptimizer build --watch"
