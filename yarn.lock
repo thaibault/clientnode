@@ -66,7 +66,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:*, @babel/core@npm:^7.11.6, @babel/core@npm:^7.12.3, @babel/core@npm:^7.23.9":
+"@babel/core@npm:^7.11.6, @babel/core@npm:^7.12.3, @babel/core@npm:^7.23.9, @babel/core@npm:^7.24.0":
   version: 7.24.0
   resolution: "@babel/core@npm:7.24.0"
   dependencies:
@@ -420,7 +420,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-proposal-class-properties@npm:*":
+"@babel/plugin-proposal-class-properties@npm:^7.18.6":
   version: 7.18.6
   resolution: "@babel/plugin-proposal-class-properties@npm:7.18.6"
   dependencies:
@@ -432,7 +432,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-proposal-decorators@npm:*":
+"@babel/plugin-proposal-decorators@npm:^7.24.0":
   version: 7.24.0
   resolution: "@babel/plugin-proposal-decorators@npm:7.24.0"
   dependencies:
@@ -445,7 +445,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-proposal-nullish-coalescing-operator@npm:*":
+"@babel/plugin-proposal-nullish-coalescing-operator@npm:^7.18.6":
   version: 7.18.6
   resolution: "@babel/plugin-proposal-nullish-coalescing-operator@npm:7.18.6"
   dependencies:
@@ -1197,7 +1197,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-runtime@npm:*":
+"@babel/plugin-transform-runtime@npm:^7.24.0":
   version: 7.24.0
   resolution: "@babel/plugin-transform-runtime@npm:7.24.0"
   dependencies:
@@ -1330,7 +1330,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-env@npm:*":
+"@babel/preset-env@npm:^7.24.0":
   version: 7.24.0
   resolution: "@babel/preset-env@npm:7.24.0"
   dependencies:
@@ -1433,7 +1433,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-typescript@npm:*":
+"@babel/preset-typescript@npm:^7.23.3":
   version: 7.23.3
   resolution: "@babel/preset-typescript@npm:7.23.3"
   dependencies:
@@ -1455,7 +1455,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:*, @babel/runtime@npm:^7.24.0, @babel/runtime@npm:^7.8.4":
+"@babel/runtime@npm:^7.24.0, @babel/runtime@npm:^7.8.4":
   version: 7.24.0
   resolution: "@babel/runtime@npm:7.24.0"
   dependencies:
@@ -3383,7 +3383,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-loader@npm:*":
+"babel-loader@npm:^9.1.3":
   version: 9.1.3
   resolution: "babel-loader@npm:9.1.3"
   dependencies:
@@ -3885,7 +3885,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-transform-modern-regexp@npm:*":
+"babel-plugin-transform-modern-regexp@npm:^0.0.6":
   version: 0.0.6
   resolution: "babel-plugin-transform-modern-regexp@npm:0.0.6"
   dependencies:
@@ -4038,7 +4038,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-preset-minify@npm:*":
+"babel-preset-minify@npm:^0.5.2":
   version: 0.5.2
   resolution: "babel-preset-minify@npm:0.5.2"
   dependencies:
@@ -4550,31 +4550,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:3.0.1133":
-  version: 3.0.1133
-  resolution: "clientnode@npm:3.0.1133"
-  peerDependencies:
-    "@babel/runtime": "*"
-    "@types/prop-types": "*"
-    jquery: "*"
-    node-fetch: "*"
-    prop-types: "*"
-  peerDependenciesMeta:
-    "@babel/runtime":
-      optional: true
-    "@types/prop-types":
-      optional: true
-    jquery:
-      optional: true
-    node-fetch:
-      optional: true
-    prop-types:
-      optional: true
-  checksum: 10c0/9728d266454b0ef84fdbb0cb2cdaf3ab2723f1a35461af98cf9a8a66c2c8c9db9c938faee4c595330732bfd0d7d795473ded9ba8b1733b211babe943143ace60
-  languageName: node
-  linkType: hard
-
-"clientnode@npm:^3.0.1128, clientnode@workspace:.":
+"clientnode@npm:3.0.1135, clientnode@npm:^3.0.1135, clientnode@workspace:.":
   version: 0.0.0-use.local
   resolution: "clientnode@workspace:."
   dependencies:
@@ -4591,7 +4567,7 @@ __metadata:
     "@types/webpack-env": "npm:^1.18.4"
     "@typescript-eslint/eslint-plugin": "npm:^7.1.0"
     "@typescript-eslint/parser": "npm:^7.1.0"
-    clientnode: "npm:3.0.1133"
+    clientnode: "npm:3.0.1135"
     documentation-website: "npm:^1.0.325"
     eslint: "npm:^8.57.0"
     eslint-config-google: "npm:^0.14.0"
@@ -4604,7 +4580,7 @@ __metadata:
     node-fetch: "npm:^3.3.2"
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^5.0.5"
-    weboptimizer: "npm:^2.0.1450"
+    weboptimizer: "npm:^2.0.1452"
     webpack-dev-server: "npm:^5.0.2"
   peerDependencies:
     "@babel/runtime": "*"
@@ -5272,7 +5248,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ejs@npm:*":
+"ejs@npm:^3.1.9":
   version: 3.1.9
   resolution: "ejs@npm:3.1.9"
   dependencies:
@@ -5723,7 +5699,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"exports-loader@npm:*":
+"exports-loader@npm:^5.0.0":
   version: 5.0.0
   resolution: "exports-loader@npm:5.0.0"
   dependencies:
@@ -5773,7 +5749,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"extract-loader@npm:*":
+"extract-loader@npm:^5.1.0":
   version: 5.1.0
   resolution: "extract-loader@npm:5.1.0"
   dependencies:
@@ -6176,7 +6152,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob-all@npm:*":
+"glob-all@npm:^3.3.1":
   version: 3.3.1
   resolution: "glob-all@npm:3.3.1"
   dependencies:
@@ -6418,7 +6394,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-loader@npm:*":
+"html-loader@npm:^5.0.0":
   version: 5.0.0
   resolution: "html-loader@npm:5.0.0"
   dependencies:
@@ -6464,7 +6440,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-minifier@npm:*":
+"html-minifier@npm:^4.0.0":
   version: 4.0.0
   resolution: "html-minifier@npm:4.0.0"
   dependencies:
@@ -6481,7 +6457,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-webpack-plugin@npm:*, html-webpack-plugin@npm:^5.5.0":
+"html-webpack-plugin@npm:^5.5.0, html-webpack-plugin@npm:^5.6.0":
   version: 5.6.0
   resolution: "html-webpack-plugin@npm:5.6.0"
   dependencies:
@@ -6705,7 +6681,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"imports-loader@npm:*":
+"imports-loader@npm:^5.0.0":
   version: 5.0.0
   resolution: "imports-loader@npm:5.0.0"
   dependencies:
@@ -7240,7 +7216,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-environment-jsdom@npm:*":
+"jest-environment-jsdom@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-environment-jsdom@npm:29.7.0"
   dependencies:
@@ -9458,17 +9434,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:>=5, rimraf@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "rimraf@npm:5.0.5"
-  dependencies:
-    glob: "npm:^10.3.7"
-  bin:
-    rimraf: dist/esm/bin.mjs
-  checksum: 10c0/d50dbe724f33835decd88395b25ed35995077c60a50ae78ded06e0185418914e555817aad1b4243edbff2254548c2f6ad6f70cc850040bebb4da9e8cc016f586
-  languageName: node
-  linkType: hard
-
 "rimraf@npm:^3.0.2":
   version: 3.0.2
   resolution: "rimraf@npm:3.0.2"
@@ -9477,6 +9442,17 @@ __metadata:
   bin:
     rimraf: bin.js
   checksum: 10c0/9cb7757acb489bd83757ba1a274ab545eafd75598a9d817e0c3f8b164238dd90eba50d6b848bd4dcc5f3040912e882dc7ba71653e35af660d77b25c381d402e8
+  languageName: node
+  linkType: hard
+
+"rimraf@npm:^5.0.5":
+  version: 5.0.5
+  resolution: "rimraf@npm:5.0.5"
+  dependencies:
+    glob: "npm:^10.3.7"
+  bin:
+    rimraf: dist/esm/bin.mjs
+  checksum: 10c0/d50dbe724f33835decd88395b25ed35995077c60a50ae78ded06e0185418914e555817aad1b4243edbff2254548c2f6ad6f70cc850040bebb4da9e8cc016f586
   languageName: node
   linkType: hard
 
@@ -9549,7 +9525,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"script-loader@npm:*":
+"script-loader@npm:^0.7.2":
   version: 0.7.2
   resolution: "script-loader@npm:0.7.2"
   dependencies:
@@ -10377,7 +10353,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:*":
+"typescript@npm:^5.3.3":
   version: 5.3.3
   resolution: "typescript@npm:5.3.3"
   bin:
@@ -10387,7 +10363,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A*#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A^5.3.3#optional!builtin<compat/typescript>":
   version: 5.3.3
   resolution: "typescript@patch:typescript@npm%3A5.3.3#optional!builtin<compat/typescript>::version=5.3.3&hash=e012d7"
   bin:
@@ -10629,37 +10605,37 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^2.0.1450":
-  version: 2.0.1450
-  resolution: "weboptimizer@npm:2.0.1450"
+"weboptimizer@npm:^2.0.1452":
+  version: 2.0.1452
+  resolution: "weboptimizer@npm:2.0.1452"
   dependencies:
-    "@babel/core": "npm:*"
-    "@babel/plugin-proposal-class-properties": "npm:*"
-    "@babel/plugin-proposal-decorators": "npm:*"
-    "@babel/plugin-proposal-nullish-coalescing-operator": "npm:*"
-    "@babel/plugin-transform-runtime": "npm:*"
-    "@babel/preset-env": "npm:*"
-    "@babel/preset-typescript": "npm:*"
-    "@babel/runtime": "npm:*"
-    babel-loader: "npm:*"
-    babel-plugin-transform-modern-regexp: "npm:*"
-    babel-preset-minify: "npm:*"
-    clientnode: "npm:^3.0.1128"
-    ejs: "npm:*"
-    exports-loader: "npm:*"
-    extract-loader: "npm:*"
-    glob-all: "npm:*"
-    html-loader: "npm:*"
-    html-minifier: "npm:*"
-    html-webpack-plugin: "npm:*"
-    imports-loader: "npm:*"
-    jest-environment-jsdom: "npm:*"
-    rimraf: "npm:>=5"
-    script-loader: "npm:*"
-    typescript: "npm:*"
-    webpack: "npm:*"
-    webpack-cli: "npm:*"
-    webpack-sources: "npm:*"
+    "@babel/core": "npm:^7.24.0"
+    "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
+    "@babel/plugin-proposal-decorators": "npm:^7.24.0"
+    "@babel/plugin-proposal-nullish-coalescing-operator": "npm:^7.18.6"
+    "@babel/plugin-transform-runtime": "npm:^7.24.0"
+    "@babel/preset-env": "npm:^7.24.0"
+    "@babel/preset-typescript": "npm:^7.23.3"
+    "@babel/runtime": "npm:^7.24.0"
+    babel-loader: "npm:^9.1.3"
+    babel-plugin-transform-modern-regexp: "npm:^0.0.6"
+    babel-preset-minify: "npm:^0.5.2"
+    clientnode: "npm:^3.0.1135"
+    ejs: "npm:^3.1.9"
+    exports-loader: "npm:^5.0.0"
+    extract-loader: "npm:^5.1.0"
+    glob-all: "npm:^3.3.1"
+    html-loader: "npm:^5.0.0"
+    html-minifier: "npm:^4.0.0"
+    html-webpack-plugin: "npm:^5.6.0"
+    imports-loader: "npm:^5.0.0"
+    jest-environment-jsdom: "npm:^29.7.0"
+    rimraf: "npm:^5.0.5"
+    script-loader: "npm:^0.7.2"
+    typescript: "npm:^5.3.3"
+    webpack: "npm:^5.90.3"
+    webpack-cli: "npm:^5.1.4"
+    webpack-sources: "npm:^3.2.3"
   peerDependencies:
     "@babel/eslint-parser": "*"
     "@babel/preset-react": "*"
@@ -10769,11 +10745,11 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/faa315feb1f1a487e7ebdc9e4a909f99d82158b49daa5c9127f5f5ed1d66f3f81e166941b71d6244d018ffb90128cc1a3ae1d2adcf5ded2bf6954322a26661b5
+  checksum: 10c0/d0cb02a86890e971e38ed82d7468a6093e47482d50e33f287ae0c95cd91d656a8f741f9c647221ba39a7f2be455b3571959543bff9b752f962cc527f4e3fa48d
   languageName: node
   linkType: hard
 
-"webpack-cli@npm:*":
+"webpack-cli@npm:^5.1.4":
   version: 5.1.4
   resolution: "webpack-cli@npm:5.1.4"
   dependencies:
@@ -10881,14 +10857,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-sources@npm:*, webpack-sources@npm:^3.2.3":
+"webpack-sources@npm:^3.2.3":
   version: 3.2.3
   resolution: "webpack-sources@npm:3.2.3"
   checksum: 10c0/2ef63d77c4fad39de4a6db17323d75eb92897b32674e97d76f0a1e87c003882fc038571266ad0ef581ac734cbe20952912aaa26155f1905e96ce251adbb1eb4e
   languageName: node
   linkType: hard
 
-"webpack@npm:*":
+"webpack@npm:^5.90.3":
   version: 5.90.3
   resolution: "webpack@npm:5.90.3"
   dependencies:
