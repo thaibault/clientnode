@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.1135",
+  "version": "3.0.1136",
   "description": "upgrade to object orientated rock solid plugins",
   "keywords": [
     "client",
@@ -47,7 +47,6 @@
     "document": "weboptimizer document",
     "lint": "weboptimizer lint",
     "make:executable": "node --eval \"fs.chmodSync('index.js', '700')\"",
-    "postversion": "yarn publish --non-interactive; git push --tags && git push",
     "prepare": "if ! yarn build; then echo You should rerun install procedure to resolve dependency cycle. && yarn build:alternate; fi",
     "serve": "weboptimizer serve",
     "start": "yarn serve",
@@ -74,8 +73,8 @@
     "@types/webpack-env": "^1.18.4",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
-    "clientnode": "3.0.1134",
-    "documentation-website": "^1.0.325",
+    "clientnode": "3.0.1135",
+    "documentation-website": "^1.0.326",
     "eslint": "^8.57.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-jsdoc": "^48.2.0",
