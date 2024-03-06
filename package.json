@@ -71,9 +71,9 @@
     "@types/node": "^20.11.24",
     "@types/prop-types": "^15.7.11",
     "@types/webpack-env": "^1.18.4",
-    "@typescript-eslint/eslint-plugin": "^7.1.0",
-    "@typescript-eslint/parser": "^7.1.0",
-    "clientnode": "3.0.1135",
+    "@typescript-eslint/eslint-plugin": "^7.1.1",
+    "@typescript-eslint/parser": "^7.1.1",
+    "clientnode": "3.0.1136",
     "documentation-website": "^1.0.326",
     "eslint": "^8.57.0",
     "eslint-config-google": "^0.14.0",
@@ -86,7 +86,7 @@
     "node-fetch": "^3.3.2",
     "prop-types": "^15.8.1",
     "rimraf": "^5.0.5",
-    "weboptimizer": "^2.0.1452",
+    "weboptimizer": "^2.0.1453",
     "webpack-dev-server": "^5.0.2"
   },
   "peerDependencies": {
