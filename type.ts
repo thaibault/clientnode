@@ -286,9 +286,13 @@ export interface CompilationResult<
     T = string, N extends Array<string> = Array<string>
 > {
     error:null|string
+
+    globalNames:Array<string>
+    globalNamesUndefinedList:Array<undefined>
     originalScopeNames:N
     scopeNameMapping:{[key in N[number]]:string}
     scopeNames:Array<string>
+
     templateFunction:TemplateFunction<T>
 }
 export interface EvaluationResult<Type = string> {
