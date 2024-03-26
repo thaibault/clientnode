@@ -5628,6 +5628,8 @@ export class Tools<TElement = HTMLElement> {
      * @param expression - The string to interpret.
      * @param scope - Scope to extract names from.
      * @param execute - Indicates whether to execute or evaluate.
+     * @param removeGlobalScope - Indicates whether to shadow global variables
+     * via "undefined".
      *
      * @returns Object of prepared scope name mappings and compiled function or
      * error string message if given expression couldn't be compiled.
@@ -5636,10 +5638,14 @@ export class Tools<TElement = HTMLElement> {
         this:void,
         expression:string,
         scope:N|Mapping<unknown, N[number]>|N[number] = [] as unknown as N,
-        execute = false
+        execute = false,
+        removeGlobalScope = true
     ):CompilationResult<T, N> {
+        const globalNames = Object.keys(globalThis)
         const result:CompilationResult<T, N> = {
             error: null,
+            globalNames: globalNames,
+            globalNamesUndefinedList: globalNames.map(() => undefined),
             originalScopeNames: (
                 Array.isArray(scope) ?
                     scope :
@@ -5693,9 +5699,11 @@ export class Tools<TElement = HTMLElement> {
                     .replace(new RegExp(escapeMarker, 'g'), '\\$')
             }
 
+        let innerTemplateFunction:TemplateFunction<T>|undefined
         try {
             // eslint-disable-next-line @typescript-eslint/no-implied-eval
-            result.templateFunction = new Function(
+            innerTemplateFunction = new Function(
+                ...(removeGlobalScope ? result.globalNames : []),
                 ...result.scopeNames,
                 `${execute ? '' : 'return '}${expression}`
             ) as TemplateFunction<T>
@@ -5705,6 +5713,18 @@ export class Tools<TElement = HTMLElement> {
                 `with given scope names "${result.scopeNames.join('", "')}":` +
                 ` ${Tools.represent(error)}`
         }
+        if (innerTemplateFunction)
+            result.templateFunction = removeGlobalScope ?
+                (...parameters) =>
+                    /*
+                        NOTE: We shadow existing global names to sandbox
+                        expressions.
+                    */
+                    innerTemplateFunction(
+                        ...result.globalNames,
+                        ...parameters
+                    ) :
+                innerTemplateFunction
 
         return result
     }
@@ -5713,6 +5733,8 @@ export class Tools<TElement = HTMLElement> {
      * @param expression - The string to interpret.
      * @param scope - Scope to render against.
      * @param execute - Indicates whether to execute or evaluate.
+     * @param removeGlobalScope - Indicates whether to shadow global variables
+     * via "undefined".
      * @param binding - Object to apply as "this" in evaluation scope.
      *
      * @returns Object with error message during parsing / running or result.
@@ -5722,13 +5744,20 @@ export class Tools<TElement = HTMLElement> {
         expression:string,
         scope:S = {} as S,
         execute = false,
+        removeGlobalScope = true,
         binding?:unknown
     ):EvaluationResult<T> {
         // NOTE: We extract string only types from given scope type.
         type N = Array<keyof S extends string ? keyof S : never>
 
-        const {error, originalScopeNames, scopeNames, templateFunction} =
-            Tools.stringCompile<T, N>(expression, scope, execute)
+        const {
+            error,
+            originalScopeNames,
+            scopeNames,
+            templateFunction
+        } = Tools.stringCompile<T, N>(
+            expression, scope, execute, removeGlobalScope
+        )
 
         const result:EvaluationResult<T> = {
             compileError: null,

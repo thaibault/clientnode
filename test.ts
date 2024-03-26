@@ -3111,8 +3111,12 @@ describe(`Tools (${testEnvironment})`, ():void => {
             expected:string,
             expression:FirstParameter<typeof Tools.stringCompile>
         ):void =>
-            expect(String(Tools.stringCompile(expression).templateFunction))
-                .toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
+            expect(
+                String(
+                    Tools.stringCompile(expression, [], false, false)
+                        .templateFunction
+                )
+            ).toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
     )
     test.each([
         [
@@ -3251,8 +3255,12 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
                 .maximalSupportedInternetExplorerVersion = 11
 
-            expect(String(Tools.stringCompile(expression).templateFunction))
-                .toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
+            expect(
+                String(
+                    Tools.stringCompile(expression, [], false, false)
+                        .templateFunction
+                )
+            ).toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
 
             ;(Tools as {maximalSupportedInternetExplorerVersion:number})
                 .maximalSupportedInternetExplorerVersion = backup
@@ -3337,9 +3345,46 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 expression,
                 scope,
                 false,
-                ...([] as Array<unknown>).concat(
-                    binding === undefined ? [] : binding
+                false,
+                binding
+            )
+
+            expect(evaluation).toHaveProperty(resultKey)
+
+            if (expected !== undefined)
+                if (
+                    resultKey === 'result' &&
+                    typeof evaluation[resultKey] === 'string'
                 )
+                    expect(evaluation[resultKey].trim())
+                        .toStrictEqual(expected)
+                else
+                    expect(evaluation[resultKey as keyof EvaluationResult])
+                        .toStrictEqual(expected)
+        }
+    )
+    test.each(([
+        ['null', {}, 'result', null],
+        ['window', {}, 'result', undefined],
+        ['globalThis', {}, 'result', undefined],
+        ['globalThis', {globalThis: 5}, 'result', 5]
+    ] as Array<GivenStringEvaluateTestTuple>).map((
+        parameters:GivenStringEvaluateTestTuple
+    ):StringEvaluateTestTuple =>
+            parameters.concat(undefined, undefined).slice(0, 5) as
+                StringEvaluateTestTuple
+    ))(
+        'stringEvaluate(`%s`, %p...)[%p] === %p',
+        (
+            expression:string,
+            scope:Mapping<unknown>,
+            resultKey:string,
+            expected:unknown
+        ):void => {
+            const evaluation:EvaluationResult = Tools.stringEvaluate(
+                expression,
+                scope,
+                false
             )
 
             expect(evaluation).toHaveProperty(resultKey)
@@ -3424,9 +3469,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 expression,
                 scope,
                 false,
-                ...([] as Array<unknown>).concat(
-                    binding === undefined ? [] : binding
-                )
+                true,
+                binding
             )
 
             expect(evaluation).toHaveProperty(resultKey)
