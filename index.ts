@@ -7919,9 +7919,7 @@ export const augment$ = (value:$TStatic):void => {
                 }
             }
 
-            return nativePropFunction.call(
-                this, key, ...(additionalParameters as [])
-            )
+            return nativePropFunction.call(this, key, ...additionalParameters)
         } as (typeof $)['fn']['prop']
         // endregion
     }
