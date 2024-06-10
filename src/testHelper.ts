@@ -26,7 +26,7 @@
 import {expect, test} from '@jest/globals'
 import {Global as JestGlobal} from '@jest/types'
 
-import Tools from './index'
+import Tools from '../index'
 import {
     AnyFunction,
     FirstParameter,

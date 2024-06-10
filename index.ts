@@ -19,7 +19,7 @@
 // region imports
 import {ChildProcess} from 'child_process'
 
-import {currentImport, globalContext, optionalRequire} from './context'
+import {currentImport, globalContext, optionalRequire} from './src/context'
 import {
     AnyFunction,
     ArrayTransformer,
@@ -33,7 +33,6 @@ import {
     EvaluationResult,
     File,
     FileTraversionResult,
-    FirstParameter,
     GetterFunction,
     Mapping,
     ObjectMaskConfiguration,
@@ -67,17 +66,28 @@ import {
     ValueOf,
     $DomNodes,
     $T,
-    $TStatic, NormalizedObjectMask
-} from './type'
+    $TStatic,
+    NormalizedObjectMask
+} from './src/type'
 import {
-    ConsoleOutputMethods, DEFAULT_ENCODING,
+    ConsoleOutputMethods,
+    DEFAULT_ENCODING,
     IgnoreNullAndUndefinedSymbol,
     ValueCopySymbol
 } from 'clientnode'
+import {
+    ABBREVIATIONS,
+    CLASS_TO_TYPE_MAPPING,
+    DATE_TIME_PATTERN_CACHE,
+    LOCALES,
+    MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION,
+    NOOP, PLAIN_OBJECT_PROTOTYPES,
+    SPECIAL_REGEX_SEQUENCES
+} from './src/constants'
 // endregion
-export {Lock} from './Lock'
-export {Semaphore} from './Semaphore'
-export * from './constants'
+export {Lock} from './src/Lock'
+export {Semaphore} from './src/Semaphore'
+export * from './src/constants'
 /// region context
 globalContext.fetch =
     globalContext.fetch ??
@@ -185,6 +195,8 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
 }
 export let $ = determine$()
 /// endregion
+// Indicates whether javaScript dependent content where hide or shown.
+export let JAVASCRIPT_DEPENDENT_CONTENT_HANDLED = false
 // region plugins/classes
 /// region static tools
 /**
@@ -193,170 +205,27 @@ export let $ = determine$()
  * logging additional string, array or function handling. A set of helper
  * functions to parse  option objects dom trees or handle events is also
  * provided.
- * @property abbreviations - Lists all known abbreviation for proper camel case
- * to delimited and back conversion.
- * @property static:animationEndEventNames - Saves a string with all css3
- * browser specific animation end event names.
- * @property static:classToTypeMapping - String representation to object type
- * name mapping.
- * @property static:keyCode - Saves a mapping from key codes to their
- * corresponding name.
- * @property static:maximalSupportedInternetExplorerVersion - Saves currently
- * maximal supported internet explorer version. Saves zero if no internet
- * explorer present.
- * @property static:name - Not minifyable class name.
- * @property static:noop - A no-op dummy function.
- * @property static:specialRegexSequences - A list of special regular
- * expression symbols.
- * @property static:transitionEndEventNames - Saves a string with all css3
- * browser specific transition end event names.
- *
- * @property static:_dateTimePatternCache - Caches compiled date tine pattern
- * regular expressions.
- *
- * @property static:_defaultOptions - Fallback options if not overwritten by
+ * @property _defaultOptions - Static fallback options if not overwritten by
  * the options given to the constructor method.
- * @property static:_defaultOptions.logging {boolean} - Indicates whether
+ * @property _defaultOptions.logging {boolean} - Static indicator whether
  * logging should be active.
- * @property static:_defaultOptions.domNodeSelectorInfix {string} - Selector
+ * @property _defaultOptions.domNodeSelectorInfix {string} - Static selector
  * infix for all needed dom nodes.
- * @property static:_defaultOptions.domNodeSelectorPrefix {string} - Selector
+ * @property _defaultOptions.domNodeSelectorPrefix {string} - Static selector
  * prefix for all needed dom nodes.
- * @property static:_defaultOptions.domNodes {Object.<string, string>} -
- * Mapping of names to needed dom nodes referenced by there selector.
- * @property static:_defaultOptions.domNodes.hideJavaScriptEnabled {string} -
- * Selector to dom nodes which should be hidden if javaScript is available.
- * @property static:_defaultOptions.domNodes.showJavaScriptEnabled {string} -
- * Selector to dom nodes which should be visible if javaScript is available.
- *
- * @property static:_javaScriptDependentContentHandled - Indicates whether
- * javaScript dependent content where hide or shown.
+ * @property _defaultOptions.domNodes {Object.<string, string>} - Static
+ * mapping of names to needed dom nodes referenced by there selector.
+ * @property _defaultOptions.domNodes.hideJavaScriptEnabled {string} - Static
+ * selector to dom nodes which should be hidden if javaScript is available.
+ * @property _defaultOptions.domNodes.showJavaScriptEnabled {string} - Static
+ * selector to dom nodes which should be visible if javaScript is available.
  *
  * @property $domNode - $-extended dom node if one was given to the constructor
  * method.
- *
  * @property options - Options given to the constructor.
  */
 export class Tools<TElement = HTMLElement> {
     // region static properties
-    static abbreviations:Array<string> = [
-        'html', 'id', 'url', 'us', 'de', 'api', 'href'
-    ]
-    static readonly animationEndEventNames =
-        'animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd'
-    static readonly classToTypeMapping:Mapping = {
-        '[object Array]': 'array',
-        '[object Boolean]': 'boolean',
-        '[object Date]': 'date',
-        '[object Error]': 'error',
-        '[object Function]': 'function',
-        '[object Map]': 'map',
-        '[object Number]': 'number',
-        '[object Object]': 'object',
-        '[object RegExp]': 'regexp',
-        '[object Set]': 'set',
-        '[object String]': 'string'
-    }
-    static readonly keyCode:Mapping<number> = {
-        BACKSPACE: 8,
-        COMMA: 188,
-        DELETE: 46,
-        DOWN: 40,
-        END: 35,
-        ENTER: 13,
-        ESCAPE: 27,
-        F1: 112,
-        F2: 113,
-        F3: 114,
-        F4: 115,
-        F5: 116,
-        F6: 117,
-        F7: 118,
-        F8: 119,
-        F9: 120,
-        F10: 121,
-        F11: 122,
-        F12: 123,
-        HOME: 36,
-        LEFT: 37,
-        NUMPAD_ADD: 107,
-        NUMPAD_DECIMAL: 110,
-        NUMPAD_DIVIDE: 111,
-        NUMPAD_ENTER: 108,
-        NUMPAD_MULTIPLY: 106,
-        NUMPAD_SUBTRACT: 109,
-        PAGE_DOWN: 34,
-        PAGE_UP: 33,
-        PERIOD: 190,
-        RIGHT: 39,
-        SPACE: 32,
-        TAB: 9,
-        UP: 38
-    }
-    static locales:Array<string> = []
-    static readonly maximalSupportedInternetExplorerVersion:number = ((
-    ):number => {
-        /*
-            NOTE: This method uses "Array.indexOf" instead of "Array.includes"
-            since this function could be crucial in wide browser support.
-        */
-        if (!$.document)
-            return 0
-
-        const div = $.document.createElement('div')
-        let version:number
-        for (version = 0; version < 10; version++) {
-            /*
-                NOTE: We split html comment sequences to avoid wrong
-                interpretation if this code is embedded in markup.
-                NOTE: Internet Explorer 9 and lower sometimes doesn't
-                understand conditional comments wich doesn't starts with a
-                whitespace. If the conditional markup isn't in a commend.
-                Otherwise there shouldn't be any whitespace!
-            */
-            div.innerHTML = (
-                // eslint-disable-next-line no-useless-concat
-                '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' + '->'
-            )
-
-            if (div.getElementsByTagName('i').length === 0)
-                break
-        }
-
-        // Try special detection for internet explorer 10 and 11.
-        if (version === 0 && $.global.window.navigator)
-            /* eslint-disable @typescript-eslint/prefer-includes */
-            if ($.global.window.navigator.appVersion.indexOf('MSIE 10') !== -1)
-                return 10
-            else if (
-                ![
-                    $.global.window.navigator.userAgent.indexOf('Trident'),
-                    $.global.window.navigator.userAgent.indexOf('rv:11')
-                ].includes(-1)
-            )
-                return 11
-            /* eslint-enable @typescript-eslint/prefer-includes */
-
-        return version
-    })()
-    static noop:AnyFunction =
-        $.noop ?
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            $.noop as AnyFunction :
-            ():void => {
-                // Do nothing.
-            }
-    static plainObjectPrototypes:Array<FirstParameter<
-        typeof Object.getPrototypeOf
-    >> = [Object.prototype]
-    static readonly specialRegexSequences:Array<string> = [
-        '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}'
-    ]
-    static readonly transitionEndEventNames =
-        'transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd'
-
-    static _dateTimePatternCache:Array<RegExp> = []
-
     /*
         NOTE: Define entity as partial to be able to extend this class without
         repeating all this content.
@@ -371,8 +240,6 @@ export class Tools<TElement = HTMLElement> {
         logging: false,
         name: 'Tools'
     }
-
-    static _javaScriptDependentContentHandled = false
     // endregion
     // region dynamic properties
     $domNode:null|$T<TElement> = null
@@ -404,7 +271,7 @@ export class Tools<TElement = HTMLElement> {
         for (const methodName of ConsoleOutputMethods)
             if (!(methodName in $.global.console))
                 $.global.console[methodName as 'log'] =
-                    Tools.noop as Console['log']
+                    NOOP as Console['log']
     }
     /**
      * This method could be overwritten normally. It acts like a destructor.
@@ -528,77 +395,6 @@ export class Tools<TElement = HTMLElement> {
             )
     }
     /// endregion
-    /// region date time
-    /**
-     * Formats given date or current via given format specification.
-     * @param format - Format specification.
-     * @param dateTime - Date time to format.
-     * @param options - Additional configuration options for
-     *                  "Intl.DateTimeFormat".
-     * @param locales - Locale or list of locales to use for formatting. First
-     *                  one take precedence of latter ones.
-     * @returns Formatted date time string.
-     */
-    static dateTimeFormat(
-        this:void,
-        format = 'full',
-        dateTime:Date|number|string = new Date(),
-        options:SecondParameter<typeof Intl.DateTimeFormat> = {},
-        locales:Array<string>|string = Tools.locales
-    ):string {
-        if (typeof dateTime === 'number')
-            /*
-                NOTE: "Date" constructor expects milliseconds as unit instead
-                of more common used seconds.
-            */
-            dateTime *= 1000
-
-        const normalizedDateTime:Date = new Date(dateTime)
-
-        if (['full', 'long', 'medium', 'short'].includes(format))
-            return new Intl.DateTimeFormat(
-                ([] as Array<string>).concat(locales, 'en-US'),
-                {dateStyle: format, timeStyle: format, ...options} as
-                    SecondParameter<typeof Intl.DateTimeFormat>
-            )
-                .format(normalizedDateTime)
-
-        const scope:Mapping<Array<string>|string> = {}
-        for (const style of ['full', 'long', 'medium', 'short'] as const) {
-            scope[`${style}Literals`] = []
-
-            const dateTimeFormat:Intl.DateTimeFormat = new Intl.DateTimeFormat(
-                ([] as Array<string>).concat(locales, 'en-US'),
-                {dateStyle: style, timeStyle: style, ...options} as
-                    SecondParameter<typeof Intl.DateTimeFormat>
-            )
-
-            scope[style] = dateTimeFormat.format(normalizedDateTime)
-
-            for (const item of dateTimeFormat.formatToParts(
-                normalizedDateTime
-            ))
-                if (item.type === 'literal')
-                    (scope[`${style}Literals`] as Array<string>)
-                        .push(item.value)
-                else
-                    scope[`${style}${Tools.stringCapitalize(item.type)}`] =
-                        item.value
-        }
-
-        const evaluated:EvaluationResult =
-            Tools.stringEvaluate(`\`${format}\``, scope)
-        if (evaluated.error)
-            throw new Error(evaluated.error)
-
-        /*
-            NOTE: For some reason hidden symbols are injected differently on
-            different platforms, so we have to normalize for predictable
-            testing.
-        */
-        return evaluated.result.replace(/\s/g, ' ')
-    }
-    /// endregion
     /// region boolean
     /**
      * Determines whether its argument represents a JavaScript number.
@@ -702,7 +498,7 @@ export class Tools<TElement = HTMLElement> {
         return (
             value !== null &&
             typeof value === 'object' &&
-            Tools.plainObjectPrototypes.includes(Object.getPrototypeOf(value))
+            PLAIN_OBJECT_PROTOTYPES.includes(Object.getPrototypeOf(value))
         )
     }
     /**
@@ -790,7 +586,7 @@ export class Tools<TElement = HTMLElement> {
             if (message)
                 if (
                     !($.global.console && level in $.global.console) ||
-                    ($.global.console[level] === Tools.noop)
+                    ($.global.console[level] === NOOP)
                 ) {
                     if ($.global.window?.alert)
                         $.global.window.alert(message)
@@ -1312,7 +1108,7 @@ export class Tools<TElement = HTMLElement> {
      */
     renderJavaScriptDependentVisibility():void {
         if (
-            !Tools._javaScriptDependentContentHandled &&
+            !JAVASCRIPT_DEPENDENT_CONTENT_HANDLED &&
             $.document &&
             'filter' in $ &&
             'hide' in $ &&
@@ -1340,7 +1136,7 @@ export class Tools<TElement = HTMLElement> {
                 .data('javaScriptDependentContentShow', true)
                 .show()
 
-            Tools._javaScriptDependentContentHandled = true
+            JAVASCRIPT_DEPENDENT_CONTENT_HANDLED = true
         }
     }
     /**
@@ -1650,7 +1446,7 @@ export class Tools<TElement = HTMLElement> {
      * resolved.
      */
     static timeout(this:void, ...parameters:Array<unknown>):TimeoutPromise {
-        let callback:AnyFunction = Tools.noop
+        let callback:AnyFunction = NOOP
         let delayInMilliseconds = 0
         let throwOnTimeoutClear = false
 
@@ -1872,7 +1668,7 @@ export class Tools<TElement = HTMLElement> {
         if (
             castedScope.options &&
             eventHandlerName in castedScope.options &&
-            castedScope.options[eventHandlerName] !== Tools.noop
+            castedScope.options[eventHandlerName] !== NOOP
         )
             return castedScope.options[eventHandlerName].call(
                 this, ...additionalArguments
@@ -2408,13 +2204,14 @@ export class Tools<TElement = HTMLElement> {
             ['function', 'object'].includes(type) &&
             (value as Mapping).toString
         ) {
-            const stringRepresentation:string =
-                Tools.classToTypeMapping.toString.call(value)
+            const stringRepresentation =
+                CLASS_TO_TYPE_MAPPING.toString.call(value) as
+                    keyof typeof CLASS_TO_TYPE_MAPPING
 
             if (Object.prototype.hasOwnProperty.call(
-                Tools.classToTypeMapping, stringRepresentation
+                CLASS_TO_TYPE_MAPPING, stringRepresentation
             ))
-                return Tools.classToTypeMapping[stringRepresentation]
+                return CLASS_TO_TYPE_MAPPING[stringRepresentation]
         }
 
         return type
@@ -2705,7 +2502,7 @@ export class Tools<TElement = HTMLElement> {
                                             resolve(determineResult(
                                                 results.some(Tools.identity)
                                             )),
-                                        Tools.noop
+                                        NOOP
                                     )
                                 }))
 
@@ -2787,7 +2584,7 @@ export class Tools<TElement = HTMLElement> {
 
                             resolve(true)
                         },
-                        Tools.noop
+                        NOOP
                     )
                 })
 
@@ -3596,73 +3393,6 @@ export class Tools<TElement = HTMLElement> {
             }
 
         return target
-    }
-    /**
-     * Interprets a date object from given artefact.
-     * @param value - To interpret.
-     * @param interpretAsUTC - Identifies if given date should be interpret as
-     * utc. If not set given strings will be interpret as it is depending on
-     * given format and numbers as utc.
-     * @returns Interpreted date object or "null" if given value couldn't be
-     * interpret.
-     */
-    static normalizeDateTime(
-        this:void,
-        value:string|null|number|Date = null,
-        interpretAsUTC?:null|boolean
-    ):Date|null {
-        let resolvedInterpretAsUTC = Boolean(interpretAsUTC)
-
-        if (value === null)
-            return new Date()
-
-        if (typeof value === 'string') {
-            /*
-                We make a simple pre-check to determine if it could be a date
-                like representation. Idea: There should be at least some
-                numbers and separators.
-            */
-            if (/^.*(?:(?:[0-9]{1,4}[^0-9]){2}|[0-9]{1,4}[^0-9.]).*$/.test(
-                value
-            )) {
-                value = Tools.stringInterpretDateTime(
-                    value, resolvedInterpretAsUTC
-                )
-
-                if (value === null)
-                    return value
-
-                return value
-            }
-
-            const floatRepresentation:number = parseFloat(value)
-            if (`${floatRepresentation}` === value)
-                value = floatRepresentation
-        }
-
-        if (typeof value === 'number') {
-            if ([null, undefined].includes(interpretAsUTC as null))
-                resolvedInterpretAsUTC = true
-
-            return new Date(
-                (
-                    value +
-                    (resolvedInterpretAsUTC ?
-                        0 :
-                        (new Date().getTimezoneOffset() * 60)
-                    )
-                ) *
-                1000
-            )
-        }
-
-        // Try to deal with types which are either numbers or strings.
-        const result = new Date(value)
-
-        if (isNaN(result.getDate()))
-            return null
-
-        return result
     }
     /**
      * Removes given key from given object recursively.
@@ -4790,14 +4520,14 @@ export class Tools<TElement = HTMLElement> {
         this:void, value:string, excludeSymbols:Array<string> = []
     ):string {
         // NOTE: This is only for performance improvements.
-        if (value.length === 1 && !Tools.specialRegexSequences.includes(value))
+        if (value.length === 1 && !SPECIAL_REGEX_SEQUENCES.includes(value))
             return value
 
         // The escape sequence must also be escaped; but at first.
         if (!excludeSymbols.includes('\\'))
             value.replace(/\\/g, '\\\\')
 
-        for (const replace of Tools.specialRegexSequences)
+        for (const replace of SPECIAL_REGEX_SEQUENCES)
             if (!excludeSymbols.includes(replace))
                 value = value.replace(
                     new RegExp(`\\${replace}`, 'g'), `\\${replace}`)
@@ -5171,14 +4901,14 @@ export class Tools<TElement = HTMLElement> {
     ):string {
     /* eslint-enable jsdoc/require-description-complete-sentence */
         if (!abbreviations)
-            abbreviations = Tools.abbreviations
+            abbreviations = ABBREVIATIONS
 
         const escapedDelimiter:string =
             Tools.stringMaskForRegularExpression(delimiter)
 
-        if (abbreviations.length) {
+        if (ABBREVIATIONS.length) {
             let abbreviationPattern = ''
-            for (const abbreviation of abbreviations) {
+            for (const abbreviation of ABBREVIATIONS) {
                 if (abbreviationPattern)
                     abbreviationPattern += '|'
                 abbreviationPattern += abbreviation.toUpperCase()
@@ -5263,10 +4993,10 @@ export class Tools<TElement = HTMLElement> {
             Tools.stringMaskForRegularExpression(delimiter)
 
         if (!abbreviations)
-            abbreviations = Tools.abbreviations
+            abbreviations = ABBREVIATIONS
         let abbreviationPattern:string
         if (preserveWrongFormattedAbbreviations)
-            abbreviationPattern = abbreviations.join('|')
+            abbreviationPattern = ABBREVIATIONS.join('|')
         else {
             abbreviationPattern = ''
             for (const abbreviation of abbreviations) {
@@ -5347,7 +5077,7 @@ export class Tools<TElement = HTMLElement> {
             result.scopeNames.push(newName)
         }
 
-        if (Tools.maximalSupportedInternetExplorerVersion !== 0)
+        if (MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION !== 0)
             if ($.global.Babel?.transform)
                 expression = $.global.Babel?.transform(
                     `(${expression})`,
@@ -5659,483 +5389,6 @@ export class Tools<TElement = HTMLElement> {
      */
     static stringMaskForRegularExpression(this:void, value:string):string {
         return value.replace(/([\\|.*$^+[\]()?\-{}])/g, '\\$1')
-    }
-    /**
-     * Interprets given content string as date time.
-     * @param value - Date time string to interpret.
-     * @param interpretAsUTC - Identifies if given date should be interpret as
-     * utc. If not set given strings will be interpret as it is depending on
-     * given format and number like string as utc.
-     * @returns Interpret date time object.
-     */
-    static stringInterpretDateTime(
-        this:void, value:string, interpretAsUTC?:null|boolean
-    ):Date|null {
-        let resolvedInterpretAsUTC = Boolean(interpretAsUTC)
-        // region iso format
-        /*
-            Let's first check if we have a simplified iso 8602 date time
-            representation like:
-
-            "YYYY-MM-DDTHH:mm:ss.sssZ" or "YYYY-MM-DDTHH:mm:ss.sss+HH:mm".
-
-            Please note for the native "Date" implementation:
-
-            When the time zone offset is absent, date-only forms are
-            interpreted as a UTC time and date-time forms are
-            interpreted as local time. This is due to a historical spec
-            error that was not consistent with ISO 8601 but could not
-            be changed due to web compatibility.
-        */
-        const hourAndMinutesPattern = '[0-2][0-9]:[0-6][0-9]'
-        const pattern = '^' + (
-            // Year, month and day:
-            '[0-9]{4}-[01][0-9]-[0-3][0-9]' +
-            '(?<time>' + (
-                '(?:T' + (
-                    hourAndMinutesPattern +
-                    '(?:' + (
-                        // Seconds:
-                        ':[0-6][0-9]' +
-                        // Milliseconds:
-                        '(?:\\.[0-9]+)?'
-                    ) + ')?' +
-                    // Timezone definition:
-                    `(?<dateTimeTimezone>Z|(?:[+-]${hourAndMinutesPattern}))?`
-                ) + ')' +
-                '|' +
-                // Timezone definition:
-                `(?<dateTimezone>Z|(?:[+-]${hourAndMinutesPattern}))`
-            ) + ')?'
-        ) + '$'
-        const match = value.match(new RegExp(pattern, 'i'))
-        if (match) {
-            const result = new Date(value)
-
-            if (isNaN(result.getDate()))
-                return null
-
-            const timezone =
-                match.groups?.dateTimeTimezone ?? match.groups?.dateTimezone
-            if (!timezone) {
-                if ([null, undefined].includes(interpretAsUTC as null))
-                    resolvedInterpretAsUTC = false
-
-                if (resolvedInterpretAsUTC) {
-                    if (!match.groups?.time)
-                        /*
-                            NOTE: Date only strings will be interpret as UTC
-                            already.
-                        */
-                        return result
-
-                    // local to utc
-                    return new Date(
-                        result.getTime() -
-                        (new Date().getTimezoneOffset() * 60) * 1000
-                    )
-                }
-
-                if (match.groups?.time)
-                    /*
-                        NOTE: Date time strings will be interpret as local
-                        already.
-                    */
-                    return result
-
-                // utc to local
-                return new Date(
-                    result.getTime() +
-                    (new Date().getTimezoneOffset() * 60) * 1000
-                )
-            }
-
-            return result
-        }
-        // endregion
-        value = value.replace(/^(-?)-*0*([1-9][0-9]*)$/, '$1$2')
-        // region interpret integer number
-        /*
-            NOTE: Do not use "parseFloat" since we want to interpret delimiter
-            as date delimiters.
-        */
-        if (`${parseInt(value)}` === value) {
-            if ([null, undefined].includes(interpretAsUTC as null))
-                resolvedInterpretAsUTC = true
-
-            return new Date(
-                (
-                    parseInt(value) +
-                    (resolvedInterpretAsUTC ?
-                        0 :
-                        (new Date().getTimezoneOffset() * 60)
-                    )
-                ) *
-                1000
-            )
-        }
-        // endregion
-        // TODO handle am/pm
-        if (!Tools._dateTimePatternCache.length) {
-            // region pre-compile regular expressions
-            /// region pattern
-            const millisecondPattern =
-                '(?<millisecond>(?:0{0,3}[0-9])|(?:0{0,2}[1-9]{2})|' +
-                '(?:0?[1-9]{3})|(?:1[1-9]{3}))'
-            const minuteAndSecondPattern = '(?:0?[0-9])|(?:[1-5][0-9])|(?:60)'
-            const secondPattern = `(?<second>${minuteAndSecondPattern})`
-            const minutePattern = `(?<minute>${minuteAndSecondPattern})`
-            const hourPattern = '(?<hour>(?:0?[0-9])|(?:1[0-9])|(?:2[0-4]))'
-            const dayPattern = '(?<day>(?:0?[1-9])|(?:[1-2][0-9])|(?:3[01]))'
-            const monthPattern = '(?<month>(?:0?[1-9])|(?:1[0-2]))'
-            const yearPattern = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
-            /// endregion
-            const patternPresenceCache:Mapping<true> = {}
-            for (const timeDelimiter of ['t', ' '] as const)
-                for (const timeComponentDelimiter of [
-                    ':', '/', '-', ' '
-                ] as const)
-                    for (const timeFormat of [
-                        hourPattern +
-                        `${timeComponentDelimiter}+` +
-                        minutePattern,
-
-                        hourPattern +
-                        `${timeComponentDelimiter}+` +
-                        minutePattern +
-                        `${timeComponentDelimiter}+` +
-                        secondPattern,
-
-                        hourPattern +
-                        `${timeComponentDelimiter}+` +
-                        minutePattern +
-                        `${timeComponentDelimiter}+` +
-                        secondPattern +
-                        `${timeComponentDelimiter}+` +
-                        millisecondPattern,
-
-                        hourPattern
-                    ])
-                        for (const dateTimeFormat of [
-                            {
-                                delimiter: ['/', '-', ' '],
-                                pattern: [
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    yearPattern,
-
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    ' +' +
-                                    yearPattern,
-
-                                    yearPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern,
-
-                                    yearPattern +
-                                    ' +' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern,
-
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    yearPattern +
-                                    `${timeDelimiter}+` +
-                                    timeFormat,
-
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    ' +' +
-                                    yearPattern +
-                                    `${timeDelimiter}+` +
-                                    timeFormat,
-
-                                    timeFormat +
-                                    `${timeDelimiter}+` +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    yearPattern,
-
-                                    timeFormat +
-                                    `${timeDelimiter}+` +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    ' +' +
-                                    yearPattern,
-
-                                    yearPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    `${timeDelimiter}+` +
-                                    timeFormat,
-
-                                    yearPattern +
-                                    ' +' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    `${timeDelimiter}+` +
-                                    timeFormat,
-
-                                    timeFormat +
-                                    `${timeDelimiter}+` +
-                                    yearPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern,
-
-                                    timeFormat +
-                                    `${timeDelimiter}+` +
-                                    yearPattern +
-                                    ' +' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    dayPattern
-                                ]
-                            },
-                            {
-                                delimiter: '\\.',
-                                pattern: [
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    yearPattern,
-
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    ' +' +
-                                    yearPattern,
-
-                                    yearPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern,
-
-                                    yearPattern +
-                                    ' +' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern,
-
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    yearPattern +
-                                    `${timeDelimiter}+` +
-                                    timeFormat,
-
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    ' +' +
-                                    yearPattern +
-                                    `${timeDelimiter}+` +
-                                    timeFormat,
-
-                                    timeFormat +
-                                    `${timeDelimiter}+` +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    '${delimiter}' +
-                                    yearPattern,
-
-                                    timeFormat +
-                                    `${timeDelimiter}+` +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    ' +' +
-                                    yearPattern,
-
-                                    yearPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    `${timeDelimiter}+` +
-                                    timeFormat,
-
-                                    yearPattern +
-                                    ' +' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern +
-                                    `${timeDelimiter}+` +
-                                    timeFormat,
-
-                                    timeFormat +
-                                    `${timeDelimiter}+` +
-                                    yearPattern +
-                                    '${delimiter}' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern,
-
-                                    timeFormat +
-                                    `${timeDelimiter}+` +
-                                    yearPattern +
-                                    ' +' +
-                                    dayPattern +
-                                    '${delimiter}' +
-                                    monthPattern
-                                ]
-                            },
-                            {pattern: timeFormat}
-                        ])
-                            for (
-                                const delimiter of ([] as Array<string>)
-                                    .concat(
-                                        Object.prototype.hasOwnProperty.call(
-                                            dateTimeFormat, 'delimiter'
-                                        ) ?
-                                            (dateTimeFormat.delimiter as
-                                                string
-                                            ) :
-                                            '-'
-                                    )
-                            )
-                                for (let pattern of ([] as Array<string>)
-                                    .concat(dateTimeFormat.pattern)
-                                ) {
-                                    pattern = Tools.stringEvaluate(
-                                        `\`^${pattern}$\``,
-                                        {delimiter: `${delimiter}+`}
-                                    ).result
-                                    if (
-                                        pattern &&
-                                        !Object.prototype.hasOwnProperty.call(
-                                            patternPresenceCache, pattern
-                                        )
-                                    ) {
-                                        patternPresenceCache[pattern] = true
-                                        Tools._dateTimePatternCache.push(
-                                            new RegExp(pattern)
-                                        )
-                                    }
-                                }
-            // endregion
-        }
-        // region pre-process
-        // NOTE: All patterns can assume lower cased strings.
-        value = value.toLowerCase()
-        /*
-            Reduce each sequence on none alphanumeric symbols to the first
-            symbol.
-        */
-        value = value.replace(/([^0-9a-z])[^0-9a-z]+/g, '$1')
-
-        let monthNumber = 1
-        for (const monthVariation of [
-            ['jan', 'january?', 'janvier'],
-            ['feb', 'february?', 'février'],
-            ['m(?:a|ae|ä)r', 'm(?:a|ae|ä)r(?:ch|s|z)'],
-            ['ap[rv]', 'a[pv]ril'],
-            ['ma[iy]'],
-            ['ju[ein]', 'jui?n[ei]?'],
-            ['jul', 'jul[iy]', 'juillet'],
-            ['aug', 'august', 'août'],
-            ['sep', 'septemb(?:er|re)'],
-            ['o[ck]t', 'o[ck]tob(?:er|re)'],
-            ['nov', 'novemb(?:er|re)'],
-            ['de[cz]', 'd[eé][cz]emb(?:er|re)']
-        ]) {
-            let matched = false
-            for (const name of monthVariation) {
-                const pattern = new RegExp(`(^|[^a-z])${name}([^a-z]|$)`)
-                if (pattern.test(value)) {
-                    value = value.replace(pattern, `$1${monthNumber}$2`)
-                    matched = true
-                    break
-                }
-            }
-
-            if (matched)
-                break
-
-            monthNumber += 1
-        }
-
-        value = Tools.stringSliceWeekday(value)
-
-        const timezonePattern = /(.+)\+(.+)$/
-        const timezoneMatch:Array<string>|null = timezonePattern.exec(value)
-        if (timezoneMatch)
-            value = value.replace(timezonePattern, '$1')
-
-        for (const wordToSlice of ['', 'Uhr', `o'clock`] as const)
-            value = value.replace(wordToSlice, '')
-
-        value = value.trim()
-        // endregion
-        // region try to match a pattern
-        for (const dateTimePattern of Tools._dateTimePatternCache) {
-            let match:ReturnType<string['match']> = null
-
-            try {
-                match = value.match(dateTimePattern)
-            } catch (error) {
-                // Continue regardless of an error.
-            }
-
-            if (match) {
-                const get = (name:string, fallback = 0):number =>
-                    match?.groups && name in match.groups ?
-                        parseInt(match.groups[name], 10) :
-                        fallback
-
-                const parameter:[
-                    number, number, number, number, number, number, number
-                ] = [
-                    get('year', 1970), get('month', 1) - 1, get('day', 1),
-                    get('hour'), get('minute'), get('second'),
-                    get('millisecond')
-                ]
-
-                let result:Date|null = null
-                if (timezoneMatch) {
-                    const timeShift:Date|null =
-                        Tools.stringInterpretDateTime(timezoneMatch[2], true)
-                    if (timeShift)
-                        result = new Date(
-                            Date.UTC(...parameter) - timeShift.getTime()
-                        )
-                }
-
-                if (!result)
-                    if (resolvedInterpretAsUTC)
-                        result = new Date(Date.UTC(...parameter))
-                    else
-                        result = new Date(...parameter)
-
-                if (isNaN(result.getDate()))
-                    return null
-
-                return result
-            }
-        }
-        // endregion
-        return null
     }
     /**
      * Converts a string to its lower case representation.
@@ -6459,20 +5712,6 @@ export class Tools<TElement = HTMLElement> {
         return value.replace(/[^0-9]+/g, '')
     }
     /**
-     * Slice weekday from given date representation.
-     * @param value - String to process.
-     * @returns Sliced given string.
-     */
-    static stringSliceWeekday(this:void, value:string):string {
-        const weekdayPattern = /[a-z]{2}\.+ *([^ ].*)$/i
-        const weekdayMatch = weekdayPattern.exec(value)
-
-        if (weekdayMatch)
-            return value.replace(weekdayPattern, '$1')
-
-        return value
-    }
-    /**
      * Converts a dom selector to a prefixed dom selector string.
      * @param selector - A dom node selector.
      * @returns Returns given selector prefixed.
@@ -6640,7 +5879,7 @@ export class Tools<TElement = HTMLElement> {
                             throwing errors about unhandled promise
                             rejections.
                         */
-                        currentlyRunningTimer.catch(Tools.noop)
+                        currentlyRunningTimer.catch(NOOP)
                     }
 
                     return error
@@ -6685,7 +5924,7 @@ export class Tools<TElement = HTMLElement> {
                             'reached.'
                         ))
                     },
-                    Tools.noop
+                    NOOP
                 )
             })
 
@@ -6782,7 +6021,7 @@ export class Tools<TElement = HTMLElement> {
                             NOTE: A timer rejection is expected. Avoid throwing
                             errors about unhandled promise rejections.
                         */
-                        currentlyRunningTimer.catch(Tools.noop)
+                        currentlyRunningTimer.catch(NOOP)
                     } catch (error) {
                         // eslint-disable-next-line no-use-before-define
                         timer.clear()
@@ -6809,7 +6048,7 @@ export class Tools<TElement = HTMLElement> {
                             'reached.'
                         ))
                     },
-                    Tools.noop
+                    NOOP
                 )
             })
 
@@ -6933,7 +6172,7 @@ export class Tools<TElement = HTMLElement> {
         this:void,
         sourcePath:string,
         targetPath:string,
-        callback:AnyFunction = Tools.noop,
+        callback:AnyFunction = NOOP,
         readOptions = {encoding: null, flag: 'r'},
         writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
     ):Promise<string> {
@@ -6990,7 +6229,7 @@ export class Tools<TElement = HTMLElement> {
         this:void,
         sourcePath:string,
         targetPath:string,
-        callback:AnyFunction = Tools.noop,
+        callback:AnyFunction = NOOP,
         readOptions = {encoding: null, flag: 'r'},
         writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
     ):string {
@@ -7280,7 +6519,7 @@ export class Tools<TElement = HTMLElement> {
     static walkDirectoryRecursivelySync(
         this:void,
         directoryPath:string,
-        callback:AnyFunction|null = Tools.noop,
+        callback:AnyFunction|null = NOOP,
         options:(
             Encoding|SecondParameter<typeof import('fs').readdirSync>
         ) = DEFAULT_ENCODING
@@ -7371,7 +6610,7 @@ export class Tools<TElement = HTMLElement> {
         resolve:ProcessCloseCallback,
         reject:ProcessErrorCallback,
         reason:unknown = null,
-        callback:AnyFunction = Tools.noop
+        callback:AnyFunction = NOOP
     ):ProcessHandler {
         let finished = false
 

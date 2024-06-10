@@ -20,7 +20,7 @@ import {Matchers} from 'expect'
 import JQuery from 'jquery'
 import {Dirent as DirectoryEntry, Stats as FileStats} from 'fs'
 
-import Tools, {BoundTools} from './index'
+import Tools, {BoundTools} from '../index'
 import {DefinedSymbol, ThrowSymbol, UndefinedSymbol} from './testHelper'
 // endregion
 // region exports

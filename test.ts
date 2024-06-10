@@ -33,7 +33,7 @@ import {InitializedBrowser} from 'weboptimizer/type'
 import Tools, {
     globalContext, Lock, optionalRequire, Semaphore, ValueCopySymbol, $
 } from './index'
-import {DummyTypes} from './property-types'
+import {DummyTypes} from './src/propertyTypes'
 import {
     DefinedSymbol,
     testEach,
@@ -43,7 +43,7 @@ import {
     testEachPromiseRejectionAgainstSameExpectation,
     testEachSingleParameterAgainstSameExpectation,
     ThrowSymbol
-} from './testHelper'
+} from './src/testHelper'
 import {
     AnyFunction,
     EvaluationResult,
@@ -56,7 +56,7 @@ import {
     TimeoutPromise,
     UnknownFunction,
     $T
-} from './type'
+} from './src/type'
 // endregion
 /*
     NOTE: We have to preload this module to avoid introducing an additional

@@ -16,7 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {$Global, ImportFunction} from 'clientnode/type'
+import {$Global, ImportFunction} from './type'
 
 export const determineGlobalContext:(() => $Global) = ():$Global => {
     if (typeof globalThis === 'undefined') {
