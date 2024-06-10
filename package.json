@@ -73,7 +73,7 @@
     "@types/webpack-env": "^1.18.5",
     "@typescript-eslint/eslint-plugin": "^7.12.0",
     "@typescript-eslint/parser": "^7.12.0",
-    "clientnode": "3.0.1142",
+    "clientnode": "3.0.1143",
     "documentation-website": "^1.0.326",
     "eslint": "^9.4.0",
     "eslint-config-google": "^0.14.0",
@@ -86,7 +86,8 @@
     "node-fetch": "^3.3.2",
     "prop-types": "^15.8.1",
     "rimraf": "^5.0.7",
-    "weboptimizer": "^2.0.1468",
+    "typescript-eslint": "^7.12.0",
+    "weboptimizer": "^2.0.1470",
     "webpack-dev-server": "^5.0.4"
   },
   "peerDependencies": {
@@ -119,7 +120,10 @@
     "yarn": ">=4"
   },
   "resolutions": {
-    "colors": "1.4.0"
+    "colors": "1.4.0",
+    "globals@npm:^14.0.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
+    "globals@npm:^11.1.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
+    "globals@npm:^9.18.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch"
   },
   "sideEffects": false,
   "documentationWebsite": {

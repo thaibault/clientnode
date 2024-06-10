@@ -2868,7 +2868,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^7.12.0":
+"@typescript-eslint/eslint-plugin@npm:7.12.0, @typescript-eslint/eslint-plugin@npm:^7.12.0":
   version: 7.12.0
   resolution: "@typescript-eslint/eslint-plugin@npm:7.12.0"
   dependencies:
@@ -2891,7 +2891,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^7.12.0":
+"@typescript-eslint/parser@npm:7.12.0, @typescript-eslint/parser@npm:^7.12.0":
   version: 7.12.0
   resolution: "@typescript-eslint/parser@npm:7.12.0"
   dependencies:
@@ -4915,9 +4915,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:3.0.1142":
-  version: 3.0.1142
-  resolution: "clientnode@npm:3.0.1142"
+"clientnode@npm:3.0.1143":
+  version: 3.0.1143
+  resolution: "clientnode@npm:3.0.1143"
   peerDependencies:
     "@babel/runtime": "*"
     "@types/prop-types": "*"
@@ -4935,11 +4935,11 @@ __metadata:
       optional: true
     prop-types:
       optional: true
-  checksum: 10c0/c2f68cb74464cb272859f96c706d7deb4d5e8117c96ebf2860006d7216f304e97439a0eb97b401e31f9846a86cf0d1d559f7db3580c8f33cd857d26905eea019
+  checksum: 10c0/35b31e33b5dd3da35bd2112ed6f34dbe0e80b33f9a6dc1e095478cec076eee4d2d252f56bfdf8bc146092adde8bb566655b15606ef0217e79a192e0b0f3f744e
   languageName: node
   linkType: hard
 
-"clientnode@npm:^3.0.1143, clientnode@workspace:.":
+"clientnode@workspace:.":
   version: 0.0.0-use.local
   resolution: "clientnode@workspace:."
   dependencies:
@@ -4956,7 +4956,7 @@ __metadata:
     "@types/webpack-env": "npm:^1.18.5"
     "@typescript-eslint/eslint-plugin": "npm:^7.12.0"
     "@typescript-eslint/parser": "npm:^7.12.0"
-    clientnode: "npm:3.0.1142"
+    clientnode: "npm:3.0.1143"
     documentation-website: "npm:^1.0.326"
     eslint: "npm:^9.4.0"
     eslint-config-google: "npm:^0.14.0"
@@ -4969,7 +4969,8 @@ __metadata:
     node-fetch: "npm:^3.3.2"
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^5.0.7"
-    weboptimizer: "npm:^2.0.1468"
+    typescript-eslint: "npm:^7.12.0"
+    weboptimizer: "npm:^2.0.1470"
     webpack-dev-server: "npm:^5.0.4"
   peerDependencies:
     "@babel/runtime": "*"
@@ -6601,24 +6602,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:^11.1.0":
+"globals@npm:11.12.0":
   version: 11.12.0
   resolution: "globals@npm:11.12.0"
   checksum: 10c0/758f9f258e7b19226bd8d4af5d3b0dcf7038780fb23d82e6f98932c44e239f884847f1766e8fa9cc5635ccb3204f7fa7314d4408dd4002a5e8ea827b4018f0a1
   languageName: node
   linkType: hard
 
-"globals@npm:^14.0.0":
-  version: 14.0.0
-  resolution: "globals@npm:14.0.0"
-  checksum: 10c0/b96ff42620c9231ad468d4c58ff42afee7777ee1c963013ff8aabe095a451d0ceeb8dcd8ef4cbd64d2538cef45f787a78ba3a9574f4a634438963e334471302d
-  languageName: node
-  linkType: hard
-
-"globals@npm:^9.18.0":
-  version: 9.18.0
-  resolution: "globals@npm:9.18.0"
-  checksum: 10c0/5ab74cb67cf060a9fceede4a0f2babc4c2c0b90dbb13847d2659defdf2121c60035ef23823c8417ce8c11bdaa7b412396077f2b3d2a7dedab490a881a0a96754
+"globals@patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch":
+  version: 11.12.0
+  resolution: "globals@patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch::version=11.12.0&hash=9cab59"
+  checksum: 10c0/05677f744b7df7328b3ed129c9da5dd6571c0911521481a06d19f53ada7791b4125fdd33b5b6c01259d07ae952850f672026acac68ac2f094d7e620c3033c066
   languageName: node
   linkType: hard
 
@@ -10744,6 +10738,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript-eslint@npm:^7.12.0":
+  version: 7.12.0
+  resolution: "typescript-eslint@npm:7.12.0"
+  dependencies:
+    "@typescript-eslint/eslint-plugin": "npm:7.12.0"
+    "@typescript-eslint/parser": "npm:7.12.0"
+    "@typescript-eslint/utils": "npm:7.12.0"
+  peerDependencies:
+    eslint: ^8.56.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 10c0/4533dc8f277b431ff6911789581d4f2dada7c3f6382a95b5b727d3fbfc1f316fc28153c46375d2c0d72d628b1fd48762e7b66efb51d49a2614913d42b74a8033
+  languageName: node
+  linkType: hard
+
 "typescript@npm:^5.4.5":
   version: 5.4.5
   resolution: "typescript@npm:5.4.5"
@@ -10996,9 +11006,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^2.0.1468":
-  version: 2.0.1468
-  resolution: "weboptimizer@npm:2.0.1468"
+"weboptimizer@npm:^2.0.1470":
+  version: 2.0.1470
+  resolution: "weboptimizer@npm:2.0.1470"
   dependencies:
     "@babel/core": "npm:^7.24.7"
     "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
@@ -11011,7 +11021,7 @@ __metadata:
     babel-loader: "npm:^9.1.3"
     babel-plugin-transform-modern-regexp: "npm:^0.0.6"
     babel-preset-minify: "npm:^0.5.2"
-    clientnode: "npm:^3.0.1143"
+    clientnode: "npm:3.0.1143"
     ejs: "npm:^3.1.10"
     exports-loader: "npm:^5.0.0"
     extract-loader: "npm:^5.1.0"
@@ -11060,6 +11070,7 @@ __metadata:
     stylelint: "*"
     stylelint-config-standard: "*"
     stylelint-config-standard-scss: "*"
+    typescript-eslint: "*"
     typescript-plugin-css-modules: "*"
     webpack-dev-server: "*"
     workbox-webpack-plugin: "*"
@@ -11134,7 +11145,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/155f992398ce998dff317145a0589f3d4aa4a106bbb837eeb4250b3414debc51fff4f9701bfc1d70de49fb53f311ad36c16b47216ccb432e22c66f389623d41f
+  checksum: 10c0/71f045da534c22fd2961f0d5772340628c5195b397bb51efa31c5628cedc632d2e2ad7a2ba54eae77b75db3237723a0a03dab7cc52a5075829a273a9998adf08
   languageName: node
   linkType: hard
 
