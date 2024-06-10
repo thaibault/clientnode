@@ -19,6 +19,7 @@
 // region imports
 import {ChildProcess} from 'child_process'
 
+import {currentImport, globalContext, optionalRequire} from './context'
 import {
     AnyFunction,
     ArrayTransformer,
@@ -34,8 +35,6 @@ import {
     FileTraversionResult,
     FirstParameter,
     GetterFunction,
-    ImportFunction,
-    LockCallbackFunction,
     Mapping,
     ObjectMaskConfiguration,
     Options,
@@ -67,78 +66,20 @@ import {
     UnknownFunction,
     ValueOf,
     $DomNodes,
-    $Global,
     $T,
     $TStatic, NormalizedObjectMask
 } from './type'
+import {
+    ConsoleOutputMethods, DEFAULT_ENCODING,
+    IgnoreNullAndUndefinedSymbol,
+    ValueCopySymbol
+} from 'clientnode'
 // endregion
-export const DEFAULT_ENCODING:Encoding = 'utf8'
-export const CloseEventNames = [
-    'close', 'exit', 'SIGINT', 'SIGTERM', 'SIGQUIT', 'uncaughtException'
-] as const
-export const ConsoleOutputMethods = [
-    'debug', 'error', 'info', 'log', 'warn'
-] as const
-export const ValueCopySymbol = Symbol.for('clientnodeValue')
-export const IgnoreNullAndUndefinedSymbol =
-    Symbol.for('clientnodeIgnoreNullAndUndefined')
-// region determine environment
+export {Lock} from './Lock'
+export {Semaphore} from './Semaphore'
+export * from './constants'
 /// region context
-export const determineGlobalContext:(() => $Global) = ():$Global => {
-    if (typeof globalThis === 'undefined') {
-        if (typeof window === 'undefined') {
-            if (typeof global === 'undefined')
-                return ((typeof module === 'undefined') ? {} : module) as
-                    $Global
-
-            if (global.window)
-                return global.window as unknown as $Global
-
-            return global as unknown as $Global
-        }
-
-        return window as unknown as $Global
-    }
-
-    return globalThis as unknown as $Global
-}
-export let globalContext:$Global = determineGlobalContext()
-export const setGlobalContext = (context:$Global):void => {
-    globalContext = context
-}
-// Make preprocessed require function available at runtime.
-/*
-    NOTE: This results in an webpack error when post processing this compiled
-    pendant in another webpack context.
-
-    declare const __non_webpack_require__:typeof require
-*/
-export const currentRequire:null|typeof require =
-    /*
-        typeof __non_webpack_require__ === 'function' ?
-            __non_webpack_require__ :
-    */
-    eval(`typeof require === 'undefined' ? null : require`) as
-        null|typeof require
-
-let currentOptionalImport:ImportFunction|null = null
-try {
-    currentOptionalImport =
-        eval(`typeof import === 'undefined' ? null : import`) as
-            ImportFunction|null
-} catch (error) {
-    // Continue regardless of an error.
-}
-export const currentImport:null|ImportFunction = currentOptionalImport
-export const optionalRequire = <T = unknown>(id:string):null|T => {
-    try {
-        return currentRequire ? currentRequire(id) as T : null
-    } catch (error) {
-        return null
-    }
-}
 globalContext.fetch =
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     globalContext.fetch ??
     optionalRequire<{default:typeof fetch}>('node-fetch')?.default ??
     ((...parameters:Parameters<typeof fetch>):ReturnType<typeof fetch> =>
@@ -161,7 +102,6 @@ const {
     stat = null,
     writeFile = null
 } = optionalRequire<typeof import('fs/promises')>('fs/promises') || {}
-// eslint-disable-next-line @typescript-eslint/unbound-method
 const {basename = null, join = null, resolve = null} =
     optionalRequire<typeof import('path')>('path') || {}
 /// endregion
@@ -218,13 +158,11 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
                     return $domNodes
                 }
 
-                /* eslint-disable @typescript-eslint/no-use-before-define */
                 if (Tools.isFunction(parameter) && globalContext.document)
                     globalContext.document.addEventListener(
                         'DOMContentLoaded',
                         parameter as unknown as EventListenerObject
                     )
-                /* eslint-enable @typescript-eslint/no-use-before-define */
 
                 return parameter
             }) as $TStatic
@@ -247,154 +185,7 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
 }
 export let $ = determine$()
 /// endregion
-// endregion
 // region plugins/classes
-/// region lock
-/**
- * Represents the lock state.
- * @property locks - Mapping of lock descriptions to there corresponding
- * callbacks.
- */
-export class Lock<Type = string|void> {
-    locks:Mapping<Array<LockCallbackFunction<Type>>>
-    /**
-     * Initializes locks.
-     * @param locks - Mapping of a lock description to callbacks for calling
-     * when given lock should be released.
-     *
-     * @returns Nothing.
-     */
-    constructor(locks:Mapping<Array<LockCallbackFunction<Type>>> = {}) {
-        this.locks = locks
-    }
-    /**
-     * Calling this method introduces a starting point for a critical area with
-     * potential race conditions. The area will be binded to given description
-     * string. So don't use same names for different areas.
-     * @param description - A short string describing the critical areas
-     * properties.
-     * @param callback - A procedure which should only be executed if the
-     * interpreter isn't in the given critical area. The lock description
-     * string will be given to the callback function.
-     * @param autoRelease - Release the lock after execution of given callback.
-     *
-     * @returns Returns a promise which will be resolved after releasing lock.
-     */
-    acquire(
-        description:string,
-        callback?:LockCallbackFunction<Type>,
-        autoRelease = false
-    ):Promise<Type> {
-        return new Promise<Type>((resolve:(_value:Type) => void):void => {
-            const wrappedCallback:LockCallbackFunction<Type> = (
-                description:string
-            ):Promise<Type>|Type => {
-                let result:Promise<Type>|Type|undefined
-                if (callback)
-                    result = callback(description)
-
-                const finish = (value:Type):Type => {
-                    if (autoRelease)
-                        void this.release(description)
-
-                    resolve(value)
-
-                    return value
-                }
-
-                if ((result as Promise<Type>)?.then)
-                    return (result as Promise<Type>).then(finish)
-
-                finish(description as unknown as Type)
-
-                return result!
-            }
-
-            if (Object.prototype.hasOwnProperty.call(this.locks, description))
-                this.locks[description].push(wrappedCallback)
-            else {
-                this.locks[description] = []
-
-                /* eslint-disable @typescript-eslint/no-floating-promises */
-                wrappedCallback(description)
-                /* eslint-enable @typescript-eslint/no-floating-promises */
-            }
-        })
-    }
-    /**
-     * Calling this method  causes the given critical area to be finished and
-     * all functions given to "acquire()" will be executed in right order.
-     * @param description - A short string describing the critical areas
-     * properties.
-     *
-     * @returns Returns the return (maybe promise resolved) value of the
-     * callback given to the "acquire" method.
-     */
-    async release(description:string):Promise<Type|void> {
-        if (Object.prototype.hasOwnProperty.call(this.locks, description)) {
-            const callback:LockCallbackFunction<Type>|undefined =
-                this.locks[description].shift()
-
-            if (callback === undefined)
-                delete this.locks[description]
-            else
-                return await callback(description)
-        }
-    }
-}
-/// endregion
-/// region semaphore
-/**
- * Represents the semaphore state.
- * @property queue - List of waiting resource requests.
- *
- * @property numberOfFreeResources - Number free allowed concurrent resource
- * uses.
- * @property numberOfResources - Number of allowed concurrent resource uses.
- */
-export class Semaphore {
-    queue:Array<AnyFunction> = []
-
-    numberOfResources:number
-    numberOfFreeResources:number
-    /**
-     * Initializes number of resources.
-     * @param numberOfResources - Number of resources to manage.
-     * @returns Nothing.
-     */
-    constructor(numberOfResources = 2) {
-        this.numberOfResources = numberOfResources
-        this.numberOfFreeResources = numberOfResources
-    }
-    /**
-     * Acquires a new resource and runs given callback if available.
-     * @returns A promise which will be resolved if requested resource is
-     * available.
-     */
-    acquire():Promise<number> {
-        return new Promise<number>((resolve:(_value:number) => void):void => {
-            if (this.numberOfFreeResources <= 0)
-                this.queue.push(resolve)
-            else {
-                this.numberOfFreeResources -= 1
-
-                resolve(this.numberOfFreeResources)
-            }
-        })
-    }
-    /**
-     * Releases a resource and runs a waiting resolver if there exists some.
-     * @returns Nothing.
-     */
-    release():void {
-        const callback:AnyFunction|undefined = this.queue.pop()
-        if (callback === undefined)
-            this.numberOfFreeResources += 1
-        else
-            callback(this.numberOfFreeResources)
-    }
-}
-/// endregion
 /// region static tools
 /**
  * This plugin provides such interface logic like generic controller logic for
@@ -402,8 +193,8 @@ export class Semaphore {
  * logging additional string, array or function handling. A set of helper
  * functions to parse  option objects dom trees or handle events is also
  * provided.
- * @property static:abbreviations - Lists all known abbreviation for proper
- * camel case to delimited and back conversion.
+ * @property abbreviations - Lists all known abbreviation for proper camel case
+ * to delimited and back conversion.
  * @property static:animationEndEventNames - Saves a string with all css3
  * browser specific animation end event names.
  * @property static:classToTypeMapping - String representation to object type
@@ -598,8 +389,6 @@ export class Tools<TElement = HTMLElement> {
      * the dry concept.
      * @param $domNode - $-extended dom node to use as reference in various
      * methods.
-     *
-     * @returns Nothing.
      */
     constructor($domNode?:$T<TElement>) {
         if ($domNode)
@@ -631,7 +420,6 @@ export class Tools<TElement = HTMLElement> {
      * This method should be overwritten normally. It is triggered if current
      * object was created via the "new" keyword and is called now.
      * @param options - An options object.
-     *
      * @returns Returns the current instance.
      */
     initialize<R = this>(options:RecursivePartial<Options> = {}):R {
@@ -668,7 +456,6 @@ export class Tools<TElement = HTMLElement> {
      * an instance will be generated.
      * @param parameters - The initially given arguments object.
      * @param $domNode - Optionally a $-extended dom node to use as reference.
-     *
      * @returns Returns whatever the initializer method returns.
      */
     static controller<TElement = HTMLElement>(
@@ -750,7 +537,6 @@ export class Tools<TElement = HTMLElement> {
      *                  "Intl.DateTimeFormat".
      * @param locales - Locale or list of locales to use for formatting. First
      *                  one take precedence of latter ones.
-     *
      * @returns Formatted date time string.
      */
     static dateTimeFormat(
@@ -817,7 +603,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Determines whether its argument represents a JavaScript number.
      * @param value - Value to analyze.
-     *
      * @returns A boolean value indicating whether given object is numeric
      * like.
      */
@@ -836,7 +621,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Determine whether the argument is a window.
      * @param value - Value to check for.
-     *
      * @returns Boolean value indicating the result.
      */
     static isWindow(this:void, value:unknown):value is Window {
@@ -850,7 +634,6 @@ export class Tools<TElement = HTMLElement> {
      * Checks if given object is similar to an array and can be handled like an
      * array.
      * @param object - Object to check behavior for.
-     *
      * @returns A boolean value indicating whether given object is array like.
      */
     static isArrayLike(this:void, object:unknown):boolean {
@@ -885,7 +668,6 @@ export class Tools<TElement = HTMLElement> {
      * Checks whether one of the given pattern matches given string.
      * @param target - Target to check in pattern for.
      * @param pattern - List of pattern to check for.
-     *
      * @returns Value "true" if given object is matches by at leas one of the
      * given pattern and "false" otherwise.
      */
@@ -904,7 +686,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks whether given object is a native object but not null.
      * @param value - Value to check.
-     *
      * @returns Value "true" if given object is a plain javaScript object and
      * "false" otherwise.
      */
@@ -914,7 +695,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks whether given object is a plain native object.
      * @param value - Value to check.
-     *
      * @returns Value "true" if given object is a plain javaScript object and
      * "false" otherwise.
      */
@@ -928,7 +708,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks whether given object is a set.
      * @param value - Value to check.
-     *
      * @returns Value "true" if given object is a set and "false" otherwise.
      */
     static isSet(this:void, value:unknown):value is Set<unknown> {
@@ -937,7 +716,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks whether given object is a map.
      * @param value - Value to check.
-     *
      * @returns Value "true" if given object is a map and "false" otherwise.
      */
     static isMap(this:void, value:unknown):value is Map<unknown, unknown> {
@@ -946,7 +724,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks whether given object is a proxy.
      * @param value - Value to check.
-     *
      * @returns Value "true" if given object is a proxy and "false" otherwise.
      */
     static isProxy(this:void, value:unknown):value is ProxyType {
@@ -955,7 +732,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks whether given object is a function.
      * @param value - Value to check.
-     *
      * @returns Value "true" if given object is a function and "false"
      * otherwise.
      */
@@ -981,8 +757,6 @@ export class Tools<TElement = HTMLElement> {
      * @param level - Description of log messages importance.
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
-     *
-     * @returns Nothing.
      */
     log(
         object:unknown,
@@ -1030,8 +804,6 @@ export class Tools<TElement = HTMLElement> {
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
-     *
-     * @returns Nothing.
      */
     info(object:unknown, ...additionalArguments:Array<unknown>):void {
         this.log(object, false, false, 'info', ...additionalArguments)
@@ -1042,8 +814,6 @@ export class Tools<TElement = HTMLElement> {
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
-     *
-     * @returns Nothing.
      */
     debug(object:unknown, ...additionalArguments:Array<unknown>):void {
         this.log(object, false, false, 'debug', ...additionalArguments)
@@ -1054,8 +824,6 @@ export class Tools<TElement = HTMLElement> {
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
-     *
-     * @returns Nothing.
      */
     error(object:unknown, ...additionalArguments:Array<unknown>):void {
         this.log(object, true, false, 'error', ...additionalArguments)
@@ -1066,8 +834,6 @@ export class Tools<TElement = HTMLElement> {
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
-     *
-     * @returns Nothing.
      */
     critical(object:unknown, ...additionalArguments:Array<unknown>):void {
         this.log(object, true, false, 'warn', ...additionalArguments)
@@ -1078,8 +844,6 @@ export class Tools<TElement = HTMLElement> {
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
-     *
-     * @returns Nothing.
      */
     warn(object:unknown, ...additionalArguments:Array<unknown>):void {
         this.log(object, false, false, 'warn', ...additionalArguments)
@@ -1090,7 +854,6 @@ export class Tools<TElement = HTMLElement> {
      * @param level - Number of levels to dig into given object recursively.
      * @param currentLevel - Maximal number of recursive function calls to
      * represent given object.
-     *
      * @returns Returns the serialized version of given object.
      */
     static show(
@@ -1124,8 +887,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Deletes a cookie value by given name.
      * @param name - Name to identify requested value.
-     *
-     * @returns Nothing.
      */
     static deleteCookie(this:void, name:string):void {
         if ($.document)
@@ -1134,7 +895,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Gets a cookie value by given name.
      * @param name - Name to identify requested value.
-     *
      * @returns Requested value.
      */
     static getCookie(this:void, name:string):string|null {
@@ -1172,7 +932,6 @@ export class Tools<TElement = HTMLElement> {
      * "Strict".
      * @param givenOptions.secure - Indicates if this cookie is only valid for
      * "https" connections.
-     *
      * @returns A boolean indicating whether cookie could be set or not.
      */
     static setCookie(
@@ -1466,7 +1225,6 @@ export class Tools<TElement = HTMLElement> {
      * @param givenDelta.left - Left delta.
      * @param givenDelta.right - Right delta.
      * @param givenDelta.top - Top delta.
-     *
      * @returns Returns one of "above", "left", "below", "right" or "in".
      */
     getPositionRelativeToViewport(
@@ -1516,7 +1274,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Generates a directive name corresponding selector string.
      * @param directiveName - The directive name.
-     *
      * @returns Returns generated selector.
      */
     static generateDirectiveSelector(this:void, directiveName:string):string {
@@ -1532,7 +1289,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Removes a directive name corresponding class or attribute.
      * @param directiveName - The directive name.
-     *
      * @returns Returns current dom node.
      */
     removeDirective(directiveName:string):null|$T<TElement> {
@@ -1553,7 +1309,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Hide or show all marked nodes which should be displayed depending on
      * java script availability.
-     * @returns Nothing.
      */
     renderJavaScriptDependentVisibility():void {
         if (
@@ -1591,7 +1346,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Determines a normalized camel case directive name representation.
      * @param directiveName - The directive name.
-     *
      * @returns Returns the corresponding name.
      */
     static getNormalizedDirectiveName(this:void, directiveName:string):string {
@@ -1621,7 +1375,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Determines a directive attribute value.
      * @param directiveName - The directive name.
-     *
      * @returns Returns the corresponding attribute value or "null" if no
      * attribute value exists.
      */
@@ -1666,7 +1419,6 @@ export class Tools<TElement = HTMLElement> {
      * Determines the dom node name of a given dom node string.
      * @param domNodeSelector - A given to dom node selector to determine its
      * name.
-     *
      * @returns Returns The dom node name.
      * @example
      * // returns 'div'
@@ -1695,7 +1447,6 @@ export class Tools<TElement = HTMLElement> {
      * @param domNodeSelectors - An object with dom node selectors.
      * @param wrapperDomNode - A dom node to be the parent or wrapper of all
      * retrieved dom nodes.
-     *
      * @returns Returns All $ wrapped dom nodes corresponding to given
      * selectors.
      */
@@ -1753,7 +1504,6 @@ export class Tools<TElement = HTMLElement> {
      * @param scope - A scope where inherited names will be removed.
      * @param prefixesToIgnore - Name prefixes to ignore during deleting names
      * in given scope.
-     *
      * @returns The isolated scope.
      */
     static isolateScope<T extends Mapping<unknown>>(
@@ -1779,7 +1529,6 @@ export class Tools<TElement = HTMLElement> {
      * @param suffix - A suffix which will be prepended to unique name.
      * @param scope - A scope where the name should be unique.
      * @param initialUniqueName - An initial scope name to use if not exists.
-     *
      * @returns The function name.
      */
     static determineUniqueScopeName(
@@ -1810,7 +1559,6 @@ export class Tools<TElement = HTMLElement> {
      * Determines all parameter names from given callable (function or class,
      * ...).
      * @param callable - Function or function code to inspect.
-     *
      * @returns List of parameter names.
      */
     static getParameterNames(
@@ -1852,7 +1600,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Implements the identity function.
      * @param value - A value to return.
-     *
      * @returns Returns the given value.
      */
     static identity<T>(this:void, value:T):T {
@@ -1861,7 +1608,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Inverted filter helper to inverse each given filter.
      * @param filter - A function that filters an array.
-     *
      * @returns The inverted filter.
      */
     static invertArrayFilter<T>(this:void, filter:T):T {
@@ -1898,7 +1644,6 @@ export class Tools<TElement = HTMLElement> {
      * promise should be rejected or resolved if given internally created
      * timeout should be canceled. Additional parameters will be forwarded to
      * given callback.
-     *
      * @returns A promise resolving after given delay or being rejected if
      * value "true" is within one of the first three parameters. The promise
      * holds a boolean indicating whether timeout has been canceled or
@@ -1981,7 +1726,6 @@ export class Tools<TElement = HTMLElement> {
      * function call.
      * @param additionalArguments - Additional arguments to forward to given
      * function.
-     *
      * @returns Returns the wrapped method.
      */
     static debounce<T = unknown>(
@@ -2098,7 +1842,6 @@ export class Tools<TElement = HTMLElement> {
      * called.
      * @param additionalArguments - Additional arguments to forward to
      * corresponding event handlers.
-     *
      * @returns - Returns result of an options event handler (when called) and
      * "true" otherwise.
      */
@@ -2143,7 +1886,6 @@ export class Tools<TElement = HTMLElement> {
      * scope if no scope is given. Given arguments are modified and passed
      * through "$.on()".
      * @param parameters - Parameter to forward.
-     *
      * @returns Returns $'s grabbed dom node.
      */
     on<TElement = HTMLElement>(...parameters:Array<unknown>):$T<TElement> {
@@ -2156,7 +1898,6 @@ export class Tools<TElement = HTMLElement> {
      * scope if no scope is given. Given arguments are modified and passed
      * through "$.off()".
      * @param parameters - Parameter to forward.
-     *
      * @returns Returns $'s grabbed dom node.
      */
     off<TElement = HTMLElement>(...parameters:Array<unknown>):$T<TElement> {
@@ -2175,7 +1916,6 @@ export class Tools<TElement = HTMLElement> {
      * @param deep - Indicates to perform a deep wrapping of specified types.
      * @param typesToExtend - Types which should be extended (Checks are
      * performed via "value instanceof type".).
-     *
      * @returns Returns given object wrapped with a dynamic getter proxy.
      */
     static addDynamicGetterAndSetter<T = unknown>(
@@ -2290,7 +2030,6 @@ export class Tools<TElement = HTMLElement> {
      * @param determineCircularReferenceValue - Callback to create a fallback
      * value depending on given redundant value.
      * @param numberOfSpaces - Number of spaces to use for string formatting.
-     *
      * @returns The formatted json string.
      */
     static convertCircularObjectToJSON(
@@ -2350,7 +2089,6 @@ export class Tools<TElement = HTMLElement> {
      * object.
      * @param object - Map to convert to.
      * @param deep - Indicates whether to perform a recursive conversion.
-     *
      * @returns Given map as object.
      */
     static convertMapToPlainObject(
@@ -2405,7 +2143,6 @@ export class Tools<TElement = HTMLElement> {
      * corresponding map.
      * @param object - Object to convert to.
      * @param deep - Indicates whether to perform a recursive conversion.
-     *
      * @returns Given object as map.
      */
     static convertPlainObjectToMap(
@@ -2461,7 +2198,6 @@ export class Tools<TElement = HTMLElement> {
      * @param object - Object to convert substrings in.
      * @param pattern - Regular expression to replace.
      * @param replacement - String to use as replacement for found patterns.
-     *
      * @returns Converted object with replaced patterns.
      */
     static convertSubstringInPlainObject<
@@ -2502,7 +2238,6 @@ export class Tools<TElement = HTMLElement> {
      * references e.g. to objects not to copy (e.g. symbol polyfills).
      * @param recursionLevel - Internally used to track current recursion
      * level in given source data structure.
-     *
      * @returns Value "true" if both objects are equal and "false" otherwise.
      */
     static copy<Type = unknown>(
@@ -2661,7 +2396,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Determine the internal JavaScript [[Class]] of an object.
      * @param value - Value to analyze.
-     *
      * @returns Name of determined type.
      */
     static determineType(this:void, value:unknown = undefined):string {
@@ -2706,7 +2440,6 @@ export class Tools<TElement = HTMLElement> {
      * be converted to a base64 string to compare their content. Makes this
      * function asynchronous in browsers and potentially takes a lot of
      * resources.
-     *
      * @returns Value "true" if both objects are equal and "false" otherwise.
      * If "compareBlobs" is activated and we're running in a browser like
      * environment and binary data is given, then a promise wrapping the
@@ -3077,7 +2810,6 @@ export class Tools<TElement = HTMLElement> {
      * to evaluate.
      * @param executionIndicatorKey - Indicator property name to mark a value
      * to evaluate.
-     *
      * @returns Evaluated given mapping.
      */
     static evaluateDynamicData<Type = unknown>(
@@ -3321,7 +3053,6 @@ export class Tools<TElement = HTMLElement> {
      * Removes properties in objects where a dynamic indicator lives.
      * @param data - Object to traverse recursively.
      * @param expressionIndicators - Property key to remove.
-     *
      * @returns Given object with removed properties.
      */
     static removeKeysInEvaluation<
@@ -3354,7 +3085,6 @@ export class Tools<TElement = HTMLElement> {
      * @param targetOrSource - Target or source object; depending on first
      * argument.
      * @param additionalSources - Source objects to extend into target.
-     *
      * @returns Returns given target extended with all given sources.
      */
     static extend<T = Mapping<unknown>>(
@@ -3464,7 +3194,6 @@ export class Tools<TElement = HTMLElement> {
      * @param selector - Selector path.
      * @param skipMissingLevel - Indicates to skip missing level in given path.
      * @param delimiter - Delimiter to delimit given selector components.
-     *
      * @returns Determined sub structure of given data or "undefined".
      */
     static getSubstructure<T = unknown, E = unknown>(
@@ -3529,7 +3258,6 @@ export class Tools<TElement = HTMLElement> {
      * @param target - Object to proxy.
      * @param methodNames - Mapping of operand name to object specific method
      * name.
-     *
      * @returns Determined proxy handler.
      */
     static getProxyHandler<T = unknown>(
@@ -3597,7 +3325,6 @@ export class Tools<TElement = HTMLElement> {
      * configuration or black listed via "exclude" mask configuration.
      * @param object - Object to slice.
      * @param mask - Mask configuration.
-     *
      * @returns Given but sliced object. If (nested) object will be modified a
      * flat copy of that object will be returned.
      */
@@ -3707,7 +3434,6 @@ export class Tools<TElement = HTMLElement> {
      * (usually only needed internally).
      * @param parentKey - Source key in given source context to remove
      * modification info from (usually only needed internally).
-     *
      * @returns Given target modified with given source.
      */
     static modifyObject<T = unknown>(
@@ -3877,7 +3603,6 @@ export class Tools<TElement = HTMLElement> {
      * @param interpretAsUTC - Identifies if given date should be interpret as
      * utc. If not set given strings will be interpret as it is depending on
      * given format and numbers as utc.
-     *
      * @returns Interpreted date object or "null" if given value couldn't be
      * interpret.
      */
@@ -3943,7 +3668,6 @@ export class Tools<TElement = HTMLElement> {
      * Removes given key from given object recursively.
      * @param object - Object to process.
      * @param keys - List of keys to remove.
-     *
      * @returns Processed given object.
      */
     static removeKeyPrefixes<T>(
@@ -4051,7 +3775,6 @@ export class Tools<TElement = HTMLElement> {
      * which are out of specified bounds to traverse.
      * @param numberOfLevels - Specifies number of levels to traverse given
      * data structure.
-     *
      * @returns Representation string.
      */
     static represent(
@@ -4202,7 +3925,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Sort given objects keys.
      * @param object - Object which keys should be sorted.
-     *
      * @returns Sorted list of given keys.
      */
     static sort(this:void, object:unknown):Array<unknown> {
@@ -4226,7 +3948,6 @@ export class Tools<TElement = HTMLElement> {
      * @param object - Object to proxy.
      * @param seenObjects - Tracks all already processed objects to avoid
      * endless loops (usually only needed for internal purpose).
-     *
      * @returns Returns given object unwrapped from a dynamic proxy.
      */
     static unwrapProxy<T = unknown>(
@@ -4290,7 +4011,6 @@ export class Tools<TElement = HTMLElement> {
      * @param data - Array of objects with given property name.
      * @param propertyName - Property name to summarize.
      * @param defaultValue - Value to return if property values doesn't match.
-     *
      * @returns Aggregated value.
      */
     static arrayAggregatePropertyIfEqual<T = unknown>(
@@ -4322,7 +4042,6 @@ export class Tools<TElement = HTMLElement> {
      * as empty.
      * @param data - Data to filter.
      * @param propertyNames - Properties to consider.
-     *
      * @returns Given data without empty items.
      */
     static arrayDeleteEmptyItems<
@@ -4358,7 +4077,6 @@ export class Tools<TElement = HTMLElement> {
      * names.
      * @param data - Data where each item should be sliced.
      * @param propertyNames - Property names to extract.
-     *
      * @returns Data with sliced items.
      */
     static arrayExtract<T = Mapping<unknown>>(
@@ -4384,7 +4102,6 @@ export class Tools<TElement = HTMLElement> {
      * Extracts all values which matches given regular expression.
      * @param data - Data to filter.
      * @param regularExpression - Pattern to match for.
-     *
      * @returns Filtered data.
      */
     static arrayExtractIfMatches(
@@ -4409,7 +4126,6 @@ export class Tools<TElement = HTMLElement> {
      * Filters given data if given property is set or not.
      * @param data - Data to filter.
      * @param propertyName - Property name to check for existence.
-     *
      * @returns Given data without the items which doesn't have specified
      * property.
      */
@@ -4444,7 +4160,6 @@ export class Tools<TElement = HTMLElement> {
      * patterns.
      * @param data - Data to filter.
      * @param propertyPattern - Mapping of property names to pattern.
-     *
      * @returns Filtered data.
      */
     static arrayExtractIfPropertyMatches<T = unknown>(
@@ -4490,7 +4205,6 @@ export class Tools<TElement = HTMLElement> {
      * @param strict - The strict parameter indicates whether "null" and
      * "undefined" should be interpreted as equal (takes only effect if given
      * keys aren't empty).
-     *
      * @returns Data which does exit in given initial data.
      */
     static arrayIntersect<T = unknown>(
@@ -4595,7 +4309,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Converts given object into an array.
      * @param object - Target to convert.
-     *
      * @returns Generated array.
      */
     static arrayMake<T = unknown>(this:void, object:unknown):Array<T> {
@@ -4619,7 +4332,6 @@ export class Tools<TElement = HTMLElement> {
      * numbers are provided given range will be returned.
      * @param step - Space between two consecutive values.
      * @param ignoreLastStep - Removes last step.
-     *
      * @returns Produced array of integers.
      */
     static arrayMakeRange(
@@ -4657,7 +4369,6 @@ export class Tools<TElement = HTMLElement> {
      * Merge the contents of two arrays together into the first array.
      * @param target - Target array.
      * @param source - Source array.
-     *
      * @returns Target array with merged given source one.
      */
     static arrayMerge<T = unknown>(
@@ -4691,7 +4402,6 @@ export class Tools<TElement = HTMLElement> {
      * @param options.siblingCount - Number of sibling page symbols next to
      * current page symbol.
      * @param options.total - Number of all items to paginate.
-     *
      * @returns A list of pagination symbols.
      */
     static arrayPaginate(
@@ -4828,7 +4538,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Generates all permutations of given iterable.
      * @param data - Array like object.
-     *
      * @returns Array of permuted arrays.
      */
     static arrayPermutate<T = unknown>(
@@ -4857,7 +4566,6 @@ export class Tools<TElement = HTMLElement> {
      * @param data - Array like object.
      * @param minimalSubsetLength - Defines how long the minimal subset length
      * should be.
-     *
      * @returns Array of permuted arrays.
      */
     static arrayPermutateLength<T = unknown>(
@@ -4902,7 +4610,6 @@ export class Tools<TElement = HTMLElement> {
      * Sums up given property of given item list.
      * @param data - The objects with specified property to sum up.
      * @param propertyName - Property name to sum up its value.
-     *
      * @returns The aggregated value.
      */
     static arraySumUpProperty(
@@ -4928,7 +4635,6 @@ export class Tools<TElement = HTMLElement> {
      * @param name - Name of the target connection.
      * @param checkIfExists - Indicates if duplicates are allowed in resulting
      * list (will result in linear runtime instead of constant one).
-     *
      * @returns Item with the appended target.
      */
     static arrayAppendAdd<T = unknown>(
@@ -4955,7 +4661,6 @@ export class Tools<TElement = HTMLElement> {
      * @param target - Target to remove from given list.
      * @param strict - Indicates whether to fire an exception if given target
      * doesn't exists given list.
-     *
      * @returns Item with the appended target.
      */
     static arrayRemove<T = unknown>(
@@ -4975,7 +4680,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Sorts given object of dependencies in a topological order.
      * @param items - Items to sort.
-     *
      * @returns Sorted array of given items respecting their dependencies.
      */
     static arraySortTopological(
@@ -5061,7 +4765,6 @@ export class Tools<TElement = HTMLElement> {
      * Makes all values in given iterable unique by removing duplicates (The
      * first occurrences will be left).
      * @param data - Array like object.
-     *
      * @returns Sliced version of given object.
      */
     static arrayUnique<T = unknown>(this:void, data:Array<T>):Array<T> {
@@ -5081,7 +4784,6 @@ export class Tools<TElement = HTMLElement> {
      * representation.
      * @param value - String to convert.
      * @param excludeSymbols - Symbols not to escape.
-     *
      * @returns Converted string.
      */
     static stringEscapeRegularExpressions(
@@ -5107,7 +4809,6 @@ export class Tools<TElement = HTMLElement> {
      * @param name - Name to convert.
      * @param allowedSymbols - String of symbols which should be allowed within
      * a variable name (not the first character).
-     *
      * @returns Converted name is returned.
      */
     static stringConvertToValidVariableName(
@@ -5133,7 +4834,6 @@ export class Tools<TElement = HTMLElement> {
      * @param url - URL to encode.
      * @param encodeSpaces - Indicates whether given url should encode
      * whitespaces as "+" or "%20".
-     *
      * @returns Encoded given url.
      */
     static stringEncodeURIComponent(
@@ -5150,7 +4850,6 @@ export class Tools<TElement = HTMLElement> {
      * Appends a path selector to the given path if there isn't one yet.
      * @param path - The path for appending a selector.
      * @param pathSeparator - The selector for appending to path.
-     *
      * @returns The appended path.
      */
     static stringAddSeparatorToPath(
@@ -5169,7 +4868,6 @@ export class Tools<TElement = HTMLElement> {
      * @param path - Path to search in.
      * @param separator - Delimiter to use in path (default is the posix
      * conform slash).
-     *
      * @returns Value "true" if given prefix occur and "false" otherwise.
      */
     static stringHasPathPrefix(
@@ -5198,7 +4896,6 @@ export class Tools<TElement = HTMLElement> {
      * @param url - The url to extract domain from.
      * @param fallback - The fallback host name if no one exits in given url
      * (default is current hostname).
-     *
      * @returns Extracted domain.
      */
     static stringGetDomainName(
@@ -5222,7 +4919,6 @@ export class Tools<TElement = HTMLElement> {
      * @param url - The url to extract port from.
      * @param fallback - Fallback port number if no explicit one was found.
      * Default is derived from current protocol name.
-     *
      * @returns Extracted port number.
      */
     static stringGetPortNumber(
@@ -5258,7 +4954,6 @@ export class Tools<TElement = HTMLElement> {
      * @param url - The url to extract protocol from.
      * @param fallback - Fallback port to use if no protocol exists in given
      * url (default is current protocol).
-     *
      * @returns Extracted protocol.
      */
     static stringGetProtocolName(
@@ -5300,7 +4995,6 @@ export class Tools<TElement = HTMLElement> {
      * current url search part.
      * @param givenHash - Hash part to take into account defaults to current
      * url hash part.
-     *
      * @returns Returns the current get array or requested value. If requested
      * key doesn't exist "undefined" is returned.
      */
@@ -5406,7 +5100,6 @@ export class Tools<TElement = HTMLElement> {
      * If no second given url provided current url will be assumed.
      * @param url - URL to check against second url.
      * @param referenceURL - URL to check against first url.
-     *
      * @returns Returns "true" if given first url has same domain as given
      * second (or current).
      */
@@ -5432,7 +5125,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Normalized given website url.
      * @param url - Uniform resource locator to normalize.
-     *
      * @returns Normalized result.
      */
     static stringNormalizeURL(this:void, url:string):string {
@@ -5450,7 +5142,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Represents given website url.
      * @param url - Uniform resource locator to represent.
-     *
      * @returns Represented result.
      */
     static stringRepresentURL(this:void, url:unknown):string {
@@ -5470,7 +5161,6 @@ export class Tools<TElement = HTMLElement> {
      * @param delimiter - Delimiter string
      * @param abbreviations - Collection of shortcut words to represent upper
      * cased.
-     *
      * @returns The formatted string.
      */
     static stringCamelCaseToDelimited(
@@ -5515,7 +5205,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Converts a string to its capitalize representation.
      * @param string - The string to format.
-     *
      * @returns The formatted string.
      */
     static stringCapitalize(this:void, string:string):string {
@@ -5525,7 +5214,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Compresses given style attribute value.
      * @param styleValue - Style value to compress.
-     *
      * @returns The compressed value.
      */
     static stringCompressStyleValue(this:void, styleValue:string):string {
@@ -5539,7 +5227,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Decodes all html symbols in text nodes in given html string.
      * @param htmlString - HTML string to decode.
-     *
      * @returns Decoded html string.
      */
     static stringDecodeHTMLEntities(this:void, htmlString:string):null|string {
@@ -5562,7 +5249,6 @@ export class Tools<TElement = HTMLElement> {
      * formatted camel case abbreviations will be ignored.
      * @param removeMultipleDelimiter - Indicates whether a series of delimiter
      * should be consolidated.
-     *
      * @returns The formatted string.
      */
     static stringDelimitedToCamelCase(
@@ -5630,7 +5316,6 @@ export class Tools<TElement = HTMLElement> {
      * @param execute - Indicates whether to execute or evaluate.
      * @param removeGlobalScope - Indicates whether to shadow global variables
      * via "undefined".
-     *
      * @returns Object of prepared scope name mappings and compiled function or
      * error string message if given expression couldn't be compiled.
      */
@@ -5736,7 +5421,6 @@ export class Tools<TElement = HTMLElement> {
      * @param removeGlobalScope - Indicates whether to shadow global variables
      * via "undefined".
      * @param binding - Object to apply as "this" in evaluation scope.
-     *
      * @returns Object with error message during parsing / running or result.
      */
     static stringEvaluate<T = string, S extends object = object>(
@@ -5805,7 +5489,6 @@ export class Tools<TElement = HTMLElement> {
      * search targets.
      * @param skipTagDelimitedParts - Indicates whether to for example ignore
      * html tags via "['<', '>']" (the default).
-     *
      * @returns Start and end index of matching range.
      */
     static stringFindNormalizedMatchRange(
@@ -5869,7 +5552,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Fixes known encoding problems in given data.
      * @param data - To process.
-     *
      * @returns Processed data.
      */
     static stringFixKnownEncodingErrors(this:void, data:string):string {
@@ -5895,7 +5577,6 @@ export class Tools<TElement = HTMLElement> {
      * @param string - The string to format.
      * @param additionalArguments - Additional arguments are interpreted as
      * replacements for string formatting.
-     *
      * @returns The formatted string.
      */
     static stringFormat(
@@ -5918,7 +5599,6 @@ export class Tools<TElement = HTMLElement> {
      * Calculates the edit (levenstein) distance between two given strings.
      * @param first - First string to compare.
      * @param second - Second string to compare.
-     *
      * @returns The distance as number.
      */
     static stringGetEditDistance(
@@ -5975,7 +5655,6 @@ export class Tools<TElement = HTMLElement> {
      * Validates the current string for using in a regular expression pattern.
      * Special regular expression chars will be escaped.
      * @param value - The string to format.
-     *
      * @returns The formatted string.
      */
     static stringMaskForRegularExpression(this:void, value:string):string {
@@ -5987,7 +5666,6 @@ export class Tools<TElement = HTMLElement> {
      * @param interpretAsUTC - Identifies if given date should be interpret as
      * utc. If not set given strings will be interpret as it is depending on
      * given format and number like string as utc.
-     *
      * @returns Interpret date time object.
      */
     static stringInterpretDateTime(
@@ -6462,7 +6140,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Converts a string to its lower case representation.
      * @param string - The string to format.
-     *
      * @returns The formatted string.
      */
     static stringLowerCase(this:void, string:string):string {
@@ -6478,7 +6155,6 @@ export class Tools<TElement = HTMLElement> {
      * searching for matches.
      * @param options.skipTagDelimitedParts - Indicates whether to for example
      * ignore html tags via "['<', '>']" (the default).
-     *
      * @returns Processed result.
      */
     static stringMark(
@@ -6580,7 +6256,6 @@ export class Tools<TElement = HTMLElement> {
      * @param value - Number to normalize.
      * @param dialable - Indicates whether the result should be dialed or
      * represented as lossless data.
-     *
      * @returns Normalized number.
      */
     static stringNormalizePhoneNumber(
@@ -6666,7 +6341,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Normalizes given zip code for automatic address processing.
      * @param value - Number to normalize.
-     *
      * @returns Normalized number.
      */
     static stringNormalizeZipCode(this:void, value:unknown):string {
@@ -6682,7 +6356,6 @@ export class Tools<TElement = HTMLElement> {
      * @param scope - An optional scope which will be used to evaluate given
      * object in.
      * @param name - The name under given scope will be available.
-     *
      * @returns The parsed object if possible and null otherwise.
      */
     static stringParseEncodedObject<T = PlainObject>(
@@ -6717,7 +6390,6 @@ export class Tools<TElement = HTMLElement> {
      * Represents given phone number. NOTE: Currently only support german phone
      * numbers.
      * @param value - Number to format.
-     *
      * @returns Formatted number.
      */
     static stringRepresentPhoneNumber(this:void, value:unknown):string {
@@ -6764,7 +6436,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Slices all none numbers but preserves last separator.
      * @param value - String to process.
-     *
      * @returns - Sliced given value.
      */
     static stringSliceAllExceptNumberAndLastSeperator(
@@ -6790,7 +6461,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Slice weekday from given date representation.
      * @param value - String to process.
-     *
      * @returns Sliced given string.
      */
     static stringSliceWeekday(this:void, value:string):string {
@@ -6805,7 +6475,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Converts a dom selector to a prefixed dom selector string.
      * @param selector - A dom node selector.
-     *
      * @returns Returns given selector prefixed.
      */
     stringNormalizeDomNodeSelector = (selector:string):string => {
@@ -6827,7 +6496,6 @@ export class Tools<TElement = HTMLElement> {
      * @param value - Date to convert.
      * @param inMilliseconds - Indicates whether given number should be in
      * seconds (default) or milliseconds.
-     *
      * @returns Determined numerous value.
      */
     static numberGetUTCTimestamp(
@@ -6853,7 +6521,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks if given object is java scripts native "Number.NaN" object.
      * @param value - Value to check.
-     *
      * @returns Returns whether given value is not a number or not.
      */
     static numberIsNotANumber(this:void, value:unknown):boolean {
@@ -6865,7 +6532,6 @@ export class Tools<TElement = HTMLElement> {
      * Rounds a given number accurate to given number of digits.
      * @param number - The number to round.
      * @param digits - The number of digits after comma.
-     *
      * @returns Returns the rounded number.
      */
     static numberRound(this:void, number:number, digits = 0):number {
@@ -6875,7 +6541,6 @@ export class Tools<TElement = HTMLElement> {
      * Rounds a given number up accurate to given number of digits.
      * @param number - The number to round.
      * @param digits - The number of digits after comma.
-     *
      * @returns Returns the rounded number.
      */
     static numberCeil(this:void, number:number, digits = 0):number {
@@ -6885,7 +6550,6 @@ export class Tools<TElement = HTMLElement> {
      * Rounds a given number down accurate to given number of digits.
      * @param number - The number to round.
      * @param digits - The number of digits after comma.
-     *
      * @returns Returns the rounded number.
      */
     static numberFloor(this:void, number:number, digits = 0):number {
@@ -6909,7 +6573,6 @@ export class Tools<TElement = HTMLElement> {
      * @param givenOptions.expectedIntermediateStatusCodes - A list of expected
      * but unwanted response codes. If detecting them waiting will continue
      * until an expected (positiv) code occurs or timeout is reached.
-     *
      * @returns A promise which will be resolved if a request to given url has
      * finished and resulting status code matches given expected status code.
      * Otherwise returned promise will be rejected.
@@ -7041,7 +6704,6 @@ export class Tools<TElement = HTMLElement> {
      * to reach given url.
      * @param givenOptions.statusCodes - Status codes to check for.
      * @param givenOptions.options - Fetch options to use.
-     *
      * @returns A promise which will be resolved if a request to given url
      * couldn't finished. Otherwise returned promise will be rejected. If
      * "wait" is set to "true" we will resolve to another promise still
@@ -7173,7 +6835,6 @@ export class Tools<TElement = HTMLElement> {
      * @param removeAfterLoad - Indicates if created iframe should be removed
      * right after load event. Only works if an iframe object is given instead
      * of a simple target name.
-     *
      * @returns Returns the given target as extended dom node.
      */
     static sendToIFrame(
@@ -7227,7 +6888,6 @@ export class Tools<TElement = HTMLElement> {
      * provided "post" will be used as default.
      * @param removeAfterLoad - Indicates if created iframe should be removed
      * right after load event.
-     *
      * @returns Returns the dynamically created iframe.
      */
     sendToExternalURL = (
@@ -7267,7 +6927,6 @@ export class Tools<TElement = HTMLElement> {
      * @param callback - Function to invoke for each traversed file.
      * @param readOptions - Options to use for reading source file.
      * @param writeOptions - Options to use for writing to target file.
-     *
      * @returns Promise holding the determined target directory path.
      */
     static async copyDirectoryRecursive(
@@ -7325,7 +6984,6 @@ export class Tools<TElement = HTMLElement> {
      * @param callback - Function to invoke for each traversed file.
      * @param readOptions - Options to use for reading source file.
      * @param writeOptions - Options to use for writing to target file.
-     *
      * @returns Determined target directory path.
      */
     static copyDirectoryRecursiveSync(
@@ -7380,7 +7038,6 @@ export class Tools<TElement = HTMLElement> {
      * to.
      * @param readOptions - Options to use for reading source file.
      * @param writeOptions - Options to use for writing to target file.
-     *
      * @returns Determined target file path.
      */
     static async copyFile(
@@ -7412,7 +7069,6 @@ export class Tools<TElement = HTMLElement> {
      * to.
      * @param readOptions - Options to use for reading source file.
      * @param writeOptions - Options to use for writing to target file.
-     *
      * @returns Determined target file path.
      */
     static copyFileSync(
@@ -7440,7 +7096,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks if given path points to a valid directory.
      * @param filePath - Path to directory.
-     *
      * @returns A promise holding a boolean which indicates directory
      * existence.
      */
@@ -7462,7 +7117,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks if given path points to a valid directory.
      * @param filePath - Path to directory.
-     *
      * @returns A boolean which indicates directory existents.
      */
     static isDirectorySync(this:void, filePath:string):boolean {
@@ -7483,7 +7137,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks if given path points to a valid file.
      * @param filePath - Path to directory.
-     *
      * @returns A promise holding a boolean which indicates directory
      * existence.
      */
@@ -7505,7 +7158,6 @@ export class Tools<TElement = HTMLElement> {
     /**
      * Checks if given path points to a valid file.
      * @param filePath - Path to file.
-     *
      * @returns A boolean which indicates file existence.
      */
     static isFileSync(this:void, filePath:string):boolean {
@@ -7535,7 +7187,6 @@ export class Tools<TElement = HTMLElement> {
      * If it handles a directory and returns "false" or a promise resolving to
      * "false" no traversing into that directory will occur.
      * @param options - Options to use for nested "readdir" calls.
-     *
      * @returns A promise holding the determined files.
      */
     static async walkDirectoryRecursively(
@@ -7624,7 +7275,6 @@ export class Tools<TElement = HTMLElement> {
      * @param directoryPath - Path to directory structure to traverse.
      * @param callback - Function to invoke for each traversed file.
      * @param options - Options to use for nested "readdir" calls.
-     *
      * @returns Determined list if all files.
      */
     static walkDirectoryRecursivelySync(
@@ -7714,7 +7364,6 @@ export class Tools<TElement = HTMLElement> {
      * @param reason - Promise target if process has a zero return code.
      * @param callback - Optional function to call of process has successfully
      * finished.
-     *
      * @returns Process close handler function.
      */
     static getProcessCloseHandler(
@@ -7751,7 +7400,6 @@ export class Tools<TElement = HTMLElement> {
      * Forwards given child process communication channels to corresponding
      * current process communication channels.
      * @param childProcess - Child process meta data.
-     *
      * @returns Given child process meta data.
      */
     static handleChildProcess(
@@ -7779,7 +7427,6 @@ export class Tools<TElement = HTMLElement> {
      * "off()".
      * @param removeEvent - Indicates if handler should be attached or removed.
      * @param eventFunctionName - Name of function to wrap.
-     *
      * @returns Returns $'s wrapped dom node.
      */
     _bindEventHelper = <TElement = HTMLElement>(
@@ -7833,8 +7480,6 @@ export class BoundTools<TElement = HTMLElement> extends Tools<TElement> {
      * methods.
      * @param additionalParameters - Additional parameters to call super method
      * with.
-     *
-     * @returns Nothing.
      */
     constructor(
         $domNode:$T<TElement>,
@@ -7885,7 +7530,6 @@ export const augment$ = (value:$TStatic):void => {
          * @param key - Name of property to retrieve from current dom node.
          * @param additionalParameters - Additional parameter will be forwarded
          * to native prop function also.
-         *
          * @returns Returns value if used as getter or current dom node if used
          * as setter.
          */
@@ -7931,8 +7575,4 @@ $.readyException = (error:Error|string):void => {
         throw error
 }
 /// endregion
-// endregion
-// region vim modline
-// vim: set tabstop=4 shiftwidth=4 expandtab:
-// vim: foldmethod=marker foldmarker=region,endregion:
 // endregion
