@@ -1,9 +1,8 @@
 {
     "compilerOptions": {
-        "paths": {
-            "clientnode/type": ["./type"]
-        }
+        "declaration": true,
+        "declarationDir": "dist/"
     },
-    "extends": "weboptimizer/tsconfig.library.json",
-    "include": ["./*.ts", "./*.tsx"]
+    "extends": "./node_modules/weboptimizer/tsconfig.application.json",
+    "include": ["src/*.ts", "src/*.tsx"]
 }

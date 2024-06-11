@@ -34,18 +34,18 @@ import {
     MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION,
     NOOP,
     VALUE_COPY_SYMBOL
-} from './constants'
-import {globalContext, optionalRequire, $} from './context'
+} from '../constants'
+import {globalContext, optionalRequire, $} from '../context'
 import {
     dateTimeFormat,
     interpretDateTime,
     normalizeDateTime,
     sliceWeekday
-} from './datetime'
-import {debounce, timeout} from './utility'
-import Lock from './Lock'
-import {DummyTypes} from './property-types'
-import Semaphore from './Semaphore'
+} from '../datetime'
+import {debounce, timeout} from '../utility'
+import Lock from '../Lock'
+import {DummyTypes} from '../property-types'
+import Semaphore from '../Semaphore'
 import {
     camelCaseToDelimited,
     capitalize,
@@ -75,7 +75,7 @@ import {
     normalizeURL,
     representURL,
     getDomainName, getPortNumber, getProtocolName
-} from './string'
+} from '../string'
 import {
     TEST_DEFINED_SYMBOL,
     TEST_THROW_SYMBOL,
@@ -85,8 +85,8 @@ import {
     testEachPromiseAgainstSameExpectation,
     testEachPromiseRejectionAgainstSameExpectation,
     testEachSingleParameterAgainstSameExpectation
-} from './test-helper'
-import Tools from './Tools'
+} from '../test-helper'
+import Tools from '../Tools'
 import {
     AnyFunction,
     EvaluationResult,
@@ -99,7 +99,7 @@ import {
     TimeoutPromise,
     UnknownFunction,
     $T
-} from './type'
+} from '../type'
 import {
     isAnyMatching,
     isArrayLike,
@@ -107,11 +107,11 @@ import {
     isNumeric,
     isPlainObject,
     isWindow
-} from './indicators'
-import {getEditDistance, maskForRegularExpression} from './string'
-import {getParameterNames, identity, invertArrayFilter} from './function'
-import {deleteCookie, getCookie, setCookie} from './cookie'
-import {determineUniqueScopeName, isolateScope} from './scope'
+} from '../indicators'
+import {getEditDistance, maskForRegularExpression} from '../string'
+import {getParameterNames, identity, invertArrayFilter} from '../function'
+import {deleteCookie, getCookie, setCookie} from '../cookie'
+import {determineUniqueScopeName, isolateScope} from '../scope'
 import {
     addDynamicGetterAndSetter,
     convertCircularObjectToJSON,
@@ -129,7 +129,7 @@ import {
     modifyObject,
     removeKeyPrefixes,
     removeKeysInEvaluation, represent, sort, unwrapProxy
-} from './object'
+} from '../object'
 import {
     aggregatePropertyIfEqual,
     deleteEmptyItems, extract,
@@ -143,13 +143,13 @@ import {
     permutate,
     permutateLength, removeArrayItem, sortTopological,
     sumUpProperty, unique
-} from './array'
-import {ceil, floor, getUTCTimestamp, isNotANumber, round} from './number'
+} from '../array'
+import {ceil, floor, getUTCTimestamp, isNotANumber, round} from '../number'
 import {
     checkReachability,
     checkUnreachability, sendToExternalURL,
     sendToIFrame
-} from './data-transfer'
+} from '../data-transfer'
 import {
     copyDirectoryRecursive,
     copyDirectoryRecursiveSync,
@@ -160,8 +160,8 @@ import {
     isFile,
     isFileSync,
     walkDirectoryRecursively, walkDirectoryRecursivelySync
-} from './filesystem'
-import {getProcessCloseHandler, handleChildProcess} from './process'
+} from '../filesystem'
+import {getProcessCloseHandler, handleChildProcess} from '../process'
 // endregion
 /*
     NOTE: We have to preload this module to avoid introducing an additional

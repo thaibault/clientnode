@@ -15,20 +15,13 @@
     "url": "https://github.com/thaibault/clientnode/issues"
   },
   "license": "CC-BY-3.0",
+  "main": "dist/index.js",
   "author": {
     "name": "Torben Sickert",
     "email": "info@torben.website",
     "url": "https://torben.website"
   },
-  "files": [
-    "index.d.ts",
-    "index.js",
-    "property-types.d.ts",
-    "property-types.js",
-    "testHelper.d.ts",
-    "testHelper.js",
-    "type.d.ts"
-  ],
+  "files": ["dist"],
   "repository": {
     "type": "git",
     "url": "https://github.com/thaibault/clientnode"
@@ -161,9 +154,9 @@
     "module": {
       "aliases": {
         "#": "Ensure that dependent modules uses latest clientnode version.",
-        "clientnode$": "../../index",
-        "clientnode/property-types$": "../../property-types",
-        "clientnode/type$": "../../type",
+        "clientnode$": "../../src/index",
+        "clientnode/property-types$": "../../src/property-types",
+        "clientnode/type$": "../../src/type",
         "formdata-polyfill/esm.min.js$": "formdata-polyfill",
         "jquery$": "jquery/dist/jquery.min"
       },

@@ -121,7 +121,7 @@ export const timeout = (...parameters:Array<unknown>):TimeoutPromise => {
 export const debounce = <T = unknown>(
     callback:UnknownFunction,
     thresholdInMilliseconds = 600,
-...additionalArguments:Array<unknown>
+    ...additionalArguments:Array<unknown>
 ):((...parameters:Array<unknown>) => Promise<T>) => {
     let waitForNextSlot = false
     let parametersForNextSlot:Array<unknown>|null = null
