@@ -184,6 +184,14 @@
     "nodeENV": {
       "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'serve' ? null : false"
     },
+    "path": {
+      "source": {
+        "base": "src/"
+      },
+      "target": {
+        "base": "dist/"
+      }
+    },
     "target:compatible": {
       "module": {
         "preprocessor": {
