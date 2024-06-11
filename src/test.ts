@@ -30,20 +30,63 @@ import {Requireable} from 'prop-types'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
 
-import Tools, {
-    globalContext, Lock, optionalRequire, Semaphore, ValueCopySymbol, $
-} from './index'
-import {DummyTypes} from './src/propertyTypes'
 import {
-    DefinedSymbol,
+    MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION,
+    NOOP,
+    VALUE_COPY_SYMBOL
+} from './constants'
+import {globalContext, optionalRequire, $} from './context'
+import {
+    dateTimeFormat,
+    interpretDateTime,
+    normalizeDateTime,
+    sliceWeekday
+} from './datetime'
+import {debounce, timeout} from './utility'
+import Lock from './Lock'
+import {DummyTypes} from './property-types'
+import Semaphore from './Semaphore'
+import {
+    camelCaseToDelimited,
+    capitalize,
+    compressStyleValue,
+    compile,
+    convertToValidVariableName,
+    decodeHTMLEntities,
+    delimitedToCamelCase,
+    encodeURIComponent,
+    escapeRegularExpressions,
+    evaluate,
+    findNormalizedMatchRange,
+    fixKnownEncodingErrors,
+    format,
+    lowerCase,
+    mark,
+    normalizeDomNodeSelector,
+    normalizePhoneNumber,
+    normalizeZipCode,
+    parseEncodedObject,
+    representPhoneNumber,
+    sliceAllExceptNumberAndLastSeperator,
+    addSeparatorToPath,
+    hasPathPrefix,
+    getURLParameter,
+    serviceURLEquals,
+    normalizeURL,
+    representURL,
+    getDomainName, getPortNumber, getProtocolName
+} from './string'
+import {
+    TEST_DEFINED_SYMBOL,
+    TEST_THROW_SYMBOL,
     testEach,
     testEachAgainstSameExpectation,
     testEachPromise,
     testEachPromiseAgainstSameExpectation,
     testEachPromiseRejectionAgainstSameExpectation,
-    testEachSingleParameterAgainstSameExpectation,
-    ThrowSymbol
-} from './src/testHelper'
+    testEachSingleParameterAgainstSameExpectation
+} from './test-helper'
+import Tools from './Tools'
 import {
     AnyFunction,
     EvaluationResult,
@@ -56,7 +99,69 @@ import {
     TimeoutPromise,
     UnknownFunction,
     $T
-} from './src/type'
+} from './type'
+import {
+    isAnyMatching,
+    isArrayLike,
+    isFunction,
+    isNumeric,
+    isPlainObject,
+    isWindow
+} from './indicators'
+import {getEditDistance, maskForRegularExpression} from './string'
+import {getParameterNames, identity, invertArrayFilter} from './function'
+import {deleteCookie, getCookie, setCookie} from './cookie'
+import {determineUniqueScopeName, isolateScope} from './scope'
+import {
+    addDynamicGetterAndSetter,
+    convertCircularObjectToJSON,
+    convertMapToPlainObject,
+    convertPlainObjectToMap,
+    convertSubstringInPlainObject,
+    copy,
+    determineType,
+    equals,
+    evaluateDynamicData,
+    extend,
+    getProxyHandler,
+    getSubstructure,
+    mask,
+    modifyObject,
+    removeKeyPrefixes,
+    removeKeysInEvaluation, represent, sort, unwrapProxy
+} from './object'
+import {
+    aggregatePropertyIfEqual,
+    deleteEmptyItems, extract,
+    extractIfMatches,
+    extractIfPropertyExists,
+    extractIfPropertyMatches,
+    intersect,
+    makeArray,
+    makeRange,
+    merge, paginate,
+    permutate,
+    permutateLength, removeArrayItem, sortTopological,
+    sumUpProperty, unique
+} from './array'
+import {ceil, floor, getUTCTimestamp, isNotANumber, round} from './number'
+import {
+    checkReachability,
+    checkUnreachability, sendToExternalURL,
+    sendToIFrame
+} from './data-transfer'
+import {
+    copyDirectoryRecursive,
+    copyDirectoryRecursiveSync,
+    copyFile,
+    copyFileSync,
+    isDirectory,
+    isDirectorySync,
+    isFile,
+    isFileSync,
+    walkDirectoryRecursively, walkDirectoryRecursivelySync
+} from './filesystem'
+import {getProcessCloseHandler, handleChildProcess} from './process'
 // endregion
 /*
     NOTE: We have to preload this module to avoid introducing an additional
@@ -161,19 +266,17 @@ describe(`Lock (${testEnvironment})`, ():void => {
         const promise:Promise<void> = lock.acquire('test').then(
             async (result:string|void):Promise<void> => {
                 expect(result).toStrictEqual('test')
-                void Tools.timeout(
-                    ():Promise<string|void> => lock.release('test')
-                )
+                void timeout(():Promise<string|void> => lock.release('test'))
                 result = await lock.acquire('test')
                 expect(result).toStrictEqual('test')
-                void Tools.timeout(():Promise<string|void> =>
+                void timeout(():Promise<string|void> =>
                     lock.release('test')
                 )
                 result = await lock.acquire(
                     'test',
                     ():Promise<string|void> =>
-                        new Promise((resolve:(_value:string) => void):void => {
-                            void Tools.timeout(():void => {
+                        new Promise((resolve:(_value:string) => void) => {
+                            void timeout(() => {
                                 testValue = 'a'
                                 resolve(testValue)
                             })
@@ -189,7 +292,7 @@ describe(`Lock (${testEnvironment})`, ():void => {
 // endregion
 // region semaphore
 describe(`Semaphore (${testEnvironment})`, ():void => {
-    test('constructor', ():void => {
+    test('constructor', () => {
         expect(new Semaphore()).toHaveProperty('numberOfResources', 2)
         expect(new Semaphore()).toHaveProperty(
             'numberOfFreeResources', (new Semaphore()).numberOfResources
@@ -265,14 +368,14 @@ describe(`Tools (${testEnvironment})`, ():void => {
     const tools:Tools = new Tools()
     // region public methods
     /// region special
-    test('constructor', ():void => {
+    test('constructor', () => {
         expect(Tools).toHaveProperty('abbreviations')
         expect(new Tools()).toHaveProperty('options')
     })
-    test('destructor', ():void =>
+    test('destructor', () =>
         expect(tools.destructor()).toStrictEqual(tools)
     )
-    test('initialize', ():void => {
+    test('initialize', () => {
         const secondToolsInstance:Tools = $.Tools({logging: true})
         const thirdToolsInstance:Tools = $.Tools({
             domNodeSelectorPrefix: 'body.{1} div.{1}'
@@ -285,7 +388,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     })
     /// endregion
     /// region  object orientation
-    test('controller', ():void => {
+    test('controller', () => {
         expect(Tools.controller(tools, [])).toStrictEqual(tools)
         expect((Tools.controller($.Tools.class, [], $('body')) as Tools)
             .constructor.name
@@ -297,9 +400,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
     /// endregion
     /// region date time
     const testDate:Date = new Date(0)
-    testEach<typeof Tools.dateTimeFormat>(
+    testEach<typeof dateTimeFormat>(
         `dateTimeFormat (${testEnvironment})`,
-        Tools.dateTimeFormat,
+        dateTimeFormat,
 
         ['', ''],
         ['', '', 0],
@@ -339,9 +442,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     /// endregion
     /// region boolean
-    testEachSingleParameterAgainstSameExpectation<typeof Tools.isNumeric>(
+    testEachSingleParameterAgainstSameExpectation<typeof isNumeric>(
         'isNumeric',
-        Tools.isNumeric,
+        isNumeric,
         true,
 
         0,
@@ -354,9 +457,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         '3.1415',
         +10
     )
-    testEachSingleParameterAgainstSameExpectation<typeof Tools.isNumeric>(
+    testEachSingleParameterAgainstSameExpectation<typeof isNumeric>(
         'isNumeric',
-        Tools.isNumeric,
+        isNumeric,
         false,
 
         null,
@@ -375,21 +478,21 @@ describe(`Tools (${testEnvironment})`, ():void => {
     test('isWindow', async ():Promise<void> => {
         const browser:InitializedBrowser = await getInitializedBrowser()
 
-        expect(Tools.isWindow(browser.window)).toStrictEqual(true)
+        expect(isWindow(browser.window)).toStrictEqual(true)
 
         for (const value of [null, {}, browser])
-            expect(Tools.isWindow(value)).toStrictEqual(false)
+            expect(isWindow(value)).toStrictEqual(false)
     })
     test('isArrayLike', async ():Promise<void> => {
         const browser:InitializedBrowser = await getInitializedBrowser()
         for (const value of [
             [], browser.window.document.querySelectorAll('*')
         ])
-            expect(Tools.isArrayLike(value)).toStrictEqual(true)
+            expect(isArrayLike(value)).toStrictEqual(true)
     })
-    testEachSingleParameterAgainstSameExpectation<typeof Tools.isArrayLike>(
+    testEachSingleParameterAgainstSameExpectation<typeof isArrayLike>(
         'isArrayLike',
-        Tools.isArrayLike,
+        isArrayLike,
         false,
 
         {},
@@ -399,9 +502,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         true,
         /a/
     )
-    testEachAgainstSameExpectation<typeof Tools.isAnyMatching>(
+    testEachAgainstSameExpectation<typeof isAnyMatching>(
         'isAnyMatching',
-        Tools.isAnyMatching,
+        isAnyMatching,
         true,
 
         ['', ['']],
@@ -409,9 +512,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['test', [/a/, /b/, /es/]],
         ['test', ['', 'test']]
     )
-    testEachAgainstSameExpectation<typeof Tools.isAnyMatching>(
+    testEachAgainstSameExpectation<typeof isAnyMatching>(
         'isAnyMatching',
-        Tools.isAnyMatching,
+        isAnyMatching,
         false,
 
         ['', []],
@@ -420,9 +523,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['test', [/^est$/]],
         ['test', ['a']]
     )
-    testEachSingleParameterAgainstSameExpectation<typeof Tools.isPlainObject>(
+    testEachSingleParameterAgainstSameExpectation<typeof isPlainObject>(
         'isPlainObject',
-        Tools.isPlainObject,
+        isPlainObject,
         true,
 
         {},
@@ -430,9 +533,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         // eslint-disable-next-line no-new-object
         new Object()
     )
-    testEachSingleParameterAgainstSameExpectation<typeof Tools.isPlainObject>(
+    testEachSingleParameterAgainstSameExpectation<typeof isPlainObject>(
         'isPlainObject',
-        Tools.isPlainObject,
+        isPlainObject,
         false,
 
         new String(),
@@ -443,25 +546,25 @@ describe(`Tools (${testEnvironment})`, ():void => {
         true,
         undefined
     )
-    testEachSingleParameterAgainstSameExpectation<typeof Tools.isFunction>(
+    testEachSingleParameterAgainstSameExpectation<typeof isFunction>(
         'isFunction',
-        Tools.isFunction,
+        isFunction,
         true,
 
         Object,
         // eslint-disable-next-line @typescript-eslint/no-implied-eval
         new Function('return 1'),
-        function():void {
+        function() {
             // Do nothing.
         },
-        Tools.noop,
+        NOOP,
         async ():Promise<void> => {
             // Do nothing.
         }
     )
-    testEachSingleParameterAgainstSameExpectation<typeof Tools.isFunction>(
+    testEachSingleParameterAgainstSameExpectation<typeof isFunction>(
         'isFunction',
-        Tools.isFunction,
+        isFunction,
         false,
 
         null,
@@ -491,7 +594,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     test('show', ():void =>
         // eslint-disable-next-line no-control-regex
-        expect(/^.+\(Type: "function"\)$/su.test(Tools.show(Tools.noop)))
+        expect(/^.+\(Type: "function"\)$/su.test(Tools.show(NOOP)))
             .toStrictEqual(true)
     )
     testEach<typeof Tools.show>(
@@ -513,11 +616,11 @@ describe(`Tools (${testEnvironment})`, ():void => {
 
                 expect($.document!.cookie).toStrictEqual('')
 
-                expect(Tools.setCookie('name', 'value', {minimal: true}))
+                expect(setCookie('name', 'value', {minimal: true}))
                     .toStrictEqual(true)
-                expect(Tools.getCookie('name')).toStrictEqual('value')
-                Tools.deleteCookie('name')
-                expect(Tools.getCookie('name')).toStrictEqual('')
+                expect(getCookie('name')).toStrictEqual('value')
+                deleteCookie('name')
+                expect(getCookie('name')).toStrictEqual('')
 
                 $.document!.cookie = ''
             }
@@ -525,13 +628,13 @@ describe(`Tools (${testEnvironment})`, ():void => {
         test(`getCookie (${testEnvironment})`, async ():Promise<void> => {
             await getInitializedBrowser()
 
-            expect(Tools.getCookie('')).toStrictEqual('')
+            expect(getCookie('')).toStrictEqual('')
 
-            expect(Tools.getCookie('name')).toStrictEqual('')
+            expect(getCookie('name')).toStrictEqual('')
 
-            expect(Tools.setCookie('name', 'value', {minimal: true}))
+            expect(setCookie('name', 'value', {minimal: true}))
                 .toStrictEqual(true)
-            expect(Tools.getCookie('name')).toStrictEqual('value')
+            expect(getCookie('name')).toStrictEqual('value')
 
             $.document!.cookie = ''
         })
@@ -540,15 +643,14 @@ describe(`Tools (${testEnvironment})`, ():void => {
 
             $.document!.cookie = ''
 
-            expect(Tools.setCookie('name', 'value', {minimal: true}))
+            expect(setCookie('name', 'value', {minimal: true}))
                 .toStrictEqual(true)
-            expect(Tools.getCookie('name')).toStrictEqual('value')
+            expect(getCookie('name')).toStrictEqual('value')
 
             $.document!.cookie = ''
 
-            expect(Tools.setCookie('name', '', {minimal: true}))
-                .toStrictEqual(true)
-            expect(Tools.getCookie('name')).toStrictEqual('')
+            expect(setCookie('name', '', {minimal: true})).toStrictEqual(true)
+            expect(getCookie('name')).toStrictEqual('')
 
             $.document!.cookie = ''
         })
@@ -864,9 +966,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
     /// endregion
     /// region scope
     test('isolateScope', ():void => {
-        expect(Tools.isolateScope({})).toStrictEqual({})
-        expect(Tools.isolateScope({a: 2})).toStrictEqual({a: 2})
-        expect(Tools.isolateScope({a: 2, b: {a: [1, 2]}}))
+        expect(isolateScope({})).toStrictEqual({})
+        expect(isolateScope({a: 2})).toStrictEqual({a: 2})
+        expect(isolateScope({a: 2, b: {a: [1, 2]}}))
             .toStrictEqual({a: 2, b: {a: [1, 2]}})
 
         let Scope:(new () => Mapping<number>) =
@@ -877,7 +979,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         Scope.prototype = {_a: 5, b: 2}
         let scope:Mapping<number|undefined> = new Scope()
 
-        Tools.isolateScope(scope, ['_'])
+        isolateScope(scope, ['_'])
         let finalScope:Mapping<number|undefined> = {}
         // eslint-disable-next-line guard-for-in
         for (const name in scope)
@@ -886,62 +988,61 @@ describe(`Tools (${testEnvironment})`, ():void => {
         expect(finalScope).toStrictEqual({_a: 5, a: 2, b: undefined})
 
         scope.b = 3
-        Tools.isolateScope(scope, ['_'])
+        isolateScope(scope, ['_'])
         finalScope = {}
         // eslint-disable-next-line guard-for-in
         for (const name in scope)
             finalScope[name] = scope[name]
 
         expect(finalScope).toStrictEqual({_a: 5, a: 2, b: 3})
-        expect(Tools.isolateScope(scope))
+        expect(isolateScope(scope))
             .toStrictEqual({_a: undefined, a: 2, b: 3})
 
         scope._a = 6
-        expect(Tools.isolateScope(scope, ['_']))
-            .toStrictEqual({_a: 6, a: 2, b: 3})
+        expect(isolateScope(scope, ['_'])).toStrictEqual({_a: 6, a: 2, b: 3})
 
         // eslint-disable-next-line no-unused-vars
         Scope = function(this:Mapping<number>):void {
             this.a = 2
         } as unknown as (new () => Mapping<number>)
         Scope.prototype = {b: 3}
-        scope = Tools.isolateScope(new Scope(), ['b'])
+        scope = isolateScope(new Scope(), ['b'])
         finalScope = {}
         // eslint-disable-next-line guard-for-in
         for (const name in scope)
             finalScope[name] = scope[name]
 
         expect(finalScope).toStrictEqual({a: 2, b: 3})
-        expect(Tools.isolateScope(new Scope()))
-            .toStrictEqual({a: 2, b: undefined})
+        expect(isolateScope(new Scope())).toStrictEqual({a: 2, b: undefined})
     })
     test('determineUniqueScopeName', ():void => {
-        expect(Tools.determineUniqueScopeName())
+        expect(determineUniqueScopeName())
             .toStrictEqual(expect.stringMatching(/^callback/))
-        expect(Tools.determineUniqueScopeName('hans'))
+        expect(determineUniqueScopeName('hans'))
             .toStrictEqual(expect.stringMatching(/^hans/))
-        expect(Tools.determineUniqueScopeName('hans', '', {}))
+        expect(determineUniqueScopeName('hans', '', {}))
             .toStrictEqual(expect.stringMatching(/^hans/))
-        expect(Tools.determineUniqueScopeName('hans', '', {}, 'peter'))
+        expect(determineUniqueScopeName('hans', '', {}, 'peter'))
             .toStrictEqual('peter')
         expect(
-            Tools.determineUniqueScopeName('hans', '', {peter: 2}, 'peter')
+            determineUniqueScopeName('hans', '', {peter: 2}, 'peter')
         ).toStrictEqual(expect.stringMatching(/^hans/))
-        const name:string = Tools.determineUniqueScopeName(
-            'hans', 'klaus', {peter: 2}, 'peter')
+        const name:string = determineUniqueScopeName(
+            'hans', 'klaus', {peter: 2}, 'peter'
+        )
         expect(name).toStrictEqual(expect.stringMatching(/^hans/))
         expect(name).toStrictEqual(expect.stringMatching(/klaus$/))
         expect(name.length).toBeGreaterThan('hans'.length + 'klaus'.length)
     })
     /// endregion
     /// region function handling
-    testEach<typeof Tools.getParameterNames>(
+    testEach<typeof getParameterNames>(
         'getParameterNames',
-        Tools.getParameterNames,
+        getParameterNames,
 
         [
             [],
-            function():void {
+            function() {
                 // Do nothing.
             }
         ],
@@ -967,13 +1068,13 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     test('identity', ():void => {
         const testObject = {}
-        expect(Tools.identity(testObject) === Tools.copy(testObject))
+        expect(identity(testObject) === copy(testObject))
             .toStrictEqual(false)
-        expect(Tools.identity(testObject)).toStrictEqual(testObject)
+        expect(identity(testObject)).toStrictEqual(testObject)
     })
-    testEach<typeof Tools.identity>(
+    testEach<typeof identity>(
         'identity',
-        Tools.identity,
+        identity,
 
         [2, 2],
         ['', ''],
@@ -982,50 +1083,48 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['hans', 'hans']
     )
     test('invertArrayFilter', ():void => {
-        expect(
-            Tools.invertArrayFilter(Tools.arrayDeleteEmptyItems)([{a: null}])
-        ).toStrictEqual([{a: null}])
-        expect(Tools.invertArrayFilter(Tools.arrayExtractIfMatches)(
-            ['a', 'b'], '^a$'
-        )).toStrictEqual(['b'])
+        expect(invertArrayFilter(deleteEmptyItems)([{a: null}]))
+            .toStrictEqual([{a: null}])
+        expect(invertArrayFilter(extractIfMatches)(['a', 'b'], '^a$'))
+            .toStrictEqual(['b'])
     })
     test('timeout', async ():Promise<void> => {
-        expect(await Tools.timeout()).toStrictEqual(false)
-        expect(await Tools.timeout(0)).toStrictEqual(false)
-        expect(await Tools.timeout(1)).toStrictEqual(false)
-        expect(Tools.timeout()).toBeInstanceOf(Promise)
-        expect(Tools.timeout()).toHaveProperty('clear')
+        expect(await timeout()).toStrictEqual(false)
+        expect(await timeout(0)).toStrictEqual(false)
+        expect(await timeout(1)).toStrictEqual(false)
+        expect(timeout()).toBeInstanceOf(Promise)
+        expect(timeout()).toHaveProperty('clear')
 
         const callback = jest.fn()
 
-        const result:TimeoutPromise = Tools.timeout(10 ** 20, true)
+        const result:TimeoutPromise = timeout(10 ** 20, true)
         result.catch(callback)
         result.clear()
-        await Tools.timeout()
+        await timeout()
         expect(callback).toHaveBeenCalledTimes(1)
         expect(callback).toHaveBeenLastCalledWith(true)
 
-        expect(await Tools.timeout(callback)).toStrictEqual(false)
+        expect(await timeout(callback)).toStrictEqual(false)
         expect(callback).toHaveBeenCalledTimes(2)
     })
     /// endregion
     /// region event
     test('debounce', ():void => {
         let testValue = false
-        void Tools.debounce(():void => {
+        void debounce(() => {
             testValue = true
         })()
         expect(testValue).toStrictEqual(true)
 
         const callback = jest.fn()
-        const debouncedCallback = Tools.debounce(callback, 1000)
+        const debouncedCallback = debounce(callback, 1000)
         void debouncedCallback()
         void debouncedCallback()
         expect(callback).toHaveBeenCalledTimes(1)
 
         const debouncedAsyncronousCallback =
-            Tools.debounce(async ():Promise<boolean> => {
-                await Tools.timeout()
+            debounce(async ():Promise<boolean> => {
+                await timeout()
 
                 return true
             })
@@ -1087,57 +1186,57 @@ describe(`Tools (${testEnvironment})`, ():void => {
     /// endregion
     /// region object
     test('addDynamicGetterAndSetter', ():void => {
-        expect(Tools.addDynamicGetterAndSetter(null)).toStrictEqual(null)
-        expect(Tools.addDynamicGetterAndSetter(true)).toStrictEqual(true)
-        expect(Tools.addDynamicGetterAndSetter({a: 2})).toStrictEqual({a: 2})
-        expect(Tools.addDynamicGetterAndSetter({}))
+        expect(addDynamicGetterAndSetter(null)).toStrictEqual(null)
+        expect(addDynamicGetterAndSetter(true)).toStrictEqual(true)
+        expect(addDynamicGetterAndSetter({a: 2})).toStrictEqual({a: 2})
+        expect(addDynamicGetterAndSetter({}))
             .not.toHaveProperty('__target__')
         expect(
-            (Tools.addDynamicGetterAndSetter(
+            (addDynamicGetterAndSetter(
                 {}, (value:unknown):unknown => value
             ) as ProxyType).__target__
         ).toBeInstanceOf(Object)
         const mockup = {}
-        expect(Tools.addDynamicGetterAndSetter(mockup)).toStrictEqual(mockup)
+        expect(addDynamicGetterAndSetter(mockup)).toStrictEqual(mockup)
         expect(
-            (Tools.addDynamicGetterAndSetter(
+            (addDynamicGetterAndSetter(
                 mockup, (value:unknown):unknown => value
             ) as ProxyType).__target__
         ).toStrictEqual(mockup)
         expect(
-            Tools.addDynamicGetterAndSetter(
+            addDynamicGetterAndSetter(
                 {a: 1}, (value:unknown):number => (value as number) + 2
             ).a
         ).toStrictEqual(3)
         expect(
-            Tools.addDynamicGetterAndSetter(
+            addDynamicGetterAndSetter(
                 {a: {a: 1}},
                 (value:unknown):number|PlainObject =>
-                    Tools.isPlainObject(value) ? value : (value as number) + 2
+                    isPlainObject(value) ? value : (value as number) + 2
             ).a.a
         ).toStrictEqual(3)
         expect(
-            Tools.addDynamicGetterAndSetter(
+            addDynamicGetterAndSetter(
                 {a: {a: [{a: 1}]}},
                 (value:unknown):number|PlainObject =>
-                    Tools.isPlainObject(value) ? value : (value as number) + 2
+                    isPlainObject(value) ? value : (value as number) + 2
             ).a.a[0].a
         ).toStrictEqual(3)
         expect(
-            Tools.addDynamicGetterAndSetter(
+            addDynamicGetterAndSetter(
                 {a: {a: 1}},
                 (value:unknown):number|PlainObject =>
-                    Tools.isPlainObject(value) ? value : (value as number) + 2,
+                    isPlainObject(value) ? value : (value as number) + 2,
                 null,
                 {has: 'hasOwnProperty'},
                 false
             ).a.a
         ).toStrictEqual(1)
         expect(
-            Tools.addDynamicGetterAndSetter(
+            addDynamicGetterAndSetter(
                 {a: 1},
                 (value:unknown):number|PlainObject =>
-                    Tools.isPlainObject(value) ? value : (value as number) + 2,
+                    isPlainObject(value) ? value : (value as number) + 2,
                 null,
                 {has: 'hasOwnProperty'},
                 false,
@@ -1145,10 +1244,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ).a
         ).toStrictEqual(1)
         expect(
-            (Tools.addDynamicGetterAndSetter(
+            (addDynamicGetterAndSetter(
                 {a: new Map([['a', 1]])},
                 (value:unknown):number|PlainObject =>
-                    Tools.isPlainObject(value) ? value : (value as number) + 2,
+                    isPlainObject(value) ? value : (value as number) + 2,
                 null,
                 {delete: 'delete', get: 'get', set: 'set', has: 'has'},
                 true,
@@ -1160,7 +1259,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         const object:{a:PlainObject, b?:PlainObject} = {a: {}}
         object.b = object.a
 
-        expect(Tools.convertCircularObjectToJSON(object))
+        expect(convertCircularObjectToJSON(object))
             .toStrictEqual('{"a":{},"b":{}}')
     })
     test('convertCircularObjectToJSON', ():void => {
@@ -1168,7 +1267,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         const subObject:{a:PlainObject} = {a: object}
         object.a = subObject
 
-        expect(Tools.convertCircularObjectToJSON(object))
+        expect(convertCircularObjectToJSON(object))
             .toStrictEqual('{"a":{"a":"__circularReference__"}}')
     })
     test('convertCircularObjectToJSON', ():void => {
@@ -1176,12 +1275,12 @@ describe(`Tools (${testEnvironment})`, ():void => {
         const subObject:{a:typeof rootObject} = {a: rootObject}
         rootObject.push(subObject)
 
-        expect(Tools.convertCircularObjectToJSON(rootObject))
+        expect(convertCircularObjectToJSON(rootObject))
             .toStrictEqual('[{"a":"__circularReference__"}]')
     })
-    testEach<typeof Tools.convertCircularObjectToJSON>(
+    testEach<typeof convertCircularObjectToJSON>(
         'convertCircularObjectToJSON',
-        Tools.convertCircularObjectToJSON,
+        convertCircularObjectToJSON,
 
         ['null', null],
         [undefined, undefined],
@@ -1196,9 +1295,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['{"a":{"a":2}}', {a: {a: 2}}],
         ['{"a":{"a":null}}', {a: {a: Infinity}}]
     )
-    testEach<typeof Tools.convertMapToPlainObject>(
+    testEach<typeof convertMapToPlainObject>(
         'convertMapToPlainObject',
-        Tools.convertMapToPlainObject,
+        convertMapToPlainObject,
 
         [null, null],
         [true, true],
@@ -1222,9 +1321,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             )]]
         ]
     )
-    testEach<typeof Tools.convertPlainObjectToMap>(
+    testEach<typeof convertPlainObjectToMap>(
         'convertPlainObjectToMap',
-        Tools.convertPlainObjectToMap,
+        convertPlainObjectToMap,
 
         [null, null],
         [true, true],
@@ -1265,9 +1364,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             [{b: 2, a: new Set([{}])}]
         ]
     )
-    testEach<typeof Tools.convertSubstringInPlainObject>(
+    testEach<typeof convertSubstringInPlainObject>(
         'convertSubstringInPlainObject',
-        Tools.convertSubstringInPlainObject,
+        convertSubstringInPlainObject,
 
         [{}, {}, /a/, ''],
         [{a: 'b'}, {a: 'a'}, /a/, 'b'],
@@ -1275,9 +1374,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [{a: 'bb'}, {a: 'aa'}, /a/g, 'b'],
         [{a: {a: 'bb'}}, {a: {a: 'aa'}}, /a/g, 'b']
     )
-    testEach<typeof Tools.copy>(
+    testEach<typeof copy>(
         'copy',
-        Tools.copy,
+        copy,
 
         [21, 21],
         [0, 0],
@@ -1381,14 +1480,14 @@ describe(`Tools (${testEnvironment})`, ():void => {
             new Set(['a', new Set(['a', 2])]),
             10
         ],
-        [{ValueCopySymbol}, {ValueCopySymbol}]
+        [{VALUE_COPY_SYMBOL}, {VALUE_COPY_SYMBOL}]
     )
     test('determineType', ():void =>
-        expect(Tools.determineType()).toStrictEqual('undefined')
+        expect(determineType()).toStrictEqual('undefined')
     )
-    testEach<typeof Tools.determineType>(
+    testEach<typeof determineType>(
         'determineType',
-        Tools.determineType,
+        determineType,
 
         ['undefined', undefined],
         ['undefined', ({} as {notDefined:undefined}).notDefined],
@@ -1404,7 +1503,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['function', function():void {
             // Do nothing.
         }],
-        ['function', Tools.noop],
+        ['function', NOOP],
         ['array', []],
         // eslint-disable-next-line no-array-constructor
         // TODO ['array', new Array()],
@@ -1414,9 +1513,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['set', new Set()],
         ['regexp', /test/]
     )
-    testEachAgainstSameExpectation<typeof Tools.equals>(
+    testEachAgainstSameExpectation<typeof equals>(
         'equals',
-        Tools.equals,
+        equals,
         true,
 
         [1, 1],
@@ -1448,21 +1547,21 @@ describe(`Tools (${testEnvironment})`, ():void => {
             [{a: {b: 1}}, {b: 1}],
             {deep: 3, properties: ['b']}
         ],
-        [Tools.noop, Tools.noop],
-        [Tools.noop, Tools.noop, {ignoreFunctions: false}]
+        [NOOP, NOOP],
+        [NOOP, NOOP, {ignoreFunctions: false}]
     )
     if (TARGET_TECHNOLOGY === 'node')
         test('equals', ():void =>
-            expect(Tools.equals(
+            expect(equals(
                 Buffer.from('a'),
                 Buffer.from('a'),
                 {compareBlobs: true, properties: []}
             )).toStrictEqual(true)
         )
     else {
-        testEachPromiseAgainstSameExpectation<typeof Tools.equals>(
+        testEachPromiseAgainstSameExpectation<typeof equals>(
             'equals',
-            Tools.equals,
+            equals,
             true,
 
             ...([
@@ -1501,19 +1600,19 @@ describe(`Tools (${testEnvironment})`, ():void => {
                     }
                 ]
             ] as Array<[
-                FirstParameter<typeof Tools.equals>,
-                SecondParameter<typeof Tools.equals>
+                FirstParameter<typeof equals>,
+                SecondParameter<typeof equals>
             ]>).map((parameters:[
-                FirstParameter<typeof Tools.equals>,
-                SecondParameter<typeof Tools.equals>
-            ]):Parameters<typeof Tools.equals> =>
+                FirstParameter<typeof equals>,
+                SecondParameter<typeof equals>
+            ]):Parameters<typeof equals> =>
                 parameters.concat({compareBlobs: true}) as
-                    Parameters<typeof Tools.equals>
+                    Parameters<typeof equals>
             )
         )
-        testEachPromiseAgainstSameExpectation<typeof Tools.equals>(
+        testEachPromiseAgainstSameExpectation<typeof equals>(
             'equals',
-            Tools.equals,
+            equals,
             false,
 
             ...([
@@ -1552,19 +1651,19 @@ describe(`Tools (${testEnvironment})`, ():void => {
                     }
                 ]
             ] as Array<[
-                FirstParameter<typeof Tools.equals>,
-                SecondParameter<typeof Tools.equals>
+                FirstParameter<typeof equals>,
+                SecondParameter<typeof equals>
             ]>).map((parameter:[
-                FirstParameter<typeof Tools.equals>,
-                SecondParameter<typeof Tools.equals>
-            ]):Parameters<typeof Tools.equals> =>
+                FirstParameter<typeof equals>,
+                SecondParameter<typeof equals>
+            ]):Parameters<typeof equals> =>
                 parameter.concat({compareBlobs: true}) as
-                    Parameters<typeof Tools.equals>
+                    Parameters<typeof equals>
             )
         )
-        testEachPromise<typeof Tools.equals>(
+        testEachPromise<typeof equals>(
             'equals',
-            Tools.equals,
+            equals,
 
             [
                 '>>> Blob("data:text/plain;base64,YQ==") !== ' +
@@ -1596,9 +1695,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ]
         )
     }
-    testEachAgainstSameExpectation<typeof Tools.equals>(
+    testEachAgainstSameExpectation<typeof equals>(
         'equals',
-        Tools.equals,
+        equals,
         false,
 
         [[{a: {b: 1}}, {b: 1}], [{a: 1}, {b: 1}], {deep: 2}],
@@ -1620,16 +1719,16 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [1, 2, {deep: 0}],
         [[{a: 1}, {b: 1}], [{a: 1}], {deep: 1}],
         [
-            Tools.noop,
+            NOOP,
             ():void => {
                 // Do nothing.
             },
             {deep: -1, ignoreFunctions: false, properties: []}
         ]
     )
-    testEach<typeof Tools.equals>(
+    testEach<typeof equals>(
         'equals',
-        Tools.equals,
+        equals,
 
         ['>>> 1 !== 2', 1, 2, {returnReasonIfNotEqual: true}],
         ['a >>> 1 !== 2', {a: 1}, {a: 2}, {returnReasonIfNotEqual: true}],
@@ -1658,9 +1757,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             {returnReasonIfNotEqual: true}
         ]
     )
-    testEach<typeof Tools.evaluateDynamicData>(
+    testEach<typeof evaluateDynamicData>(
         'evaluateDynamicData',
-        Tools.evaluateDynamicData,
+        evaluateDynamicData,
 
         [null, null],
         [false, false],
@@ -1756,7 +1855,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 b: {__evaluate__: '_.c'},
                 c: {d: {e: {__evaluate__: 'tools.copy([2])'}}}
             },
-            {tools: Tools.copy($.Tools.class)}, '_'
+            {tools: copy($.Tools.class)}, '_'
         ],
         [
             {a: {b: 1, c: 1}},
@@ -1857,9 +1956,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             }
         ]
     )
-    testEach<typeof Tools.removeKeysInEvaluation>(
+    testEach<typeof removeKeysInEvaluation>(
         'removeKeysInEvaluation',
-        Tools.removeKeysInEvaluation,
+        removeKeysInEvaluation,
 
         [{}, {}],
         [{a: 2}, {a: 2}],
@@ -1871,12 +1970,12 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     test('extend', ():void => {
         const target:PlainObject = {a: [1, 2]}
-        Tools.extend(true, target, {a: [3, 4]})
+        extend(true, target, {a: [3, 4]})
         expect(target).toStrictEqual({a: [3, 4]})
     })
-    testEach<typeof Tools.extend>(
+    testEach<typeof extend>(
         'extend',
-        Tools.extend,
+        extend,
 
         [[], []],
         [{}, {}],
@@ -1985,9 +2084,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [undefined, true, [1, 2], undefined as unknown as Partial<unknown>],
         [null, [1, 2], null as unknown as Partial<unknown>]
     )
-    testEach<typeof Tools.getSubstructure>(
+    testEach<typeof getSubstructure>(
         'getSubstructure',
-        Tools.getSubstructure,
+        getSubstructure,
 
         [{}, {}, []],
         [{}, {}, ['']],
@@ -2012,15 +2111,14 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ]
     )
     test('getProxyHandler', ():void => {
-        expect(Tools.isPlainObject(Tools.getProxyHandler({})))
+        expect(isPlainObject(getProxyHandler({})))
             .toStrictEqual(true)
-        expect(
-            Tools.isPlainObject(Tools.getProxyHandler(new Map(), {get: 'get'}))
-        ).toStrictEqual(true)
+        expect(isPlainObject(getProxyHandler(new Map(), {get: 'get'})))
+            .toStrictEqual(true)
     })
-    testEach<typeof Tools.mask>(
+    testEach<typeof mask>(
         'mask',
-        Tools.mask,
+        mask,
 
         [{}, {}, {}],
         [{a: 2}, {a: 2}, {}],
@@ -2168,20 +2266,20 @@ describe(`Tools (${testEnvironment})`, ():void => {
     ])(
         '%p (=> %p) === modifyObject(%p, %p, ...%p)',
         (
-            sliced:ReturnType<typeof Tools.modifyObject>,
-            modified:SecondParameter<typeof Tools.modifyObject>,
-            ...parameters:Parameters<typeof Tools.modifyObject>
+            sliced:ReturnType<typeof modifyObject>,
+            modified:SecondParameter<typeof modifyObject>,
+            ...parameters:Parameters<typeof modifyObject>
         ):void => {
-            expect(Tools.modifyObject(...parameters)).toStrictEqual(sliced)
+            expect(modifyObject(...parameters)).toStrictEqual(sliced)
             expect(parameters[1]).toStrictEqual(modified)
         }
     )
     test('normalizeDateTime', () =>
-        expect(typeof Tools.normalizeDateTime()).toStrictEqual('object')
+        expect(typeof normalizeDateTime()).toStrictEqual('object')
     )
-    testEach<typeof Tools.normalizeDateTime>(
+    testEach<typeof normalizeDateTime>(
         'normalizeDateTime',
-        Tools.normalizeDateTime,
+        normalizeDateTime,
 
         [now, now],
         [new Date('1970-01-01'), '1970-01-01', true],
@@ -2202,9 +2300,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [null, 'abc'],
         [null, '1+1+1970 08+30+00']
     )
-    testEach<typeof Tools.removeKeyPrefixes>(
+    testEach<typeof removeKeyPrefixes>(
         'removeKeyPrefixes',
-        Tools.removeKeyPrefixes,
+        removeKeyPrefixes,
 
         [{}, {}, []],
         [new Set(), new Set(), '#'],
@@ -2239,9 +2337,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '#'
         ]
     )
-    testEach<typeof Tools.represent>(
+    testEach<typeof represent>(
         'represent',
-        Tools.represent,
+        represent,
 
         ['""', ''],
         [
@@ -2263,9 +2361,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             }
         ]
     )
-    testEach<typeof Tools.sort>(
+    testEach<typeof sort>(
         'sort',
-        Tools.sort,
+        sort,
 
         [[], []],
         [[], {}],
@@ -2280,29 +2378,29 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [['a', 'b', 'c'], {c: 2, b: 5, a: 'a'}],
         [['b', 'c', 'z'], {b: 2, c: 5, z: 'a'}]
     )
-    testEach<typeof Tools.unwrapProxy>(
+    testEach<typeof unwrapProxy>(
         'unwrapProxy',
-        Tools.unwrapProxy,
+        unwrapProxy,
 
         [{}, {}],
         [{a: 'a'}, {a: 'a'}],
         [{a: 'aa'}, {a: 'aa'}],
-        [{a: 2}, {a: {__revoke__: Tools.noop, __target__: 2}}]
+        [{a: 2}, {a: {__revoke__: NOOP, __target__: 2}}]
     )
     /// endregion
     /// region array
-    testEach<typeof Tools.arrayAggregatePropertyIfEqual>(
-        'arrayAggregatePropertyIfEqual',
-        Tools.arrayAggregatePropertyIfEqual,
+    testEach<typeof aggregatePropertyIfEqual>(
+        'aggregatePropertyIfEqual',
+        aggregatePropertyIfEqual,
 
         ['b', [{a: 'b'}], 'a'],
         ['b', [{a: 'b'}, {a: 'b'}], 'a'],
         ['', [{a: 'b'}, {a: 'c'}], 'a'],
         [false, [{a: 'b'}, {a: 'c'}], 'a', false]
     )
-    testEach<typeof Tools.arrayDeleteEmptyItems>(
-        'arrayDeleteEmptyItems',
-        Tools.arrayDeleteEmptyItems,
+    testEach<typeof deleteEmptyItems>(
+        'deleteEmptyItems',
+        deleteEmptyItems,
 
         [[], [{a: null}]],
         [[{a: null, b: 2}], [{a: null, b: 2}]],
@@ -2310,9 +2408,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [[], [], ['a']],
         [[], []]
     )
-    testEach<typeof Tools.arrayExtract>(
-        'arrayExtract',
-        Tools.arrayExtract,
+    testEach<typeof extract>(
+        'extract',
+        extract,
 
         [[{a: 'b'}], [{a: 'b', c: 'd'}], ['a']],
         [[{}], [{a: 'b', c: 'd'}], ['b']],
@@ -2320,9 +2418,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [[{c: 'd'}, {}], [{a: 'b', c: 'd'}, {a: 3}], ['c']],
         [[{c: 'd'}, {c: 3}], [{a: 'b', c: 'd'}, {c: 3}], ['c']]
     )
-    testEach<typeof Tools.arrayExtractIfMatches>(
-        'arrayExtractIfMatches',
-        Tools.arrayExtractIfMatches,
+    testEach<typeof extractIfMatches>(
+        'extractIfMatches',
+        extractIfMatches,
 
         [['b'], ['b'], /b/],
         [['b'], ['b'], 'b'],
@@ -2333,18 +2431,18 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [['b'], ['a', 'b'], 'b'],
         [['a', 'b'], ['a', 'b'], '[ab]']
     )
-    testEach<typeof Tools.arrayExtractIfPropertyExists>(
-        'arrayExtractIfPropertyExists',
-        Tools.arrayExtractIfPropertyExists,
+    testEach<typeof extractIfPropertyExists>(
+        'extractIfPropertyExists',
+        extractIfPropertyExists,
 
         [[{a: 2}], [{a: 2}], 'a'],
         [[], [{a: 2}], 'b'],
         [[], [], 'b'],
         [[{a: 2}], [{a: 2}, {b: 3}], 'a']
     )
-    testEach<typeof Tools.arrayExtractIfPropertyMatches>(
-        'arrayExtractIfPropertyMatches',
-        Tools.arrayExtractIfPropertyMatches,
+    testEach<typeof extractIfPropertyMatches>(
+        'extractIfPropertyMatches',
+        extractIfPropertyMatches,
 
         [[{a: 'b'}], [{a: 'b'}], {a: 'b'}],
         [[{a: 'b'}], [{a: 'b'}], {a: '.'}],
@@ -2357,9 +2455,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             {mimeType: /^text\/x-webm$/}
         ]
     )
-    testEach<typeof Tools.arrayIntersect>(
-        'arrayIntersect',
-        Tools.arrayIntersect,
+    testEach<typeof intersect>(
+        'intersect',
+        intersect,
 
         [['A'], ['A'], ['A']],
         [['A'], ['A', 'B'], ['A']],
@@ -2380,17 +2478,17 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [[{b: undefined}], [{b: undefined}], [{}], ['b'], true],
         [[{b: 1}], [{b: 1}], [{a: 1}], {b: 'a'}, true]
     )
-    testEach<typeof Tools.arrayMake>(
-        'arrayMake',
-        Tools.arrayMake,
+    testEach<typeof makeArray>(
+        'makeArray',
+        makeArray,
 
         [[], []],
         [[1, 2, 3], [1, 2, 3]],
         [[1], 1]
     )
-    testEach<typeof Tools.arrayMakeRange>(
-        'arrayMakeRange',
-        Tools.arrayMakeRange,
+    testEach<typeof makeRange>(
+        'makeRange',
+        makeRange,
 
         [[], []],
         [[0], 0],
@@ -2402,9 +2500,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [[2, 4, 6, 8, 10], [2, 10], 2],
         [[2, 4, 6, 8], [2, 10], 2, true]
     )
-    testEach<typeof Tools.arrayMerge>(
-        'arrayMerge',
-        Tools.arrayMerge,
+    testEach<typeof merge>(
+        'merge',
+        merge,
 
         [[], [], []],
         [[1], [1], []],
@@ -2412,9 +2510,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [[1, 1], [1], [1]],
         [[1, 2, 3, 1, 1, 2, 3], [1, 2, 3, 1], [1, 2, 3]]
     )
-    testEach<typeof Tools.arrayPaginate>(
-        'arrayPaginate',
-        Tools.arrayPaginate,
+    testEach<typeof paginate>(
+        'paginate',
+        paginate,
 
         [
             [
@@ -2502,9 +2600,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             }
         ]
     )
-    testEach<typeof Tools.arrayPermutate>(
-        'arrayPermutate',
-        Tools.arrayPermutate,
+    testEach<typeof permutate>(
+        'permutate',
+        permutate,
 
         [[[]], []],
         [[[1]], [1]],
@@ -2532,9 +2630,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ['1', '2', '3']
         ]
     )
-    testEach<typeof Tools.arrayPermutateLength>(
-        'arrayPermutateLength',
-        Tools.arrayPermutateLength,
+    testEach<typeof permutateLength>(
+        'permutateLength',
+        permutateLength,
 
         [[], []],
         [[[1]], [1]],
@@ -2564,31 +2662,17 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ['1', '2', '3']
         ]
     )
-    testEach<typeof Tools.arraySumUpProperty>(
-        'arraySumUpProperty',
-        Tools.arraySumUpProperty,
+    testEach<typeof sumUpProperty>(
+        'sumUpProperty',
+        sumUpProperty,
 
         [5, [{a: 2}, {a: 3}], 'a'],
         [2, [{a: 2}, {b: 3}], 'a'],
         [0, [{a: 2}, {b: 3}], 'c']
     )
-    ;(():void => {
-        const testObject:PlainObject = {}
-
-        testEach<typeof Tools.arrayAppendAdd>(
-            'arrayAppenAdd',
-            Tools.arrayAppendAdd,
-
-            [{b: [{}]}, {}, {}, 'b'],
-            [{b: [{a: 3}]}, testObject, {a: 3}, 'b'],
-            [{b: [{a: 3}, {a: 3}]}, testObject, {a: 3}, 'b'],
-            [{b: [2, 2]}, {b: [2]}, 2, 'b', false],
-            [{b: [2]}, {b: [2]}, 2, 'b']
-        )
-    })()
-    testEach<typeof Tools.arrayRemove>(
-        'arrayRemove',
-        Tools.arrayRemove,
+    testEach<typeof removeArrayItem>(
+        'removeArrayItem',
+        removeArrayItem,
 
         [[], [], 2],
         [[], [2], 2],
@@ -2597,13 +2681,12 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [[1], [1, 2], 2, true]
     )
     test('arrayRemove([], 2, true) -> throws Exception', ():void =>
-        expect(():Array<number> =>
-            Tools.arrayRemove<number>([], 2, true)
-        ).toThrow(new Error(`Given target doesn't exists in given list.`))
+        expect(():Array<number> => removeArrayItem<number>([], 2, true))
+            .toThrow(new Error(`Given target doesn't exists in given list.`))
     )
-    testEach<typeof Tools.arraySortTopological>(
-        'arraySortTopological',
-        Tools.arraySortTopological,
+    testEach<typeof sortTopological>(
+        'sortTopological',
+        sortTopological,
 
         [[], {}],
         [['a'], {a: []}],
@@ -2614,20 +2697,18 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [['a', 'b', 'c'], {c: 'b', a: [], b: ['a']}],
         [['a', 'b', 'c'], {b: ['a'], a: [], c: ['a', 'b']}]
     )
-    testEachSingleParameterAgainstSameExpectation<
-        typeof Tools.arraySortTopological
-    >(
-        'arraySortTopological',
-        Tools.arraySortTopological,
-        ThrowSymbol,
+    testEachSingleParameterAgainstSameExpectation<typeof sortTopological>(
+        'sortTopological',
+        sortTopological,
+        TEST_THROW_SYMBOL,
 
         {a: 'a'},
         {a: 'b', b: 'a'},
         {a: 'b', b: 'c', c: 'a'}
     )
-    testEach<typeof Tools.arrayUnique>(
-        'arrayUnique',
-        Tools.arrayUnique,
+    testEach<typeof unique>(
+        'unique',
+        unique,
 
         [[1, 2, 3], [1, 2, 3, 1]],
         [[1, 2, 3], [1, 2, 3, 1, 2, 3]],
@@ -2636,9 +2717,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     /// endregion
     /// region string
-    testEach<typeof Tools.stringEscapeRegularExpressions>(
-        'stringEscapeRegularExpressions',
-        Tools.stringEscapeRegularExpressions,
+    testEach<typeof escapeRegularExpressions>(
+        'EscapeRegularExpressions',
+        escapeRegularExpressions,
 
         ['', ''],
         [`that's no regex: \\.\\*\\$`, `that's no regex: .*$`],
@@ -2650,9 +2731,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ],
         ['\\-', '-', ['\\']]
     )
-    testEach<typeof Tools.stringConvertToValidVariableName>(
-        'stringConvertToValidVariableName',
-        Tools.stringConvertToValidVariableName,
+    testEach<typeof convertToValidVariableName>(
+        'convertToValidVariableName',
+        convertToValidVariableName,
 
         ['', ''],
         ['a', 'a'],
@@ -2664,9 +2745,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['aA', '--a--a']
     )
     //// region url handling
-    testEach<typeof Tools.stringEncodeURIComponent>(
-        'stringEncodeURIComponent',
-        Tools.stringEncodeURIComponent,
+    testEach<typeof encodeURIComponent>(
+        'encodeURIComponent',
+        encodeURIComponent,
 
         ['', ''],
         ['+', ' '],
@@ -2674,9 +2755,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['@:$,+', '@:$, '],
         ['%2B', '+']
     )
-    testEach<typeof Tools.stringAddSeparatorToPath>(
-        'stringAddSeparatorToPath',
-        Tools.stringAddSeparatorToPath,
+    testEach<typeof addSeparatorToPath>(
+        'addSeparatorToPath',
+        addSeparatorToPath,
 
         ['', ''],
         ['/', '/'],
@@ -2686,9 +2767,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['/a/bb|', '/a/bb', '|'],
         ['/a/bb/|', '/a/bb/', '|']
     )
-    testEachAgainstSameExpectation<typeof Tools.stringHasPathPrefix>(
-        'stringHasPathPrefix',
-        Tools.stringHasPathPrefix,
+    testEachAgainstSameExpectation<typeof hasPathPrefix>(
+        'hasPathPrefix',
+        hasPathPrefix,
         true,
 
         ['/admin', '/admin'],
@@ -2698,9 +2779,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['a/', 'a/b'],
         ['/admin', '/admin#test', '#']
     )
-    testEachAgainstSameExpectation<typeof Tools.stringHasPathPrefix>(
-        'stringHasPathPrefix',
-        Tools.stringHasPathPrefix,
+    testEachAgainstSameExpectation<typeof hasPathPrefix>(
+        'hasPathPrefix',
+        hasPathPrefix,
         false,
 
         ['b', 'a/b'],
@@ -2708,9 +2789,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['/admin/', '/admin/test', '#'],
         ['/admin', '/admin/test', '#']
     )
-    testEach<typeof Tools.stringGetDomainName>(
-        'stringGetDomainName',
-        Tools.stringGetDomainName,
+    testEach<typeof getDomainName>(
+        'getDomainName',
+        getDomainName,
 
         ['www.test.de', 'https://www.test.de/site/subSite?param=value#hash'],
         ['', 'a', ''],
@@ -2744,9 +2825,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ],
         ['alternate.local', '//alternate.local/']
     )
-    testEach<typeof Tools.stringGetPortNumber>(
-        'stringGetPortNumber',
-        Tools.stringGetPortNumber,
+    testEach<typeof getPortNumber>(
+        'getPortNumber',
+        getPortNumber,
 
         [443, 'https://www.test.de/site/subSite?param=value#hash'],
         [80, 'http://www.test.de'],
@@ -2760,9 +2841,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [89, 'http://localhost:89'],
         [89, 'https://localhost:89']
     )
-    testEach<typeof Tools.stringGetProtocolName>(
-        'stringGetProtocolName',
-        Tools.stringGetProtocolName,
+    testEach<typeof getProtocolName>(
+        'getProtocolName',
+        getProtocolName,
 
         ['https', 'https://www.test.de/site/subSite?param=value#hash'],
         ['http', 'http://www.test.de'],
@@ -2813,14 +2894,14 @@ describe(`Tools (${testEnvironment})`, ():void => {
     test.each([
         [null], [null, true, '&'], [null, false, '&'], [null, false, '#']
     ])(
-        'Array.isArray(stringGetURLParameter(...%p)) === true',
-        (...parameters:Parameters<typeof Tools.stringGetURLParameter>):void =>
-            expect(Array.isArray(Tools.stringGetURLParameter(...parameters)))
+        'Array.isArray(getURLParameter(...%p)) === true',
+        (...parameters:Parameters<typeof getURLParameter>):void =>
+            expect(Array.isArray(getURLParameter(...parameters)))
                 .toStrictEqual(true)
     )
-    testEach<typeof Tools.stringGetURLParameter>(
-        'stringGetURLParameter',
-        Tools.stringGetURLParameter,
+    testEach<typeof getURLParameter>(
+        'getURLParameter',
+        getURLParameter,
 
         [null, 'notExisting'],
         [null, 'notExisting', true],
@@ -2860,9 +2941,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '#!test?test=3#$test=2&test=4'
         ]
     )
-    testEachAgainstSameExpectation<typeof Tools.stringServiceURLEquals>(
-        'stringServiceURLEquals',
-        Tools.stringServiceURLEquals,
+    testEachAgainstSameExpectation<typeof serviceURLEquals>(
+        'serviceURLEquals',
+        serviceURLEquals,
         true,
 
         [
@@ -2899,9 +2980,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['#1', $.location && $.location.href || 'http://localhost'],
         ['/a', $.location && $.location.href || 'http://localhost']
     )
-    testEachAgainstSameExpectation<typeof Tools.stringServiceURLEquals>(
-        'stringServiceURLEquals',
-        Tools.stringServiceURLEquals,
+    testEachAgainstSameExpectation<typeof serviceURLEquals>(
+        'serviceURLEquals',
+        serviceURLEquals,
         false,
 
         /*
@@ -2933,18 +3014,18 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'https://www.test.de/site/subSite?param=value#hash'
         ]
     )
-    testEach<typeof Tools.stringNormalizeURL>(
-        'stringNormalizeURL',
-        Tools.stringNormalizeURL,
+    testEach<typeof normalizeURL>(
+        'normalizeURL',
+        normalizeURL,
 
         ['http://www.test.com', 'www.test.com'],
         ['http://test', 'test'],
         ['http://test', 'http://test'],
         ['https://test', 'https://test']
     )
-    testEach<typeof Tools.stringRepresentURL>(
-        'stringRepresentURL',
-        Tools.stringRepresentURL,
+    testEach<typeof representURL>(
+        'representURL',
+        representURL,
 
         ['www.test.com', 'http://www.test.com'],
         ['ftp://www.test.com', 'ftp://www.test.com'],
@@ -2957,9 +3038,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['', ' ']
     )
     //// endregion
-    testEach<typeof Tools.stringCamelCaseToDelimited>(
-        'stringCamelCaseToDelimited',
-        Tools.stringCamelCaseToDelimited,
+    testEach<typeof camelCaseToDelimited>(
+        'camelCaseToDelimited',
+        camelCaseToDelimited,
 
         ['hans-peter', 'hansPeter'],
         ['hans|peter', 'hansPeter', '|'],
@@ -2974,9 +3055,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['hans-api-url', 'hansAPIURL', '-', ['api', 'url']],
         ['hans-peter', 'hansPeter', '-', []]
     )
-    testEach<typeof Tools.stringCapitalize>(
-        'stringCapitalize',
-        Tools.stringCapitalize,
+    testEach<typeof capitalize>(
+        'capitalize',
+        capitalize,
 
         ['HansPeter', 'hansPeter'],
         ['', ''],
@@ -2986,9 +3067,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['Aa', 'Aa'],
         ['Aa', 'aa']
     )
-    testEach<typeof Tools.stringCompressStyleValue>(
-        'stringCompressStyleValue',
-        Tools.stringCompressStyleValue,
+    testEach<typeof compressStyleValue>(
+        'compressStyleValue',
+        compressStyleValue,
 
         ['', ''],
         ['border:1px solid red', ' border: 1px  solid red;'],
@@ -3000,9 +3081,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['height:1px;width:2px', ' ;;height: 1px ; width:2px ; ;'],
         ['height:1px;width:2px', ';height: 1px ; width:2px ; ']
     )
-    testEach<typeof Tools.stringDecodeHTMLEntities>(
-        'stringDecodeHTMLEntities',
-        Tools.stringDecodeHTMLEntities,
+    testEach<typeof decodeHTMLEntities>(
+        'decodeHTMLEntities',
+        decodeHTMLEntities,
 
         [$.document ? '' : null, ''],
         [$.document ? '<div></div>' : null, '<div></div>'],
@@ -3012,9 +3093,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>'
         ]
     )
-    testEach<typeof Tools.stringDelimitedToCamelCase>(
-        'stringDelimitedToCamelCase',
-        Tools.stringDelimitedToCamelCase,
+    testEach<typeof delimitedToCamelCase>(
+        'delimitedToCamelCase',
+        delimitedToCamelCase,
 
         ['hansPeter', 'hans-peter'],
         ['hansPeter', 'hans|peter', '|'],
@@ -3044,14 +3125,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['function', '5 === 3', ['name']],
         ['function', '', []]
     ])(
-        `'%s' === typeof stringCompile('%s', %p).templateFunction`,
-        (
-            expected:string,
-            ...parameters:Parameters<typeof Tools.stringCompile>
-        ):void =>
-            expect<string>(
-                typeof Tools.stringCompile(...parameters).templateFunction
-            ).toStrictEqual(expected)
+        `'%s' === typeof compile('%s', %p).templateFunction`,
+        (expected:string, ...parameters:Parameters<typeof compile>) =>
+            expect<string>(typeof compile(...parameters).templateFunction)
+                .toStrictEqual(expected)
     )
     //// region compile / evaluation
     ///// region compile
@@ -3060,12 +3137,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['string', '{', {}],
         ['object', '', {}]
     ])(
-        `'%s' === typeof stringCompile('%s', %p).error`,
-        (
-            expected:string,
-            ...parameters:Parameters<typeof Tools.stringCompile>
-        ):void =>
-            expect<string>(typeof Tools.stringCompile(...parameters).error)
+        `'%s' === typeof compile('%s', %p).error`,
+        (expected:string, ...parameters:Parameters<typeof compile>) =>
+            expect<string>(typeof compile(...parameters).error)
                 .toStrictEqual(expected)
     )
     test.each([
@@ -3106,16 +3180,11 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '`test \\${test} value`'
         ]
     ])(
-        '"%s" === String(stringCompile("%s").templateFunction)',
-        (
-            expected:string,
-            expression:FirstParameter<typeof Tools.stringCompile>
-        ):void =>
+        '"%s" === String(compile("%s").templateFunction)',
+        (expected:string, expression:FirstParameter<typeof compile>) =>
             expect(
-                String(
-                    Tools.stringCompile(expression, [], false, false)
-                        .templateFunction
-                )
+                String(compile(expression, [], false, false)
+                    .templateFunction)
             ).toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
     )
     test.each([
@@ -3246,24 +3315,16 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '`test \\${test} value \\${test}`'
         ]
     ])(
-        'IE 11: "%s" === String(stringCompile("%s").templateFunction)',
-        (
-            expected:string,
-            expression:FirstParameter<typeof Tools.stringCompile>
-        ):void => {
-            const backup:number = Tools.maximalSupportedInternetExplorerVersion
-            ;(Tools as {maximalSupportedInternetExplorerVersion:number})
-                .maximalSupportedInternetExplorerVersion = 11
+        'IE 11: "%s" === String(compile("%s").templateFunction)',
+        (expected:string, expression:FirstParameter<typeof compile>) => {
+            const backup = MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value
+            MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value = 11
 
             expect(
-                String(
-                    Tools.stringCompile(expression, [], false, false)
-                        .templateFunction
-                )
+                String(compile(expression, [], false, false).templateFunction)
             ).toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
 
-            ;(Tools as {maximalSupportedInternetExplorerVersion:number})
-                .maximalSupportedInternetExplorerVersion = backup
+            MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value = backup
         }
     )
     ///// endregion
@@ -3284,7 +3345,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         }).join('')
     }\``.replace('\n', '')
     type MandatoryGivenStringEvaluateTestTuple = [
-        FirstParameter<typeof Tools.stringEvaluate>,
+        FirstParameter<typeof evaluate>,
         Mapping<unknown>,
         'compileError'|'result'|'runtimeError'
     ]
@@ -3333,7 +3394,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         parameters.concat(undefined, undefined).slice(0, 5) as
             StringEvaluateTestTuple
     ))(
-        'stringEvaluate(`%s`, %p...)[%p] === %p',
+        'evaluate(`%s`, %p...)[%p] === %p',
         (
             expression:string,
             scope:Mapping<unknown>,
@@ -3341,7 +3402,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             expected:unknown,
             binding:unknown
         ):void => {
-            const evaluation:EvaluationResult = Tools.stringEvaluate(
+            const evaluation:EvaluationResult = evaluate(
                 expression,
                 scope,
                 false,
@@ -3374,14 +3435,14 @@ describe(`Tools (${testEnvironment})`, ():void => {
             parameters.concat(undefined, undefined).slice(0, 5) as
                 StringEvaluateTestTuple
     ))(
-        'stringEvaluate(`%s`, %p...)[%p] === %p',
+        'evaluate(`%s`, %p...)[%p] === %p',
         (
             expression:string,
             scope:Mapping<unknown>,
             resultKey:string,
             expected:unknown
         ):void => {
-            const evaluation:EvaluationResult = Tools.stringEvaluate(
+            const evaluation:EvaluationResult = evaluate(
                 expression,
                 scope,
                 false
@@ -3453,7 +3514,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         parameters.concat(undefined, undefined).slice(0, 5) as
             StringEvaluateTestTuple
     ))(
-        'IE 11: stringEvaluate(`%s`, %p...)[%p] === %p',
+        'IE 11: evaluate(`%s`, %p...)[%p] === %p',
         (
             expression:string,
             scope:Mapping<unknown>,
@@ -3461,11 +3522,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
             expected:unknown,
             binding:unknown
         ):void => {
-            const backup:number = Tools.maximalSupportedInternetExplorerVersion
-            ;(Tools as {maximalSupportedInternetExplorerVersion:number})
-                .maximalSupportedInternetExplorerVersion = 11
+            const backup = MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value
+            MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value = 11
 
-            const evaluation:EvaluationResult = Tools.stringEvaluate(
+            const evaluation:EvaluationResult = evaluate(
                 expression,
                 scope,
                 false,
@@ -3486,16 +3546,14 @@ describe(`Tools (${testEnvironment})`, ():void => {
                     expect(evaluation[resultKey as keyof EvaluationResult])
                         .toStrictEqual(expected)
 
-            // eslint-disable-next-line indent
-            ;(Tools as {maximalSupportedInternetExplorerVersion:number})
-                .maximalSupportedInternetExplorerVersion = backup
+            MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value = backup
         }
     )
     ///// endregion
     //// endregion
-    testEach<typeof Tools.stringFindNormalizedMatchRange>(
-        'stringFindNormalizedMatchRange',
-        Tools.stringFindNormalizedMatchRange,
+    testEach<typeof findNormalizedMatchRange>(
+        'findNormalizedMatchRange',
+        findNormalizedMatchRange,
 
         [null, '', ''],
         [null, 'hans', ''],
@@ -3532,27 +3590,27 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 (value as string).replace(/ß/g, 'ss').toLowerCase()
         ]
     )
-    testEach<typeof Tools.stringFixKnownEncodingErrors>(
-        'stringFixKnownEncodingErrors',
-        Tools.stringFixKnownEncodingErrors,
+    testEach<typeof fixKnownEncodingErrors>(
+        'fixKnownEncodingErrors',
+        fixKnownEncodingErrors,
 
         ['', ''],
         ['a', 'a'],
         ['-', '\x96'],
         ['a-a', 'a\x96a']
     )
-    testEach<typeof Tools.stringFormat>(
-        'stringFormat',
-        Tools.stringFormat,
+    testEach<typeof format>(
+        'gormat',
+        format,
 
         ['test', '{1}', 'test'],
         ['', '', 'test'],
         ['{1}', '{1}'],
         ['1 test 2 - 2', '{1} test {2} - {2}', 1, 2]
     )
-    testEach<typeof Tools.stringGetEditDistance>(
-        'stringGetEditDistance',
-        Tools.stringGetEditDistance,
+    testEach<typeof getEditDistance>(
+        'getEditDistance',
+        getEditDistance,
 
         [0, '', ''],
         [0, 'h', 'h'],
@@ -3564,18 +3622,18 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [2, 'hbbs', 'hans'],
         [4, 'beer', 'hans']
     )
-    testEach<typeof Tools.stringMaskForRegularExpression>(
-        'stringMaskForRegularExpression',
-        Tools.stringMaskForRegularExpression,
+    testEach<typeof maskForRegularExpression>(
+        'maskForRegularExpression',
+        maskForRegularExpression,
 
         [`that's no regex: \\.\\*\\$`, `that's no regex: .*$`],
         ['', ''],
         ['\\-\\[\\]\\(\\)\\^\\$\\*\\+\\.\\}\\-\\\\', '-[]()^$*+.}-\\'],
         ['\\-', '-']
     )
-    testEach<typeof Tools.stringInterpretDateTime>(
-        'stringInterpretDateTime',
-        Tools.stringInterpretDateTime,
+    testEach<typeof interpretDateTime>(
+        'interpretDateTime',
+        interpretDateTime,
 
         [null, ''],
         [new Date('1970-01-01T08:30:01.021Z'), '1970-01-01T08:30:01.021Z'],
@@ -3653,9 +3711,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [new Date(1970, 3 - 1, 3), '3. märz 1970'],
         [new Date(1970, 12 - 1, 3), '3. Dezember 1970']
     )
-    testEach<typeof Tools.stringLowerCase>(
-        'stringLowerCase',
-        Tools.stringLowerCase,
+    testEach<typeof lowerCase>(
+        'lowerCase',
+        lowerCase,
 
         ['hansPeter', 'HansPeter'],
         ['', ''],
@@ -3665,9 +3723,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['aa', 'Aa'],
         ['aA', 'aA']
     )
-    testEach<typeof Tools.stringMark>(
-        'stringMark',
-        Tools.stringMark,
+    testEach<typeof mark>(
+        'mark',
+        mark,
 
         ['', ''],
         ['t<span class="tools-mark">e</span>st', 'test', 'e'],
@@ -3692,7 +3750,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ['e'],
             {
                 marker: '<a>{1}</a>',
-                normalizer: Tools.identity as (_value:unknown) => string
+                normalizer: identity as (_value:unknown) => string
             }
         ],
         [
@@ -3741,7 +3799,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'E',
             {
                 marker: '<a>{1}</a>',
-                normalizer: Tools.identity as (value:unknown) => string
+                normalizer: identity as (value:unknown) => string
             }
         ],
         [
@@ -3834,7 +3892,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ['test'],
             {
                 marker: '<mark>{1}</mark>',
-                normalizer: Tools.identity as (value:unknown) => string
+                normalizer: identity as (value:unknown) => string
             }
         ],
         [
@@ -3843,7 +3901,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ['link'],
             {
                 marker: '<mark>{1}</mark>',
-                normalizer: Tools.identity as (value:unknown) => string
+                normalizer: identity as (value:unknown) => string
             }
         ],
         [
@@ -3852,7 +3910,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ['foo'],
             {
                 marker: '<mark>{1}</mark>',
-                normalizer: Tools.identity as (value:unknown) => string
+                normalizer: identity as (value:unknown) => string
             }
         ],
         [
@@ -3861,7 +3919,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ['foo'],
             {
                 marker: '<mark>{1}</mark>',
-                normalizer: Tools.identity as (value:unknown) => string
+                normalizer: identity as (value:unknown) => string
             }
         ],
         [
@@ -3870,7 +3928,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ['foo'],
             {
                 marker: '[mark]{1}[/mark]',
-                normalizer: Tools.identity as (value:unknown) => string,
+                normalizer: identity as (value:unknown) => string,
                 skipTagDelimitedParts: ['[', ']']
             }
         ],
@@ -3880,7 +3938,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ['foo'],
             {
                 marker: '<mark>{1}</mark>',
-                normalizer: Tools.identity as (value:unknown) => string
+                normalizer: identity as (value:unknown) => string
             }
         ],
         [
@@ -3894,9 +3952,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'foo foo foo',
             ['foo'],
             {
-                marker: (foundWord:string):string =>
-                    `<mark>${foundWord}</mark>`,
-                normalizer: Tools.identity as (value:unknown) => string
+                marker: (foundWord:string) => `<mark>${foundWord}</mark>`,
+                normalizer: identity as (value:unknown) => string
             }
         ],
         [
@@ -3904,8 +3961,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
             '',
             ['foo'],
             {
-                marker: (foundWord:string):string => `<a>${foundWord}</a>`,
-                normalizer: Tools.identity as (value:unknown) => string
+                marker: (foundWord:string) => `<a>${foundWord}</a>`,
+                normalizer: identity as (value:unknown) => string
             }
         ],
         [
@@ -3913,8 +3970,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
             'a',
             ['a'],
             {
-                marker: (foundWord:string):string => `<a>${foundWord}</a>`,
-                normalizer: Tools.identity as (value:unknown) => string
+                marker: (foundWord:string) => `<a>${foundWord}</a>`,
+                normalizer: identity as (value:unknown) => string
             }
         ],
         [
@@ -3923,13 +3980,13 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ['b'],
             {
                 marker: (foundWord:string):{foundWord:string} => ({foundWord}),
-                normalizer: Tools.identity as (value:unknown) => string
+                normalizer: identity as (value:unknown) => string
             }
         ]
     )
-    testEach<typeof Tools.stringNormalizePhoneNumber>(
-        'stringNormalizePhoneNumber',
-        Tools.stringNormalizePhoneNumber,
+    testEach<typeof normalizePhoneNumber>(
+        'normalizePhoneNumber',
+        normalizePhoneNumber,
 
         ['0', '0'],
         ['0', ' 0  '],
@@ -3971,9 +4028,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['0291-1455', '02 91 / 14 55', false],
         ['03677842375', '03677842375', false]
     )
-    testEach<typeof Tools.stringNormalizeZipCode>(
-        'stringNormalizeZipCode',
-        Tools.stringNormalizeZipCode,
+    testEach<typeof normalizeZipCode>(
+        'normalizeZipCode',
+        normalizeZipCode,
 
         ['0', '0'],
         ['0', ' 0  '],
@@ -3984,9 +4041,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['12345', ' 1B23A45 ']
     )
     if (TARGET_TECHNOLOGY === 'node')
-        testEach<typeof Tools.stringParseEncodedObject>(
-            'stringParseEncodedObject',
-            Tools.stringParseEncodedObject,
+        testEach<typeof parseEncodedObject>(
+            'parseEncodedObject',
+            parseEncodedObject,
 
             [null, ''],
             [null, 'null'],
@@ -4003,17 +4060,17 @@ describe(`Tools (${testEnvironment})`, ():void => {
             [{a: 2}, '{a: scope.a}', {a: 2}],
             [{a: 2}, Buffer.from('{a: scope.a}').toString('base64'), {a: 2}]
         )
-    testEach<typeof Tools.stringSliceAllExceptNumberAndLastSeperator>(
-        'stringSliceAllExceptNumberAndLastSeperator',
-        Tools.stringSliceAllExceptNumberAndLastSeperator,
+    testEach<typeof sliceAllExceptNumberAndLastSeperator>(
+        'sliceAllExceptNumberAndLastSeperator',
+        sliceAllExceptNumberAndLastSeperator,
 
         ['1234-56', '12-34-56'],
         ['123456', '12 34 56'],
         ['123456', '123456']
     )
-    testEach<typeof Tools.stringRepresentPhoneNumber>(
-        'stringRepresentPhoneNumber',
-        Tools.stringRepresentPhoneNumber,
+    testEach<typeof representPhoneNumber>(
+        'representPhoneNumber',
+        representPhoneNumber,
 
         ['0', '0'],
         ['+49 (0) 172 / 123 21-1', '0172-12321-1'],
@@ -4026,9 +4083,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['', ''],
         ['', ' ']
     )
-    testEach<typeof Tools.stringSliceWeekday>(
-        'stringSliceWeekday',
-        Tools.stringSliceWeekday,
+    testEach<typeof sliceWeekday>(
+        'sliceWeekday',
+        sliceWeekday,
 
         ['', ''],
         ['a', 'a'],
@@ -4039,9 +4096,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['10', 'Mo. 10'],
         ['Mo. ', 'Mo. ']
     )
-    testEach<Tools['stringNormalizeDomNodeSelector']>(
-        'stringNormalizeDomNodeSelector',
-        tools.stringNormalizeDomNodeSelector,
+    testEach<typeof normalizeDomNodeSelector>(
+        'normalizeDomNodeSelector',
+        normalizeDomNodeSelector,
 
         ['body div', 'div'],
         ['body div p', 'div p'],
@@ -4049,10 +4106,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         ['body div p', 'body div p'],
         ['body', '']
     )
-    testEach<Tools['stringNormalizeDomNodeSelector']>(
-        `$.Tools({domNodeSelectorPrefix: ''})` +
-        '.stringNormalizeDomNodeSelector',
-        $.Tools({domNodeSelectorPrefix: ''}).stringNormalizeDomNodeSelector,
+    testEach<typeof normalizeDomNodeSelector>(
+        'normalizeDomNodeSelector',
+        normalizeDomNodeSelector,
 
         ['', ''],
         ['div', 'div'],
@@ -4060,9 +4116,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     /// endregion
     /// region number
-    testEach<typeof Tools.numberGetUTCTimestamp>(
-        'numberGetUTCTimestamp',
-        Tools.numberGetUTCTimestamp,
+    testEach<typeof getUTCTimestamp>(
+        'getUTCTimestamp',
+        getUTCTimestamp,
 
         [0, new Date(0)],
         [0, 0],
@@ -4073,9 +4129,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [1000, 1000, true],
         [0, new Date(0), false]
     )
-    testEach<typeof Tools.numberIsNotANumber>(
-        'numberIsNotANumber',
-        Tools.numberIsNotANumber,
+    testEach<typeof isNotANumber>(
+        'isNotANumber',
+        isNotANumber,
 
         [true, NaN],
         [false, {}],
@@ -4086,9 +4142,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [false, true],
         [false, 0]
     )
-    testEach<typeof Tools.numberRound>(
-        'numberRound',
-        Tools.numberRound,
+    testEach<typeof round>(
+        'round',
+        round,
 
         [2, 1.5, 0],
         [1, 1.4, 0],
@@ -4105,9 +4161,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [700, 650, -2],
         [600, 649, -2]
     )
-    testEach<typeof Tools.numberFloor>(
-        'numberFloor',
-        Tools.numberFloor,
+    testEach<typeof floor>(
+        'floor',
+        floor,
 
         [1, 1.5, 0],
         [1, 1.4, 0],
@@ -4124,9 +4180,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
         [600, 650, -2],
         [600, 649, -2]
     )
-    testEach<typeof Tools.numberCeil>(
-        'numberCeil',
-        Tools.numberCeil,
+    testEach<typeof ceil>(
+        'ceil',
+        ceil,
 
         [2, 1.5, 0],
         [2, 1.4, 0],
@@ -4145,12 +4201,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     /// endregion
     /// region data transfer
-    testEachPromiseRejectionAgainstSameExpectation<
-        typeof Tools.checkReachability
-    >(
+    testEachPromiseRejectionAgainstSameExpectation<typeof checkReachability>(
         'checkReachability',
-        Tools.checkReachability,
-        DefinedSymbol,
+        checkReachability,
+        TEST_DEFINED_SYMBOL,
 
         ['unknownURL'],
         ['unknownURL', {statusCodes: 301}],
@@ -4167,10 +4221,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
             {statusCodes: [200, 301], timeoutInSeconds: .001, wait: true}
         ]
     )
-    testEachPromiseAgainstSameExpectation<typeof Tools.checkUnreachability>(
+    testEachPromiseAgainstSameExpectation<typeof checkUnreachability>(
         'checkUnreachability',
-        Tools.checkUnreachability,
-        DefinedSymbol,
+        checkUnreachability,
+        TEST_DEFINED_SYMBOL,
 
         ['unknownURL', {statusCodes: 200}],
         ['unknownURL', {statusCodes: 200, wait: true}],
@@ -4179,9 +4233,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     test('checkUnreachability', ():void => {
         const abortController = new AbortController()
-        void Tools.timeout(0.25, ():void => abortController.abort())
+        void timeout(0.25, ():void => abortController.abort())
 
-        void expect(Tools.checkUnreachability(
+        void expect(checkUnreachability(
             'http://unknownHostName',
             {
                 options: {signal: abortController as unknown as AbortSignal},
@@ -4197,13 +4251,13 @@ describe(`Tools (${testEnvironment})`, ():void => {
 
             $('body').append($iFrame[0])
 
-            expect(Tools.sendToIFrame(
+            expect(sendToIFrame(
                 $iFrame, window.document.URL, {test: 5}, 'get', true
             )).toBeDefined()
         })
 
         test('sendToExternalURL', ():void =>
-            expect(tools.sendToExternalURL(window.document.URL, {test: 5}))
+            expect(sendToExternalURL(window.document.URL, {test: 5}))
                 .toBeDefined()
         )
     }
@@ -4213,15 +4267,15 @@ describe(`Tools (${testEnvironment})`, ():void => {
         const testPath = './copyDirectoryRecursiveTest.compiled'
         test('copyDirectoryRecursive', async ():Promise<void> => {
             removeDirectoryRecursivelySync!(testPath)
-            expect(await Tools.copyDirectoryRecursive(
-                './node_modules/.bin', testPath, Tools.noop
+            expect(await copyDirectoryRecursive(
+                './node_modules/.bin', testPath, NOOP
             )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
             removeDirectoryRecursivelySync!(testPath)
         })
         test('copyDirectoryRecursiveSync', ():void => {
             removeDirectoryRecursivelySync!(testPath)
-            expect(Tools.copyDirectoryRecursiveSync(
-                './node_modules/.bin', testPath, Tools.noop
+            expect(copyDirectoryRecursiveSync(
+                './node_modules/.bin', testPath, NOOP
             )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
             removeDirectoryRecursivelySync!(testPath)
         })
@@ -4233,7 +4287,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             }
             let result = ''
             try {
-                result = await Tools.copyFile(
+                result = await copyFile(
                     resolve!('./test.ts'),
                     `./test.copyFile.${testEnvironment}.compiled.js`
                 )
@@ -4247,7 +4301,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 NOTE: A race condition was identified here. So we need an
                 additional digest loop to have this test artefact placed here.
             */
-            await Tools.timeout()
+            await timeout()
             await unlink!(`./test.copyFile.${testEnvironment}.compiled.js`)
         })
         test('copyFileSync', async ():Promise<void> => {
@@ -4259,7 +4313,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 // Continue regardless of an error.
             }
 
-            expect(Tools.copyFileSync(
+            expect(copyFileSync(
                 resolve!('./test.ts'),
                 `./test.copyFileSync.${testEnvironment}.compiled.js`
             )).toMatch(new RegExp(
@@ -4273,7 +4327,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             for (const filePath of ['./', '../']) {
                 let result = false
                 try {
-                    result = await Tools.isDirectory(filePath)
+                    result = await isDirectory(filePath)
                 } catch (error) {
                     console.error(error)
                 }
@@ -4282,28 +4336,24 @@ describe(`Tools (${testEnvironment})`, ():void => {
             for (const filePath of [resolve!('./test.ts')]) {
                 let result = true
                 try {
-                    result = await Tools.isDirectory(filePath)
+                    result = await isDirectory(filePath)
                 } catch (error) {
                     console.error(error)
                 }
                 expect(result).toStrictEqual(false)
             }
         })
-        testEachSingleParameterAgainstSameExpectation<
-            typeof Tools.isDirectorySync
-        >(
+        testEachSingleParameterAgainstSameExpectation<typeof isDirectorySync>(
             'isDirectorySync',
-            Tools.isDirectorySync,
+            isDirectorySync,
             true,
 
             './',
             '../'
         )
-        testEachSingleParameterAgainstSameExpectation<
-            typeof Tools.isDirectorySync
-        >(
+        testEachSingleParameterAgainstSameExpectation<typeof isDirectorySync>(
             'isDirectorySync',
-            Tools.isDirectorySync,
+            isDirectorySync,
             false,
 
             resolve!('./test.ts')
@@ -4312,7 +4362,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             for (const filePath of [resolve!('./test.ts')]) {
                 let result = false
                 try {
-                    result = await Tools.isFile(filePath)
+                    result = await isFile(filePath)
                 } catch (error) {
                     console.error(error)
                 }
@@ -4322,23 +4372,23 @@ describe(`Tools (${testEnvironment})`, ():void => {
             for (const filePath of ['./', '../']) {
                 let result = true
                 try {
-                    result = await Tools.isFile(filePath)
+                    result = await isFile(filePath)
                 } catch (error) {
                     console.error(error)
                 }
                 expect(result).toStrictEqual(false)
             }
         })
-        testEachSingleParameterAgainstSameExpectation<typeof Tools.isFileSync>(
+        testEachSingleParameterAgainstSameExpectation<typeof isFileSync>(
             'isFileSync',
-            Tools.isFileSync,
+            isFileSync,
             true,
 
             resolve!('./test.ts')
         )
-        testEachSingleParameterAgainstSameExpectation<typeof Tools.isFileSync>(
+        testEachSingleParameterAgainstSameExpectation<typeof isFileSync>(
             'isFileSync',
-            Tools.isFileSync,
+            isFileSync,
             false,
 
             './',
@@ -4354,7 +4404,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
 
             let files:Array<File> = []
             try {
-                files = await Tools.walkDirectoryRecursively('./', callback)
+                files = await walkDirectoryRecursively('./', callback)
             } catch (error) {
                 console.error(error)
             }
@@ -4372,7 +4422,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
                 return null
             }
             const files:Array<File> =
-                Tools.walkDirectoryRecursivelySync('./', callback)
+                walkDirectoryRecursivelySync('./', callback)
             expect(files).toHaveLength(1)
             expect(files[0]).toHaveProperty('path')
             expect(files[0]).toHaveProperty('stats')
@@ -4382,8 +4432,8 @@ describe(`Tools (${testEnvironment})`, ():void => {
     /// endregion
     /// region process handler
     if (TARGET_TECHNOLOGY === 'node') {
-        test('getProcessCloseHandler', ():void =>
-            expect(typeof Tools.getProcessCloseHandler(Tools.noop, Tools.noop))
+        test('getProcessCloseHandler', () =>
+            expect(typeof getProcessCloseHandler(NOOP, NOOP))
                 .toStrictEqual('function')
         )
         test('handleChildProcess', ():void => {
@@ -4425,7 +4475,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
             childProcess.stdout = stdoutMockupDuplexStream
             childProcess.stderr = stderrMockupDuplexStream
 
-            expect(Tools.handleChildProcess(childProcess))
+            expect(handleChildProcess(childProcess))
                 .toStrictEqual(childProcess)
         })
     }
@@ -4436,7 +4486,7 @@ describe(`Tools (${testEnvironment})`, ():void => {
         testEachAgainstSameExpectation<Tools['_bindEventHelper']>(
             '_bindEventHelper',
             tools._bindEventHelper,
-            DefinedSymbol,
+            TEST_DEFINED_SYMBOL,
 
             [['body']],
             [['body'], true],

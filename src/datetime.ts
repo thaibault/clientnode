@@ -16,9 +16,12 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {DATE_TIME_PATTERN_CACHE, LOCALES} from './constants'
+import {LOCALES} from './constants'
 import {EvaluationResult, Mapping, SecondParameter} from './type'
+import {capitalize, evaluate} from './string'
 
+// Caches compiled date tine pattern regular expressions.
+export const DATE_TIME_PATTERN_CACHE:Array<RegExp> = []
 /**
  * Interprets a date object from given artefact.
  * @param value - To interpret.
@@ -46,7 +49,7 @@ export const normalizeDateTime = (
         if (/^.*(?:(?:[0-9]{1,4}[^0-9]){2}|[0-9]{1,4}[^0-9.]).*$/.test(
             value
         )) {
-            value = stringInterpretDateTime(value, resolvedInterpretAsUTC)
+            value = interpretDateTime(value, resolvedInterpretAsUTC)
 
             if (value === null)
                 return value
@@ -88,7 +91,7 @@ export const normalizeDateTime = (
  * @param value - String to process.
  * @returns Sliced given string.
  */
-export const stringSliceWeekday = (value:string):string => {
+export const sliceWeekday = (value:string):string => {
     const weekdayPattern = /[a-z]{2}\.+ *([^ ].*)$/i
     const weekdayMatch = weekdayPattern.exec(value)
 
@@ -105,7 +108,7 @@ export const stringSliceWeekday = (value:string):string => {
  * given format and number like string as utc.
  * @returns Interpret date time object.
  */
-export const stringInterpretDateTime = (
+export const interpretDateTime = (
     value:string, interpretAsUTC?:null|boolean
 ):Date|null => {
     let resolvedInterpretAsUTC = Boolean(interpretAsUTC)
@@ -454,7 +457,7 @@ export const stringInterpretDateTime = (
                             for (let pattern of ([] as Array<string>)
                                 .concat(dateTimeFormat.pattern)
                                 ) {
-                                pattern = stringEvaluate(
+                                pattern = evaluate(
                                     `\`^${pattern}$\``,
                                     {delimiter: `${delimiter}+`}
                                 ).result
@@ -512,7 +515,7 @@ export const stringInterpretDateTime = (
         monthNumber += 1
     }
 
-    value = stringSliceWeekday(value)
+    value = sliceWeekday(value)
 
     const timezonePattern = /(.+)\+(.+)$/
     const timezoneMatch:Array<string>|null = timezonePattern.exec(value)
@@ -551,7 +554,7 @@ export const stringInterpretDateTime = (
             let result:Date|null = null
             if (timezoneMatch) {
                 const timeShift:Date|null =
-                    stringInterpretDateTime(timezoneMatch[2], true)
+                    interpretDateTime(timezoneMatch[2], true)
                 if (timeShift)
                     result = new Date(
                         Date.UTC(...parameter) - timeShift.getTime()
@@ -624,12 +627,10 @@ export const dateTimeFormat = (
                 (scope[`${style}Literals`] as Array<string>)
                     .push(item.value)
             else
-                scope[`${style}${Tools.stringCapitalize(item.type)}`] =
-                    item.value
+                scope[`${style}${capitalize(item.type)}`] = item.value
     }
 
-    const evaluated:EvaluationResult =
-        Tools.stringEvaluate(`\`${format}\``, scope)
+    const evaluated:EvaluationResult = evaluate(`\`${format}\``, scope)
     if (evaluated.error)
         throw new Error(evaluated.error)
 

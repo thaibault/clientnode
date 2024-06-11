@@ -26,7 +26,7 @@
 import {expect, test} from '@jest/globals'
 import {Global as JestGlobal} from '@jest/types'
 
-import Tools from '../index'
+import Tools from './Tools'
 import {
     AnyFunction,
     FirstParameter,
@@ -38,10 +38,11 @@ import {
     ThenParameter,
     UnknownFunction, TestMatchers
 } from './type'
+import {represent} from './object'
 // endregion
-export const DefinedSymbol = Symbol.for('clientnodeTestHelperDefined')
-export const ThrowSymbol = Symbol.for('clientnodeTestHelperThrow')
-export const UndefinedSymbol = Symbol.for('clientnodeTestHelperUndefined')
+export const TEST_DEFINED_SYMBOL = Symbol.for('clientnodeTestHelperDefined')
+export const TEST_THROW_SYMBOL = Symbol.for('clientnodeTestHelperThrow')
+export const TEST_UNDEFINED_SYMBOL = Symbol.for('clientnodeTestHelperUndefined')
 /**
  * Tests given result against given expectations. Respects special symbol
  * values.
@@ -61,13 +62,13 @@ export const testExpectedType = <
         expect<Result>(givenResult as Result) as unknown as Matchers<Result> :
         givenResult as Matchers<Result>
 
-    if (expected === DefinedSymbol)
+    if (expected === TEST_DEFINED_SYMBOL)
         return result.toBeDefined()
 
-    if (expected === ThrowSymbol)
+    if (expected === TEST_THROW_SYMBOL)
         return result.toThrow()
 
-    if (expected === UndefinedSymbol)
+    if (expected === TEST_UNDEFINED_SYMBOL)
         return result.not.toBeDefined()
 
     return result.toStrictEqual(expected)
@@ -177,10 +178,10 @@ export const testEachSingleParameterAgainstSameExpectation = <
         ...parameters:Array<FirstParameter<FunctionType>>
     ) => {
     test.each([...parameters])(
-        `${Tools.represent(expected)} === ${functionName}(%p)`,
+        `${represent(expected)} === ${functionName}(%p)`,
         ((parameter:FirstParameter<FunctionType>):void =>
             testExpectedType<ReturnType<FunctionType>>(
-                (expected === ThrowSymbol ?
+                (expected === TEST_THROW_SYMBOL ?
                     () => callback(parameter) as unknown :
                     callback(parameter)
                 ) as TestMatchers<void>|void,
@@ -207,7 +208,7 @@ export const testEachSingleParameterAgainstSamePromisedExpectation = <
         ...parameters:Array<FirstParameter<FunctionType>>
     ) => {
     test.each([...parameters])(
-        `${Tools.represent(expected)} === ${functionName}(%p)`,
+        `${represent(expected)} === ${functionName}(%p)`,
         ((parameter:FirstParameter<FunctionType>) =>
             testExpectedType<
                 ThenParameter<ReturnType<FunctionType>>, Promise<void>
@@ -233,7 +234,7 @@ export const testEachSingleParameterAgainstSameRejectedExpectation = <
         ...parameters:Array<FirstParameter<FunctionType>>
     ) => {
     test.each([...parameters])(
-        `${Tools.represent(expected)} === ${functionName}(%p)`,
+        `${represent(expected)} === ${functionName}(%p)`,
         ((parameter:FirstParameter<FunctionType>):Promise<void> =>
             testExpectedType<Error, Promise<void>>(
                 expect(callback(parameter)).rejects, expected, false
@@ -260,10 +261,10 @@ export const testEachAgainstSameExpectation = <
         ...functionParameters:Array<Parameters<FunctionType>>
     ) => {
     test.each([...functionParameters])(
-        `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
+        `${represent(expected)} === ${functionName}(%p, ...)`,
         ((...parameters:Parameters<FunctionType>):void =>
             testExpectedType<ReturnType<FunctionType>>(
-                (expected === ThrowSymbol ?
+                (expected === TEST_THROW_SYMBOL ?
                     () => callback(...parameters) as unknown :
                     callback(...parameters)
                 ) as TestMatchers<void>|void,
@@ -291,7 +292,7 @@ export const testEachPromiseAgainstSameExpectation = <
         ...functionParameters:Array<Parameters<FunctionType>>
     ) => {
     test.each([...functionParameters])(
-        `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
+        `${represent(expected)} === ${functionName}(%p, ...)`,
         ((...parameters:Parameters<FunctionType>) =>
             testExpectedType<
                 ThenParameter<ReturnType<FunctionType>>, Promise<void>
@@ -318,7 +319,7 @@ export const testEachPromiseRejectionAgainstSameExpectation = <
         ...functionParameters:Array<Parameters<FunctionType>>
     ) => {
     test.each([...functionParameters])(
-        `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
+        `${represent(expected)} === ${functionName}(%p, ...)`,
         ((...parameters:Parameters<FunctionType>):Promise<void> =>
             testExpectedType<Error, Promise<void>>(
                 expect(callback(...parameters)).rejects, expected, false

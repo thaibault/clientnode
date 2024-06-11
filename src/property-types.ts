@@ -21,8 +21,8 @@ import PropTypes, {Requireable} from 'prop-types'
 
 import {ValueOf} from './type'
 // endregion
-export const NullSymbol = Symbol('null')
-export const UndefinedSymbol = Symbol('undefined')
+export const NullSymbol = Symbol('clientnodePropertyTypesNull')
+export const UndefinedSymbol = Symbol('clientnodePropertyTypesUndefined')
 
 export const RealTypes = {
     any: PropTypes.any,

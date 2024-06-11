@@ -16,11 +16,10 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {AnyFunction, Encoding, FirstParameter} from './type'
-import {$} from '../index'
-
+import {$} from './context'
 export {Lock} from './Lock'
 export {Semaphore} from './Semaphore'
+import {AnyFunction, Encoding, FirstParameter} from './type'
 
 export const DEFAULT_ENCODING:Encoding = 'utf8'
 export const CLOSE_EVENT_NAMES = [
@@ -95,7 +94,7 @@ export const KEY_CODES = {
 export const LOCALES:Array<string> = []
 // Saves currently maximal supported internet explorer version. Saves zero if
 // no internet explorer present.
-export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION:number = ((
+export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
 ):number => {
     /*
         NOTE: This method uses "Array.indexOf" instead of "Array.includes"
@@ -139,7 +138,7 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION:number = ((
     /* eslint-enable @typescript-eslint/prefer-includes */
 
     return version
-})()
+})()}
 // A no-op dummy function.
 export const NOOP:AnyFunction =
     $.noop ?
@@ -158,5 +157,3 @@ export const SPECIAL_REGEX_SEQUENCES:Array<string> = [
 // Saves a string with all css3 browser specific transition end event names.
 export const TRANSITION_END_EVENT_NAMES =
     'transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd'
-// Caches compiled date tine pattern regular expressions.
-export const DATE_TIME_PATTERN_CACHE:Array<RegExp> = []
