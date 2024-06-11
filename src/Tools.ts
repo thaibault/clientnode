@@ -64,7 +64,6 @@ export let JAVASCRIPT_DEPENDENT_CONTENT_HANDLED = false
  * selector to dom nodes which should be hidden if javaScript is available.
  * @property _defaultOptions.domNodes.showJavaScriptEnabled {string} - Static
  * selector to dom nodes which should be visible if javaScript is available.
- *
  * @property $domNode - $-extended dom node if one was given to the constructor
  * method.
  * @property options - Options given to the constructor.
@@ -159,7 +158,6 @@ export class Tools<TElement = HTMLElement> {
     }
     /// endregion
     /// region object orientation
-    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Defines a generic controller for dom node aware plugins.
      * @param object - The object or class to control. If "object" is a class
@@ -174,15 +172,15 @@ export class Tools<TElement = HTMLElement> {
         parameters:unknown,
         $domNode:null|$T<TElement> = null
     ):unknown {
-        /* eslint-enable jsdoc/require-description-complete-sentence */
         if (typeof object === 'function') {
             object = new (
                 object as {new (_$domNode:null|$T<TElement>):unknown}
             )($domNode)
 
             if (!(object instanceof Tools))
-                object =
-                    extend<Tools>(true, new Tools<HTMLElement>(), object as Tools)
+                object = extend<Tools>(
+                    true, new Tools<HTMLElement>(), object as Tools
+                )
         }
 
         const normalizedParameters:Array<unknown> = makeArray(parameters)
@@ -511,7 +509,6 @@ export class Tools<TElement = HTMLElement> {
      * @param forceHTMLString - Indicates whether given contents are
      * interpreted as html string (otherwise an automatic detection will be
      * triggered).
-     *
      * @returns Returns true if both dom representations are equivalent.
      */
     static isEquivalentDOM(
@@ -662,10 +659,16 @@ export class Tools<TElement = HTMLElement> {
         const delimitedName:string = camelCaseToDelimited(directiveName)
 
         return `${delimitedName}, .${delimitedName}, [${delimitedName}], ` +
-            `[data-${delimitedName}], [x-${delimitedName}]` + (
-                (delimitedName.includes('-') ? (
-                    `, [${delimitedName.replace(/-/g, '\\:')}], ` +
-                    `[${delimitedName.replace(/-/g, '_')}]`) : ''))
+            `[data-${delimitedName}], [x-${delimitedName}]` +
+            (
+                (delimitedName.includes('-') ?
+                    (
+                        `, [${delimitedName.replace(/-/g, '\\:')}], ` +
+                        `[${delimitedName.replace(/-/g, '_')}]`
+                    ) :
+                    ''
+                )
+            )
     }
     /**
      * Removes a directive name corresponding class or attribute.
@@ -734,7 +737,7 @@ export class Tools<TElement = HTMLElement> {
 
             for (
                 const prefix of [`data${delimiter}`, `x${delimiter}`] as const
-                )
+            )
                 if (directiveName.startsWith(prefix)) {
                     directiveName = directiveName.substring(prefix.length)
                     prefixFound = true
@@ -818,7 +821,6 @@ export class Tools<TElement = HTMLElement> {
 
         return null
     }
-    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Converts an object of dom selectors to an array of $ wrapped dom nodes.
      * Note if selector description as one of "class" or "id" as suffix element
@@ -832,7 +834,6 @@ export class Tools<TElement = HTMLElement> {
     grabDomNodes(
         domNodeSelectors:Mapping, wrapperDomNode?:Node|null|string|$T<Node>
     ):$DomNodes {
-        /* eslint-enable jsdoc/require-description-complete-sentence */
         const domNodes:$DomNodes = {} as $DomNodes
 
         if (domNodeSelectors)
@@ -929,7 +930,6 @@ export class Tools<TElement = HTMLElement> {
 
         return true
     }
-    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * A wrapper method for "$.on()". It sets current plugin name as event
      * scope if no scope is given. Given arguments are modified and passed
@@ -938,10 +938,8 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns $'s grabbed dom node.
      */
     on<TElement = HTMLElement>(...parameters:Array<unknown>):$T<TElement> {
-        /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper<TElement>(parameters, false)
     }
-    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * A wrapper method fo "$.off()". It sets current plugin name as event
      * scope if no scope is given. Given arguments are modified and passed
@@ -950,13 +948,11 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns $'s grabbed dom node.
      */
     off<TElement = HTMLElement>(...parameters:Array<unknown>):$T<TElement> {
-        /* eslint-enable jsdoc/require-description-complete-sentence */
         return this._bindEventHelper<TElement>(parameters, true)
     }
     /// endregion
     // endregion
     // region protected methods
-    /* eslint-disable jsdoc/require-description-complete-sentence */
     /**
      * Helper method for attach/remove event handler methods.
      * @param parameters - Arguments object given to methods like "on()" or
@@ -970,7 +966,6 @@ export class Tools<TElement = HTMLElement> {
         removeEvent = false,
         eventFunctionName?:string
     ):$T<TElement> => {
-        /* eslint-enable jsdoc/require-description-complete-sentence */
         if (!eventFunctionName)
             eventFunctionName = removeEvent ? 'off' : 'on'
 

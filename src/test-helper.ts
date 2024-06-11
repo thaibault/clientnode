@@ -26,7 +26,6 @@
 import {expect, test} from '@jest/globals'
 import {Global as JestGlobal} from '@jest/types'
 
-import Tools from './Tools'
 import {
     AnyFunction,
     FirstParameter,
@@ -328,7 +327,3 @@ export const testEachPromiseRejectionAgainstSameExpectation = <
     )
 }
 export default testEach
-// region vim modline
-// vim: set tabstop=4 shiftwidth=4 expandtab:
-// vim: foldmethod=marker foldmarker=region,endregion:
-// endregion

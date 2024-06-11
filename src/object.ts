@@ -181,7 +181,7 @@ export const convertCircularObjectToJSON = (
         seenObjects:Map<unknown, unknown>
     ) => unknown) = (serializedValue:unknown):unknown =>
         serializedValue ?? '__circularReference__',
-        numberOfSpaces = 0
+    numberOfSpaces = 0
 ):ReturnType<typeof JSON.stringify>|undefined => {
     const seenObjects:Map<unknown, unknown> = new Map<unknown, unknown>()
 
@@ -554,7 +554,6 @@ export const determineType = (value:unknown = undefined):string => {
  * starts with one of the exception prefixes will be omitted.
  * @param firstValue - First object to compare.
  * @param secondValue - Second object to compare.
- *
  * @param givenOptions - Options to define how to compare.
  * @param givenOptions.properties - Property names to check. Check all if
  * "null" is selected (default).
@@ -736,7 +735,6 @@ export const equals = (
 
                     index += 1
                 }
-                /* eslint-disable curly */
             } else if (firstIsMap) {
                 for (const [key, value] of first as Map<unknown, unknown>)
                     if (options.deep !== 0) {
@@ -769,7 +767,6 @@ export const equals = (
                             return determineResult(result)
                     }
             } else if (firstIsSet) {
-                /* eslint-enable curly */
                 for (const value of first as Set<unknown>)
                     if (options.deep !== 0) {
                         let equal = false
@@ -837,19 +834,13 @@ export const equals = (
                     first as Mapping<unknown>
                 )) {
                     if (
-                        options.properties &&
-                        !options.properties.includes(key)
+                        options.properties && !options.properties.includes(key)
                     )
                         break
 
                     let doBreak = false
-                    for (
-                        const exceptionPrefix of
-                        options.exceptionPrefixes
-                        )
-                        if (key.toString().startsWith(
-                            exceptionPrefix
-                        )) {
+                    for (const exceptionPrefix of options.exceptionPrefixes)
+                        if (key.toString().startsWith(exceptionPrefix)) {
                             doBreak = true
                             break
                         }
@@ -858,13 +849,12 @@ export const equals = (
                         break
 
                     if (options.deep !== 0) {
-                        const result:(
-                            boolean|Promise<boolean|string>|string
-                        ) = equals(
-                            value,
-                            (second as Mapping<unknown>)[key],
-                            {...options, deep: options.deep - 1}
-                        )
+                        const result:(boolean|Promise<boolean|string>|string) =
+                            equals(
+                                value,
+                                (second as Mapping<unknown>)[key],
+                                {...options, deep: options.deep - 1}
+                            )
 
                         if (!result)
                             return false
@@ -1153,15 +1143,14 @@ export const evaluateDynamicData = <Type = unknown>(
         ))
             return evaluate(object[
                 expressionIndicatorKey as keyof RecursiveEvaluateable<Type>
-                ]) as Type
+            ]) as Type
         else if (Object.prototype.hasOwnProperty.call(
             object, executionIndicatorKey
         ))
             return evaluateAndThrowError(
                 object[
-                    executionIndicatorKey as
-                        keyof RecursiveEvaluateable<Type>
-                    ],
+                    executionIndicatorKey as keyof RecursiveEvaluateable<Type>
+                ],
                 executionIndicatorKey
             ) as Type
 
@@ -1177,9 +1166,9 @@ export const evaluateDynamicData = <Type = unknown>(
 export const removeKeysInEvaluation = <
     T extends Mapping<unknown> = Mapping<unknown>
 >(
-    data:T,
-    expressionIndicators:Array<string> = ['__evaluate__', '__execute__']
-):T => {
+        data:T,
+        expressionIndicators:Array<string> = ['__evaluate__', '__execute__']
+    ):T => {
     for (const [key, value] of Object.entries(data))
         if (
             !expressionIndicators.includes(key) &&
@@ -1454,18 +1443,20 @@ export const mask = <Type extends Mapping<unknown> = Mapping<unknown>>(
     )
         return {}
 
-    const exclude:NormalizedObjectMask = Array.isArray(maskConfiguration.exclude) ?
-        maskConfiguration.exclude.reduce(
-            (mask, key) => ({...mask, [key]: true}),
-            {}
-        ) as NormalizedObjectMask :
-        maskConfiguration.exclude!
-    const include:NormalizedObjectMask = Array.isArray(maskConfiguration.include) ?
-        maskConfiguration.include.reduce(
-            (mask, key) => ({...mask, [key]: true}),
-            {}
-        ) as NormalizedObjectMask :
-        maskConfiguration.include!
+    const exclude:NormalizedObjectMask =
+        Array.isArray(maskConfiguration.exclude) ?
+            maskConfiguration.exclude.reduce(
+                (mask, key) => ({...mask, [key]: true}),
+                {}
+            ) as NormalizedObjectMask :
+            maskConfiguration.exclude!
+    const include:NormalizedObjectMask =
+        Array.isArray(maskConfiguration.include) ?
+            maskConfiguration.include.reduce(
+                (mask, key) => ({...mask, [key]: true}),
+                {}
+            ) as NormalizedObjectMask :
+            maskConfiguration.include!
 
     let result:Partial<Type> = {} as Partial<Type>
     if (isPlainObject(include)) {
@@ -1558,7 +1549,6 @@ export const modifyObject = <T = unknown>(
     parentSource:unknown = null,
     parentKey:unknown = null
 ):T|null => {
-    /* eslint-disable curly */
     if (isMap(source) && isMap(target)) {
         for (const [key, value] of source)
             if (target.has(key))
@@ -1574,7 +1564,6 @@ export const modifyObject = <T = unknown>(
                     key
                 )
     } else if (
-        /* eslint-enable curly */
         source !== null &&
         typeof source === 'object' &&
         target !== null &&
@@ -1795,7 +1784,6 @@ export const removeKeyPrefixes = <T>(
             if (skip)
                 continue
 
-            // eslint-disable-next-line @typescript-eslint/no-extra-semi
             ;(object as unknown as Mapping<unknown>)[key] =
                 removeKeyPrefixes(value, resolvedKeys)
         }

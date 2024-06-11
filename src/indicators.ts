@@ -74,7 +74,6 @@ export const isArrayLike = (object:unknown):boolean => {
 
     if (typeof length === 'number' && length > 0)
         try {
-            // eslint-disable-next-line no-unused-expressions
             (object as Array<unknown>)[length - 1]
 
             return true

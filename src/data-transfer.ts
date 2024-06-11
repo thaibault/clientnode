@@ -95,11 +95,11 @@ export const checkReachability = async (
             reject:(reason:Error) => void
         ):void => {
             let timedOut = false
-            const timer:TimeoutPromise = timeout(options.timeoutInSeconds * 1000)
+            const timer:TimeoutPromise =
+                timeout(options.timeoutInSeconds * 1000)
 
             const retryErrorHandler = (error:Error):Error => {
                 if (!timedOut) {
-                    // eslint-disable-next-line no-use-before-define
                     currentlyRunningTimer = timeout(
                         options.pollIntervallInSeconds * 1000, wrapper
                     )
@@ -235,7 +235,6 @@ export const checkUnreachability = async (
                         return result
                     }
 
-                    // eslint-disable-next-line no-use-before-define
                     currentlyRunningTimer = timeout(
                         options.pollIntervallInSeconds * 1000, wrapper
                     )
@@ -246,7 +245,6 @@ export const checkUnreachability = async (
                     */
                     currentlyRunningTimer.catch(NOOP)
                 } catch (error) {
-                    // eslint-disable-next-line no-use-before-define
                     timer.clear()
                     resolve(error as Error)
 

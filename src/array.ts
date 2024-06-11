@@ -520,17 +520,17 @@ export const paginate = (
                 selected: false,
                 type: item,
                 ...(item.endsWith('-ellipsis') ?
-                        {} :
-                        {page:
-                                {
-                                    first: 1,
-                                    last: numberOfPages
-                                }[item as 'first'|'last'] ??
-                                item === 'next' ?
-                                    Math.min(page + 1, numberOfPages) :
-                                    // NOTE: Is "previous" type.
-                                    Math.max(page - 1, 1)
-                        }
+                    {} :
+                    {page:
+                            {
+                                first: 1,
+                                last: numberOfPages
+                            }[item as 'first'|'last'] ??
+                            item === 'next' ?
+                                Math.min(page + 1, numberOfPages) :
+                                // NOTE: Is "previous" type.
+                                Math.max(page - 1, 1)
+                    }
                 )
             }
     )

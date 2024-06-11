@@ -195,13 +195,12 @@ export const augment$ = (value:$TStatic):void => {
         } as BoundToolsFunction
 
     $.Tools = ((...parameters:Array<unknown>):unknown =>
-            Tools.controller(Tools, parameters)
+        Tools.controller(Tools, parameters)
     ) as ToolsFunction
     $.Tools.class = Tools
 
     if ($.fn) {
         // region prop fix for comments and text nodes
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         const nativePropFunction = $.fn.prop
         /**
          * Scopes native prop implementation ignores properties for text nodes,

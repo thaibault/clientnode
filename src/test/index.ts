@@ -176,7 +176,6 @@ globalContext.fetch = nodeFetch as unknown as typeof fetch
 
 const {ChildProcess = null} =
     optionalRequire<typeof import('child_process')>('child_process') || {}
-// eslint-disable-next-line @typescript-eslint/unbound-method
 const {resolve = null} = optionalRequire<typeof import('path')>('path') || {}
 const {sync: removeDirectoryRecursivelySync = null} =
     optionalRequire<typeof import('rimraf')>('rimraf') || {}
@@ -577,23 +576,22 @@ describe(`Tools (${testEnvironment})`, ():void => {
     )
     /// endregion
     /// region logging
-    test('log', ():void => expect(tools.log('test')).toStrictEqual(undefined))
-    test('info', ():void =>
+    test('log', () => expect(tools.log('test')).toStrictEqual(undefined))
+    test('info', () =>
         expect(tools.info('test {0}')).toStrictEqual(undefined)
     )
-    test('debug', ():void =>
+    test('debug', () =>
         expect(tools.debug('test')).toStrictEqual(undefined)
     )
     // NOTE: This test breaks javaScript modules in strict mode.
-    test.skip(`${testEnvironment}-error`, ():void =>
+    test.skip(`${testEnvironment}-error`, () =>
         expect(tools.error('ignore this error, it is only a {1}', 'test'))
             .toStrictEqual(undefined)
     )
-    test('warn', ():void =>
+    test('warn', () =>
         expect(tools.warn('test')).toStrictEqual(undefined)
     )
-    test('show', ():void =>
-        // eslint-disable-next-line no-control-regex
+    test('show', () =>
         expect(/^.+\(Type: "function"\)$/su.test(Tools.show(NOOP)))
             .toStrictEqual(true)
     )
@@ -972,7 +970,6 @@ describe(`Tools (${testEnvironment})`, ():void => {
             .toStrictEqual({a: 2, b: {a: [1, 2]}})
 
         let Scope:(new () => Mapping<number>) =
-            // eslint-disable-next-line no-unused-vars
             function(this:Mapping<number>):void {
                 this.a = 2
             } as unknown as (new () => Mapping<number>)
@@ -1001,7 +998,6 @@ describe(`Tools (${testEnvironment})`, ():void => {
         scope._a = 6
         expect(isolateScope(scope, ['_'])).toStrictEqual({_a: 6, a: 2, b: 3})
 
-        // eslint-disable-next-line no-unused-vars
         Scope = function(this:Mapping<number>):void {
             this.a = 2
         } as unknown as (new () => Mapping<number>)
@@ -1128,11 +1124,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
 
                 return true
             })
-        /* eslint-disable @typescript-eslint/no-floating-promises */
         expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
         expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
         expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
-        /* eslint-enable @typescript-eslint/no-floating-promises */
     })
     test('fireEvent', ():void => {
         expect(
@@ -1505,7 +1499,6 @@ describe(`Tools (${testEnvironment})`, ():void => {
         }],
         ['function', NOOP],
         ['array', []],
-        // eslint-disable-next-line no-array-constructor
         // TODO ['array', new Array()],
         ['date', now],
         ['error', new Error()],
@@ -4446,10 +4439,9 @@ describe(`Tools (${testEnvironment})`, ():void => {
             ).Duplex implements DuplexType {
                 /**
                  * Triggers if contents from current stream should be red.
-                 * @returns Red data.
                  */
-                _read():void {
-                    // Do noyything.
+                _read() {
+                    // Do nothing.
                 }
                 /**
                  * Triggers if contents should be written on current stream.
@@ -4458,12 +4450,10 @@ describe(`Tools (${testEnvironment})`, ():void => {
                  * @param encoding - Specifies encoding to be used as input
                  * data.
                  * @param callback - Will be called if data has been written.
-                 *
-                 * @returns Returns Nothing.
                  */
                 _write(
                     chunk:Buffer|string, encoding:string, callback:AnyFunction
-                ):void {
+                ) {
                     callback(new Error('test'))
                 }
             }
@@ -4494,8 +4484,4 @@ describe(`Tools (${testEnvironment})`, ():void => {
         )
     // endregion
 })
-// endregion
-// region vim modline
-// vim: set tabstop=4 shiftwidth=4 expandtab:
-// vim: foldmethod=marker foldmarker=region,endregion:
 // endregion

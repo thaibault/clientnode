@@ -4,5 +4,5 @@
         "declarationDir": "dist/"
     },
     "extends": "./node_modules/weboptimizer/tsconfig.application.json",
-    "include": ["src/*.ts", "src/*.tsx"]
+    "include": ["src/**/*.ts"]
 }

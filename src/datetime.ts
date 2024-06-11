@@ -70,8 +70,8 @@ export const normalizeDateTime = (
             (
                 value +
                 (resolvedInterpretAsUTC ?
-                        0 :
-                        (new Date().getTimezoneOffset() * 60)
+                    0 :
+                    (new Date().getTimezoneOffset() * 60)
                 )
             ) *
             1000
@@ -206,8 +206,8 @@ export const interpretDateTime = (
             (
                 parseInt(value) +
                 (resolvedInterpretAsUTC ?
-                        0 :
-                        (new Date().getTimezoneOffset() * 60)
+                    0 :
+                    (new Date().getTimezoneOffset() * 60)
                 )
             ) *
             1000
@@ -444,19 +444,17 @@ export const interpretDateTime = (
                     ])
                         for (
                             const delimiter of ([] as Array<string>)
-                            .concat(
-                                Object.prototype.hasOwnProperty.call(
-                                    dateTimeFormat, 'delimiter'
-                                ) ?
-                                    (dateTimeFormat.delimiter as
-                                            string
-                                    ) :
-                                    '-'
-                            )
-                            )
+                                .concat(
+                                    Object.prototype.hasOwnProperty.call(
+                                        dateTimeFormat, 'delimiter'
+                                    ) ?
+                                        (dateTimeFormat.delimiter as string) :
+                                        '-'
+                                )
+                        )
                             for (let pattern of ([] as Array<string>)
                                 .concat(dateTimeFormat.pattern)
-                                ) {
+                            ) {
                                 pattern = evaluate(
                                     `\`^${pattern}$\``,
                                     {delimiter: `${delimiter}+`}

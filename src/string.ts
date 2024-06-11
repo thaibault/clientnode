@@ -178,8 +178,8 @@ export const getDomainName = (
 export const getPortNumber = (
     url:string = $.location?.href || '',
     fallback:null|number = $.location?.port ?
-    parseInt($.location.port) :
-    null
+        parseInt($.location.port) :
+        null
 ):null|number => {
     const result:Array<string>|null =
         /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec(url)
@@ -444,14 +444,12 @@ export const camelCaseToDelimited = (
         .replace(new RegExp('([a-z0-9])([A-Z])', 'g'), `$1${delimiter}$2`)
         .toLowerCase()
 }
-/* eslint-disable jsdoc/require-description-complete-sentence */
 /**
  * Converts a string to its capitalize representation.
  * @param string - The string to format.
  * @returns The formatted string.
  */
 export const capitalize = (string:string):string => {
-    /* eslint-enable jsdoc/require-description-complete-sentence */
     return string.charAt(0).toUpperCase() + string.substring(1)
 }
 /**
@@ -815,7 +813,9 @@ export const fixKnownEncodingErrors = (data:string):string => {
  * replacements for string formatting.
  * @returns The formatted string.
  */
-export const format = (string:string, ...additionalArguments:Array<unknown>):string => {
+export const format = (
+    string:string, ...additionalArguments:Array<unknown>
+):string => {
     additionalArguments.unshift(string)
 
     let index = 0
@@ -1055,13 +1055,13 @@ export const normalizePhoneNumber = (
         if (compiledPattern.test(normalizedValue))
             // Country code and area code matched.
             normalizedValue = normalizedValue.replace(compiledPattern, (
-                    match:string,
-                    countryCode:string,
-                    areaCode:string,
-                    number:string
-                ):string =>
-                    `${countryCode}-${areaCode}-` +
-                    sliceAllExceptNumberAndLastSeperator(number)
+                match:string,
+                countryCode:string,
+                areaCode:string,
+                number:string
+            ):string =>
+                `${countryCode}-${areaCode}-` +
+                sliceAllExceptNumberAndLastSeperator(number)
             )
         else {
             /*
@@ -1190,12 +1190,12 @@ export const sliceAllExceptNumberAndLastSeperator = (value:string):string => {
     const compiledPattern = /^(.*[0-9].*)-([0-9]+)$/
     if (compiledPattern.test(value))
         return value.replace(compiledPattern, (
-                match:string,
-                baseNumber:string,
-                directDialingNumberSuffix:string
-            ):string =>
-                `${baseNumber.replace(/[^0-9]+/g, '')}-` +
-                directDialingNumberSuffix
+            match:string,
+            baseNumber:string,
+            directDialingNumberSuffix:string
+        ):string =>
+            `${baseNumber.replace(/[^0-9]+/g, '')}-` +
+            directDialingNumberSuffix
         )
 
     return value.replace(/[^0-9]+/g, '')
@@ -1206,7 +1206,9 @@ export const sliceAllExceptNumberAndLastSeperator = (value:string):string => {
  * @param selectorPrefix - A dom node selector prefix to take into account.
  * @returns Returns given selector prefixed.
  */
-export const normalizeDomNodeSelector = (selector:string, selectorPrefix = ''):string => {
+export const normalizeDomNodeSelector = (
+    selector:string, selectorPrefix = ''
+):string => {
     let domNodeSelectorPrefix = ''
     if (selectorPrefix)
         domNodeSelectorPrefix = `${selectorPrefix} `

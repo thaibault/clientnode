@@ -115,7 +115,6 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
             Otherwise there shouldn't be any whitespace!
         */
         div.innerHTML = (
-            // eslint-disable-next-line no-useless-concat
             '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' + '->'
         )
 
@@ -125,7 +124,6 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
 
     // Try special detection for internet explorer 10 and 11.
     if (version === 0 && $.global.window.navigator)
-        /* eslint-disable @typescript-eslint/prefer-includes */
         if ($.global.window.navigator.appVersion.indexOf('MSIE 10') !== -1)
             return 10
         else if (
@@ -135,16 +133,14 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
             ].includes(-1)
         )
             return 11
-    /* eslint-enable @typescript-eslint/prefer-includes */
 
     return version
 })()}
 // A no-op dummy function.
 export const NOOP:AnyFunction =
     $.noop ?
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         $.noop as AnyFunction :
-        ():void => {
+        () => {
             // Do nothing.
         }
 export const PLAIN_OBJECT_PROTOTYPES:Array<FirstParameter<

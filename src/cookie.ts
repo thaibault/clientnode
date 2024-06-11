@@ -55,9 +55,8 @@ export const getCookie = (name:string):string|null => {
  * @param value - Value to set.
  * @param givenOptions - Cookie set options.
  * @param givenOptions.domain - Domain to reference with given key-value-pair.
- * @param givenOptions.httpOnly - Indicates if this cookie should be
- * accessible from client or not.
-
+ * @param givenOptions.httpOnly - Indicates if this cookie should be accessible
+ * from client or not.
  * @param givenOptions.minimal - Set only minimum number of options.
  * @param givenOptions.numberOfDaysUntilExpiration - Number of days until given
  * key shouldn't be deleted.
