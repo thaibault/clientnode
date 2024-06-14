@@ -14,6 +14,7 @@
     endregion
 */
 import {expect, test} from '@jest/globals'
+
 import Semaphore from '../Semaphore'
 
 test('constructor', () => {

@@ -1,6 +1,5 @@
 // #!/usr/bin/env babel-node
 // -*- coding: utf-8 -*-
-/** @module dateTime */
 'use strict'
 /* !
     region header

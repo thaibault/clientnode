@@ -1,6 +1,5 @@
 // #!/usr/bin/env babel-node
 // -*- coding: utf-8 -*-
-/** @module dateTime */
 'use strict'
 /* !
     region header
@@ -18,6 +17,9 @@
 */
 import {expect, test} from '@jest/globals'
 
+import {MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION} from '../constants'
+import {$} from '../context'
+import {identity} from '../function'
 import {
     addSeparatorToPath,
     camelCaseToDelimited,
@@ -53,10 +55,7 @@ import {
     sliceAllExceptNumberAndLastSeperator
 } from '../string'
 import {testEach, testEachAgainstSameExpectation} from '../test-helper'
-import {$} from '../context'
 import {EvaluationResult, FirstParameter, Mapping} from '../type'
-import {MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION} from '../constants'
-import {identity} from '../function'
 
 declare const TARGET_TECHNOLOGY:string
 

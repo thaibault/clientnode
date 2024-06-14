@@ -14,6 +14,7 @@
     endregion
 */
 import {expect, jest, test} from '@jest/globals'
+
 import {debounce, timeout} from '../utility'
 import {TimeoutPromise} from '../type'
 

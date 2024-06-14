@@ -14,6 +14,7 @@
     endregion
 */
 import {expect, test} from '@jest/globals'
+
 import {determineUniqueScopeName, isolateScope} from '../scope'
 import {Mapping} from '../type'
 
