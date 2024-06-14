@@ -23,7 +23,9 @@ import {
     $TStatic,
     BoundToolsFunction,
     ImportFunction,
-    ParametersExceptFirst, ToolsFunction, UnknownFunction
+    ParametersExceptFirst,
+    ToolsFunction,
+    UnknownFunction
 } from './type'
 import {isFunction} from './indicators'
 

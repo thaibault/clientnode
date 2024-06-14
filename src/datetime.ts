@@ -22,83 +22,71 @@ import {capitalize, evaluate} from './string'
 
 // Caches compiled date tine pattern regular expressions.
 export const DATE_TIME_PATTERN_CACHE:Array<RegExp> = []
+
 /**
- * Interprets a date object from given artefact.
- * @param value - To interpret.
- * @param interpretAsUTC - Identifies if given date should be interpreted as
- * utc. If not set given strings will be interpreted as it is dependent on
- * given format and numbers as utc.
- * @returns Interpreted date object or "null" if given value couldn't be
- * interpreted.
+ * Formats given date or current via given format specification.
+ * @param format - Format specification.
+ * @param dateTime - Date time to format.
+ * @param options - Additional configuration options for "Intl.DateTimeFormat".
+ * @param locales - Locale or list of locales to use for formatting. First one
+ * take precedence of latter ones.
+ * @returns Formatted date time string.
  */
-export const normalizeDateTime = (
-    value:string|null|number|Date = null,
-    interpretAsUTC?:null|boolean
-):Date|null => {
-    let resolvedInterpretAsUTC = Boolean(interpretAsUTC)
-
-    if (value === null)
-        return new Date()
-
-    if (typeof value === 'string') {
+export const dateTimeFormat = (
+    format = 'full',
+    dateTime:Date|number|string = new Date(),
+    options:SecondParameter<typeof Intl.DateTimeFormat> = {},
+    locales:Array<string>|string = LOCALES
+):string => {
+    if (typeof dateTime === 'number')
         /*
-            We make a simple pre-check to determine if it could be a date like
-            representation. Idea: There should be at least some numbers and
-            separators.
+            NOTE: "Date" constructor expects milliseconds as unit instead
+            of more common used seconds.
         */
-        if (/^.*(?:(?:[0-9]{1,4}[^0-9]){2}|[0-9]{1,4}[^0-9.]).*$/.test(
-            value
-        )) {
-            value = interpretDateTime(value, resolvedInterpretAsUTC)
+        dateTime *= 1000
 
-            if (value === null)
-                return value
+    const normalizedDateTime:Date = new Date(dateTime)
 
-            return value
-        }
-
-        const floatRepresentation:number = parseFloat(value)
-        if (`${floatRepresentation}` === value)
-            value = floatRepresentation
-    }
-
-    if (typeof value === 'number') {
-        if ([null, undefined].includes(interpretAsUTC as null))
-            resolvedInterpretAsUTC = true
-
-        return new Date(
-            (
-                value +
-                (resolvedInterpretAsUTC ?
-                    0 :
-                    (new Date().getTimezoneOffset() * 60)
-                )
-            ) *
-            1000
+    if (['full', 'long', 'medium', 'short'].includes(format))
+        return new Intl.DateTimeFormat(
+            ([] as Array<string>).concat(locales, 'en-US'),
+            {dateStyle: format, timeStyle: format, ...options} as
+                SecondParameter<typeof Intl.DateTimeFormat>
         )
+            .format(normalizedDateTime)
+
+    const scope:Mapping<Array<string>|string> = {}
+    for (const style of ['full', 'long', 'medium', 'short'] as const) {
+        scope[`${style}Literals`] = []
+
+        const dateTimeFormat:Intl.DateTimeFormat = new Intl.DateTimeFormat(
+            ([] as Array<string>).concat(locales, 'en-US'),
+            {dateStyle: style, timeStyle: style, ...options} as
+                SecondParameter<typeof Intl.DateTimeFormat>
+        )
+
+        scope[style] = dateTimeFormat.format(normalizedDateTime)
+
+        for (const item of dateTimeFormat.formatToParts(
+            normalizedDateTime
+        ))
+            if (item.type === 'literal')
+                (scope[`${style}Literals`] as Array<string>)
+                    .push(item.value)
+            else
+                scope[`${style}${capitalize(item.type)}`] = item.value
     }
 
-    // Try to deal with types which are either numbers or strings.
-    const result = new Date(value)
+    const evaluated:EvaluationResult = evaluate(`\`${format}\``, scope)
+    if (evaluated.error)
+        throw new Error(evaluated.error)
 
-    if (isNaN(result.getDate()))
-        return null
-
-    return result
-}
-/**
- * Slice weekday from given date representation.
- * @param value - String to process.
- * @returns Sliced given string.
- */
-export const sliceWeekday = (value:string):string => {
-    const weekdayPattern = /[a-z]{2}\.+ *([^ ].*)$/i
-    const weekdayMatch = weekdayPattern.exec(value)
-
-    if (weekdayMatch)
-        return value.replace(weekdayPattern, '$1')
-
-    return value
+    /*
+        NOTE: For some reason hidden symbols are injected differently on
+        different platforms, so we have to normalize for predictable
+        testing.
+    */
+    return evaluated.result.replace(/\s/g, ' ')
 }
 /**
  * Interprets given content string as date time.
@@ -206,8 +194,8 @@ export const interpretDateTime = (
             (
                 parseInt(value) +
                 (resolvedInterpretAsUTC ?
-                    0 :
-                    (new Date().getTimezoneOffset() * 60)
+                        0 :
+                        (new Date().getTimezoneOffset() * 60)
                 )
             ) *
             1000
@@ -444,17 +432,17 @@ export const interpretDateTime = (
                     ])
                         for (
                             const delimiter of ([] as Array<string>)
-                                .concat(
-                                    Object.prototype.hasOwnProperty.call(
-                                        dateTimeFormat, 'delimiter'
-                                    ) ?
-                                        (dateTimeFormat.delimiter as string) :
-                                        '-'
-                                )
-                        )
+                            .concat(
+                                Object.prototype.hasOwnProperty.call(
+                                    dateTimeFormat, 'delimiter'
+                                ) ?
+                                    (dateTimeFormat.delimiter as string) :
+                                    '-'
+                            )
+                            )
                             for (let pattern of ([] as Array<string>)
                                 .concat(dateTimeFormat.pattern)
-                            ) {
+                                ) {
                                 pattern = evaluate(
                                     `\`^${pattern}$\``,
                                     {delimiter: `${delimiter}+`}
@@ -575,67 +563,80 @@ export const interpretDateTime = (
     return null
 }
 /**
- * Formats given date or current via given format specification.
- * @param format - Format specification.
- * @param dateTime - Date time to format.
- * @param options - Additional configuration options for "Intl.DateTimeFormat".
- * @param locales - Locale or list of locales to use for formatting. First one
- * take precedence of latter ones.
- * @returns Formatted date time string.
+ * Interprets a date object from given artefact.
+ * @param value - To interpret.
+ * @param interpretAsUTC - Identifies if given date should be interpreted as
+ * utc. If not set given strings will be interpreted as it is dependent on
+ * given format and numbers as utc.
+ * @returns Interpreted date object or "null" if given value couldn't be
+ * interpreted.
  */
-export const dateTimeFormat = (
-    format = 'full',
-    dateTime:Date|number|string = new Date(),
-    options:SecondParameter<typeof Intl.DateTimeFormat> = {},
-    locales:Array<string>|string = LOCALES
-):string => {
-    if (typeof dateTime === 'number')
+export const normalizeDateTime = (
+    value:string|null|number|Date = null,
+    interpretAsUTC?:null|boolean
+):Date|null => {
+    let resolvedInterpretAsUTC = Boolean(interpretAsUTC)
+
+    if (value === null)
+        return new Date()
+
+    if (typeof value === 'string') {
         /*
-            NOTE: "Date" constructor expects milliseconds as unit instead
-            of more common used seconds.
+            We make a simple pre-check to determine if it could be a date like
+            representation. Idea: There should be at least some numbers and
+            separators.
         */
-        dateTime *= 1000
+        if (/^.*(?:(?:[0-9]{1,4}[^0-9]){2}|[0-9]{1,4}[^0-9.]).*$/.test(
+            value
+        )) {
+            value = interpretDateTime(value, resolvedInterpretAsUTC)
 
-    const normalizedDateTime:Date = new Date(dateTime)
+            if (value === null)
+                return value
 
-    if (['full', 'long', 'medium', 'short'].includes(format))
-        return new Intl.DateTimeFormat(
-            ([] as Array<string>).concat(locales, 'en-US'),
-            {dateStyle: format, timeStyle: format, ...options} as
-                SecondParameter<typeof Intl.DateTimeFormat>
-        )
-            .format(normalizedDateTime)
+            return value
+        }
 
-    const scope:Mapping<Array<string>|string> = {}
-    for (const style of ['full', 'long', 'medium', 'short'] as const) {
-        scope[`${style}Literals`] = []
-
-        const dateTimeFormat:Intl.DateTimeFormat = new Intl.DateTimeFormat(
-            ([] as Array<string>).concat(locales, 'en-US'),
-            {dateStyle: style, timeStyle: style, ...options} as
-                SecondParameter<typeof Intl.DateTimeFormat>
-        )
-
-        scope[style] = dateTimeFormat.format(normalizedDateTime)
-
-        for (const item of dateTimeFormat.formatToParts(
-            normalizedDateTime
-        ))
-            if (item.type === 'literal')
-                (scope[`${style}Literals`] as Array<string>)
-                    .push(item.value)
-            else
-                scope[`${style}${capitalize(item.type)}`] = item.value
+        const floatRepresentation:number = parseFloat(value)
+        if (`${floatRepresentation}` === value)
+            value = floatRepresentation
     }
 
-    const evaluated:EvaluationResult = evaluate(`\`${format}\``, scope)
-    if (evaluated.error)
-        throw new Error(evaluated.error)
+    if (typeof value === 'number') {
+        if ([null, undefined].includes(interpretAsUTC as null))
+            resolvedInterpretAsUTC = true
 
-    /*
-        NOTE: For some reason hidden symbols are injected differently on
-        different platforms, so we have to normalize for predictable
-        testing.
-    */
-    return evaluated.result.replace(/\s/g, ' ')
+        return new Date(
+            (
+                value +
+                (resolvedInterpretAsUTC ?
+                    0 :
+                    (new Date().getTimezoneOffset() * 60)
+                )
+            ) *
+            1000
+        )
+    }
+
+    // Try to deal with types which are either numbers or strings.
+    const result = new Date(value)
+
+    if (isNaN(result.getDate()))
+        return null
+
+    return result
+}
+/**
+ * Slice weekday from given date representation.
+ * @param value - String to process.
+ * @returns Sliced given string.
+ */
+export const sliceWeekday = (value:string):string => {
+    const weekdayPattern = /[a-z]{2}\.+ *([^ ].*)$/i
+    const weekdayMatch = weekdayPattern.exec(value)
+
+    if (weekdayMatch)
+        return value.replace(weekdayPattern, '$1')
+
+    return value
 }

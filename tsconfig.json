@@ -4,5 +4,6 @@
         "declarationDir": "dist/"
     },
     "extends": "./node_modules/weboptimizer/tsconfig.application.json",
+    "exclude": ["src/test/*"],
     "include": ["src/**/*.ts"]
 }
