@@ -4960,7 +4960,7 @@ __metadata:
     documentation-website: "npm:^1.0.326"
     eslint: "npm:^9.4.0"
     eslint-config-google: "npm:^0.14.0"
-    eslint-plugin-jsdoc: "npm:^48.2.9"
+    eslint-plugin-jsdoc: "npm:^48.2.12"
     favicons-webpack-plugin: "npm:^6.0.1"
     image-minimizer-webpack-plugin: "npm:^4.0.2"
     jest: "npm:^29.7.0"
@@ -4970,7 +4970,7 @@ __metadata:
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^5.0.7"
     typescript-eslint: "npm:^7.13.0"
-    weboptimizer: "npm:^2.0.1471"
+    weboptimizer: "npm:^2.0.1472"
     webpack-dev-server: "npm:^5.0.4"
   peerDependencies:
     "@babel/runtime": "*"
@@ -5841,9 +5841,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:^48.2.9":
-  version: 48.2.9
-  resolution: "eslint-plugin-jsdoc@npm:48.2.9"
+"eslint-plugin-jsdoc@npm:^48.2.12":
+  version: 48.2.12
+  resolution: "eslint-plugin-jsdoc@npm:48.2.12"
   dependencies:
     "@es-joy/jsdoccomment": "npm:~0.43.1"
     are-docs-informative: "npm:^0.0.2"
@@ -5855,7 +5855,7 @@ __metadata:
     spdx-expression-parse: "npm:^4.0.0"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/93f2f9cc8baa8b525d900cf033ca9a7acbcbf18625d8cc0a48362b1755136ba9832868f6cc3c845888e98d105310ef4dfd6fba6bdfee6b5731c56e8d5e28d511
+  checksum: 10c0/18d1a56013391e93ba02815ef57830f068fbc95b05edcf3f378beb15e4bacedc9332b326ddae00a670c10d755622dc0c29af3e76027d1a5759627505aa64d487
   languageName: node
   linkType: hard
 
@@ -11006,9 +11006,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^2.0.1471":
-  version: 2.0.1471
-  resolution: "weboptimizer@npm:2.0.1471"
+"weboptimizer@npm:^2.0.1472":
+  version: 2.0.1472
+  resolution: "weboptimizer@npm:2.0.1472"
   dependencies:
     "@babel/core": "npm:^7.24.7"
     "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
@@ -11145,7 +11145,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/abd7ed1f2597f81db321a787b7d2e94ef85bad390bf39d7ebd3eb1f1929c042e0b2cf489e51f3140e55d82a67320cd546812e66ab9fa27ded2c9eb3697de7fb9
+  checksum: 10c0/02c59356ee18ff7dd784c6bb6337856467bcf81646b657034596681d9943a10fd0ad069e9af0c783884976ceb7d92c7abad2b84e33c529e4151b79df7cdf40ca
   languageName: node
   linkType: hard
 

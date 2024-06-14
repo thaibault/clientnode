@@ -91,7 +91,7 @@ export const isArrayLike = (object:unknown):boolean => {
  * given pattern and "false" otherwise.
  */
 export const isAnyMatching = (
-    target:string, pattern:Array<string|RegExp>
+    target:string, pattern:Array<RegExp|string>
 ):boolean => {
     for (const currentPattern of pattern)
         if (typeof currentPattern === 'string') {
