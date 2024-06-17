@@ -487,38 +487,38 @@ test.each([
 test.each([
     [
         `
-                function anonymous(
-                ) {
-                return null
-                }
-            `,
+            function anonymous(
+            ) {
+            return null
+            }
+        `,
         'null'
     ],
     [
         `
-                function anonymous(
-                ) {
-                return \`test \${test} value\`
-                }
-            `,
+            function anonymous(
+            ) {
+            return \`test \${test} value\`
+            }
+        `,
         '`test ${test} value`'
     ],
     [
         `
-                function anonymous(
-                ) {
-                return \`test \${test} value\`
-                }
-            `,
+            function anonymous(
+            ) {
+            return \`test \${test} value\`
+            }
+        `,
         '`test ${test} value`'
     ],
     [
         `
-                function anonymous(
-                ) {
-                return \`test \\\${test} value\`
-                }
-            `,
+            function anonymous(
+            ) {
+            return \`test \\\${test} value\`
+            }
+        `,
         '`test \\${test} value`'
     ]
 ])(
@@ -532,84 +532,84 @@ test.each([
 test.each([
     [
         `
-                function anonymous(
-                ) {
-                return String(a + b)
-                }
-            `,
+            function anonymous(
+            ) {
+            return String(a + b)
+            }
+        `,
         '`${a + b}`'
     ],
     [
         `
-                function anonymous(
-                ) {
-                return 'test '+(name)+' - '+(other)+' value'
-                }
-            `,
+            function anonymous(
+            ) {
+            return 'test '+(name)+' - '+(other)+' value'
+            }
+        `,
         '`test ${name} - ${other} value`'
     ],
     [
         `
-                function anonymous(
-                ) {
-                return "test "+(name)+" '-' "+(other)+" value"
-                }
-            `,
+            function anonymous(
+            ) {
+            return "test "+(name)+" '-' "+(other)+" value"
+            }
+        `,
         '`test ${name} \'-\' ${other} value`'
     ],
     [
         `
-                function anonymous(
-                ) {
-                return "test "+(name)+" '-' "+(other)+"                  value"
-                }
-            `,
+            function anonymous(
+            ) {
+            return "test "+(name)+" '-' "+(other)+"                  value"
+            }
+        `,
         `\`test \${name} '-' \${other}
                   value\``
     ],
     [
         `
-                function anonymous(
-                ) {
-                return String(loading ? 'A' : 'B')
-                }
-            `,
+            function anonymous(
+            ) {
+            return String(loading ? 'A' : 'B')
+            }
+        `,
         `\`\${loading ? 'A' : 'B'}\``
     ],
     [
         `
-                function anonymous(
-                ) {
-                return String(loading ? 'A' : results.join(''))
-                }
-            `,
+            function anonymous(
+            ) {
+            return String(loading ? 'A' : results.join(''))
+            }
+        `,
         `\`\${loading ? 'A' : results.join('')}\``
     ],
     [
         `
-                function anonymous(
-                ) {
-                return "[: "+(loading ? 'A' : results.join(''))+" :]"
-                }
-            `,
+            function anonymous(
+            ) {
+            return "[: "+(loading ? 'A' : results.join(''))+" :]"
+            }
+        `,
         `\`[: \${loading ? 'A' : results.join('')} :]\``
     ],
     [
         `
-                function anonymous(
-                ) {
-                return '[: '+(a ? '<div class="idle">loading...</div>' : ` +
-        `results.join(''))+' :]'
-                }
-            `,
+            function anonymous(
+            ) {
+            return '[: '+(a ? '<div class="idle">loading...</div>' : ` +
+                `results.join(''))+' :]'
+            }
+        `,
         `\`[: \${a ?\n '<div class="idle">loading...</div>' : ` +
         `results.join('')} :]\``
     ],
     [
         `
-                function anonymous(
-                ) {
-                return ' '+(loading ?                ` +
+        function anonymous(
+        ) {
+        return ' '+(loading ?                ` +
         `'<div class="idle">loading...</div>' :                ` +
         `results.map(function(result) {                    ` +
         `return ('<ul>' +                        '<li>' +               ` +
@@ -623,37 +623,37 @@ test.each([
                 }
             `,
         `\` \${loading ?
-                '<div class="idle">loading...</div>' :
-                results.map(function(result) {
-                    return ('<ul>' +
-                        '<li>' +
-                            Object.keys(result)
-                                .filter(function(name) {
-                                    return ['number', 'string']
-                                        .includes(typeof result[name])
-                                })
-                                .join('') +
-                        '</li>' +
-                    '</ul>')
-                }).join('')
-            }\``.replace('\n', '')
+            '<div class="idle">loading...</div>' :
+            results.map(function(result) {
+                return ('<ul>' +
+                    '<li>' +
+                        Object.keys(result)
+                            .filter(function(name) {
+                                return ['number', 'string']
+                                    .includes(typeof result[name])
+                            })
+                            .join('') +
+                    '</li>' +
+                '</ul>')
+            }).join('')
+        }\``.replace('\n', '')
     ],
     [
         `
-                function anonymous(
-                ) {
-                return 'test {test} value'
-                }
-            `,
+            function anonymous(
+            ) {
+            return 'test {test} value'
+            }
+        `,
         '`test {test} value`'
     ],
     [
         `
-                function anonymous(
-                ) {
-                return 'test \\\${test} value \\\${test}'
-                }
-            `,
+            function anonymous(
+            ) {
+            return 'test \\\${test} value \\\${test}'
+            }
+        `,
         '`test \\${test} value \\${test}`'
     ]
 ])(
@@ -671,7 +671,8 @@ test.each([
 )
 ///// endregion
 ///// region evaluate
-const advancedTemplateEvaluationExample:string = `\`\${loading ?
+const advancedTemplateEvaluationExample:string =
+    `\`\${loading ?
         '<div class="idle">loading...</div>' :
         results.map(function(result) {
             return ('<ul>' +
@@ -689,7 +690,7 @@ const advancedTemplateEvaluationExample:string = `\`\${loading ?
 type MandatoryGivenStringEvaluateTestTuple = [
     FirstParameter<typeof evaluate>,
     Mapping<unknown>,
-        'compileError'|'result'|'runtimeError'
+    'compileError'|'result'|'runtimeError'
 ]
 type GivenStringEvaluateTestTuple = [
     ...MandatoryGivenStringEvaluateTestTuple, unknown?, unknown?
@@ -730,12 +731,14 @@ test.each(([
         'result',
         '<div class="idle">loading...</div>'
     ]
-] as Array<GivenStringEvaluateTestTuple>).map((
+] as Array<GivenStringEvaluateTestTuple>)
+    .map((
         parameters:GivenStringEvaluateTestTuple
     ):StringEvaluateTestTuple =>
         parameters.concat(undefined, undefined).slice(0, 5) as
             StringEvaluateTestTuple
-))(
+    )
+)(
     'evaluate(`%s`, %p...)[%p] === %p',
     (
         expression:string,
@@ -771,12 +774,14 @@ test.each(([
     ['window', {}, 'result', undefined],
     ['globalThis', {}, 'result', undefined],
     ['globalThis', {globalThis: 5}, 'result', 5]
-] as Array<GivenStringEvaluateTestTuple>).map((
+] as Array<GivenStringEvaluateTestTuple>)
+    .map((
         parameters:GivenStringEvaluateTestTuple
     ):StringEvaluateTestTuple =>
         parameters.concat(undefined, undefined).slice(0, 5) as
             StringEvaluateTestTuple
-))(
+    )
+)(
     'evaluate(`%s`, %p...)[%p] === %p',
     (
         expression:string,
@@ -817,15 +822,15 @@ test.each(([
     */
     [
         `\`
-                <div class="test">
-                    \\\${Object.keys(item)
-                        .filter(function(name) {
-                            return true
-                        })
-                        .join(",")
-                    }
-                </div>
-            \``.replace(/(\s\s+)|\n+/g, ''),
+            <div class="test">
+                \\\${Object.keys(item)
+                    .filter(function(name) {
+                        return true
+                    })
+                    .join(",")
+                }
+            </div>
+        \``.replace(/(\s\s+)|\n+/g, ''),
         {},
         'result',
         '<div class="test">' +
@@ -850,12 +855,12 @@ test.each(([
         'result',
         '<div class="idle">loading...</div>'
     ]
-] as Array<GivenStringEvaluateTestTuple>).map((
-        parameters:GivenStringEvaluateTestTuple
-    ):StringEvaluateTestTuple =>
+] as Array<GivenStringEvaluateTestTuple>)
+    .map((parameters:GivenStringEvaluateTestTuple):StringEvaluateTestTuple =>
         parameters.concat(undefined, undefined).slice(0, 5) as
             StringEvaluateTestTuple
-))(
+    )
+)(
     'IE 11: evaluate(`%s`, %p...)[%p] === %p',
     (
         expression:string,
@@ -1003,8 +1008,7 @@ testEach<typeof mark>(
         'e',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown):string =>
-                `${value as string}`.toLowerCase()
+            normalizer: (value:unknown) => `${value as string}`.toLowerCase()
         }
     ],
     [
@@ -1022,8 +1026,7 @@ testEach<typeof mark>(
         'E',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown):string =>
-                `${value as string}`.toLowerCase()
+            normalizer: (value:unknown) => `${value as string}`.toLowerCase()
         }
     ],
     [
@@ -1032,8 +1035,7 @@ testEach<typeof mark>(
         'e',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown):string =>
-                `${value as string}`.toLowerCase()
+            normalizer: (value:unknown) => `${value as string}`.toLowerCase()
         }
     ],
     [
@@ -1042,8 +1044,7 @@ testEach<typeof mark>(
         't',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown):string =>
-                `${value as string}`.toLowerCase()
+            normalizer: (value:unknown) => `${value as string}`.toLowerCase()
         }
     ],
     [
@@ -1052,8 +1053,7 @@ testEach<typeof mark>(
         't',
         {
             marker: '<a>{1} - {1}</a>',
-            normalizer: (value:unknown):string =>
-                `${value as string}`.toLowerCase()
+            normalizer: (value:unknown) => `${value as string}`.toLowerCase()
         }
     ],
     [
@@ -1092,8 +1092,7 @@ testEach<typeof mark>(
         ['ebikes', 'münchen'],
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown):string =>
-                `${value as string}`.toLowerCase()
+            normalizer: (value:unknown) => `${value as string}`.toLowerCase()
         }
     ],
     [

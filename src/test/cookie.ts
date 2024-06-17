@@ -1,7 +1,3 @@
-import {expect, test} from '@jest/globals'
-import {getInitializedBrowser} from 'weboptimizer/browser'
-import {$} from '../context'
-import {deleteCookie, getCookie, setCookie} from '../cookie'
 // #!/usr/bin/env babel-node
 // -*- coding: utf-8 -*-
 'use strict'
@@ -17,6 +13,11 @@ import {deleteCookie, getCookie, setCookie} from '../cookie'
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import {expect, test} from '@jest/globals'
+import {getInitializedBrowser} from 'weboptimizer/browser'
+import {$} from '../context'
+import {deleteCookie, getCookie, setCookie} from '../cookie'
+
 declare const TARGET_TECHNOLOGY:string
 
 const testEnvironment:string = (

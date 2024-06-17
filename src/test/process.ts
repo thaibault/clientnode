@@ -36,8 +36,8 @@ if (TARGET_TECHNOLOGY === 'node') {
     )
     test('handleChildProcess', ():void => {
         /**
-         * A mockup duplex stream for mocking "stdout" and "strderr"
-         * process connections.
+         * A mockup duplex stream for mocking "stdout" and "strderr" process
+         * connections.
          */
         class MockupDuplexStream extends (
             optionalRequire('stream') as typeof import('stream')
@@ -50,10 +50,9 @@ if (TARGET_TECHNOLOGY === 'node') {
             }
             /**
              * Triggers if contents should be written on current stream.
-             * @param chunk - The chunk to be written. Will always be a
-             * buffer unless the "decodeStrings" option was set to "false".
-             * @param encoding - Specifies encoding to be used as input
-             * data.
+             * @param chunk - The chunk to be written. Will always be a buffer
+             * unless the "decodeStrings" option was set to "false".
+             * @param encoding - Specifies encoding to be used as input data.
              * @param callback - Will be called if data has been written.
              */
             _write(

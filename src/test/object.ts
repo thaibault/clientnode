@@ -552,16 +552,16 @@ else {
                 a: [
                     1,
                     {a: new Map(
-                            [[1, new Blob(['a'], {type: 'text/plain'})]]
-                        )}
+                        [[1, new Blob(['a'], {type: 'text/plain'})]]
+                    )}
                 ]
             },
             {
                 a: [
                     1,
                     {a: new Map(
-                            [[1, new Blob(['b'], {type: 'text/plain'})]]
-                        )}
+                        [[1, new Blob(['b'], {type: 'text/plain'})]]
+                    )}
                 ]
             },
             {compareBlobs: true, returnReasonIfNotEqual: true}
@@ -733,46 +733,46 @@ testEach<typeof evaluateDynamicData>(
     [
         {a: {b: 1, c: 1}},
         {a: {
-                b: 1,
-                c: {__evaluate__: 'self.a.b'}
-            }}
+            b: 1,
+            c: {__evaluate__: 'self.a.b'}
+        }}
     ],
     [
         {a: {b: null, c: null}},
         {a: {
-                b: null,
-                c: {__evaluate__: 'self.a.b'}
-            }}
+            b: null,
+            c: {__evaluate__: 'self.a.b'}
+        }}
     ],
     [
         {a: {b: undefined, c: undefined}},
         {a: {
-                b: undefined,
-                c: {__evaluate__: 'self.a.b'}
-            }}
+            b: undefined,
+            c: {__evaluate__: 'self.a.b'}
+        }}
     ],
     [
         {a: {b: 'jau', c: 'jau'}},
         {a: {
-                b: 'jau',
-                c: {__evaluate__: 'self.a.b'}
-            }}
+            b: 'jau',
+            c: {__evaluate__: 'self.a.b'}
+        }}
     ],
     [
         {a: {b: {c: 'jau', d: 'jau'}}},
         {a: {
-                b: {
-                    c: 'jau',
-                    d: {__evaluate__: 'self.a.b.c'}
-                }
-            }}
+            b: {
+                c: 'jau',
+                d: {__evaluate__: 'self.a.b.c'}
+            }
+        }}
     ],
     [
         {a: {b: 'test', c: 'tet'}},
         {a: {
-                b: {__evaluate__: '"t" + "es" + "t"'},
-                c: {__evaluate__: 'removeS(self.a.b)'}
-            }},
+            b: {__evaluate__: '"t" + "es" + "t"'},
+            c: {__evaluate__: 'removeS(self.a.b)'}
+        }},
         {removeS: (value:string):string => value.replace('s', '')}
     ],
     [
@@ -806,8 +806,8 @@ testEach<typeof evaluateDynamicData>(
         }
     ],
     /*
-        NOTE: This describes a workaround until the "ownKeys" proxy trap
-        works for this use cases.
+        NOTE: This describes a workaround until the "ownKeys" proxy trap works
+        for this use cases.
     */
     [
         {a: ['a'], b: {a: 2}},
@@ -819,12 +819,14 @@ testEach<typeof evaluateDynamicData>(
     [
         {a: ['a', 'b', 'c'], b: {a: 1, b: 2, c: 3}},
         {
-            a: {__evaluate__: `(() => {
+            a: {
+                __evaluate__: `(() => {
                     const result = []
                     for (const key in resolve(self.b))
                         result.push(key)
                     return result
-                })()`},
+                })()`
+            },
             b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
         }
     ]
@@ -1179,8 +1181,8 @@ testEach<typeof removeKeyPrefixes>(
     [
         [{a: new Map([['key', 'value']])}],
         [{a: new Map([
-                ['#', 'comment'], ['key', 'value'], ['#', 'remove']
-            ])}],
+            ['#', 'comment'], ['key', 'value'], ['#', 'remove']
+        ])}],
         '#'
     ]
 )

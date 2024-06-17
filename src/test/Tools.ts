@@ -19,7 +19,7 @@ import nodeFetch from 'node-fetch'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 
 import {NOOP} from '../constants'
-import {globalContext, optionalRequire, $} from '../context'
+import {globalContext, $} from '../context'
 import {
     TEST_DEFINED_SYMBOL, testEach, testEachAgainstSameExpectation
 } from '../test-helper'
@@ -48,7 +48,6 @@ const testEnvironment:string = (
 const hasDOM = ['browser', 'node-with-dom'].includes(testEnvironment)
 // endregion
 describe(`Tools (${testEnvironment})`, ():void => {
-    const now = new Date()
     const tools = new Tools()
     // region public methods
     /// region special
