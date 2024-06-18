@@ -22,6 +22,7 @@ import {
     $Global,
     $T,
     $TStatic,
+    AnyFunction,
     BoundToolsFunction,
     ImportFunction,
     ParametersExceptFirst,
@@ -94,7 +95,7 @@ globalContext.fetch =
                 )
     )
 /// endregion
-/// region $
+/// region
 export const determine$:(() => $TStatic) = ():$TStatic => {
     let $:$TStatic = (() => {
         // Do nothing.
@@ -173,6 +174,60 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
     return $
 }
 export let $ = determine$()
+
+// Saves currently maximal supported internet explorer version. Saves zero if
+// no internet explorer present.
+export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
+):number => {
+    /*
+        NOTE: This method uses "Array.indexOf" instead of "Array.includes"
+        since this function could be crucial in wide browser support.
+    */
+    if (!$.document)
+        return 0
+
+    const div = $.document.createElement('div')
+    let version:number
+    for (version = 0; version < 10; version++) {
+        /*
+            NOTE: We split html comment sequences to avoid wrong interpretation
+            if this code is embedded in markup.
+            NOTE: Internet Explorer 9 and lower sometimes doesn't understand
+            conditional comments wich doesn't starts with a whitespace. If the
+            conditional markup isn't in a commend. Otherwise there shouldn't be
+            any whitespace!
+        */
+        div.innerHTML = (
+            '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' + '->'
+        )
+
+        if (div.getElementsByTagName('i').length === 0)
+            break
+    }
+
+    // Try special detection for internet explorer 10 and 11.
+    if (version === 0 && $.global.window.navigator)
+        if ($.global.window.navigator.appVersion.indexOf('MSIE 10') !== -1)
+            return 10
+
+        if (
+            ![
+                $.global.window.navigator.userAgent.indexOf('Trident'),
+                $.global.window.navigator.userAgent.indexOf('rv:11')
+            ].includes(-1)
+        )
+            return 11
+
+    return version
+})()}
+
+// A no-op dummy function.
+export const NOOP:AnyFunction =
+    $.noop ?
+        $.noop as AnyFunction :
+        () => {
+            // Do nothing.
+        }
 /// endregion
 // region handle $ extending
 export const augment$ = (value:$TStatic):void => {

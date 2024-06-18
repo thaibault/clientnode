@@ -26,6 +26,7 @@
 import {expect, test} from '@jest/globals'
 import {Global as JestGlobal} from '@jest/types'
 
+import {represent} from './object'
 import {
     AnyFunction,
     FirstParameter,
@@ -37,7 +38,6 @@ import {
     ThenParameter,
     UnknownFunction, TestMatchers
 } from './type'
-import {represent} from './object'
 // endregion
 export const TEST_DEFINED_SYMBOL = Symbol.for('clientnodeTestHelperDefined')
 export const TEST_THROW_SYMBOL = Symbol.for('clientnodeTestHelperThrow')

@@ -17,8 +17,7 @@
 */
 import {expect, test} from '@jest/globals'
 
-import {MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION} from '../constants'
-import {$} from '../context'
+import {$, MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION} from '../context'
 import {identity} from '../function'
 import {
     addSeparatorToPath,

@@ -16,7 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {NOOP} from './constants'
+import {NOOP} from './context'
 import {isFunction} from './indicators'
 import {
     AnyFunction,

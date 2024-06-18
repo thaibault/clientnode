@@ -18,11 +18,11 @@
 */
 // region url handling
 import {
-    ABBREVIATIONS,
-    DEFAULT_ENCODING,
-    MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION,
-    SPECIAL_REGEX_SEQUENCES
+    ABBREVIATIONS, DEFAULT_ENCODING, SPECIAL_REGEX_SEQUENCES
 } from './constants'
+import {MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION} from './context'
+import {isFileSync, readFileSync} from './filesystem'
+import {determineType, represent} from './object'
 import {
     CompilationResult,
     EvaluationResult,
@@ -32,8 +32,6 @@ import {
     QueryParameters,
     ValueOf, PlainObject
 } from './type'
-import {determineType, represent} from './object'
-import {isFileSync, readFileSync} from './filesystem'
 
 /**
  * Translates given string into the regular expression validated

@@ -13,19 +13,16 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-// region imports
 import {expect, test} from '@jest/globals'
 import nodeFetch from 'node-fetch'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 
-import {NOOP} from '../constants'
-import {globalContext, $} from '../context'
+import {$, globalContext, NOOP} from '../context'
 import {
     TEST_DEFINED_SYMBOL, testEach, testEachAgainstSameExpectation
 } from '../test-helper'
 import Tools from '../Tools'
 import {Mapping, $T} from '../type'
-// endregion
 /*
     NOTE: We have to pre-load this module to avoid introducing an additional
     asynchronous chunk.

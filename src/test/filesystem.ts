@@ -17,7 +17,7 @@
 */
 import {expect, test} from '@jest/globals'
 
-import {NOOP} from '../constants'
+import {NOOP, optionalRequire} from '../context'
 import {
     copyDirectoryRecursive,
     copyDirectoryRecursiveSync,
@@ -30,10 +30,9 @@ import {
     walkDirectoryRecursively,
     walkDirectoryRecursivelySync
 } from '../filesystem'
-import {timeout} from '../utility'
 import {testEachSingleParameterAgainstSameExpectation} from '../test-helper'
 import {File} from '../type'
-import {optionalRequire} from '../context'
+import {timeout} from '../utility'
 
 declare const TARGET_TECHNOLOGY:string
 

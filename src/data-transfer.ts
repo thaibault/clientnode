@@ -16,8 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {NOOP} from './constants'
-import {globalContext} from './context'
+import {globalContext, NOOP} from './context'
 import {extend} from './object'
 import {
     $T,

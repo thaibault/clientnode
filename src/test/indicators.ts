@@ -13,21 +13,18 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import {expect, test} from '@jest/globals'
+import {InitializedBrowser} from 'weboptimizer/type'
+import {getInitializedBrowser} from 'weboptimizer/browser'
+
+import {NOOP} from '../context'
+import {
+    isAnyMatching, isArrayLike, isFunction, isNumeric, isPlainObject, isWindow
+} from '../indicators'
 import {
     testEachAgainstSameExpectation,
     testEachSingleParameterAgainstSameExpectation
 } from '../test-helper'
-import {
-    isAnyMatching,
-    isArrayLike, isFunction,
-    isNumeric,
-    isPlainObject,
-    isWindow
-} from '../indicators'
-import {expect, test} from '@jest/globals'
-import {InitializedBrowser} from 'weboptimizer/type'
-import {getInitializedBrowser} from 'weboptimizer/browser'
-import {NOOP} from '../constants'
 
 testEachSingleParameterAgainstSameExpectation<typeof isNumeric>(
     'isNumeric',

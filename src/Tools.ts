@@ -17,7 +17,8 @@
     endregion
 */
 import {makeArray} from './array'
-import {CONSOLE_METHODS, NOOP} from './constants'
+import {CONSOLE_METHODS} from './constants'
+import {NOOP} from './context'
 import {isFunction, isNumeric} from './indicators'
 import {determineType, extend} from './object'
 import {

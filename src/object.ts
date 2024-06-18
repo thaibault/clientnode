@@ -17,15 +17,14 @@
     endregion
 */
 import {
-    CLASS_TO_TYPE_MAPPING,
-    IGNORE_NULL_AND_UNDEFINED_SYMBOL,
-    NOOP,
-    VALUE_COPY_SYMBOL
+    CLASS_TO_TYPE_MAPPING, IGNORE_NULL_AND_UNDEFINED_SYMBOL, VALUE_COPY_SYMBOL
 } from './constants'
+import {NOOP} from './context'
 import {identity} from './function'
 import {
     isFunction, isPlainObject, isMap, isProxy, isSet, isNumeric
 } from './indicators'
+import {isNotANumber} from './number'
 import {escapeRegularExpressions, evaluate} from './string'
 import {
     AnyFunction,
@@ -47,7 +46,6 @@ import {
     UnknownFunction,
     ValueOf
 } from './type'
-import {isNotANumber} from './number'
 
 /**
  * Adds dynamic getter and setter to any given data structure such as maps.
