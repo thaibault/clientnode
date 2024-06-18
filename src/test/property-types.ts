@@ -14,9 +14,10 @@
     endregion
 */
 import {expect, test} from '@jest/globals'
+import {Requireable} from 'prop-types'
+
 import {DummyTypes} from '../property-types'
 import {UnknownFunction} from '../type'
-import {Requireable} from 'prop-types'
 
 test('DummyTypes', () => {
     expect(DummyTypes.any).not.toStrictEqual(DummyTypes.array)

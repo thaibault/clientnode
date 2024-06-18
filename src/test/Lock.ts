@@ -14,6 +14,7 @@
     endregion
 */
 import {expect, test} from '@jest/globals'
+
 import Lock from '../Lock'
 import {timeout} from '../utility'
 

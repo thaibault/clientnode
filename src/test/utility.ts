@@ -15,8 +15,8 @@
 */
 import {expect, jest, test} from '@jest/globals'
 
-import {debounce, timeout} from '../utility'
 import {TimeoutPromise} from '../type'
+import {debounce, timeout} from '../utility'
 
 test('debounce', ():void => {
     let testValue = false

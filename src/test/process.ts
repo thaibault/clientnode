@@ -16,13 +16,13 @@
     endregion
 */
 import {expect, test} from '@jest/globals'
+import {ChildProcess as ChildProcessType} from 'child_process'
 
-import {getProcessCloseHandler, handleChildProcess} from '../process'
 import {NOOP} from '../context'
+import {getProcessCloseHandler, handleChildProcess} from '../process'
 import {optionalRequire} from '../require'
 import {Duplex as DuplexType} from 'stream'
 import {AnyFunction} from '../type'
-import {ChildProcess as ChildProcessType} from 'child_process'
 
 declare const TARGET_TECHNOLOGY:string
 

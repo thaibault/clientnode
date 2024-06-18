@@ -14,6 +14,7 @@
     endregion
 */
 import {expect, test} from '@jest/globals'
+
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {$} from '../context'
 import {deleteCookie, getCookie, setCookie} from '../cookie'

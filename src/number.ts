@@ -16,7 +16,6 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-
 import {determineType} from './object'
 
 /**

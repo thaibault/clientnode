@@ -13,11 +13,12 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import {expect, test} from '@jest/globals'
+
 import {
     dateTimeFormat, interpretDateTime, normalizeDateTime, sliceWeekday
 } from '../datetime'
 import {testEach} from '../test-helper'
-import {expect, test} from '@jest/globals'
 
 const now = new Date()
 const testDate = new Date(0)

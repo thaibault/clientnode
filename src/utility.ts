@@ -19,10 +19,7 @@
 import {NOOP} from './context'
 import {isFunction} from './indicators'
 import {
-    AnyFunction,
-    ProcedureFunction,
-    TimeoutPromise,
-    UnknownFunction
+    AnyFunction, ProcedureFunction, TimeoutPromise, UnknownFunction
 } from './type'
 
 /**

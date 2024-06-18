@@ -30,12 +30,14 @@ import {
     merge,
     paginate,
     permutate,
-    permutateLength, removeArrayItem, sortTopological, sumUpProperty, unique
+    permutateLength,
+    removeArrayItem,
+    sortTopological,
+    sumUpProperty,
+    unique
 } from '../array'
 import {
-    testEach,
-    testEachSingleParameterAgainstSameExpectation,
-    TEST_THROW_SYMBOL
+    testEach, testEachSingleParameterAgainstSameExpectation, TEST_THROW_SYMBOL
 } from '../test-helper'
 
 testEach<typeof aggregatePropertyIfEqual>(

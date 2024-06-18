@@ -17,17 +17,17 @@
 */
 import {expect, test} from '@jest/globals'
 
+import {$} from '../context'
+import {
+    checkReachability, checkUnreachability, sendToExternalURL, sendToIFrame
+} from '../data-transfer'
 import {
     TEST_DEFINED_SYMBOL,
     testEachPromiseAgainstSameExpectation,
     testEachPromiseRejectionAgainstSameExpectation
 } from '../test-helper'
-import {
-    checkReachability, checkUnreachability, sendToExternalURL, sendToIFrame
-} from '../data-transfer'
-import {timeout} from '../utility'
 import {$T} from '../type'
-import {$} from '../context'
+import {timeout} from '../utility'
 
 declare const TARGET_TECHNOLOGY:string
 
