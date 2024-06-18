@@ -16,6 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import {isFunction} from './indicators'
 import Tools from './Tools'
 import {
     $Global,
@@ -27,7 +28,6 @@ import {
     ToolsFunction,
     UnknownFunction
 } from './type'
-import {isFunction} from './indicators'
 
 export const determineGlobalContext:(() => $Global) = ():$Global => {
     if (typeof globalThis === 'undefined') {
