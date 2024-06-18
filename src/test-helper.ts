@@ -26,7 +26,7 @@
 import {expect, test} from '@jest/globals'
 import {Global as JestGlobal} from '@jest/types'
 
-import Tools from './index'
+import {represent} from './object'
 import {
     AnyFunction,
     FirstParameter,
@@ -39,17 +39,16 @@ import {
     UnknownFunction, TestMatchers
 } from './type'
 // endregion
-export const DefinedSymbol = Symbol.for('clientnodeTestHelperDefined')
-export const ThrowSymbol = Symbol.for('clientnodeTestHelperThrow')
-export const UndefinedSymbol = Symbol.for('clientnodeTestHelperUndefined')
+export const TEST_DEFINED_SYMBOL = Symbol.for('clientnodeTestHelperDefined')
+export const TEST_THROW_SYMBOL = Symbol.for('clientnodeTestHelperThrow')
+export const TEST_UNDEFINED_SYMBOL = Symbol.for('clientnodeTestHelperUndefined')
 /**
  * Tests given result against given expectations. Respects special symbol
  * values.
  * @param givenResult - Target to compare expectation against.
  * @param expected - Expected result.
  * @param wrap - Indicates whether to wrap with an expect function call.
- *
- * @returns Nothing.
+ * @returns Nothing or a promise resolving to nothing.
  */
 export const testExpectedType = <
     Type = unknown, Result extends Promise<void>|void = void
@@ -62,13 +61,13 @@ export const testExpectedType = <
         expect<Result>(givenResult as Result) as unknown as Matchers<Result> :
         givenResult as Matchers<Result>
 
-    if (expected === DefinedSymbol)
+    if (expected === TEST_DEFINED_SYMBOL)
         return result.toBeDefined()
 
-    if (expected === ThrowSymbol)
+    if (expected === TEST_THROW_SYMBOL)
         return result.toThrow()
 
-    if (expected === UndefinedSymbol)
+    if (expected === TEST_UNDEFINED_SYMBOL)
         return result.not.toBeDefined()
 
     return result.toStrictEqual(expected)
@@ -81,8 +80,6 @@ export const testExpectedType = <
  * @param callback - Function reference to test.
  * @param functionTestTuple - Additional arrays of test sets to test given
  * function again.
- *
- * @returns Nothing.
  */
 export const testEach = <
     FunctionType extends AnyFunction = UnknownFunction
@@ -90,19 +87,20 @@ export const testEach = <
         functionName:string,
         callback:FunctionType,
         ...functionTestTuple:Array<FunctionTestTuple<FunctionType>>
-    ) =>
-        test.each([...functionTestTuple])(
-            `%p === ${functionName}(%p, ...)`,
-            ((
-                expected:ReturnType<FunctionType>|TestSymbol,
-                ...parameters:Parameters<FunctionType>
-            ):void =>
-                testExpectedType<ReturnType<FunctionType>>(
-                    callback(...parameters) as TestMatchers<void>|void,
-                    expected
-                )
-            ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
-        )
+    ) => {
+    test.each([...functionTestTuple])(
+        `%p === ${functionName}(%p, ...)`,
+        ((
+            expected:ReturnType<FunctionType>|TestSymbol,
+            ...parameters:Parameters<FunctionType>
+        ):void =>
+            testExpectedType<ReturnType<FunctionType>>(
+                callback(...parameters) as TestMatchers<void>|void,
+                expected
+            )
+        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+    )
+}
 /**
  * Tests each given test set (expected value follows by various list of
  * function parameters). It respects function signature to raise compile time
@@ -111,8 +109,6 @@ export const testEach = <
  * @param callback - Function reference to test.
  * @param functionTestTuple - Additional arrays of test sets to test given
  * function again.
- *
- * @returns Nothing.
  */
 export const testEachPromise = <
     FunctionType extends AnyFunction = UnknownFunction
@@ -120,18 +116,19 @@ export const testEachPromise = <
         functionName:string,
         callback:FunctionType,
         ...functionTestTuple:Array<FunctionTestPromiseTuple<FunctionType>>
-    ) =>
-        test.each([...functionTestTuple])(
-            `%p === ${functionName}(%p, ...)`,
-            ((
-                expected:TestSymbol|ThenParameter<ReturnType<FunctionType>>,
-                ...parameters:Parameters<FunctionType>
-            ):Promise<void> =>
-                testExpectedType<
-                    ThenParameter<ReturnType<FunctionType>>, Promise<void>
-                >(expect(callback(...parameters)).resolves, expected, false)
-            ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
-        )
+    ) => {
+    test.each([...functionTestTuple])(
+        `%p === ${functionName}(%p, ...)`,
+        ((
+            expected:TestSymbol|ThenParameter<ReturnType<FunctionType>>,
+            ...parameters:Parameters<FunctionType>
+        ):Promise<void> =>
+            testExpectedType<
+                ThenParameter<ReturnType<FunctionType>>, Promise<void>
+            >(expect(callback(...parameters)).resolves, expected, false)
+        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+    )
+}
 /**
  * Tests each given test set (expected value follows by various list of
  * function parameters). It respects function signature to raise compile time
@@ -140,8 +137,6 @@ export const testEachPromise = <
  * @param callback - Function reference to test.
  * @param functionTestTuple - Additional arrays of test sets to test given
  * function again.
- *
- * @returns Nothing.
  */
 export const testEachPromiseRejection = <
     FunctionType extends AnyFunction = UnknownFunction
@@ -151,18 +146,19 @@ export const testEachPromiseRejection = <
         ...functionTestTuple:Array<FunctionTestPromiseRejectionTuple<
             FunctionType
         >>
-    ) =>
-        test.each([...functionTestTuple])(
-            `%p === ${functionName}(%p, ...)`,
-            ((
-                expected:Error | TestSymbol,
-                ...parameters:Parameters<FunctionType>
-            ):Promise<void> =>
-                testExpectedType<Error, Promise<void>>(
-                    expect(callback(...parameters)).rejects, expected, false
-                )
-            ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
-        )
+    ) => {
+    test.each([...functionTestTuple])(
+        `%p === ${functionName}(%p, ...)`,
+        ((
+            expected:Error | TestSymbol,
+            ...parameters:Parameters<FunctionType>
+        ):Promise<void> =>
+            testExpectedType<Error, Promise<void>>(
+                expect(callback(...parameters)).rejects, expected, false
+            )
+        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+    )
+}
 /**
  * Tests each given single parameter against same given expected value. It
  * respects function signature to raise compile time errors if given test set
@@ -171,8 +167,6 @@ export const testEachPromiseRejection = <
  * @param callback - Function reference to test.
  * @param expected - Value to check each function call return value against.
  * @param parameters - Additional first parameters to test given function with.
- *
- * @returns Nothing.
  */
 export const testEachSingleParameterAgainstSameExpectation = <
     FunctionType extends AnyFunction = UnknownFunction
@@ -181,19 +175,20 @@ export const testEachSingleParameterAgainstSameExpectation = <
         callback:FunctionType,
         expected:ReturnType<FunctionType>|TestSymbol,
         ...parameters:Array<FirstParameter<FunctionType>>
-    ) =>
-        test.each([...parameters])(
-            `${Tools.represent(expected)} === ${functionName}(%p)`,
-            ((parameter:FirstParameter<FunctionType>):void =>
-                testExpectedType<ReturnType<FunctionType>>(
-                    (expected === ThrowSymbol ?
-                        () => callback(parameter) as unknown :
-                        callback(parameter)
-                    ) as TestMatchers<void>|void,
-                    expected
-                )
-            ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
-        )
+    ) => {
+    test.each([...parameters])(
+        `${represent(expected)} === ${functionName}(%p)`,
+        ((parameter:FirstParameter<FunctionType>):void =>
+            testExpectedType<ReturnType<FunctionType>>(
+                (expected === TEST_THROW_SYMBOL ?
+                    () => callback(parameter) as unknown :
+                    callback(parameter)
+                ) as TestMatchers<void>|void,
+                expected
+            )
+        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+    )
+}
 /**
  * Tests each given single parameter against same given expected value. It
  * respects function signature to raise compile time errors if given test set
@@ -202,8 +197,6 @@ export const testEachSingleParameterAgainstSameExpectation = <
  * @param callback - Function reference to test.
  * @param expected - Value to check each function call return value against.
  * @param parameters - Additional first parameters to test given function with.
- *
- * @returns Nothing.
  */
 export const testEachSingleParameterAgainstSamePromisedExpectation = <
     FunctionType extends AnyFunction = UnknownFunction
@@ -214,7 +207,7 @@ export const testEachSingleParameterAgainstSamePromisedExpectation = <
         ...parameters:Array<FirstParameter<FunctionType>>
     ) => {
     test.each([...parameters])(
-        `${Tools.represent(expected)} === ${functionName}(%p)`,
+        `${represent(expected)} === ${functionName}(%p)`,
         ((parameter:FirstParameter<FunctionType>) =>
             testExpectedType<
                 ThenParameter<ReturnType<FunctionType>>, Promise<void>
@@ -230,8 +223,6 @@ export const testEachSingleParameterAgainstSamePromisedExpectation = <
  * @param callback - Function reference to test.
  * @param expected - Value to check each function call return value against.
  * @param parameters - Additional first parameters to test given function with.
- *
- * @returns Nothing.
  */
 export const testEachSingleParameterAgainstSameRejectedExpectation = <
     FunctionType extends AnyFunction = UnknownFunction
@@ -242,7 +233,7 @@ export const testEachSingleParameterAgainstSameRejectedExpectation = <
         ...parameters:Array<FirstParameter<FunctionType>>
     ) => {
     test.each([...parameters])(
-        `${Tools.represent(expected)} === ${functionName}(%p)`,
+        `${represent(expected)} === ${functionName}(%p)`,
         ((parameter:FirstParameter<FunctionType>):Promise<void> =>
             testExpectedType<Error, Promise<void>>(
                 expect(callback(parameter)).rejects, expected, false
@@ -259,8 +250,6 @@ export const testEachSingleParameterAgainstSameRejectedExpectation = <
  * @param expected - Value to check each function call return value against.
  * @param functionParameters - Additional lists of parameters to test given
  * function again.
- *
- * @returns Nothing.
  */
 export const testEachAgainstSameExpectation = <
     FunctionType extends AnyFunction = UnknownFunction
@@ -269,19 +258,20 @@ export const testEachAgainstSameExpectation = <
         callback:FunctionType,
         expected:ReturnType<FunctionType>|TestSymbol,
         ...functionParameters:Array<Parameters<FunctionType>>
-    ):void =>
-        test.each([...functionParameters])(
-            `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
-            ((...parameters:Parameters<FunctionType>):void =>
-                testExpectedType<ReturnType<FunctionType>>(
-                    (expected === ThrowSymbol ?
-                        () => callback(...parameters) as unknown :
-                        callback(...parameters)
-                    ) as TestMatchers<void>|void,
-                    expected
-                )
-            ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
-        )
+    ) => {
+    test.each([...functionParameters])(
+        `${represent(expected)} === ${functionName}(%p, ...)`,
+        ((...parameters:Parameters<FunctionType>):void =>
+            testExpectedType<ReturnType<FunctionType>>(
+                (expected === TEST_THROW_SYMBOL ?
+                    () => callback(...parameters) as unknown :
+                    callback(...parameters)
+                ) as TestMatchers<void>|void,
+                expected
+            )
+        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+    )
+}
 /**
  * Tests each given test set (various list of function parameters) against same
  * given expected value. It respects function signature to raise compile time
@@ -291,8 +281,6 @@ export const testEachAgainstSameExpectation = <
  * @param expected - Value to check each function call return value against.
  * @param functionParameters - Additional lists of parameters to test given
  * function again.
- *
- * @returns Nothing.
  */
 export const testEachPromiseAgainstSameExpectation = <
     FunctionType extends AnyFunction = UnknownFunction
@@ -301,15 +289,16 @@ export const testEachPromiseAgainstSameExpectation = <
         callback:FunctionType,
         expected:TestSymbol|ThenParameter<ReturnType<FunctionType>>,
         ...functionParameters:Array<Parameters<FunctionType>>
-    ) =>
-        test.each([...functionParameters])(
-            `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
-            ((...parameters:Parameters<FunctionType>) =>
-                testExpectedType<
-                    ThenParameter<ReturnType<FunctionType>>, Promise<void>
-                >(expect(callback(...parameters)).resolves, expected, false)
-            ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
-        )
+    ) => {
+    test.each([...functionParameters])(
+        `${represent(expected)} === ${functionName}(%p, ...)`,
+        ((...parameters:Parameters<FunctionType>) =>
+            testExpectedType<
+                ThenParameter<ReturnType<FunctionType>>, Promise<void>
+            >(expect(callback(...parameters)).resolves, expected, false)
+        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+    )
+}
 /**
  * Tests each given test set (various list of function parameters) against same
  * given expected value. It respects function signature to raise compile time
@@ -319,8 +308,6 @@ export const testEachPromiseAgainstSameExpectation = <
  * @param expected - Value to check each function call return value against.
  * @param functionParameters - Additional lists of parameters to test given
  * function again.
- *
- * @returns Nothing.
  */
 export const testEachPromiseRejectionAgainstSameExpectation = <
     FunctionType extends AnyFunction = UnknownFunction
@@ -329,17 +316,14 @@ export const testEachPromiseRejectionAgainstSameExpectation = <
         callback:FunctionType,
         expected:Error|TestSymbol,
         ...functionParameters:Array<Parameters<FunctionType>>
-    ) =>
-        test.each([...functionParameters])(
-            `${Tools.represent(expected)} === ${functionName}(%p, ...)`,
-            ((...parameters:Parameters<FunctionType>):Promise<void> =>
-                testExpectedType<Error, Promise<void>>(
-                    expect(callback(...parameters)).rejects, expected, false
-                )
-            ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
-        )
+    ) => {
+    test.each([...functionParameters])(
+        `${represent(expected)} === ${functionName}(%p, ...)`,
+        ((...parameters:Parameters<FunctionType>):Promise<void> =>
+            testExpectedType<Error, Promise<void>>(
+                expect(callback(...parameters)).rejects, expected, false
+            )
+        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+    )
+}
 export default testEach
-// region vim modline
-// vim: set tabstop=4 shiftwidth=4 expandtab:
-// vim: foldmethod=marker foldmarker=region,endregion:
-// endregion

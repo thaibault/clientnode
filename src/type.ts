@@ -17,11 +17,12 @@
 */
 // region imports
 import {Matchers} from 'expect'
-import JQuery from 'jquery'
 import {Dirent as DirectoryEntry, Stats as FileStats} from 'fs'
 
-import Tools, {BoundTools} from './index'
-import {DefinedSymbol, ThrowSymbol, UndefinedSymbol} from './testHelper'
+import Tools, {BoundTools} from './Tools'
+import {
+    TEST_DEFINED_SYMBOL, TEST_THROW_SYMBOL, TEST_UNDEFINED_SYMBOL
+} from './test-helper'
 // endregion
 // region exports
 /// region helper
@@ -64,8 +65,11 @@ export type BaseSelector<T = unknown, E = unknown> =
 export type Selector<T = unknown, E = unknown> =
     Array<BaseSelector<T, E>>|BaseSelector<T, E>
 
-export type TestSymbol =
-    typeof DefinedSymbol|typeof ThrowSymbol|typeof UndefinedSymbol
+export type TestSymbol = (
+    typeof TEST_DEFINED_SYMBOL |
+    typeof TEST_THROW_SYMBOL |
+    typeof TEST_UNDEFINED_SYMBOL
+)
 
 export type ThenParameter<Type> = Type extends PromiseLike<infer U> ? U : Type
 export type ThenParameterRecursive<Type> =
@@ -365,8 +369,4 @@ export interface StringMarkOptions {
     normalizer:(value:unknown) => string
     skipTagDelimitedParts:null|[string, string]
 }
-// endregion
-// region vim modline
-// vim: set tabstop=4 shiftwidth=4 expandtab:
-// vim: foldmethod=marker foldmarker=region,endregion:
 // endregion

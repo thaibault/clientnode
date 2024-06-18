@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.1143",
+  "version": "3.0.1144",
   "description": "upgrade to object orientated rock solid plugins",
   "keywords": [
     "client",
@@ -15,19 +15,14 @@
     "url": "https://github.com/thaibault/clientnode/issues"
   },
   "license": "CC-BY-3.0",
+  "main": "dist/index.js",
   "author": {
     "name": "Torben Sickert",
     "email": "info@torben.website",
     "url": "https://torben.website"
   },
   "files": [
-    "index.d.ts",
-    "index.js",
-    "property-types.d.ts",
-    "property-types.js",
-    "testHelper.d.ts",
-    "testHelper.js",
-    "type.d.ts"
+    "dist"
   ],
   "repository": {
     "type": "git",
@@ -35,7 +30,7 @@
   },
   "scripts": {
     "build": "yarn build:types; yarn build:plain",
-    "build:alternate": "command='babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/preset-env,@babel/preset-typescript --source-maps inline --out-file' && $command index.js index.ts && $command property-types.js property-types.ts && yarn make:executable",
+    "build:alternate": "command='babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/preset-env,@babel/preset-typescript --source-maps inline --out-file' && $command index.js src/index.ts && $command property-types.js src/property-types.ts && yarn make:executable",
     "build:bundle": "yarn build:types; yarn build:bundle:plain",
     "build:bundle:compatible": "yarn build:types; weboptimizer build '{__reference__: [\"target:bundle\", \"target:compatible\"]}'",
     "build:bundle:plain": "weboptimizer build '{__reference__: \"target:bundle\"}'",
@@ -50,10 +45,10 @@
     "prepare": "if ! yarn build; then echo You should rerun install procedure to resolve dependency cycle. && yarn build:alternate; fi",
     "serve": "weboptimizer serve",
     "start": "yarn serve",
-    "test": "yarn build && weboptimizer test",
-    "test:browser": "yarn build && weboptimizer test:browser",
-    "test:coverage": "yarn build && weboptimizer test:coverage",
-    "test:coverage:report": "yarn build && weboptimizer test:coverage:report",
+    "test": "weboptimizer test",
+    "test:browser": "weboptimizer test:browser",
+    "test:coverage": "weboptimizer test:coverage",
+    "test:coverage:report": "weboptimizer test:coverage:report",
     "update": "yarn version patch && yarn npm publish",
     "update:documentation": "documentation-website",
     "watch": "weboptimizer build --watch"
@@ -71,13 +66,13 @@
     "@types/node": "^20.14.2",
     "@types/prop-types": "^15.7.12",
     "@types/webpack-env": "^1.18.5",
-    "@typescript-eslint/eslint-plugin": "^7.12.0",
-    "@typescript-eslint/parser": "^7.12.0",
-    "clientnode": "3.0.1142",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
+    "clientnode": "3.0.1143",
     "documentation-website": "^1.0.326",
     "eslint": "^9.4.0",
     "eslint-config-google": "^0.14.0",
-    "eslint-plugin-jsdoc": "^48.2.9",
+    "eslint-plugin-jsdoc": "^48.2.12",
     "favicons-webpack-plugin": "^6.0.1",
     "image-minimizer-webpack-plugin": "^4.0.2",
     "jest": "^29.7.0",
@@ -86,7 +81,8 @@
     "node-fetch": "^3.3.2",
     "prop-types": "^15.8.1",
     "rimraf": "^5.0.7",
-    "weboptimizer": "^2.0.1468",
+    "typescript-eslint": "^7.13.0",
+    "weboptimizer": "^2.0.1474",
     "webpack-dev-server": "^5.0.4"
   },
   "peerDependencies": {
@@ -119,7 +115,10 @@
     "yarn": ">=4"
   },
   "resolutions": {
-    "colors": "1.4.0"
+    "colors": "1.4.0",
+    "globals@npm:^14.0.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
+    "globals@npm:^11.1.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
+    "globals@npm:^9.18.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch"
   },
   "sideEffects": false,
   "documentationWebsite": {
@@ -154,12 +153,17 @@
         "cascadingStyleSheet": null
       }
     },
+    "injection": {
+      "entry": {
+        "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2].startsWith('test') ? {testBundle: './test'} : '__auto__'"
+      }
+    },
     "module": {
       "aliases": {
         "#": "Ensure that dependent modules uses latest clientnode version.",
-        "clientnode$": "../../index",
-        "clientnode/property-types$": "../../property-types",
-        "clientnode/type$": "../../type",
+        "clientnode$": "../../src/index",
+        "clientnode/property-types$": "../../src/property-types",
+        "clientnode/type$": "../../src/type",
         "formdata-polyfill/esm.min.js$": "formdata-polyfill",
         "jquery$": "jquery/dist/jquery.min"
       },
@@ -179,6 +183,14 @@
     "#": "Do not touch nodes environment variables on static builds to allow \"prop-types\" conditional exports.",
     "nodeENV": {
       "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'serve' ? null : false"
+    },
+    "path": {
+      "source": {
+        "base": "src/"
+      },
+      "target": {
+        "base": "dist/"
+      }
     },
     "target:compatible": {
       "module": {

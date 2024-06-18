@@ -1,6 +1,6 @@
 // #!/usr/bin/env babel-node
 // -*- coding: utf-8 -*-
-/** @module property-types */
+/** @module propertTypes */
 'use strict'
 /* !
     region header
@@ -21,8 +21,8 @@ import PropTypes, {Requireable} from 'prop-types'
 
 import {ValueOf} from './type'
 // endregion
-export const NullSymbol = Symbol('null')
-export const UndefinedSymbol = Symbol('undefined')
+export const NullSymbol = Symbol('clientnodePropertyTypesNull')
+export const UndefinedSymbol = Symbol('clientnodePropertyTypesUndefined')
 
 export const RealTypes = {
     any: PropTypes.any,
@@ -125,7 +125,3 @@ export const symbol = PropertyTypes.symbol
 export type {Requireable, ValidationMap, Validator} from 'prop-types'
 
 export default PropertyTypes
-// region vim modline
-// vim: set tabstop=4 shiftwidth=4 expandtab:
-// vim: foldmethod=marker foldmarker=region,endregion:
-// endregion
