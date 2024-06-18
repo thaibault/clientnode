@@ -17,6 +17,7 @@
     endregion
 */
 import {isFunction} from './indicators'
+import {currentImport, optionalRequire} from './require'
 import Tools from './Tools'
 import {
     $Global,
@@ -24,7 +25,6 @@ import {
     $TStatic,
     AnyFunction,
     BoundToolsFunction,
-    ImportFunction,
     ParametersExceptFirst,
     ToolsFunction,
     UnknownFunction
@@ -51,37 +51,6 @@ export const determineGlobalContext:(() => $Global) = ():$Global => {
 export let globalContext:$Global = determineGlobalContext()
 export const setGlobalContext = (context:$Global):void => {
     globalContext = context
-}
-// Make preprocessed require function available at runtime.
-/*
-    NOTE: This results in an webpack error when postprocessing this compiled
-    pendant in another webpack context.
-
-    declare const __non_webpack_require__:typeof require
-*/
-export const currentRequire:null|typeof require =
-    /*
-        typeof __non_webpack_require__ === 'function' ?
-            __non_webpack_require__ :
-    */
-    eval(`typeof require === 'undefined' ? null : require`) as
-        null|typeof require
-
-let currentOptionalImport:ImportFunction|null = null
-try {
-    currentOptionalImport =
-        eval(`typeof import === 'undefined' ? null : import`) as
-            ImportFunction|null
-} catch (error) {
-    // Continue regardless of an error.
-}
-export const currentImport:null|ImportFunction = currentOptionalImport
-export const optionalRequire = <T = unknown>(id:string):null|T => {
-    try {
-        return currentRequire ? currentRequire(id) as T : null
-    } catch (error) {
-        return null
-    }
 }
 
 /// region context
@@ -206,7 +175,7 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
     }
 
     // Try special detection for internet explorer 10 and 11.
-    if (version === 0 && $.global.window.navigator)
+    if (version === 0 && $.global.window.navigator) {
         if ($.global.window.navigator.appVersion.indexOf('MSIE 10') !== -1)
             return 10
 
@@ -217,6 +186,7 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
             ].includes(-1)
         )
             return 11
+    }
 
     return version
 })()}

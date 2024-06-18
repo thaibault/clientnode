@@ -18,7 +18,8 @@
 import {expect, test} from '@jest/globals'
 
 import {getProcessCloseHandler, handleChildProcess} from '../process'
-import {NOOP, optionalRequire} from '../context'
+import {NOOP} from '../context'
+import {optionalRequire} from '../require'
 import {Duplex as DuplexType} from 'stream'
 import {AnyFunction} from '../type'
 import {ChildProcess as ChildProcessType} from 'child_process'

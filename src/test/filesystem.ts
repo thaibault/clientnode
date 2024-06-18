@@ -17,7 +17,7 @@
 */
 import {expect, test} from '@jest/globals'
 
-import {NOOP, optionalRequire} from '../context'
+import {NOOP} from '../context'
 import {
     copyDirectoryRecursive,
     copyDirectoryRecursiveSync,
@@ -30,6 +30,7 @@ import {
     walkDirectoryRecursively,
     walkDirectoryRecursivelySync
 } from '../filesystem'
+import {optionalRequire} from '../require'
 import {testEachSingleParameterAgainstSameExpectation} from '../test-helper'
 import {File} from '../type'
 import {timeout} from '../utility'

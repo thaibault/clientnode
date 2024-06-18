@@ -20,7 +20,8 @@ import {ChildProcess} from 'child_process'
 import {NOOP} from './context'
 import {
     AnyFunction,
-    ProcessCloseCallback, ProcessError,
+    ProcessCloseCallback,
+    ProcessError,
     ProcessErrorCallback,
     ProcessHandler
 } from './type'

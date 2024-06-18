@@ -20,7 +20,8 @@ import {
     AnyFunction, Encoding, File, FileTraversionResult, SecondParameter
 } from './type'
 import {DEFAULT_ENCODING} from './constants'
-import {NOOP, optionalRequire} from './context'
+import {NOOP} from './context'
+import {optionalRequire} from './require'
 
 export const {
     mkdirSync = null,
