@@ -63,14 +63,14 @@
     "@types/html-minifier": "^4.0.5",
     "@types/imagemin": "^9.0.0",
     "@types/jquery": "^3.5.30",
-    "@types/node": "^20.14.2",
+    "@types/node": "^20.14.6",
     "@types/prop-types": "^15.7.12",
     "@types/webpack-env": "^1.18.5",
-    "@typescript-eslint/eslint-plugin": "^7.13.0",
-    "@typescript-eslint/parser": "^7.13.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.1",
+    "@typescript-eslint/parser": "^7.13.1",
     "clientnode": "3.0.1143",
     "documentation-website": "^1.0.326",
-    "eslint": "^9.4.0",
+    "eslint": "^9.5.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-jsdoc": "^48.2.12",
     "favicons-webpack-plugin": "^6.0.1",
@@ -81,8 +81,8 @@
     "node-fetch": "^3.3.2",
     "prop-types": "^15.8.1",
     "rimraf": "^5.0.7",
-    "typescript-eslint": "^7.13.0",
-    "weboptimizer": "^2.0.1474",
+    "typescript-eslint": "^7.13.1",
+    "weboptimizer": "^2.0.1475",
     "webpack-dev-server": "^5.0.4"
   },
   "peerDependencies": {
@@ -161,9 +161,9 @@
     "module": {
       "aliases": {
         "#": "Ensure that dependent modules uses latest clientnode version.",
-        "clientnode$": "../../src/index",
-        "clientnode/property-types$": "../../src/property-types",
-        "clientnode/type$": "../../src/type",
+        "TODO clientnode$": "../../src/index",
+        "TODO clientnode/property-types$": "../../src/property-types",
+        "TODO clientnode/type$": "../../src/type",
         "formdata-polyfill/esm.min.js$": "formdata-polyfill",
         "jquery$": "jquery/dist/jquery.min"
       },
