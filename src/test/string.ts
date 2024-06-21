@@ -1311,7 +1311,6 @@ if (TARGET_TECHNOLOGY === 'node')
         parseEncodedObject,
 
         [null, ''],
-        /*
         [null, 'null'],
         [{a: undefined}, '{a: undefined}'],
         [{a: undefined}, Buffer.from('{a: undefined}').toString('base64')],
@@ -1325,7 +1324,6 @@ if (TARGET_TECHNOLOGY === 'node')
         [null, Buffer.from('{a: a}').toString('base64')],
         [{a: 2}, '{a: scope.a}', {a: 2}],
         [{a: 2}, Buffer.from('{a: scope.a}').toString('base64'), {a: 2}]
-        */
     )
 testEach<typeof sliceAllExceptNumberAndLastSeperator>(
     'sliceAllExceptNumberAndLastSeperator',

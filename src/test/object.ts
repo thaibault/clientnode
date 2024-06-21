@@ -24,7 +24,7 @@
 import {expect, test} from '@jest/globals'
 
 import {VALUE_COPY_SYMBOL} from '../constants'
-import {$, NOOP} from '../context'
+import {NOOP} from '../context'
 import {isPlainObject} from '../indicators'
 import {
     addDynamicGetterAndSetter,
