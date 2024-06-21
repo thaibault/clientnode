@@ -19,6 +19,31 @@
 import {$} from './context'
 import {Mapping} from './type'
 
+import * as array from './array'
+import * as datetime from './datetime'
+import * as filesystem from './filesystem'
+import * as functions from './function'
+import * as indicators from './indicators'
+import * as number from './number'
+import * as object from './object'
+import * as propertyTypes from './property-types'
+import * as require from './require'
+import * as string from './string'
+import * as utility from './utility'
+
+export const UTILITY_SCOPE = {
+    array,
+    datetime,
+    filesystem,
+    functions,
+    indicators,
+    number,
+    object,
+    propertyTypes,
+    require,
+    string,
+    utility
+}
 /**
  * Overwrites all inherited variables from parent scope with "undefined".
  * @param scope - A scope where inherited names will be removed.
