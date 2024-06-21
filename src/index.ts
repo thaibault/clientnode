@@ -37,7 +37,6 @@ export * from './number'
 export * from './object'
 
 export * from './process'
-export * from './property-types'
 
 export * from './require'
 
