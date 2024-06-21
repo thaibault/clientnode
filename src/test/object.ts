@@ -24,7 +24,7 @@
 import {expect, test} from '@jest/globals'
 
 import {VALUE_COPY_SYMBOL} from '../constants'
-import {$, NOOP} from '../context'
+import {NOOP} from '../context'
 import {isPlainObject} from '../indicators'
 import {
     addDynamicGetterAndSetter,
@@ -728,7 +728,8 @@ testEach<typeof evaluateDynamicData>(
             b: {__evaluate__: '_.c'},
             c: {d: {e: {__evaluate__: 'tools.copy([2])'}}}
         },
-        {tools: copy($.Tools.class)}, '_'
+        {tools: {copy}},
+        '_'
     ],
     [
         {a: {b: 1, c: 1}},

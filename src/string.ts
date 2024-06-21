@@ -20,17 +20,18 @@
 import {
     ABBREVIATIONS, DEFAULT_ENCODING, SPECIAL_REGEX_SEQUENCES
 } from './constants'
-import {MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION} from './context'
+import {MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION, $} from './context'
 import {isFileSync, readFileSync} from './filesystem'
 import {determineType, represent} from './object'
 import {
     CompilationResult,
     EvaluationResult,
     Mapping,
+    PlainObject,
     StringMarkOptions,
     TemplateFunction,
     QueryParameters,
-    ValueOf, PlainObject
+    ValueOf
 } from './type'
 
 /**
@@ -61,8 +62,8 @@ export const escapeRegularExpressions = (
 /**
  * Translates given name into a valid javaScript one.
  * @param name - Name to convert.
- * @param allowedSymbols - String of symbols which should be allowed within
- * a variable name (not the first character).
+ * @param allowedSymbols - String of symbols which should be allowed within a
+ * variable name (not the first character).
  * @returns Converted name is returned.
  */
 export const convertToValidVariableName = (
@@ -90,7 +91,7 @@ export const convertToValidVariableName = (
  * whitespaces as "+" or "%20".
  * @returns Encoded given url.
  */
-export const encodeURIComponent = (
+export const encodeURIComponentExtended = (
     url:string, encodeSpaces = false
 ):string => {
     return encodeURIComponent(url)
@@ -693,9 +694,9 @@ export const evaluate = <T = string, S extends object = object>(
         result.result =
             (binding ? templateFunction.bind(binding) : templateFunction)(
                 /*
-                    NOTE: We want to be ensure to have same ordering as we
-                    have for the scope names and to call internal
-                    registered getter by retrieving values. So simple using
+                    NOTE: We want to be ensure to have same ordering as we have
+                    for the scope names and to call internal registered getter
+                    by retrieving values. So simple using
                     "...Object.values(scope)" is not appreciate here.
                 */
                 ...originalScopeNames.map((name:keyof S):ValueOf<S> =>
@@ -1102,11 +1103,11 @@ export const normalizeZipCode = (value:unknown):string => {
     return ''
 }
 /**
- * Converts given serialized, base64 encoded or file path given object into
- * a native javaScript one if possible.
+ * Converts given serialized, base64 encoded or file path given object into a
+ * native javaScript one if possible.
  * @param serializedObject - Object as string.
- * @param scope - An optional scope which will be used to evaluate given
- * object in.
+ * @param scope - An optional scope which will be used to evaluate given object
+ * in.
  * @param name - The name under given scope will be available.
  * @returns The parsed object if possible and null otherwise.
  */

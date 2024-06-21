@@ -159,7 +159,7 @@ export const interpretDateTime = (
                 // local to utc
                 return new Date(
                     result.getTime() -
-                    (new Date().getTimezoneOffset() * 60) * 1000
+                    (result.getTimezoneOffset() * 60) * 1000
                 )
             }
 
@@ -173,7 +173,7 @@ export const interpretDateTime = (
             // utc to local
             return new Date(
                 result.getTime() +
-                (new Date().getTimezoneOffset() * 60) * 1000
+                (result.getTimezoneOffset() * 60) * 1000
             )
         }
 
@@ -183,19 +183,21 @@ export const interpretDateTime = (
     value = value.replace(/^(-?)-*0*([1-9][0-9]*)$/, '$1$2')
     // region interpret integer number
     /*
-        NOTE: Do not use "parseFloat" since we want to interpret delimiter
-        as date delimiters.
+        NOTE: Do not use "parseFloat" since we want to interpret delimiter as
+        date delimiters.
     */
     if (`${parseInt(value)}` === value) {
         if ([null, undefined].includes(interpretAsUTC as null))
             resolvedInterpretAsUTC = true
 
+        const roughDateForTimeZoneDetermining =
+            new Date(parseInt(value) * 1000)
         return new Date(
             (
                 parseInt(value) +
                 (resolvedInterpretAsUTC ?
                     0 :
-                    (new Date().getTimezoneOffset() * 60)
+                    (roughDateForTimeZoneDetermining.getTimezoneOffset() * 60)
                 )
             ) *
             1000
@@ -607,12 +609,13 @@ export const normalizeDateTime = (
         if ([null, undefined].includes(interpretAsUTC as null))
             resolvedInterpretAsUTC = true
 
+        const roughDateForTimeZoneDetermining = new Date(value * 1000)
         return new Date(
             (
                 value +
                 (resolvedInterpretAsUTC ?
                     0 :
-                    (new Date().getTimezoneOffset() * 60)
+                    (roughDateForTimeZoneDetermining.getTimezoneOffset() * 60)
                 )
             ) *
             1000

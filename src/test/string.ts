@@ -28,7 +28,7 @@ import {
     convertToValidVariableName,
     decodeHTMLEntities,
     delimitedToCamelCase,
-    encodeURIComponent,
+    encodeURIComponentExtended,
     escapeRegularExpressions,
     evaluate,
     findNormalizedMatchRange,
@@ -86,9 +86,9 @@ testEach<typeof convertToValidVariableName>(
     ['aA', '--a--a']
 )
 //// region url handling
-testEach<typeof encodeURIComponent>(
-    'encodeURIComponent',
-    encodeURIComponent,
+testEach<typeof encodeURIComponentExtended>(
+    'encodeURIComponentExtended',
+    encodeURIComponentExtended,
 
     ['', ''],
     ['+', ' '],
@@ -608,19 +608,23 @@ test.each([
         `
         function anonymous(
         ) {
-        return ' '+(loading ?                ` +
-        `'<div class="idle">loading...</div>' :                ` +
-        `results.map(function(result) {                    ` +
-        `return ('<ul>' +                        '<li>' +               ` +
-        `             Object.keys(result)                               ` +
-        ` .filter(function(name) {                                    ` +
-        `return ['number', 'string']                                    ` +
-        `    .includes(typeof result[name])                             ` +
-        `   })                                .join('') +               ` +
-        `         '</li>' +                    '</ul>')                ` +
-        `}).join('')            )+''
-                }
-            `,
+        return ' '+(loading ?        ` +
+        `    '<div class="idle">loading...</div>' :        ` +
+        `    results.map(function(result) {        ` +
+        `        return ('<ul>' +        ` +
+        `            '<li>' +            ` +
+        `            Object.keys(result)            ` +
+        `                .filter(function(name) {            ` +
+        `                    return ['number', 'string']            ` +
+        `                        .includes(typeof result[name])            ` +
+        `                })            ` +
+        `                .join('') +        ` +
+        `            '</li>' +        ` +
+        `        '</ul>')        ` +
+        `    }).join('')        ` +
+        `)+''
+        }
+        `,
         `\` \${loading ?
             '<div class="idle">loading...</div>' :
             results.map(function(result) {
@@ -1348,11 +1352,11 @@ testEach<typeof normalizeDomNodeSelector>(
     'normalizeDomNodeSelector',
     normalizeDomNodeSelector,
 
-    ['body div', 'div'],
-    ['body div p', 'div p'],
-    ['body div', 'body div'],
-    ['body div p', 'body div p'],
-    ['body', '']
+    ['body div', 'div', 'body'],
+    ['body div p', 'div p', 'body'],
+    ['body div', 'body div', 'body'],
+    ['body div p', 'body div p', 'body'],
+    ['body', '', 'body']
 )
 testEach<typeof normalizeDomNodeSelector>(
     'normalizeDomNodeSelector',

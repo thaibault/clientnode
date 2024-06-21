@@ -48,7 +48,7 @@ const tools = new Tools()
 // region public methods
 /// region special
 test('constructor', () => {
-    expect(Tools).toHaveProperty('abbreviations')
+    expect(Tools).toHaveProperty('_defaultOptions')
     expect(new Tools()).toHaveProperty('options')
 })
 test('destructor', () =>
