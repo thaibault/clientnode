@@ -26,7 +26,6 @@ import * as functions from './function'
 import * as indicators from './indicators'
 import * as number from './number'
 import * as object from './object'
-import * as propertyTypes from './property-types'
 import * as require from './require'
 import * as string from './string'
 import * as utility from './utility'
@@ -39,7 +38,6 @@ export const UTILITY_SCOPE = {
     indicators,
     number,
     object,
-    propertyTypes,
     require,
     string,
     utility
