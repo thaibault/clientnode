@@ -53,7 +53,7 @@
     "update:documentation": "documentation-website",
     "watch": "weboptimizer build --watch"
   },
-  "runkitExample": "require('@babel/runtime/package.json')\n\nconst {Tools} = require('clientnode')\n\nTools.represent({test: 'data'})",
+  "runkitExample": "require('@babel/runtime/package.json')\n\nconst {represent} = require('clientnode')\n\nrepresent({test: 'data'})",
   "devDependencies": {
     "@babel/cli": "^7.24.7",
     "@babel/eslint-parser": "^7.24.7",
