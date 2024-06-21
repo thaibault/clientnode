@@ -16,13 +16,14 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import {$} from './context'
 import {Mapping} from './type'
 
 /**
  * Overwrites all inherited variables from parent scope with "undefined".
  * @param scope - A scope where inherited names will be removed.
- * @param prefixesToIgnore - Name prefixes to ignore during deleting names
- * in given scope.
+ * @param prefixesToIgnore - Name prefixes to ignore during deleting names in
+ * given scope.
  * @returns The isolated scope.
  */
 export const isolateScope = <T extends Mapping<unknown>>(

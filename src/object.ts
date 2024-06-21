@@ -963,10 +963,7 @@ export const evaluateDynamicData = <Type = unknown>(
                 const value:unknown = givenValue
 
                 addProxyRecursively(value)
-                /*
-                    NOTE: We only wrap needed objects for performance
-                    reasons.
-                */
+                // NOTE: We only wrap needed objects for performance reasons.
                 if (
                     Object.prototype.hasOwnProperty.call(
                         value, expressionIndicatorKey
@@ -1006,8 +1003,7 @@ export const evaluateDynamicData = <Type = unknown>(
                                             target[key] as string, type
                                         ))
 
-                                const resolvedTarget:unknown =
-                                    resolve(target)
+                                const resolvedTarget:unknown = resolve(target)
                                 if (key === 'toString') {
                                     const result:Mapping<UnknownFunction> =
                                         evaluateAndThrowError(
@@ -1061,8 +1057,7 @@ export const evaluateDynamicData = <Type = unknown>(
                                     )
                                         return Object.getOwnPropertyNames(
                                             resolve(evaluateAndThrowError(
-                                                target[type] as string,
-                                                type
+                                                target[type] as string, type
                                             ))
                                         )
 
@@ -1104,7 +1099,7 @@ export const evaluateDynamicData = <Type = unknown>(
                     expressionIndicatorKey, executionIndicatorKey
                 ].includes(key)) {
                     if (typeof Proxy === 'undefined')
-                        return resolve(evaluate(value as string))
+                        return resolve(evaluateAndThrowError(value as string))
 
                     return value
                 }
@@ -1139,7 +1134,7 @@ export const evaluateDynamicData = <Type = unknown>(
         if (Object.prototype.hasOwnProperty.call(
             object, expressionIndicatorKey
         ))
-            return evaluate(object[
+            return evaluateAndThrowError(object[
                 expressionIndicatorKey as keyof RecursiveEvaluateable<Type>
             ]) as Type
         else if (Object.prototype.hasOwnProperty.call(

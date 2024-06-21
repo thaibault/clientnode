@@ -77,7 +77,7 @@ if (TARGET_TECHNOLOGY === 'node') {
         let result = ''
         try {
             result = await copyFile(
-                resolve!('./test.ts'),
+                resolve!('./src/filesystem.ts'),
                 `./test.copyFile.${testEnvironment}.compiled.js`
             )
         } catch (error) {
@@ -103,7 +103,7 @@ if (TARGET_TECHNOLOGY === 'node') {
         }
 
         expect(copyFileSync(
-            resolve!('./test.ts'),
+            resolve!('./src/filesystem.ts'),
             `./test.copyFileSync.${testEnvironment}.compiled.js`
         )).toMatch(new RegExp(
             `\\.\\/test\\.copyFileSync\\.${testEnvironment}\\.compiled\\` +
@@ -148,7 +148,7 @@ if (TARGET_TECHNOLOGY === 'node') {
         resolve!('./test.ts')
     )
     test('isFile', async ():Promise<void> => {
-        for (const filePath of [resolve!('./test.ts')]) {
+        for (const filePath of [resolve!('./src/filesystem.ts')]) {
             let result = false
             try {
                 result = await isFile(filePath)
@@ -173,7 +173,7 @@ if (TARGET_TECHNOLOGY === 'node') {
         isFileSync,
         true,
 
-        resolve!('./test.ts')
+        resolve!('./src/filesystem.ts')
     )
     testEachSingleParameterAgainstSameExpectation<typeof isFileSync>(
         'isFileSync',
