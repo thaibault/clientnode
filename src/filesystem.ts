@@ -16,12 +16,12 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {
-    AnyFunction, Encoding, File, FileTraversionResult, SecondParameter
-} from './type'
 import {DEFAULT_ENCODING} from './constants'
 import {NOOP} from './context'
 import {optionalRequire} from './require'
+import {
+    AnyFunction, Encoding, File, FileTraversionResult, SecondParameter
+} from './type'
 
 export const {
     mkdirSync = null,
