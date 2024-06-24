@@ -41,7 +41,7 @@ export const UTILITY_SCOPE = {
     require,
     string,
     utility
-}
+} as const
 /**
  * Overwrites all inherited variables from parent scope with "undefined".
  * @param scope - A scope where inherited names will be removed.
