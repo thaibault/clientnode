@@ -694,7 +694,7 @@ export const evaluate = <T = string, S extends object = object>(
 
     try {
         result.result =
-            (binding ? templateFunction.bind(binding) : templateFunction)(
+            (templateFunction.bind(binding ? binding : null))(
                 /*
                     NOTE: We want to be sure to have same ordering as we have
                     for the scope names and to call internal registered getter
