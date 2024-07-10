@@ -4602,7 +4602,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:3.0.1160, clientnode@workspace:.":
+"clientnode@npm:3.0.1159":
+  version: 3.0.1159
+  resolution: "clientnode@npm:3.0.1159"
+  peerDependencies:
+    "@babel/runtime": "*"
+    "@types/prop-types": "*"
+    jquery: "*"
+    node-fetch: "*"
+    prop-types: "*"
+  peerDependenciesMeta:
+    "@babel/runtime":
+      optional: true
+    "@types/prop-types":
+      optional: true
+    jquery:
+      optional: true
+    node-fetch:
+      optional: true
+    prop-types:
+      optional: true
+  checksum: 10c0/4de5599ccf15295bb60ade2b2177b1ff839c0efc94b600faab19fe636f0c668f3cbf0f7e2ad7ac7464ca1e18f7e9ff802adacf820b66443b0b819255934ee5ea
+  languageName: node
+  linkType: hard
+
+"clientnode@workspace:.":
   version: 0.0.0-use.local
   resolution: "clientnode@workspace:."
   dependencies:
@@ -4619,7 +4643,7 @@ __metadata:
     "@types/webpack-env": "npm:^1.18.5"
     "@typescript-eslint/eslint-plugin": "npm:^7.16.0"
     "@typescript-eslint/parser": "npm:^7.16.0"
-    clientnode: "npm:3.0.1160"
+    clientnode: "npm:3.0.1159"
     documentation-website: "npm:^1.0.328"
     eslint: "npm:^9.6.0"
     eslint-config-google: "npm:^0.14.0"
