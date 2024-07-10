@@ -181,7 +181,7 @@ export const getPortNumber = (
         null
 ):null|number => {
     const result:Array<string>|null =
-        /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec(url)
+        /^(?:[a-z]*:?\/\/[^/]+?)?[^/]+?:([0-9]+)/i.exec(url)
 
     if (result && result.length > 1)
         return parseInt(result[1], 10)
@@ -398,13 +398,11 @@ export const representURL = (url:unknown):string => {
     return ''
 }
 //// endregion
-/* eslint-disable jsdoc/require-description-complete-sentence */
 /**
  * Converts a camel cased string to its delimited string version.
  * @param value - The string to format.
- * @param delimiter - Delimiter string
- * @param abbreviations - Collection of shortcut words to represent upper
- * cased.
+ * @param delimiter - Defines delimiter string.
+ * @param abbreviations - Collection of shortcut words to represent uppercased.
  * @returns The formatted string.
  */
 export const camelCaseToDelimited = (
@@ -412,15 +410,14 @@ export const camelCaseToDelimited = (
     delimiter = '-',
     abbreviations:Array<string>|null = null
 ):string => {
-    /* eslint-enable jsdoc/require-description-complete-sentence */
     if (!abbreviations)
         abbreviations = ABBREVIATIONS
 
     const escapedDelimiter:string = maskForRegularExpression(delimiter)
 
-    if (ABBREVIATIONS.length) {
+    if (abbreviations.length) {
         let abbreviationPattern = ''
-        for (const abbreviation of ABBREVIATIONS) {
+        for (const abbreviation of abbreviations) {
             if (abbreviationPattern)
                 abbreviationPattern += '|'
             abbreviationPattern += abbreviation.toUpperCase()
@@ -483,8 +480,7 @@ export const decodeHTMLEntities = (htmlString:string):null|string => {
  * Converts a delimited string to its camel case representation.
  * @param value - The string to format.
  * @param delimiter - Delimiter string to use.
- * @param abbreviations - Collection of shortcut words to represent upper
- * cased.
+ * @param abbreviations - Collection of shortcut words to represent uppercased.
  * @param preserveWrongFormattedAbbreviations - If set to "True" wrong
  * formatted camel case abbreviations will be ignored.
  * @param removeMultipleDelimiter - Indicates whether a series of delimiter
@@ -554,6 +550,7 @@ export const delimitedToCamelCase = (
  * @param execute - Indicates whether to execute or evaluate.
  * @param removeGlobalScope - Indicates whether to shadow global variables
  * via "undefined".
+ * @param binding - Object to apply as "this" in evaluation scope.
  * @returns Object of prepared scope name mappings and compiled function or
  * error string message if given expression couldn't be compiled.
  */
@@ -561,14 +558,15 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
     expression:string,
     scope:N|Mapping<unknown, N[number]>|N[number] = [] as unknown as N,
     execute = false,
-    removeGlobalScope = true
+    removeGlobalScope = true,
+    binding:unknown = {}
 ):CompilationResult<T, N> => {
     /*
         NOTE: We do this global variable names determining as close as possible
         to the compiling step to cover as much as possible global introduces
         variables.
     */
-    const globalNames = Object.keys(globalThis)
+    const globalNames = Object.keys(globalThis).concat('globalThis')
     const result:CompilationResult<T, N> = {
         error: null,
         globalNames: globalNames,
@@ -580,7 +578,7 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
         ) as N,
         scopeNameMapping: {} as {[key in N[number]]:string},
         scopeNames: [],
-        templateFunction: ():T => null as unknown as T
+        templateFunction: ():T => undefined as unknown as T
     }
 
     for (const name of result.originalScopeNames) {
@@ -640,15 +638,19 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
             `given scope names "${result.scopeNames.join('", "')}": ` +
             `${represent(error)}`
     }
-    if (innerTemplateFunction)
+    if (innerTemplateFunction) {
+        innerTemplateFunction = innerTemplateFunction.bind(binding)
         result.templateFunction = removeGlobalScope ?
             (...parameters) =>
                 /*
                     NOTE: We shadow existing global names to sandbox
                     expressions.
                 */
-                innerTemplateFunction(...result.globalNames, ...parameters) :
+                innerTemplateFunction!(
+                    ...result.globalNamesUndefinedList, ...parameters
+                ) :
             innerTemplateFunction
+    }
 
     return result
 }
@@ -657,8 +659,8 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
  * @param expression - The string to interpret.
  * @param scope - Scope to render against.
  * @param execute - Indicates whether to execute or evaluate.
- * @param removeGlobalScope - Indicates whether to shadow global variables
- * via "undefined".
+ * @param removeGlobalScope - Indicates whether to shadow global variables via
+ * "undefined".
  * @param binding - Object to apply as "this" in evaluation scope.
  * @returns Object with error message during parsing / running or result.
  */
@@ -667,7 +669,7 @@ export const evaluate = <T = string, S extends object = object>(
     scope:S = {} as S,
     execute = false,
     removeGlobalScope = true,
-    binding?:unknown
+    binding:unknown = {}
 ):EvaluationResult<T> => {
     // NOTE: We extract string only types from given scope type.
     type N = Array<keyof S extends string ? keyof S : never>
@@ -677,12 +679,12 @@ export const evaluate = <T = string, S extends object = object>(
         originalScopeNames,
         scopeNames,
         templateFunction
-    } = compile<T, N>(expression, scope, execute, removeGlobalScope)
+    } = compile<T, N>(expression, scope, execute, removeGlobalScope, binding)
 
     const result:EvaluationResult<T> = {
         compileError: null,
         error: null,
-        result: null as unknown as T,
+        result: undefined as unknown as T,
         runtimeError: null
     }
 
@@ -693,18 +695,15 @@ export const evaluate = <T = string, S extends object = object>(
     }
 
     try {
-        result.result =
-            (templateFunction.bind(binding ? binding : null))(
-                /*
-                    NOTE: We want to be sure to have same ordering as we have
-                    for the scope names and to call internal registered getter
-                    by retrieving values. So simple using
-                    "...Object.values(scope)" is not appreciate here.
-                */
-                ...originalScopeNames.map((name:keyof S):ValueOf<S> =>
-                    scope[name]
-                )
-            )
+        result.result = templateFunction(
+            /*
+                NOTE: We want to be sure to have same ordering as we have for
+                the scope names and to call internal registered getter by
+                retrieving values. So simple using "...Object.values(scope)" is
+                not appreciate here.
+            */
+            ...originalScopeNames.map((name:keyof S):ValueOf<S> => scope[name])
+        )
     } catch (error) {
         result.error =
             result.runtimeError = (
@@ -717,21 +716,20 @@ export const evaluate = <T = string, S extends object = object>(
     return result
 }
 /**
- * Finds the string match of given query in given target text by applying
- * given normalisation function to target and query.
+ * Finds the string match of given query in given target text by applying given
+ * normalisation function to target and query.
  * @param target - Target to search in.
  * @param query - Search string to search for.
- * @param normalizer - Function to use as normalisation for queries and
- * search targets.
- * @param skipTagDelimitedParts - Indicates whether to for example ignore
- * html tags via "['<', '>']" (the default).
+ * @param normalizer - Function to use as normalisation for queries and search
+ * targets.
+ * @param skipTagDelimitedParts - Indicates whether to for example ignore html
+ * tags via "['<', '>']" (the default).
  * @returns Start and end index of matching range.
  */
 export const findNormalizedMatchRange = (
     target:unknown,
     query:unknown,
-    normalizer = (value:unknown):string =>
-        `${value as string}`.toLowerCase(),
+    normalizer = (value:unknown):string => `${value as string}`.toLowerCase(),
     skipTagDelimitedParts:null|[string, string] = ['<', '>']
 ):Array<number>|null => {
     const normalizedQuery:string = normalizer(query)
@@ -847,10 +845,9 @@ export const getEditDistance = (first:string, second:string):number => {
         )
     /*
         Fill the first row of the matrix.
-        If this is first row then we're transforming empty string to
-        "first".
-        In this case the number of transformations equals to size of
-        "first" substring.
+        If this is first row then we're transforming empty string to "first".
+        In this case the number of transformations equals to size of "first"
+        substring.
     */
     for (let index = 0; index <= first.length; index++)
         distanceMatrix[0][index] = index
@@ -858,8 +855,8 @@ export const getEditDistance = (first:string, second:string):number => {
         Fill the first column of the matrix.
         If this is first column then we're transforming empty string to
         "second".
-        In this case the number of transformations equals to size of
-        "second" substring.
+        In this case the number of transformations equals to size of "second"
+        substring.
     */
     for (let index = 0; index <= second.length; index++)
         distanceMatrix[index][0] = index
