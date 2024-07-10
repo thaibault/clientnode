@@ -51,7 +51,7 @@ import {
     representPhoneNumber,
     representURL,
     serviceURLEquals,
-    sliceAllExceptNumberAndLastSeperator
+    sliceAllExceptNumberAndLastSeparator
 } from '../string'
 import {testEach, testEachAgainstSameExpectation} from '../test-helper'
 import {EvaluationResult, FirstParameter, Mapping} from '../type'
@@ -733,7 +733,8 @@ test.each(([
         {loading: true, results: []},
         'result',
         '<div class="idle">loading...</div>'
-    ]
+    ],
+    ['this.a', {}, 'result', 5, {a: 5}]
 ] as Array<GivenStringEvaluateTestTuple>)
     .map((
         parameters:GivenStringEvaluateTestTuple
@@ -1325,9 +1326,9 @@ if (TARGET_TECHNOLOGY === 'node')
         [{a: 2}, '{a: scope.a}', {a: 2}],
         [{a: 2}, Buffer.from('{a: scope.a}').toString('base64'), {a: 2}]
     )
-testEach<typeof sliceAllExceptNumberAndLastSeperator>(
-    'sliceAllExceptNumberAndLastSeperator',
-    sliceAllExceptNumberAndLastSeperator,
+testEach<typeof sliceAllExceptNumberAndLastSeparator>(
+    'sliceAllExceptNumberAndLastSeparator',
+    sliceAllExceptNumberAndLastSeparator,
 
     ['1234-56', '12-34-56'],
     ['123456', '12 34 56'],
