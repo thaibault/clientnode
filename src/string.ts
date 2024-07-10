@@ -563,6 +563,11 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
     execute = false,
     removeGlobalScope = true
 ):CompilationResult<T, N> => {
+    /*
+        NOTE: We do this global variable names determining as close as possible
+        to the compiling step to cover as much as possible global introduces
+        variables.
+    */
     const globalNames = Object.keys(globalThis)
     const result:CompilationResult<T, N> = {
         error: null,
@@ -642,10 +647,7 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
                     NOTE: We shadow existing global names to sandbox
                     expressions.
                 */
-                innerTemplateFunction(
-                    ...result.globalNames,
-                    ...parameters
-                ) :
+                innerTemplateFunction(...result.globalNames, ...parameters) :
             innerTemplateFunction
 
     return result
@@ -692,7 +694,7 @@ export const evaluate = <T = string, S extends object = object>(
 
     try {
         result.result =
-            (binding ? templateFunction.bind(binding) : templateFunction)(
+            (templateFunction.bind(binding ? binding : null))(
                 /*
                     NOTE: We want to be sure to have same ordering as we have
                     for the scope names and to call internal registered getter
