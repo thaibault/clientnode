@@ -1531,16 +1531,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@es-joy/jsdoccomment@npm:~0.45.0":
-  version: 0.45.0
-  resolution: "@es-joy/jsdoccomment@npm:0.45.0"
+"@es-joy/jsdoccomment@npm:~0.46.0":
+  version: 0.46.0
+  resolution: "@es-joy/jsdoccomment@npm:0.46.0"
   dependencies:
-    "@types/eslint": "npm:^8.56.5"
-    "@types/estree": "npm:^1.0.5"
     comment-parser: "npm:1.4.1"
-    esquery: "npm:^1.5.0"
+    esquery: "npm:^1.6.0"
     jsdoc-type-pratt-parser: "npm:~4.0.0"
-  checksum: 10c0/a98ed5e1cdcb12c6d8e727a01fc85a471075461cf570aed6b627383c48dab81353c3f5c662fc6d60bab5db01777a74f01d88fb90ca984289598fafffe64eb2f1
+  checksum: 10c0/a7a67936ebf6d9aaf74af018c3ac744769af3552b05ad9b88fca96b2ffdca16e724b0ff497f53634ec4cca81e98d8c471b6b6bde0fa5b725af4222ad9a0707f0
   languageName: node
   linkType: hard
 
@@ -2199,7 +2197,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:*, @types/eslint@npm:^8.56.5":
+"@types/eslint@npm:*":
   version: 8.56.10
   resolution: "@types/eslint@npm:8.56.10"
   dependencies:
@@ -4604,31 +4602,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:3.0.1156":
-  version: 3.0.1156
-  resolution: "clientnode@npm:3.0.1156"
-  peerDependencies:
-    "@babel/runtime": "*"
-    "@types/prop-types": "*"
-    jquery: "*"
-    node-fetch: "*"
-    prop-types: "*"
-  peerDependenciesMeta:
-    "@babel/runtime":
-      optional: true
-    "@types/prop-types":
-      optional: true
-    jquery:
-      optional: true
-    node-fetch:
-      optional: true
-    prop-types:
-      optional: true
-  checksum: 10c0/3ac43a1f68a49291bdfb9f7c22e28fa79fa8bc61e3c66a98b83cb295b9b15aa1723862fe968770a5a36021548461d9e8f7d67b6a34f4aba31a01db75914d7179
-  languageName: node
-  linkType: hard
-
-"clientnode@workspace:.":
+"clientnode@npm:3.0.1159, clientnode@workspace:.":
   version: 0.0.0-use.local
   resolution: "clientnode@workspace:."
   dependencies:
@@ -4645,11 +4619,11 @@ __metadata:
     "@types/webpack-env": "npm:^1.18.5"
     "@typescript-eslint/eslint-plugin": "npm:^7.16.0"
     "@typescript-eslint/parser": "npm:^7.16.0"
-    clientnode: "npm:3.0.1156"
+    clientnode: "npm:3.0.1159"
     documentation-website: "npm:^1.0.328"
     eslint: "npm:^9.6.0"
     eslint-config-google: "npm:^0.14.0"
-    eslint-plugin-jsdoc: "npm:^48.6.0"
+    eslint-plugin-jsdoc: "npm:^48.7.0"
     favicons-webpack-plugin: "npm:^6.0.1"
     image-minimizer-webpack-plugin: "npm:^4.0.2"
     jest: "npm:^29.7.0"
@@ -4657,7 +4631,7 @@ __metadata:
     jsdoc: "npm:^4.0.3"
     node-fetch: "npm:^3.3.2"
     prop-types: "npm:^15.8.1"
-    rimraf: "npm:^6.0.0"
+    rimraf: "npm:^6.0.1"
     typescript-eslint: "npm:^7.16.0"
     weboptimizer: "npm:^2.0.1483"
     webpack-dev-server: "npm:^5.0.4"
@@ -5528,11 +5502,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:^48.6.0":
-  version: 48.6.0
-  resolution: "eslint-plugin-jsdoc@npm:48.6.0"
+"eslint-plugin-jsdoc@npm:^48.7.0":
+  version: 48.7.0
+  resolution: "eslint-plugin-jsdoc@npm:48.7.0"
   dependencies:
-    "@es-joy/jsdoccomment": "npm:~0.45.0"
+    "@es-joy/jsdoccomment": "npm:~0.46.0"
     are-docs-informative: "npm:^0.0.2"
     comment-parser: "npm:1.4.1"
     debug: "npm:^4.3.5"
@@ -5544,7 +5518,7 @@ __metadata:
     synckit: "npm:^0.9.0"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/c4522375cb222762c830cee1621b3127e872926c1af76d4a6900157cc0515db88da87d71c051330f8c8feaa7ff56bed85b01620d6c82884fd85ddc57ca6a37cd
+  checksum: 10c0/5f31b5dd832365bea2920172e6ae43122f8adff0c4ff5fb3823c643328256e0edadd0276564a4262740aad60260acd7e21883f3ee97a1f65dee1911619ebf54a
   languageName: node
   linkType: hard
 
@@ -9607,6 +9581,18 @@ __metadata:
   bin:
     rimraf: dist/esm/bin.mjs
   checksum: 10c0/32d07c542490db96efd515b27f857f45b71b2169a1b533052630d119034450d3afcf766adc2df43314378f9168407ef222d7d1104c48cc9d385e97b17964b3bf
+  languageName: node
+  linkType: hard
+
+"rimraf@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "rimraf@npm:6.0.1"
+  dependencies:
+    glob: "npm:^11.0.0"
+    package-json-from-dist: "npm:^1.0.0"
+  bin:
+    rimraf: dist/esm/bin.mjs
+  checksum: 10c0/b30b6b072771f0d1e73b4ca5f37bb2944ee09375be9db5f558fcd3310000d29dfcfa93cf7734d75295ad5a7486dc8e40f63089ced1722a664539ffc0c3ece8c6
   languageName: node
   linkType: hard
 

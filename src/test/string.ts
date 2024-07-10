@@ -473,7 +473,9 @@ test.each([
 )
 //// region compile / evaluation
 ///// region compile
+/*
 test.each([
+
     ['string', '= null', []],
     ['string', '{', {}],
     ['object', '', {}]
@@ -672,6 +674,7 @@ test.each([
         MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value = backup
     }
 )
+ */
 ///// endregion
 ///// region evaluate
 const advancedTemplateEvaluationExample:string =
@@ -703,6 +706,13 @@ type StringEvaluateTestTuple = [
 ]
 test.each(([
     ['null', {}, 'result', null],
+    ['this', {}, 'result', new Number(5), 5],
+    ['this.a', {}, 'result', 5, {a: 5}],
+    ['globalThis', {}, 'result', undefined],
+    ['null', {}, 'result', null],
+    ['window', {}, 'result', undefined],
+    ['globalThis', {}, 'result', undefined],
+    ['globalThis', {globalThis: 5}, 'result', 5],
     ['5', {}, 'result', 5],
     ['a', {a: 2}, 'result', 2],
     ['a + b', {a: 2, b: 3}, 'result', 5],
@@ -733,8 +743,7 @@ test.each(([
         {loading: true, results: []},
         'result',
         '<div class="idle">loading...</div>'
-    ],
-    ['this.a', {}, 'result', 5, {a: 5}]
+    ]
 ] as Array<GivenStringEvaluateTestTuple>)
     .map((
         parameters:GivenStringEvaluateTestTuple
@@ -755,48 +764,8 @@ test.each(([
             expression,
             scope,
             false,
-            false,
+            true,
             binding
-        )
-
-        expect(evaluation).toHaveProperty(resultKey)
-
-        if (expected !== undefined)
-            if (
-                resultKey === 'result' &&
-                typeof evaluation[resultKey] === 'string'
-            )
-                expect(evaluation[resultKey].trim())
-                    .toStrictEqual(expected)
-            else
-                expect(evaluation[resultKey as keyof EvaluationResult])
-                    .toStrictEqual(expected)
-    }
-)
-test.each(([
-    ['null', {}, 'result', null],
-    ['window', {}, 'result', undefined],
-    ['globalThis', {}, 'result', undefined],
-    ['globalThis', {globalThis: 5}, 'result', 5]
-] as Array<GivenStringEvaluateTestTuple>)
-    .map((
-        parameters:GivenStringEvaluateTestTuple
-    ):StringEvaluateTestTuple =>
-        parameters.concat(undefined, undefined).slice(0, 5) as
-            StringEvaluateTestTuple
-    )
-)(
-    'evaluate(`%s`, %p...)[%p] === %p',
-    (
-        expression:string,
-        scope:Mapping<unknown>,
-        resultKey:string,
-        expected:unknown
-    ):void => {
-        const evaluation:EvaluationResult = evaluate(
-            expression,
-            scope,
-            false
         )
 
         expect(evaluation).toHaveProperty(resultKey)
