@@ -694,7 +694,7 @@ export const evaluate = <T = string, S extends object = object>(
         result.result =
             (binding ? templateFunction.bind(binding) : templateFunction)(
                 /*
-                    NOTE: We want to be ensure to have same ordering as we have
+                    NOTE: We want to be sure to have same ordering as we have
                     for the scope names and to call internal registered getter
                     by retrieving values. So simple using
                     "...Object.values(scope)" is not appreciate here.
@@ -1060,7 +1060,7 @@ export const normalizePhoneNumber = (
                 number:string
             ):string =>
                 `${countryCode}-${areaCode}-` +
-                sliceAllExceptNumberAndLastSeperator(number)
+                sliceAllExceptNumberAndLastSeparator(number)
             )
         else {
             /*
@@ -1073,7 +1073,7 @@ export const normalizePhoneNumber = (
                 match:string, prefixCode:string, number:string
             ):string =>
                 `${prefixCode.replace(/ +/, '')}-` +
-                sliceAllExceptNumberAndLastSeperator(number)
+                sliceAllExceptNumberAndLastSeparator(number)
 
             if (compiledPattern.test(normalizedValue))
                 // Prefer "/" or "-" over " " as area code separator.
@@ -1181,7 +1181,7 @@ export const representPhoneNumber = (value:unknown):string => {
  * @param value - String to process.
  * @returns - Sliced given value.
  */
-export const sliceAllExceptNumberAndLastSeperator = (value:string):string => {
+export const sliceAllExceptNumberAndLastSeparator = (value:string):string => {
     /*
         1: baseNumber
         2: directDialingNumberSuffix
