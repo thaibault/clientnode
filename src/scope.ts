@@ -42,6 +42,10 @@ export const UTILITY_SCOPE = {
     string,
     utility
 } as const
+/*
+    NOTE: Not generating these two arrays facilitates static code analysis in
+    consuming code.
+*/
 export const UTILITY_SCOPE_NAMES = [
     'array',
     'datetime',
@@ -54,8 +58,18 @@ export const UTILITY_SCOPE_NAMES = [
     'string',
     'utility'
 ] as const
-export const UTILITY_SCOPE_VALUES =
-    UTILITY_SCOPE_NAMES.map((name) => UTILITY_SCOPE[name])
+export const UTILITY_SCOPE_VALUES = [
+    array,
+    datetime,
+    filesystem,
+    functions,
+    indicators,
+    number,
+    object,
+    require,
+    string,
+    utility
+] as const
 /**
  * Overwrites all inherited variables from parent scope with "undefined".
  * @param scope - A scope where inherited names will be removed.
