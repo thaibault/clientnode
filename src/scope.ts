@@ -42,6 +42,20 @@ export const UTILITY_SCOPE = {
     string,
     utility
 } as const
+export const UTILITY_SCOPE_NAMES = [
+    'array',
+    'datetime',
+    'filesystem',
+    'functions',
+    'indicators',
+    'number',
+    'object',
+    'require',
+    'string',
+    'utility'
+] as const
+export const UTILITY_SCOPE_VALUES =
+    UTILITY_SCOPE_NAMES.map((name) => UTILITY_SCOPE[name])
 /**
  * Overwrites all inherited variables from parent scope with "undefined".
  * @param scope - A scope where inherited names will be removed.
