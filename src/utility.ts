@@ -45,7 +45,7 @@ export const debounce = <T = unknown>(
     let rejectNextSlotPromise:(reason:unknown) => void
     let nextSlotPromise:Promise<T> = new Promise<T>((
         resolve:(value:T) => void, reject:(reason:unknown) => void
-    ):void => {
+    ) => {
         resolveNextSlotPromise = resolve
         rejectNextSlotPromise = reject
     })

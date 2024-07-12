@@ -1180,7 +1180,7 @@ export const removeKeysInEvaluation = <
 /**
  * Extends given target object with given sources object. As target and
  * sources many expandable types are allowed but target and sources have to
- * to come from the same type.
+ * come from the same type.
  * @param targetOrDeepIndicator - Maybe the target or deep indicator.
  * @param targetOrSource - Target or source object; depending on first
  * argument.
