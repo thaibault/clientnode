@@ -165,8 +165,8 @@ Tools({logging: true}).log('test') // shows "test" in console
 import {$} from 'clientnode'
 $.Tools().isEquivalentDom('<div>', '<script>') // false
 // or
-Tools = require('clientnode').default
-Tools.arrayMake(2) // [2]
+{makeArray} = require('clientnode').default
+makeArray(2) // [2]
 // or
 $ = require('clientnode').$
 $.Tools().isEquivalentDom('<div>', '<script>') // false

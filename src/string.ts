@@ -191,7 +191,7 @@ export const getPortNumber = (
 
     if (
         // NOTE: Would result in an endless loop:
-        // Tools.stringServiceURLEquals(url, ...parameters) &&
+        // serviceURLEquals(url, ...parameters) &&
         $.location?.port &&
         parseInt($.location.port, 10)
     )
