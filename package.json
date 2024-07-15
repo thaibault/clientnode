@@ -82,7 +82,7 @@
     "prop-types": "^15.8.1",
     "rimraf": "^6.0.1",
     "typescript-eslint": "^7.16.0",
-    "weboptimizer": "^2.0.1484",
+    "weboptimizer": "^2.0.1485",
     "webpack-dev-server": "^5.0.4"
   },
   "peerDependencies": {
