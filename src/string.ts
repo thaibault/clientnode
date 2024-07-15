@@ -34,6 +34,13 @@ import {
     ValueOf
 } from './type'
 
+// Partial regular expression matching symbols which should be allowed within a
+// variable name excluding the first character.
+export const ALLOWED_VARIABLE_SYMBOLS = '0-9a-zA-Z_$'
+// Partial regular expression matching symbols which should be allowed as
+// starting character for a variable name.
+export const ALLOWED_STARTING_VARIABLE_SYMBOLS = 'a-zA-Z_$'
+
 /**
  * Translates given string into the regular expression validated
  * representation.
@@ -62,21 +69,20 @@ export const escapeRegularExpressions = (
 /**
  * Translates given name into a valid javaScript one.
  * @param name - Name to convert.
- * @param allowedSymbols - String of symbols which should be allowed within a
- * variable name (not the first character).
  * @returns Converted name is returned.
  */
-export const convertToValidVariableName = (
-    name:string, allowedSymbols = '0-9a-zA-Z_$'
-):string => {
+export const convertToValidVariableName = (name:string):string => {
     if (['class', 'default'].includes(name))
         return `_${name}`
 
     return name
         .toString()
-        .replace(/^[^a-zA-Z_$]+/, '')
+        // Remove all disallowed starting characters.
+        .replace(new RegExp(`^[^${ALLOWED_STARTING_VARIABLE_SYMBOLS}]+`), '')
+        // Remove all disallowed characters within a variable name and make
+        // continuing character upper case.
         .replace(
-            new RegExp(`[^${allowedSymbols}]+([a-zA-Z0-9])`, 'g'),
+            new RegExp(`[^${ALLOWED_VARIABLE_SYMBOLS}]+([a-zA-Z])`, 'g'),
             (fullMatch:string, firstLetter:string):string =>
                 firstLetter.toUpperCase()
         )
@@ -566,7 +572,14 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
         to the compiling step to cover as much as possible global introduces
         variables.
     */
-    const globalNames = Object.keys(globalThis).concat('globalThis')
+    const globalNames = Object.keys(globalThis)
+        .concat('globalThis')
+        .filter((name) =>
+            new RegExp(
+                `^[${ALLOWED_STARTING_VARIABLE_SYMBOLS}]` +
+                `[${ALLOWED_VARIABLE_SYMBOLS}]*$`
+            ).test(name)
+        )
     const result:CompilationResult<T, N> = {
         error: null,
         globalNames: globalNames,
@@ -586,7 +599,7 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
         result.scopeNameMapping[name as N[number]] = newName
         result.scopeNames.push(newName)
     }
-
+    // region try to polyfill template string literals for older browsers
     if (MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value !== 0)
         if ($.global.Babel?.transform)
             expression = $.global.Babel?.transform(
@@ -623,8 +636,9 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
                 // Replace marked escape sequences.
                 .replace(new RegExp(escapeMarker, 'g'), '\\$')
         }
-
+    // endregion
     let innerTemplateFunction:TemplateFunction<T>|undefined
+
     try {
         // eslint-disable-next-line @typescript-eslint/no-implied-eval
         innerTemplateFunction = new Function(
