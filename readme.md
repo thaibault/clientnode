@@ -165,8 +165,8 @@ Tools({logging: true}).log('test') // shows "test" in console
 import {$} from 'clientnode'
 $.Tools().isEquivalentDom('<div>', '<script>') // false
 // or
-Tools = require('clientnode').default
-Tools.arrayMake(2) // [2]
+{makeArray} = require('clientnode').default
+makeArray(2) // [2]
 // or
 $ = require('clientnode').$
 $.Tools().isEquivalentDom('<div>', '<script>') // false
@@ -247,8 +247,3 @@ const returnValue = $('#domNode').Example().method('anArgument')
 const exampleInstance = $.Example({firstOption: 'value'})
 const returnValue = exampleInstance.method('anArgument')
 ```
-
-<!-- region modline
-vim: set tabstop=4 shiftwidth=4 expandtab:
-vim: foldmethod=marker foldmarker=region,endregion:
-endregion -->
