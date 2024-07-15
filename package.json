@@ -68,7 +68,7 @@
     "@types/webpack-env": "^1.18.5",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
     "@typescript-eslint/parser": "^7.16.0",
-    "clientnode": "3.0.1162",
+    "clientnode": "3.0.1164",
     "documentation-website": "^1.0.328",
     "eslint": "^9.7.0",
     "eslint-config-google": "^0.14.0",
@@ -82,7 +82,7 @@
     "prop-types": "^15.8.1",
     "rimraf": "^6.0.1",
     "typescript-eslint": "^7.16.0",
-    "weboptimizer": "^2.0.1485",
+    "weboptimizer": "^2.0.1486",
     "webpack-dev-server": "^5.0.4"
   },
   "peerDependencies": {
