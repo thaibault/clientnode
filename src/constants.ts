@@ -56,12 +56,18 @@ export const CLASS_TO_TYPE_MAPPING = {
 // Saves a mapping from key codes to their corresponding name.
 export const KEY_CODES = {
     BACKSPACE: 8,
-    COMMA: 188,
+    SPACE: 32,
+    TAB: 9,
+
     DELETE: 46,
-    DOWN: 40,
-    END: 35,
     ENTER: 13,
+
+    COMMA: 188,
+    PERIOD: 190,
+
+    END: 35,
     ESCAPE: 27,
+
     F1: 112,
     F2: 113,
     F3: 114,
@@ -74,22 +80,69 @@ export const KEY_CODES = {
     F10: 121,
     F11: 122,
     F12: 123,
+
     HOME: 36,
-    LEFT: 37,
+
     NUMPAD_ADD: 107,
+    NUMPAD_SUBTRACT: 109,
     NUMPAD_DECIMAL: 110,
     NUMPAD_DIVIDE: 111,
     NUMPAD_ENTER: 108,
     NUMPAD_MULTIPLY: 106,
-    NUMPAD_SUBTRACT: 109,
-    PAGE_DOWN: 34,
+
     PAGE_UP: 33,
-    PERIOD: 190,
-    RIGHT: 39,
-    SPACE: 32,
-    TAB: 9,
-    UP: 38
+    PAGE_DOWN: 34,
+
+    UP: 38,
+    DOWN: 40,
+    LEFT: 37,
+    RIGHT: 39
 } as const
+export const KEYBOARD_CODES = {
+    BACKSPACE: 'Backspace',
+    SPACE: 'Space',
+    TAB: 'Tab',
+
+    DELETE: 'Delete',
+    ENTER: 'Enter',
+
+    COMMA: 'Comma',
+    PERIOD: 'Period',
+
+    END: 'End',
+    ESCAPE: 'Escape',
+
+    F1: 'F1',
+    F2: 'F2',
+    F3: 'F3',
+    F4: 'F4',
+    F5: 'F5',
+    F6: 'F6',
+    F7: 'F7',
+    F8: 'F8',
+    F9: 'F9',
+    F10: 'F10',
+    F11: 'F111',
+    F12: 'F12',
+
+    HOME: 'Home',
+
+    NUMPAD_ADD: 'NumpadAdd',
+    NUMPAD_SUBTRACT: 'NumpadSubtract',
+    NUMPAD_DECIMAL: 'NumpadDecimal',
+    NUMPAD_DIVIDE: 'NumpadDivide',
+    NUMPAD_ENTER: 'NumpadEnter',
+    NUMPAD_MULTIPLY: 'NumpadMultiply',
+
+    PAGE_UP: 'PageUp',
+    PAGE_DOWN: 'PageUp',
+
+    UP: 'ArrowUp',
+    DOWN: 'ArrowDown',
+    LEFT: 'ArrowLeft',
+    RIGHT: 'ArrowUp'
+} as const
+
 export const LOCALES:Array<string> = []
 export const PLAIN_OBJECT_PROTOTYPES:Array<FirstParameter<
     typeof Object.getPrototypeOf
