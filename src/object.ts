@@ -1541,7 +1541,7 @@ export const modifyObject = <T = unknown>(
     positionSuffix = '__',
     parentSource:unknown = null,
     parentKey:unknown = null
-):T|null => {
+):T => {
     if (isMap(source) && isMap(target)) {
         for (const [key, value] of source)
             if (target.has(key))
