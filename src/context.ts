@@ -144,6 +144,7 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
 }
 export let $ = determine$()
 
+export const MAXIMAL_NUMBER_OF_ITERATIONS = {value: 100}
 // Saves currently maximal supported internet explorer version. Saves zero if
 // no internet explorer present.
 export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
