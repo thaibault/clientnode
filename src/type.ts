@@ -30,7 +30,7 @@ import {
 export type AnyFunction = (...parameters:Array<any>) => any
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-export type Unpacked<T> = T extends (infer U)[] ?
+export type Unpacked<T> = T extends Array<infer U> ?
     U :
     T extends (...parameters:Array<unknown>) => infer U ?
         U :
@@ -78,8 +78,8 @@ export type ThenParameterRecursive<Type> =
 export type ValueOf<Type> = Type[keyof Type]
 
 export type RecursiveNonNullable<Type> = {
-    [Property in keyof Type]:Type[Property] extends (infer OtherType)[] ?
-        RecursiveNonNullable<OtherType>[] :
+    [Property in keyof Type]:Type[Property] extends Array<infer OtherType> ?
+        Array<RecursiveNonNullable<OtherType>> :
         Type[Property] extends AnyFunction ?
             NonNullable<Type[Property]> :
             Type[Property] extends Mapping<unknown> ?
@@ -89,8 +89,10 @@ export type RecursiveNonNullable<Type> = {
 export type RecursivePartial<Type> =
     Partial<Type> |
     {
-        [Property in keyof Type]?:Type[Property] extends (infer OtherType)[] ?
-            RecursivePartial<OtherType>[] :
+        [Property in keyof Type]?:Type[
+            Property
+        ] extends Array<infer OtherType> ?
+            Array<RecursivePartial<OtherType>> :
             Type[Property] extends AnyFunction ?
                 Partial<Type[Property]> :
                 Type[Property] extends Mapping<unknown> ?
@@ -98,7 +100,8 @@ export type RecursivePartial<Type> =
                     Partial<Type[Property]>
     }
 
-export type FileTraversionResult = false|null|Promise<false|null|void>|void
+export type FileTraversionResult =
+    false|null|Promise<false|null|undefined>|undefined
 
 export type TestMatchers<T extends Promise<void>|void> =
     Matchers<T> & {not:Matchers<T>}
@@ -209,7 +212,7 @@ export interface TimeoutPromise extends Promise<boolean> {
 
 // NOTE: Mapping cannot be used here to avoid circular references.
 export type ObjectMask = Array<string>|boolean|{[key:string]:ObjectMask}
-export type NormalizedObjectMask = boolean|{[key:string]:ObjectMask}
+export type NormalizedObjectMask = boolean|Record<string, ObjectMask>
 export interface ObjectMaskConfiguration {
     exclude?:ObjectMask
     include?:ObjectMask
@@ -234,8 +237,8 @@ export type EvaluatedObject<Type extends object> = {
 }
 export type RecursiveEvaluateable<Type> = Evaluateable|{
     [Property in keyof Type]:(
-        Evaluateable|(Type[Property] extends (infer OtherType)[] ?
-            RecursiveEvaluateable<OtherType>[] :
+        Evaluateable|(Type[Property] extends Array<infer OtherType> ?
+            Array<RecursiveEvaluateable<OtherType>> :
             Type[Property] extends Mapping<unknown> ?
                 RecursiveEvaluateable<Type[Property]> :
                 Evaluateable|Type[Property]
@@ -330,12 +333,13 @@ export interface Options<Type = string> {
 
 export type $TStatic = JQueryStatic
 export type $T<TElement = HTMLElement> = JQuery<TElement>
-export interface $Global extends Window {
+export interface $Global extends Omit<Window, 'document'> {
     Babel?:{transform:(code:string, configuration:PlainObject) => {
         code:string
     }}
     console:Console
     dataLayer:Array<PlainObject>
+    document?:Window['document']
     $:$TStatic
 }
 export interface ToolsFunction<TElement = HTMLElement> {
@@ -344,8 +348,7 @@ export interface ToolsFunction<TElement = HTMLElement> {
     (...parameters:Array<unknown>):Tools<TElement>
 }
 export interface BoundToolsFunction<TElement = HTMLElement> {
-    (methodName:'normalizedClassNames'):BoundTools<TElement>
-    (methodName:'normalizedStyles'):BoundTools<TElement>
+    (methodName:'normalizedClassNames'|'normalizedStyles'):BoundTools<TElement>
     (methodName:'removeDirective', directiveName:string):$T<TElement>
     (methodName:'style'):Mapping<number|string>
     (methodName:'text'):string

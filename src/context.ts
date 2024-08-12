@@ -37,7 +37,7 @@ export const determineGlobalContext:(() => $Global) = ():$Global => {
                 return ((typeof module === 'undefined') ? {} : module) as
                     $Global
 
-            if (global.window)
+            if (Object.prototype.hasOwnProperty.call(global, 'window'))
                 return global.window as unknown as $Global
 
             return global as unknown as $Global
@@ -55,28 +55,32 @@ export const setGlobalContext = (context:$Global):void => {
 
 /// region context
 globalContext.fetch =
-    globalContext.fetch ??
-    optionalRequire<{default:typeof fetch}>('node-fetch')?.default ??
-    ((...parameters:Parameters<typeof fetch>):ReturnType<typeof fetch> =>
-            currentImport!(/* webpackIgnore: true */ 'node-fetch')
-                .then((module:unknown):ReturnType<typeof fetch> =>
-                    (module as {default:typeof fetch})?.default(...parameters)
-                )
-    )
+    Object.prototype.hasOwnProperty.call(globalContext, 'fetch') ?
+        globalContext.fetch.bind(globalContext) :
+        optionalRequire<{default:typeof fetch}>('node-fetch')?.default ??
+        ((...parameters:Parameters<typeof fetch>):ReturnType<typeof fetch> =>
+            currentImport ?
+                currentImport(/* webpackIgnore: true */ 'node-fetch')
+                    .then((module:unknown):ReturnType<typeof fetch> =>
+                        (module as {default:typeof fetch}).default(
+                            ...parameters
+                        )
+                    ) :
+                null as unknown as ReturnType<typeof fetch>
+        )
 /// endregion
 /// region
 export const determine$:(() => $TStatic) = ():$TStatic => {
     let $:$TStatic = (() => {
         // Do nothing.
     }) as unknown as $TStatic
-    if (globalContext.$ && globalContext.$ !== null)
+    if (Object.prototype.hasOwnProperty.call(globalContext, '$'))
         $ = globalContext.$
     else {
-        if (!globalContext.$ && globalContext.document)
+        if (Object.prototype.hasOwnProperty.call(globalContext, 'document'))
             try {
-                // eslint-disable-next-line @typescript-eslint/no-var-requires
                 $ = require('jquery') as $TStatic
-            } catch (error) {
+            } catch (_error) {
                 // Continue regardless of an error.
             }
 

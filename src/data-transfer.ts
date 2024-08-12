@@ -72,8 +72,6 @@ export const checkReachability = async (
     const isStatusCodeExpected = (
         response:Response, statusCodes:Array<number>
     ):boolean => Boolean(
-        response !== null &&
-        typeof response === 'object' &&
         'status' in response &&
         statusCodes.includes(response.status)
     )
@@ -81,8 +79,8 @@ export const checkReachability = async (
     const checkAndThrow = (response:Response):Response => {
         if (!isStatusCodeExpected(response, statusCodes))
             throw new Error(
-                `Given status code ${response.status} differs from ` +
-                `${statusCodes.join(', ')}.`
+                `Given status code ${String(response.status)} ` +
+                `differs from ${statusCodes.join(', ')}.`
             )
 
         return response
