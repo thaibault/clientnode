@@ -19,7 +19,7 @@
 import {ImportFunction} from './type'
 // Make preprocessed require function available at runtime.
 /*
-    NOTE: This results in an webpack error when postprocessing this compiled
+    NOTE: This results in a webpack error when postprocessing this compiled
     pendant in another webpack context.
 
     declare const __non_webpack_require__:typeof require
@@ -37,14 +37,14 @@ try {
     currentOptionalImport =
         eval(`typeof import === 'undefined' ? null : import`) as
             ImportFunction|null
-} catch (error) {
+} catch (_error) {
     // Continue regardless of an error.
 }
 export const currentImport:null|ImportFunction = currentOptionalImport
 export const optionalRequire = <T = unknown>(id:string):null|T => {
     try {
         return currentRequire ? currentRequire(id) as T : null
-    } catch (error) {
+    } catch (_error) {
         return null
     }
 }

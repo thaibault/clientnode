@@ -20,7 +20,11 @@
 import {
     ABBREVIATIONS, DEFAULT_ENCODING, SPECIAL_REGEX_SEQUENCES
 } from './constants'
-import {MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION, $} from './context'
+import {
+    MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION,
+    $,
+    MAXIMAL_NUMBER_OF_ITERATIONS
+} from './context'
 import {isFileSync, readFileSync} from './filesystem'
 import {determineType, represent} from './object'
 import {
@@ -262,7 +266,7 @@ export const getURLParameter = (
     subDelimiter = '$',
     hashedPathIndicator = '!',
     givenSearch:null|string = null,
-    givenHash:string = $.location?.hash ?? ''
+    givenHash:null|string = $.location?.hash ?? ''
 ):Array<string>|null|QueryParameters|string => {
     // region set search and hash
     let hash:string = givenHash ?? '#'
@@ -294,7 +298,7 @@ export const getURLParameter = (
         let decodedHash = ''
         try {
             decodedHash = decodeURIComponent(hash)
-        } catch (error) {
+        } catch (_error) {
             // Continue regardless of an error.
         }
         const subDelimiterIndex:number = decodedHash.indexOf(subDelimiter)
@@ -319,12 +323,12 @@ export const getURLParameter = (
         let key:string
         try {
             key = decodeURIComponent(keyValuePair[0])
-        } catch (error) {
+        } catch (_error) {
             key = ''
         }
         try {
             value = decodeURIComponent(keyValuePair[1])
-        } catch (error) {
+        } catch (_error) {
             value = ''
         }
 
@@ -602,7 +606,7 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
     // region try to polyfill template string literals for older browsers
     if (MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value !== 0)
         if ($.global.Babel?.transform)
-            expression = $.global.Babel?.transform(
+            expression = $.global.Babel.transform(
                 `(${expression})`,
                 {plugins: ['transform-template-literals']}
             ).code
@@ -650,20 +654,21 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
         result.error =
             `Given expression "${expression}" could not be compiled width ` +
             `given scope names "${result.scopeNames.join('", "')}": ` +
-            `${represent(error)}`
+            represent(error)
     }
     if (innerTemplateFunction) {
-        innerTemplateFunction = innerTemplateFunction.bind(binding)
+        const boundInnerTemplateFunction =
+            innerTemplateFunction.bind(binding)
         result.templateFunction = removeGlobalScope ?
             (...parameters) =>
                 /*
                     NOTE: We shadow existing global names to sandbox
                     expressions.
                 */
-                innerTemplateFunction!(
+                boundInnerTemplateFunction(
                     ...result.globalNamesUndefinedList, ...parameters
                 ) :
-            innerTemplateFunction
+            boundInnerTemplateFunction
     }
 
     return result
@@ -743,7 +748,7 @@ export const evaluate = <T = string, S extends object = object>(
 export const findNormalizedMatchRange = (
     target:unknown,
     query:unknown,
-    normalizer = (value:unknown):string => `${value as string}`.toLowerCase(),
+    normalizer = (value:unknown):string => String(value).toLowerCase(),
     skipTagDelimitedParts:null|[string, string] = ['<', '>']
 ):Array<number>|null => {
     const normalizedQuery:string = normalizer(query)
@@ -757,10 +762,7 @@ export const findNormalizedMatchRange = (
         let inTag = false
         for (let index = 0; index < stringTarget.length; index += 1) {
             if (inTag) {
-                if (
-                    stringTarget.charAt(index) ===
-                    skipTagDelimitedParts![1]
-                )
+                if (stringTarget.charAt(index) === skipTagDelimitedParts![1])
                     inTag = false
 
                 continue
@@ -834,7 +836,7 @@ export const format = (
     let index = 0
     for (const value of additionalArguments) {
         string = string.replace(
-            new RegExp(`\\{${index}\\}`, 'gm'), `${value as string}`
+            new RegExp(`\\{${String(index)}\\}`, 'gm'), String(value)
         )
 
         index += 1
@@ -932,8 +934,7 @@ export const mark = (
     if (typeof target === 'string' && givenWords?.length) {
         options = {
             marker: '<span class="tools-mark">{1}</span>',
-            normalizer: (value:unknown):string =>
-                `${value as string}`.toLowerCase(),
+            normalizer: (value:unknown) => String(value).toLowerCase(),
             skipTagDelimitedParts: ['<', '>'],
             ...options
         }
@@ -953,10 +954,12 @@ export const mark = (
         let restTarget:string = target as string
         let offset = 0
         /*
-            Search for matches as long there is enough target text
-            remaining to walk through.
+            Search for matches as long there is enough target text remaining to
+            walk through.
         */
-        while (true) {
+        for (
+            let index = 0; index < MAXIMAL_NUMBER_OF_ITERATIONS.value; index++
+        ) {
             let nearestRange:Array<number>|null = null
             let currentRange:Array<number>|null = null
 
@@ -1028,7 +1031,7 @@ export const normalizePhoneNumber = (
     value:unknown, dialable = true
 ):string => {
     if (typeof value === 'string' || typeof value === 'number') {
-        let normalizedValue:string = `${value}`.trim()
+        let normalizedValue:string = String(value).trim()
 
         // Normalize country code prefix.
         normalizedValue = normalizedValue.replace(/^[^0-9]*\+/, '00')
@@ -1111,7 +1114,7 @@ export const normalizePhoneNumber = (
  */
 export const normalizeZipCode = (value:unknown):string => {
     if (typeof value === 'string' || typeof value === 'number')
-        return `${value}`.trim().replace(/[^0-9]+/g, '')
+        return String(value).trim().replace(/[^0-9]+/g, '')
 
     return ''
 }
@@ -1154,9 +1157,8 @@ export const parseEncodedObject = <T = PlainObject>(
 export const representPhoneNumber = (value:unknown):string => {
     if (['number', 'string'].includes(determineType(value)) && value) {
         // Represent country code and leading area code zero.
-        let normalizedValue:string =
-            `${value as string}`
-                .replace(/^(00|\+)([0-9]+)-([0-9-]+)$/, '+$2 (0) $3')
+        let normalizedValue =
+            String(value).replace(/^(00|\+)([0-9]+)-([0-9-]+)$/, '+$2 (0) $3')
 
         // Add German country code if not exists.
         normalizedValue =

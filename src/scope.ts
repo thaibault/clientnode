@@ -19,6 +19,7 @@
 import {$} from './context'
 import {Mapping} from './type'
 
+import {MAXIMAL_NUMBER_OF_ITERATIONS} from './context'
 import * as array from './array'
 import * as datetime from './datetime'
 import * as filesystem from './filesystem'
@@ -112,10 +113,10 @@ export const determineUniqueScopeName = (
         return initialUniqueName
 
     let uniqueName:string = prefix + suffix
-    while (true) {
+    for (let index = 0; index < MAXIMAL_NUMBER_OF_ITERATIONS.value; index++) {
         uniqueName =
             prefix +
-            `${Math.round(Math.random() * Math.pow(10, 10))}` +
+            String(Math.round(Math.random() * Math.pow(10, 10))) +
             suffix
         if (!(uniqueName in scope))
             break

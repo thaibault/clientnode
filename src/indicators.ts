@@ -47,7 +47,7 @@ export const isWindow = (value:unknown):value is Window => {
     return (
         ![null, undefined].includes(value as null) &&
         typeof value === 'object' &&
-        value === (value as Window)?.window
+        value === (value as null|Window)?.window
     )
 }
 /**
@@ -60,7 +60,7 @@ export const isArrayLike = (object:unknown):boolean => {
     let length:number|boolean
     try {
         length = Boolean(object) && (object as Array<unknown>).length
-    } catch (error) {
+    } catch (_error) {
         return false
     }
 
@@ -74,10 +74,10 @@ export const isArrayLike = (object:unknown):boolean => {
 
     if (typeof length === 'number' && length > 0)
         try {
-            (object as Array<unknown>)[length - 1]
+            const _dump = (object as Array<unknown>)[length - 1]
 
             return true
-        } catch (error) {
+        } catch (_error) {
             // Continue regardless of an error.
         }
 

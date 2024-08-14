@@ -93,12 +93,12 @@ export const testEach = <
         ((
             expected:ReturnType<FunctionType>|TestSymbol,
             ...parameters:Parameters<FunctionType>
-        ):void =>
+        ) => {
             testExpectedType<ReturnType<FunctionType>>(
                 callback(...parameters) as TestMatchers<void>|void,
                 expected
             )
-        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+        }) as JestGlobal.EachTestFn<JestGlobal.TestFn>
     )
 }
 /**
@@ -178,15 +178,15 @@ export const testEachSingleParameterAgainstSameExpectation = <
     ) => {
     test.each([...parameters])(
         `${represent(expected)} === ${functionName}(%p)`,
-        ((parameter:FirstParameter<FunctionType>):void =>
+        ((parameter:FirstParameter<FunctionType>) => {
             testExpectedType<ReturnType<FunctionType>>(
                 (expected === TEST_THROW_SYMBOL ?
                     () => callback(parameter) as unknown :
                     callback(parameter)
-                ) as TestMatchers<void>|void,
+                ) as TestMatchers<void> | void,
                 expected
             )
-        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+        }) as JestGlobal.EachTestFn<JestGlobal.TestFn>
     )
 }
 /**
@@ -261,15 +261,15 @@ export const testEachAgainstSameExpectation = <
     ) => {
     test.each([...functionParameters])(
         `${represent(expected)} === ${functionName}(%p, ...)`,
-        ((...parameters:Parameters<FunctionType>):void =>
+        ((...parameters:Parameters<FunctionType>) => {
             testExpectedType<ReturnType<FunctionType>>(
                 (expected === TEST_THROW_SYMBOL ?
                     () => callback(...parameters) as unknown :
                     callback(...parameters)
-                ) as TestMatchers<void>|void,
+                ) as TestMatchers<void> | void,
                 expected
             )
-        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+        }) as JestGlobal.EachTestFn<JestGlobal.TestFn>
     )
 }
 /**

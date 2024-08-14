@@ -55,9 +55,9 @@ export const getProcessCloseHandler = (
                 callback()
                 resolve({reason, parameters})
             } else {
-                const error =
-                    new Error(`Task exited with error code ${returnCode}`) as
-                        ProcessError
+                const error = new Error(
+                    `Task exited with error code ${String(returnCode)}`
+                ) as ProcessError
 
                 error.returnCode = returnCode
                 error.parameters = parameters
@@ -81,7 +81,7 @@ export const handleChildProcess = (childProcess:ChildProcess):ChildProcess => {
 
     childProcess.on('close', (returnCode:number):void => {
         if (returnCode !== 0)
-            console.error(`Task exited with error code ${returnCode}`)
+            console.error(`Task exited with error code ${String(returnCode)}`)
     })
 
     return childProcess

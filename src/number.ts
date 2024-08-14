@@ -30,7 +30,7 @@ export const getUTCTimestamp = (
 ):number => {
     const date:Date = [null, undefined].includes(value as null) ?
         new Date() :
-        new Date(value!)
+        new Date(value as Date|number|string)
 
     return (
         Date.UTC(

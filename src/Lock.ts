@@ -23,7 +23,7 @@ import {LockCallbackFunction, Mapping} from './type'
  * @property locks - Mapping of lock descriptions to there corresponding
  * callbacks.
  */
-export class Lock<Type = string|void> {
+export class Lock<Type = string|undefined> {
     locks:Mapping<Array<LockCallbackFunction<Type>>>
     /**
      * Initializes locks.
@@ -67,12 +67,12 @@ export class Lock<Type = string|void> {
                     return value
                 }
 
-                if ((result as Promise<Type>)?.then)
+                if ((result as null|Promise<Type>)?.then)
                     return (result as Promise<Type>).then(finish)
 
                 finish(description as unknown as Type)
 
-                return result!
+                return result as Type
             }
 
             if (Object.prototype.hasOwnProperty.call(this.locks, description))
@@ -80,7 +80,7 @@ export class Lock<Type = string|void> {
             else {
                 this.locks[description] = []
 
-                wrappedCallback(description)
+                void wrappedCallback(description)
             }
         })
     }
@@ -92,7 +92,7 @@ export class Lock<Type = string|void> {
      * @returns Returns the return (maybe promise resolved) value of the
      * callback given to the "acquire" method.
      */
-    async release(description:string):Promise<Type|void> {
+    async release(description:string):Promise<Type|undefined> {
         if (Object.prototype.hasOwnProperty.call(this.locks, description)) {
             const callback:LockCallbackFunction<Type>|undefined =
                 this.locks[description].shift()

@@ -20,7 +20,6 @@ import {
     CLASS_TO_TYPE_MAPPING, IGNORE_NULL_AND_UNDEFINED_SYMBOL, VALUE_COPY_SYMBOL
 } from './constants'
 import {NOOP} from './context'
-import {identity} from './function'
 import {
     isFunction, isPlainObject, isMap, isProxy, isSet, isNumeric
 } from './indicators'
@@ -71,7 +70,7 @@ export const addDynamicGetterAndSetter = <T = unknown>(
         if (Array.isArray(object)) {
             let index = 0
             for (const value of object) {
-                object[index] = addDynamicGetterAndSetter<unknown>(
+                object[index] = addDynamicGetterAndSetter(
                     value, getterWrapper, setterWrapper, methodNames, deep
                 )
 
@@ -239,7 +238,7 @@ export const convertMapToPlainObject = (
                     value = convertMapToPlainObject(value, deep)
 
                 if (['number', 'string'].includes(typeof key))
-                    newObject[`${key as string}`] = value
+                    newObject[String(key)] = value
             }
 
             return newObject
@@ -287,7 +286,7 @@ export const convertPlainObjectToMap = (
 ):unknown => {
     if (typeof object === 'object') {
         if (isPlainObject(object)) {
-            const newObject:Map<number|string, unknown> = new Map()
+            const newObject = new Map<number|string, unknown>()
             for (const [key, value] of Object.entries(object)) {
                 if (deep)
                     (object as Mapping<unknown>)[key] =
@@ -340,7 +339,7 @@ export const convertSubstringInPlainObject = <
     for (const [key, value] of Object.entries(object))
         if (isPlainObject(value))
             object[key as keyof Type] =
-                convertSubstringInPlainObject<PlainObject>(
+                convertSubstringInPlainObject(
                     value as unknown as PlainObject, pattern, replacement
                 ) as unknown as ValueOf<Type>
         else if (typeof value === 'string')
@@ -445,14 +444,14 @@ export const copy = <Type = unknown>(
                         (destination as Mapping<ValueOf<Type>>)[key] =
                             copyValue<ValueOf<Type>>(
                                 value as ValueOf<Type>
-                            )!
+                            ) as ValueOf<Type>
                     } catch (error) {
                         throw new Error(
                             'Failed to copy property value object "' +
                             `${key}": ${represent(error)}`
                         )
                     }
-        } else if (source) {
+        } else {
             if (Array.isArray(source))
                 return copy(
                     source,
@@ -526,13 +525,13 @@ export const copy = <Type = unknown>(
  */
 export const determineType = (value:unknown = undefined):string => {
     if ([null, undefined].includes(value as null|undefined))
-        return `${value as string}`
+        return String(value)
 
     const type:string = typeof value
 
     if (
         ['function', 'object'].includes(type) &&
-        (value as Mapping).toString
+        Object.prototype.hasOwnProperty.call(value, 'toString')
     ) {
         const stringRepresentation =
             CLASS_TO_TYPE_MAPPING.toString.call(value) as
@@ -603,7 +602,9 @@ export const equals = (
         ) ||
         options.compareBlobs &&
         eval('typeof Buffer') !== 'undefined' &&
-        (eval('Buffer') as typeof Buffer).isBuffer &&
+        Object.prototype.hasOwnProperty.call(
+            (eval('Buffer') as typeof Buffer), 'isBuffer'
+        ) &&
         firstValue instanceof eval('Buffer') &&
         secondValue instanceof eval('Buffer') &&
         (firstValue as Buffer).toString('base64') ===
@@ -677,23 +678,11 @@ export const equals = (
                 return options.returnReasonIfNotEqual ? '.length' : false
 
             const firstIsMap = isMap(first)
-            if (
-                firstIsMap &&
-                (
-                    !isMap(second) ||
-                    (first as Map<unknown, unknown>).size !== second.size
-                )
-            )
+            if (firstIsMap && (!isMap(second) || first.size !== second.size))
                 return options.returnReasonIfNotEqual ? '.size' : false
 
             const firstIsSet = isSet(first)
-            if (
-                firstIsSet &&
-                (
-                    !isSet(second) ||
-                    (first as Set<unknown>).size !== second.size
-                )
-            )
+            if (firstIsSet && (!isSet(second) || first.size !== second.size))
                 return options.returnReasonIfNotEqual ? '.size' : false
 
             if (firstIsArray) {
@@ -717,12 +706,14 @@ export const equals = (
                             result:boolean|string
                         ):boolean|string =>
                             typeof result === 'string' ?
-                                `[${currentIndex}]` +
+                                `[${String(currentIndex)}]` +
                                 ({'[': '', '>': ' '}[result[0]] ?? '.') +
                                 result :
                                 result
 
-                        if ((result as Promise<boolean|string>)?.then)
+                        if (Object.prototype.hasOwnProperty.call(
+                            result, 'then'
+                        ))
                             promises.push((
                                 result as Promise<boolean|string>
                             ).then(determineResult))
@@ -734,7 +725,7 @@ export const equals = (
                     index += 1
                 }
             } else if (firstIsMap) {
-                for (const [key, value] of first as Map<unknown, unknown>)
+                for (const [key, value] of first)
                     if (options.deep !== 0) {
                         const result:(
                             boolean|Promise<boolean|string>|string
@@ -756,7 +747,9 @@ export const equals = (
                                 result :
                                 result
 
-                        if ((result as Promise<boolean|string>)?.then)
+                        if (Object.prototype.hasOwnProperty.call(
+                            result, 'then'
+                        ))
                             promises.push((
                                 result as Promise<boolean|string>
                             ).then(determineResult))
@@ -765,7 +758,7 @@ export const equals = (
                             return determineResult(result)
                     }
             } else if (firstIsSet) {
-                for (const value of first as Set<unknown>)
+                for (const value of first)
                     if (options.deep !== 0) {
                         let equal = false
                         const subPromises:Array<Promise<boolean|string>> =
@@ -812,15 +805,16 @@ export const equals = (
 
                         if (subPromises.length)
                             promises.push(new Promise<boolean|string>((
-                                resolve:(_value:boolean|string) => void
-                            ):void => {
+                                resolve:(value:boolean|string) => void
+                            ) => {
                                 Promise.all<boolean|string>(
                                     subPromises
                                 ).then(
-                                    (results:Array<boolean|string>):void =>
+                                    (results:Array<boolean|string>) => {
                                         resolve(determineResult(
-                                            results.some(identity)
-                                        )),
+                                            results.some((result) => result)
+                                        ))
+                                    },
                                     NOOP
                                 )
                             }))
@@ -863,14 +857,14 @@ export const equals = (
                             typeof result === 'string' ?
                                 (
                                     key +
-                                    ({'[': '', '>': ' '}[result[0]] ??
-                                        '.'
-                                    ) +
+                                    ({'[': '', '>': ' '}[result[0]] ?? '.') +
                                     result
                                 ) :
                                 result
 
-                        if ((result as Promise<boolean|string>)?.then)
+                        if (Object.prototype.hasOwnProperty.call(
+                            result, 'then'
+                        ))
                             promises.push((
                                 result as Promise<boolean|string>
                             ).then(determineResult))
@@ -975,10 +969,10 @@ export const evaluateDynamicData = <Type = unknown>(
                     const backup:Mapping<unknown> =
                         value as Mapping<unknown>
                     (data as Mapping<ProxyType>)[key] = new Proxy(
-                        value as {[key:string|symbol]:unknown},
+                        value as Record<string|symbol, unknown>,
                         {
                             get: (
-                                target:{[key:string|symbol]:unknown},
+                                target:Record<string|symbol, unknown>,
                                 key:string|symbol
                             ):unknown => {
                                 if (key === '__target__')
@@ -1000,7 +994,7 @@ export const evaluateDynamicData = <Type = unknown>(
                                         typeof target[key] === 'string'
                                     )
                                         return resolve(evaluateAndThrowError(
-                                            target[key] as string, type
+                                            target[key], type
                                         ))
 
                                 const resolvedTarget:unknown = resolve(target)
@@ -1014,10 +1008,9 @@ export const evaluateDynamicData = <Type = unknown>(
                                 }
 
                                 if (typeof key !== 'string') {
-                                    const result:{[key:symbol]:unknown} =
-                                        evaluateAndThrowError(
-                                            resolvedTarget as string
-                                        ) as {[key:symbol]:unknown}
+                                    const result = evaluateAndThrowError(
+                                        resolvedTarget as string
+                                    ) as Record<symbol, unknown>
 
                                     if ((
                                         result[key] as null|UnknownFunction
@@ -1130,25 +1123,19 @@ export const evaluateDynamicData = <Type = unknown>(
         return data
     }
 
-    if (object !== null && typeof object === 'object')
-        if (Object.prototype.hasOwnProperty.call(
-            object, expressionIndicatorKey
-        ))
-            return evaluateAndThrowError(object[
-                expressionIndicatorKey as keyof RecursiveEvaluateable<Type>
-            ]) as Type
-        else if (Object.prototype.hasOwnProperty.call(
-            object, executionIndicatorKey
-        ))
-            return evaluateAndThrowError(
-                object[
-                    executionIndicatorKey as keyof RecursiveEvaluateable<Type>
-                ],
-                executionIndicatorKey
-            ) as Type
+    if (Object.prototype.hasOwnProperty.call(object, expressionIndicatorKey))
+        return evaluateAndThrowError(object[
+            expressionIndicatorKey as keyof RecursiveEvaluateable<Type>
+        ]) as Type
+    else if (Object.prototype.hasOwnProperty.call(
+        object, executionIndicatorKey
+    ))
+        return evaluateAndThrowError(
+            object[executionIndicatorKey as keyof RecursiveEvaluateable<Type>],
+            executionIndicatorKey
+        ) as Type
 
-    return removeProxyRecursively(resolve(addProxyRecursively(object))) as
-        Type
+    return removeProxyRecursively(resolve(addProxyRecursively(object))) as Type
 }
 /**
  * Removes properties in objects where a dynamic indicator lives.
@@ -1191,12 +1178,12 @@ export const extend = <T = Mapping<unknown>>(
     targetOrDeepIndicator:(
         boolean|typeof IGNORE_NULL_AND_UNDEFINED_SYMBOL|RecursivePartial<T>
     ),
-    targetOrSource?:RecursivePartial<T>,
+    targetOrSource?:null|RecursivePartial<T>,
     ...additionalSources:Array<RecursivePartial<T>>
 ):T => {
     let deep:boolean|typeof IGNORE_NULL_AND_UNDEFINED_SYMBOL = false
-    let sources:Array<RecursivePartial<T>> = additionalSources
-    let target:RecursivePartial<T>|undefined
+    let sources:Array<RecursivePartial<T>|null> = additionalSources
+    let target:null|RecursivePartial<T>|undefined
 
     if (
         targetOrDeepIndicator === IGNORE_NULL_AND_UNDEFINED_SYMBOL ||
@@ -1312,11 +1299,15 @@ export const getSubstructure = <T = unknown, E = unknown>(
                 if (subParts)
                     // NOTE: We add index assignments into path array.
                     for (const subPart of subParts) {
-                        const [, prefix, indexAssignment] =
-                            /(.*?)(\[[0-9]+\])/.exec(subPart)!
+                        const match = /(.*?)(\[[0-9]+])/.exec(subPart)
+                        let prefix = ''
+                        let indexAssignment= ''
+                        if (match) {
+                            [, prefix, indexAssignment] = match
 
-                        if (prefix)
-                            path.push(prefix)
+                            if (prefix)
+                                path.push(prefix)
+                        }
 
                         // Trim bracket padding "[index]" => "index".
                         path.push(indexAssignment.substring(
@@ -1442,14 +1433,14 @@ export const mask = <Type extends Mapping<unknown> = Mapping<unknown>>(
                 (mask, key) => ({...mask, [key]: true}),
                 {}
             ) as NormalizedObjectMask :
-            maskConfiguration.exclude!
+            maskConfiguration.exclude as NormalizedObjectMask
     const include:NormalizedObjectMask =
         Array.isArray(maskConfiguration.include) ?
             maskConfiguration.include.reduce(
                 (mask, key) => ({...mask, [key]: true}),
                 {}
             ) as NormalizedObjectMask :
-            maskConfiguration.include!
+            maskConfiguration.include as NormalizedObjectMask
 
     let result:Partial<Type> = {} as Partial<Type>
     if (isPlainObject(include)) {
@@ -1804,7 +1795,7 @@ export const represent = (
     numberOfLevels = 8
 ):string => {
     if (numberOfLevels === 0)
-        return `${maximumNumberOfLevelsReachedIdentifier}`
+        return String(maximumNumberOfLevelsReachedIdentifier)
 
     if (object === null)
         return 'null'
@@ -1816,7 +1807,7 @@ export const represent = (
         return `"${object.replace(/\n/g, `\n${initialIndention}`)}"`
 
     if (isNumeric(object) || typeof object === 'boolean')
-        return `${object as unknown as string}`
+        return String(object)
 
     if (Array.isArray(object)) {
         let result = '['
@@ -1980,10 +1971,9 @@ export const unwrapProxy = <T = unknown>(
                 if (isProxy(object))
                     object = object.__target__
 
-                    // eslint-disable-next-line indent
-                    ;(object as unknown as ProxyType<T>).__revoke__!()
+                ;(object as unknown as {__revoke__:() => void}).__revoke__()
             }
-        } catch (error) {
+        } catch (_error) {
             return object
         } finally {
             seenObjects.add(object)
@@ -1992,7 +1982,7 @@ export const unwrapProxy = <T = unknown>(
         if (Array.isArray(object)) {
             let index = 0
             for (const value of object) {
-                object[index] = unwrapProxy<unknown>(value, seenObjects)
+                object[index] = unwrapProxy(value, seenObjects)
 
                 index += 1
             }
