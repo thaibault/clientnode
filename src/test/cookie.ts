@@ -36,7 +36,7 @@ if (hasDOM) {
         `deleteCookie (${testEnvironment})`, async ():Promise<void> => {
             await getInitializedBrowser()
 
-            expect($.document!.cookie).toStrictEqual('')
+            expect($.document?.cookie).toStrictEqual('')
 
             expect(setCookie('name', 'value', {minimal: true}))
                 .toStrictEqual(true)
@@ -44,11 +44,15 @@ if (hasDOM) {
             deleteCookie('name')
             expect(getCookie('name')).toStrictEqual('')
 
-            $.document!.cookie = ''
+            if ($.document)
+                $.document.cookie = ''
         }
     )
     test(`getCookie (${testEnvironment})`, async ():Promise<void> => {
         await getInitializedBrowser()
+
+        if (!$.document)
+            throw new Error('Browser api is missing.')
 
         expect(getCookie('')).toStrictEqual('')
 
@@ -58,22 +62,25 @@ if (hasDOM) {
             .toStrictEqual(true)
         expect(getCookie('name')).toStrictEqual('value')
 
-        $.document!.cookie = ''
+        $.document.cookie = ''
     })
     test(`setCookie (${testEnvironment})`, async ():Promise<void> => {
         await getInitializedBrowser()
 
-        $.document!.cookie = ''
+        if (!$.document)
+            throw new Error('Browser api is missing.')
+
+        $.document.cookie = ''
 
         expect(setCookie('name', 'value', {minimal: true}))
             .toStrictEqual(true)
         expect(getCookie('name')).toStrictEqual('value')
 
-        $.document!.cookie = ''
+        $.document.cookie = ''
 
         expect(setCookie('name', '', {minimal: true})).toStrictEqual(true)
         expect(getCookie('name')).toStrictEqual('')
 
-        $.document!.cookie = ''
+        $.document.cookie = ''
     })
 }

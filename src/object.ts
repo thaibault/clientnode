@@ -1632,7 +1632,7 @@ export const modifyObject = <T = unknown>(
                                 appendIndicatorKey,
                                 positionPrefix,
                                 positionSuffix
-                            )!,
+                            ),
                             target[index] as
                                 RecursivePartial<ValueOf<T>>,
                             sourceValue as RecursivePartial<ValueOf<T>>

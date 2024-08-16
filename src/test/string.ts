@@ -236,9 +236,10 @@ test.each([
     [null], [null, true, '&'], [null, false, '&'], [null, false, '#']
 ])(
     'Array.isArray(getURLParameter(...%p)) === true',
-    (...parameters:Parameters<typeof getURLParameter>):void =>
+    (...parameters:Parameters<typeof getURLParameter>) => {
         expect(Array.isArray(getURLParameter(...parameters)))
             .toStrictEqual(true)
+    }
 )
 testEach<typeof getURLParameter>(
     'getURLParameter',
@@ -345,12 +346,12 @@ testEachAgainstSameExpectation<typeof serviceURLEquals>(
     ],
     [
         `${$.location && $.location.protocol || 'http:'}//www.test.de:` +
-        `${$.location && $.location.port || 80}/site/subSite` +
+        `${String($.location && $.location.port || 8)}/site/subSite` +
         '?param=value#hash/site/subSite?param=value#hash',
         $.location && $.location.href || 'http://localhost:8080'
     ],
     [
-        `http://www.test.de:${$.location && $.location.port || 80}/` +
+        `http://www.test.de:${String($.location && $.location.port || 80)}/` +
         'site/subSite?param=value#hash',
         'https://www.test.de/site/subSite?param=value#hash'
     ]
@@ -467,9 +468,10 @@ test.each([
     ['function', '', []]
 ])(
     `'%s' === typeof compile('%s', %p).templateFunction`,
-    (expected:string, ...parameters:Parameters<typeof compile>) =>
+    (expected:string, ...parameters:Parameters<typeof compile>) => {
         expect<string>(typeof compile(...parameters).templateFunction)
             .toStrictEqual(expected)
+    }
 )
 //// region compile / evaluation
 ///// region compile
@@ -981,7 +983,7 @@ testEach<typeof mark>(
         'e',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown) => `${value as string}`.toLowerCase()
+            normalizer: (value:unknown) => String(value).toLowerCase()
         }
     ],
     [
@@ -999,7 +1001,7 @@ testEach<typeof mark>(
         'E',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown) => `${value as string}`.toLowerCase()
+            normalizer: (value:unknown) => String(value).toLowerCase()
         }
     ],
     [
@@ -1008,7 +1010,7 @@ testEach<typeof mark>(
         'e',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown) => `${value as string}`.toLowerCase()
+            normalizer: (value:unknown) => String(value).toLowerCase()
         }
     ],
     [
@@ -1017,7 +1019,7 @@ testEach<typeof mark>(
         't',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown) => `${value as string}`.toLowerCase()
+            normalizer: (value:unknown) => String(value).toLowerCase()
         }
     ],
     [
@@ -1026,7 +1028,7 @@ testEach<typeof mark>(
         't',
         {
             marker: '<a>{1} - {1}</a>',
-            normalizer: (value:unknown) => `${value as string}`.toLowerCase()
+            normalizer: (value:unknown) => String(value).toLowerCase()
         }
     ],
     [
@@ -1065,7 +1067,7 @@ testEach<typeof mark>(
         ['ebikes', 'münchen'],
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown) => `${value as string}`.toLowerCase()
+            normalizer: (value:unknown) => String(value).toLowerCase()
         }
     ],
     [
@@ -1075,7 +1077,7 @@ testEach<typeof mark>(
         {
             marker: '<a>{1}</a>',
             normalizer: (value:unknown):string =>
-                `${value as string}`.toLowerCase().replace('-', '')
+                String(value).toLowerCase().replace('-', '')
         }
     ],
     [
@@ -1085,7 +1087,7 @@ testEach<typeof mark>(
         {
             marker: '<a>{1}</a>',
             normalizer: (value:unknown):string =>
-                `${value as string}`
+                String(value)
                     .toLowerCase()
                     .replace('str.', 'strasse')
                     .replace('ß', 'ss')
@@ -1098,7 +1100,7 @@ testEach<typeof mark>(
         {
             marker: '<a>{1}</a>',
             normalizer: (value:unknown):string =>
-                `${value as string}`
+                String(value)
                     .toLowerCase()
                     .replace(/[-_]+/g, '')
                     .replace(/ß/g, 'ss')
@@ -1113,7 +1115,7 @@ testEach<typeof mark>(
         {
             marker: '<a>{1}</a>',
             normalizer: (value:unknown):string =>
-                `${value as string}`
+                String(value)
                     .toLowerCase()
                     .replace(/[-_]+/g, '')
                     .replace(/ß/g, 'ss')

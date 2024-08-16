@@ -50,7 +50,7 @@ export class Lock<Type = string|undefined> {
         callback?:LockCallbackFunction<Type>,
         autoRelease = false
     ):Promise<Type> {
-        return new Promise<Type>((resolve:(_value:Type) => void):void => {
+        return new Promise<Type>((resolve:(value:Type) => void):void => {
             const wrappedCallback:LockCallbackFunction<Type> = (
                 description:string
             ):Promise<Type>|Type => {
@@ -70,7 +70,7 @@ export class Lock<Type = string|undefined> {
                 if ((result as null|Promise<Type>)?.then)
                     return (result as Promise<Type>).then(finish)
 
-                finish(description as unknown as Type)
+                finish(result as Type)
 
                 return result as Type
             }

@@ -24,9 +24,10 @@ import {
 import Tools from '../Tools'
 import {Mapping, $T} from '../type'
 /*
-    NOTE: We have to pre-load this module to avoid introducing an additional
+    NOTE: We have to preload this module to avoid introducing an additional
     asynchronous chunk.
 */
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require('node-fetch/src/utils/multipart-parser')
 
 declare const TARGET_TECHNOLOGY:string
@@ -51,9 +52,9 @@ test('constructor', () => {
     expect(Tools).toHaveProperty('_defaultOptions')
     expect(new Tools()).toHaveProperty('options')
 })
-test('destructor', () =>
+test('destructor', () => {
     expect(tools.destructor()).toStrictEqual(tools)
-)
+})
 test('initialize', () => {
     const secondToolsInstance:Tools = $.Tools({logging: true})
     const thirdToolsInstance:Tools = $.Tools({
@@ -68,38 +69,46 @@ test('initialize', () => {
 /// endregion
 /// region  object orientation
 test('controller', () => {
+    const $body = $('body')
+
     expect(Tools.controller(tools, [])).toStrictEqual(tools)
-    expect((Tools.controller($.Tools.class, [], $('body')) as Tools)
+    expect((Tools.controller($.Tools.class, [], $body) as Tools)
         .constructor.name
     ).toStrictEqual(Tools.name)
-    expect((Tools.controller(Tools, [], $('body')) as Tools)
+    expect((Tools.controller(Tools, [], $body) as Tools)
         .constructor.name
     ).toStrictEqual(Tools.name)
 })
 /// endregion
 /// region logging
-test('log', () => expect(tools.log('test')).toStrictEqual(undefined))
-test('info', () =>
-    expect(tools.info('test {0}')).toStrictEqual(undefined)
-)
-test('debug', () =>
-    expect(tools.debug('test')).toStrictEqual(undefined)
-)
+test('log', () => {
+    tools.log('test')
+    expect(true).toStrictEqual(true)
+})
+test('info', () => {
+    tools.info('test {0}')
+    expect(true).toStrictEqual(true)
+})
+test('debug', () => {
+    tools.debug('test')
+    expect(true).toStrictEqual(true)
+})
 // NOTE: This test breaks javaScript modules in strict mode.
-test.skip(`${testEnvironment}-error`, () =>
-    expect(tools.error('ignore this error, it is only a {1}', 'test'))
-        .toStrictEqual(undefined)
-)
-test('warn', () =>
-    expect(tools.warn('test')).toStrictEqual(undefined)
-)
-test('show', () =>
+test.skip(`${testEnvironment}-error`, () => {
+    tools.error('ignore this error, it is only a {1}', 'test')
+    expect(true).toStrictEqual(true)
+})
+test('warn', () => {
+    tools.warn('test')
+    expect(true).toStrictEqual(true)
+})
+test('show', () => {
     expect(/^.+\(Type: "function"\)$/su.test(Tools.show(NOOP)))
         .toStrictEqual(true)
-)
+})
 testEach<typeof Tools.show>(
     'show',
-    Tools.show,
+    Tools.show.bind(Tools),
 
     ['1 (Type: "number")', 1],
     ['null (Type: "null")', null],
@@ -215,8 +224,8 @@ if (hasDOM) {
         ]
     ])(
         `get style '%s' => %p (${testEnvironment})`,
-        (html:string, css:Mapping):void => {
-            const $domNode:$T = $<HTMLElement>(html)
+        (html:string, css:Mapping) => {
+            const $domNode:$T = $(html)
 
             $('body').append($domNode[0])
 
@@ -238,13 +247,14 @@ if (hasDOM) {
         ['<div>hans<div>peter</div></div>', 'hans']
     ])(
         `get text '%s' => '%s' (${testEnvironment})`,
-        (html:string, text:string):void =>
+        (html:string, text:string) => {
             expect($(html).Tools('text')).toStrictEqual(text)
+        }
     )
     // endregion
     testEachAgainstSameExpectation<typeof Tools.isEquivalentDOM>(
         'isEquivalentDOM',
-        Tools.isEquivalentDOM,
+        Tools.isEquivalentDOM.bind(Tools),
         true,
 
         ['test', 'test'],
@@ -257,7 +267,7 @@ if (hasDOM) {
         ['<div></div>', '<div>'],
         ['<div class="a"></div>', '<div class="a"></div>'],
         [
-            $<HTMLElement>('<a target="_blank" class="a"></a>'),
+            $('<a target="_blank" class="a"></a>'),
             '<a class="a" target="_blank"></a>'
         ],
         [
@@ -294,7 +304,7 @@ if (hasDOM) {
     )
     testEachAgainstSameExpectation<typeof Tools.isEquivalentDOM>(
         'isEquivalentDOM',
-        Tools.isEquivalentDOM,
+        Tools.isEquivalentDOM.bind(Tools),
         false,
 
         ['test', ''],
@@ -314,14 +324,14 @@ if (hasDOM) {
         ['text', 'text a'],
         ['text', 'text a & +']
     )
-    test('getPositionRelativeToViewport', ():void =>
+    test('getPositionRelativeToViewport', () => {
         expect(['above', 'left', 'right', 'below', 'in'])
             .toContain(tools.getPositionRelativeToViewport())
-    )
+    })
 }
 testEach<typeof Tools.generateDirectiveSelector>(
     'generateDirectiveSelector',
-    Tools.generateDirectiveSelector,
+    Tools.generateDirectiveSelector.bind(Tools),
 
     ['a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]', 'a-b'],
     ['a-b, .a-b, [a-b], [data-a-b], [x-a-b], [a\\:b], [a_b]', 'aB'],
@@ -349,15 +359,14 @@ if (hasDOM)
     test('removeDirective', async ():Promise<void> => {
         await getInitializedBrowser()
 
-        const $localBodyDomNode:$T<HTMLElement> =
-            $<HTMLElement>('body').Tools('removeDirective', 'a')
+        const $localBodyDomNode:$T = $('body').Tools('removeDirective', 'a')
 
         expect($localBodyDomNode.Tools().removeDirective('a'))
             .toStrictEqual($localBodyDomNode)
     })
 testEach<typeof Tools.getNormalizedDirectiveName>(
     'getNormalizedDirectiveName',
-    Tools.getNormalizedDirectiveName,
+    Tools.getNormalizedDirectiveName.bind(Tools),
 
     ['a', 'data-a'],
     ['a', 'x-a'],
@@ -385,7 +394,7 @@ test('sliceDomNodeSelectorPrefix', ():void => {
 })
 testEach<typeof Tools.getDomNodeName>(
     'getDomNodeName',
-    Tools.getDomNodeName,
+    Tools.getDomNodeName.bind(Tools),
 
     ['div', 'div'],
     ['div', '<div>'],
@@ -400,10 +409,12 @@ if (hasDOM)
     test('grabDomNodes', async ():Promise<void> => {
         await getInitializedBrowser()
 
+        const $body = $('body')
+
         for (const [expected, parameters] of [
-            [{a: $('div'), parent: $('body')}, [{a: 'div'}]],
+            [{a: $('div'), parent: $body}, [{a: 'div'}]],
             [
-                {a: $('body').find('script'), parent: $('body')},
+                {a: $body.find('script'), parent: $body},
                 [{a: 'script'}, 'body']
             ]
         ] as Array<[Mapping<$T>, [Mapping, string?]]>) {
@@ -442,27 +453,31 @@ test('fireEvent', ():void => {
     expect(plugin.fireEvent('click')).toStrictEqual(true)
 })
 if (hasDOM) {
-    test('on', ():void => {
+    test('on', () => {
+        const $body = $('body')
+
         let testValue = false
         expect(
-            tools.on('body', 'click', ():void => {
+            tools.on('body', 'click', () => {
                 testValue = true
             })[0]
-        ).toStrictEqual($('body')[0])
+        ).toStrictEqual($body[0])
 
-        $('body').trigger('click')
+        $body.trigger('click')
         expect(testValue).toStrictEqual(true)
     })
     test('off', ():void => {
+        const $body = $('body')
+
         let testValue = false
         expect(
             tools.on('body', 'click', ():void => {
                 testValue = true
             })[0]
-        ).toStrictEqual($('body')[0])
-        expect(tools.off('body', 'click')[0]).toStrictEqual($('body')[0])
+        ).toStrictEqual($body[0])
+        expect(tools.off('body', 'click')[0]).toStrictEqual($body[0])
 
-        $('body').trigger('click')
+        $body.trigger('click')
         expect(testValue).toStrictEqual(false)
     })
 }

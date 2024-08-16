@@ -19,8 +19,8 @@ import Lock from '../Lock'
 import {timeout} from '../utility'
 
 test('acquire|release', async ():Promise<void> => {
-    const lock = new Lock()
-    const anotherLock = new Lock()
+    const lock = new Lock<void>()
+    const anotherLock = new Lock<void>()
 
     let testValue = 'a'
     await lock.acquire('test', () => {
@@ -62,19 +62,18 @@ test('acquire|release', async ():Promise<void> => {
     expect(testValue).toStrictEqual('a')
     await lock.release('test')
     expect(testValue).toStrictEqual('b')
-    const promise:Promise<void> = lock.acquire('test').then(
-        async (result:string|void):Promise<void> => {
+
+    const stringLock = new Lock<string>()
+    const promise = stringLock.acquire('test').then(
+        async (result:string) => {
             expect(result).toStrictEqual('test')
-            void timeout(():Promise<string|void> => lock.release('test'))
-            result = await lock.acquire('test')
-            expect(result).toStrictEqual('test')
-            void timeout(():Promise<string|void> =>
-                lock.release('test')
-            )
-            await lock.acquire(
+            void timeout(() => lock.release('test'))
+            await stringLock.acquire('test')
+            void timeout(() => lock.release('test'))
+            await stringLock.acquire(
                 'test',
-                ():Promise<string|void> =>
-                    new Promise((resolve:(_value:string) => void) => {
+                () =>
+                    new Promise<string>((resolve:(value:string) => void) => {
                         void timeout(() => {
                             testValue = 'a'
                             resolve(testValue)
@@ -84,6 +83,6 @@ test('acquire|release', async ():Promise<void> => {
             expect(testValue).toStrictEqual('a')
         }
     )
-    await lock.release('test')
+    await stringLock.release('test')
     await promise
 })

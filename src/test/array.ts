@@ -331,10 +331,10 @@ testEach<typeof removeArrayItem>(
     [[1], [1, 2], 2],
     [[1], [1, 2], 2, true]
 )
-test('arrayRemove([], 2, true) -> throws Exception', ():void =>
+test('arrayRemove([], 2, true) -> throws Exception', () => {
     expect(():Array<number> => removeArrayItem<number>([], 2, true))
         .toThrow(new Error(`Given target doesn't exists in given list.`))
-)
+})
 testEach<typeof sortTopological>(
     'sortTopological',
     sortTopological,

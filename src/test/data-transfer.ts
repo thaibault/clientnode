@@ -61,9 +61,11 @@ testEachPromiseAgainstSameExpectation<typeof checkUnreachability>(
     ['unknownURL', {statusCodes: [200], wait: true}],
     ['unknownURL', {statusCodes: [200, 301], wait: true}]
 )
-test('checkUnreachability', ():void => {
+test('checkUnreachability', () => {
     const abortController = new AbortController()
-    void timeout(0.25, ():void => abortController.abort())
+    void timeout(0.25, () => {
+        abortController.abort()
+    })
 
     void expect(checkUnreachability(
         'http://unknownHostName',
@@ -75,7 +77,7 @@ test('checkUnreachability', ():void => {
     )).resolves.toBeDefined()
 })
 if (TARGET_TECHNOLOGY !== 'node') {
-    test('sendToIFrame', ():void => {
+    test('sendToIFrame', () => {
         const $iFrame:$T<HTMLIFrameElement> =
             $<HTMLIFrameElement>('<iframe>').hide().attr('name', 'test')
 
@@ -86,8 +88,8 @@ if (TARGET_TECHNOLOGY !== 'node') {
         )).toBeDefined()
     })
 
-    test('sendToExternalURL', ():void =>
+    test('sendToExternalURL', () => {
         expect(sendToExternalURL(window.document.URL, {test: 5}))
             .toBeDefined()
-    )
+    })
 }

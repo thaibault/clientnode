@@ -15,75 +15,73 @@
 */
 import {expect, test} from '@jest/globals'
 
-import Lock from '../Lock'
-import {timeout} from '../utility'
+import {Semaphore} from '../Semaphore'
 
-test('acquire|release', async ():Promise<void> => {
-    const lock = new Lock()
-    const anotherLock = new Lock()
-
-    let testValue = 'a'
-    await lock.acquire('test', () => {
-        testValue = 'b'
-    })
-    expect(testValue).toStrictEqual('b')
-    expect(lock.acquire(
-        'test',
-        ()=> {
-            testValue = 'a'
-        }
-    )).toBeInstanceOf(Promise)
-    expect(testValue).toStrictEqual('b')
-    expect(anotherLock.release('test')).toBeInstanceOf(Promise)
-    expect(testValue).toStrictEqual('b')
-    expect(lock.release('test')).toBeInstanceOf(Promise)
-    expect(testValue).toStrictEqual('a')
-    expect(lock.release('test')).toBeInstanceOf(Promise)
-    expect(testValue).toStrictEqual('a')
-    await lock.acquire('test', () => {
-        testValue = 'b'
-    })
-    expect(testValue).toStrictEqual('b')
-    expect(lock.acquire(
-        'test',
-        () => {
-            testValue = 'a'
-        }
-    )).toBeInstanceOf(Promise)
-    expect(testValue).toStrictEqual('b')
-    expect(lock.acquire(
-        'test',
-        () => {
-            testValue = 'b'
-        }
-    )).toBeInstanceOf(Promise)
-    expect(testValue).toStrictEqual('b')
-    await lock.release('test')
-    expect(testValue).toStrictEqual('a')
-    await lock.release('test')
-    expect(testValue).toStrictEqual('b')
-    const promise:Promise<void> = lock.acquire('test').then(
-        async (result:string|void):Promise<void> => {
-            expect(result).toStrictEqual('test')
-            void timeout(():Promise<string|void> => lock.release('test'))
-            result = await lock.acquire('test')
-            expect(result).toStrictEqual('test')
-            void timeout(():Promise<string|void> =>
-                lock.release('test')
-            )
-            await lock.acquire(
-                'test',
-                ():Promise<string|void> =>
-                    new Promise((resolve:(_value:string) => void) => {
-                        void timeout(() => {
-                            testValue = 'a'
-                            resolve(testValue)
-                        })
-                    })
-            )
-            expect(testValue).toStrictEqual('a')
-        }
+test('constructor', ():void => {
+    expect(new Semaphore()).toHaveProperty('numberOfResources', 2)
+    expect(new Semaphore()).toHaveProperty(
+        'numberOfFreeResources', (new Semaphore()).numberOfResources
     )
-    await lock.release('test')
-    await promise
+})
+test('acquire/release', async ():Promise<void> => {
+    const semaphore1 = new Semaphore()
+
+    expect(semaphore1.numberOfFreeResources).toStrictEqual(2)
+    expect(await semaphore1.acquire()).toStrictEqual(1)
+    expect(semaphore1.numberOfFreeResources).toStrictEqual(1)
+
+    semaphore1.release()
+
+    expect(semaphore1.numberOfFreeResources).toStrictEqual(2)
+
+    const semaphore2:Semaphore = new Semaphore(2)
+
+    expect(semaphore2.queue.length).toStrictEqual(0)
+    expect(semaphore2.numberOfFreeResources).toStrictEqual(2)
+    expect(semaphore2.numberOfResources).toStrictEqual(2)
+
+    await semaphore2.acquire()
+
+    expect(semaphore2.queue.length).toStrictEqual(0)
+    expect(semaphore2.numberOfFreeResources).toStrictEqual(1)
+    expect(semaphore2.numberOfResources).toStrictEqual(2)
+
+    await semaphore2.acquire()
+
+    expect(semaphore2.queue.length).toStrictEqual(0)
+    expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
+
+    void semaphore2.acquire()
+
+    expect(semaphore2.queue.length).toStrictEqual(1)
+    expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
+
+    void semaphore2.acquire()
+
+    expect(semaphore2.queue.length).toStrictEqual(2)
+    expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
+    semaphore2.release()
+
+    expect(semaphore2.queue.length).toStrictEqual(1)
+    expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
+
+    semaphore2.release()
+
+    expect(semaphore2.queue.length).toStrictEqual(0)
+    expect(semaphore2.numberOfFreeResources).toStrictEqual(0)
+
+    semaphore2.release()
+
+    expect(semaphore2.queue.length).toStrictEqual(0)
+    expect(semaphore2.numberOfFreeResources).toStrictEqual(1)
+
+    semaphore2.release()
+
+    expect(semaphore2.queue.length).toStrictEqual(0)
+    expect(semaphore2.numberOfFreeResources).toStrictEqual(2)
+
+    semaphore2.release()
+
+    expect(semaphore2.queue.length).toStrictEqual(0)
+    expect(semaphore2.numberOfFreeResources).toStrictEqual(3)
 })

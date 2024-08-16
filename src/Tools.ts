@@ -109,7 +109,7 @@ export class Tools<TElement = HTMLElement> {
         this.options = Tools._defaultOptions as Options
 
         // Avoid errors in browsers that lack a console.
-        if (!$.global.console)
+        if (!Object.prototype.hasOwnProperty.call($.global, 'console'))
             ($.global as unknown as {console:Mapping<AnyFunction>}).console =
                 {}
 
@@ -122,7 +122,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns the current instance.
      */
     destructor():this {
-        if (($.fn as {off?:AnyFunction})?.off)
+        if (($.fn as {off?:AnyFunction}|undefined)?.off)
             this.off('*')
 
         return this
@@ -168,14 +168,11 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns whatever the initializer method returns.
      */
     static controller<TElement = HTMLElement>(
-        this:void,
-        object:unknown,
-        parameters:unknown,
-        $domNode:null|$T<TElement> = null
+        object:unknown, parameters:unknown, $domNode:null|$T<TElement> = null
     ):unknown {
         if (typeof object === 'function') {
             object = new (
-                object as {new (_$domNode:null|$T<TElement>):unknown}
+                object as new (_$domNode:null|$T<TElement>) => unknown
             )($domNode)
 
             if (!(object instanceof Tools))
@@ -281,10 +278,22 @@ export class Tools<TElement = HTMLElement> {
 
             if (message)
                 if (
-                    !($.global.console && level in $.global.console) ||
+                    !(
+                        Object.prototype.hasOwnProperty.call(
+                            $.global, 'console'
+                        ) &&
+                        level in $.global.console
+                    ) ||
                     ($.global.console[level] === NOOP)
                 ) {
-                    if ($.global.window?.alert)
+                    if (
+                        Object.prototype.hasOwnProperty.call(
+                            $.global, 'window'
+                        ) &&
+                        Object.prototype.hasOwnProperty.call(
+                            $.global.window, 'alert'
+                        )
+                    )
                         $.global.window.alert(message)
                 } else
                     ($.global.console[level] as Console['log'])(message)
@@ -349,7 +358,7 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns the serialized version of given object.
      */
     static show(
-        this:void, object:unknown, level = 3, currentLevel = 0
+        object:unknown, level = 3, currentLevel = 0
     ):string {
         let output = ''
 
@@ -362,7 +371,7 @@ export class Tools<TElement = HTMLElement> {
                 if (currentLevel <= level)
                     output += Tools.show(value, level, currentLevel + 1)
                 else
-                    output += `${value as string}`
+                    output += String(value)
 
                 output += '\n'
             }
@@ -370,7 +379,7 @@ export class Tools<TElement = HTMLElement> {
             return output.trim()
         }
 
-        output = `${object as string}`.trim()
+        output = String(object).trim()
 
         return `${output} (Type: "${determineType(object)}")`
     }
@@ -389,12 +398,18 @@ export class Tools<TElement = HTMLElement> {
                 .addBack()
                 .each((index:number, domNode:HTMLElement):void => {
                     const $domNode:$T = $(domNode)
-                    const classValue:string|undefined = $domNode.attr(
-                        className)
+                    const classValue:string|undefined =
+                        $domNode.attr(className)
                     if (classValue)
                         $domNode.attr(
                             className,
-                            (classValue.split(' ').sort() || []).join(' ')
+                            (
+                                classValue
+                                    .trim()
+                                    .replace(/ +/, ' ')
+                                    .split(' ')
+                                    .sort()
+                            ).join(' ')
                         )
                     else if ($domNode.is(`[${className}]`))
                         $domNode.removeAttr(className)
@@ -426,8 +441,7 @@ export class Tools<TElement = HTMLElement> {
                                 (
                                     compressStyleValue(serializedStyles)
                                         .split(';')
-                                        .sort() ||
-                                    []
+                                        .sort()
                                 )
                                     .map((style:string):string => style.trim())
                                     .join(';')
@@ -452,43 +466,37 @@ export class Tools<TElement = HTMLElement> {
         if ($domNode?.length) {
             let styleProperties:CSSStyleDeclaration
 
-            if ($.global.window?.getComputedStyle) {
+            if (
+                Object.prototype.hasOwnProperty.call($.global, 'window') &&
+                Object.prototype.hasOwnProperty.call(
+                    $.global.window, 'getComputedStyle'
+                )
+            ) {
                 styleProperties = $.global.window.getComputedStyle(
                     $domNode[0] as unknown as Element, null
                 )
 
-                if (styleProperties) {
-                    if ('length' in styleProperties)
-                        for (
-                            let index = 0;
-                            index < styleProperties.length;
-                            index += 1
-                        )
-                            result[delimitedToCamelCase(
-                                styleProperties[index]
-                            )] =
-                                styleProperties.getPropertyValue(
-                                    styleProperties[index]
-                                )
-                    else
-                        for (const [propertyName, value] of Object.entries(
-                            styleProperties
-                        ))
-                            result[delimitedToCamelCase(propertyName)] =
-                                value as number|string ||
-                                (styleProperties as CSSStyleDeclaration)
-                                    .getPropertyValue(propertyName)
+                if ('length' in styleProperties)
+                    for (const style of styleProperties)
+                        result[delimitedToCamelCase(style)] =
+                            styleProperties.getPropertyValue(style)
+                else
+                    for (const [propertyName, value] of Object.entries(
+                        styleProperties
+                    ))
+                        result[delimitedToCamelCase(propertyName)] =
+                            value as number|string ||
+                            (styleProperties as CSSStyleDeclaration)
+                                .getPropertyValue(propertyName)
 
-                    return result
-                }
+                return result
             }
 
             styleProperties = ($domNode[0] as unknown as HTMLElement).style
 
-            if (styleProperties)
-                for (const propertyName in styleProperties)
-                    if (typeof styleProperties[propertyName] !== 'function')
-                        result[propertyName] = styleProperties[propertyName]
+            for (const propertyName in styleProperties)
+                if (typeof styleProperties[propertyName] !== 'function')
+                    result[propertyName] = styleProperties[propertyName]
         }
 
         return result
@@ -513,19 +521,16 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns true if both dom representations are equivalent.
      */
     static isEquivalentDOM(
-        this:void,
-        first:Node|string|$T<HTMLElement>|$T<Node>,
-        second:Node|string|$T<HTMLElement>|$T<Node>,
+        first:Node|string|$T|$T<Node>,
+        second:Node|string|$T|$T<Node>,
         forceHTMLString = false
     ):boolean {
         if (first === second)
             return true
 
         if (first && second) {
-            const detemermineHTMLPattern =
-                /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
-            const inputs:Mapping<Node|string|$T<HTMLElement>|$T<Node>> =
-                {first, second}
+            const detemermineHTMLPattern = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
+            const inputs:Mapping<Node|string|$T|$T<Node>> = {first, second}
             const $domNodes:Mapping<$T> = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
@@ -557,7 +562,7 @@ export class Tools<TElement = HTMLElement> {
                             $domNodes[type] = $('<div>').append($copiedDomNode)
                         else
                             return false
-                    } catch (error) {
+                    } catch (_error) {
                         return false
                     }
 
@@ -617,7 +622,7 @@ export class Tools<TElement = HTMLElement> {
         const $domNode:null|$T<TElement> = this.$domNode
 
         if (
-            $.global.window &&
+            Object.prototype.hasOwnProperty.call($.global, 'window') &&
             $domNode?.length &&
             $domNode[0] &&
             'getBoundingClientRect' in ($domNode[0] as unknown as HTMLElement)
@@ -626,27 +631,26 @@ export class Tools<TElement = HTMLElement> {
 
             const rectangle:Position = ($domNode[0] as unknown as Element)
                 .getBoundingClientRect()
-            if (rectangle) {
-                if (rectangle.top && (rectangle.top + delta.top) < 0)
-                    return 'above'
 
-                if ((rectangle.left + delta.left) < 0)
-                    return 'left'
+            if (rectangle.top && (rectangle.top + delta.top) < 0)
+                return 'above'
 
-                const windowHeight:number|undefined = $window.height()
-                if (
-                    typeof windowHeight === 'number' &&
-                    windowHeight < (rectangle.bottom + delta.bottom)
-                )
-                    return 'below'
+            if ((rectangle.left + delta.left) < 0)
+                return 'left'
 
-                const windowWidth:number|undefined = $window.width()
-                if (
-                    typeof windowWidth === 'number' &&
-                    windowWidth < (rectangle.right + delta.right)
-                )
-                    return 'right'
-            }
+            const windowHeight:number|undefined = $window.height()
+            if (
+                typeof windowHeight === 'number' &&
+                windowHeight < (rectangle.bottom + delta.bottom)
+            )
+                return 'below'
+
+            const windowWidth:number|undefined = $window.width()
+            if (
+                typeof windowWidth === 'number' &&
+                windowWidth < (rectangle.right + delta.right)
+            )
+                return 'right'
         }
 
         return 'in'
@@ -656,7 +660,7 @@ export class Tools<TElement = HTMLElement> {
      * @param directiveName - The directive name.
      * @returns Returns generated selector.
      */
-    static generateDirectiveSelector(this:void, directiveName:string):string {
+    static generateDirectiveSelector(directiveName:string):string {
         const delimitedName:string = camelCaseToDelimited(directiveName)
 
         return `${delimitedName}, .${delimitedName}, [${delimitedName}], ` +
@@ -732,7 +736,7 @@ export class Tools<TElement = HTMLElement> {
      * @param directiveName - The directive name.
      * @returns Returns the corresponding name.
      */
-    static getNormalizedDirectiveName(this:void, directiveName:string):string {
+    static getNormalizedDirectiveName(directiveName:string):string {
         for (const delimiter of ['-', ':', '_'] as const) {
             let prefixFound = false
 
@@ -813,7 +817,7 @@ export class Tools<TElement = HTMLElement> {
      * // returns 'br'
      * $.Tools.getDomNodeName('&lt;br/&gt;')
      */
-    static getDomNodeName(this:void, domNodeSelector:string):null|string {
+    static getDomNodeName(domNodeSelector:string):null|string {
         const match:Array<string>|null = /^<?([a-zA-Z]+).*>?.*/.exec(
             domNodeSelector)
 
@@ -837,40 +841,35 @@ export class Tools<TElement = HTMLElement> {
     ):$DomNodes {
         const domNodes:$DomNodes = {} as $DomNodes
 
-        if (domNodeSelectors)
-            if (wrapperDomNode) {
-                const $wrapperDomNode:$T<Node> =
-                    $(wrapperDomNode as Node) as $T<Node>
-                for (const [name, selector] of Object.entries(
-                    domNodeSelectors
-                ))
-                    domNodes[name] = $wrapperDomNode.find(selector)
-            } else
-                for (const [name, selector] of Object.entries(
-                    domNodeSelectors
-                )) {
-                    const match:Array<string>|null = /, */.exec(selector)
-                    if (match)
-                        domNodeSelectors[name] += selector
-                            .split(match[0])
-                            .map((selectorPart:string):string =>
-                                ', ' +
-                                normalizeDomNodeSelector(
-                                    selectorPart,
-                                    this.options.domNodeSelectorPrefix
-                                )
+        if (wrapperDomNode) {
+            const $wrapperDomNode:$T<Node> =
+                $(wrapperDomNode as Node) as $T<Node>
+            for (const [name, selector] of Object.entries(domNodeSelectors))
+                domNodes[name] = $wrapperDomNode.find(selector)
+        } else
+            for (const [name, selector] of Object.entries(domNodeSelectors)) {
+                const match:Array<string>|null = /, */.exec(selector)
+                if (match)
+                    domNodeSelectors[name] += selector
+                        .split(match[0])
+                        .map((selectorPart:string):string =>
+                            ', ' +
+                            normalizeDomNodeSelector(
+                                selectorPart,
+                                this.options.domNodeSelectorPrefix
                             )
-                            .join('')
+                        )
+                        .join('')
 
-                    domNodes[name] = $(normalizeDomNodeSelector(
-                        domNodeSelectors[name],
-                        this.options.domNodeSelectorPrefix
-                    ))
-                }
+                domNodes[name] = $(normalizeDomNodeSelector(
+                    domNodeSelectors[name],
+                    this.options.domNodeSelectorPrefix
+                ))
+            }
 
         if (this.options.domNodeSelectorPrefix)
             domNodes.parent = $(this.options.domNodeSelectorPrefix)
-        if ($.global.window) {
+        if (Object.prototype.hasOwnProperty.call($.global, 'window')) {
             domNodes.window = $($.global.window as unknown as HTMLElement)
 
             if ($.document)
@@ -906,7 +905,7 @@ export class Tools<TElement = HTMLElement> {
 
         interface Scope {
             callable:AnyFunction
-            options:Mapping<AnyFunction>
+            options?:Mapping<AnyFunction>
         }
         const castedScope:Scope = scope as Scope
 

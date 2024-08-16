@@ -378,12 +378,12 @@ export const serviceURLEquals = (
 }
 /**
  * Normalized given website url.
- * @param url - Uniform resource locator to normalize.
+ * @param givenURL - Uniform resource locator to normalize.
  * @returns Normalized result.
  */
-export const normalizeURL = (url:string):string => {
-    if (typeof url === 'string') {
-        url = url.replace(/^:?\/+/, '').replace(/\/+$/, '').trim()
+export const normalizeURL = (givenURL:unknown):string => {
+    if (typeof givenURL === 'string') {
+        const url = givenURL.replace(/^:?\/+/, '').replace(/\/+$/, '').trim()
 
         if (url.startsWith('http'))
             return url
@@ -558,15 +558,15 @@ export const delimitedToCamelCase = (
  * @param expression - The string to interpret.
  * @param scope - Scope to extract names from.
  * @param execute - Indicates whether to execute or evaluate.
- * @param removeGlobalScope - Indicates whether to shadow global variables
- * via "undefined".
+ * @param removeGlobalScope - Indicates whether to shadow global variables via
+ * "undefined".
  * @param binding - Object to apply as "this" in evaluation scope.
  * @returns Object of prepared scope name mappings and compiled function or
  * error string message if given expression couldn't be compiled.
  */
 export const compile = <T = string, N extends Array<string> = Array<string>>(
     expression:string,
-    scope:N|Mapping<unknown, N[number]>|N[number] = [] as unknown as N,
+    scope:Mapping<unknown, N[number]>|N|N[number]|string = [] as unknown as N,
     execute = false,
     removeGlobalScope = true,
     binding:unknown = {}
@@ -762,7 +762,10 @@ export const findNormalizedMatchRange = (
         let inTag = false
         for (let index = 0; index < stringTarget.length; index += 1) {
             if (inTag) {
-                if (stringTarget.charAt(index) === skipTagDelimitedParts![1])
+                if (
+                    Array.isArray(skipTagDelimitedParts) &&
+                    stringTarget.charAt(index) === skipTagDelimitedParts[1]
+                )
                     inTag = false
 
                 continue
@@ -918,25 +921,25 @@ export const lowerCase = (string:string):string => {
  * Wraps given mark strings in given target with given marker.
  * @param target - String to search for marker.
  * @param givenWords - String or array of strings to search in target for.
- * @param options - Defines highlighting behavior.
- * @param options.marker - HTML template string to mark.
- * @param options.normalizer - Pure normalisation function to use before
+ * @param givenOptions - Defines highlighting behavior.
+ * @param givenOptions.marker - HTML template string to mark.
+ * @param givenOptions.normalizer - Pure normalisation function to use before
  * searching for matches.
- * @param options.skipTagDelimitedParts - Indicates whether to for example
+ * @param givenOptions.skipTagDelimitedParts - Indicates whether to for example
  * ignore html tags via "['<', '>']" (the default).
  * @returns Processed result.
  */
 export const mark = (
     target:unknown,
     givenWords?:Array<string>|string,
-    options:Partial<StringMarkOptions> = {}
+    givenOptions:Partial<StringMarkOptions> = {}
 ):unknown => {
     if (typeof target === 'string' && givenWords?.length) {
-        options = {
+        const options:StringMarkOptions = {
             marker: '<span class="tools-mark">{1}</span>',
             normalizer: (value:unknown) => String(value).toLowerCase(),
             skipTagDelimitedParts: ['<', '>'],
-            ...options
+            ...givenOptions
         }
 
         target = target.trim()
@@ -946,7 +949,7 @@ export const mark = (
             ([] as Array<string>).concat(givenWords)
         let index = 0
         for (const word of words) {
-            words[index] = options.normalizer!(word).trim()
+            words[index] = options.normalizer(word).trim()
 
             index += 1
         }
@@ -993,7 +996,7 @@ export const mark = (
                                 offset + nearestRange[1]
                             )
                         ) :
-                        options.marker!(
+                        options.marker(
                             (target as string).substring(
                                 offset + nearestRange[0],
                                 offset + nearestRange[1]
@@ -1130,9 +1133,12 @@ export const normalizeZipCode = (value:unknown):string => {
 export const parseEncodedObject = <T = PlainObject>(
     serializedObject:string, scope:Mapping<unknown> = {}, name = 'scope'
 ):null|T => {
+    if (!readFileSync)
+        throw new Error('File system api could not be loaded.')
+
     if (serializedObject.endsWith('.json') && isFileSync(serializedObject))
         serializedObject =
-            readFileSync!(serializedObject, {encoding: DEFAULT_ENCODING})
+            readFileSync(serializedObject, {encoding: DEFAULT_ENCODING})
 
     serializedObject = serializedObject.trim()
 

@@ -309,7 +309,7 @@ export interface EvaluationResult<Type = string> {
     runtimeError:null|string
 }
 
-export type LockCallbackFunction<Type = string> =
+export type LockCallbackFunction<Type> =
     (description:string) => Promise<Type>|Type
 /// endregion
 /// region global scope
