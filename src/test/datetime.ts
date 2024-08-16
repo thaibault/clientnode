@@ -143,9 +143,9 @@ testEach<typeof interpretDateTime>(
     [new Date(1970, 3 - 1, 3), '3. märz 1970'],
     [new Date(1970, 12 - 1, 3), '3. Dezember 1970']
 )
-test('normalizeDateTime', () =>
+test('normalizeDateTime', () => {
     expect(typeof normalizeDateTime()).toStrictEqual('object')
-)
+})
 testEach<typeof normalizeDateTime>(
     'normalizeDateTime',
     normalizeDateTime,

@@ -186,7 +186,7 @@ export const interpretDateTime = (
         NOTE: Do not use "parseFloat" since we want to interpret delimiter as
         date delimiters.
     */
-    if (`${parseInt(value)}` === value) {
+    if (String(parseInt(value)) === value) {
         if ([null, undefined].includes(interpretAsUTC as null))
             resolvedInterpretAsUTC = true
 
@@ -492,7 +492,7 @@ export const interpretDateTime = (
         for (const name of monthVariation) {
             const pattern = new RegExp(`(^|[^a-z])${name}([^a-z]|$)`)
             if (pattern.test(value)) {
-                value = value.replace(pattern, `$1${monthNumber}$2`)
+                value = value.replace(pattern, `$1${String(monthNumber)}$2`)
                 matched = true
                 break
             }
@@ -522,13 +522,13 @@ export const interpretDateTime = (
 
         try {
             match = value.match(dateTimePattern)
-        } catch (error) {
+        } catch (_error) {
             // Continue regardless of an error.
         }
 
         if (match) {
             const get = (name:string, fallback = 0):number =>
-                match?.groups && name in match.groups ?
+                match.groups && name in match.groups ?
                     parseInt(match.groups[name], 10) :
                     fallback
 
@@ -601,7 +601,7 @@ export const normalizeDateTime = (
         }
 
         const floatRepresentation:number = parseFloat(value)
-        if (`${floatRepresentation}` === value)
+        if (String(floatRepresentation) === value)
             value = floatRepresentation
     }
 

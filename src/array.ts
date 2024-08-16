@@ -171,7 +171,7 @@ export const extractIfPropertyExists = <
 export const extractIfPropertyMatches = <T = unknown>(
     data:unknown, propertyPattern:Mapping<RegExp|string>
 ):Array<T> => {
-    if (data && propertyPattern) {
+    if (data) {
         const result:Array<T> = []
 
         for (const item of makeArray<T>(data)) {
@@ -184,7 +184,7 @@ export const extractIfPropertyMatches = <T = unknown>(
                             'string'
                         ) ?
                             new RegExp(propertyPattern[propertyName]) :
-                            propertyPattern[propertyName] as RegExp
+                            propertyPattern[propertyName]
                     ).test((item as unknown as Mapping)[propertyName])
                 )) {
                     matches = false
@@ -230,7 +230,7 @@ export const intersect = <T = unknown>(
         secondKey:string|number,
         keysAreAnArray:boolean,
         iterateGivenKeys:boolean
-    ):false|void => {
+    ):false|undefined => {
         if (iterateGivenKeys) {
             if (keysAreAnArray)
                 firstKey = secondKey
@@ -346,10 +346,10 @@ export const makeRange = (
     let higherBound:number
     if (range.length === 1) {
         index = 0
-        higherBound = parseInt(`${range[0]}`, 10)
+        higherBound = parseInt(String(range[0]), 10)
     } else if (range.length === 2) {
-        index = parseInt(`${range[0]}`, 10)
-        higherBound = parseInt(`${range[1]}`, 10)
+        index = parseInt(String(range[0]), 10)
+        higherBound = parseInt(String(range[1]), 10)
     } else
         return range
 
@@ -525,7 +525,7 @@ export const paginate = (
                             {
                                 first: 1,
                                 last: numberOfPages
-                            }[item as 'first'|'last'] ??
+                            }[item as string] ??
                             item === 'next' ?
                                 Math.min(page + 1, numberOfPages) :
                                 // NOTE: Is "previous" type.

@@ -24,16 +24,14 @@ import {optionalRequire} from '../require'
 import {Duplex as DuplexType} from 'stream'
 import {AnyFunction} from '../type'
 
-declare const TARGET_TECHNOLOGY:string
-
 const {ChildProcess = null} =
     optionalRequire<typeof import('child_process')>('child_process') || {}
 
-if (TARGET_TECHNOLOGY === 'node') {
-    test('getProcessCloseHandler', () =>
+if (ChildProcess) {
+    test('getProcessCloseHandler', () => {
         expect(typeof getProcessCloseHandler(NOOP, NOOP))
             .toStrictEqual('function')
-    )
+    })
     test('handleChildProcess', ():void => {
         /**
          * A mockup duplex stream for mocking "stdout" and "strderr" process
@@ -65,7 +63,7 @@ if (TARGET_TECHNOLOGY === 'node') {
             new MockupDuplexStream()
         const stderrMockupDuplexStream:MockupDuplexStream =
             new MockupDuplexStream()
-        const childProcess:ChildProcessType = new ChildProcess!()
+        const childProcess:ChildProcessType = new ChildProcess()
         childProcess.stdout = stdoutMockupDuplexStream
         childProcess.stderr = stderrMockupDuplexStream
 

@@ -51,7 +51,7 @@ export const debounce = <T = unknown>(
     })
 
     return (...parameters:Array<unknown>):Promise<T> => {
-        parameters = parameters.concat(additionalArguments || [])
+        parameters = parameters.concat(additionalArguments)
 
         if (waitForNextSlot) {
             /*
@@ -72,10 +72,14 @@ export const debounce = <T = unknown>(
         // NOTE: We call callback synchronously if possible.
         const result:Promise<T>|T = callback(...parameters) as Promise<T>|T
 
-        if ((result as Promise<T>)?.then)
+        if (result && Object.prototype.hasOwnProperty.call(result, 'then'))
             (result as Promise<T>).then(
-                (result:T):void => resolveCurrentSlotPromise(result),
-                (reason:unknown):void => rejectCurrentSlotPromise(reason)
+                (result:T) => {
+                    resolveCurrentSlotPromise(result)
+                },
+                (reason:unknown) => {
+                    rejectCurrentSlotPromise(reason)
+                }
             )
         else
             resolveCurrentSlotPromise(result as T)
@@ -107,10 +111,19 @@ export const debounce = <T = unknown>(
                                 Promise<T>|T
                         parametersForNextSlot = null
 
-                        if ((result as Promise<T>)?.then)
+                        if (
+                            result &&
+                            Object.prototype.hasOwnProperty.call(
+                                result, 'then'
+                            )
+                        )
                             (result as Promise<T>).then(
-                                (result:T):void => resolve(result),
-                                (reason:unknown):void => reject(reason)
+                                (result:T) => {
+                                    resolve(result)
+                                },
+                                (reason:Error) => {
+                                    reject(reason)
+                                }
                             )
                         else
                             resolve(result as T)
@@ -208,7 +221,7 @@ export const timeout = (...parameters:Array<unknown>):TimeoutPromise => {
     }
 
     result.clear = ():void => {
-        if (result.timeoutID) {
+        if (Object.prototype.hasOwnProperty.call(result, 'timeoutID')) {
             clearTimeout(result.timeoutID)
             ;(throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)
         }

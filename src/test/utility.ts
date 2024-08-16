@@ -37,9 +37,9 @@ test('debounce', ():void => {
 
             return true
         })
-    expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
-    expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
-    expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
+    void expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
+    void expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
+    void expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
 })
 test('timeout', async ():Promise<void> => {
     expect(await timeout()).toStrictEqual(false)

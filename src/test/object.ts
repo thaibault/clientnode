@@ -356,9 +356,9 @@ testEach<typeof copy>(
     ],
     [{VALUE_COPY_SYMBOL}, {VALUE_COPY_SYMBOL}]
 )
-test('determineType', ():void =>
+test('determineType', () => {
     expect(determineType()).toStrictEqual('undefined')
-)
+})
 testEach<typeof determineType>(
     'determineType',
     determineType,
@@ -424,13 +424,13 @@ testEachAgainstSameExpectation<typeof equals>(
     [NOOP, NOOP, {ignoreFunctions: false}]
 )
 if (TARGET_TECHNOLOGY === 'node')
-    test('equals', ():void =>
+    test('equals', () => {
         expect(equals(
             Buffer.from('a'),
             Buffer.from('a'),
             {compareBlobs: true, properties: []}
         )).toStrictEqual(true)
-    )
+    })
 else {
     testEachPromiseAgainstSameExpectation<typeof equals>(
         'equals',

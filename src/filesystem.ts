@@ -37,6 +37,7 @@ const {
     stat = null,
     writeFile = null
 } = optionalRequire<typeof import('fs/promises')>('fs/promises') || {}
+// eslint-disable-next-line @typescript-eslint/unbound-method
 const {basename = null, join = null, resolve = null} =
     optionalRequire<typeof import('path')>('path') || {}
 /**
@@ -58,13 +59,16 @@ export const copyDirectoryRecursive = async (
     readOptions = {encoding: null, flag: 'r'},
     writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
 ):Promise<string> => {
+    if (!(basename && join && mkdir && resolve))
+        throw new Error('Could not load filesystem functions.')
+
     // NOTE: Check if folder needs to be created or integrated.
-    sourcePath = resolve!(sourcePath)
+    sourcePath = resolve(sourcePath)
     if (await isDirectory(targetPath))
-        targetPath = resolve!(targetPath, basename!(sourcePath))
+        targetPath = resolve(targetPath, basename(sourcePath))
 
     try {
-        await mkdir!(targetPath)
+        await mkdir(targetPath)
     } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
             throw error
@@ -73,13 +77,13 @@ export const copyDirectoryRecursive = async (
         const currentSourceFile of
         await walkDirectoryRecursively(sourcePath, callback)
     ) {
-        const currentTargetPath:string = join!(
+        const currentTargetPath:string = join(
             targetPath, currentSourceFile.path.substring(sourcePath.length)
         )
 
         if (currentSourceFile.stats?.isDirectory())
             try {
-                await mkdir!(currentTargetPath)
+                await mkdir(currentTargetPath)
             } catch (error) {
                 if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                     throw error
@@ -114,12 +118,15 @@ export const copyDirectoryRecursiveSync = (
     readOptions = {encoding: null, flag: 'r'},
     writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
 ):string => {
+    if (!(basename && join && mkdirSync && resolve))
+        throw new Error('Could not load filesystem functions.')
+
     // NOTE: Check if folder needs to be created or integrated.
-    sourcePath = resolve!(sourcePath)
+    sourcePath = resolve(sourcePath)
     if (isDirectorySync(targetPath))
-        targetPath = resolve!(targetPath, basename!(sourcePath))
+        targetPath = resolve(targetPath, basename(sourcePath))
     try {
-        mkdirSync!(targetPath)
+        mkdirSync(targetPath)
     } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
             throw error
@@ -129,12 +136,12 @@ export const copyDirectoryRecursiveSync = (
         const currentSourceFile of
         walkDirectoryRecursivelySync(sourcePath, callback)
     ) {
-        const currentTargetPath:string = join!(
+        const currentTargetPath:string = join(
             targetPath, currentSourceFile.path.substring(sourcePath.length)
         )
         if (currentSourceFile.stats?.isDirectory())
             try {
-                mkdirSync!(currentTargetPath)
+                mkdirSync(currentTargetPath)
             } catch (error) {
                 if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
                     throw error
@@ -166,15 +173,18 @@ export const copyFile = async (
     readOptions = {encoding: null, flag: 'r'},
     writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
 ):Promise<string> => {
+    if (!(basename && readFile && resolve && writeFile))
+        throw new Error('Could not load filesystem functions.')
+
     /*
-        NOTE: If target path references a directory a new file with the
-        same name will be created.
+        NOTE: If target path references a directory a new file with the same
+        name will be created.
     */
     if (await isDirectory(targetPath))
-        targetPath = resolve!(targetPath, basename!(sourcePath))
+        targetPath = resolve(targetPath, basename(sourcePath))
 
-    await writeFile!(
-        targetPath, await readFile!(sourcePath, readOptions), writeOptions
+    await writeFile(
+        targetPath, await readFile(sourcePath, readOptions), writeOptions
     )
 
     return targetPath
@@ -195,17 +205,18 @@ export const copyFileSync = (
     readOptions = {encoding: null, flag: 'r'},
     writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
 ):string => {
+    if (!(basename && readFileSync && resolve && writeFileSync))
+        throw new Error('Could not load filesystem functions.')
+
     /*
-        NOTE: If target path references a directory a new file with the
-        same name will be created.
+        NOTE: If target path references a directory a new file with the same
+        name will be created.
     */
     if (isDirectorySync(targetPath))
-        targetPath = resolve!(targetPath, basename!(sourcePath))
+        targetPath = resolve(targetPath, basename(sourcePath))
 
-    writeFileSync!(
-        targetPath,
-        readFileSync!(sourcePath, readOptions),
-        writeOptions
+    writeFileSync(
+        targetPath, readFileSync(sourcePath, readOptions), writeOptions
     )
 
     return targetPath
@@ -216,13 +227,16 @@ export const copyFileSync = (
  * @returns A promise holding a boolean which indicates directory existence.
  */
 export const isDirectory = async (filePath:string):Promise<boolean> => {
+    if (!stat)
+        throw new Error('Could not load filesystem functions.')
+
     try {
-        return (await stat!(filePath)).isDirectory()
+        return (await stat(filePath)).isDirectory()
     } catch (error) {
         if (
             Object.prototype.hasOwnProperty.call(error, 'code') &&
             ['ENOENT', 'ENOTDIR'].includes(
-                (error as NodeJS.ErrnoException).code!
+                (error as NodeJS.ErrnoException).code as string
             )
         )
             return false
@@ -236,13 +250,16 @@ export const isDirectory = async (filePath:string):Promise<boolean> => {
  * @returns A boolean which indicates directory existence.
  */
 export const isDirectorySync = (filePath:string):boolean => {
+    if (!statSync)
+        throw new Error('Could not load filesystem functions.')
+
     try {
-        return statSync!(filePath).isDirectory()
+        return statSync(filePath).isDirectory()
     } catch (error) {
         if (
             Object.prototype.hasOwnProperty.call(error, 'code') &&
             ['ENOENT', 'ENOTDIR'].includes(
-                (error as NodeJS.ErrnoException).code!
+                (error as NodeJS.ErrnoException).code as string
             )
         )
             return false
@@ -256,13 +273,16 @@ export const isDirectorySync = (filePath:string):boolean => {
  * @returns A promise holding a boolean which indicates directory existence.
  */
 export const isFile = async (filePath:string):Promise<boolean> => {
+    if (!stat)
+        throw new Error('Could not load filesystem functions.')
+
     try {
-        return (await stat!(filePath)).isFile()
+        return (await stat(filePath)).isFile()
     } catch (error) {
         if (
             Object.prototype.hasOwnProperty.call(error, 'code') &&
             ['ENOENT', 'ENOTDIR'].includes(
-                (error as NodeJS.ErrnoException).code!
+                (error as NodeJS.ErrnoException).code as string
             )
         )
             return false
@@ -276,13 +296,16 @@ export const isFile = async (filePath:string):Promise<boolean> => {
  * @returns A boolean which indicates file existence.
  */
 export const isFileSync = (filePath:string):boolean => {
+    if (!statSync)
+        throw new Error('Could not load filesystem functions.')
+
     try {
-        return statSync!(filePath).isFile()
+        return statSync(filePath).isFile()
     } catch (error) {
         if (
             Object.prototype.hasOwnProperty.call(error, 'code') &&
             ['ENOENT', 'ENOTDIR'].includes(
-                (error as NodeJS.ErrnoException).code!
+                (error as NodeJS.ErrnoException).code as string
             )
         )
             return false
@@ -311,14 +334,17 @@ export const walkDirectoryRecursively = async (
         Encoding|SecondParameter<typeof import('fs').readdir>
     ) = DEFAULT_ENCODING
 ):Promise<Array<File>> => {
+    if (!(readdir && resolve && stat))
+        throw new Error('Could not load filesystem functions.')
+
     const files:Array<File> = []
-    for (const directoryEntry of await readdir!(
+    for (const directoryEntry of await readdir(
         directoryPath,
         typeof options === 'string' ?
             {encoding: options, withFileTypes: true} :
             {...options, withFileTypes: true}
     )) {
-        const filePath:string = resolve!(directoryPath, directoryEntry.name)
+        const filePath:string = resolve(directoryPath, directoryEntry.name)
         const file:File = {
             directoryPath,
             directoryEntry,
@@ -329,7 +355,7 @@ export const walkDirectoryRecursively = async (
         }
 
         try {
-            file.stats = await stat!(filePath)
+            file.stats = await stat(filePath)
         } catch (error) {
             file.error = error as NodeJS.ErrnoException
         }
@@ -396,16 +422,19 @@ export const walkDirectoryRecursivelySync = (
         Encoding|SecondParameter<typeof import('fs').readdirSync>
     ) = DEFAULT_ENCODING
 ):Array<File> => {
+    if (!(readdirSync && resolve && statSync))
+        throw new Error('Could not load filesystem functions.')
+
     const files:Array<File> = []
 
-    for (const directoryEntry of readdirSync!(
+    for (const directoryEntry of readdirSync(
         directoryPath,
         typeof options === 'string' ?
             {encoding: options, withFileTypes: true} :
             {...options, withFileTypes: true}
     )) {
         const filePath:string =
-            resolve!(directoryPath, directoryEntry.name)
+            resolve(directoryPath, directoryEntry.name)
         const file:File = {
             directoryPath,
             directoryEntry,
@@ -415,7 +444,7 @@ export const walkDirectoryRecursivelySync = (
             stats: null
         }
         try {
-            file.stats = statSync!(filePath)
+            file.stats = statSync(filePath)
         } catch (error) {
             file.error = error as NodeJS.ErrnoException
         }

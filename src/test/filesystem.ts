@@ -45,39 +45,43 @@ const testEnvironment:string = (
         'node-with-dom' :
     'browser'
 
-const {resolve = null} = optionalRequire<typeof import('path')>('path') || {}
+const path = optionalRequire<typeof import('path')>('path')
+const resolve = path?.resolve.bind(path)
 const {sync: removeDirectoryRecursivelySync = null} =
     optionalRequire<typeof import('rimraf')>('rimraf') || {}
 const {unlink} =
     optionalRequire<typeof import('fs/promises')>('fs/promises') || {}
 
 if (TARGET_TECHNOLOGY === 'node') {
+    if (!(removeDirectoryRecursivelySync && resolve && unlink))
+        throw new Error('Failed to load filesystem api.')
+
     const testPath = './copyDirectoryRecursiveTest.compiled'
 
     test('copyDirectoryRecursive', async ():Promise<void> => {
-        removeDirectoryRecursivelySync!(testPath)
+        removeDirectoryRecursivelySync(testPath)
         expect(await copyDirectoryRecursive(
             './node_modules/.bin', testPath, NOOP
         )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
-        removeDirectoryRecursivelySync!(testPath)
+        removeDirectoryRecursivelySync(testPath)
     })
-    test('copyDirectoryRecursiveSync', ():void => {
-        removeDirectoryRecursivelySync!(testPath)
+    test('copyDirectoryRecursiveSync', () => {
+        removeDirectoryRecursivelySync(testPath)
         expect(copyDirectoryRecursiveSync(
             './node_modules/.bin', testPath, NOOP
         )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
-        removeDirectoryRecursivelySync!(testPath)
+        removeDirectoryRecursivelySync(testPath)
     })
     test('copyFile', async ():Promise<void> => {
         try {
-            await unlink!(`./test.copyFile.${testEnvironment}.compiled.js`)
-        } catch (error) {
+            await unlink(`./test.copyFile.${testEnvironment}.compiled.js`)
+        } catch (_error) {
             // Continue regardless of an error.
         }
         let result = ''
         try {
             result = await copyFile(
-                resolve!('./src/filesystem.ts'),
+                resolve('./src/filesystem.ts'),
                 `./test.copyFile.${testEnvironment}.compiled.js`
             )
         } catch (error) {
@@ -91,26 +95,24 @@ if (TARGET_TECHNOLOGY === 'node') {
             additional digest loop to have this test artefact placed here.
         */
         await timeout()
-        await unlink!(`./test.copyFile.${testEnvironment}.compiled.js`)
+        await unlink(`./test.copyFile.${testEnvironment}.compiled.js`)
     })
     test('copyFileSync', async ():Promise<void> => {
         try {
-            await unlink!(
-                `./test.copyFileSync.${testEnvironment}.compiled.js`
-            )
-        } catch (error) {
+            await unlink(`./test.copyFileSync.${testEnvironment}.compiled.js`)
+        } catch (_error) {
             // Continue regardless of an error.
         }
 
         expect(copyFileSync(
-            resolve!('./src/filesystem.ts'),
+            resolve('./src/filesystem.ts'),
             `./test.copyFileSync.${testEnvironment}.compiled.js`
         )).toMatch(new RegExp(
             `\\.\\/test\\.copyFileSync\\.${testEnvironment}\\.compiled\\` +
             '.js$'
         ))
 
-        await unlink!(`./test.copyFileSync.${testEnvironment}.compiled.js`)
+        await unlink(`./test.copyFileSync.${testEnvironment}.compiled.js`)
     })
     test('isDirectory', async ():Promise<void> => {
         for (const filePath of ['./', '../']) {
@@ -122,7 +124,7 @@ if (TARGET_TECHNOLOGY === 'node') {
             }
             expect(result).toStrictEqual(true)
         }
-        for (const filePath of [resolve!('./test.ts')]) {
+        for (const filePath of [resolve('./test.ts')]) {
             let result = true
             try {
                 result = await isDirectory(filePath)
@@ -145,10 +147,10 @@ if (TARGET_TECHNOLOGY === 'node') {
         isDirectorySync,
         false,
 
-        resolve!('./test.ts')
+        resolve('./test.ts')
     )
     test('isFile', async ():Promise<void> => {
-        for (const filePath of [resolve!('./src/filesystem.ts')]) {
+        for (const filePath of [resolve('./src/filesystem.ts')]) {
             let result = false
             try {
                 result = await isFile(filePath)
@@ -173,7 +175,7 @@ if (TARGET_TECHNOLOGY === 'node') {
         isFileSync,
         true,
 
-        resolve!('./src/filesystem.ts')
+        resolve('./src/filesystem.ts')
     )
     testEachSingleParameterAgainstSameExpectation<typeof isFileSync>(
         'isFileSync',

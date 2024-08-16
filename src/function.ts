@@ -71,20 +71,18 @@ export const identity = <T>(value:T):T => value
  * @param filter - A function that filters an array.
  * @returns The inverted filter.
  */
-export const invertArrayFilter = <T>(filter:T):T => {
-    return ((
-        data:Array<unknown>, ...additionalParameter:Array<unknown>
-    ):Array<unknown> => {
-        if (data) {
+export const invertArrayFilter = <T, D = Array<unknown>>(filter:T):T => {
+    return ((data:D, ...additionalParameter:Array<unknown>):D => {
+        if (Array.isArray(data)) {
             const filteredData:Array<unknown> = (
                 filter as unknown as ArrayTransformer
             )(data, ...additionalParameter)
 
-            let result:Array<unknown> = []
+            let result = [] as D
             if (filteredData.length) {
                 for (const date of data)
                     if (!filteredData.includes(date))
-                        result.push(date)
+                        (result as Array<unknown>).push(date)
             } else
                 result = data
 

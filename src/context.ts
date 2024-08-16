@@ -25,6 +25,7 @@ import {
     $TStatic,
     AnyFunction,
     BoundToolsFunction,
+    Mapping,
     ParametersExceptFirst,
     ToolsFunction,
     UnknownFunction
@@ -37,7 +38,7 @@ export const determineGlobalContext:(() => $Global) = ():$Global => {
                 return ((typeof module === 'undefined') ? {} : module) as
                     $Global
 
-            if (global.window)
+            if (Object.prototype.hasOwnProperty.call(global, 'window'))
                 return global.window as unknown as $Global
 
             return global as unknown as $Global
@@ -55,34 +56,39 @@ export const setGlobalContext = (context:$Global):void => {
 
 /// region context
 globalContext.fetch =
-    globalContext.fetch ??
-    optionalRequire<{default:typeof fetch}>('node-fetch')?.default ??
-    ((...parameters:Parameters<typeof fetch>):ReturnType<typeof fetch> =>
-            currentImport!(/* webpackIgnore: true */ 'node-fetch')
-                .then((module:unknown):ReturnType<typeof fetch> =>
-                    (module as {default:typeof fetch})?.default(...parameters)
-                )
-    )
+    Object.prototype.hasOwnProperty.call(globalContext, 'fetch') ?
+        globalContext.fetch.bind(globalContext) :
+        optionalRequire<{default:typeof fetch}>('node-fetch')?.default ??
+        ((...parameters:Parameters<typeof fetch>):ReturnType<typeof fetch> =>
+            currentImport ?
+                currentImport(/* webpackIgnore: true */ 'node-fetch')
+                    .then((module:unknown):ReturnType<typeof fetch> =>
+                        (module as {default:typeof fetch}).default(
+                            ...parameters
+                        )
+                    ) :
+                null as unknown as ReturnType<typeof fetch>
+        )
 /// endregion
 /// region
 export const determine$:(() => $TStatic) = ():$TStatic => {
     let $:$TStatic = (() => {
         // Do nothing.
     }) as unknown as $TStatic
-    if (globalContext.$ && globalContext.$ !== null)
+    if (Object.prototype.hasOwnProperty.call(globalContext, '$'))
         $ = globalContext.$
     else {
-        if (!globalContext.$ && globalContext.document)
+        if (Object.prototype.hasOwnProperty.call(globalContext, 'document'))
             try {
-                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                /* eslint-disable @typescript-eslint/no-require-imports */
                 $ = require('jquery') as $TStatic
-            } catch (error) {
+                /* eslint-enable @typescript-eslint/no-require-imports */
+            } catch (_error) {
                 // Continue regardless of an error.
             }
 
         if (
             typeof $ === 'undefined' ||
-            $ === null ||
             typeof $ === 'object' && Object.keys($).length === 0
         ) {
             const selector = globalContext.document?.querySelectorAll ?
@@ -100,13 +106,15 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
                 else if (
                     typeof HTMLElement === 'object' &&
                     parameter instanceof HTMLElement ||
-                    (parameter as Node)?.nodeType === 1 &&
-                    typeof (parameter as Node)?.nodeName === 'string'
+                    (parameter as Mapping<unknown>|undefined)?.nodeType ===
+                        1 &&
+                    typeof (parameter as Mapping<unknown>).nodeName ===
+                        'string'
                 )
                     $domNodes = [parameter] as unknown as $T
 
                 if ($domNodes) {
-                    if ($.fn)
+                    if (Object.prototype.hasOwnProperty.call($, 'fn'))
                         for (const [key, plugin] of Object.entries($.fn))
                             $domNodes[key as 'add'] = (
                                 plugin as unknown as UnknownFunction
@@ -130,13 +138,19 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
         }
     }
 
-    if (!$.global)
+    if (!Object.prototype.hasOwnProperty.call($, 'global'))
         $.global = globalContext
 
-    if ($.global.window) {
-        if (!$.document && $.global.window.document)
+    if (Object.prototype.hasOwnProperty.call($.global, 'window')) {
+        if (
+            !$.document &&
+            Object.prototype.hasOwnProperty.call($.global.window, 'document')
+        )
             $.document = $.global.window.document
-        if (!$.location && $.global.window.location)
+        if (
+            !$.location &&
+            Object.prototype.hasOwnProperty.call($.global.window, 'location')
+        )
             $.location = $.global.window.location
     }
 
@@ -145,8 +159,8 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
 export let $ = determine$()
 
 export const MAXIMAL_NUMBER_OF_ITERATIONS = {value: 100}
-// Saves currently maximal supported internet explorer version. Saves zero if
-// no internet explorer present.
+// Saves currently maximal supported Internet Explorer version. Saves zero if
+// no Internet Explorer present.
 export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
 ):number => {
     /*
@@ -163,12 +177,13 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
             NOTE: We split html comment sequences to avoid wrong interpretation
             if this code is embedded in markup.
             NOTE: Internet Explorer 9 and lower sometimes doesn't understand
-            conditional comments wich doesn't starts with a whitespace. If the
-            conditional markup isn't in a commend. Otherwise there shouldn't be
+            conditional comments wich doesn't start with a whitespace. If the
+            conditional markup isn't in commend, otherwise there shouldn't be
             any whitespace!
         */
         div.innerHTML = (
-            '<!' + `--[if gt IE ${version}]><i></i><![e` + 'ndif]-' + '->'
+            '<!' + `--[if gt IE ${String(version)}]><i></i><![e` + 'ndif]-' +
+            '->'
         )
 
         if (div.getElementsByTagName('i').length === 0)
@@ -176,7 +191,10 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
     }
 
     // Try special detection for internet explorer 10 and 11.
-    if (version === 0 && $.global.window.navigator) {
+    if (
+        version === 0 &&
+        Object.prototype.hasOwnProperty.call($.global.window, 'navigator')
+    ) {
         if ($.global.window.navigator.appVersion.indexOf('MSIE 10') !== -1)
             return 10
 
@@ -194,8 +212,8 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
 
 // A no-op dummy function.
 export const NOOP:AnyFunction =
-    $.noop ?
-        $.noop as AnyFunction :
+    Object.prototype.hasOwnProperty.call($, 'noop') ?
+        $.noop.bind($) as AnyFunction :
         () => {
             // Do nothing.
         }
@@ -204,17 +222,23 @@ export const NOOP:AnyFunction =
 export const augment$ = (value:$TStatic):void => {
     $ = value
 
-    if (!$.global)
+    if (!Object.prototype.hasOwnProperty.call($, 'global'))
         $.global = globalContext
 
-    if ($.global.window) {
-        if (!$.document && $.global.window.document)
+    if (Object.prototype.hasOwnProperty.call($.global, 'window')) {
+        if (
+            !$.document &&
+            Object.prototype.hasOwnProperty.call($.global.window, 'document')
+        )
             $.document = $.global.window.document
-        if (!$.location && $.global.window.location)
+        if (
+            !$.location &&
+            Object.prototype.hasOwnProperty.call($.global.window, 'location')
+        )
             $.location = $.global.window.location
     }
 
-    if ($.fn)
+    if (Object.prototype.hasOwnProperty.call($, 'fn'))
         $.fn.Tools = function<TElement = HTMLElement>(
             this:$T<TElement>,
             ...parameters:ParametersExceptFirst<(typeof Tools)['controller']>
@@ -227,9 +251,9 @@ export const augment$ = (value:$TStatic):void => {
     ) as ToolsFunction
     $.Tools.class = Tools
 
-    if ($.fn) {
+    if (Object.prototype.hasOwnProperty.call($, 'fn')) {
         // region prop fix for comments and text nodes
-        const nativePropFunction = $.fn.prop
+        const nativePropFunction = $.fn.prop.bind($)
         /**
          * Scopes native prop implementation ignores properties for text nodes,
          * comments and attribute nodes.
@@ -247,14 +271,22 @@ export const augment$ = (value:$TStatic):void => {
             >
         ):ReturnType<(typeof $)['fn']['prop']> {
             if (
+                /*
+                    eslint-disable @typescript-eslint/no-unnecessary-condition
+                */
                 additionalParameters.length < 2 &&
+                /* eslint-enable @typescript-eslint/no-unnecessary-condition */
                 this.length &&
                 ['#text', '#comment'].includes(
                     this[0].nodeName.toLowerCase()
                 ) &&
                 key in this[0]
             ) {
+                /*
+                    eslint-disable @typescript-eslint/no-unnecessary-condition
+                */
                 if (additionalParameters.length === 0)
+                /* eslint-enable @typescript-eslint/no-unnecessary-condition */
                     return this[0][key]
 
                 if (additionalParameters.length === 1) {
@@ -278,7 +310,8 @@ augment$($)
 /// region fix script loading errors with canceling requests
 $.readyException = (error:Error|string):void => {
     if (!(typeof error === 'string' && error === 'canceled'))
-        throw error
+        // eslint-disable-next-line no-throw-literal
+        throw error as Error
 }
 /// endregion
 // endregion

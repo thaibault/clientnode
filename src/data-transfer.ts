@@ -72,8 +72,6 @@ export const checkReachability = async (
     const isStatusCodeExpected = (
         response:Response, statusCodes:Array<number>
     ):boolean => Boolean(
-        response !== null &&
-        typeof response === 'object' &&
         'status' in response &&
         statusCodes.includes(response.status)
     )
@@ -81,8 +79,8 @@ export const checkReachability = async (
     const checkAndThrow = (response:Response):Response => {
         if (!isStatusCodeExpected(response, statusCodes))
             throw new Error(
-                `Given status code ${response.status} differs from ` +
-                `${statusCodes.join(', ')}.`
+                `Given status code ${String(response.status)} ` +
+                `differs from ${statusCodes.join(', ')}.`
             )
 
         return response
@@ -106,7 +104,9 @@ export const checkReachability = async (
                         NOTE: A timer rejection is expected. Avoid throwing
                         errors about unhandled promise rejections.
                     */
-                    currentlyRunningTimer.catch(NOOP)
+                    currentlyRunningTimer.catch(() => {
+                        // Do nothing regardless of an error.
+                    })
                 }
 
                 return error
@@ -146,8 +146,8 @@ export const checkReachability = async (
                     currentlyRunningTimer.clear()
 
                     reject(new Error(
-                        `Timeout of ${options.timeoutInSeconds} seconds ` +
-                        'reached.'
+                        `Timeout of ${String(options.timeoutInSeconds)} ` +
+                        'seconds reached.'
                     ))
                 },
                 NOOP
@@ -188,7 +188,7 @@ export const checkUnreachability = async (
         givenOptions
     )
 
-    const check = (response:Response):Error|null => {
+    const check = (response:null|Response):Error|null => {
         const statusCodes:Array<number> =
             ([] as Array<number>).concat(options.statusCodes)
         if (statusCodes.length) {
@@ -200,7 +200,7 @@ export const checkUnreachability = async (
             )
                 throw new Error(
                     `Given url "${url}" is reachable and responses with ` +
-                    `status code "${response.status}".`
+                    `status code "${String(response.status)}".`
                 )
 
             return new Error(
@@ -242,7 +242,9 @@ export const checkUnreachability = async (
                         NOTE: A timer rejection is expected. Avoid throwing
                         errors about unhandled promise rejections.
                     */
-                    currentlyRunningTimer.catch(NOOP)
+                    currentlyRunningTimer.catch(() => {
+                        // Do nothing regardless of an error.
+                    })
                 } catch (error) {
                     timer.clear()
                     resolve(error as Error)
@@ -263,8 +265,8 @@ export const checkUnreachability = async (
                     currentlyRunningTimer.clear()
 
                     reject(new Error(
-                        `Timeout of ${options.timeoutInSeconds} seconds ` +
-                        'reached.'
+                        `Timeout of ${String(options.timeoutInSeconds)} ` +
+                        'seconds reached.'
                     ))
                 },
                 NOOP
@@ -357,7 +359,7 @@ export const sendToExternalURL = (
 ):$T<HTMLIFrameElement> => {
     const $iFrameDomNode:$T<HTMLIFrameElement> =
         $<HTMLIFrameElement>('<iframe>')
-            .attr('name', `clientnode-${(new Date()).getTime()}`)
+            .attr('name', `clientnode-${String((new Date()).getTime())}`)
             .hide()
 
     if (domNode)
