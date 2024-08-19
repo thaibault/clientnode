@@ -64,9 +64,9 @@ test('acquire|release', async ():Promise<void> => {
     expect(testValue).toStrictEqual('b')
 
     const stringLock = new Lock<string>()
-    const promise = stringLock.acquire('test').then(
+    void stringLock.acquire('test', () => 'result').then(
         async (result:string) => {
-            expect(result).toStrictEqual('test')
+            expect(result).toStrictEqual('result')
             void timeout(() => lock.release('test'))
             await stringLock.acquire('test')
             void timeout(() => lock.release('test'))
@@ -84,5 +84,4 @@ test('acquire|release', async ():Promise<void> => {
         }
     )
     await stringLock.release('test')
-    await promise
 })

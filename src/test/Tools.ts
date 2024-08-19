@@ -35,7 +35,7 @@ declare const TARGET_TECHNOLOGY:string
 // region determine technology specific implementations
 globalContext.fetch = nodeFetch as unknown as typeof fetch
 
-const testEnvironment:string = (
+const TEST_ENVIRONMENT:string = (
     typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node'
 ) ?
     typeof document === 'undefined' ?
@@ -43,7 +43,7 @@ const testEnvironment:string = (
         'node-with-dom' :
     'browser'
 
-const hasDOM = ['browser', 'node-with-dom'].includes(testEnvironment)
+const HAS_DOM = ['browser', 'node-with-dom'].includes(TEST_ENVIRONMENT)
 // endregion
 const tools = new Tools()
 // region public methods
@@ -94,7 +94,7 @@ test('debug', () => {
     expect(true).toStrictEqual(true)
 })
 // NOTE: This test breaks javaScript modules in strict mode.
-test.skip(`${testEnvironment}-error`, () => {
+test.skip(`${TEST_ENVIRONMENT}-error`, () => {
     tools.error('ignore this error, it is only a {1}', 'test')
     expect(true).toStrictEqual(true)
 })
@@ -118,9 +118,9 @@ testEach<typeof Tools.show>(
 )
 /// endregion
 /// region dom node handling
-if (hasDOM) {
+if (HAS_DOM) {
     // region getter
-    test(`get normalizedClassNames (${testEnvironment})`, async (
+    test(`get normalizedClassNames (${TEST_ENVIRONMENT})`, async (
     ):Promise<void> => {
         await getInitializedBrowser()
 
@@ -161,7 +161,7 @@ if (hasDOM) {
                 .prop('outerHTML')
         )
     })
-    test(`get normalizedStyles (${testEnvironment})`, ():void => {
+    test(`get normalizedStyles (${TEST_ENVIRONMENT})`, ():void => {
         expect(
             $('<div>').Tools('normalizedStyles').$domNode.prop('outerHTML')
         ).toStrictEqual($('<div>').prop('outerHTML'))
@@ -223,7 +223,7 @@ if (hasDOM) {
             {display: 'block', height: '100px'}
         ]
     ])(
-        `get style '%s' => %p (${testEnvironment})`,
+        `get style '%s' => %p (${TEST_ENVIRONMENT})`,
         (html:string, css:Mapping) => {
             const $domNode:$T = $(html)
 
@@ -246,7 +246,7 @@ if (hasDOM) {
         ['<div><div>hans</div</div>', ''],
         ['<div>hans<div>peter</div></div>', 'hans']
     ])(
-        `get text '%s' => '%s' (${testEnvironment})`,
+        `get text '%s' => '%s' (${TEST_ENVIRONMENT})`,
         (html:string, text:string) => {
             expect($(html).Tools('text')).toStrictEqual(text)
         }
@@ -355,7 +355,7 @@ testEach<typeof Tools.generateDirectiveSelector>(
         'mceHREF'
     ]
 )
-if (hasDOM)
+if (HAS_DOM)
     test('removeDirective', async ():Promise<void> => {
         await getInitializedBrowser()
 
@@ -373,7 +373,7 @@ testEach<typeof Tools.getNormalizedDirectiveName>(
     ['aBb', 'data-a-bb'],
     ['aB', 'x:a:b']
 )
-if (hasDOM)
+if (HAS_DOM)
     test('getDirectiveValue', async ():Promise<void> => {
         await getInitializedBrowser()
 
@@ -405,7 +405,7 @@ testEach<typeof Tools.getDomNodeName>(
     ['a', '<a />'],
     ['a', '<a></a>']
 )
-if (hasDOM)
+if (HAS_DOM)
     test('grabDomNodes', async ():Promise<void> => {
         await getInitializedBrowser()
 
@@ -452,7 +452,7 @@ test('fireEvent', ():void => {
     expect(plugin.fireEvent('click')).toStrictEqual(true)
     expect(plugin.fireEvent('click')).toStrictEqual(true)
 })
-if (hasDOM) {
+if (HAS_DOM) {
     test('on', () => {
         const $body = $('body')
 
@@ -466,7 +466,7 @@ if (hasDOM) {
         $body.trigger('click')
         expect(testValue).toStrictEqual(true)
     })
-    test('off', ():void => {
+    test('off', () => {
         const $body = $('body')
 
         let testValue = false
@@ -484,7 +484,7 @@ if (hasDOM) {
 /// endregion
 // endregion
 // region protected
-if (testEnvironment !== 'node')
+if (TEST_ENVIRONMENT !== 'node')
     testEachAgainstSameExpectation<Tools['_bindEventHelper']>(
         '_bindEventHelper',
         tools._bindEventHelper,
