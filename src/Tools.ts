@@ -396,7 +396,7 @@ export class Tools<TElement = HTMLElement> {
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index:number, domNode:HTMLElement):void => {
+                .each((_index:number, domNode:HTMLElement):void => {
                     const $domNode:$T = $(domNode)
                     const classValue:string|undefined =
                         $domNode.attr(className)
@@ -477,9 +477,18 @@ export class Tools<TElement = HTMLElement> {
                 )
 
                 if ('length' in styleProperties)
-                    for (const style of styleProperties)
+                    // NOTE: For-of syntax is not working for this object.
+                    /* eslint-disable @typescript-eslint/prefer-for-of */
+                    for (
+                        let index = 0;
+                        index < styleProperties.length;
+                        index += 1
+                    ) {
+                        const style = styleProperties[index]
                         result[delimitedToCamelCase(style)] =
                             styleProperties.getPropertyValue(style)
+                    }
+                    /* eslint-enable @typescript-eslint/prefer-for-of */
                 else
                     for (const [propertyName, value] of Object.entries(
                         styleProperties

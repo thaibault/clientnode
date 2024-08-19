@@ -21,7 +21,7 @@ import {deleteCookie, getCookie, setCookie} from '../cookie'
 
 declare const TARGET_TECHNOLOGY:string
 
-const testEnvironment:string = (
+const TEST_ENVIRONMENT:string = (
     typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node'
 ) ?
     typeof document === 'undefined' ?
@@ -29,11 +29,11 @@ const testEnvironment:string = (
         'node-with-dom' :
     'browser'
 
-const hasDOM = ['browser', 'node-with-dom'].includes(testEnvironment)
+const HAS_DOM = ['browser', 'node-with-dom'].includes(TEST_ENVIRONMENT)
 
-if (hasDOM) {
+if (HAS_DOM) {
     test(
-        `deleteCookie (${testEnvironment})`, async ():Promise<void> => {
+        `deleteCookie (${TEST_ENVIRONMENT})`, async ():Promise<void> => {
             await getInitializedBrowser()
 
             expect($.document?.cookie).toStrictEqual('')
@@ -48,7 +48,7 @@ if (hasDOM) {
                 $.document.cookie = ''
         }
     )
-    test(`getCookie (${testEnvironment})`, async ():Promise<void> => {
+    test(`getCookie (${TEST_ENVIRONMENT})`, async ():Promise<void> => {
         await getInitializedBrowser()
 
         if (!$.document)
@@ -64,7 +64,7 @@ if (hasDOM) {
 
         $.document.cookie = ''
     })
-    test(`setCookie (${testEnvironment})`, async ():Promise<void> => {
+    test(`setCookie (${TEST_ENVIRONMENT})`, async ():Promise<void> => {
         await getInitializedBrowser()
 
         if (!$.document)

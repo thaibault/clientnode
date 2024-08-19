@@ -37,7 +37,7 @@ import {timeout} from '../utility'
 
 declare const TARGET_TECHNOLOGY:string
 
-const testEnvironment:string = (
+const TEST_ENVIRONMENT:string = (
     typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node'
 ) ?
     typeof document === 'undefined' ?
@@ -74,7 +74,7 @@ if (TARGET_TECHNOLOGY === 'node') {
     })
     test('copyFile', async ():Promise<void> => {
         try {
-            await unlink(`./test.copyFile.${testEnvironment}.compiled.js`)
+            await unlink(`./test.copyFile.${TEST_ENVIRONMENT}.compiled.js`)
         } catch (_error) {
             // Continue regardless of an error.
         }
@@ -82,37 +82,37 @@ if (TARGET_TECHNOLOGY === 'node') {
         try {
             result = await copyFile(
                 resolve('./src/filesystem.ts'),
-                `./test.copyFile.${testEnvironment}.compiled.js`
+                `./test.copyFile.${TEST_ENVIRONMENT}.compiled.js`
             )
         } catch (error) {
             console.error(error)
         }
         expect(result).toMatch(new RegExp(
-            `\\.\\/test\\.copyFile\\.${testEnvironment}\\.compiled\\.js$`
+            `\\.\\/test\\.copyFile\\.${TEST_ENVIRONMENT}\\.compiled\\.js$`
         ))
         /*
             NOTE: A race condition was identified here. So we need an
             additional digest loop to have this test artefact placed here.
         */
         await timeout()
-        await unlink(`./test.copyFile.${testEnvironment}.compiled.js`)
+        await unlink(`./test.copyFile.${TEST_ENVIRONMENT}.compiled.js`)
     })
     test('copyFileSync', async ():Promise<void> => {
         try {
-            await unlink(`./test.copyFileSync.${testEnvironment}.compiled.js`)
+            await unlink(`./test.copyFileSync.${TEST_ENVIRONMENT}.compiled.js`)
         } catch (_error) {
             // Continue regardless of an error.
         }
 
         expect(copyFileSync(
             resolve('./src/filesystem.ts'),
-            `./test.copyFileSync.${testEnvironment}.compiled.js`
+            `./test.copyFileSync.${TEST_ENVIRONMENT}.compiled.js`
         )).toMatch(new RegExp(
-            `\\.\\/test\\.copyFileSync\\.${testEnvironment}\\.compiled\\` +
+            `\\.\\/test\\.copyFileSync\\.${TEST_ENVIRONMENT}\\.compiled\\` +
             '.js$'
         ))
 
-        await unlink(`./test.copyFileSync.${testEnvironment}.compiled.js`)
+        await unlink(`./test.copyFileSync.${TEST_ENVIRONMENT}.compiled.js`)
     })
     test('isDirectory', async ():Promise<void> => {
         for (const filePath of ['./', '../']) {

@@ -253,7 +253,12 @@ export const augment$ = (value:$TStatic):void => {
 
     if (Object.prototype.hasOwnProperty.call($, 'fn')) {
         // region prop fix for comments and text nodes
-        const nativePropFunction = $.fn.prop.bind($)
+        /*
+            NOTE: All functions under "$.fn.*" will get current selected dom
+            node as bounded context.
+        */
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        const nativePropFunction = $.fn.prop
         /**
          * Scopes native prop implementation ignores properties for text nodes,
          * comments and attribute nodes.

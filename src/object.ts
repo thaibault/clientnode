@@ -524,23 +524,25 @@ export const copy = <Type = unknown>(
  * @returns Name of determined type.
  */
 export const determineType = (value:unknown = undefined):string => {
-    if ([null, undefined].includes(value as null|undefined))
+    if ([null, undefined].includes(value as null))
         return String(value)
 
     const type:string = typeof value
 
     if (
         ['function', 'object'].includes(type) &&
-        Object.prototype.hasOwnProperty.call(value, 'toString')
+        'toString' in (value as object)
     ) {
         const stringRepresentation =
-            CLASS_TO_TYPE_MAPPING.toString.call(value) as
-                keyof typeof CLASS_TO_TYPE_MAPPING
+            Object.prototype.toString.call(value)
 
         if (Object.prototype.hasOwnProperty.call(
             CLASS_TO_TYPE_MAPPING, stringRepresentation
         ))
-            return CLASS_TO_TYPE_MAPPING[stringRepresentation]
+            return CLASS_TO_TYPE_MAPPING[
+                stringRepresentation as
+                    keyof typeof CLASS_TO_TYPE_MAPPING
+            ]
     }
 
     return type
