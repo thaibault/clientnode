@@ -4846,7 +4846,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:3.0.1170, clientnode@workspace:.":
+"clientnode@npm:3.0.1171, clientnode@workspace:.":
   version: 0.0.0-use.local
   resolution: "clientnode@workspace:."
   dependencies:
@@ -4864,7 +4864,7 @@ __metadata:
     "@types/webpack-env": "npm:^1.18.5"
     "@typescript-eslint/eslint-plugin": "npm:^8.0.1"
     "@typescript-eslint/parser": "npm:^8.0.1"
-    clientnode: "npm:3.0.1170"
+    clientnode: "npm:3.0.1171"
     documentation-website: "npm:^1.0.330"
     eslint: "npm:^9.9.0"
     eslint-config-google: "npm:^0.14.0"
