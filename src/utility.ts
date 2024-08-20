@@ -121,7 +121,7 @@ export const debounce = <T = unknown>(
                                 (result:T) => {
                                     resolve(result)
                                 },
-                                (reason:Error) => {
+                                (reason:unknown) => {
                                     reject(reason)
                                 }
                             )
