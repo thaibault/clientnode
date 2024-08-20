@@ -19,7 +19,6 @@
 import {
     CLASS_TO_TYPE_MAPPING, IGNORE_NULL_AND_UNDEFINED_SYMBOL, VALUE_COPY_SYMBOL
 } from './constants'
-import {NOOP} from './context'
 import {
     isFunction, isPlainObject, isMap, isProxy, isSet, isNumeric
 } from './indicators'

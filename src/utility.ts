@@ -122,7 +122,15 @@ export const debounce = <T = unknown>(
                                     resolve(result)
                                 },
                                 (reason:unknown) => {
-                                    reject(reason)
+                                    /*
+                                        eslint-disable
+                                        prefer-promise-reject-errors
+                                    */
+                                    reject(reason as Error)
+                                    /*
+                                        eslint-enable
+                                        prefer-promise-reject-errors
+                                    */
                                 }
                             )
                         else
