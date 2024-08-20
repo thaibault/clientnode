@@ -817,7 +817,9 @@ export const equals = (
                                             results.some((result) => result)
                                         ))
                                     },
-                                    NOOP
+                                    () => {
+                                        // Do nothing.
+                                    }
                                 )
                             }))
 
@@ -892,7 +894,9 @@ export const equals = (
 
                         resolve(true)
                     },
-                    NOOP
+                    () => {
+                        // Do nothing.
+                    }
                 )
             })
 

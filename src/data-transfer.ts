@@ -16,7 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {globalContext, NOOP} from './context'
+import {globalContext} from './context'
 import {extend} from './object'
 import {
     $T,
@@ -141,7 +141,7 @@ export const checkReachability = async (
             let currentlyRunningTimer = timeout(wrapper)
 
             timer.then(
-                ():void => {
+                () => {
                     timedOut = true
                     currentlyRunningTimer.clear()
 
@@ -150,7 +150,9 @@ export const checkReachability = async (
                         'seconds reached.'
                     ))
                 },
-                NOOP
+                () => {
+                    // Do nothing.
+                }
             )
         })
 
@@ -269,7 +271,9 @@ export const checkUnreachability = async (
                         'seconds reached.'
                     ))
                 },
-                NOOP
+                () => {
+                    // Do nothing.
+                }
             )
         })
 

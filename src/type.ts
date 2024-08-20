@@ -338,7 +338,7 @@ export interface $Global extends Omit<Window, 'document'> {
         code:string
     }}
     console:Console
-    dataLayer:Array<PlainObject>
+    dataLayer?:Array<PlainObject>
     document?:Window['document']
     $:$TStatic
 }
