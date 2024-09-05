@@ -46,11 +46,11 @@ export const RealTypes = {
     symbol: PropTypes.symbol
 } as const
 export const createDummy = (
-    result:Error|null = null
-):ValueOf<typeof RealTypes> => {
-    const type:Requireable<unknown> = ():Error|null => result
+    result: Error|null = null
+): ValueOf<typeof RealTypes> => {
+    const type: Requireable<unknown> = (): Error|null => result
 
-    type.isRequired = ():null => null
+    type.isRequired = (): null => null
 
     return type
 }
@@ -95,7 +95,7 @@ export const DummyTypes = {
     symbol: createDummy()
 } as const
 
-export const PropertyTypes:typeof RealTypes =
+export const PropertyTypes: typeof RealTypes =
     ['debug', 'dev', 'development'].includes(
         (process.env.NODE_ENV || '').trim().toLowerCase()
     ) ?
