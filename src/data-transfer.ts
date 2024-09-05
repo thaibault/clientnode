@@ -47,10 +47,10 @@ import {timeout} from './utility'
  * Otherwise, returned promise will be rejected.
  */
 export const checkReachability = async (
-    url: string,
-    givenOptions: RecursivePartial<CheckReachabilityOptions> = {}
-): ReturnType<typeof fetch> => {
-    const options: CheckReachabilityOptions = extend(
+    url:string,
+    givenOptions:RecursivePartial<CheckReachabilityOptions> = {}
+):ReturnType<typeof fetch> => {
+    const options:CheckReachabilityOptions = extend(
         true,
         {
             expectedIntermediateStatusCodes: [],
@@ -63,20 +63,20 @@ export const checkReachability = async (
         givenOptions
     )
 
-    const statusCodes: Array<number> =
+    const statusCodes:Array<number> =
         ([] as Array<number>).concat(options.statusCodes)
-    const expectedIntermediateStatusCodes: Array<number> =
+    const expectedIntermediateStatusCodes:Array<number> =
         ([] as Array<number>)
             .concat(options.expectedIntermediateStatusCodes)
 
     const isStatusCodeExpected = (
-        response: Response, statusCodes: Array<number>
-    ): boolean => Boolean(
+        response:Response, statusCodes:Array<number>
+    ):boolean => Boolean(
         'status' in response &&
         statusCodes.includes(response.status)
     )
 
-    const checkAndThrow = (response: Response): Response => {
+    const checkAndThrow = (response:Response):Response => {
         if (!isStatusCodeExpected(response, statusCodes))
             throw new Error(
                 `Given status code ${String(response.status)} ` +
@@ -88,14 +88,14 @@ export const checkReachability = async (
 
     if (options.wait)
         return new Promise<Response>((
-            resolve: (response: Response) => void,
-            reject: (reason: Error) => void
-        ): void => {
+            resolve:(response:Response) => void,
+            reject:(reason:Error) => void
+        ):void => {
             let timedOut = false
-            const timer: TimeoutPromise =
+            const timer:TimeoutPromise =
                 timeout(options.timeoutInSeconds * 1000)
 
-            const retryErrorHandler = (error: Error): Error => {
+            const retryErrorHandler = (error:Error):Error => {
                 if (!timedOut) {
                     currentlyRunningTimer = timeout(
                         options.pollIntervallInSeconds * 1000, wrapper
@@ -112,8 +112,8 @@ export const checkReachability = async (
                 return error
             }
 
-            const wrapper = async (): Promise<Error|Response> => {
-                let response: Response
+            const wrapper = async ():Promise<Error|Response> => {
+                let response:Response
                 try {
                     response = await globalContext.fetch(url, options.options)
                 } catch (error) {
@@ -176,9 +176,9 @@ export const checkReachability = async (
  * timeout is reached or the endpoint is unreachable (after some tries).
  */
 export const checkUnreachability = async (
-    url: string, givenOptions: RecursivePartial<CheckReachabilityOptions> = {}
-): Promise<Error|null|Promise<Error|null>> => {
-    const options: CheckReachabilityOptions = extend(
+    url:string, givenOptions:RecursivePartial<CheckReachabilityOptions> = {}
+):Promise<Error|null|Promise<Error|null>> => {
+    const options:CheckReachabilityOptions = extend(
         true,
         {
             wait: false,
@@ -190,8 +190,8 @@ export const checkUnreachability = async (
         givenOptions
     )
 
-    const check = (response: null|Response): Error|null => {
-        const statusCodes: Array<number> =
+    const check = (response:null|Response):Error|null => {
+        const statusCodes:Array<number> =
             ([] as Array<number>).concat(options.statusCodes)
         if (statusCodes.length) {
             if (
@@ -215,20 +215,20 @@ export const checkUnreachability = async (
 
     if (options.wait)
         return new Promise<Error|null|Promise<Error|null>>((
-            resolve: (_value: Error|null) => void,
-            reject: (_reason: Error) => void
-        ): void => {
+            resolve:(_value:Error|null) => void,
+            reject:(_reason:Error) => void
+        ):void => {
             let timedOut = false
 
-            const wrapper = async (): Promise<Error|Response|null> => {
+            const wrapper = async ():Promise<Error|Response|null> => {
                 try {
-                    const response: Response =
+                    const response:Response =
                         await globalContext.fetch(url, options.options)
 
                     if (timedOut)
                         return response
 
-                    const result: Error|null = check(response)
+                    const result:Error|null = check(response)
                     if (result) {
                         timer.clear()
                         resolve(result)
@@ -278,7 +278,7 @@ export const checkUnreachability = async (
         })
 
     try {
-        const result: Error|null =
+        const result:Error|null =
             check(await globalContext.fetch(url, options.options))
 
         if (result)
@@ -302,18 +302,18 @@ export const checkUnreachability = async (
  * @returns Returns the given target as extended dom node.
  */
 export const sendToIFrame = (
-    target: $T<HTMLIFrameElement>|HTMLIFrameElement|string,
-    url: string,
-    data: Mapping<unknown>,
+    target:$T<HTMLIFrameElement>|HTMLIFrameElement|string,
+    url:string,
+    data:Mapping<unknown>,
     requestType = 'post',
     removeAfterLoad = false
-): $T<HTMLIFrameElement> => {
-    const $targetDomNode: $T<HTMLIFrameElement> =
+):$T<HTMLIFrameElement> => {
+    const $targetDomNode:$T<HTMLIFrameElement> =
     (typeof target === 'string') ?
         $<HTMLIFrameElement>(`iframe[name"${target}"]`) :
         $(target as HTMLIFrameElement)
 
-    const $formDomNode: $T<HTMLFormElement> =
+    const $formDomNode:$T<HTMLFormElement> =
         $<HTMLFormElement>('<form>').attr({
             action: url,
             method: requestType,
@@ -333,7 +333,7 @@ export const sendToIFrame = (
         object model to successfully submit.
     */
     if (removeAfterLoad)
-        $targetDomNode.on('load', (): $T<HTMLIFrameElement> =>
+        $targetDomNode.on('load', ():$T<HTMLIFrameElement> =>
             $targetDomNode.remove()
         )
 
@@ -355,13 +355,13 @@ export const sendToIFrame = (
  * @returns Returns the dynamically created iframe.
  */
 export const sendToExternalURL = (
-    url: string,
-    data: Mapping<unknown>,
+    url:string,
+    data:Mapping<unknown>,
     requestType = 'post',
     removeAfterLoad = true,
-    domNode: HTMLElement|null = null
-): $T<HTMLIFrameElement> => {
-    const $iFrameDomNode: $T<HTMLIFrameElement> =
+    domNode:HTMLElement|null = null
+):$T<HTMLIFrameElement> => {
+    const $iFrameDomNode:$T<HTMLIFrameElement> =
         $<HTMLIFrameElement>('<iframe>')
             .attr('name', `clientnode-${String((new Date()).getTime())}`)
             .hide()

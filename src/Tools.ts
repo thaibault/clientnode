@@ -75,7 +75,7 @@ export class Tools<TElement = HTMLElement> {
         NOTE: Define entity as partial to be able to extend this class without
         repeating all this content.
     */
-    static _defaultOptions: Partial<Options> = {
+    static _defaultOptions:Partial<Options> = {
         domNodes: {
             hideJavaScriptEnabled: '.tools-hidden-on-javascript-enabled',
             showJavaScriptEnabled: '.tools-visible-on-javascript-enabled'
@@ -87,8 +87,8 @@ export class Tools<TElement = HTMLElement> {
     }
     // endregion
     // region dynamic properties
-    $domNode: null|$T<TElement> = null
-    options: Options
+    $domNode:null|$T<TElement> = null
+    options:Options
     // endregion
     // region public methods
     /// region special
@@ -102,7 +102,7 @@ export class Tools<TElement = HTMLElement> {
      * @param $domNode - $-extended dom node to use as reference in various
      * methods.
      */
-    constructor($domNode?: $T<TElement>) {
+    constructor($domNode?:$T<TElement>) {
         if ($domNode)
             this.$domNode = $domNode
 
@@ -110,7 +110,7 @@ export class Tools<TElement = HTMLElement> {
 
         // Avoid errors in browsers that lack a console.
         if (!Object.prototype.hasOwnProperty.call($.global, 'console'))
-            ($.global as unknown as {console: Mapping<AnyFunction>}).console =
+            ($.global as unknown as {console:Mapping<AnyFunction>}).console =
                 {}
 
         for (const methodName of CONSOLE_METHODS)
@@ -121,8 +121,8 @@ export class Tools<TElement = HTMLElement> {
      * This method could be overwritten normally. It acts like a destructor.
      * @returns Returns the current instance.
      */
-    destructor(): this {
-        if (($.fn as {off?: AnyFunction}|undefined)?.off)
+    destructor():this {
+        if (($.fn as {off?:AnyFunction}|undefined)?.off)
             this.off('*')
 
         return this
@@ -133,7 +133,7 @@ export class Tools<TElement = HTMLElement> {
      * @param options - An options object.
      * @returns Returns the current instance.
      */
-    initialize<R = this>(options: RecursivePartial<Options> = {}): R {
+    initialize<R = this>(options:RecursivePartial<Options> = {}):R {
         /*
             NOTE: We have to create a new options object instance to avoid
             changing a static options object.
@@ -168,11 +168,11 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns whatever the initializer method returns.
      */
     static controller<TElement = HTMLElement>(
-        object: unknown, parameters: unknown, $domNode: null|$T<TElement> = null
-    ): unknown {
+        object:unknown, parameters:unknown, $domNode:null|$T<TElement> = null
+    ):unknown {
         if (typeof object === 'function') {
             object = new (
-                object as new (_$domNode: null|$T<TElement>) => unknown
+                object as new (_$domNode:null|$T<TElement>) => unknown
             )($domNode)
 
             if (!(object instanceof Tools))
@@ -181,7 +181,7 @@ export class Tools<TElement = HTMLElement> {
                 )
         }
 
-        const normalizedParameters: Array<unknown> = makeArray(parameters)
+        const normalizedParameters:Array<unknown> = makeArray(parameters)
 
         if (
             normalizedParameters.length &&
@@ -192,7 +192,7 @@ export class Tools<TElement = HTMLElement> {
                 (object as Mapping<unknown>)[normalizedParameters[0]]
             ))
                 return (object as
-                        Mapping<(..._parameters: Array<unknown>) => unknown>
+                        Mapping<(..._parameters:Array<unknown>) => unknown>
                 )[normalizedParameters[0]](...normalizedParameters.slice(1))
 
             return (object as Mapping<unknown>)[normalizedParameters[0]]
@@ -204,11 +204,11 @@ export class Tools<TElement = HTMLElement> {
                 If an options object or no method name is given the initializer
                 will be called.
             */
-            const result: unknown = (object as Tools).initialize(
+            const result:unknown = (object as Tools).initialize(
                 ...normalizedParameters as Parameters<Tools['initialize']>
             )
 
-            const name: string =
+            const name:string =
                 (object as Tools).options.name ||
                 (object as Tools).constructor.name
 
@@ -248,18 +248,18 @@ export class Tools<TElement = HTMLElement> {
      * formatting.
      */
     log(
-        object: unknown,
+        object:unknown,
         force = false,
         avoidAnnotation = false,
-        level: keyof Console = 'info',
-        ...additionalArguments: Array<unknown>
-    ): void {
+        level:keyof Console = 'info',
+        ...additionalArguments:Array<unknown>
+    ):void {
         if (
             this.options.logging ||
             force ||
             ['error', 'critical'].includes(level)
         ) {
-            let message: unknown
+            let message:unknown
 
             if (avoidAnnotation)
                 message = object
@@ -306,7 +306,7 @@ export class Tools<TElement = HTMLElement> {
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
      */
-    info(object: unknown, ...additionalArguments: Array<unknown>): void {
+    info(object:unknown, ...additionalArguments:Array<unknown>):void {
         this.log(object, false, false, 'info', ...additionalArguments)
     }
     /**
@@ -316,7 +316,7 @@ export class Tools<TElement = HTMLElement> {
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
      */
-    debug(object: unknown, ...additionalArguments: Array<unknown>): void {
+    debug(object:unknown, ...additionalArguments:Array<unknown>):void {
         this.log(object, false, false, 'debug', ...additionalArguments)
     }
     /**
@@ -326,7 +326,7 @@ export class Tools<TElement = HTMLElement> {
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
      */
-    error(object: unknown, ...additionalArguments: Array<unknown>): void {
+    error(object:unknown, ...additionalArguments:Array<unknown>):void {
         this.log(object, true, false, 'error', ...additionalArguments)
     }
     /**
@@ -336,7 +336,7 @@ export class Tools<TElement = HTMLElement> {
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
      */
-    critical(object: unknown, ...additionalArguments: Array<unknown>): void {
+    critical(object:unknown, ...additionalArguments:Array<unknown>):void {
         this.log(object, true, false, 'warn', ...additionalArguments)
     }
     /**
@@ -346,7 +346,7 @@ export class Tools<TElement = HTMLElement> {
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
      */
-    warn(object: unknown, ...additionalArguments: Array<unknown>): void {
+    warn(object:unknown, ...additionalArguments:Array<unknown>):void {
         this.log(object, false, false, 'warn', ...additionalArguments)
     }
     /**
@@ -358,8 +358,8 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns the serialized version of given object.
      */
     static show(
-        object: unknown, level = 3, currentLevel = 0
-    ): string {
+        object:unknown, level = 3, currentLevel = 0
+    ):string {
         let output = ''
 
         if (determineType(object) === 'object') {
@@ -389,16 +389,16 @@ export class Tools<TElement = HTMLElement> {
      * Normalizes class name order of current dom node.
      * @returns Current instance.
      */
-    get normalizedClassNames(): this {
+    get normalizedClassNames():this {
         if (this.$domNode) {
             const className = 'class'
 
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((_index: number, domNode: HTMLElement): void => {
-                    const $domNode: $T = $(domNode)
-                    const classValue: string|undefined =
+                .each((_index:number, domNode:HTMLElement):void => {
+                    const $domNode:$T = $(domNode)
+                    const classValue:string|undefined =
                         $domNode.attr(className)
                     if (classValue)
                         $domNode.attr(
@@ -422,16 +422,16 @@ export class Tools<TElement = HTMLElement> {
      * Normalizes style attributes order of current dom node.
      * @returns Returns current instance.
      */
-    get normalizedStyles(): this {
+    get normalizedStyles():this {
         if (this.$domNode) {
             const styleName = 'style'
 
             this.$domNode
                 .find('*')
                 .addBack()
-                .each((index: number, domNode: HTMLElement): void => {
-                    const $domNode: $T = $(domNode)
-                    const serializedStyles: string|undefined =
+                .each((index:number, domNode:HTMLElement):void => {
+                    const $domNode:$T = $(domNode)
+                    const serializedStyles:string|undefined =
                         $domNode.attr(styleName)
 
                     if (serializedStyles)
@@ -443,9 +443,7 @@ export class Tools<TElement = HTMLElement> {
                                         .split(';')
                                         .sort()
                                 )
-                                    .map((style: string): string =>
-                                        style.trim()
-                                    )
+                                    .map((style:string):string => style.trim())
                                     .join(';')
                             )
                         )
@@ -461,12 +459,12 @@ export class Tools<TElement = HTMLElement> {
      * values.
      * @returns The computed style mapping.
      */
-    get style(): Mapping<number|string> {
-        const result: Mapping<number|string> = {}
-        const $domNode: null|$T<TElement> = this.$domNode
+    get style():Mapping<number|string> {
+        const result:Mapping<number|string> = {}
+        const $domNode:null|$T<TElement> = this.$domNode
 
         if ($domNode?.length) {
-            let styleProperties: CSSStyleDeclaration
+            let styleProperties:CSSStyleDeclaration
 
             if (
                 Object.prototype.hasOwnProperty.call($.global, 'window') &&
@@ -516,7 +514,7 @@ export class Tools<TElement = HTMLElement> {
      * Get text content of current element without it children's text contents.
      * @returns The text string.
      */
-    get text(): string {
+    get text():string {
         if (this.$domNode)
             return this.$domNode.clone().children().remove().end().text()
 
@@ -532,17 +530,17 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns true if both dom representations are equivalent.
      */
     static isEquivalentDOM(
-        first: Node|string|$T|$T<Node>,
-        second: Node|string|$T|$T<Node>,
+        first:Node|string|$T|$T<Node>,
+        second:Node|string|$T|$T<Node>,
         forceHTMLString = false
-    ): boolean {
+    ):boolean {
         if (first === second)
             return true
 
         if (first && second) {
             const detemermineHTMLPattern = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
-            const inputs: Mapping<Node|string|$T|$T<Node>> = {first, second}
-            const $domNodes: Mapping<$T> = {
+            const inputs:Mapping<Node|string|$T|$T<Node>> = {first, second}
+            const $domNodes:Mapping<$T> = {
                 first: $('<dummy>'), second: $('<dummy>')
             }
 
@@ -566,7 +564,7 @@ export class Tools<TElement = HTMLElement> {
                     $domNodes[type] = $(`<div>${tag}</div>`)
                 else
                     try {
-                        const $copiedDomNode: $T<JQuery.Node> =
+                        const $copiedDomNode:$T<JQuery.Node> =
                             $<JQuery.Node>(tag as JQuery.Node).clone()
 
                         if ($copiedDomNode.length)
@@ -625,14 +623,12 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns one of "above", "left", "below", "right" or "in".
      */
     getPositionRelativeToViewport(
-        givenDelta: {
-            bottom?: number;left?: number;right?: number;top?: number
-        } = {}
-    ): RelativePosition {
-        const delta: Position =
+        givenDelta:{bottom?:number;left?:number;right?:number;top?:number} = {}
+    ):RelativePosition {
+        const delta:Position =
             extend<Position>({bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
 
-        const $domNode: null|$T<TElement> = this.$domNode
+        const $domNode:null|$T<TElement> = this.$domNode
 
         if (
             Object.prototype.hasOwnProperty.call($.global, 'window') &&
@@ -640,9 +636,9 @@ export class Tools<TElement = HTMLElement> {
             $domNode[0] &&
             'getBoundingClientRect' in ($domNode[0] as unknown as HTMLElement)
         ) {
-            const $window: $T<Window & typeof globalThis> = $($.global.window)
+            const $window:$T<Window & typeof globalThis> = $($.global.window)
 
-            const rectangle: Position = ($domNode[0] as unknown as Element)
+            const rectangle:Position = ($domNode[0] as unknown as Element)
                 .getBoundingClientRect()
 
             if (rectangle.top && (rectangle.top + delta.top) < 0)
@@ -651,14 +647,14 @@ export class Tools<TElement = HTMLElement> {
             if ((rectangle.left + delta.left) < 0)
                 return 'left'
 
-            const windowHeight: number|undefined = $window.height()
+            const windowHeight:number|undefined = $window.height()
             if (
                 typeof windowHeight === 'number' &&
                 windowHeight < (rectangle.bottom + delta.bottom)
             )
                 return 'below'
 
-            const windowWidth: number|undefined = $window.width()
+            const windowWidth:number|undefined = $window.width()
             if (
                 typeof windowWidth === 'number' &&
                 windowWidth < (rectangle.right + delta.right)
@@ -673,15 +669,15 @@ export class Tools<TElement = HTMLElement> {
      * @param directiveName - The directive name.
      * @returns Returns generated selector.
      */
-    static generateDirectiveSelector(directiveName: string): string {
-        const delimitedName: string = camelCaseToDelimited(directiveName)
+    static generateDirectiveSelector(directiveName:string):string {
+        const delimitedName:string = camelCaseToDelimited(directiveName)
 
         return `${delimitedName}, .${delimitedName}, [${delimitedName}], ` +
             `[data-${delimitedName}], [x-${delimitedName}]` +
             (
                 (delimitedName.includes('-') ?
                     (
-                        `, [${delimitedName.replace(/-/g, '\\: ')}], ` +
+                        `, [${delimitedName.replace(/-/g, '\\:')}], ` +
                         `[${delimitedName.replace(/-/g, '_')}]`
                     ) :
                     ''
@@ -693,25 +689,25 @@ export class Tools<TElement = HTMLElement> {
      * @param directiveName - The directive name.
      * @returns Returns current dom node.
      */
-    removeDirective(directiveName: string): null|$T<TElement> {
+    removeDirective(directiveName:string):null|$T<TElement> {
         if (this.$domNode === null)
             return null
 
-        const delimitedName: string = camelCaseToDelimited(directiveName)
+        const delimitedName:string = camelCaseToDelimited(directiveName)
 
         return this.$domNode
             .removeClass(delimitedName)
             .removeAttr(delimitedName)
             .removeAttr(`data-${delimitedName}`)
             .removeAttr(`x-${delimitedName}`)
-            .removeAttr(delimitedName.replace('-', ': '))
+            .removeAttr(delimitedName.replace('-', ':'))
             .removeAttr(delimitedName.replace('-', '_'))
     }
     /**
      * Hide or show all marked nodes which should be displayed depending on
      * javascript availability.
      */
-    renderJavaScriptDependentVisibility(): void {
+    renderJavaScriptDependentVisibility():void {
         if (
             !JAVASCRIPT_DEPENDENT_CONTENT_HANDLED &&
             $.document &&
@@ -724,7 +720,7 @@ export class Tools<TElement = HTMLElement> {
                 this.options.domNodes.hideJavaScriptEnabled
             )
                 .filter(
-                    (index: number, domNode: HTMLElement): boolean =>
+                    (index:number, domNode:HTMLElement):boolean =>
                         !$(domNode).data('javaScriptDependentContentHide')
                 )
                 .data('javaScriptDependentContentHide', true)
@@ -735,7 +731,7 @@ export class Tools<TElement = HTMLElement> {
                 this.options.domNodes.showJavaScriptEnabled
             )
                 .filter(
-                    (index: number, domNode: HTMLElement): boolean =>
+                    (index:number, domNode:HTMLElement):boolean =>
                         !$(domNode).data('javaScriptDependentContentShow')
                 )
                 .data('javaScriptDependentContentShow', true)
@@ -749,8 +745,8 @@ export class Tools<TElement = HTMLElement> {
      * @param directiveName - The directive name.
      * @returns Returns the corresponding name.
      */
-    static getNormalizedDirectiveName(directiveName: string): string {
-        for (const delimiter of ['-', ': ', '_'] as const) {
+    static getNormalizedDirectiveName(directiveName:string):string {
+        for (const delimiter of ['-', ':', '_'] as const) {
             let prefixFound = false
 
             for (
@@ -767,7 +763,7 @@ export class Tools<TElement = HTMLElement> {
                 break
         }
 
-        for (const delimiter of ['-', ': ', '_'] as const)
+        for (const delimiter of ['-', ':', '_'] as const)
             directiveName = delimitedToCamelCase(directiveName, delimiter)
 
         return directiveName
@@ -778,19 +774,19 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns the corresponding attribute value or "null" if no
      * attribute value exists.
      */
-    getDirectiveValue(directiveName: string): null|string {
+    getDirectiveValue(directiveName:string):null|string {
         if (this.$domNode === null)
             return null
 
-        const delimitedName: string = camelCaseToDelimited(directiveName)
+        const delimitedName:string = camelCaseToDelimited(directiveName)
 
         for (const attributeName of [
             delimitedName,
             `data-${delimitedName}`,
             `x-${delimitedName}`,
-            delimitedName.replace('-', '\\: ')
+            delimitedName.replace('-', '\\:')
         ]) {
-            const value: string|undefined = this.$domNode.attr(attributeName)
+            const value:string|undefined = this.$domNode.attr(attributeName)
 
             if (typeof value === 'string')
                 return value
@@ -804,7 +800,7 @@ export class Tools<TElement = HTMLElement> {
      * @param domNodeSelector - The dom node selector to slice.
      * @returns Returns the sliced selector.
      */
-    sliceDomNodeSelectorPrefix(domNodeSelector: string): string {
+    sliceDomNodeSelectorPrefix(domNodeSelector:string):string {
         if (
             this.options.domNodeSelectorPrefix &&
             domNodeSelector.startsWith(this.options.domNodeSelectorPrefix)
@@ -830,8 +826,8 @@ export class Tools<TElement = HTMLElement> {
      * // returns 'br'
      * $.Tools.getDomNodeName('&lt;br/&gt;')
      */
-    static getDomNodeName(domNodeSelector: string): null|string {
-        const match: Array<string>|null = /^<?([a-zA-Z]+).*>?.*/.exec(
+    static getDomNodeName(domNodeSelector:string):null|string {
+        const match:Array<string>|null = /^<?([a-zA-Z]+).*>?.*/.exec(
             domNodeSelector)
 
         if (match)
@@ -850,22 +846,22 @@ export class Tools<TElement = HTMLElement> {
      * selectors.
      */
     grabDomNodes(
-        domNodeSelectors: Mapping, wrapperDomNode?: Node|null|string|$T<Node>
-    ): $DomNodes {
-        const domNodes: $DomNodes = {} as $DomNodes
+        domNodeSelectors:Mapping, wrapperDomNode?:Node|null|string|$T<Node>
+    ):$DomNodes {
+        const domNodes:$DomNodes = {} as $DomNodes
 
         if (wrapperDomNode) {
-            const $wrapperDomNode: $T<Node> =
+            const $wrapperDomNode:$T<Node> =
                 $(wrapperDomNode as Node) as $T<Node>
             for (const [name, selector] of Object.entries(domNodeSelectors))
                 domNodes[name] = $wrapperDomNode.find(selector)
         } else
             for (const [name, selector] of Object.entries(domNodeSelectors)) {
-                const match: Array<string>|null = /, */.exec(selector)
+                const match:Array<string>|null = /, */.exec(selector)
                 if (match)
                     domNodeSelectors[name] += selector
                         .split(match[0])
-                        .map((selectorPart: string): string =>
+                        .map((selectorPart:string):string =>
                             ', ' +
                             normalizeDomNodeSelector(
                                 selectorPart,
@@ -909,18 +905,18 @@ export class Tools<TElement = HTMLElement> {
      * "true" otherwise.
      */
     fireEvent(
-        eventName: string,
+        eventName:string,
         callOnlyOptionsMethod = false,
-        scope: unknown = this,
-        ...additionalArguments: Array<unknown>
-    ): unknown {
+        scope:unknown = this,
+        ...additionalArguments:Array<unknown>
+    ):unknown {
         const eventHandlerName = `on${capitalize(eventName)}`
 
         interface Scope {
-            callable: AnyFunction
-            options?: Mapping<AnyFunction>
+            callable:AnyFunction
+            options?:Mapping<AnyFunction>
         }
-        const castedScope: Scope = scope as Scope
+        const castedScope:Scope = scope as Scope
 
         if (!callOnlyOptionsMethod)
             if (eventHandlerName in castedScope)
@@ -950,7 +946,7 @@ export class Tools<TElement = HTMLElement> {
      * @param parameters - Parameter to forward.
      * @returns Returns $'s grabbed dom node.
      */
-    on<TElement = HTMLElement>(...parameters: Array<unknown>): $T<TElement> {
+    on<TElement = HTMLElement>(...parameters:Array<unknown>):$T<TElement> {
         return this._bindEventHelper<TElement>(parameters, false)
     }
     /**
@@ -960,7 +956,7 @@ export class Tools<TElement = HTMLElement> {
      * @param parameters - Parameter to forward.
      * @returns Returns $'s grabbed dom node.
      */
-    off<TElement = HTMLElement>(...parameters: Array<unknown>): $T<TElement> {
+    off<TElement = HTMLElement>(...parameters:Array<unknown>):$T<TElement> {
         return this._bindEventHelper<TElement>(parameters, true)
     }
     /// endregion
@@ -975,14 +971,14 @@ export class Tools<TElement = HTMLElement> {
      * @returns Returns $'s wrapped dom node.
      */
     _bindEventHelper = <TElement = HTMLElement>(
-        parameters: Array<unknown>,
+        parameters:Array<unknown>,
         removeEvent = false,
-        eventFunctionName?: string
-    ): $T<TElement> => {
+        eventFunctionName?:string
+    ):$T<TElement> => {
         if (!eventFunctionName)
             eventFunctionName = removeEvent ? 'off' : 'on'
 
-        const $domNode: $T<TElement> =
+        const $domNode:$T<TElement> =
             $(parameters[0] as HTMLElement) as unknown as $T<TElement>
         if (determineType(parameters[1]) === 'object' && !removeEvent) {
             for (const [eventType, parameter] of Object.entries(
@@ -1010,8 +1006,8 @@ export class Tools<TElement = HTMLElement> {
  * Dom bound version of Tools class.
  */
 export class BoundTools<TElement = HTMLElement> extends Tools<TElement> {
-    $domNode: $T<TElement>
-    readonly self: typeof BoundTools = BoundTools
+    $domNode:$T<TElement>
+    readonly self:typeof BoundTools = BoundTools
     /**
      * This method should be overwritten normally. It is triggered if current
      * object is created via the "new" keyword. The dom node selector prefix
@@ -1026,8 +1022,8 @@ export class BoundTools<TElement = HTMLElement> extends Tools<TElement> {
      * with.
      */
     constructor(
-        $domNode: $T<TElement>,
-        ...additionalParameters: ParametersExceptFirst<Tools['constructor']>
+        $domNode:$T<TElement>,
+        ...additionalParameters:ParametersExceptFirst<Tools['constructor']>
     ) {
         super($domNode, ...additionalParameters)
 

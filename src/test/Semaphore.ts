@@ -17,13 +17,13 @@ import {expect, test} from '@jest/globals'
 
 import {Semaphore} from '../Semaphore'
 
-test('constructor', (): void => {
+test('constructor', ():void => {
     expect(new Semaphore()).toHaveProperty('numberOfResources', 2)
     expect(new Semaphore()).toHaveProperty(
         'numberOfFreeResources', (new Semaphore()).numberOfResources
     )
 })
-test('acquire/release', async (): Promise<void> => {
+test('acquire/release', async ():Promise<void> => {
     const semaphore1 = new Semaphore()
 
     expect(semaphore1.numberOfFreeResources).toStrictEqual(2)
@@ -34,7 +34,7 @@ test('acquire/release', async (): Promise<void> => {
 
     expect(semaphore1.numberOfFreeResources).toStrictEqual(2)
 
-    const semaphore2: Semaphore = new Semaphore(2)
+    const semaphore2:Semaphore = new Semaphore(2)
 
     expect(semaphore2.queue.length).toStrictEqual(0)
     expect(semaphore2.numberOfFreeResources).toStrictEqual(2)

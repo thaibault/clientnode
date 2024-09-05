@@ -35,9 +35,9 @@ import {testEachSingleParameterAgainstSameExpectation} from '../test-helper'
 import {File} from '../type'
 import {timeout} from '../utility'
 
-declare const TARGET_TECHNOLOGY: string
+declare const TARGET_TECHNOLOGY:string
 
-const TEST_ENVIRONMENT: string = (
+const TEST_ENVIRONMENT:string = (
     typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node'
 ) ?
     typeof document === 'undefined' ?
@@ -58,7 +58,7 @@ if (TARGET_TECHNOLOGY === 'node') {
 
     const testPath = './copyDirectoryRecursiveTest.compiled'
 
-    test('copyDirectoryRecursive', async (): Promise<void> => {
+    test('copyDirectoryRecursive', async ():Promise<void> => {
         removeDirectoryRecursivelySync(testPath)
         expect(await copyDirectoryRecursive(
             './node_modules/.bin', testPath, NOOP
@@ -72,7 +72,7 @@ if (TARGET_TECHNOLOGY === 'node') {
         )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
         removeDirectoryRecursivelySync(testPath)
     })
-    test('copyFile', async (): Promise<void> => {
+    test('copyFile', async ():Promise<void> => {
         try {
             await unlink(`./test.copyFile.${TEST_ENVIRONMENT}.compiled.js`)
         } catch (_error) {
@@ -97,7 +97,7 @@ if (TARGET_TECHNOLOGY === 'node') {
         await timeout()
         await unlink(`./test.copyFile.${TEST_ENVIRONMENT}.compiled.js`)
     })
-    test('copyFileSync', async (): Promise<void> => {
+    test('copyFileSync', async ():Promise<void> => {
         try {
             await unlink(`./test.copyFileSync.${TEST_ENVIRONMENT}.compiled.js`)
         } catch (_error) {
@@ -114,7 +114,7 @@ if (TARGET_TECHNOLOGY === 'node') {
 
         await unlink(`./test.copyFileSync.${TEST_ENVIRONMENT}.compiled.js`)
     })
-    test('isDirectory', async (): Promise<void> => {
+    test('isDirectory', async ():Promise<void> => {
         for (const filePath of ['./', '../']) {
             let result = false
             try {
@@ -149,7 +149,7 @@ if (TARGET_TECHNOLOGY === 'node') {
 
         resolve('./test.ts')
     )
-    test('isFile', async (): Promise<void> => {
+    test('isFile', async ():Promise<void> => {
         for (const filePath of [resolve('./src/filesystem.ts')]) {
             let result = false
             try {
@@ -185,15 +185,15 @@ if (TARGET_TECHNOLOGY === 'node') {
         './',
         '../'
     )
-    test('walkDirectoryRecursively', async (): Promise<void> => {
-        const filePaths: Array<string> = []
-        const callback = (file: File): null => {
+    test('walkDirectoryRecursively', async ():Promise<void> => {
+        const filePaths:Array<string> = []
+        const callback = (file:File):null => {
             filePaths.push(file.path)
 
             return null
         }
 
-        let files: Array<File> = []
+        let files:Array<File> = []
         try {
             files = await walkDirectoryRecursively('./', callback)
         } catch (error) {
@@ -205,14 +205,14 @@ if (TARGET_TECHNOLOGY === 'node') {
         expect(files[0]).toHaveProperty('stats')
         expect(filePaths).toHaveLength(1)
     })
-    test('walkDirectoryRecursivelySync', (): void => {
-        const filePaths: Array<string> = []
-        const callback = (filePath: string): null => {
+    test('walkDirectoryRecursivelySync', ():void => {
+        const filePaths:Array<string> = []
+        const callback = (filePath:string):null => {
             filePaths.push(filePath)
 
             return null
         }
-        const files: Array<File> =
+        const files:Array<File> =
             walkDirectoryRecursivelySync('./', callback)
         expect(files).toHaveLength(1)
         expect(files[0]).toHaveProperty('path')

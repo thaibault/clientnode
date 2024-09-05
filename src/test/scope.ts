@@ -18,21 +18,21 @@ import {expect, test} from '@jest/globals'
 import {determineUniqueScopeName, isolateScope} from '../scope'
 import {Mapping} from '../type'
 
-test('isolateScope', (): void => {
+test('isolateScope', ():void => {
     expect(isolateScope({})).toStrictEqual({})
     expect(isolateScope({a: 2})).toStrictEqual({a: 2})
     expect(isolateScope({a: 2, b: {a: [1, 2]}}))
         .toStrictEqual({a: 2, b: {a: [1, 2]}})
 
-    let Scope: (new () => Mapping<number>) =
-        function(this: Mapping<number>): void {
+    let Scope:(new () => Mapping<number>) =
+        function(this:Mapping<number>):void {
             this.a = 2
         } as unknown as (new () => Mapping<number>)
     Scope.prototype = {_a: 5, b: 2}
-    let scope: Mapping<number|undefined> = new Scope()
+    let scope:Mapping<number|undefined> = new Scope()
 
     isolateScope(scope, ['_'])
-    let finalScope: Mapping<number|undefined> = {}
+    let finalScope:Mapping<number|undefined> = {}
     // eslint-disable-next-line guard-for-in
     for (const name in scope)
         finalScope[name] = scope[name]
@@ -53,7 +53,7 @@ test('isolateScope', (): void => {
     scope._a = 6
     expect(isolateScope(scope, ['_'])).toStrictEqual({_a: 6, a: 2, b: 3})
 
-    Scope = function(this: Mapping<number>): void {
+    Scope = function(this:Mapping<number>):void {
         this.a = 2
     } as unknown as (new () => Mapping<number>)
     Scope.prototype = {b: 3}
@@ -66,7 +66,7 @@ test('isolateScope', (): void => {
     expect(finalScope).toStrictEqual({a: 2, b: 3})
     expect(isolateScope(new Scope())).toStrictEqual({a: 2, b: undefined})
 })
-test('determineUniqueScopeName', (): void => {
+test('determineUniqueScopeName', ():void => {
     expect(determineUniqueScopeName())
         .toStrictEqual(expect.stringMatching(/^callback/))
     expect(determineUniqueScopeName('hans'))
@@ -78,7 +78,7 @@ test('determineUniqueScopeName', (): void => {
     expect(
         determineUniqueScopeName('hans', '', {peter: 2}, 'peter')
     ).toStrictEqual(expect.stringMatching(/^hans/))
-    const name: string = determineUniqueScopeName(
+    const name:string = determineUniqueScopeName(
         'hans', 'klaus', {peter: 2}, 'peter'
     )
     expect(name).toStrictEqual(expect.stringMatching(/^hans/))

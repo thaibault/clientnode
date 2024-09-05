@@ -53,12 +53,12 @@ const {basename = null, join = null, resolve = null} =
  * @returns Promise holding the determined target directory path.
  */
 export const copyDirectoryRecursive = async (
-    sourcePath: string,
-    targetPath: string,
-    callback: AnyFunction = NOOP,
+    sourcePath:string,
+    targetPath:string,
+    callback:AnyFunction = NOOP,
     readOptions = {encoding: null, flag: 'r'},
     writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
-): Promise<string> => {
+):Promise<string> => {
     if (!(basename && join && mkdir && resolve))
         throw new Error('Could not load filesystem functions.')
 
@@ -77,7 +77,7 @@ export const copyDirectoryRecursive = async (
         const currentSourceFile of
         await walkDirectoryRecursively(sourcePath, callback)
     ) {
-        const currentTargetPath: string = join(
+        const currentTargetPath:string = join(
             targetPath, currentSourceFile.path.substring(sourcePath.length)
         )
 
@@ -112,12 +112,12 @@ export const copyDirectoryRecursive = async (
  * @returns Determined target directory path.
  */
 export const copyDirectoryRecursiveSync = (
-    sourcePath: string,
-    targetPath: string,
-    callback: AnyFunction = NOOP,
+    sourcePath:string,
+    targetPath:string,
+    callback:AnyFunction = NOOP,
     readOptions = {encoding: null, flag: 'r'},
     writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
-): string => {
+):string => {
     if (!(basename && join && mkdirSync && resolve))
         throw new Error('Could not load filesystem functions.')
 
@@ -136,7 +136,7 @@ export const copyDirectoryRecursiveSync = (
         const currentSourceFile of
         walkDirectoryRecursivelySync(sourcePath, callback)
     ) {
-        const currentTargetPath: string = join(
+        const currentTargetPath:string = join(
             targetPath, currentSourceFile.path.substring(sourcePath.length)
         )
         if (currentSourceFile.stats?.isDirectory())
@@ -168,11 +168,11 @@ export const copyDirectoryRecursiveSync = (
  * @returns Determined target file path.
  */
 export const copyFile = async (
-    sourcePath: string,
-    targetPath: string,
+    sourcePath:string,
+    targetPath:string,
     readOptions = {encoding: null, flag: 'r'},
     writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
-): Promise<string> => {
+):Promise<string> => {
     if (!(basename && readFile && resolve && writeFile))
         throw new Error('Could not load filesystem functions.')
 
@@ -200,11 +200,11 @@ export const copyFile = async (
  * @returns Determined target file path.
  */
 export const copyFileSync = (
-    sourcePath: string,
-    targetPath: string,
+    sourcePath:string,
+    targetPath:string,
     readOptions = {encoding: null, flag: 'r'},
     writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
-): string => {
+):string => {
     if (!(basename && readFileSync && resolve && writeFileSync))
         throw new Error('Could not load filesystem functions.')
 
@@ -226,7 +226,7 @@ export const copyFileSync = (
  * @param filePath - Path to directory.
  * @returns A promise holding a boolean which indicates directory existence.
  */
-export const isDirectory = async (filePath: string): Promise<boolean> => {
+export const isDirectory = async (filePath:string):Promise<boolean> => {
     if (!stat)
         throw new Error('Could not load filesystem functions.')
 
@@ -249,7 +249,7 @@ export const isDirectory = async (filePath: string): Promise<boolean> => {
  * @param filePath - Path to directory.
  * @returns A boolean which indicates directory existence.
  */
-export const isDirectorySync = (filePath: string): boolean => {
+export const isDirectorySync = (filePath:string):boolean => {
     if (!statSync)
         throw new Error('Could not load filesystem functions.')
 
@@ -272,7 +272,7 @@ export const isDirectorySync = (filePath: string): boolean => {
  * @param filePath - Path to directory.
  * @returns A promise holding a boolean which indicates directory existence.
  */
-export const isFile = async (filePath: string): Promise<boolean> => {
+export const isFile = async (filePath:string):Promise<boolean> => {
     if (!stat)
         throw new Error('Could not load filesystem functions.')
 
@@ -295,7 +295,7 @@ export const isFile = async (filePath: string): Promise<boolean> => {
  * @param filePath - Path to file.
  * @returns A boolean which indicates file existence.
  */
-export const isFileSync = (filePath: string): boolean => {
+export const isFileSync = (filePath:string):boolean => {
     if (!statSync)
         throw new Error('Could not load filesystem functions.')
 
@@ -328,24 +328,24 @@ export const isFileSync = (filePath: string): boolean => {
  * @returns A promise holding the determined files.
  */
 export const walkDirectoryRecursively = async (
-    directoryPath: string,
-    callback: null|((_file: File) => FileTraversionResult) = null,
-    options: (
+    directoryPath:string,
+    callback:null|((_file:File) => FileTraversionResult) = null,
+    options:(
         Encoding|SecondParameter<typeof import('fs').readdir>
     ) = DEFAULT_ENCODING
-): Promise<Array<File>> => {
+):Promise<Array<File>> => {
     if (!(readdir && resolve && stat))
         throw new Error('Could not load filesystem functions.')
 
-    const files: Array<File> = []
+    const files:Array<File> = []
     for (const directoryEntry of await readdir(
         directoryPath,
         typeof options === 'string' ?
             {encoding: options, withFileTypes: true} :
             {...options, withFileTypes: true}
     )) {
-        const filePath: string = resolve(directoryPath, directoryEntry.name)
-        const file: File = {
+        const filePath:string = resolve(directoryPath, directoryEntry.name)
+        const file:File = {
             directoryPath,
             directoryEntry,
             error: null,
@@ -368,7 +368,7 @@ export const walkDirectoryRecursively = async (
             NOTE: Directories and have to be iterated first to be able to
             avoid deeper unwanted traversing.
         */
-        files.sort((firstFile: File, secondFile: File): -1|0|1 => {
+        files.sort((firstFile:File, secondFile:File):-1|0|1 => {
             if (firstFile.stats?.isDirectory()) {
                 if (secondFile.stats?.isDirectory())
                     return 0
@@ -382,11 +382,11 @@ export const walkDirectoryRecursively = async (
             return 0
         })
 
-    let finalFiles: Array<File> = []
+    let finalFiles:Array<File> = []
     for (const file of files) {
         finalFiles.push(file)
 
-        let result: FileTraversionResult =
+        let result:FileTraversionResult =
             callback ? callback(file) : undefined
 
         if (result === null)
@@ -416,16 +416,16 @@ export const walkDirectoryRecursively = async (
  * @returns Determined list if all files.
  */
 export const walkDirectoryRecursivelySync = (
-    directoryPath: string,
-    callback: AnyFunction|null = NOOP,
-    options: (
+    directoryPath:string,
+    callback:AnyFunction|null = NOOP,
+    options:(
         Encoding|SecondParameter<typeof import('fs').readdirSync>
     ) = DEFAULT_ENCODING
-): Array<File> => {
+):Array<File> => {
     if (!(readdirSync && resolve && statSync))
         throw new Error('Could not load filesystem functions.')
 
-    const files: Array<File> = []
+    const files:Array<File> = []
 
     for (const directoryEntry of readdirSync(
         directoryPath,
@@ -433,9 +433,9 @@ export const walkDirectoryRecursivelySync = (
             {encoding: options, withFileTypes: true} :
             {...options, withFileTypes: true}
     )) {
-        const filePath: string =
+        const filePath:string =
             resolve(directoryPath, directoryEntry.name)
-        const file: File = {
+        const file:File = {
             directoryPath,
             directoryEntry,
             error: null,
@@ -451,14 +451,14 @@ export const walkDirectoryRecursivelySync = (
         files.push(file)
     }
 
-    let finalFiles: Array<File> = []
+    let finalFiles:Array<File> = []
 
     if (callback) {
         /*
             NOTE: Directories have to be iterated first to potentially
             avoid deeper iterations.
         */
-        files.sort((firstFile: File, secondFile: File): number => {
+        files.sort((firstFile:File, secondFile:File):number => {
             if (firstFile.stats?.isDirectory()) {
                 if (secondFile.stats?.isDirectory())
                     return 0
@@ -475,7 +475,7 @@ export const walkDirectoryRecursivelySync = (
         for (const file of files) {
             finalFiles.push(file)
 
-            const result: unknown = callback(file)
+            const result:unknown = callback(file)
 
             if (result === null)
                 break
