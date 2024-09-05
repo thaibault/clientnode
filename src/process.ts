@@ -39,14 +39,14 @@ import {
  * @returns Process close handler function.
  */
 export const getProcessCloseHandler = (
-    resolve:ProcessCloseCallback,
-    reject:ProcessErrorCallback,
-    reason:unknown = null,
-    callback:AnyFunction = NOOP
-):ProcessHandler => {
+    resolve: ProcessCloseCallback,
+    reject: ProcessErrorCallback,
+    reason: unknown = null,
+    callback: AnyFunction = NOOP
+): ProcessHandler => {
     let finished = false
 
-    return (returnCode:unknown, ...parameters:Array<unknown>):void => {
+    return (returnCode: unknown, ...parameters: Array<unknown>): void => {
         if (finished)
             finished = true
         else {
@@ -73,13 +73,15 @@ export const getProcessCloseHandler = (
  * @param childProcess - Child process meta data.
  * @returns Given child process meta data.
  */
-export const handleChildProcess = (childProcess:ChildProcess):ChildProcess => {
+export const handleChildProcess = (
+    childProcess: ChildProcess
+): ChildProcess => {
     if (childProcess.stdout)
         childProcess.stdout.pipe(process.stdout)
     if (childProcess.stderr)
         childProcess.stderr.pipe(process.stderr)
 
-    childProcess.on('close', (returnCode:number):void => {
+    childProcess.on('close', (returnCode: number): void => {
         if (returnCode !== 0)
             console.error(`Task exited with error code ${String(returnCode)}`)
     })

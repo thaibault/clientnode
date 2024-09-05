@@ -59,16 +59,16 @@ testEachSingleParameterAgainstSameExpectation<typeof isNumeric>(
     NaN,
     Infinity
 )
-test('isWindow', async ():Promise<void> => {
-    const browser:InitializedBrowser = await getInitializedBrowser()
+test('isWindow', async (): Promise<void> => {
+    const browser: InitializedBrowser = await getInitializedBrowser()
 
     expect(isWindow(browser.window)).toStrictEqual(true)
 
     for (const value of [null, {}, browser])
         expect(isWindow(value)).toStrictEqual(false)
 })
-test('isArrayLike', async ():Promise<void> => {
-    const browser:InitializedBrowser = await getInitializedBrowser()
+test('isArrayLike', async (): Promise<void> => {
+    const browser: InitializedBrowser = await getInitializedBrowser()
     for (const value of [
         [], browser.window.document.querySelectorAll('*')
     ])
@@ -142,7 +142,7 @@ testEachSingleParameterAgainstSameExpectation<typeof isFunction>(
         // Do nothing.
     },
     NOOP,
-    async ():Promise<void> => {
+    async (): Promise<void> => {
         // Do nothing.
     }
 )

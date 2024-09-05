@@ -21,7 +21,7 @@ import {EvaluationResult, Mapping, SecondParameter} from './type'
 import {capitalize, evaluate} from './string'
 
 // Caches compiled date tine pattern regular expressions.
-export const DATE_TIME_PATTERN_CACHE:Array<RegExp> = []
+export const DATE_TIME_PATTERN_CACHE: Array<RegExp> = []
 
 /**
  * Formats given date or current via given format specification.
@@ -34,10 +34,10 @@ export const DATE_TIME_PATTERN_CACHE:Array<RegExp> = []
  */
 export const dateTimeFormat = (
     format = 'full',
-    dateTime:Date|number|string = new Date(),
-    options:SecondParameter<typeof Intl.DateTimeFormat> = {},
-    locales:Array<string>|string = LOCALES
-):string => {
+    dateTime: Date|number|string = new Date(),
+    options: SecondParameter<typeof Intl.DateTimeFormat> = {},
+    locales: Array<string>|string = LOCALES
+): string => {
     if (typeof dateTime === 'number')
         /*
             NOTE: "Date" constructor expects milliseconds as unit instead
@@ -45,7 +45,7 @@ export const dateTimeFormat = (
         */
         dateTime *= 1000
 
-    const normalizedDateTime:Date = new Date(dateTime)
+    const normalizedDateTime: Date = new Date(dateTime)
 
     if (['full', 'long', 'medium', 'short'].includes(format))
         return new Intl.DateTimeFormat(
@@ -55,11 +55,11 @@ export const dateTimeFormat = (
         )
             .format(normalizedDateTime)
 
-    const scope:Mapping<Array<string>|string> = {}
+    const scope: Mapping<Array<string>|string> = {}
     for (const style of ['full', 'long', 'medium', 'short'] as const) {
         scope[`${style}Literals`] = []
 
-        const dateTimeFormat:Intl.DateTimeFormat = new Intl.DateTimeFormat(
+        const dateTimeFormat: Intl.DateTimeFormat = new Intl.DateTimeFormat(
             ([] as Array<string>).concat(locales, 'en-US'),
             {dateStyle: style, timeStyle: style, ...options} as
                 SecondParameter<typeof Intl.DateTimeFormat>
@@ -77,7 +77,7 @@ export const dateTimeFormat = (
                 scope[`${style}${capitalize(item.type)}`] = item.value
     }
 
-    const evaluated:EvaluationResult = evaluate(`\`${format}\``, scope)
+    const evaluated: EvaluationResult = evaluate(`\`${format}\``, scope)
     if (evaluated.error)
         throw new Error(evaluated.error)
 
@@ -97,8 +97,8 @@ export const dateTimeFormat = (
  * @returns Interpret date time object.
  */
 export const interpretDateTime = (
-    value:string, interpretAsUTC?:null|boolean
-):Date|null => {
+    value: string, interpretAsUTC?: null|boolean
+): Date|null => {
     let resolvedInterpretAsUTC = Boolean(interpretAsUTC)
     // region iso format
     /*
@@ -219,7 +219,7 @@ export const interpretDateTime = (
         const monthPattern = '(?<month>(?:0?[1-9])|(?:1[0-2]))'
         const yearPattern = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
         /// endregion
-        const patternPresenceCache:Mapping<true> = {}
+        const patternPresenceCache: Mapping<true> = {}
         for (const timeDelimiter of ['t', ' '] as const)
             for (const timeComponentDelimiter of [
                 ':', '/', '-', ' '
@@ -507,7 +507,7 @@ export const interpretDateTime = (
     value = sliceWeekday(value)
 
     const timezonePattern = /(.+)\+(.+)$/
-    const timezoneMatch:Array<string>|null = timezonePattern.exec(value)
+    const timezoneMatch: Array<string>|null = timezonePattern.exec(value)
     if (timezoneMatch)
         value = value.replace(timezonePattern, '$1')
 
@@ -518,7 +518,7 @@ export const interpretDateTime = (
     // endregion
     // region try to match a pattern
     for (const dateTimePattern of DATE_TIME_PATTERN_CACHE) {
-        let match:ReturnType<string['match']> = null
+        let match: ReturnType<string['match']> = null
 
         try {
             match = value.match(dateTimePattern)
@@ -527,12 +527,12 @@ export const interpretDateTime = (
         }
 
         if (match) {
-            const get = (name:string, fallback = 0):number =>
+            const get = (name: string, fallback = 0): number =>
                 match.groups && name in match.groups ?
                     parseInt(match.groups[name], 10) :
                     fallback
 
-            const parameter:[
+            const parameter: [
                 number, number, number, number, number, number, number
             ] = [
                 get('year', 1970), get('month', 1) - 1, get('day', 1),
@@ -540,9 +540,9 @@ export const interpretDateTime = (
                 get('millisecond')
             ]
 
-            let result:Date|null = null
+            let result: Date|null = null
             if (timezoneMatch) {
-                const timeShift:Date|null =
+                const timeShift: Date|null =
                     interpretDateTime(timezoneMatch[2], true)
                 if (timeShift)
                     result = new Date(
@@ -575,9 +575,9 @@ export const interpretDateTime = (
  * interpreted.
  */
 export const normalizeDateTime = (
-    value:string|null|number|Date = null,
-    interpretAsUTC?:null|boolean
-):Date|null => {
+    value: string|null|number|Date = null,
+    interpretAsUTC?: null|boolean
+): Date|null => {
     let resolvedInterpretAsUTC = Boolean(interpretAsUTC)
 
     if (value === null)
@@ -600,7 +600,7 @@ export const normalizeDateTime = (
             return value
         }
 
-        const floatRepresentation:number = parseFloat(value)
+        const floatRepresentation: number = parseFloat(value)
         if (String(floatRepresentation) === value)
             value = floatRepresentation
     }
@@ -635,7 +635,7 @@ export const normalizeDateTime = (
  * @param value - String to process.
  * @returns Sliced given string.
  */
-export const sliceWeekday = (value:string):string => {
+export const sliceWeekday = (value: string): string => {
     const weekdayPattern = /[a-z]{2}\.+ *([^ ].*)$/i
     const weekdayMatch = weekdayPattern.exec(value)
 

@@ -79,8 +79,8 @@ export const UTILITY_SCOPE_VALUES = [
  * @returns The isolated scope.
  */
 export const isolateScope = <T extends Mapping<unknown>>(
-    scope:T, prefixesToIgnore:Array<string> = []
-):T => {
+    scope: T, prefixesToIgnore: Array<string> = []
+): T => {
     for (const name in scope)
         if (!(
             prefixesToIgnore.includes(name.charAt(0)) ||
@@ -106,13 +106,13 @@ export const isolateScope = <T extends Mapping<unknown>>(
 export const determineUniqueScopeName = (
     prefix = 'callback',
     suffix = '',
-    scope:Mapping<unknown> = $.global as unknown as Mapping<unknown>,
+    scope: Mapping<unknown> = $.global as unknown as Mapping<unknown>,
     initialUniqueName = ''
-):string => {
+): string => {
     if (initialUniqueName.length && !(initialUniqueName in scope))
         return initialUniqueName
 
-    let uniqueName:string = prefix + suffix
+    let uniqueName: string = prefix + suffix
     for (let index = 0; index < MAXIMAL_NUMBER_OF_ITERATIONS.value; index++) {
         uniqueName =
             prefix +

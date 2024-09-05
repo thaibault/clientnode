@@ -56,7 +56,7 @@ import {
 import {testEach, testEachAgainstSameExpectation} from '../test-helper'
 import {EvaluationResult, FirstParameter, Mapping} from '../type'
 
-declare const TARGET_TECHNOLOGY:string
+declare const TARGET_TECHNOLOGY: string
 
 testEach<typeof escapeRegularExpressions>(
     'EscapeRegularExpressions',
@@ -236,7 +236,7 @@ test.each([
     [null], [null, true, '&'], [null, false, '&'], [null, false, '#']
 ])(
     'Array.isArray(getURLParameter(...%p)) === true',
-    (...parameters:Parameters<typeof getURLParameter>) => {
+    (...parameters: Parameters<typeof getURLParameter>) => {
         expect(Array.isArray(getURLParameter(...parameters)))
             .toStrictEqual(true)
     }
@@ -468,7 +468,7 @@ test.each([
     ['function', '', []]
 ])(
     `'%s' === typeof compile('%s', %p).templateFunction`,
-    (expected:string, ...parameters:Parameters<typeof compile>) => {
+    (expected: string, ...parameters: Parameters<typeof compile>) => {
         expect<string>(typeof compile(...parameters).templateFunction)
             .toStrictEqual(expected)
     }
@@ -483,7 +483,7 @@ test.each([
     ['object', '', {}]
 ])(
     `'%s' === typeof compile('%s', %p).error`,
-    (expected:string, ...parameters:Parameters<typeof compile>) =>
+    (expected: string, ...parameters: Parameters<typeof compile>) =>
         expect<string>(typeof compile(...parameters).error)
             .toStrictEqual(expected)
 )
@@ -526,7 +526,7 @@ test.each([
     ]
 ])(
     '"%s" === String(compile("%s").templateFunction)',
-    (expected:string, expression:FirstParameter<typeof compile>) =>
+    (expected: string, expression: FirstParameter<typeof compile>) =>
         expect(
             String(compile(expression, [], false, false)
                 .templateFunction)
@@ -665,7 +665,7 @@ test.each([
     ]
 ])(
     'IE 11: "%s" === String(compile("%s").templateFunction)',
-    (expected:string, expression:FirstParameter<typeof compile>) => {
+    (expected: string, expression: FirstParameter<typeof compile>) => {
         const backup = MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value
         MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value = 11
 
@@ -679,7 +679,7 @@ test.each([
  */
 ///// endregion
 ///// region evaluate
-const advancedTemplateEvaluationExample:string =
+const advancedTemplateEvaluationExample: string =
     `\`\${loading ?
         '<div class="idle">loading...</div>' :
         results.map(function(result) {
@@ -748,21 +748,21 @@ test.each(([
     ]
 ] as Array<GivenStringEvaluateTestTuple>)
     .map((
-        parameters:GivenStringEvaluateTestTuple
-    ):StringEvaluateTestTuple =>
+        parameters: GivenStringEvaluateTestTuple
+    ): StringEvaluateTestTuple =>
         parameters.concat(undefined, undefined).slice(0, 5) as
             StringEvaluateTestTuple
     )
 )(
     'evaluate(`%s`, %p...)[%p] === %p',
     (
-        expression:string,
-        scope:Mapping<unknown>,
-        resultKey:string,
-        expected:unknown,
-        binding:unknown
-    ):void => {
-        const evaluation:EvaluationResult = evaluate(
+        expression: string,
+        scope: Mapping<unknown>,
+        resultKey: string,
+        expected: unknown,
+        binding: unknown
+    ): void => {
+        const evaluation: EvaluationResult = evaluate(
             expression,
             scope,
             false,
@@ -831,23 +831,23 @@ test.each(([
         '<div class="idle">loading...</div>'
     ]
 ] as Array<GivenStringEvaluateTestTuple>)
-    .map((parameters:GivenStringEvaluateTestTuple):StringEvaluateTestTuple =>
+    .map((parameters: GivenStringEvaluateTestTuple): StringEvaluateTestTuple =>
         parameters.concat(undefined, undefined).slice(0, 5) as
             StringEvaluateTestTuple
     )
 )(
     'IE 11: evaluate(`%s`, %p...)[%p] === %p',
     (
-        expression:string,
-        scope:Mapping<unknown>,
-        resultKey:string,
-        expected:unknown,
-        binding:unknown
-    ):void => {
+        expression: string,
+        scope: Mapping<unknown>,
+        resultKey: string,
+        expected: unknown,
+        binding: unknown
+    ): void => {
         const backup = MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value
         MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value = 11
 
-        const evaluation:EvaluationResult = evaluate(
+        const evaluation: EvaluationResult = evaluate(
             expression,
             scope,
             false,
@@ -889,26 +889,26 @@ testEach<typeof findNormalizedMatchRange>(
         [2, 5],
         ' hAns ',
         'ans',
-        (value:unknown):string => (value as string).toLowerCase()
+        (value: unknown): string => (value as string).toLowerCase()
     ],
     [
         [2, 8],
         'a straße b', 'strasse',
-        (value:unknown):string =>
+        (value: unknown): string =>
             (value as string).replace(/ß/g, 'ss').toLowerCase()
     ],
     [
         [2, 9],
         'a strasse b',
         'strasse',
-        (value:unknown):string =>
+        (value: unknown): string =>
             (value as string).replace(/ß/g, 'ss').toLowerCase()
     ],
     [
         [2, 9],
         'a strasse b',
         'straße',
-        (value:unknown):string =>
+        (value: unknown): string =>
             (value as string).replace(/ß/g, 'ss').toLowerCase()
     ]
 )
@@ -983,7 +983,7 @@ testEach<typeof mark>(
         'e',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown) => String(value).toLowerCase()
+            normalizer: (value: unknown) => String(value).toLowerCase()
         }
     ],
     [
@@ -992,7 +992,7 @@ testEach<typeof mark>(
         ['e'],
         {
             marker: '<a>{1}</a>',
-            normalizer: identity as (_value:unknown) => string
+            normalizer: identity as (_value: unknown) => string
         }
     ],
     [
@@ -1001,7 +1001,7 @@ testEach<typeof mark>(
         'E',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown) => String(value).toLowerCase()
+            normalizer: (value: unknown) => String(value).toLowerCase()
         }
     ],
     [
@@ -1010,7 +1010,7 @@ testEach<typeof mark>(
         'e',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown) => String(value).toLowerCase()
+            normalizer: (value: unknown) => String(value).toLowerCase()
         }
     ],
     [
@@ -1019,7 +1019,7 @@ testEach<typeof mark>(
         't',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown) => String(value).toLowerCase()
+            normalizer: (value: unknown) => String(value).toLowerCase()
         }
     ],
     [
@@ -1028,7 +1028,7 @@ testEach<typeof mark>(
         't',
         {
             marker: '<a>{1} - {1}</a>',
-            normalizer: (value:unknown) => String(value).toLowerCase()
+            normalizer: (value: unknown) => String(value).toLowerCase()
         }
     ],
     [
@@ -1037,7 +1037,7 @@ testEach<typeof mark>(
         'E',
         {
             marker: '<a>{1}</a>',
-            normalizer: identity as (value:unknown) => string
+            normalizer: identity as (value: unknown) => string
         }
     ],
     [
@@ -1067,7 +1067,7 @@ testEach<typeof mark>(
         ['ebikes', 'münchen'],
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown) => String(value).toLowerCase()
+            normalizer: (value: unknown) => String(value).toLowerCase()
         }
     ],
     [
@@ -1076,7 +1076,7 @@ testEach<typeof mark>(
         ['ebikes', 'münchen'],
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown):string =>
+            normalizer: (value: unknown): string =>
                 String(value).toLowerCase().replace('-', '')
         }
     ],
@@ -1086,7 +1086,7 @@ testEach<typeof mark>(
         ['straße', '2'],
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown):string =>
+            normalizer: (value: unknown): string =>
                 String(value)
                     .toLowerCase()
                     .replace('str.', 'strasse')
@@ -1099,7 +1099,7 @@ testEach<typeof mark>(
         ['eBikes', 'München'],
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown):string =>
+            normalizer: (value: unknown): string =>
                 String(value)
                     .toLowerCase()
                     .replace(/[-_]+/g, '')
@@ -1114,7 +1114,7 @@ testEach<typeof mark>(
         ['str.'],
         {
             marker: '<a>{1}</a>',
-            normalizer: (value:unknown):string =>
+            normalizer: (value: unknown): string =>
                 String(value)
                     .toLowerCase()
                     .replace(/[-_]+/g, '')
@@ -1129,7 +1129,7 @@ testEach<typeof mark>(
         ['test'],
         {
             marker: '<mark>{1}</mark>',
-            normalizer: identity as (value:unknown) => string
+            normalizer: identity as (value: unknown) => string
         }
     ],
     [
@@ -1138,7 +1138,7 @@ testEach<typeof mark>(
         ['link'],
         {
             marker: '<mark>{1}</mark>',
-            normalizer: identity as (value:unknown) => string
+            normalizer: identity as (value: unknown) => string
         }
     ],
     [
@@ -1147,7 +1147,7 @@ testEach<typeof mark>(
         ['foo'],
         {
             marker: '<mark>{1}</mark>',
-            normalizer: identity as (value:unknown) => string
+            normalizer: identity as (value: unknown) => string
         }
     ],
     [
@@ -1156,7 +1156,7 @@ testEach<typeof mark>(
         ['foo'],
         {
             marker: '<mark>{1}</mark>',
-            normalizer: identity as (value:unknown) => string
+            normalizer: identity as (value: unknown) => string
         }
     ],
     [
@@ -1165,7 +1165,7 @@ testEach<typeof mark>(
         ['foo'],
         {
             marker: '[mark]{1}[/mark]',
-            normalizer: identity as (value:unknown) => string,
+            normalizer: identity as (value: unknown) => string,
             skipTagDelimitedParts: ['[', ']']
         }
     ],
@@ -1175,7 +1175,7 @@ testEach<typeof mark>(
         ['foo'],
         {
             marker: '<mark>{1}</mark>',
-            normalizer: identity as (value:unknown) => string
+            normalizer: identity as (value: unknown) => string
         }
     ],
     [
@@ -1189,8 +1189,8 @@ testEach<typeof mark>(
         'foo foo foo',
         ['foo'],
         {
-            marker: (foundWord:string) => `<mark>${foundWord}</mark>`,
-            normalizer: identity as (value:unknown) => string
+            marker: (foundWord: string) => `<mark>${foundWord}</mark>`,
+            normalizer: identity as (value: unknown) => string
         }
     ],
     [
@@ -1198,8 +1198,8 @@ testEach<typeof mark>(
         '',
         ['foo'],
         {
-            marker: (foundWord:string) => `<a>${foundWord}</a>`,
-            normalizer: identity as (value:unknown) => string
+            marker: (foundWord: string) => `<a>${foundWord}</a>`,
+            normalizer: identity as (value: unknown) => string
         }
     ],
     [
@@ -1207,8 +1207,8 @@ testEach<typeof mark>(
         'a',
         ['a'],
         {
-            marker: (foundWord:string) => `<a>${foundWord}</a>`,
-            normalizer: identity as (value:unknown) => string
+            marker: (foundWord: string) => `<a>${foundWord}</a>`,
+            normalizer: identity as (value: unknown) => string
         }
     ],
     [
@@ -1216,8 +1216,8 @@ testEach<typeof mark>(
         'aba',
         ['b'],
         {
-            marker: (foundWord:string):{foundWord:string} => ({foundWord}),
-            normalizer: identity as (value:unknown) => string
+            marker: (foundWord: string): {foundWord: string} => ({foundWord}),
+            normalizer: identity as (value: unknown) => string
         }
     ]
 )

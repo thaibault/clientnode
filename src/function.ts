@@ -25,9 +25,9 @@ import {AnyFunction, ArrayTransformer} from './type'
  * @returns List of parameter names.
  */
 export const getParameterNames = (
-    callable:AnyFunction|string
-):Array<string> => {
-    const functionCode:string = (
+    callable: AnyFunction|string
+): Array<string> => {
+    const functionCode: string = (
         (typeof callable === 'string') ?
             callable :
             // Strip comments.
@@ -41,7 +41,7 @@ export const getParameterNames = (
         )
 
     // Try classic function declaration.
-    let parameter:Array<string>|null =
+    let parameter: Array<string>|null =
         /^function\s*[^(]*\(\s*([^)]*)\)/m.exec(functionCode)
     if (parameter === null)
         // Try arrow function declaration.
@@ -50,7 +50,7 @@ export const getParameterNames = (
         // Try one argument and without brackets arrow function declaration.
         parameter = /([^= ]+) *=>.*/m.exec(functionCode)
 
-    const names:Array<string> = []
+    const names: Array<string> = []
     if (parameter && parameter.length > 1 && parameter[1].trim().length) {
         for (const name of parameter[1].split(','))
             // Remove default parameter values.
@@ -65,16 +65,16 @@ export const getParameterNames = (
  * @param value - A value to return.
  * @returns Returns the given value.
  */
-export const identity = <T>(value:T):T => value
+export const identity = <T>(value: T): T => value
 /**
  * Inverted filter helper to inverse each given filter.
  * @param filter - A function that filters an array.
  * @returns The inverted filter.
  */
-export const invertArrayFilter = <T, D = Array<unknown>>(filter:T):T => {
-    return ((data:D, ...additionalParameter:Array<unknown>):D => {
+export const invertArrayFilter = <T, D = Array<unknown>>(filter: T): T => {
+    return ((data: D, ...additionalParameter: Array<unknown>): D => {
         if (Array.isArray(data)) {
-            const filteredData:Array<unknown> = (
+            const filteredData: Array<unknown> = (
                 filter as unknown as ArrayTransformer
             )(data, ...additionalParameter)
 

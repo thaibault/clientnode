@@ -18,7 +18,7 @@ import {expect, test} from '@jest/globals'
 import Lock from '../Lock'
 import {timeout} from '../utility'
 
-test('acquire|release', async ():Promise<void> => {
+test('acquire|release', async (): Promise<void> => {
     const lock = new Lock<void>()
     const anotherLock = new Lock<void>()
 
@@ -65,7 +65,7 @@ test('acquire|release', async ():Promise<void> => {
 
     const stringLock = new Lock<string>()
     void stringLock.acquire('test', () => 'result').then(
-        async (result:string) => {
+        async (result: string) => {
             expect(result).toStrictEqual('result')
             void timeout(() => lock.release('test'))
             await stringLock.acquire('test')
@@ -73,7 +73,7 @@ test('acquire|release', async ():Promise<void> => {
             await stringLock.acquire(
                 'test',
                 () =>
-                    new Promise<string>((resolve:(value:string) => void) => {
+                    new Promise<string>((resolve: (value: string) => void) => {
                         void timeout(() => {
                             testValue = 'a'
                             resolve(testValue)

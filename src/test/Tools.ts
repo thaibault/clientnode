@@ -30,12 +30,12 @@ import {Mapping, $T} from '../type'
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 require('node-fetch/src/utils/multipart-parser')
 
-declare const TARGET_TECHNOLOGY:string
+declare const TARGET_TECHNOLOGY: string
 
 // region determine technology specific implementations
 globalContext.fetch = nodeFetch as unknown as typeof fetch
 
-const TEST_ENVIRONMENT:string = (
+const TEST_ENVIRONMENT: string = (
     typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node'
 ) ?
     typeof document === 'undefined' ?
@@ -56,8 +56,8 @@ test('destructor', () => {
     expect(tools.destructor()).toStrictEqual(tools)
 })
 test('initialize', () => {
-    const secondToolsInstance:Tools = $.Tools({logging: true})
-    const thirdToolsInstance:Tools = $.Tools({
+    const secondToolsInstance: Tools = $.Tools({logging: true})
+    const thirdToolsInstance: Tools = $.Tools({
         domNodeSelectorPrefix: 'body.{1} div.{1}'
     })
 
@@ -121,7 +121,7 @@ testEach<typeof Tools.show>(
 if (HAS_DOM) {
     // region getter
     test(`get normalizedClassNames (${TEST_ENVIRONMENT})`, async (
-    ):Promise<void> => {
+    ): Promise<void> => {
         await getInitializedBrowser()
 
         expect(
@@ -161,7 +161,7 @@ if (HAS_DOM) {
                 .prop('outerHTML')
         )
     })
-    test(`get normalizedStyles (${TEST_ENVIRONMENT})`, ():void => {
+    test(`get normalizedStyles (${TEST_ENVIRONMENT})`, (): void => {
         expect(
             $('<div>').Tools('normalizedStyles').$domNode.prop('outerHTML')
         ).toStrictEqual($('<div>').prop('outerHTML'))
@@ -224,12 +224,12 @@ if (HAS_DOM) {
         ]
     ])(
         `get style '%s' => %p (${TEST_ENVIRONMENT})`,
-        (html:string, css:Mapping) => {
-            const $domNode:$T = $(html)
+        (html: string, css: Mapping) => {
+            const $domNode: $T = $(html)
 
             $('body').append($domNode[0])
 
-            const styles:Mapping<number|string> = $domNode.Tools('style')
+            const styles: Mapping<number|string> = $domNode.Tools('style')
             for (const propertyName in css)
                 if (Object.prototype.hasOwnProperty.call(
                     css, propertyName
@@ -247,7 +247,7 @@ if (HAS_DOM) {
         ['<div>hans<div>peter</div></div>', 'hans']
     ])(
         `get text '%s' => '%s' (${TEST_ENVIRONMENT})`,
-        (html:string, text:string) => {
+        (html: string, text: string) => {
             expect($(html).Tools('text')).toStrictEqual(text)
         }
     )
@@ -356,10 +356,10 @@ testEach<typeof Tools.generateDirectiveSelector>(
     ]
 )
 if (HAS_DOM)
-    test('removeDirective', async ():Promise<void> => {
+    test('removeDirective', async (): Promise<void> => {
         await getInitializedBrowser()
 
-        const $localBodyDomNode:$T = $('body').Tools('removeDirective', 'a')
+        const $localBodyDomNode: $T = $('body').Tools('removeDirective', 'a')
 
         expect($localBodyDomNode.Tools().removeDirective('a'))
             .toStrictEqual($localBodyDomNode)
@@ -374,13 +374,13 @@ testEach<typeof Tools.getNormalizedDirectiveName>(
     ['aB', 'x:a:b']
 )
 if (HAS_DOM)
-    test('getDirectiveValue', async ():Promise<void> => {
+    test('getDirectiveValue', async (): Promise<void> => {
         await getInitializedBrowser()
 
         expect($('body').Tools('getDirectiveValue', 'a'))
             .toStrictEqual(null)
     })
-test('sliceDomNodeSelectorPrefix', ():void => {
+test('sliceDomNodeSelectorPrefix', (): void => {
     expect(tools.sliceDomNodeSelectorPrefix('body div'))
         .toStrictEqual('div')
     expect(
@@ -406,7 +406,7 @@ testEach<typeof Tools.getDomNodeName>(
     ['a', '<a></a>']
 )
 if (HAS_DOM)
-    test('grabDomNodes', async ():Promise<void> => {
+    test('grabDomNodes', async (): Promise<void> => {
         await getInitializedBrowser()
 
         const $body = $('body')
@@ -428,12 +428,12 @@ if (HAS_DOM)
     })
 /// endregion
 /// region event
-test('fireEvent', ():void => {
+test('fireEvent', (): void => {
     expect(
-        $.Tools({onClick: ():2 => 2}).fireEvent('click', true)
+        $.Tools({onClick: () => 2}).fireEvent('click', true)
     ).toStrictEqual(2)
     expect(
-        $.Tools({onClick: ():false => false}).fireEvent('click', true)
+        $.Tools({onClick: (): false => false}).fireEvent('click', true)
     ).toStrictEqual(false)
     expect(tools.fireEvent('click')).toStrictEqual(true)
     /**
@@ -444,11 +444,11 @@ test('fireEvent', ():void => {
          * On click handler.
          * @returns Number 3.
          */
-        onClick():3 {
+        onClick() {
             return 3
         }
     }
-    const plugin:Plugin = new Plugin()
+    const plugin = new Plugin()
     expect(plugin.fireEvent('click')).toStrictEqual(true)
     expect(plugin.fireEvent('click')).toStrictEqual(true)
 })
@@ -471,7 +471,7 @@ if (HAS_DOM) {
 
         let testValue = false
         expect(
-            tools.on('body', 'click', ():void => {
+            tools.on('body', 'click', () => {
                 testValue = true
             })[0]
         ).toStrictEqual($body[0])

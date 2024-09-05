@@ -31,7 +31,7 @@ import {
     UnknownFunction
 } from './type'
 
-export const determineGlobalContext:(() => $Global) = ():$Global => {
+export const determineGlobalContext: (() => $Global) = (): $Global => {
     if (typeof globalThis === 'undefined') {
         if (typeof window === 'undefined') {
             if (typeof global === 'undefined')
@@ -49,8 +49,8 @@ export const determineGlobalContext:(() => $Global) = ():$Global => {
 
     return globalThis as unknown as $Global
 }
-export let globalContext:$Global = determineGlobalContext()
-export const setGlobalContext = (context:$Global):void => {
+export let globalContext: $Global = determineGlobalContext()
+export const setGlobalContext = (context: $Global): void => {
     globalContext = context
 }
 
@@ -58,12 +58,12 @@ export const setGlobalContext = (context:$Global):void => {
 globalContext.fetch =
     Object.prototype.hasOwnProperty.call(globalContext, 'fetch') ?
         globalContext.fetch.bind(globalContext) :
-        optionalRequire<{default:typeof fetch}>('node-fetch')?.default ??
-        ((...parameters:Parameters<typeof fetch>):ReturnType<typeof fetch> =>
+        optionalRequire<{default: typeof fetch}>('node-fetch')?.default ??
+        ((...parameters: Parameters<typeof fetch>): ReturnType<typeof fetch> =>
             currentImport ?
                 currentImport(/* webpackIgnore: true */ 'node-fetch')
-                    .then((module:unknown):ReturnType<typeof fetch> =>
-                        (module as {default:typeof fetch}).default(
+                    .then((module: unknown): ReturnType<typeof fetch> =>
+                        (module as {default: typeof fetch}).default(
                             ...parameters
                         )
                     ) :
@@ -71,8 +71,8 @@ globalContext.fetch =
         )
 /// endregion
 /// region
-export const determine$:(() => $TStatic) = ():$TStatic => {
-    let $:$TStatic = (() => {
+export const determine$: (() => $TStatic) = (): $TStatic => {
+    let $: $TStatic = (() => {
         // Do nothing.
     }) as unknown as $TStatic
     if (Object.prototype.hasOwnProperty.call(globalContext, '$'))
@@ -91,14 +91,16 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
             typeof $ === 'undefined' ||
             typeof $ === 'object' && Object.keys($).length === 0
         ) {
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
             const selector = globalContext.document?.querySelectorAll ?
+                // eslint-disable-next-line @typescript-eslint/no-deprecated
                 globalContext.document.querySelectorAll.bind(
                     globalContext.document
                 ) :
                 () => null
 
-            $ = ((parameter:unknown):unknown => {
-                let $domNodes:null|$T = null
+            $ = ((parameter: unknown): unknown => {
+                let $domNodes: null|$T = null
                 if (typeof parameter === 'string')
                     $domNodes = selector(parameter) as unknown as null|$T
                 else if (Array.isArray(parameter))
@@ -134,7 +136,7 @@ export const determine$:(() => $TStatic) = ():$TStatic => {
                 return parameter
             }) as $TStatic
 
-            ;($ as {fn:$T}).fn = {} as $T
+            ;($ as {fn: $T}).fn = {} as $T
         }
     }
 
@@ -162,7 +164,7 @@ export const MAXIMAL_NUMBER_OF_ITERATIONS = {value: 100}
 // Saves currently maximal supported Internet Explorer version. Saves zero if
 // no Internet Explorer present.
 export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
-):number => {
+): number => {
     /*
         NOTE: This method uses "Array.indexOf" instead of "Array.includes"
         since this function could be crucial in wide browser support.
@@ -171,7 +173,7 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
         return 0
 
     const div = $.document.createElement('div')
-    let version:number
+    let version: number
     for (version = 0; version < 10; version++) {
         /*
             NOTE: We split html comment sequences to avoid wrong interpretation
@@ -195,6 +197,7 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
         version === 0 &&
         Object.prototype.hasOwnProperty.call($.global.window, 'navigator')
     ) {
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         if ($.global.window.navigator.appVersion.indexOf('MSIE 10') !== -1)
             return 10
 
@@ -211,7 +214,7 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
 })()}
 
 // A no-op dummy function.
-export const NOOP:AnyFunction =
+export const NOOP: AnyFunction =
     Object.prototype.hasOwnProperty.call($, 'noop') ?
         $.noop.bind($) as AnyFunction :
         () => {
@@ -219,7 +222,7 @@ export const NOOP:AnyFunction =
         }
 /// endregion
 // region handle $ extending
-export const augment$ = (value:$TStatic):void => {
+export const augment$ = (value: $TStatic): void => {
     $ = value
 
     if (!Object.prototype.hasOwnProperty.call($, 'global'))
@@ -240,13 +243,13 @@ export const augment$ = (value:$TStatic):void => {
 
     if (Object.prototype.hasOwnProperty.call($, 'fn'))
         $.fn.Tools = function<TElement = HTMLElement>(
-            this:$T<TElement>,
-            ...parameters:ParametersExceptFirst<(typeof Tools)['controller']>
+            this: $T<TElement>,
+            ...parameters: ParametersExceptFirst<(typeof Tools)['controller']>
         ) {
             return Tools.controller<TElement>(Tools, parameters, this)
         } as BoundToolsFunction
 
-    $.Tools = ((...parameters:Array<unknown>):unknown =>
+    $.Tools = ((...parameters: Array<unknown>): unknown =>
         Tools.controller(Tools, parameters)
     ) as ToolsFunction
     $.Tools.class = Tools
@@ -269,12 +272,12 @@ export const augment$ = (value:$TStatic):void => {
          * as setter.
          */
         $.fn.prop = function(
-            this:Array<Element>,
-            key:keyof Element,
-            ...additionalParameters:ParametersExceptFirst<
+            this: Array<Element>,
+            key: keyof Element,
+            ...additionalParameters: ParametersExceptFirst<
                 (typeof $)['fn']['prop']
             >
-        ):ReturnType<(typeof $)['fn']['prop']> {
+        ): ReturnType<(typeof $)['fn']['prop']> {
             if (
                 /*
                     eslint-disable @typescript-eslint/no-unnecessary-condition
@@ -313,7 +316,7 @@ export const augment$ = (value:$TStatic):void => {
 }
 augment$($)
 /// region fix script loading errors with canceling requests
-$.readyException = (error:Error|string):void => {
+$.readyException = (error: Error|string): void => {
     if (!(typeof error === 'string' && error === 'canceled'))
         // eslint-disable-next-line no-throw-literal
         throw error as Error
