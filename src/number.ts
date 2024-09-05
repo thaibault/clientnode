@@ -26,9 +26,9 @@ import {determineType} from './object'
  * @returns Determined numerous value.
  */
 export const getUTCTimestamp = (
-    value?:Date|null|number|string, inMilliseconds = false
-):number => {
-    const date:Date = [null, undefined].includes(value as null) ?
+    value?: Date|null|number|string, inMilliseconds = false
+): number => {
+    const date: Date = [null, undefined].includes(value as null) ?
         new Date() :
         new Date(value as Date|number|string)
 
@@ -50,7 +50,7 @@ export const getUTCTimestamp = (
  * @param value - Value to check.
  * @returns Returns whether given value is not a number or not.
  */
-export const isNotANumber = (value:unknown):boolean =>
+export const isNotANumber = (value: unknown): boolean =>
     determineType(value) === 'number' && isNaN(value as number)
 /**
  * Rounds a given number accurate to given number of digits.
@@ -58,7 +58,7 @@ export const isNotANumber = (value:unknown):boolean =>
  * @param digits - The number of digits after comma.
  * @returns Returns the rounded number.
  */
-export const round = (number:number, digits = 0):number =>
+export const round = (number: number, digits = 0): number =>
     Math.round(number * Math.pow(10, digits)) / Math.pow(10, digits)
 /**
  * Rounds a given number up accurate to given number of digits.
@@ -66,7 +66,7 @@ export const round = (number:number, digits = 0):number =>
  * @param digits - The number of digits after comma.
  * @returns Returns the rounded number.
  */
-export const ceil = (number:number, digits = 0):number =>
+export const ceil = (number: number, digits = 0): number =>
     Math.ceil(number * Math.pow(10, digits)) / Math.pow(10, digits)
 /**
  * Rounds a given number down accurate to given number of digits.
@@ -74,5 +74,5 @@ export const ceil = (number:number, digits = 0):number =>
  * @param digits - The number of digits after comma.
  * @returns Returns the rounded number.
  */
-export const floor = (number:number, digits = 0):number =>
+export const floor = (number: number, digits = 0): number =>
     Math.floor(number * Math.pow(10, digits)) / Math.pow(10, digits)

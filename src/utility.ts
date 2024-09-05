@@ -34,23 +34,23 @@ import {
  * @returns Returns the wrapped method.
  */
 export const debounce = <T = unknown>(
-    callback:UnknownFunction,
+    callback: UnknownFunction,
     thresholdInMilliseconds = 600,
-    ...additionalArguments:Array<unknown>
-):((...parameters:Array<unknown>) => Promise<T>) => {
+    ...additionalArguments: Array<unknown>
+): ((...parameters: Array<unknown>) => Promise<T>) => {
     let waitForNextSlot = false
-    let parametersForNextSlot:Array<unknown>|null = null
+    let parametersForNextSlot: Array<unknown>|null = null
     // NOTE: Type "T" will be added via "then" method when called.
-    let resolveNextSlotPromise:(value:T) => void
-    let rejectNextSlotPromise:(reason:unknown) => void
-    let nextSlotPromise:Promise<T> = new Promise<T>((
-        resolve:(value:T) => void, reject:(reason:unknown) => void
+    let resolveNextSlotPromise: (value: T) => void
+    let rejectNextSlotPromise: (reason: unknown) => void
+    let nextSlotPromise: Promise<T> = new Promise<T>((
+        resolve: (value: T) => void, reject: (reason: unknown) => void
     ) => {
         resolveNextSlotPromise = resolve
         rejectNextSlotPromise = reject
     })
 
-    return (...parameters:Array<unknown>):Promise<T> => {
+    return (...parameters: Array<unknown>): Promise<T> => {
         parameters = parameters.concat(additionalArguments)
 
         if (waitForNextSlot) {
@@ -65,19 +65,19 @@ export const debounce = <T = unknown>(
 
         waitForNextSlot = true
 
-        const currentSlotPromise:Promise<T> = nextSlotPromise
+        const currentSlotPromise: Promise<T> = nextSlotPromise
         const resolveCurrentSlotPromise = resolveNextSlotPromise
         const rejectCurrentSlotPromise = rejectNextSlotPromise
 
         // NOTE: We call callback synchronously if possible.
-        const result:Promise<T>|T = callback(...parameters) as Promise<T>|T
+        const result: Promise<T>|T = callback(...parameters) as Promise<T>|T
 
         if (result && Object.prototype.hasOwnProperty.call(result, 'then'))
             (result as Promise<T>).then(
-                (result:T) => {
+                (result: T) => {
                     resolveCurrentSlotPromise(result)
                 },
-                (reason:unknown) => {
+                (reason: unknown) => {
                     rejectCurrentSlotPromise(reason)
                 }
             )
@@ -89,15 +89,15 @@ export const debounce = <T = unknown>(
             and is marked as delayed.
         */
         nextSlotPromise = new Promise<T>((
-            resolve:(value:T) => void, reject:(reason:unknown) => void
-        ):void => {
+            resolve: (value: T) => void, reject: (reason: unknown) => void
+        ): void => {
             resolveNextSlotPromise = resolve
             rejectNextSlotPromise = reject
 
             // Initialize new time slot to trigger given callback.
             void timeout(
                 thresholdInMilliseconds,
-                ():void => {
+                (): void => {
                     /*
                         Next new incoming call request can be handled
                         synchronously.
@@ -106,7 +106,7 @@ export const debounce = <T = unknown>(
 
                     // NOTE: Check if this slot should be used.
                     if (parametersForNextSlot) {
-                        const result:Promise<T>|T =
+                        const result: Promise<T>|T =
                             callback(...parametersForNextSlot) as
                                 Promise<T>|T
                         parametersForNextSlot = null
@@ -118,10 +118,10 @@ export const debounce = <T = unknown>(
                             )
                         )
                             (result as Promise<T>).then(
-                                (result:T) => {
+                                (result: T) => {
                                     resolve(result)
                                 },
-                                (reason:unknown) => {
+                                (reason: unknown) => {
                                     /*
                                         eslint-disable
                                         prefer-promise-reject-errors
@@ -141,9 +141,9 @@ export const debounce = <T = unknown>(
                             next call request without waiting.
                         */
                         nextSlotPromise = new Promise<T>((
-                            resolve:(value:T) => void,
-                            reject:(reason:unknown) => void
-                        ):void => {
+                            resolve: (value: T) => void,
+                            reject: (reason: unknown) => void
+                        ): void => {
                             resolveNextSlotPromise = resolve
                             rejectNextSlotPromise = reject
                         })
@@ -171,8 +171,8 @@ export const debounce = <T = unknown>(
  * holds a boolean indicating whether timeout has been canceled or
  * resolved.
  */
-export const timeout = (...parameters:Array<unknown>):TimeoutPromise => {
-    let callback:AnyFunction = NOOP
+export const timeout = (...parameters: Array<unknown>): TimeoutPromise => {
+    let callback: AnyFunction = NOOP
     let delayInMilliseconds = 0
     let throwOnTimeoutClear = false
 
@@ -184,17 +184,17 @@ export const timeout = (...parameters:Array<unknown>):TimeoutPromise => {
         else if (isFunction(value))
             callback = value
 
-    let rejectCallback:(_reason:true) => void
-    let resolveCallback:(_value:boolean) => void
+    let rejectCallback: (_reason: true) => void
+    let resolveCallback: (_value: boolean) => void
 
-    const result:TimeoutPromise = new Promise<boolean>((
-        resolve:(_value:boolean) => void, reject:(_reason:true) => void
-    ):void => {
+    const result: TimeoutPromise = new Promise<boolean>((
+        resolve: (_value: boolean) => void, reject: (_reason: true) => void
+    ) => {
         rejectCallback = reject
         resolveCallback = resolve
     }) as TimeoutPromise
 
-    const wrappedCallback:ProcedureFunction = ():void => {
+    const wrappedCallback: ProcedureFunction = () => {
         callback.call(result, ...parameters)
         resolveCallback(false)
     }
@@ -207,13 +207,13 @@ export const timeout = (...parameters:Array<unknown>):TimeoutPromise => {
             Determine the number of times we need to delay by maximum
             possible timeout duration.
         */
-        let numberOfRemainingTimeouts:number = Math.floor(
+        let numberOfRemainingTimeouts: number = Math.floor(
             delayInMilliseconds / maximumTimeoutDelayInMilliseconds
         )
-        const finalTimeoutDuration:number =
+        const finalTimeoutDuration: number =
             delayInMilliseconds % maximumTimeoutDelayInMilliseconds
 
-        const delay = ():void => {
+        const delay = () => {
             if (numberOfRemainingTimeouts > 0) {
                 numberOfRemainingTimeouts -= 1
 
@@ -228,7 +228,7 @@ export const timeout = (...parameters:Array<unknown>):TimeoutPromise => {
         delay()
     }
 
-    result.clear = ():void => {
+    result.clear = () => {
         if (Object.prototype.hasOwnProperty.call(result, 'timeoutID')) {
             clearTimeout(result.timeoutID)
             ;(throwOnTimeoutClear ? rejectCallback : resolveCallback)(true)

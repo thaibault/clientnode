@@ -20,7 +20,7 @@ export {Lock} from './Lock'
 export {Semaphore} from './Semaphore'
 import {Encoding, FirstParameter} from './type'
 
-export const DEFAULT_ENCODING:Encoding = 'utf8'
+export const DEFAULT_ENCODING: Encoding = 'utf8'
 export const CLOSE_EVENT_NAMES = [
     'close', 'exit', 'SIGINT', 'SIGTERM', 'SIGQUIT', 'uncaughtException'
 ] as const
@@ -33,7 +33,7 @@ export const IGNORE_NULL_AND_UNDEFINED_SYMBOL =
 
 // Lists all known abbreviation for proper camel case to delimited and back
 // conversion.
-export const ABBREVIATIONS:Array<string> = [
+export const ABBREVIATIONS: Array<string> = [
     'html', 'id', 'url', 'us', 'de', 'api', 'href'
 ] as const
 // Saves a string with all css3 browser specific animation end event names.
@@ -143,12 +143,12 @@ export const KEYBOARD_CODES = {
     RIGHT: 'ArrowUp'
 } as const
 
-export const LOCALES:Array<string> = []
-export const PLAIN_OBJECT_PROTOTYPES:Array<FirstParameter<
+export const LOCALES: Array<string> = []
+export const PLAIN_OBJECT_PROTOTYPES: Array<FirstParameter<
     typeof Object.getPrototypeOf
 >> = [Object.prototype]
 // A list of special regular expression symbols.
-export const SPECIAL_REGEX_SEQUENCES:Array<string> = [
+export const SPECIAL_REGEX_SEQUENCES: Array<string> = [
     '-', '[', ']', '(', ')', '^', '$', '*', '+', '.', '{', '}'
 ] as const
 // Saves a string with all css3 browser specific transition end event names.

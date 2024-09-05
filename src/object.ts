@@ -58,13 +58,13 @@ import {
  * @returns Returns given object wrapped with a dynamic getter proxy.
  */
 export const addDynamicGetterAndSetter = <T = unknown>(
-    object:T,
-    getterWrapper:GetterFunction|null = null,
-    setterWrapper:null|SetterFunction = null,
-    methodNames:Mapping = {},
+    object: T,
+    getterWrapper: GetterFunction|null = null,
+    setterWrapper: null|SetterFunction = null,
+    methodNames: Mapping = {},
     deep = true,
-    typesToExtend:Array<unknown> = [Object]
-):ProxyType<T>|T => {
+    typesToExtend: Array<unknown> = [Object]
+): ProxyType<T>|T => {
     if (deep && typeof object === 'object')
         if (Array.isArray(object)) {
             let index = 0
@@ -81,7 +81,7 @@ export const addDynamicGetterAndSetter = <T = unknown>(
                     value, getterWrapper, setterWrapper, methodNames, deep)
                 )
         else if (isSet(object)) {
-            const cache:Array<unknown> = []
+            const cache: Array<unknown> = []
             for (const value of object) {
                 object.delete(value)
                 cache.push(addDynamicGetterAndSetter(
@@ -109,20 +109,20 @@ export const addDynamicGetterAndSetter = <T = unknown>(
                 typeof object === 'object' &&
                 object instanceof (type as AnyFunction)
             ) {
-                const defaultHandler:ProxyHandler<T> =
+                const defaultHandler: ProxyHandler<T> =
                     getProxyHandler<T>(object, methodNames)
-                const handler:ProxyHandler<T> =
+                const handler: ProxyHandler<T> =
                     getProxyHandler<T>(object, methodNames)
 
                 if (getterWrapper)
                     handler.get = (
-                        target:T, name:string|symbol
-                    ):unknown => {
+                        target: T, name: string|symbol
+                    ): unknown => {
                         if (name === '__target__')
                             return object
 
                         if (name === '__revoke__')
-                            return ():unknown => {
+                            return (): unknown => {
                                 revoke()
 
                                 return object
@@ -140,8 +140,8 @@ export const addDynamicGetterAndSetter = <T = unknown>(
 
                 if (setterWrapper)
                     handler.set = (
-                        target:T, name:string|symbol, value:unknown
-                    ):boolean =>
+                        target: T, name: string|symbol, value: unknown
+                    ): boolean =>
                         defaultHandler.set(
                             proxy as T,
                             name,
@@ -169,20 +169,20 @@ export const addDynamicGetterAndSetter = <T = unknown>(
  * @returns The formatted json string.
  */
 export const convertCircularObjectToJSON = (
-    object:unknown,
-    determineCircularReferenceValue:((
-        serializedValue:unknown,
-        key:null|string,
-        value:unknown,
-        seenObjects:Map<unknown, unknown>
-    ) => unknown) = (serializedValue:unknown):unknown =>
+    object: unknown,
+    determineCircularReferenceValue: ((
+        serializedValue: unknown,
+        key: null|string,
+        value: unknown,
+        seenObjects: Map<unknown, unknown>
+    ) => unknown) = (serializedValue: unknown): unknown =>
         serializedValue ?? '__circularReference__',
     numberOfSpaces = 0
-):ReturnType<typeof JSON.stringify>|undefined => {
-    const seenObjects:Map<unknown, unknown> = new Map<unknown, unknown>()
+): ReturnType<typeof JSON.stringify>|undefined => {
+    const seenObjects: Map<unknown, unknown> = new Map<unknown, unknown>()
 
-    const stringifier = (object:unknown):string => {
-        const replacer = (key:null|string, value:unknown):unknown => {
+    const stringifier = (object: unknown): string => {
+        const replacer = (key: null|string, value: unknown): unknown => {
             if (value !== null && typeof value === 'object') {
                 if (seenObjects.has(value))
                     return determineCircularReferenceValue(
@@ -195,7 +195,7 @@ export const convertCircularObjectToJSON = (
                 // NOTE: Set before traversing deeper to detect cycles.
                 seenObjects.set(value, null)
 
-                let result:Array<unknown>|Mapping<unknown>
+                let result: Array<unknown>|Mapping<unknown>
                 if (Array.isArray(value)) {
                     result = []
                     for (const item of value)
@@ -227,11 +227,11 @@ export const convertCircularObjectToJSON = (
  * @returns Given map as object.
  */
 export const convertMapToPlainObject = (
-    object:unknown, deep = true
-):unknown => {
+    object: unknown, deep = true
+): unknown => {
     if (typeof object === 'object') {
         if (isMap(object)) {
-            const newObject:Mapping<unknown> = {}
+            const newObject: Mapping<unknown> = {}
             for (let [key, value] of object) {
                 if (deep)
                     value = convertMapToPlainObject(value, deep)
@@ -258,7 +258,7 @@ export const convertMapToPlainObject = (
                     index += 1
                 }
             } else if (isSet(object)) {
-                const cache:Array<unknown> = []
+                const cache: Array<unknown> = []
 
                 for (const value of object) {
                     object.delete(value)
@@ -281,8 +281,8 @@ export const convertMapToPlainObject = (
  * @returns Given object as map.
  */
 export const convertPlainObjectToMap = (
-    object:unknown, deep = true
-):unknown => {
+    object: unknown, deep = true
+): unknown => {
     if (typeof object === 'object') {
         if (isPlainObject(object)) {
             const newObject = new Map<number|string, unknown>()
@@ -310,7 +310,7 @@ export const convertPlainObjectToMap = (
                 for (const [key, value] of object)
                     object.set(key, convertPlainObjectToMap(value, deep))
             else if (isSet(object)) {
-                const cache:Array<unknown> = []
+                const cache: Array<unknown> = []
 
                 for (const value of object) {
                     object.delete(value)
@@ -334,7 +334,7 @@ export const convertPlainObjectToMap = (
  */
 export const convertSubstringInPlainObject = <
     Type extends Mapping<unknown> = PlainObject
->(object:Type, pattern:RegExp|string, replacement:string):Type => {
+>(object: Type, pattern: RegExp|string, replacement: string): Type => {
     for (const [key, value] of Object.entries(object))
         if (isPlainObject(value))
             object[key as keyof Type] =
@@ -366,14 +366,14 @@ export const convertSubstringInPlainObject = <
  * @returns Value "true" if both objects are equal and "false" otherwise.
  */
 export const copy = <Type = unknown>(
-    source:Type,
+    source: Type,
     recursionLimit = -1,
-    recursionEndValue:unknown = VALUE_COPY_SYMBOL,
-    destination:null|Type = null,
+    recursionEndValue: unknown = VALUE_COPY_SYMBOL,
+    destination: null|Type = null,
     cyclic = false,
-    knownReferences:Array<unknown> = [],
+    knownReferences: Array<unknown> = [],
     recursionLevel = 0
-):Type => {
+): Type => {
     /* eslint-enable jsdoc/require-description-complete-sentence */
     if (source !== null && typeof source === 'object')
         if (destination) {
@@ -387,14 +387,14 @@ export const copy = <Type = unknown>(
                 !cyclic &&
                 ![undefined, null].includes(source as unknown as null)
             ) {
-                const index:number = knownReferences.indexOf(source)
+                const index: number = knownReferences.indexOf(source)
                 if (index !== -1)
                     return knownReferences[index] as Type
 
                 knownReferences.push(source)
             }
 
-            const copyValue = <V>(value:V):null|V => {
+            const copyValue = <V>(value: V): null|V => {
                 if (
                     recursionLimit !== -1 &&
                     recursionLimit < recursionLevel + 1
@@ -403,7 +403,7 @@ export const copy = <Type = unknown>(
                         value :
                         recursionEndValue as null|V
 
-                const result:null|V = copy(
+                const result: null|V = copy(
                     value,
                     recursionLimit,
                     recursionEndValue,
@@ -522,11 +522,11 @@ export const copy = <Type = unknown>(
  * @param value - Value to analyze.
  * @returns Name of determined type.
  */
-export const determineType = (value:unknown = undefined):string => {
+export const determineType = (value: unknown = undefined): string => {
     if ([null, undefined].includes(value as null))
         return String(value)
 
-    const type:string = typeof value
+    const type: string = typeof value
 
     if (
         ['function', 'object'].includes(type) &&
@@ -572,11 +572,11 @@ export const determineType = (value:unknown = undefined):string => {
  * determined boolean values is returned.
  */
 export const equals = (
-    firstValue:unknown,
-    secondValue:unknown,
-    givenOptions:Partial<CompareOptions> = {}
-):boolean|Promise<boolean|string>|string => {
-    const options:CompareOptions = {
+    firstValue: unknown,
+    secondValue: unknown,
+    givenOptions: Partial<CompareOptions> = {}
+): boolean|Promise<boolean|string>|string => {
+    const options: CompareOptions = {
         compareBlobs: false,
         deep: -1,
         exceptionPrefixes: [],
@@ -620,12 +620,12 @@ export const equals = (
         secondValue instanceof Blob
     )
         return new Promise<boolean|string>((
-            resolve:(_value:boolean|string) => void
-        ):void => {
-            const values:Array<ArrayBuffer|null|string> = []
+            resolve: (_value: boolean|string) => void
+        ): void => {
+            const values: Array<ArrayBuffer|null|string> = []
             for (const value of [firstValue, secondValue]) {
-                const fileReader:FileReader = new FileReader()
-                fileReader.onload = (event:Event):void => {
+                const fileReader: FileReader = new FileReader()
+                fileReader.onload = (event: Event): void => {
                     if (event.target === null)
                         values.push(null)
                     else
@@ -662,12 +662,12 @@ export const equals = (
             (secondValue as Set<unknown>).size
         )
     ) {
-        const promises:Array<Promise<boolean|string>> = []
+        const promises: Array<Promise<boolean|string>> = []
         for (const [first, second] of [
             [firstValue, secondValue],
             [secondValue, firstValue]
         ]) {
-            const firstIsArray:boolean = Array.isArray(first)
+            const firstIsArray: boolean = Array.isArray(first)
             if (
                 firstIsArray &&
                 (
@@ -690,7 +690,7 @@ export const equals = (
                 let index = 0
                 for (const value of first as Array<unknown>) {
                     if (options.deep !== 0) {
-                        const result:(
+                        const result: (
                             boolean|Promise<boolean|string>|string
                         ) = equals(
                             value,
@@ -701,11 +701,11 @@ export const equals = (
                         if (!result)
                             return false
 
-                        const currentIndex:number = index
+                        const currentIndex: number = index
 
                         const determineResult = (
-                            result:boolean|string
-                        ):boolean|string =>
+                            result: boolean|string
+                        ): boolean|string =>
                             typeof result === 'string' ?
                                 `[${String(currentIndex)}]` +
                                 ({'[': '', '>': ' '}[result[0]] ?? '.') +
@@ -728,7 +728,7 @@ export const equals = (
             } else if (firstIsMap) {
                 for (const [key, value] of first)
                     if (options.deep !== 0) {
-                        const result:(
+                        const result: (
                             boolean|Promise<boolean|string>|string
                         ) = equals(
                             value,
@@ -740,8 +740,8 @@ export const equals = (
                             return false
 
                         const determineResult = (
-                            result:boolean|string
-                        ):boolean|string =>
+                            result: boolean|string
+                        ): boolean|string =>
                             typeof result === 'string' ?
                                 `get(${represent(key)})` +
                                 ({'[': '', '>': ' '}[result[0]] ?? '.') +
@@ -762,14 +762,14 @@ export const equals = (
                 for (const value of first)
                     if (options.deep !== 0) {
                         let equal = false
-                        const subPromises:Array<Promise<boolean|string>> =
+                        const subPromises: Array<Promise<boolean|string>> =
                             []
                         /*
                             NOTE: Check if their exists at least one being
                             equally.
                         */
                         for (const secondValue of second as Set<unknown>) {
-                            const result:(
+                            const result: (
                                 boolean|Promise<boolean|string>|string
                             ) = equals(
                                 value,
@@ -790,8 +790,8 @@ export const equals = (
 
 
                         const determineResult = (
-                            equal:boolean
-                        ):boolean|string => equal ?
+                            equal: boolean
+                        ): boolean|string => equal ?
                             true :
                             options.returnReasonIfNotEqual ?
                                 `>>> {-> ${represent(value)} not found}` :
@@ -806,12 +806,12 @@ export const equals = (
 
                         if (subPromises.length)
                             promises.push(new Promise<boolean|string>((
-                                resolve:(value:boolean|string) => void
+                                resolve: (value: boolean|string) => void
                             ) => {
                                 Promise.all<boolean|string>(
                                     subPromises
                                 ).then(
-                                    (results:Array<boolean|string>) => {
+                                    (results: Array<boolean|string>) => {
                                         resolve(determineResult(
                                             results.some((result) => result)
                                         ))
@@ -844,7 +844,7 @@ export const equals = (
                         break
 
                     if (options.deep !== 0) {
-                        const result:(boolean|Promise<boolean|string>|string) =
+                        const result: (boolean|Promise<boolean|string>|string) =
                             equals(
                                 value,
                                 (second as Mapping<unknown>)[key],
@@ -855,8 +855,8 @@ export const equals = (
                             return false
 
                         const determineResult = (
-                            result:boolean|string
-                        ):boolean|string =>
+                            result: boolean|string
+                        ): boolean|string =>
                             typeof result === 'string' ?
                                 (
                                     key +
@@ -880,10 +880,10 @@ export const equals = (
 
         if (promises.length)
             return new Promise<boolean|string>((
-                resolve:(_value:boolean|string) => void
-            ):void => {
+                resolve: (_value: boolean|string) => void
+            ): void => {
                 Promise.all(promises).then(
-                    (results:Array<boolean|string>):void => {
+                    (results: Array<boolean|string>): void => {
                         for (const result of results)
                             if (!result || typeof result === 'string') {
                                 resolve(result)
@@ -920,12 +920,12 @@ export const equals = (
  * @returns Evaluated given mapping.
  */
 export const evaluateDynamicData = <Type = unknown>(
-    object:null|RecursiveEvaluateable<Type>,
-    scope:Mapping<unknown> = {},
+    object: null|RecursiveEvaluateable<Type>,
+    scope: Mapping<unknown> = {},
     selfReferenceName = 'self',
     expressionIndicatorKey = '__evaluate__',
     executionIndicatorKey = '__execute__'
-):Type => {
+): Type => {
     if (typeof object !== 'object' || object === null)
         return object as unknown as Type
 
@@ -933,9 +933,9 @@ export const evaluateDynamicData = <Type = unknown>(
         scope[selfReferenceName] = object
 
     const evaluateAndThrowError = (
-        code:string, type:string = expressionIndicatorKey
-    ):unknown => {
-        const evaluated:EvaluationResult = evaluate(
+        code: string, type: string = expressionIndicatorKey
+    ): unknown => {
+        const evaluated: EvaluationResult = evaluate(
             code, scope, type === executionIndicatorKey
         )
 
@@ -945,7 +945,7 @@ export const evaluateDynamicData = <Type = unknown>(
         return evaluated.result
     }
 
-    const addProxyRecursively = (data:unknown):unknown => {
+    const addProxyRecursively = (data: unknown): unknown => {
         if (
             typeof data !== 'object' ||
             data === null ||
@@ -959,7 +959,7 @@ export const evaluateDynamicData = <Type = unknown>(
                 givenValue !== null &&
                 typeof givenValue === 'object'
             ) {
-                const value:unknown = givenValue
+                const value: unknown = givenValue
 
                 addProxyRecursively(value)
                 // NOTE: We only wrap needed objects for performance reasons.
@@ -971,15 +971,15 @@ export const evaluateDynamicData = <Type = unknown>(
                         value, executionIndicatorKey
                     )
                 ) {
-                    const backup:Mapping<unknown> =
+                    const backup: Mapping<unknown> =
                         value as Mapping<unknown>
                     (data as Mapping<ProxyType>)[key] = new Proxy(
                         value as Record<string|symbol, unknown>,
                         {
                             get: (
-                                target:Record<string|symbol, unknown>,
-                                key:string|symbol
-                            ):unknown => {
+                                target: Record<string|symbol, unknown>,
+                                key: string|symbol
+                            ): unknown => {
                                 if (key === '__target__')
                                     return target
 
@@ -1002,9 +1002,9 @@ export const evaluateDynamicData = <Type = unknown>(
                                             target[key], type
                                         ))
 
-                                const resolvedTarget:unknown = resolve(target)
+                                const resolvedTarget: unknown = resolve(target)
                                 if (key === 'toString') {
-                                    const result:Mapping<UnknownFunction> =
+                                    const result: Mapping<UnknownFunction> =
                                         evaluateAndThrowError(
                                             resolvedTarget as string
                                         ) as Mapping<UnknownFunction>
@@ -1044,8 +1044,8 @@ export const evaluateDynamicData = <Type = unknown>(
                                 // End of complicated stuff.
                             },
                             ownKeys: (
-                                target:Mapping<unknown>
-                            ):Array<string> => {
+                                target: Mapping<unknown>
+                            ): Array<string> => {
                                 for (const type of [
                                     expressionIndicatorKey,
                                     executionIndicatorKey
@@ -1077,7 +1077,7 @@ export const evaluateDynamicData = <Type = unknown>(
         return data
     }
 
-    const resolve = (data:unknown):unknown => {
+    const resolve = (data: unknown): unknown => {
         if (data !== null && typeof data === 'object') {
             if (isProxy(data)) {
                 // NOTE: We have to skip "ownKeys" proxy trap here.
@@ -1110,7 +1110,7 @@ export const evaluateDynamicData = <Type = unknown>(
     }
 
     scope.resolve = resolve
-    const removeProxyRecursively = (data:unknown):unknown => {
+    const removeProxyRecursively = (data: unknown): unknown => {
         if (data !== null && typeof data === 'object')
             for (const [key, value] of Object.entries(data))
                 if (
@@ -1118,8 +1118,8 @@ export const evaluateDynamicData = <Type = unknown>(
                     value !== null &&
                     ['function', 'undefined'].includes(typeof value)
                 ) {
-                    const target:unknown =
-                        (value as {__target__:unknown}).__target__
+                    const target: unknown =
+                        (value as {__target__: unknown}).__target__
                     if (typeof target !== 'undefined')
                         (data as Mapping<unknown>)[key] = target
                     removeProxyRecursively(value)
@@ -1151,13 +1151,13 @@ export const evaluateDynamicData = <Type = unknown>(
 export const removeKeysInEvaluation = <
     T extends Mapping<unknown> = Mapping<unknown>
 >(
-        data:T,
-        expressionIndicators:Array<string> = ['__evaluate__', '__execute__']
-    ):T => {
+        data: T,
+        expressionIndicators: Array<string> = ['__evaluate__', '__execute__']
+    ): T => {
     for (const [key, value] of Object.entries(data))
         if (
             !expressionIndicators.includes(key) &&
-            expressionIndicators.some((name:string):boolean =>
+            expressionIndicators.some((name: string): boolean =>
                 Object.prototype.hasOwnProperty.call(
                     data as unknown as Mapping<unknown>, name
                 )
@@ -1180,15 +1180,15 @@ export const removeKeysInEvaluation = <
  * @returns Returns given target extended with all given sources.
  */
 export const extend = <T = Mapping<unknown>>(
-    targetOrDeepIndicator:(
+    targetOrDeepIndicator: (
         boolean|typeof IGNORE_NULL_AND_UNDEFINED_SYMBOL|RecursivePartial<T>
     ),
-    targetOrSource?:null|RecursivePartial<T>,
-    ...additionalSources:Array<RecursivePartial<T>>
-):T => {
-    let deep:boolean|typeof IGNORE_NULL_AND_UNDEFINED_SYMBOL = false
-    let sources:Array<RecursivePartial<T>|null> = additionalSources
-    let target:null|RecursivePartial<T>|undefined
+    targetOrSource?: null|RecursivePartial<T>,
+    ...additionalSources: Array<RecursivePartial<T>>
+): T => {
+    let deep: boolean|typeof IGNORE_NULL_AND_UNDEFINED_SYMBOL = false
+    let sources: Array<RecursivePartial<T>|null> = additionalSources
+    let target: null|RecursivePartial<T>|undefined
 
     if (
         targetOrDeepIndicator === IGNORE_NULL_AND_UNDEFINED_SYMBOL ||
@@ -1207,14 +1207,14 @@ export const extend = <T = Mapping<unknown>>(
     }
 
     const mergeValue = (
-        targetValue:ValueOf<T>, value:ValueOf<T>
-    ):ValueOf<T> => {
+        targetValue: ValueOf<T>, value: ValueOf<T>
+    ): ValueOf<T> => {
         if (value === targetValue)
             return targetValue
 
         // Traverse recursively if we're merging plain objects or maps.
         if (deep && value && (isPlainObject(value) || isMap(value))) {
-            let clone:ValueOf<T>
+            let clone: ValueOf<T>
             if (isMap(value))
                 clone = (targetValue && isMap(targetValue)) ?
                     targetValue :
@@ -1231,8 +1231,8 @@ export const extend = <T = Mapping<unknown>>(
     }
 
     for (const source of sources) {
-        let targetType:string = typeof target
-        let sourceType:string = typeof source
+        let targetType: string = typeof target
+        let sourceType: string = typeof source
 
         if (isMap(target))
             targetType += ' Map'
@@ -1284,22 +1284,22 @@ export const extend = <T = Mapping<unknown>>(
  * @returns Determined sub structure of given data or "undefined".
  */
 export const getSubstructure = <T = unknown, E = unknown>(
-    target:T,
-    selector:Selector<T, E>,
+    target: T,
+    selector: Selector<T, E>,
     skipMissingLevel = true,
     delimiter = '.'
-):E => {
-    let path:Array<BaseSelector<T, E>> = []
+): E => {
+    let path: Array<BaseSelector<T, E>> = []
     for (const component of ([] as Array<BaseSelector<T, E>>).concat(
         selector
     ))
         if (typeof component === 'string') {
-            const parts:Array<string> = component.split(delimiter)
+            const parts: Array<string> = component.split(delimiter)
             for (const part of parts) {
                 if (!part)
                     continue
 
-                const subParts:Array<string>|null =
+                const subParts: Array<string>|null =
                     part.match(/(.*?)(\[[0-9]+\])/g)
                 if (subParts)
                     // NOTE: We add index assignments into path array.
@@ -1325,7 +1325,7 @@ export const getSubstructure = <T = unknown, E = unknown>(
         } else
             path = path.concat(component)
 
-    let result:unknown = target
+    let result: unknown = target
     for (const selector of path)
         if (result !== null && typeof result === 'object') {
             if (
@@ -1351,8 +1351,8 @@ export const getSubstructure = <T = unknown, E = unknown>(
  * @returns Determined proxy handler.
  */
 export const getProxyHandler = <T = unknown>(
-    target:T, methodNames:Mapping = {}
-):ProxyHandler<T> => {
+    target: T, methodNames: Mapping = {}
+): ProxyHandler<T> => {
     methodNames = {
         delete: '[]',
         get: '[]',
@@ -1362,47 +1362,47 @@ export const getProxyHandler = <T = unknown>(
     }
 
     return {
-        deleteProperty: (targetObject:T, key:string|symbol):boolean => {
+        deleteProperty: (targetObject: T, key: string|symbol): boolean => {
             if (methodNames.delete === '[]' && typeof key === 'string')
                 delete target[key as keyof T]
             else
                 return (
                     target[methodNames.delete as keyof T] as
                         unknown as
-                        (key:string|symbol) => boolean
+                        (key: string|symbol) => boolean
                 )(key)
 
             return true
         },
-        get: (targetObject:T, key:string|symbol):unknown => {
+        get: (targetObject: T, key: string|symbol): unknown => {
             if (methodNames.get === '[]' && typeof key === 'string')
                 return target[key as keyof T]
 
             return (
                 target[methodNames.get as keyof T] as
                     unknown as
-                    (key:string|symbol) => unknown
+                    (key: string|symbol) => unknown
             )(key)
         },
-        has: (targetObject:T, key:string|symbol):boolean => {
+        has: (targetObject: T, key: string|symbol): boolean => {
             if (methodNames.has === '[]')
                 return key in (target as object)
 
             return (
                 target[methodNames.has as keyof T] as
                     unknown as
-                    (key:string|symbol) => boolean
+                    (key: string|symbol) => boolean
             )(key)
         },
         set: (
-            targetObject:T, key:string|symbol, value:unknown
-        ):boolean => {
+            targetObject: T, key: string|symbol, value: unknown
+        ): boolean => {
             if (methodNames.set === '[]' && typeof key === 'string')
                 target[key as keyof T] = value as T[keyof T]
             else
                 return (target[methodNames.set as keyof T] as
                         unknown as
-                        (key:string|symbol, value:unknown) => boolean
+                        (key: string|symbol, value: unknown) => boolean
                 )(key, value)
 
             return true
@@ -1419,8 +1419,8 @@ export const getProxyHandler = <T = unknown>(
  * flat copy of that object will be returned.
  */
 export const mask = <Type extends Mapping<unknown> = Mapping<unknown>>(
-    object:Type, maskConfiguration:ObjectMaskConfiguration
-):RecursivePartial<Type> => {
+    object: Type, maskConfiguration: ObjectMaskConfiguration
+): RecursivePartial<Type> => {
     maskConfiguration = {exclude: false, include: true, ...maskConfiguration}
 
     if (
@@ -1432,14 +1432,14 @@ export const mask = <Type extends Mapping<unknown> = Mapping<unknown>>(
     )
         return {}
 
-    const exclude:NormalizedObjectMask =
+    const exclude: NormalizedObjectMask =
         Array.isArray(maskConfiguration.exclude) ?
             maskConfiguration.exclude.reduce(
                 (mask, key) => ({...mask, [key]: true}),
                 {}
             ) as NormalizedObjectMask :
             maskConfiguration.exclude as NormalizedObjectMask
-    const include:NormalizedObjectMask =
+    const include: NormalizedObjectMask =
         Array.isArray(maskConfiguration.include) ?
             maskConfiguration.include.reduce(
                 (mask, key) => ({...mask, [key]: true}),
@@ -1447,7 +1447,7 @@ export const mask = <Type extends Mapping<unknown> = Mapping<unknown>>(
             ) as NormalizedObjectMask :
             maskConfiguration.include as NormalizedObjectMask
 
-    let result:Partial<Type> = {} as Partial<Type>
+    let result: Partial<Type> = {} as Partial<Type>
     if (isPlainObject(include)) {
         for (const [key, value] of Object.entries(include))
             if (Object.prototype.hasOwnProperty.call(object, key))
@@ -1470,7 +1470,7 @@ export const mask = <Type extends Mapping<unknown> = Mapping<unknown>>(
 
     if (isPlainObject(exclude)) {
         let useCopy = false
-        const copy:RecursivePartial<Type> = {...result}
+        const copy: RecursivePartial<Type> = {...result}
 
         for (const [key, value] of Object.entries(exclude))
             if (Object.prototype.hasOwnProperty.call(copy, key))
@@ -1485,7 +1485,7 @@ export const mask = <Type extends Mapping<unknown> = Mapping<unknown>>(
                     ) &&
                     typeof copy[key as keyof Type] === 'object'
                 ) {
-                    const current:ValueOf<Type> =
+                    const current: ValueOf<Type> =
                         copy[key as keyof Type] as ValueOf<Type>
 
                     ;(copy as Mapping<Mapping<unknown>>)[key] = mask(
@@ -1528,16 +1528,16 @@ export const mask = <Type extends Mapping<unknown> = Mapping<unknown>>(
  * @returns Given target modified with given source.
  */
 export const modifyObject = <T = unknown>(
-    target:T,
-    source:unknown,
+    target: T,
+    source: unknown,
     removeIndicatorKey = '__remove__',
     prependIndicatorKey = '__prepend__',
     appendIndicatorKey = '__append__',
     positionPrefix = '__',
     positionSuffix = '__',
-    parentSource:unknown = null,
-    parentKey:unknown = null
-):T => {
+    parentSource: unknown = null,
+    parentKey: unknown = null
+): T => {
     if (isMap(source) && isMap(target)) {
         for (const [key, value] of source)
             if (target.has(key))
@@ -1587,7 +1587,7 @@ export const modifyObject = <T = unknown>(
             ) {
                 if (Array.isArray(target))
                     if (key === removeIndicatorKey) {
-                        const values:Array<unknown> =
+                        const values: Array<unknown> =
                             ([] as Array<unknown>).concat(sourceValue)
                         for (const value of values)
                             if (
@@ -1690,9 +1690,9 @@ export const modifyObject = <T = unknown>(
  * @returns Processed given object.
  */
 export const removeKeyPrefixes = <T>(
-    object:T, keys:Array<string>|string = '#'
-):T => {
-    const resolvedKeys:Array<string> = ([] as Array<string>).concat(keys)
+    object: T, keys: Array<string>|string = '#'
+): T => {
+    const resolvedKeys: Array<string> = ([] as Array<string>).concat(keys)
 
     if (Array.isArray(object)) {
         let index = 0
@@ -1761,7 +1761,7 @@ export const removeKeyPrefixes = <T>(
             let skip = false
 
             for (const resolvedKey of resolvedKeys) {
-                const escapedKey:string = escapeRegularExpressions(resolvedKey)
+                const escapedKey: string = escapeRegularExpressions(resolvedKey)
 
                 if (new RegExp(`^${escapedKey}[0-9]*$`).test(key)) {
                     delete (object as unknown as Mapping<unknown>)[key]
@@ -1792,13 +1792,13 @@ export const removeKeyPrefixes = <T>(
  * @returns Representation string.
  */
 export const represent = (
-    object:unknown,
+    object: unknown,
     indention = '    ',
     initialIndention = '',
-    maximumNumberOfLevelsReachedIdentifier:number|string =
+    maximumNumberOfLevelsReachedIdentifier: number|string =
     '__maximum_number_of_levels_reached__',
     numberOfLevels = 8
-):string => {
+): string => {
     if (numberOfLevels === 0)
         return String(maximumNumberOfLevelsReachedIdentifier)
 
@@ -1910,7 +1910,7 @@ export const represent = (
         return '__function__'
 
     let result = '{'
-    const keys:Array<string> = Object.getOwnPropertyNames(object).sort()
+    const keys: Array<string> = Object.getOwnPropertyNames(object).sort()
     let firstSeen = false
     for (const key of keys) {
         if (firstSeen)
@@ -1941,8 +1941,8 @@ export const represent = (
  * @param object - Object which keys should be sorted.
  * @returns Sorted list of given keys.
  */
-export const sort = (object:unknown):Array<unknown> => {
-    const keys:Array<unknown> = []
+export const sort = (object: unknown): Array<unknown> => {
+    const keys: Array<unknown> = []
 
     if (Array.isArray(object))
         for (let index = 0; index < object.length; index++)
@@ -1965,8 +1965,8 @@ export const sort = (object:unknown):Array<unknown> => {
  * @returns Returns given object unwrapped from a dynamic proxy.
  */
 export const unwrapProxy = <T = unknown>(
-    object:ProxyType<T>|T, seenObjects:Set<unknown> = new Set<unknown>()
-):T => {
+    object: ProxyType<T>|T, seenObjects: Set<unknown> = new Set<unknown>()
+): T => {
     if (object !== null && typeof object === 'object') {
         if (seenObjects.has(object))
             return object
@@ -1976,7 +1976,7 @@ export const unwrapProxy = <T = unknown>(
                 if (isProxy(object))
                     object = object.__target__
 
-                ;(object as unknown as {__revoke__:() => void}).__revoke__()
+                ;(object as unknown as {__revoke__: () => void}).__revoke__()
             }
         } catch (_error) {
             return object
@@ -1995,7 +1995,7 @@ export const unwrapProxy = <T = unknown>(
             for (const [key, value] of object)
                 object.set(key, unwrapProxy(value, seenObjects))
         else if (isSet(object)) {
-            const cache:Array<unknown> = []
+            const cache: Array<unknown> = []
 
             for (const value of object) {
                 object.delete(value)

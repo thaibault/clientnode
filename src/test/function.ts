@@ -52,7 +52,7 @@ testEach<typeof getParameterNames>(
             }`
     ]
 )
-test('identity', ():void => {
+test('identity', () => {
     const testObject = {}
     expect(identity(testObject) === copy(testObject))
         .toStrictEqual(false)
@@ -68,7 +68,7 @@ testEach<typeof identity>(
     [null, null],
     ['hans', 'hans']
 )
-test('invertArrayFilter', ():void => {
+test('invertArrayFilter', (): void => {
     expect(invertArrayFilter(deleteEmptyItems)([{a: null}]))
         .toStrictEqual([{a: null}])
     expect(invertArrayFilter(extractIfMatches)(['a', 'b'], '^a$'))

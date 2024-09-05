@@ -17,7 +17,7 @@
 
     test.each([[EXPECTED, ...PARAMETERS], ...])(
         '%p === FUNCTION(...%p)',
-        (expected:ReturnType<FUNCTION>, ...parameters:Parameters<FUNCTION>) =>
+        (expected: ReturnType<FUNCTION>, ...parameters: Parameters<FUNCTION>) =>
             expect(FUNCTION(...parameters)).toStrictEqual(expected)
     )
 */
@@ -55,11 +55,11 @@ import {
 } from '../test-helper'
 import {FirstParameter, PlainObject, ProxyType, SecondParameter} from '../type'
 
-declare const TARGET_TECHNOLOGY:string
+declare const TARGET_TECHNOLOGY: string
 
 const now = new Date()
 
-test('addDynamicGetterAndSetter', ():void => {
+test('addDynamicGetterAndSetter', (): void => {
     expect(addDynamicGetterAndSetter(null)).toStrictEqual(null)
     expect(addDynamicGetterAndSetter(true)).toStrictEqual(true)
     expect(addDynamicGetterAndSetter({a: 2})).toStrictEqual({a: 2})
@@ -67,39 +67,39 @@ test('addDynamicGetterAndSetter', ():void => {
         .not.toHaveProperty('__target__')
     expect(
         (addDynamicGetterAndSetter(
-            {}, (value:unknown):unknown => value
+            {}, (value: unknown): unknown => value
         ) as ProxyType).__target__
     ).toBeInstanceOf(Object)
     const mockup = {}
     expect(addDynamicGetterAndSetter(mockup)).toStrictEqual(mockup)
     expect(
         (addDynamicGetterAndSetter(
-            mockup, (value:unknown):unknown => value
+            mockup, (value: unknown): unknown => value
         ) as ProxyType).__target__
     ).toStrictEqual(mockup)
     expect(
         addDynamicGetterAndSetter(
-            {a: 1}, (value:unknown):number => (value as number) + 2
+            {a: 1}, (value: unknown): number => (value as number) + 2
         ).a
     ).toStrictEqual(3)
     expect(
         addDynamicGetterAndSetter(
             {a: {a: 1}},
-            (value:unknown):number|PlainObject =>
+            (value: unknown): number|PlainObject =>
                 isPlainObject(value) ? value : (value as number) + 2
         ).a.a
     ).toStrictEqual(3)
     expect(
         addDynamicGetterAndSetter(
             {a: {a: [{a: 1}]}},
-            (value:unknown):number|PlainObject =>
+            (value: unknown): number|PlainObject =>
                 isPlainObject(value) ? value : (value as number) + 2
         ).a.a[0].a
     ).toStrictEqual(3)
     expect(
         addDynamicGetterAndSetter(
             {a: {a: 1}},
-            (value:unknown):number|PlainObject =>
+            (value: unknown): number|PlainObject =>
                 isPlainObject(value) ? value : (value as number) + 2,
             null,
             {has: 'hasOwnProperty'},
@@ -109,7 +109,7 @@ test('addDynamicGetterAndSetter', ():void => {
     expect(
         addDynamicGetterAndSetter(
             {a: 1},
-            (value:unknown):number|PlainObject =>
+            (value: unknown): number|PlainObject =>
                 isPlainObject(value) ? value : (value as number) + 2,
             null,
             {has: 'hasOwnProperty'},
@@ -120,33 +120,33 @@ test('addDynamicGetterAndSetter', ():void => {
     expect(
         (addDynamicGetterAndSetter(
             {a: new Map([['a', 1]])},
-            (value:unknown):number|PlainObject =>
+            (value: unknown): number|PlainObject =>
                 isPlainObject(value) ? value : (value as number) + 2,
             null,
             {delete: 'delete', get: 'get', set: 'set', has: 'has'},
             true,
             [Map]
-        ).a as unknown as {a:number}).a
+        ).a as unknown as {a: number}).a
     ).toStrictEqual(3)
 })
-test('convertCircularObjectToJSON', ():void => {
-    const object:{a:PlainObject, b?:PlainObject} = {a: {}}
+test('convertCircularObjectToJSON', (): void => {
+    const object: {a: PlainObject, b?: PlainObject} = {a: {}}
     object.b = object.a
 
     expect(convertCircularObjectToJSON(object))
         .toStrictEqual('{"a":{},"b":{}}')
 })
-test('convertCircularObjectToJSON', ():void => {
-    const object:{a?:PlainObject} = {}
-    const subObject:{a:PlainObject} = {a: object}
+test('convertCircularObjectToJSON', () => {
+    const object: {a?: PlainObject} = {}
+    const subObject: {a: PlainObject} = {a: object}
     object.a = subObject
 
     expect(convertCircularObjectToJSON(object))
         .toStrictEqual('{"a":{"a":"__circularReference__"}}')
 })
-test('convertCircularObjectToJSON', ():void => {
-    const rootObject:Array<{a:unknown}> = []
-    const subObject:{a:typeof rootObject} = {a: rootObject}
+test('convertCircularObjectToJSON', () => {
+    const rootObject: Array<{a: unknown}> = []
+    const subObject: {a: typeof rootObject} = {a: rootObject}
     rootObject.push(subObject)
 
     expect(convertCircularObjectToJSON(rootObject))
@@ -364,7 +364,7 @@ testEach<typeof determineType>(
     determineType,
 
     ['undefined', undefined],
-    ['undefined', ({} as {notDefined:undefined}).notDefined],
+    ['undefined', ({} as {notDefined: undefined}).notDefined],
     ['null', null],
     ['boolean', true],
     ['boolean', new Boolean()],
@@ -374,7 +374,7 @@ testEach<typeof determineType>(
     ['string', new String('')],
     ['string', 'test'],
     ['string', new String('test')],
-    ['function', function():void {
+    ['function', function(): void {
         // Do nothing.
     }],
     ['function', NOOP],
@@ -475,10 +475,10 @@ else {
         ] as Array<[
             FirstParameter<typeof equals>,
             SecondParameter<typeof equals>
-        ]>).map((parameters:[
+        ]>).map((parameters: [
                 FirstParameter<typeof equals>,
                 SecondParameter<typeof equals>
-            ]):Parameters<typeof equals> =>
+            ]): Parameters<typeof equals> =>
                 parameters.concat({compareBlobs: true}) as
                     Parameters<typeof equals>
         )
@@ -526,10 +526,10 @@ else {
         ] as Array<[
             FirstParameter<typeof equals>,
             SecondParameter<typeof equals>
-        ]>).map((parameter:[
+        ]>).map((parameter: [
                 FirstParameter<typeof equals>,
                 SecondParameter<typeof equals>
-            ]):Parameters<typeof equals> =>
+            ]): Parameters<typeof equals> =>
                 parameter.concat({compareBlobs: true}) as
                     Parameters<typeof equals>
         )
@@ -593,7 +593,7 @@ testEachAgainstSameExpectation<typeof equals>(
     [[{a: 1}, {b: 1}], [{a: 1}], {deep: 1}],
     [
         NOOP,
-        ():void => {
+        () => {
             // Do nothing.
         },
         {deep: -1, ignoreFunctions: false, properties: []}
@@ -774,7 +774,7 @@ testEach<typeof evaluateDynamicData>(
             b: {__evaluate__: '"t" + "es" + "t"'},
             c: {__evaluate__: 'removeS(self.a.b)'}
         }},
-        {removeS: (value:string):string => value.replace('s', '')}
+        {removeS: (value: string): string => value.replace('s', '')}
     ],
     [
         {a: 'a', b: 'a'},
@@ -782,7 +782,7 @@ testEach<typeof evaluateDynamicData>(
             a: {__evaluate__: 'toString(self.b)'},
             b: {__evaluate__: `'a'`}
         },
-        {toString: (value:string):string => value.toString()}
+        {toString: (value: string): string => value.toString()}
     ],
     [
         {a: ['a'], b: {a: 2}},
@@ -844,8 +844,8 @@ testEach<typeof removeKeysInEvaluation>(
         {a: 2, b: {__evaluate__: '', c: 4}}
     ]
 )
-test('extend', ():void => {
-    const target:PlainObject = {a: [1, 2]}
+test('extend', () => {
+    const target: PlainObject = {a: [1, 2]}
     extend(true, target, {a: [3, 4]})
     expect(target).toStrictEqual({a: [3, 4]})
 })
@@ -976,17 +976,17 @@ testEach<typeof getSubstructure>(
     [
         3,
         {a: {b: {c: [1, 3, 2]}}},
-        (root:unknown):number =>
-            (root as {a:{b:{c:Array<number>}}}).a.b.c[1]
+        (root: unknown): number =>
+            (root as {a: {b: {c: Array<number>}}}).a.b.c[1]
     ],
     [
         3,
         {a: {b: {c: [1, 3, 2]}}},
-        ['a', (root:unknown):number =>
-            (root as {b:{c:Array<number>}}).b.c[1]]
+        ['a', (root: unknown): number =>
+            (root as {b: {c: Array<number>}}).b.c[1]]
     ]
 )
-test('getProxyHandler', ():void => {
+test('getProxyHandler', () => {
     expect(isPlainObject(getProxyHandler({})))
         .toStrictEqual(true)
     expect(isPlainObject(getProxyHandler(new Map(), {get: 'get'})))
@@ -1142,10 +1142,10 @@ test.each([
 ])(
     '%p (=> %p) === modifyObject(%p, %p, ...%p)',
     (
-        sliced:ReturnType<typeof modifyObject>,
-        modified:SecondParameter<typeof modifyObject>,
-        ...parameters:Parameters<typeof modifyObject>
-    ):void => {
+        sliced: ReturnType<typeof modifyObject>,
+        modified: SecondParameter<typeof modifyObject>,
+        ...parameters: Parameters<typeof modifyObject>
+    ) => {
         expect(modifyObject(...parameters)).toStrictEqual(sliced)
         expect(parameters[1]).toStrictEqual(modified)
     }
