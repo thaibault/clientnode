@@ -22,9 +22,9 @@ import {ImportFunction} from './type'
     NOTE: This results in a webpack error when postprocessing this compiled
     pendant in another webpack context.
 
-    declare const __non_webpack_require__: typeof require
+    declare const __non_webpack_require__:typeof require
 */
-export const currentRequire: null|typeof require =
+export const currentRequire:null|typeof require =
     /*
         typeof __non_webpack_require__ === 'function' ?
             __non_webpack_require__ :
@@ -32,7 +32,7 @@ export const currentRequire: null|typeof require =
     eval(`typeof require === 'undefined' ? null : require`) as
         null|typeof require
 
-let currentOptionalImport: ImportFunction|null = null
+let currentOptionalImport:ImportFunction|null = null
 try {
     currentOptionalImport =
         eval(`typeof import === 'undefined' ? null : import`) as
@@ -40,8 +40,8 @@ try {
 } catch (_error) {
     // Continue regardless of an error.
 }
-export const currentImport: null|ImportFunction = currentOptionalImport
-export const optionalRequire = <T = unknown>(id: string): null|T => {
+export const currentImport:null|ImportFunction = currentOptionalImport
+export const optionalRequire = <T = unknown>(id:string):null|T => {
     try {
         return currentRequire ? currentRequire(id) as T : null
     } catch (_error) {

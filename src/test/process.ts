@@ -32,7 +32,7 @@ if (ChildProcess) {
         expect(typeof getProcessCloseHandler(NOOP, NOOP))
             .toStrictEqual('function')
     })
-    test('handleChildProcess', (): void => {
+    test('handleChildProcess', ():void => {
         /**
          * A mockup duplex stream for mocking "stdout" and "strderr" process
          * connections.
@@ -54,16 +54,16 @@ if (ChildProcess) {
              * @param callback - Will be called if data has been written.
              */
             _write(
-                chunk: Buffer|string, encoding: string, callback: AnyFunction
+                chunk:Buffer|string, encoding:string, callback:AnyFunction
             ) {
                 callback(new Error('test'))
             }
         }
-        const stdoutMockupDuplexStream: MockupDuplexStream =
+        const stdoutMockupDuplexStream:MockupDuplexStream =
             new MockupDuplexStream()
-        const stderrMockupDuplexStream: MockupDuplexStream =
+        const stderrMockupDuplexStream:MockupDuplexStream =
             new MockupDuplexStream()
-        const childProcess: ChildProcessType = new ChildProcess()
+        const childProcess:ChildProcessType = new ChildProcess()
         childProcess.stdout = stdoutMockupDuplexStream
         childProcess.stderr = stderrMockupDuplexStream
 

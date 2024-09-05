@@ -27,11 +27,11 @@ import {Mapping, Page, PageType, PaginateOptions, ValueOf} from './type'
  * @returns Aggregated value.
  */
 export const aggregatePropertyIfEqual = <T = unknown>(
-    data: Array<Mapping<unknown>>,
-    propertyName: string,
-    defaultValue: T = '' as unknown as T
-): T => {
-    let result: T = defaultValue
+    data:Array<Mapping<unknown>>,
+    propertyName:string,
+    defaultValue:T = '' as unknown as T
+):T => {
+    let result:T = defaultValue
 
     if (
         Array.isArray(data) &&
@@ -57,8 +57,8 @@ export const aggregatePropertyIfEqual = <T = unknown>(
  */
 export const deleteEmptyItems = <
     T extends Mapping<unknown> = Mapping<unknown>
->(data: Array<T>, propertyNames: Array<string|symbol> = []): Array<T> => {
-    const result: Array<T> = []
+>(data:Array<T>, propertyNames:Array<string|symbol> = []):Array<T> => {
+    const result:Array<T> = []
 
     for (const item of makeArray<T>(data)) {
         let empty = true
@@ -88,12 +88,12 @@ export const deleteEmptyItems = <
  * @returns Data with sliced items.
  */
 export const extract = <T = Mapping<unknown>>(
-    data: unknown, propertyNames: Array<string>
-): Array<T> => {
-    const result: Array<T> = []
+    data:unknown, propertyNames:Array<string>
+):Array<T> => {
+    const result:Array<T> = []
 
     for (const item of makeArray<Mapping<unknown>>(data)) {
-        const newItem: T = {} as T
+        const newItem:T = {} as T
         for (const propertyName of makeArray<string>(
             propertyNames
         ))
@@ -113,12 +113,12 @@ export const extract = <T = Mapping<unknown>>(
  * @returns Filtered data.
  */
 export const extractIfMatches = (
-    data: unknown, regularExpression: string|RegExp
-): Array<string> => {
+    data:unknown, regularExpression:string|RegExp
+):Array<string> => {
     if (!regularExpression)
         return makeArray<string>(data)
 
-    const result: Array<string> = []
+    const result:Array<string> = []
     for (const value of makeArray<string>(data))
         if (
             ((typeof regularExpression === 'string') ?
@@ -138,9 +138,9 @@ export const extractIfMatches = (
  */
 export const extractIfPropertyExists = <
     T extends Mapping<unknown> = Mapping<unknown>
->(data: unknown, propertyName: string): Array<T> => {
+>(data:unknown, propertyName:string):Array<T> => {
     if (data && propertyName) {
-        const result: Array<T> = []
+        const result:Array<T> = []
 
         for (const item of makeArray<T>(data)) {
             let exists = false
@@ -169,10 +169,10 @@ export const extractIfPropertyExists = <
  * @returns Filtered data.
  */
 export const extractIfPropertyMatches = <T = unknown>(
-    data: unknown, propertyPattern: Mapping<RegExp|string>
-): Array<T> => {
+    data:unknown, propertyPattern:Mapping<RegExp|string>
+):Array<T> => {
     if (data) {
-        const result: Array<T> = []
+        const result:Array<T> = []
 
         for (const item of makeArray<T>(data)) {
             let matches = true
@@ -214,23 +214,23 @@ export const extractIfPropertyMatches = <T = unknown>(
  * @returns Data which does exit in given initial data.
  */
 export const intersect = <T = unknown>(
-    first: unknown,
-    second: unknown,
-    keys: Array<string>|Mapping<number|string> = [],
+    first:unknown,
+    second:unknown,
+    keys:Array<string>|Mapping<number|string> = [],
     strict = true
-): Array<T> => {
-    const containingData: Array<T> = []
+):Array<T> => {
+    const containingData:Array<T> = []
 
     second = makeArray(second)
 
     const intersectItem = (
-        firstItem: Mapping<unknown>,
-        secondItem: Mapping<unknown>,
-        firstKey: string|number,
-        secondKey: string|number,
-        keysAreAnArray: boolean,
-        iterateGivenKeys: boolean
-    ): false|undefined => {
+        firstItem:Mapping<unknown>,
+        secondItem:Mapping<unknown>,
+        firstKey:string|number,
+        secondKey:string|number,
+        keysAreAnArray:boolean,
+        iterateGivenKeys:boolean
+    ):false|undefined => {
         if (iterateGivenKeys) {
             if (keysAreAnArray)
                 firstKey = secondKey
@@ -256,8 +256,8 @@ export const intersect = <T = unknown>(
         if (isPlainObject(firstItem))
             for (const secondItem of (second as Array<T>)) {
                 let exists = true
-                let iterateGivenKeys: boolean
-                const keysAreAnArray: boolean = Array.isArray(keys)
+                let iterateGivenKeys:boolean
+                const keysAreAnArray:boolean = Array.isArray(keys)
 
                 if (isPlainObject(keys) || keysAreAnArray && keys.length)
                     iterateGivenKeys = true
@@ -312,8 +312,8 @@ export const intersect = <T = unknown>(
  * @param object - Target to convert.
  * @returns Generated array.
  */
-export const makeArray = <T = unknown>(object: unknown): Array<T> => {
-    const result: Array<unknown> = []
+export const makeArray = <T = unknown>(object:unknown):Array<T> => {
+    const result:Array<unknown> = []
     if (![null, undefined].includes(object as null))
         if (isArrayLike(Object(object)))
             merge(
@@ -336,14 +336,14 @@ export const makeArray = <T = unknown>(object: unknown): Array<T> => {
  * @returns Produced array of integers.
  */
 export const makeRange = (
-    range: number|[number]|[number, number]|Array<number>,
+    range:number|[number]|[number, number]|Array<number>,
     step = 1,
     ignoreLastStep = false
-): Array<number> => {
+):Array<number> => {
     range = ([] as Array<number>).concat(range)
 
-    let index: number
-    let higherBound: number
+    let index:number
+    let higherBound:number
     if (range.length === 1) {
         index = 0
         higherBound = parseInt(String(range[0]), 10)
@@ -372,8 +372,8 @@ export const makeRange = (
  * @returns Target array with merged given source one.
  */
 export const merge = <T = unknown>(
-    target: Array<T>, source: Array<T>
-): Array<T> => {
+    target:Array<T>, source:Array<T>
+):Array<T> => {
     if (!Array.isArray(source))
         source = Array.prototype.slice.call(source) as Array<T>
 
@@ -405,8 +405,8 @@ export const merge = <T = unknown>(
  * @returns A list of pagination symbols.
  */
 export const paginate = (
-    options: Partial<PaginateOptions> = {}
-): Array<Page> => {
+    options:Partial<PaginateOptions> = {}
+):Array<Page> => {
     const {
         boundaryCount = 1,
         disabled = false,
@@ -420,19 +420,19 @@ export const paginate = (
         total = 100
     } = options
 
-    const numberOfPages: number =
+    const numberOfPages:number =
     typeof pageSize === 'number' && !isNaN(pageSize) ?
         Math.ceil(total / pageSize) :
         total
 
-    const startPages: Array<number> =
+    const startPages:Array<number> =
         makeRange([1, Math.min(boundaryCount, numberOfPages)])
-    const endPages: Array<number> = makeRange([
+    const endPages:Array<number> = makeRange([
         Math.max(numberOfPages - boundaryCount + 1, boundaryCount + 1),
         numberOfPages
     ])
 
-    const siblingsStart: number = Math.max(
+    const siblingsStart:number = Math.max(
         Math.min(
             // Left boundary for lower pages.
             page - siblingCount,
@@ -443,7 +443,7 @@ export const paginate = (
         boundaryCount + 2
     )
 
-    const siblingsEnd: number = Math.min(
+    const siblingsEnd:number = Math.min(
         Math.max(
             // Right bound for higher pages.
             page + siblingCount,
@@ -498,7 +498,7 @@ export const paginate = (
         ...endPages,
         ...(hideNextButton ? [] : ['next']),
         ...(showLastButton ? ['last'] : [])
-    ] as Array<number|PageType>).map((item: number|PageType): Page =>
+    ] as Array<number|PageType>).map((item:number|PageType):Page =>
         typeof item === 'number' ?
             {
                 disabled,
@@ -540,10 +540,10 @@ export const paginate = (
  * @param data - Array like object.
  * @returns Array of permuted arrays.
  */
-export const permutate = <T = unknown>(data: Array<T>): Array<Array<T>> => {
-    const result: Array<Array<T>> = []
+export const permutate = <T = unknown>(data:Array<T>):Array<Array<T>> => {
+    const result:Array<Array<T>> = []
 
-    const permute = (currentData: Array<T>, dataToMixin: Array<T> = []) => {
+    const permute = (currentData:Array<T>, dataToMixin:Array<T> = []) => {
         if (currentData.length === 0)
             result.push(dataToMixin)
         else
@@ -565,15 +565,15 @@ export const permutate = <T = unknown>(data: Array<T>): Array<Array<T>> => {
  * @returns Array of permuted arrays.
  */
 export const permutateLength = <T = unknown>(
-    data: Array<T>, minimalSubsetLength = 1
-): Array<Array<T>> => {
-    const result: Array<Array<T>> = []
+    data:Array<T>, minimalSubsetLength = 1
+):Array<Array<T>> => {
+    const result:Array<Array<T>> = []
     if (data.length === 0)
         return result
 
     const generate = (
-        index: number, source: Array<T>, rest: Array<T>
-    ): void => {
+        index:number, source:Array<T>, rest:Array<T>
+    ):void => {
         if (index === 0) {
             if (rest.length > 0)
                 result[result.length] = rest
@@ -592,7 +592,7 @@ export const permutateLength = <T = unknown>(
     }
 
     for (
-        let index: number = minimalSubsetLength;
+        let index:number = minimalSubsetLength;
         index < data.length;
         index++
     )
@@ -608,7 +608,7 @@ export const permutateLength = <T = unknown>(
  * @param propertyName - Property name to sum up its value.
  * @returns The aggregated value.
  */
-export const sumUpProperty = (data: unknown, propertyName: string): number => {
+export const sumUpProperty = (data:unknown, propertyName:string):number => {
     let result = 0
 
     if (Array.isArray(data) && data.length)
@@ -631,9 +631,9 @@ export const sumUpProperty = (data: unknown, propertyName: string): number => {
  * @returns Item with the appended target.
  */
 export const removeArrayItem = <T = unknown>(
-    list: Array<T>, target: T, strict = false
-): Array<T> => {
-    const index: number = list.indexOf(target)
+    list:Array<T>, target:T, strict = false
+):Array<T> => {
+    const index:number = list.indexOf(target)
     if (index === -1) {
         if (strict)
             throw new Error(`Given target doesn't exists in given list.`)
@@ -648,9 +648,9 @@ export const removeArrayItem = <T = unknown>(
  * @returns Sorted array of given items respecting their dependencies.
  */
 export const sortTopological = (
-    items: Mapping<Array<string>|string>
-): Array<string> => {
-    const edges: Array<Array<string>> = []
+    items:Mapping<Array<string>|string>
+):Array<string> => {
+    const edges:Array<Array<string>> = []
 
     for (const [name, value] of Object.entries(items)) {
         items[name] = ([] as Array<string>).concat(value)
@@ -661,16 +661,16 @@ export const sortTopological = (
             edges.push([name])
     }
 
-    const nodes: Array<null|string> = []
+    const nodes:Array<null|string> = []
     // Accumulate unique nodes into a large list.
     for (const edge of edges)
         for (const node of edge)
             if (!nodes.includes(node))
                 nodes.push(node)
 
-    const sorted: Array<string> = []
+    const sorted:Array<string> = []
     // Define a visitor function that recursively traverses dependencies.
-    const visit = (node: string, predecessors: Array<string>): void => {
+    const visit = (node:string, predecessors:Array<string>):void => {
         // Check if a node is dependent of itself.
         if (predecessors.length !== 0 && predecessors.includes(node))
             throw new Error(
@@ -683,7 +683,7 @@ export const sortTopological = (
         const index = nodes.indexOf(node)
         // If the node still exists, traverse its dependencies.
         if (index !== -1) {
-            let copy: Array<string>|undefined
+            let copy:Array<string>|undefined
             // Mark the node to exclude it from future iterations.
             nodes[index] = null
             /*
@@ -706,7 +706,7 @@ export const sortTopological = (
     }
 
     for (let index = 0; index < nodes.length; index++) {
-        const node: null|string = nodes[index]
+        const node:null|string = nodes[index]
         // Ignore nodes that have been excluded.
         if (node) {
             // Mark the node to exclude it from future iterations.
@@ -732,8 +732,8 @@ export const sortTopological = (
  * @param data - Array like object.
  * @returns Sliced version of given object.
  */
-export const unique = <T = unknown>(data: Array<T>): Array<T> => {
-    const result: Array<T> = []
+export const unique = <T = unknown>(data:Array<T>):Array<T> => {
+    const result:Array<T> = []
 
     for (const value of makeArray(data))
         if (!result.includes(value as T))

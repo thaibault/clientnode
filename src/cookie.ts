@@ -23,7 +23,7 @@ import {CookieOptions} from './type'
  * Deletes a cookie value by given name.
  * @param name - Name to identify requested value.
  */
-export const deleteCookie = (name: string): void => {
+export const deleteCookie = (name:string):void => {
     if ($.document)
         $.document.cookie = `${name}=; Max-Age=-99999999;`
 }
@@ -32,10 +32,10 @@ export const deleteCookie = (name: string): void => {
  * @param name - Name to identify requested value.
  * @returns Requested value.
  */
-export const getCookie = (name: string): string|null => {
+export const getCookie = (name:string):string|null => {
     if ($.document) {
         const key = `${name}=`
-        const decodedCookie: string = decodeURIComponent($.document.cookie)
+        const decodedCookie:string = decodeURIComponent($.document.cookie)
         for (let date of decodedCookie.split(';')) {
             while (date.startsWith(' '))
                 date = date.substring(1)
@@ -68,10 +68,10 @@ export const getCookie = (name: string): string|null => {
  * @returns A boolean indicating whether cookie could be set or not.
  */
 export const setCookie = (
-    name: string, value: string, givenOptions: Partial<CookieOptions> = {}
-): boolean => {
+    name:string, value:string, givenOptions:Partial<CookieOptions> = {}
+):boolean => {
     if ($.document) {
-        const options: CookieOptions = {
+        const options:CookieOptions = {
             domain: '',
             httpOnly: false,
             minimal: false,

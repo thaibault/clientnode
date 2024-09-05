@@ -26,10 +26,10 @@ import {AnyFunction} from './type'
  * @property numberOfResources - Number of allowed concurrent resource uses.
  */
 export class Semaphore {
-    queue: Array<AnyFunction> = []
+    queue:Array<AnyFunction> = []
 
-    numberOfResources: number
-    numberOfFreeResources: number
+    numberOfResources:number
+    numberOfFreeResources:number
     /**
      * Initializes number of resources.
      * @param numberOfResources - Number of resources to manage.
@@ -43,24 +43,22 @@ export class Semaphore {
      * @returns A promise which will be resolved if requested resource is
      * available.
      */
-    acquire(): Promise<number> {
-        return new Promise<number>(
-            (resolve: (_value: number) => void
-            ): void => {
-                if (this.numberOfFreeResources <= 0)
-                    this.queue.push(resolve)
-                else {
-                    this.numberOfFreeResources -= 1
+    acquire():Promise<number> {
+        return new Promise<number>((resolve:(_value:number) => void):void => {
+            if (this.numberOfFreeResources <= 0)
+                this.queue.push(resolve)
+            else {
+                this.numberOfFreeResources -= 1
 
-                    resolve(this.numberOfFreeResources)
-                }
-            })
+                resolve(this.numberOfFreeResources)
+            }
+        })
     }
     /**
      * Releases a resource and runs a waiting resolver if there exists some.
      */
-    release(): void {
-        const callback: AnyFunction|undefined = this.queue.pop()
+    release():void {
+        const callback:AnyFunction|undefined = this.queue.pop()
         if (callback === undefined)
             this.numberOfFreeResources += 1
         else

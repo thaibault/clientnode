@@ -29,7 +29,7 @@ import {
 import {$T} from '../type'
 import {timeout} from '../utility'
 
-declare const TARGET_TECHNOLOGY: string
+declare const TARGET_TECHNOLOGY:string
 
 testEachPromiseRejectionAgainstSameExpectation<typeof checkReachability>(
     'checkReachability',
@@ -78,7 +78,7 @@ test('checkUnreachability', () => {
 })
 if (TARGET_TECHNOLOGY !== 'node') {
     test('sendToIFrame', () => {
-        const $iFrame: $T<HTMLIFrameElement> =
+        const $iFrame:$T<HTMLIFrameElement> =
             $<HTMLIFrameElement>('<iframe>').hide().attr('name', 'test')
 
         $('body').append($iFrame[0])
