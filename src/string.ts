@@ -44,6 +44,27 @@ export const ALLOWED_VARIABLE_SYMBOLS = '0-9a-zA-Z_$'
 // Partial regular expression matching symbols which should be allowed as
 // starting character for a variable name.
 export const ALLOWED_STARTING_VARIABLE_SYMBOLS = 'a-zA-Z_$'
+export const FIX_ENCODING_ERROR_MAPPING = [
+    ['Ã\\x84', 'Ä'],
+    ['Ã\\x96', 'Ö'],
+    ['Ã\\x9c', 'Ü'],
+    ['Ã¤', 'ä'],
+    ['Ã¶', 'ö'],
+    ['Ã¼', 'ü'],
+
+    ['\\x96', '-'],
+
+    ['Ã©', 'e'],
+    ['Ã¨', 'e'],
+
+    ['Ã´', 'o'],
+
+    ['Ã ', 'á'],
+    ['Ã¸', 'ø'],
+
+    ['Ã\\x9f', 'ß'],
+    ['Ã', 'ß']
+] as const
 
 /**
  * Translates given string into the regular expression validated
@@ -809,18 +830,7 @@ export const findNormalizedMatchRange = (
  * @returns Processed data.
  */
 export const fixKnownEncodingErrors = (data: string): string => {
-    const mapping: Mapping = {
-        'Ã\\x84': 'Ä',
-        'Ã\\x96': 'Ö',
-        'Ã\\x9c': 'Ü',
-        'Ã¤': 'ä',
-        'Ã¶': 'ö',
-        'Ã¼': 'ü',
-        'Ã\\x9f': 'ß',
-        '\\x96': '-'
-    }
-
-    for (const [search, replacement] of Object.entries(mapping))
+    for (const [search, replacement] of FIX_ENCODING_ERROR_MAPPING)
         data = data.replace(new RegExp(search, 'g'), replacement)
 
     return data
