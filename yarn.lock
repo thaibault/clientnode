@@ -2613,12 +2613,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jquery@npm:^3.5.30":
-  version: 3.5.30
-  resolution: "@types/jquery@npm:3.5.30"
+"@types/jquery@npm:^3.5.31":
+  version: 3.5.31
+  resolution: "@types/jquery@npm:3.5.31"
   dependencies:
     "@types/sizzle": "npm:*"
-  checksum: 10c0/7355b2b2cb44eba7a2afa4a1c653157e4bc055be1f14a4c8874e349e6860dd36ca237e538294c2d709f1ffa0d5b12a39ea97be179f3f7fb445e17e12949ccb33
+  checksum: 10c0/94a6e209382908e102199aa32d261147c97bf578693a6e7657d12a35e1304940b18bebadb21c207cd3efa51b4d16eb117be36af235c27f399be09cc56ed125b5
   languageName: node
   linkType: hard
 
@@ -2689,12 +2689,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.7.0":
-  version: 22.7.0
-  resolution: "@types/node@npm:22.7.0"
+"@types/node@npm:^22.7.3":
+  version: 22.7.3
+  resolution: "@types/node@npm:22.7.3"
   dependencies:
     undici-types: "npm:~6.19.2"
-  checksum: 10c0/127b1ac3eebe8c2b09e3d2de277ee906710c4908b4573cde23b9c7cec1cb1aaf1af8bdabbccdac08d005f820b770e7447b22c8eb56ca63344f4d2e26bcdc29fb
+  checksum: 10c0/0e579813528b0370454337a952f43b792cd12731e10fdca0fdb627158e980c1219bba99e9048c134b6a19325d817016059afe016ccd372326c838a1b85a51574
   languageName: node
   linkType: hard
 
@@ -4984,8 +4984,8 @@ __metadata:
     "@types/ejs": "npm:^3.1.5"
     "@types/html-minifier": "npm:^4.0.5"
     "@types/imagemin": "npm:^9.0.0"
-    "@types/jquery": "npm:^3.5.30"
-    "@types/node": "npm:^22.7.0"
+    "@types/jquery": "npm:^3.5.31"
+    "@types/node": "npm:^22.7.3"
     "@types/prop-types": "npm:^15.7.13"
     "@types/webpack-env": "npm:^1.18.5"
     "@typescript-eslint/eslint-plugin": "npm:^8.7.0"
@@ -4994,7 +4994,7 @@ __metadata:
     documentation-website: "npm:^1.0.332"
     eslint: "npm:^9.11.1"
     eslint-config-google: "npm:^0.14.0"
-    eslint-plugin-jsdoc: "npm:^50.2.4"
+    eslint-plugin-jsdoc: "npm:^50.3.0"
     favicons-webpack-plugin: "npm:^6.0.1"
     image-minimizer-webpack-plugin: "npm:^4.1.0"
     jest: "npm:^29.7.0"
@@ -5004,7 +5004,7 @@ __metadata:
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^6.0.1"
     typescript-eslint: "npm:^8.7.0"
-    weboptimizer: "npm:^2.0.1512"
+    weboptimizer: "npm:^2.0.1515"
     webpack-dev-server: "npm:^5.1.0"
   peerDependencies:
     "@babel/runtime": "*"
@@ -5876,9 +5876,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:^50.2.4":
-  version: 50.2.4
-  resolution: "eslint-plugin-jsdoc@npm:50.2.4"
+"eslint-plugin-jsdoc@npm:^50.3.0":
+  version: 50.3.0
+  resolution: "eslint-plugin-jsdoc@npm:50.3.0"
   dependencies:
     "@es-joy/jsdoccomment": "npm:~0.48.0"
     are-docs-informative: "npm:^0.0.2"
@@ -5893,7 +5893,7 @@ __metadata:
     synckit: "npm:^0.9.1"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/9635726563213781dd18ee07459cc85ca4aca0f3b45bf02504cd880cb78757ef627578a0f9e5d412c401abcd7f6bab6d78f79198572b982ad2a71a74e03a416f
+  checksum: 10c0/2188f10c350f3306f476913f63880bb3324932006a40f28f4b7b95c10d147e8fd98b03917357c01ae2f81d60bc1c169dbdacc72031e2c1ae602445f39e574da1
   languageName: node
   linkType: hard
 
@@ -11146,9 +11146,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^2.0.1512":
-  version: 2.0.1512
-  resolution: "weboptimizer@npm:2.0.1512"
+"weboptimizer@npm:^2.0.1515":
+  version: 2.0.1515
+  resolution: "weboptimizer@npm:2.0.1515"
   dependencies:
     "@babel/core": "npm:^7.25.2"
     "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
@@ -11287,7 +11287,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/739925f570a85197086315690477ca09a5377d6ce0cc2ee61993f98617291227f022f0dca637899e3cbdd7f35893c259a04bbec9f5b122516dbd6213e0defce3
+  checksum: 10c0/d88c67870a34d88fd9c300f26f201a2597d130769472e174f779f1524686189360f1b32d244cf1110b950b5d34424a29d9f6ac9fcd4589cf60f4b7637a2750ed
   languageName: node
   linkType: hard
 

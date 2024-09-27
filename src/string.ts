@@ -1041,6 +1041,11 @@ export const normalizePhoneNumber = (
         // Normalize country code prefix.
         normalizedValue = normalizedValue.replace(/^[^0-9]*\+/, '00')
 
+        // Remove alternate direct dial numbers.
+        normalizedValue = normalizedValue.replace(
+            /([0-9]-[0-9]+) *(,|or|od)\.? ?-?[0-9]+$/, '$1'
+        )
+
         if (dialable)
             return normalizedValue.replace(/[^0-9]+/g, '')
 
