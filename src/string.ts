@@ -54,7 +54,7 @@ export const FIX_ENCODING_ERROR_MAPPING = [
 
     ['\\x96', '-'],
 
-    ['Ã©', 'e'],
+    ['Ã©', 'é'],
     ['Ã¨', 'e'],
 
     ['Ã´', 'o'],
