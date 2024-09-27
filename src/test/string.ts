@@ -1263,7 +1263,9 @@ testEach<typeof normalizePhoneNumber>(
     ['0049-174-5661677', '+49 (174) 566 16 77', false],
     ['0049-174-5661677', ' +49 (174) 566 16 77 ', false],
     ['0291-1455', '02 91 / 14 55', false],
-    ['03677842375', '03677842375', false]
+    ['03677842375', '03677842375', false],
+    ['06838-8614-33', '06838/8614-33 od. 44', false],
+    ['06838861433', '06838/8614-33 od. 44', true]
 )
 testEach<typeof normalizeZipCode>(
     'normalizeZipCode',
