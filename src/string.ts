@@ -1053,7 +1053,7 @@ export const normalizePhoneNumber = (
 
         // Remove alternate direct dial numbers.
         normalizedValue = normalizedValue.replace(
-            /([0-9].*) *(,|o[rd]?)\.? ?-?[0-9]+$/, '$1'
+            /([0-9].*?) *(,|o[rd]?)\.? ?-?[0-9]+$/, '$1'
         )
 
         if (dialable)
