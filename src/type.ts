@@ -333,13 +333,12 @@ export interface Options<Type = string> {
 
 export type $TStatic = JQueryStatic
 export type $T<TElement = HTMLElement> = JQuery<TElement>
-export interface $Global extends Omit<Window, 'document'> {
+export interface $Global extends Partial<Window> {
     Babel?: {transform: (code: string, configuration: PlainObject) => {
         code: string
     }}
-    console: Console
+    console?: Console
     dataLayer?: Array<PlainObject>
-    document?: Window['document']
     $: $TStatic
 }
 export interface ToolsFunction<TElement = HTMLElement> {
