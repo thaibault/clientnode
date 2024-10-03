@@ -50,6 +50,9 @@ export const checkReachability = async (
     url: string,
     givenOptions: RecursivePartial<CheckReachabilityOptions> = {}
 ): ReturnType<typeof fetch> => {
+    if (!globalContext.fetch)
+        throw new Error('Missing fetch implementation available.')
+
     const options: CheckReachabilityOptions = extend(
         true,
         {
@@ -115,6 +118,7 @@ export const checkReachability = async (
             const wrapper = async (): Promise<Error|Response> => {
                 let response: Response
                 try {
+                    // @ts-expect-error We already catch the error.
                     response = await globalContext.fetch(url, options.options)
                 } catch (error) {
                     return retryErrorHandler(error as Error)
@@ -178,6 +182,9 @@ export const checkReachability = async (
 export const checkUnreachability = async (
     url: string, givenOptions: RecursivePartial<CheckReachabilityOptions> = {}
 ): Promise<Error|null|Promise<Error|null>> => {
+    if (!globalContext.fetch)
+        throw new Error('Missing fetch implementation available.')
+
     const options: CheckReachabilityOptions = extend(
         true,
         {
@@ -223,6 +230,7 @@ export const checkUnreachability = async (
             const wrapper = async (): Promise<Error|Response|null> => {
                 try {
                     const response: Response =
+                        // @ts-expect-error We already catch the error.
                         await globalContext.fetch(url, options.options)
 
                     if (timedOut)

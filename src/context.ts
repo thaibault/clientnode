@@ -50,13 +50,13 @@ export const determineGlobalContext: (() => $Global) = (): $Global => {
     return globalThis as unknown as $Global
 }
 export let globalContext: $Global = determineGlobalContext()
-export const setGlobalContext = (context: $Global): void => {
+export const setGlobalContext = (context: $Global) => {
     globalContext = context
 }
 
 /// region context
 globalContext.fetch =
-    Object.prototype.hasOwnProperty.call(globalContext, 'fetch') ?
+    globalContext.fetch ?
         globalContext.fetch.bind(globalContext) :
         optionalRequire<{default: typeof fetch}>('node-fetch')?.default ??
         ((...parameters: Parameters<typeof fetch>): ReturnType<typeof fetch> =>
@@ -148,12 +148,12 @@ export const determine$: (() => $TStatic) = (): $TStatic => {
             !$.document &&
             Object.prototype.hasOwnProperty.call($.global.window, 'document')
         )
-            $.document = $.global.window.document
+            $.document = $.global.window?.document
         if (
             !$.location &&
             Object.prototype.hasOwnProperty.call($.global.window, 'location')
         )
-            $.location = $.global.window.location
+            $.location = $.global.window?.location
     }
 
     return $
@@ -198,7 +198,7 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
         Object.prototype.hasOwnProperty.call($.global.window, 'navigator')
     ) {
         // eslint-disable-next-line @typescript-eslint/no-deprecated
-        if ($.global.window.navigator.appVersion.indexOf('MSIE 10') !== -1)
+        if ($.global.window?.navigator.appVersion.indexOf('MSIE 10') !== -1)
             return 10
 
         if (
@@ -233,12 +233,12 @@ export const augment$ = (value: $TStatic): void => {
             !$.document &&
             Object.prototype.hasOwnProperty.call($.global.window, 'document')
         )
-            $.document = $.global.window.document
+            $.document = $.global.window?.document
         if (
             !$.location &&
             Object.prototype.hasOwnProperty.call($.global.window, 'location')
         )
-            $.location = $.global.window.location
+            $.location = $.global.window?.location
     }
 
     if (Object.prototype.hasOwnProperty.call($, 'fn'))

@@ -113,6 +113,9 @@ export class Tools<TElement = HTMLElement> {
             ($.global as unknown as {console: Mapping<AnyFunction>}).console =
                 {}
 
+        if (!$.global.console)
+            $.global.console = {} as Console
+
         for (const methodName of CONSOLE_METHODS)
             if (!(methodName in $.global.console))
                 $.global.console[methodName as 'log'] = NOOP as Console['log']
@@ -278,12 +281,7 @@ export class Tools<TElement = HTMLElement> {
 
             if (message)
                 if (
-                    !(
-                        Object.prototype.hasOwnProperty.call(
-                            $.global, 'console'
-                        ) &&
-                        level in $.global.console
-                    ) ||
+                    !($.global.console && level in $.global.console) ||
                     ($.global.console[level] === NOOP)
                 ) {
                     if (
@@ -294,7 +292,7 @@ export class Tools<TElement = HTMLElement> {
                             $.global.window, 'alert'
                         )
                     )
-                        $.global.window.alert(message)
+                        $.global.window?.alert(message)
                 } else
                     ($.global.console[level] as Console['log'])(message)
         }
@@ -468,12 +466,7 @@ export class Tools<TElement = HTMLElement> {
         if ($domNode?.length) {
             let styleProperties: CSSStyleDeclaration
 
-            if (
-                Object.prototype.hasOwnProperty.call($.global, 'window') &&
-                Object.prototype.hasOwnProperty.call(
-                    $.global.window, 'getComputedStyle'
-                )
-            ) {
+            if ($.global.window?.getComputedStyle) {
                 styleProperties = $.global.window.getComputedStyle(
                     $domNode[0] as unknown as Element, null
                 )
@@ -632,6 +625,9 @@ export class Tools<TElement = HTMLElement> {
             top?: number
         } = {}
     ): RelativePosition {
+        if (!$.global.window)
+            throw new Error('No window object available.')
+
         const delta: Position =
             extend<Position>({bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
 
