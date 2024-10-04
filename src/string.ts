@@ -721,11 +721,12 @@ export const evaluate = <T = string, S extends object = object>(
         templateFunction
     } = compile<T, N>(expression, scope, execute, removeGlobalScope, binding)
 
-    const result: EvaluationResult<T> = {
+    let result: EvaluationResult<T> = {
         compileError: null,
-        error: null,
-        result: undefined as unknown as T,
-        runtimeError: null
+        runtimeError: null,
+        error: 'Not yet evaluated.',
+
+        result: undefined
     }
 
     if (error) {
@@ -735,17 +736,22 @@ export const evaluate = <T = string, S extends object = object>(
     }
 
     try {
-        result.result = templateFunction(
-            /*
-                NOTE: We want to be sure to have same ordering as we have for
-                the scope names and to call internal registered getter by
-                retrieving values. So simple using "...Object.values(scope)" is
-                not appreciate here.
-            */
-            ...originalScopeNames.map((name: keyof S): ValueOf<S> =>
-                scope[name]
+        result = {
+            compileError: null,
+            runtimeError: null,
+            error: null,
+            result: templateFunction(
+                /*
+                    NOTE: We want to be sure to have same ordering as we have
+                    for the scope names and to call internal registered getter
+                    by retrieving values. So simple using
+                    "...Object.values(scope)" is not appreciate here.
+                */
+                ...originalScopeNames.map((name: keyof S): ValueOf<S> =>
+                    scope[name]
+                )
             )
-        )
+        }
     } catch (error) {
         result.error =
             result.runtimeError = (
@@ -1164,7 +1170,8 @@ export const parseEncodedObject = <T = PlainObject>(
             .from(serializedObject, 'base64')
             .toString(DEFAULT_ENCODING)
 
-    const result: EvaluationResult = evaluate(serializedObject, {[name]: scope})
+    const result: EvaluationResult<T> =
+        evaluate<T>(serializedObject, {[name]: scope})
 
     if (typeof result.result === 'object')
         return result.result

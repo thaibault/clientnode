@@ -17,7 +17,12 @@
     endregion
 */
 import {LOCALES} from './constants'
-import {EvaluationResult, Mapping, SecondParameter} from './type'
+import {
+    EvaluationResult,
+    Mapping,
+    PositiveEvaluationResult,
+    SecondParameter
+} from './type'
 import {capitalize, evaluate} from './string'
 
 // Caches compiled date tine pattern regular expressions.
@@ -86,7 +91,8 @@ export const dateTimeFormat = (
         different platforms, so we have to normalize for predictable
         testing.
     */
-    return evaluated.result.replace(/\s/g, ' ')
+    return (evaluated as PositiveEvaluationResult)
+        .result.replace(/\s/g, ' ')
 }
 /**
  * Interprets given content string as date time.
@@ -443,22 +449,23 @@ export const interpretDateTime = (
                                 )
                         )
                             for (
-                                let pattern of ([] as Array<string>)
+                                const pattern of ([] as Array<string>)
                                     .concat(dateTimeFormat.pattern)
                             ) {
-                                pattern = evaluate(
+                                const evaluatedPattern = evaluate(
                                     `\`^${pattern}$\``,
                                     {delimiter: `${delimiter}+`}
                                 ).result
                                 if (
-                                    pattern &&
+                                    evaluatedPattern &&
                                     !Object.prototype.hasOwnProperty.call(
-                                        patternPresenceCache, pattern
+                                        patternPresenceCache, evaluatedPattern
                                     )
                                 ) {
-                                    patternPresenceCache[pattern] = true
+                                    patternPresenceCache[evaluatedPattern] =
+                                        true
                                     DATE_TIME_PATTERN_CACHE.push(
-                                        new RegExp(pattern)
+                                        new RegExp(evaluatedPattern)
                                     )
                                 }
                             }

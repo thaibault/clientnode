@@ -302,12 +302,20 @@ export interface CompilationResult<
 
     templateFunction: TemplateFunction<T>
 }
-export interface EvaluationResult<Type = string> {
+export interface NegativeEvaluationResult {
     compileError: null|string
-    error: null|string
-    result: Type
+    error: string
+    result: undefined
     runtimeError: null|string
 }
+export interface PositiveEvaluationResult<Type = string> {
+    compileError: null
+    error: null
+    result: Type
+    runtimeError: null
+}
+export type EvaluationResult<Type = string> =
+    PositiveEvaluationResult<Type>|NegativeEvaluationResult
 
 export type LockCallbackFunction<Type> =
     (description: string) => Promise<Type>|Type
