@@ -113,7 +113,11 @@ export const determineUniqueScopeName = (
         return initialUniqueName
 
     let uniqueName: string = prefix + suffix
-    for (let index = 0; index < MAXIMAL_NUMBER_OF_ITERATIONS.value; index++) {
+    for (
+        let iteration = 0;
+        iteration < MAXIMAL_NUMBER_OF_ITERATIONS.value;
+        iteration++
+    ) {
         uniqueName =
             prefix +
             String(Math.round(Math.random() * Math.pow(10, 10))) +

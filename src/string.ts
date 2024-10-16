@@ -979,7 +979,9 @@ export const mark = (
             walk through.
         */
         for (
-            let index = 0; index < MAXIMAL_NUMBER_OF_ITERATIONS.value; index++
+            let iteration = 0;
+            iteration < MAXIMAL_NUMBER_OF_ITERATIONS.value;
+            iteration++
         ) {
             let nearestRange: Array<number>|null = null
             let currentRange: Array<number>|null = null
