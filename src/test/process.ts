@@ -48,13 +48,15 @@ if (ChildProcess) {
             }
             /**
              * Triggers if contents should be written on current stream.
-             * @param chunk - The chunk to be written. Will always be a buffer
+             * @param _chunk - The chunk to be written. Will always be a buffer
              * unless the "decodeStrings" option was set to "false".
-             * @param encoding - Specifies encoding to be used as input data.
+             * @param _encoding - Specifies encoding to be used as input data.
              * @param callback - Will be called if data has been written.
              */
             _write(
-                chunk: Buffer|string, encoding: string, callback: AnyFunction
+                _chunk: Buffer | string,
+                _encoding: string,
+                callback: AnyFunction
             ) {
                 callback(new Error('test'))
             }

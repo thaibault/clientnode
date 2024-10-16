@@ -698,7 +698,7 @@ const advancedTemplateEvaluationExample: string =
 type MandatoryGivenStringEvaluateTestTuple = [
     FirstParameter<typeof evaluate>,
     Mapping<unknown>,
-    'compileError'|'result'|'runtimeError'
+    'compileError' | 'result' | 'runtimeError'
 ]
 type GivenStringEvaluateTestTuple = [
     ...MandatoryGivenStringEvaluateTestTuple, unknown?, unknown?

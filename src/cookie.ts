@@ -32,7 +32,7 @@ export const deleteCookie = (name: string): void => {
  * @param name - Name to identify requested value.
  * @returns Requested value.
  */
-export const getCookie = (name: string): string|null => {
+export const getCookie = (name: string): string | null => {
     if ($.document) {
         const key = `${name}=`
         const decodedCookie: string = decodeURIComponent($.document.cookie)
@@ -91,7 +91,7 @@ export const setCookie = (
         if (options.domain === '' && $.location?.hostname)
             options.domain = $.location.hostname
 
-        const newCookie =
+        $.document.cookie =
             `${name}=${value}` +
             (
                 options.minimal ?
@@ -109,8 +109,6 @@ export const setCookie = (
                         (options.httpOnly ? ';HttpOnly' : '')
                     )
             )
-
-        $.document.cookie = newCookie
 
         return true
     }

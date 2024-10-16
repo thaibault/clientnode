@@ -20,10 +20,10 @@ import {LockCallbackFunction, Mapping} from './type'
 
 /**
  * Represents the lock state.
- * @property locks - Mapping of lock descriptions to there corresponding
+ * @property locks - Mapping of lock descriptions to their corresponding
  * callbacks.
  */
-export class Lock<Type = string|undefined> {
+export class Lock<Type = string | undefined> {
     locks: Mapping<Array<LockCallbackFunction<Type>>>
     /**
      * Initializes locks.
@@ -35,7 +35,7 @@ export class Lock<Type = string|undefined> {
     }
     /**
      * Calling this method introduces a starting point for a critical area with
-     * potential race conditions. The area will be binded to given description
+     * potential race conditions. The area will be bind to given description
      * string. So don't use same names for different areas.
      * @param description - A short string describing the critical areas
      * properties.
@@ -53,8 +53,8 @@ export class Lock<Type = string|undefined> {
         return new Promise<Type>((resolve: (value: Type) => void): void => {
             const wrappedCallback: LockCallbackFunction<Type> = (
                 description: string
-            ): Promise<Type>|Type => {
-                let result: Promise<Type>|Type|undefined
+            ): Promise<Type> | Type => {
+                let result: Promise<Type> | Type | undefined
                 if (callback)
                     result = callback(description)
 
@@ -67,7 +67,7 @@ export class Lock<Type = string|undefined> {
                     return value
                 }
 
-                if ((result as null|Promise<Type>)?.then)
+                if ((result as null | Promise<Type>)?.then)
                     return (result as Promise<Type>).then(finish)
 
                 finish(result as Type)
@@ -92,9 +92,9 @@ export class Lock<Type = string|undefined> {
      * @returns Returns the return (maybe promise resolved) value of the
      * callback given to the "acquire" method.
      */
-    async release(description: string): Promise<Type|undefined> {
+    async release(description: string): Promise<Type | undefined> {
         if (Object.prototype.hasOwnProperty.call(this.locks, description)) {
-            const callback: LockCallbackFunction<Type>|undefined =
+            const callback: LockCallbackFunction<Type> | undefined =
                 this.locks[description].shift()
 
             if (callback === undefined)

@@ -25,7 +25,7 @@ import {AnyFunction, ArrayTransformer} from './type'
  * @returns List of parameter names.
  */
 export const getParameterNames = (
-    callable: AnyFunction|string
+    callable: AnyFunction | string
 ): Array<string> => {
     const functionCode: string = (
         (typeof callable === 'string') ?
@@ -41,7 +41,7 @@ export const getParameterNames = (
         )
 
     // Try classic function declaration.
-    let parameter: Array<string>|null =
+    let parameter: Array<string> | null =
         /^function\s*[^(]*\(\s*([^)]*)\)/m.exec(functionCode)
     if (parameter === null)
         // Try arrow function declaration.

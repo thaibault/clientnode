@@ -20,7 +20,7 @@ import {DEFAULT_ENCODING} from './constants'
 import {NOOP} from './context'
 import {optionalRequire} from './require'
 import {
-    AnyFunction, Encoding, File, FileTraversionResult, SecondParameter
+    AnyFunction, Encoding, File, FileTraverseResult, SecondParameter
 } from './type'
 
 export const {
@@ -329,9 +329,9 @@ export const isFileSync = (filePath: string): boolean => {
  */
 export const walkDirectoryRecursively = async (
     directoryPath: string,
-    callback: null|((_file: File) => FileTraversionResult) = null,
+    callback: null | ((file: File) => FileTraverseResult) = null,
     options: (
-        Encoding|SecondParameter<typeof import('fs').readdir>
+        Encoding | SecondParameter<typeof import('fs').readdir>
     ) = DEFAULT_ENCODING
 ): Promise<Array<File>> => {
     if (!(readdir && resolve && stat))
@@ -368,7 +368,7 @@ export const walkDirectoryRecursively = async (
             NOTE: Directories and have to be iterated first to be able to
             avoid deeper unwanted traversing.
         */
-        files.sort((firstFile: File, secondFile: File): -1|0|1 => {
+        files.sort((firstFile: File, secondFile: File): -1 | 0|1 => {
             if (firstFile.stats?.isDirectory()) {
                 if (secondFile.stats?.isDirectory())
                     return 0
@@ -386,7 +386,7 @@ export const walkDirectoryRecursively = async (
     for (const file of files) {
         finalFiles.push(file)
 
-        let result: FileTraversionResult =
+        let result: FileTraverseResult =
             callback ? callback(file) : undefined
 
         if (result === null)
@@ -417,9 +417,9 @@ export const walkDirectoryRecursively = async (
  */
 export const walkDirectoryRecursivelySync = (
     directoryPath: string,
-    callback: AnyFunction|null = NOOP,
+    callback: AnyFunction | null = NOOP,
     options: (
-        Encoding|SecondParameter<typeof import('fs').readdirSync>
+        Encoding | SecondParameter<typeof import('fs').readdirSync>
     ) = DEFAULT_ENCODING
 ): Array<File> => {
     if (!(readdirSync && resolve && statSync))

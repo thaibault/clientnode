@@ -29,10 +29,10 @@ test('isolateScope', (): void => {
             this.a = 2
         } as unknown as (new () => Mapping<number>)
     Scope.prototype = {_a: 5, b: 2}
-    let scope: Mapping<number|undefined> = new Scope()
+    let scope: Mapping<number | undefined> = new Scope()
 
     isolateScope(scope, ['_'])
-    let finalScope: Mapping<number|undefined> = {}
+    let finalScope: Mapping<number | undefined> = {}
     // eslint-disable-next-line guard-for-in
     for (const name in scope)
         finalScope[name] = scope[name]

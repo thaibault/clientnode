@@ -61,9 +61,9 @@ export type FunctionTestPromiseRejectionTuple<
 > = [Error, ...Parameters<FunctionType>]
 
 export type BaseSelector<T = unknown, E = unknown> =
-    number|string|((target: T) => E)
+    number | string | ((target: T) => E)
 export type Selector<T = unknown, E = unknown> =
-    Array<BaseSelector<T, E>>|BaseSelector<T, E>
+    Array<BaseSelector<T, E>> | BaseSelector<T, E>
 
 export type TestSymbol = (
     typeof TEST_DEFINED_SYMBOL |
@@ -100,30 +100,30 @@ export type RecursivePartial<Type> =
                     Partial<Type[Property]>
     }
 
-export type FileTraversionResult =
-    false|null|Promise<false|null|undefined>|undefined
+export type FileTraverseResult =
+    false | null | Promise<false | null | undefined> | undefined
 
-export type TestMatchers<T extends Promise<void>|void> =
+export type TestMatchers<T extends Promise<void> | void> =
     Matchers<T> & {not: Matchers<T>}
 /// endregion
 /// region native
 export type ImportFunction =
     (id: string) => Promise<ReturnType<typeof require>>
-export type HTMLItem = Comment|Document|HTMLElement|Text
+export type HTMLItem = Comment | Document | HTMLElement | Text
 
-export type Primitive = boolean|null|number|string|undefined
+export type Primitive = boolean | null | number | string | undefined
 export type Mapping<V = string, K extends string = string> = {
     [key in K]: V
 }
 // NOTE: Mapping cannot be used here to avoid circular references.
 export type PlainObject<V = Primitive, K extends string = string> =
-    {[key in K]: Array<PlainObject<V, K>|V>|PlainObject<V, K>|V}
+    {[key in K]: Array<PlainObject<V, K> | V> | PlainObject<V, K> | V}
 
 export interface ProxyHandler<T = unknown> {
-    deleteProperty: (target: T, key: string|symbol) => boolean
-    get: (target: T, key: string|symbol) => unknown
-    has: (target: T, key: string|symbol) => boolean
-    set: (target: T, key: string|symbol, value: unknown) => boolean
+    deleteProperty: (target: T, key: string | symbol) => boolean
+    get: (target: T, key: string | symbol) => unknown
+    has: (target: T, key: string | symbol) => boolean
+    set: (target: T, key: string | symbol, value: unknown) => boolean
 }
 export type ProxyType<T = unknown> = T & {
     __revoke__?: () => void
@@ -136,7 +136,7 @@ export interface CookieOptions {
     minimal: boolean
     numberOfDaysUntilExpiration: number
     path: string
-    sameSite: 'Lax'|'None'|'Strict'|''
+    sameSite: 'Lax' | 'None' | 'Strict' | ''
     secure: boolean
 }
 //// region functions
@@ -150,20 +150,20 @@ export type SynchronousProcedureFunction = (...parameters: Array<unknown>) =>
 export type AsynchronousProcedureFunction = (...parameters: Array<unknown>) =>
     Promise<void>
 export type ProcedureFunction =
-    AsynchronousProcedureFunction|SynchronousProcedureFunction
+    AsynchronousProcedureFunction | SynchronousProcedureFunction
 
 export type GetterFunction =
-    (keyOrValue: unknown, key: string|symbol, target: unknown) => unknown
+    (keyOrValue: unknown, key: string | symbol, target: unknown) => unknown
 export type SetterFunction =
-    (key: string|symbol, value: unknown, target: unknown) => unknown
+    (key: string | symbol, value: unknown, target: unknown) => unknown
 //// endregion
 /// endregion
 /// region clientnode helper
 export interface CheckReachabilityOptions {
-    expectedIntermediateStatusCodes: Array<number>|number
+    expectedIntermediateStatusCodes: Array<number> | number
     options: RequestInit
     pollIntervallInSeconds: number
-    statusCodes: Array<number>|number
+    statusCodes: Array<number> | number
     timeoutInSeconds: number
     wait: boolean
 }
@@ -173,7 +173,7 @@ export interface CompareOptions {
     deep: number
     exceptionPrefixes: Array<string>
     ignoreFunctions: boolean
-    properties: Array<string>|null
+    properties: Array<string> | null
     returnReasonIfNotEqual: boolean
 }
 
@@ -190,11 +190,11 @@ export type Encoding =
     'utf-8'
 export interface File {
     directoryPath: string
-    directoryEntry: DirectoryEntry|null
-    error: Error|null
+    directoryEntry: DirectoryEntry | null
+    error: Error | null
     name: string
     path: string
-    stats: FileStats|null
+    stats: FileStats | null
 }
 
 export interface ProcessError extends Error {
@@ -203,7 +203,7 @@ export interface ProcessError extends Error {
 }
 
 export type QueryParameters =
-    Array<Array<string>|string> & Mapping<Array<string>|string>
+    Array<Array<string> | string> & Mapping<Array<string> | string>
 
 export interface TimeoutPromise extends Promise<boolean> {
     clear: () => void
@@ -211,8 +211,8 @@ export interface TimeoutPromise extends Promise<boolean> {
 }
 
 // NOTE: Mapping cannot be used here to avoid circular references.
-export type ObjectMask = Array<string>|boolean|{[key: string]: ObjectMask}
-export type NormalizedObjectMask = boolean|Record<string, ObjectMask>
+export type ObjectMask = Array<string> | boolean | {[key: string]: ObjectMask}
+export type NormalizedObjectMask = boolean | Record<string, ObjectMask>
 export interface ObjectMaskConfiguration {
     exclude?: ObjectMask
     include?: ObjectMask
@@ -224,7 +224,7 @@ export interface EvaluateObject {
 export interface ExecuteObject {
     __execute__: string
 }
-export type Evaluateable = EvaluateObject|ExecuteObject
+export type Evaluateable = EvaluateObject | ExecuteObject
 
 export type EvaluatedObject<Type extends object> = {
     [Property in keyof Type]: (
@@ -235,16 +235,18 @@ export type EvaluatedObject<Type extends object> = {
                 Type[Property]
         )
 }
-export type RecursiveEvaluateable<Type> = Evaluateable|{
-    [Property in keyof Type]: (
-        Evaluateable|(Type[Property] extends Array<infer OtherType> ?
-            Array<RecursiveEvaluateable<OtherType>> :
-            Type[Property] extends Mapping<unknown> ?
-                RecursiveEvaluateable<Type[Property]> :
-                Evaluateable|Type[Property]
+export type RecursiveEvaluateable<Type> =
+    Evaluateable |
+    {
+        [Property in keyof Type]: (
+            Evaluateable | (Type[Property] extends Array<infer OtherType> ?
+                Array<RecursiveEvaluateable<OtherType>> :
+                Type[Property] extends Mapping<unknown> ?
+                    RecursiveEvaluateable<Type[Property]> :
+                    Evaluateable | Type[Property]
+            )
         )
-    )
-}
+    }
 
 export interface PaginateOptions {
     boundaryCount: number
@@ -252,7 +254,7 @@ export interface PaginateOptions {
     hideNextButton: boolean
     hidePrevButton: boolean
     page: number
-    pageSize?: null|number
+    pageSize?: null | number
     showFirstButton: boolean
     showLastButton: boolean
     siblingCount: number
@@ -265,7 +267,13 @@ export interface Page {
     type: PageType
 }
 export type PageType =
-    'end-ellipsis'|'first'|'last'|'next'|'page'|'previous'|'start-ellipsis'
+    'end-ellipsis' |
+    'first' |
+    'last' |
+    'next' |
+    'page' |
+    'previous' |
+    'start-ellipsis'
 
 export interface Offset {
     left: number
@@ -285,14 +293,14 @@ export interface ProcessCloseReason {
 export type ProcessCloseCallback = (reason: ProcessCloseReason) => void
 export type ProcessErrorCallback = (reason: ProcessError) => void
 
-export type RelativePosition = 'above'|'below'|'in'|'left'|'right'
+export type RelativePosition = 'above' | 'below' | 'in' | 'left' | 'right'
 
 export type TemplateFunction<Type = string> =
     (...parameters: Array<unknown>) => Type
 export interface CompilationResult<
     T = string, N extends Array<string> = Array<string>
 > {
-    error: null|string
+    error: null | string
 
     globalNames: Array<string>
     globalNamesUndefinedList: Array<undefined>
@@ -303,10 +311,10 @@ export interface CompilationResult<
     templateFunction: TemplateFunction<T>
 }
 export interface NegativeEvaluationResult {
-    compileError: null|string
+    compileError: null | string
     error: string
     result: undefined
-    runtimeError: null|string
+    runtimeError: null | string
 }
 export interface PositiveEvaluationResult<Type = string> {
     compileError: null
@@ -315,10 +323,10 @@ export interface PositiveEvaluationResult<Type = string> {
     runtimeError: null
 }
 export type EvaluationResult<Type = string> =
-    PositiveEvaluationResult<Type>|NegativeEvaluationResult
+    PositiveEvaluationResult<Type> | NegativeEvaluationResult
 
 export type LockCallbackFunction<Type> =
-    (description: string) => Promise<Type>|Type
+    (description: string) => Promise<Type> | Type
 /// endregion
 /// region global scope
 export type DomNodes<Type = string> =
@@ -333,7 +341,7 @@ export type $DomNodes<TElement = HTMLElement> = DomNodes<$T<TElement>>
 
 export interface Options<Type = string> {
     domNodes: DomNodes<Type>
-    domNodeSelectorInfix: null|string
+    domNodeSelectorInfix: null | string
     domNodeSelectorPrefix: string
     logging: boolean
     name: string
@@ -356,10 +364,10 @@ export interface ToolsFunction<TElement = HTMLElement> {
 }
 export interface BoundToolsFunction<TElement = HTMLElement> {
     (
-        methodName: 'normalizedClassNames'|'normalizedStyles'
+        methodName: 'normalizedClassNames' | 'normalizedStyles'
     ): BoundTools<TElement>
     (methodName: 'removeDirective', directiveName: string): $T<TElement>
-    (methodName: 'style'): Mapping<number|string>
+    (methodName: 'style'): Mapping<number | string>
     (methodName: 'text'): string
     (...parameters: Array<unknown>): BoundTools<TElement>
 }
@@ -378,8 +386,8 @@ declare global {
 /// endregion
 export interface StringMarkOptions {
     marker:
-        ((foundWord: string, markedTarget: Array<unknown>) => unknown)|string
+        ((foundWord: string, markedTarget: Array<unknown>) => unknown) | string
     normalizer: (value: unknown) => string
-    skipTagDelimitedParts: null|[string, string]
+    skipTagDelimitedParts: null | [string, string]
 }
 // endregion

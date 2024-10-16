@@ -46,9 +46,9 @@ export const RealTypes = {
     symbol: PropTypes.symbol
 } as const
 export const createDummy = (
-    result: Error|null = null
+    result: Error | null = null
 ): ValueOf<typeof RealTypes> => {
-    const type: Requireable<unknown> = (): Error|null => result
+    const type: Requireable<unknown> = (): Error | null => result
 
     type.isRequired = (): null => null
 

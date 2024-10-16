@@ -39,9 +39,9 @@ export const DATE_TIME_PATTERN_CACHE: Array<RegExp> = []
  */
 export const dateTimeFormat = (
     format = 'full',
-    dateTime: Date|number|string = new Date(),
+    dateTime: Date | number | string = new Date(),
     options: SecondParameter<typeof Intl.DateTimeFormat> = {},
-    locales: Array<string>|string = LOCALES
+    locales: Array<string> | string = LOCALES
 ): string => {
     if (typeof dateTime === 'number')
         /*
@@ -60,7 +60,7 @@ export const dateTimeFormat = (
         )
             .format(normalizedDateTime)
 
-    const scope: Mapping<Array<string>|string> = {}
+    const scope: Mapping<Array<string> | string> = {}
     for (const style of ['full', 'long', 'medium', 'short'] as const) {
         scope[`${style}Literals`] = []
 
@@ -97,14 +97,14 @@ export const dateTimeFormat = (
 /**
  * Interprets given content string as date time.
  * @param value - Date time string to interpret.
- * @param interpretAsUTC - Identifies if given date should be interpret as
- * utc. If not set given strings will be interpret as it is depending on
+ * @param interpretAsUTC - Identifies if given date should be interpreted as
+ * utc. If not set given strings will be interpreted as it is depended on
  * given format and number like string as utc.
  * @returns Interpret date time object.
  */
 export const interpretDateTime = (
-    value: string, interpretAsUTC?: null|boolean
-): Date|null => {
+    value: string, interpretAsUTC?: boolean | null
+): Date | null => {
     let resolvedInterpretAsUTC = Boolean(interpretAsUTC)
     // region iso format
     /*
@@ -157,7 +157,7 @@ export const interpretDateTime = (
             if (resolvedInterpretAsUTC) {
                 if (!match.groups?.time)
                     /*
-                        NOTE: Date only strings will be interpret as UTC
+                        NOTE: Date only strings will be interpreted as UTC
                         already.
                     */
                     return result
@@ -171,7 +171,7 @@ export const interpretDateTime = (
 
             if (match.groups?.time)
                 /*
-                    NOTE: Date time strings will be interpret as local
+                    NOTE: Date time strings will be interpreted as local
                     already.
                 */
                 return result
@@ -514,7 +514,7 @@ export const interpretDateTime = (
     value = sliceWeekday(value)
 
     const timezonePattern = /(.+)\+(.+)$/
-    const timezoneMatch: Array<string>|null = timezonePattern.exec(value)
+    const timezoneMatch: Array<string> | null = timezonePattern.exec(value)
     if (timezoneMatch)
         value = value.replace(timezonePattern, '$1')
 
@@ -547,9 +547,9 @@ export const interpretDateTime = (
                 get('millisecond')
             ]
 
-            let result: Date|null = null
+            let result: Date | null = null
             if (timezoneMatch) {
-                const timeShift: Date|null =
+                const timeShift: Date | null =
                     interpretDateTime(timezoneMatch[2], true)
                 if (timeShift)
                     result = new Date(
@@ -582,9 +582,9 @@ export const interpretDateTime = (
  * interpreted.
  */
 export const normalizeDateTime = (
-    value: string|null|number|Date = null,
-    interpretAsUTC?: null|boolean
-): Date|null => {
+    value: string | null | number | Date = null,
+    interpretAsUTC?: boolean | null
+): Date | null => {
     let resolvedInterpretAsUTC = Boolean(interpretAsUTC)
 
     if (value === null)
