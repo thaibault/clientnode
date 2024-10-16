@@ -29,8 +29,8 @@ import {
     makeRange,
     merge,
     paginate,
-    permutate,
-    permutateLength,
+    permute,
+    permuteLength,
     removeArrayItem,
     sortTopological,
     sumUpProperty,
@@ -251,9 +251,9 @@ testEach<typeof paginate>(
         }
     ]
 )
-testEach<typeof permutate>(
-    'permutate',
-    permutate,
+testEach<typeof permute>(
+    'permute',
+    permute,
 
     [[[]], []],
     [[[1]], [1]],
@@ -281,9 +281,9 @@ testEach<typeof permutate>(
         ['1', '2', '3']
     ]
 )
-testEach<typeof permutateLength>(
-    'permutateLength',
-    permutateLength,
+testEach<typeof permuteLength>(
+    'permuteLength',
+    permuteLength,
 
     [[], []],
     [[[1]], [1]],

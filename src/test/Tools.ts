@@ -229,7 +229,7 @@ if (HAS_DOM) {
 
             $('body').append($domNode[0])
 
-            const styles: Mapping<number|string> = $domNode.Tools('style')
+            const styles: Mapping<number | string> = $domNode.Tools('style')
             for (const propertyName in css)
                 if (Object.prototype.hasOwnProperty.call(
                     css, propertyName

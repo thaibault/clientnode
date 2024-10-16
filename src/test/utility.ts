@@ -31,15 +31,15 @@ test('debounce', (): void => {
     void debouncedCallback()
     expect(callback).toHaveBeenCalledTimes(1)
 
-    const debouncedAsyncronousCallback =
+    const debouncedAsynchronousCallback =
         debounce(async (): Promise<boolean> => {
             await timeout()
 
             return true
         })
-    void expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
-    void expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
-    void expect(debouncedAsyncronousCallback()).resolves.toStrictEqual(true)
+    void expect(debouncedAsynchronousCallback()).resolves.toStrictEqual(true)
+    void expect(debouncedAsynchronousCallback()).resolves.toStrictEqual(true)
+    void expect(debouncedAsynchronousCallback()).resolves.toStrictEqual(true)
 })
 test('timeout', async (): Promise<void> => {
     expect(await timeout()).toStrictEqual(false)

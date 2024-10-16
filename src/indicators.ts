@@ -47,7 +47,7 @@ export const isWindow = (value: unknown): value is Window => {
     return (
         ![null, undefined].includes(value as null) &&
         typeof value === 'object' &&
-        value === (value as null|Window)?.window
+        value === (value as null | Window)?.window
     )
 }
 /**
@@ -57,7 +57,7 @@ export const isWindow = (value: unknown): value is Window => {
  * @returns A boolean value indicating whether given object is array like.
  */
 export const isArrayLike = (object: unknown): boolean => {
-    let length: number|boolean
+    let length: number | boolean
     try {
         length = Boolean(object) && (object as Array<unknown>).length
     } catch (_error) {
@@ -91,7 +91,7 @@ export const isArrayLike = (object: unknown): boolean => {
  * given pattern and "false" otherwise.
  */
 export const isAnyMatching = (
-    target: string, pattern: Array<RegExp|string>
+    target: string, pattern: Array<RegExp | string>
 ): boolean => {
     for (const currentPattern of pattern)
         if (typeof currentPattern === 'string') {

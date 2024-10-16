@@ -26,11 +26,11 @@ import {determineType} from './object'
  * @returns Determined numerous value.
  */
 export const getUTCTimestamp = (
-    value?: Date|null|number|string, inMilliseconds = false
+    value?: Date | null | number | string, inMilliseconds = false
 ): number => {
     const date: Date = [null, undefined].includes(value as null) ?
         new Date() :
-        new Date(value as Date|number|string)
+        new Date(value as Date | number | string)
 
     return (
         Date.UTC(

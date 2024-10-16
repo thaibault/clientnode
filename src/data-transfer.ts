@@ -115,7 +115,7 @@ export const checkReachability = async (
                 return error
             }
 
-            const wrapper = async (): Promise<Error|Response> => {
+            const wrapper = async (): Promise<Error | Response> => {
                 let response: Response
                 try {
                     // @ts-expect-error We already catch the error.
@@ -181,7 +181,7 @@ export const checkReachability = async (
  */
 export const checkUnreachability = async (
     url: string, givenOptions: RecursivePartial<CheckReachabilityOptions> = {}
-): Promise<Error|null|Promise<Error|null>> => {
+): Promise<Error | null | Promise<Error | null>> => {
     if (!globalContext.fetch)
         throw new Error('Missing fetch implementation available.')
 
@@ -197,7 +197,7 @@ export const checkUnreachability = async (
         givenOptions
     )
 
-    const check = (response: null|Response): Error|null => {
+    const check = (response: null | Response): Error | null => {
         const statusCodes: Array<number> =
             ([] as Array<number>).concat(options.statusCodes)
         if (statusCodes.length) {
@@ -221,13 +221,13 @@ export const checkUnreachability = async (
     }
 
     if (options.wait)
-        return new Promise<Error|null|Promise<Error|null>>((
-            resolve: (_value: Error|null) => void,
-            reject: (_reason: Error) => void
+        return new Promise<Error | null | Promise<Error | null>>((
+            resolve: (value: Error | null) => void,
+            reject: (reason: Error) => void
         ): void => {
             let timedOut = false
 
-            const wrapper = async (): Promise<Error|Response|null> => {
+            const wrapper = async (): Promise<Error | Response | null> => {
                 try {
                     const response: Response =
                         // @ts-expect-error We already catch the error.
@@ -236,7 +236,7 @@ export const checkUnreachability = async (
                     if (timedOut)
                         return response
 
-                    const result: Error|null = check(response)
+                    const result: Error | null = check(response)
                     if (result) {
                         timer.clear()
                         resolve(result)
@@ -286,7 +286,7 @@ export const checkUnreachability = async (
         })
 
     try {
-        const result: Error|null =
+        const result: Error | null =
             check(await globalContext.fetch(url, options.options))
 
         if (result)
@@ -310,7 +310,7 @@ export const checkUnreachability = async (
  * @returns Returns the given target as extended dom node.
  */
 export const sendToIFrame = (
-    target: $T<HTMLIFrameElement>|HTMLIFrameElement|string,
+    target: $T<HTMLIFrameElement> | HTMLIFrameElement | string,
     url: string,
     data: Mapping<unknown>,
     requestType = 'post',
@@ -367,7 +367,7 @@ export const sendToExternalURL = (
     data: Mapping<unknown>,
     requestType = 'post',
     removeAfterLoad = true,
-    domNode: HTMLElement|null = null
+    domNode: HTMLElement | null = null
 ): $T<HTMLIFrameElement> => {
     const $iFrameDomNode: $T<HTMLIFrameElement> =
         $<HTMLIFrameElement>('<iframe>')

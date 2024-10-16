@@ -85,21 +85,21 @@ test('addDynamicGetterAndSetter', (): void => {
     expect(
         addDynamicGetterAndSetter(
             {a: {a: 1}},
-            (value: unknown): number|PlainObject =>
+            (value: unknown): number | PlainObject =>
                 isPlainObject(value) ? value : (value as number) + 2
         ).a.a
     ).toStrictEqual(3)
     expect(
         addDynamicGetterAndSetter(
             {a: {a: [{a: 1}]}},
-            (value: unknown): number|PlainObject =>
+            (value: unknown): number | PlainObject =>
                 isPlainObject(value) ? value : (value as number) + 2
         ).a.a[0].a
     ).toStrictEqual(3)
     expect(
         addDynamicGetterAndSetter(
             {a: {a: 1}},
-            (value: unknown): number|PlainObject =>
+            (value: unknown): number | PlainObject =>
                 isPlainObject(value) ? value : (value as number) + 2,
             null,
             {has: 'hasOwnProperty'},
@@ -109,7 +109,7 @@ test('addDynamicGetterAndSetter', (): void => {
     expect(
         addDynamicGetterAndSetter(
             {a: 1},
-            (value: unknown): number|PlainObject =>
+            (value: unknown): number | PlainObject =>
                 isPlainObject(value) ? value : (value as number) + 2,
             null,
             {has: 'hasOwnProperty'},
@@ -120,7 +120,7 @@ test('addDynamicGetterAndSetter', (): void => {
     expect(
         (addDynamicGetterAndSetter(
             {a: new Map([['a', 1]])},
-            (value: unknown): number|PlainObject =>
+            (value: unknown): number | PlainObject =>
                 isPlainObject(value) ? value : (value as number) + 2,
             null,
             {delete: 'delete', get: 'get', set: 'set', has: 'has'},
@@ -184,13 +184,13 @@ testEach<typeof convertMapToPlainObject>(
     [[{a: 2, '2': 2}], [new Map<string, number>([['a', 2], ['2', 2]])]],
     [
         [[{a: {}, '2': 2}]],
-        [[new Map<string, Map<string, string>|number>(
+        [[new Map<string, Map<string, string> | number>(
             [['a', new Map()], ['2', 2]]
         )]]
     ],
     [
         [[{a: {a: 2}, '2': 2}]],
-        [[new Map<string, Map<string, number>|number>(
+        [[new Map<string, Map<string, number> | number>(
             [['a', new Map([['a', 2]])], ['2', 2]]
         )]]
     ]
@@ -208,31 +208,31 @@ testEach<typeof convertPlainObjectToMap>(
     [[new Map()], [{}]],
     [[{}], [{}], false],
     [
-        [new Map<string, Map<string, string>|number>(
+        [new Map<string, Map<string, string> | number>(
             [['a', new Map()], ['b', 2]]
         )],
         [{a: {}, b: 2}]
     ],
     [
-        [new Map<string, Map<string, string>|number>(
+        [new Map<string, Map<string, string> | number>(
             [['a', new Map()], ['b', 2]]
         )],
         [{b: 2, a: {}}]
     ],
     [
-        [new Map<string, Map<string, string>|number>(
+        [new Map<string, Map<string, string> | number>(
             [['a', new Map()], ['b', 2]]
         )],
         [{b: 2, a: new Map()}]
     ],
     [
-        [new Map<string, [Map<string, string>]|number>(
+        [new Map<string, [Map<string, string>] | number>(
             [['a', [new Map()]], ['b', 2]]
         )],
         [{b: 2, a: [{}]}]
     ],
     [
-        [new Map<string, Set<Map<string, string>>|number>(
+        [new Map<string, Set<Map<string, string>> | number>(
             [['a', new Set([new Map()])], ['b', 2]]
         )],
         [{b: 2, a: new Set([{}])}]
@@ -878,13 +878,13 @@ testEach<typeof extend>(
         new Map([['a', 2]])
     ],
     [
-        new Map<string, Map<string, number>|number>(
+        new Map<string, Map<string, number> | number>(
             [['a', 2], ['b', new Map([['b', 1]])]]
         ),
-        new Map<string, Map<string, number>|number>(
+        new Map<string, Map<string, number> | number>(
             [['a', 1], ['b', new Map<string, number>([['a', 1]])]]
         ),
-        new Map<string, Map<string, number>|number>(
+        new Map<string, Map<string, number> | number>(
             [['a', 2], ['b', new Map<string, number>([['b', 1]])]]
         )
     ],
@@ -918,29 +918,29 @@ testEach<typeof extend>(
     [[1], true, [1, 2], [1]],
     [new Map(), true, new Map()],
     [
-        new Map<string, Map<string, number>|number>(
+        new Map<string, Map<string, number> | number>(
             [['a', 2], ['b', new Map([['a', 1], ['b', 1]])]]
         ),
         true,
-        new Map<string, Map<string, number>|number>(
+        new Map<string, Map<string, number> | number>(
             [['a', 1], ['b', new Map([['a', 1]])]]
         ),
-        new Map<string, Map<string, number>|number>(
+        new Map<string, Map<string, number> | number>(
             [['a', 2], ['b', new Map([['b', 1]])]]
         )
     ],
     [
-        new Map<string, Map<string, []|number>|number>(
+        new Map<string, Map<string, [] | number> | number>(
             [
                 ['a', 2],
-                ['b', new Map<string, []|number>([['a', []], ['b', 1]])]
+                ['b', new Map<string, [] | number>([['a', []], ['b', 1]])]
             ]
         ),
         true,
-        new Map<string, Map<string, []>|number>(
+        new Map<string, Map<string, []> | number>(
             [['a', 1], ['b', new Map([['a', []]])]]
         ),
-        new Map<string, Map<string, number>|number>(
+        new Map<string, Map<string, number> | number>(
             [['a', 2], ['b', new Map([['b', 1]])]]
         )
     ],
@@ -1164,7 +1164,7 @@ testEach<typeof removeKeyPrefixes>(
     [{b: 3}, {a: 2, a0: 2, b: 3}, ['a']],
     [
         new Map([['3', []]]),
-        new Map<string, [string]|number>(
+        new Map<string, [string] | number>(
             [['3', ['a:to remove']], ['a', 3]]
         ),
         'a'

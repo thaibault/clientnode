@@ -108,7 +108,7 @@ export const convertToValidVariableName = (name: string): string => {
         // continuing character upper case.
         .replace(
             new RegExp(`[^${ALLOWED_VARIABLE_SYMBOLS}]+([a-zA-Z])`, 'g'),
-            (fullMatch: string, firstLetter: string): string =>
+            (_fullMatch: string, firstLetter: string): string =>
                 firstLetter.toUpperCase()
         )
 }
@@ -187,7 +187,7 @@ export const getDomainName = (
     url: string = $.location?.href || '',
     fallback: string = $.location?.hostname || ''
 ): string => {
-    const result: Array<string>|null =
+    const result: Array<string> | null =
         /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
 
     if (result && result.length > 2 && result[1] && result[2])
@@ -207,11 +207,11 @@ export const getDomainName = (
  */
 export const getPortNumber = (
     url: string = $.location?.href || '',
-    fallback: null|number = $.location?.port ?
+    fallback: null | number = $.location?.port ?
         parseInt($.location.port) :
         null
-): null|number => {
-    const result: Array<string>|null =
+): null | number => {
+    const result: Array<string> | null =
         /^(?:[a-z]*:?\/\/[^/]+?)?[^/]+?:([0-9]+)/i.exec(url)
 
     if (result && result.length > 1)
@@ -247,7 +247,7 @@ export const getProtocolName = (
         ''
     )
 ): string => {
-    const result: Array<string>|null = /^([a-z]+):\/\//i.exec(url)
+    const result: Array<string> | null = /^([a-z]+):\/\//i.exec(url)
 
     if (result && result.length > 1 && result[1])
         return result[1]
@@ -263,11 +263,11 @@ export const getProtocolName = (
  * single values. If set to "false" (default) last values will overwrite
  * preceding values.
  * @param givenInput - An alternative input to the url search parameter. If
- * "#" is given the complete current hash tag will be interpreted as url
- * and search parameter will be extracted from there. If "&" is given
- * classical search parameter and hash parameter will be taken in account.
- * If a search string is given this will be analyzed. The default is to
- * take given search part into account.
+ * "#" is given the complete current hashtag will be interpreted as url and
+ * search parameter will be extracted from there. If "&" is given classical
+ * search parameter and hash parameter will be taken in account. If a search
+ * string is given this will be analyzed. The default is to take given search
+ * part into account.
  * @param subDelimiter - Defines which sequence indicates the start of
  * parameter in a hash part of the url.
  * @param hashedPathIndicator - If defined and given hash starts with this
@@ -281,14 +281,14 @@ export const getProtocolName = (
  * key doesn't exist "undefined" is returned.
  */
 export const getURLParameter = (
-    keyToGet: null|string = null,
+    keyToGet: null | string = null,
     allowDuplicates = false,
-    givenInput: null|string = null,
+    givenInput: null | string = null,
     subDelimiter = '$',
     hashedPathIndicator = '!',
-    givenSearch: null|string = null,
-    givenHash: null|string = $.location?.hash ?? ''
-): Array<string>|null|QueryParameters|string => {
+    givenSearch: null | string = null,
+    givenHash: null | string = $.location?.hash ?? ''
+): Array<string> | null | QueryParameters | string => {
     // region set search and hash
     let hash: string = givenHash ?? '#'
     let search = ''
@@ -389,7 +389,7 @@ export const serviceURLEquals = (
 ): boolean => {
     const domain: string = getDomainName(url, '')
     const protocol: string = getProtocolName(url, '')
-    const port: null|number = getPortNumber(url)
+    const port: null | number = getPortNumber(url)
 
     return (
         (domain === '' || domain === getDomainName(referenceURL)) &&
@@ -439,7 +439,7 @@ export const representURL = (url: unknown): string => {
 export const camelCaseToDelimited = (
     value: string,
     delimiter = '-',
-    abbreviations: Array<string>|null = null
+    abbreviations: Array<string> | null = null
 ): string => {
     if (!abbreviations)
         abbreviations = ABBREVIATIONS
@@ -497,7 +497,7 @@ export const compressStyleValue = (styleValue: string): string => {
  * @param htmlString - HTML string to decode.
  * @returns Decoded html string.
  */
-export const decodeHTMLEntities = (htmlString: string): null|string => {
+export const decodeHTMLEntities = (htmlString: string): null | string => {
     if ($.document) {
         const textareaDomNode = $.document.createElement('textarea')
         textareaDomNode.innerHTML = htmlString
@@ -521,7 +521,7 @@ export const decodeHTMLEntities = (htmlString: string): null|string => {
 export const delimitedToCamelCase = (
     value: string,
     delimiter = '-',
-    abbreviations: Array<string>|null = null,
+    abbreviations: Array<string> | null = null,
     preserveWrongFormattedAbbreviations = false,
     removeMultipleDelimiter = false
 ): string => {
@@ -553,7 +553,7 @@ export const delimitedToCamelCase = (
             'g'
         ),
         (
-            fullMatch: string,
+            _fullMatch: string,
             before: string,
             abbreviation: string,
             after: string
@@ -565,7 +565,7 @@ export const delimitedToCamelCase = (
 
     value = value.replace(
         new RegExp(`${escapedDelimiter}([a-zA-Z0-9])`, 'g'),
-        (fullMatch: string, firstLetter: string): string =>
+        (_fullMatch: string, firstLetter: string): string =>
             firstLetter.toUpperCase()
     )
 
@@ -587,7 +587,11 @@ export const delimitedToCamelCase = (
  */
 export const compile = <T = string, N extends Array<string> = Array<string>>(
     expression: string,
-    scope: Mapping<unknown, N[number]>|N|N[number]|string = [] as unknown as N,
+    scope:
+        Mapping<unknown, N[number]> |
+        N |
+        N[number] |
+        string = [] as unknown as N,
     execute = false,
     removeGlobalScope = true,
     binding: unknown = {}
@@ -640,7 +644,7 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
                 // Mark simple escape sequences.
                 .replace(/\\\$/g, escapeMarker)
                 // Handle avoidable template expression: Use raw code.
-                .replace(/^`\$\{([\s\S]+)\}`$/, 'String($1)')
+                .replace(/^`\$\{([\s\S]+)}`$/, 'String($1)')
                 // Use plain string with single quotes.
                 .replace(/^`([^']+)`$/, `'$1'`)
                 // Use plain string with double quotes.
@@ -652,7 +656,7 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
                 // Replace simple placeholder.
                 // NOTE: Replace complete bracket pairs.
                 .replace(
-                    /\$\{((([^{]*{[^}]*}[^}]*})|[^{}]+)+)\}/g,
+                    /\$\{((([^{]*{[^}]*}[^}]*})|[^{}]+)+)}/g,
                     `${quote}+($1)+${quote}`
                 )
                 .replace(/^`([\s\S]+)`$/, `${quote}$1${quote}`)
@@ -662,7 +666,7 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
                 .replace(new RegExp(escapeMarker, 'g'), '\\$')
         }
     // endregion
-    let innerTemplateFunction: TemplateFunction<T>|undefined
+    let innerTemplateFunction: TemplateFunction<T> | undefined
 
     try {
         // eslint-disable-next-line @typescript-eslint/no-implied-eval
@@ -778,8 +782,8 @@ export const findNormalizedMatchRange = (
     target: unknown,
     query: unknown,
     normalizer = (value: unknown): string => String(value).toLowerCase(),
-    skipTagDelimitedParts: null|[string, string] = ['<', '>']
-): Array<number>|null => {
+    skipTagDelimitedParts: null | [string, string] = ['<', '>']
+): Array<number> | null => {
     const normalizedQuery: string = normalizer(query)
     const normalizedTarget: string = normalizer(target)
 
@@ -949,7 +953,7 @@ export const lowerCase = (string: string): string => {
  */
 export const mark = (
     target: unknown,
-    givenWords?: Array<string>|string,
+    givenWords?: Array<string> | string,
     givenOptions: Partial<StringMarkOptions> = {}
 ): unknown => {
     if (typeof target === 'string' && givenWords?.length) {
@@ -983,8 +987,8 @@ export const mark = (
             iteration < MAXIMAL_NUMBER_OF_ITERATIONS.value;
             iteration++
         ) {
-            let nearestRange: Array<number>|null = null
-            let currentRange: Array<number>|null = null
+            let nearestRange: Array<number> | null = null
+            let currentRange: Array<number> | null = null
 
             // Find the nearest next matching word.
             for (const word of words) {
@@ -1098,7 +1102,7 @@ export const normalizePhoneNumber = (
         if (compiledPattern.test(normalizedValue))
             // Country code and area code matched.
             normalizedValue = normalizedValue.replace(compiledPattern, (
-                match: string,
+                _match: string,
                 countryCode: string,
                 areaCode: string,
                 number: string
@@ -1114,7 +1118,7 @@ export const normalizePhoneNumber = (
             */
             compiledPattern = /^([0-9 ]+)[/-](.+)$/
             const replacer = (
-                match: string, prefixCode: string, number: string
+                _match: string, prefixCode: string, number: string
             ): string =>
                 `${prefixCode.replace(/ +/, '')}-` +
                 sliceAllExceptNumberAndLastSeparator(number)
@@ -1157,7 +1161,7 @@ export const normalizeZipCode = (value: unknown): string => {
  */
 export const parseEncodedObject = <T = PlainObject>(
     serializedObject: string, scope: Mapping<unknown> = {}, name = 'scope'
-): null|T => {
+): null | T => {
     if (!readFileSync)
         throw new Error('File system api could not be loaded.')
 
@@ -1203,7 +1207,7 @@ export const representPhoneNumber = (value: unknown): string => {
         return normalizedValue.replace(
             /^(.*?)([0-9]+)(-?[0-9]*)$/,
             (
-                match: string, prefix: string, number: string, suffix: string
+                _match: string, prefix: string, number: string, suffix: string
             ): string =>
                 prefix +
                 (
@@ -1212,7 +1216,7 @@ export const representPhoneNumber = (value: unknown): string => {
                         number.replace(
                             /^([0-9]{3})([0-9]+)$/,
                             (
-                                match: string, triple: string, rest: string
+                                _match: string, triple: string, rest: string
                             ): string =>
                                 `${triple} ` +
                                 rest.replace(/([0-9]{2})/g, '$1 ').trim()
@@ -1236,7 +1240,7 @@ export const sliceAllExceptNumberAndLastSeparator = (value: string): string => {
     const compiledPattern = /^(.*[0-9].*)-([0-9]+)$/
     if (compiledPattern.test(value))
         return value.replace(compiledPattern, (
-            match: string,
+            _match: string,
             baseNumber: string,
             directDialingNumberSuffix: string
         ): string =>

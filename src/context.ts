@@ -100,15 +100,15 @@ export const determine$: (() => $TStatic) = (): $TStatic => {
                 () => null
 
             $ = ((parameter: unknown): unknown => {
-                let $domNodes: null|$T = null
+                let $domNodes: null | $T = null
                 if (typeof parameter === 'string')
-                    $domNodes = selector(parameter) as unknown as null|$T
+                    $domNodes = selector(parameter) as unknown as null | $T
                 else if (Array.isArray(parameter))
-                    $domNodes = parameter as unknown as null|$T
+                    $domNodes = parameter as unknown as null | $T
                 else if (
                     typeof HTMLElement === 'object' &&
                     parameter instanceof HTMLElement ||
-                    (parameter as Mapping<unknown>|undefined)?.nodeType ===
+                    (parameter as Mapping<unknown> | undefined)?.nodeType ===
                         1 &&
                     typeof (parameter as Mapping<unknown>).nodeName ===
                         'string'
@@ -316,7 +316,7 @@ export const augment$ = (value: $TStatic): void => {
 }
 augment$($)
 /// region fix script loading errors with canceling requests
-$.readyException = (error: Error|string): void => {
+$.readyException = (error: Error | string): void => {
     if (!(typeof error === 'string' && error === 'canceled'))
         // eslint-disable-next-line no-throw-literal
         throw error as Error

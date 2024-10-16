@@ -39,7 +39,7 @@ export const debounce = <T = unknown>(
     ...additionalArguments: Array<unknown>
 ): ((...parameters: Array<unknown>) => Promise<T>) => {
     let waitForNextSlot = false
-    let parametersForNextSlot: Array<unknown>|null = null
+    let parametersForNextSlot: Array<unknown> | null = null
     // NOTE: Type "T" will be added via "then" method when called.
     let resolveNextSlotPromise: (value: T) => void
     let rejectNextSlotPromise: (reason: unknown) => void
@@ -70,7 +70,7 @@ export const debounce = <T = unknown>(
         const rejectCurrentSlotPromise = rejectNextSlotPromise
 
         // NOTE: We call callback synchronously if possible.
-        const result: Promise<T>|T = callback(...parameters) as Promise<T>|T
+        const result: Promise<T> | T = callback(...parameters) as Promise<T> | T
 
         if (result && Object.prototype.hasOwnProperty.call(result, 'then'))
             (result as Promise<T>).then(
@@ -106,9 +106,9 @@ export const debounce = <T = unknown>(
 
                     // NOTE: Check if this slot should be used.
                     if (parametersForNextSlot) {
-                        const result: Promise<T>|T =
+                        const result: Promise<T> | T =
                             callback(...parametersForNextSlot) as
-                                Promise<T>|T
+                                Promise<T> | T
                         parametersForNextSlot = null
 
                         if (
