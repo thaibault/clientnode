@@ -618,7 +618,7 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
                 scope :
                 typeof scope === 'string' ? [scope] : Object.keys(scope)
         ) as N,
-        scopeNameMapping: {} as {[key in N[number]]: string},
+        scopeNameMapping: {} as Record<N[number], string>,
         scopeNames: [],
         templateFunction: (): T => undefined as unknown as T
     }
@@ -1194,7 +1194,8 @@ export const representPhoneNumber = (value: unknown): string => {
     if (['number', 'string'].includes(determineType(value)) && value) {
         // Represent country code and leading area code zero.
         let normalizedValue =
-            String(value).replace(/^(00|\+)([0-9]+)-([0-9-]+)$/, '+$2 (0) $3')
+            String(value as number)
+                .replace(/^(00|\+)([0-9]+)-([0-9-]+)$/, '+$2 (0) $3')
 
         // Add German country code if not exists.
         normalizedValue =
