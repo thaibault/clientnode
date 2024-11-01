@@ -5026,7 +5026,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:3.0.1221, clientnode@workspace:.":
+"clientnode@npm:3.0.1221":
+  version: 3.0.1221
+  resolution: "clientnode@npm:3.0.1221"
+  peerDependencies:
+    "@babel/runtime": "*"
+    "@types/prop-types": "*"
+    jquery: "*"
+    node-fetch: "*"
+    prop-types: "*"
+  peerDependenciesMeta:
+    "@babel/runtime":
+      optional: true
+    "@types/prop-types":
+      optional: true
+    jquery:
+      optional: true
+    node-fetch:
+      optional: true
+    prop-types:
+      optional: true
+  checksum: 10c0/272966424d147ad147c95eb9c0c84f26a3f1d8dcd77df72634478471cde7530600990ee97a3b6b387149f386c66c4f93e4d39ef90a5f7c1d2f43c9daca067990
+  languageName: node
+  linkType: hard
+
+"clientnode@workspace:.":
   version: 0.0.0-use.local
   resolution: "clientnode@workspace:."
   dependencies:
