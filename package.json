@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.1220",
+  "version": "3.0.1221",
   "description": "upgrade to object orientated rock solid plugins",
   "keywords": [
     "client",
@@ -69,7 +69,7 @@
     "@types/webpack-env": "^1.18.5",
     "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",
-    "clientnode": "3.0.1220",
+    "clientnode": "3.0.1221",
     "documentation-website": "^1.0.337",
     "eslint": "^9.13.0",
     "eslint-config-google": "^0.14.0",
