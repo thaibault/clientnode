@@ -43,13 +43,10 @@ export const isNumeric = (value: unknown): value is number => {
  * @param value - Value to check for.
  * @returns Boolean value indicating the result.
  */
-export const isWindow = (value: unknown): value is Window => {
-    return (
-        ![null, undefined].includes(value as null) &&
-        typeof value === 'object' &&
-        value === (value as null | Window)?.window
-    )
-}
+export const isWindow = (value: unknown): value is Window =>
+    ![null, undefined].includes(value as null) &&
+    typeof value === 'object' &&
+    value === (value as null | Window)?.window
 /**
  * Checks if given object is similar to an array and can be handled like an
  * array.
@@ -108,57 +105,46 @@ export const isAnyMatching = (
  * @returns Value "true" if given object is a plain javaScript object and
  * "false" otherwise.
  */
-export const isObject = (value: unknown): value is Mapping<unknown> => {
-    return value !== null && typeof value === 'object'
-}
+export const isObject = (value: unknown): value is Mapping<unknown> =>
+    value !== null && typeof value === 'object'
 /**
  * Checks whether given object is a plain native object.
  * @param value - Value to check.
  * @returns Value "true" if given object is a plain javaScript object and
  * "false" otherwise.
  */
-export const isPlainObject = (value: unknown): value is PlainObject => {
-    return (
-        value !== null &&
-        typeof value === 'object' &&
-        PLAIN_OBJECT_PROTOTYPES.includes(Object.getPrototypeOf(value))
-    )
-}
+export const isPlainObject = (value: unknown): value is PlainObject =>
+    isObject(value) &&
+    PLAIN_OBJECT_PROTOTYPES.includes(Object.getPrototypeOf(value))
 /**
  * Checks whether given object is a set.
  * @param value - Value to check.
  * @returns Value "true" if given object is a set and "false" otherwise.
  */
-export const isSet = (value: unknown): value is Set<unknown> => {
-    return determineType(value) === 'set'
-}
+export const isSet = (value: unknown): value is Set<unknown> =>
+    determineType(value) === 'set'
 /**
  * Checks whether given object is a map.
  * @param value - Value to check.
  * @returns Value "true" if given object is a map and "false" otherwise.
  */
-export const isMap = (value: unknown): value is Map<unknown, unknown> => {
-    return determineType(value) === 'map'
-}
+export const isMap = (value: unknown): value is Map<unknown, unknown> =>
+    determineType(value) === 'map'
 /**
  * Checks whether given object is a proxy.
  * @param value - Value to check.
  * @returns Value "true" if given object is a proxy and "false" otherwise.
  */
-export const isProxy = (value: unknown): value is ProxyType => {
-    return Boolean((value as ProxyType).__target__)
-}
+export const isProxy = (value: unknown): value is ProxyType =>
+    Boolean((value as ProxyType).__target__)
 /**
  * Checks whether given object is a function.
  * @param value - Value to check.
  * @returns Value "true" if given object is a function and "false"
  * otherwise.
  */
-export const isFunction = (value: unknown): value is AnyFunction => {
-    return (
-        Boolean(value) &&
-        ['[object AsyncFunction]', '[object Function]'].includes(
-            {}.toString.call(value)
-        )
+export const isFunction = (value: unknown): value is AnyFunction =>
+    Boolean(value) &&
+    ['[object AsyncFunction]', '[object Function]'].includes(
+        {}.toString.call(value)
     )
-}
