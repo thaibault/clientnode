@@ -20,7 +20,7 @@ import {
     CLASS_TO_TYPE_MAPPING, IGNORE_NULL_AND_UNDEFINED_SYMBOL, VALUE_COPY_SYMBOL
 } from './constants'
 import {
-    isFunction, isPlainObject, isMap, isProxy, isSet, isNumeric
+    isFunction, isObject, isPlainObject, isMap, isProxy, isSet, isNumeric
 } from './indicators'
 import {isNotANumber} from './number'
 import {escapeRegularExpressions, evaluate} from './string'
@@ -105,9 +105,7 @@ export const addDynamicGetterAndSetter = <T = unknown>(
     if (getterWrapper || setterWrapper)
         for (const type of typesToExtend)
             if (
-                object !== null &&
-                typeof object === 'object' &&
-                object instanceof (type as AnyFunction)
+                isObject(object) && object instanceof (type as AnyFunction)
             ) {
                 const defaultHandler: ProxyHandler<T> =
                     getProxyHandler<T>(object, methodNames)
@@ -183,7 +181,7 @@ export const convertCircularObjectToJSON = (
 
     const stringifier = (object: unknown): string => {
         const replacer = (key: null | string, value: unknown): unknown => {
-            if (value !== null && typeof value === 'object') {
+            if (isObject(value)) {
                 if (seenObjects.has(value))
                     return determineCircularReferenceValue(
                         seenObjects.get(value) ?? null,
@@ -375,7 +373,7 @@ export const copy = <Type = unknown>(
     recursionLevel = 0
 ): Type => {
     /* eslint-enable jsdoc/require-description-complete-sentence */
-    if (source !== null && typeof source === 'object')
+    if (isObject(source))
         if (destination) {
             if (source === destination)
                 throw new Error(
@@ -955,11 +953,7 @@ export const evaluateDynamicData = <Type = unknown>(
             return data
 
         for (const [key, givenValue] of Object.entries(data))
-            if (
-                key !== '__target__' &&
-                givenValue !== null &&
-                typeof givenValue === 'object'
-            ) {
+            if (key !== '__target__' && isObject(givenValue)) {
                 const value: unknown = givenValue
 
                 addProxyRecursively(value)
@@ -1079,7 +1073,7 @@ export const evaluateDynamicData = <Type = unknown>(
     }
 
     const resolve = (data: unknown): unknown => {
-        if (data !== null && typeof data === 'object') {
+        if (isObject(data)) {
             if (isProxy(data)) {
                 // NOTE: We have to skip "ownKeys" proxy trap here.
                 for (const type of [
@@ -1112,7 +1106,7 @@ export const evaluateDynamicData = <Type = unknown>(
 
     scope.resolve = resolve
     const removeProxyRecursively = (data: unknown): unknown => {
-        if (data !== null && typeof data === 'object')
+        if (isObject(data))
             for (const [key, value] of Object.entries(data))
                 if (
                     key !== '__target__' &&
@@ -1122,7 +1116,7 @@ export const evaluateDynamicData = <Type = unknown>(
                     const target: unknown =
                         (value as {__target__: unknown}).__target__
                     if (typeof target !== 'undefined')
-                        (data as Mapping<unknown>)[key] = target
+                        data[key] = target
                     removeProxyRecursively(value)
                 }
 
@@ -1201,7 +1195,7 @@ export const extend = <T = Mapping<unknown>>(
         target = targetOrSource
     } else {
         target = targetOrDeepIndicator
-        if (targetOrSource !== null && typeof targetOrSource === 'object')
+        if (isObject(targetOrSource))
             sources = [targetOrSource, ...sources]
         else if (targetOrSource !== undefined)
             target = targetOrSource
@@ -1251,12 +1245,8 @@ export const extend = <T = Mapping<unknown>>(
                         )
                     )
             else if (
-                target !== null &&
-                !Array.isArray(target) &&
-                typeof target === 'object' &&
-                source !== null &&
-                !Array.isArray(source) &&
-                typeof source === 'object'
+                isObject(target) && !Array.isArray(target) &&
+                isObject(source) && !Array.isArray(source)
             ) {
                 for (const [key, value] of Object.entries(source))
                     if (!(
@@ -1328,12 +1318,12 @@ export const getSubstructure = <T = unknown, E = unknown>(
 
     let result: unknown = target
     for (const selector of path)
-        if (result !== null && typeof result === 'object') {
+        if (isObject(result)) {
             if (
                 typeof selector === 'string' &&
                 Object.prototype.hasOwnProperty.call(result, selector)
             )
-                result = (result as Mapping<unknown>)[selector]
+                result = result[selector]
             else if (isFunction(selector))
                 result = selector(result as unknown as T)
             else if (!skipMissingLevel)
@@ -1553,12 +1543,7 @@ export const modifyObject = <T = unknown>(
                     source,
                     key
                 )
-    } else if (
-        source !== null &&
-        typeof source === 'object' &&
-        target !== null &&
-        typeof target === 'object'
-    )
+    } else if (isObject(source) && isObject(target))
         for (const [key, sourceValue] of Object.entries(source)) {
             let index = NaN
             if (
@@ -1620,12 +1605,7 @@ export const modifyObject = <T = unknown>(
                         target = ([] as Array<unknown>)
                             .concat(sourceValue)
                             .concat(target) as unknown as T
-                    else if (
-                        target[index] !== null &&
-                        typeof target[index] === 'object' &&
-                        sourceValue !== null &&
-                        typeof sourceValue === 'object'
-                    )
+                    else if (isObject(target[index]) && isObject(sourceValue))
                         extend(
                             true,
                             modifyObject<RecursivePartial<ValueOf<T>>>(
@@ -1658,7 +1638,7 @@ export const modifyObject = <T = unknown>(
                             delete (
                                 target as unknown as Mapping<unknown>
                             )[value]
-                delete (source as Mapping<unknown>)[key]
+                delete source[key]
 
                 if (parentSource && typeof parentKey === 'string')
                     delete (
@@ -1755,7 +1735,7 @@ export const removeKeyPrefixes = <T>(
 
             object.set(key, removeKeyPrefixes(subObject, resolvedKeys))
         }
-    else if (object !== null && typeof object === 'object')
+    else if (isObject(object))
         for (const [key, value] of Object.entries(Object.assign(
             {}, object
         ))) {
@@ -1968,12 +1948,12 @@ export const sort = (object: unknown): Array<unknown> => {
 export const unwrapProxy = <T = unknown>(
     object: ProxyType<T> | T, seenObjects: Set<unknown> = new Set<unknown>()
 ): T => {
-    if (object !== null && typeof object === 'object') {
+    if (isObject(object)) {
         if (seenObjects.has(object))
             return object
 
         try {
-            if (isFunction((object as ProxyType<T>).__revoke__)) {
+            if (isFunction(object.__revoke__)) {
                 if (isProxy(object))
                     object = object.__target__
 

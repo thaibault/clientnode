@@ -16,6 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import {isObject} from './indicators'
 import {globalContext} from './context'
 import {extend} from './object'
 import {
@@ -202,8 +203,7 @@ export const checkUnreachability = async (
             ([] as Array<number>).concat(options.statusCodes)
         if (statusCodes.length) {
             if (
-                response !== null &&
-                typeof response === 'object' &&
+                isObject(response) &&
                 'status' in response &&
                 statusCodes.includes(response.status)
             )
