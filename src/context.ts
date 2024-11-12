@@ -83,7 +83,7 @@ export const determine$: (() => $TStatic) = (): $TStatic => {
                 /* eslint-disable @typescript-eslint/no-require-imports */
                 $ = require('jquery') as $TStatic
                 /* eslint-enable @typescript-eslint/no-require-imports */
-            } catch (_error) {
+            } catch {
                 // Continue regardless of an error.
             }
 

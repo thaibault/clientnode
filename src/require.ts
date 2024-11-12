@@ -37,14 +37,14 @@ try {
     currentOptionalImport =
         eval(`typeof import === 'undefined' ? null : import`) as
             ImportFunction | null
-} catch (_error) {
+} catch {
     // Continue regardless of an error.
 }
 export const currentImport: null | ImportFunction = currentOptionalImport
 export const optionalRequire = <T = unknown>(id: string): null | T => {
     try {
         return currentRequire ? currentRequire(id) as T : null
-    } catch (_error) {
+    } catch {
         return null
     }
 }

@@ -57,7 +57,7 @@ export const isArrayLike = (object: unknown): boolean => {
     let length: number | boolean
     try {
         length = Boolean(object) && (object as Array<unknown>).length
-    } catch (_error) {
+    } catch {
         return false
     }
 
@@ -74,7 +74,7 @@ export const isArrayLike = (object: unknown): boolean => {
             const _dump = (object as Array<unknown>)[length - 1]
 
             return true
-        } catch (_error) {
+        } catch {
             // Continue regardless of an error.
         }
 

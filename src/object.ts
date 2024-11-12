@@ -1959,7 +1959,7 @@ export const unwrapProxy = <T = unknown>(
 
                 ;(object as unknown as {__revoke__: () => void}).__revoke__()
             }
-        } catch (_error) {
+        } catch {
             return object
         } finally {
             seenObjects.add(object)
