@@ -75,7 +75,7 @@ if (TARGET_TECHNOLOGY === 'node') {
     test('copyFile', async (): Promise<void> => {
         try {
             await unlink(`./test.copyFile.${TEST_ENVIRONMENT}.compiled.js`)
-        } catch (_error) {
+        } catch {
             // Continue regardless of an error.
         }
         let result = ''
@@ -100,7 +100,7 @@ if (TARGET_TECHNOLOGY === 'node') {
     test('copyFileSync', async (): Promise<void> => {
         try {
             await unlink(`./test.copyFileSync.${TEST_ENVIRONMENT}.compiled.js`)
-        } catch (_error) {
+        } catch {
             // Continue regardless of an error.
         }
 

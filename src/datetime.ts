@@ -529,7 +529,7 @@ export const interpretDateTime = (
 
         try {
             match = value.match(dateTimePattern)
-        } catch (_error) {
+        } catch {
             // Continue regardless of an error.
         }
 

@@ -574,7 +574,7 @@ export class Tools<TElement = HTMLElement> {
                             $domNodes[type] = $('<div>').append($copiedDomNode)
                         else
                             return false
-                    } catch (_error) {
+                    } catch {
                         return false
                     }
 

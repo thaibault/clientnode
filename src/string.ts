@@ -319,7 +319,7 @@ export const getURLParameter = (
         let decodedHash = ''
         try {
             decodedHash = decodeURIComponent(hash)
-        } catch (_error) {
+        } catch {
             // Continue regardless of an error.
         }
         const subDelimiterIndex: number = decodedHash.indexOf(subDelimiter)
@@ -344,12 +344,12 @@ export const getURLParameter = (
         let key: string
         try {
             key = decodeURIComponent(keyValuePair[0])
-        } catch (_error) {
+        } catch {
             key = ''
         }
         try {
             value = decodeURIComponent(keyValuePair[1])
-        } catch (_error) {
+        } catch {
             value = ''
         }
 
