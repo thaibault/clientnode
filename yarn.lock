@@ -5069,30 +5069,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:3.0.1221":
-  version: 3.0.1221
-  resolution: "clientnode@npm:3.0.1221"
-  peerDependencies:
-    "@babel/runtime": "*"
-    "@types/prop-types": "*"
-    jquery: "*"
-    node-fetch: "*"
-    prop-types: "*"
-  peerDependenciesMeta:
-    "@babel/runtime":
-      optional: true
-    "@types/prop-types":
-      optional: true
-    jquery:
-      optional: true
-    node-fetch:
-      optional: true
-    prop-types:
-      optional: true
-  checksum: 10c0/272966424d147ad147c95eb9c0c84f26a3f1d8dcd77df72634478471cde7530600990ee97a3b6b387149f386c66c4f93e4d39ef90a5f7c1d2f43c9daca067990
-  languageName: node
-  linkType: hard
-
 "clientnode@npm:3.0.1222":
   version: 3.0.1222
   resolution: "clientnode@npm:3.0.1222"
@@ -5117,6 +5093,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"clientnode@npm:3.0.1224":
+  version: 3.0.1224
+  resolution: "clientnode@npm:3.0.1224"
+  peerDependencies:
+    "@babel/runtime": "*"
+    "@types/prop-types": "*"
+    jquery: "*"
+    node-fetch: "*"
+    prop-types: "*"
+  peerDependenciesMeta:
+    "@babel/runtime":
+      optional: true
+    "@types/prop-types":
+      optional: true
+    jquery:
+      optional: true
+    node-fetch:
+      optional: true
+    prop-types:
+      optional: true
+  checksum: 10c0/56f0a32489385bc1bea28c768e2183edd1bd53c9533b608806b7be2496133d40f12d961fc779e20fc8de9dd6bddc3333373e20228e0ca05e475dea237e2efcc6
+  languageName: node
+  linkType: hard
+
 "clientnode@workspace:.":
   version: 0.0.0-use.local
   resolution: "clientnode@workspace:."
@@ -5135,7 +5135,7 @@ __metadata:
     "@types/webpack-env": "npm:^1.18.5"
     "@typescript-eslint/eslint-plugin": "npm:^8.14.0"
     "@typescript-eslint/parser": "npm:^8.14.0"
-    clientnode: "npm:3.0.1221"
+    clientnode: "npm:3.0.1224"
     documentation-website: "npm:^1.0.337"
     eslint: "npm:^9.14.0"
     eslint-config-google: "npm:^0.14.0"
