@@ -115,9 +115,7 @@ export type Primitive = boolean | null | number | string | undefined
 export type Mapping<V = string, K extends string = string> = Record<K, V>
 // NOTE: Mapping cannot be used here to avoid circular references.
 export type PlainObject<V = Primitive, K extends string = string> =
-    /* eslint-disable @typescript-eslint/consistent-indexed-object-style */
     {[key in K]: Array<PlainObject<V, K> | V> | PlainObject<V, K> | V}
-    /* eslint-enable @typescript-eslint/consistent-indexed-object-style */
 
 export interface ProxyHandler<T = unknown> {
     deleteProperty: (target: T, key: string | symbol) => boolean
