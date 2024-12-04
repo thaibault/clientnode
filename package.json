@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.1232",
+  "version": "3.0.1233",
   "description": "upgrade to object orientated rock solid plugins",
   "keywords": [
     "client",
@@ -83,7 +83,7 @@
     "prop-types": "^15.8.1",
     "rimraf": "^6.0.1",
     "typescript-eslint": "^8.17.0",
-    "weboptimizer": "^2.0.1540",
+    "weboptimizer": "^2.0.1541",
     "webpack-dev-server": "^5.1.0"
   },
   "peerDependencies": {
