@@ -15,9 +15,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/cli@npm:^7.25.9":
-  version: 7.25.9
-  resolution: "@babel/cli@npm:7.25.9"
+"@babel/cli@npm:^7.26.4":
+  version: 7.26.4
+  resolution: "@babel/cli@npm:7.26.4"
   dependencies:
     "@jridgewell/trace-mapping": "npm:^0.3.25"
     "@nicolo-ribaudo/chokidar-2": "npm:2.1.8-no-fsevents.3"
@@ -38,7 +38,7 @@ __metadata:
   bin:
     babel: ./bin/babel.js
     babel-external-helpers: ./bin/babel-external-helpers.js
-  checksum: 10c0/2e8228c3715e220fa902888c643ce1a89c4ee90be3d9f7a31218d5bb2500456e0cef12cb90fd5877ab3e5a4498df8f27670425d346422a3eb52052fd3184d520
+  checksum: 10c0/f2d4fc3c4a34dd3001e3bd7084b78b38211003c36afaf2dc8fedf4565c0442bd59b1c64a9f91a0b7b2450e089123f197e09577ae50dc994307c3348b310ce34c
   languageName: node
   linkType: hard
 
@@ -2798,10 +2798,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prop-types@npm:^15.7.13":
-  version: 15.7.13
-  resolution: "@types/prop-types@npm:15.7.13"
-  checksum: 10c0/1b20fc67281902c6743379960247bc161f3f0406ffc0df8e7058745a85ea1538612109db0406290512947f9632fe9e10e7337bf0ce6338a91d6c948df16a7c61
+"@types/prop-types@npm:^15.7.14":
+  version: 15.7.14
+  resolution: "@types/prop-types@npm:15.7.14"
+  checksum: 10c0/1ec775160bfab90b67a782d735952158c7e702ca4502968aa82565bd8e452c2de8601c8dfe349733073c31179116cf7340710160d3836aa8a1ef76d1532893b1
   languageName: node
   linkType: hard
 
@@ -5129,7 +5129,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "clientnode@workspace:."
   dependencies:
-    "@babel/cli": "npm:^7.25.9"
+    "@babel/cli": "npm:^7.26.4"
     "@babel/eslint-parser": "npm:^7.25.9"
     "@babel/plugin-transform-proto-to-assign": "npm:^7.25.9"
     "@babel/runtime": "npm:^7.26.0"
@@ -5139,7 +5139,7 @@ __metadata:
     "@types/imagemin": "npm:^9.0.0"
     "@types/jquery": "npm:^3.5.32"
     "@types/node": "npm:^22.10.1"
-    "@types/prop-types": "npm:^15.7.13"
+    "@types/prop-types": "npm:^15.7.14"
     "@types/webpack-env": "npm:^1.18.5"
     "@typescript-eslint/eslint-plugin": "npm:^8.17.0"
     "@typescript-eslint/parser": "npm:^8.17.0"
@@ -5157,7 +5157,7 @@ __metadata:
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^6.0.1"
     typescript-eslint: "npm:^8.17.0"
-    weboptimizer: "npm:^2.0.1541"
+    weboptimizer: "npm:^2.0.1542"
     webpack-dev-server: "npm:^5.1.0"
   peerDependencies:
     "@babel/runtime": "*"
@@ -11382,9 +11382,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^2.0.1541":
-  version: 2.0.1541
-  resolution: "weboptimizer@npm:2.0.1541"
+"weboptimizer@npm:^2.0.1542":
+  version: 2.0.1542
+  resolution: "weboptimizer@npm:2.0.1542"
   dependencies:
     "@babel/core": "npm:^7.26.0"
     "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
@@ -11411,7 +11411,7 @@ __metadata:
     rimraf: "npm:^6.0.1"
     script-loader: "npm:^0.7.2"
     typescript: "npm:^5.7.2"
-    webpack: "npm:^5.97.0"
+    webpack: "npm:^5.97.1"
     webpack-cli: "npm:^5.1.4"
     webpack-sources: "npm:^3.2.3"
   peerDependencies:
@@ -11524,7 +11524,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/9dbdeb173a15920e0f403a5c012ea11100300d14d7cde570ee7898df769c81c158916695a83b70d35aaf1919b0d174097b93ac6a2a24f8ff15de3be384bce7a5
+  checksum: 10c0/1a4431f91cb83942a837da73924043a60c8e3b21c7b56df3a505246ab4628bd2bd543b3d289583c2d42479a050b4f337098814dd70a11061bf7058dcdd92c8a8
   languageName: node
   linkType: hard
 
@@ -11642,9 +11642,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:^5.97.0":
-  version: 5.97.0
-  resolution: "webpack@npm:5.97.0"
+"webpack@npm:^5.97.1":
+  version: 5.97.1
+  resolution: "webpack@npm:5.97.1"
   dependencies:
     "@types/eslint-scope": "npm:^3.7.7"
     "@types/estree": "npm:^1.0.6"
@@ -11674,7 +11674,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 10c0/a8714d42defbf52382b61c157f68e161a16d0edf228d8d9abaa7a165f3ee0ac7386a08d28d4dcf8d6740ea5bda0c4d4abfeeb838df029e636c1c28bb2454ac56
+  checksum: 10c0/a12d3dc882ca582075f2c4bd88840be8307427245c90a8a0e0b372d73560df13fcf25a61625c9e7edc964981d16b5a8323640562eb48347cf9dd2f8bd1b39d35
   languageName: node
   linkType: hard
 
