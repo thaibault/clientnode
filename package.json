@@ -16,6 +16,10 @@
   },
   "license": "CC-BY-3.0",
   "main": "dist/index.js",
+  "exports": {
+    "property-types": "./dist/property-types.js",
+    "test-helper": "./dist/test-helper.js"
+  },
   "author": {
     "name": "Torben Sickert",
     "email": "info@torben.website",

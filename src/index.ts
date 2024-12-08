@@ -46,7 +46,5 @@ export * from './string'
 
 export * from './Tools'
 export * from './type'
-export * from './property-types'
 
 export * from './utility'
-export * from './test-helper'
