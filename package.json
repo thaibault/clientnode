@@ -17,8 +17,14 @@
   "license": "CC-BY-3.0",
   "main": "dist/index.js",
   "exports": {
-    "property-types": "./dist/property-types.js",
-    "test-helper": "./dist/test-helper.js"
+    "property-types": "./dist/property-types",
+    "test-helper": "./dist/test-helper"
+  },
+  "typesVersions": {
+    "*": {
+      "property-types": ["./dist/property-types"],
+      "test-helper": ["./dist/test-helper"]
+    }
   },
   "author": {
     "name": "Torben Sickert",
