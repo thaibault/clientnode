@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.1238",
+  "version": "3.0.1239",
   "description": "upgrade to object orientated rock solid plugins",
   "keywords": [
     "client",
@@ -22,8 +22,12 @@
   },
   "typesVersions": {
     "*": {
-      "property-types": ["./dist/property-types"],
-      "test-helper": ["./dist/test-helper"]
+      "property-types": [
+        "./dist/property-types"
+      ],
+      "test-helper": [
+        "./dist/test-helper"
+      ]
     }
   },
   "author": {
