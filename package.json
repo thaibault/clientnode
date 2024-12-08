@@ -17,10 +17,10 @@
   "license": "CC-BY-3.0",
   "main": "dist/index.js",
   "exports": {
-    "import": "./dist/index.js",
-    "require": "./dist/index.js",
-    "property-types": "./dist/property-types",
-    "test-helper": "./dist/test-helper"
+    ".": "./dist/index.js",
+    "./dist/*": "./dist/*",
+    "./property-types": "./dist/property-types",
+    "./test-helper": "./dist/test-helper"
   },
   "typesVersions": {
     "*": {
