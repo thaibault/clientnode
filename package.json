@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "3.0.1239",
+  "version": "3.0.1240",
   "description": "upgrade to object orientated rock solid plugins",
   "keywords": [
     "client",
@@ -17,6 +17,8 @@
   "license": "CC-BY-3.0",
   "main": "dist/index.js",
   "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.js",
     "property-types": "./dist/property-types",
     "test-helper": "./dist/test-helper"
   },
