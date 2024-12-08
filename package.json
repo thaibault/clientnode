@@ -85,7 +85,7 @@
     "@types/webpack-env": "^1.18.5",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
-    "clientnode": "3.0.1246",
+    "clientnode": "3.0.1247",
     "documentation-website": "^1.0.340",
     "eslint": "^9.16.0",
     "eslint-config-google": "^0.14.0",
