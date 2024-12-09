@@ -75,7 +75,7 @@
     "@babel/eslint-parser": "^7.25.9",
     "@babel/plugin-transform-proto-to-assign": "^7.25.9",
     "@babel/runtime": "^7.26.0",
-    "@stylistic/eslint-plugin-ts": "^2.11.0",
+    "@stylistic/eslint-plugin-ts": "^2.12.0",
     "@types/ejs": "^3.1.5",
     "@types/html-minifier": "^4.0.5",
     "@types/imagemin": "^9.0.0",
@@ -85,8 +85,8 @@
     "@types/webpack-env": "^1.18.5",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
-    "clientnode": "3.0.1247",
-    "documentation-website": "^1.0.340",
+    "clientnode": "workspace:.",
+    "documentation-website": "^1.0.341",
     "eslint": "^9.16.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-jsdoc": "^50.6.0",
@@ -99,7 +99,7 @@
     "prop-types": "^15.8.1",
     "rimraf": "^6.0.1",
     "typescript-eslint": "^8.17.0",
-    "weboptimizer": "^2.0.1546",
+    "weboptimizer": "^2.0.1547",
     "webpack-dev-server": "^5.1.0"
   },
   "peerDependencies": {
@@ -243,6 +243,9 @@
               "exclude": {
                 "#": "NOTE: Theses files are ECMAscript file so have to be processed to work with test-runner.",
                 "__append__": [
+                  {
+                    "__evaluate__": "/^(.+\\/)?clientnode(\\/.+)?$/"
+                  },
                   {
                     "__evaluate__": "/^(.+\\/)?data-uri-to-buffer(\\/.+)?$/"
                   },
