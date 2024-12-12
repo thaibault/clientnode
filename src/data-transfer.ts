@@ -298,6 +298,25 @@ export const checkUnreachability = async (
     throw new Error(`Given url "${url}" is reachable.`)
 }
 /**
+ * Preloads a given url via a temporary created image element.
+ * @param url - To image which should be downloaded.
+ * @returns A Promise indicating whether the image was loaded.
+ */
+export const cacheImage = (url: string) => {
+    return new Promise<void>((resolve, reject) => {
+        const imageElement = document.createElement('img')
+        imageElement.onload = () => {
+            const isLoaded = imageElement.complete
+            imageElement.remove()
+            if (isLoaded)
+                resolve()
+            else
+                reject(new Error('Image could not be loaded.'))
+        }
+        imageElement.src = url
+    })
+}
+/**
  * Send given data to a given iframe.
  * @param target - Name of the target iframe or the target iframe itself.
  * @param url - URL to send to data to.
