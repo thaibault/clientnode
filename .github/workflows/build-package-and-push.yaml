@@ -30,6 +30,7 @@ jobs:
         with:
           debug: ${{ inputs.debug }}
           fetch-depth: 0
+          fetch-tags: true
 
       - name: Build package contents
         env:
