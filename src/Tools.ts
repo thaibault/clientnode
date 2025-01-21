@@ -505,9 +505,9 @@ export class Tools<TElement = HTMLElement> {
 
             styleProperties = ($domNode[0] as unknown as HTMLElement).style
 
-            for (const propertyName in styleProperties)
-                if (typeof styleProperties[propertyName] !== 'function')
-                    result[propertyName] = styleProperties[propertyName]
+            for (const [name, value] of Object.entries(styleProperties))
+                if (typeof value !== 'function')
+                    result[name] = value
         }
 
         return result
