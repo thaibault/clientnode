@@ -48,20 +48,20 @@ jobs:
 
       - name: Install packages marked as dependencies
         env:
-          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' }}
+          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
           YARN_ENABLE_IMMUTABLE_INSTALLS: false
         run: yarn install
         shell: bash
 
       - name: Build package contents
         env:
-          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' }}
+          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
         run: yarn build
         shell: bash
 
       - name: Update package.json mentioned version.
         env:
-          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' }}
+          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
         run: yarn version ${{ inputs.type || 'patch' }}
         shell: bash
 
@@ -75,5 +75,5 @@ jobs:
 
       - name: Publish newly created package.
         env:
-          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' }}
+          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
         run: yarn publish
