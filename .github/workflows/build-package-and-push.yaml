@@ -26,11 +26,32 @@ jobs:
     runs-on: ubuntu-latest
     container: node:lts
     steps:
-      - uses: thaibault/install-npm-package-dependencies-action@main
+      #- uses: thaibault/install-npm-package-dependencies-action@main
+      #  with:
+      #    debug: ${{ inputs.debug }}
+      #    fetch-depth: 0
+      #    fetch-tags: true
+
+      - name: Checkout repository.
+        uses: actions/checkout@v4.2.2
         with:
-          debug: ${{ inputs.debug }}
-          fetch-depth: 0
+          fetch-depth: 1
           fetch-tags: true
+
+      - name: Enable corepack to utilize latest or specified package manager.
+        run: corepack enable
+        shell: bash
+
+      - name: Install specified package manager.
+        run: corepack install
+        shell: bash
+
+      - name: Install packages marked as dependencies
+        env:
+          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' }}
+          YARN_ENABLE_IMMUTABLE_INSTALLS: false
+        run: yarn install
+        shell: bash
 
       - name: Build package contents
         env:
