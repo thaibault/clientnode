@@ -1,0 +1,52 @@
+name: Build package and push
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: Sets "NODE_ENV" to "debug".
+        default: false
+        type: boolean
+      type:
+        description: Sets semantic version update type.
+        default: patch
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  build-package-and-push:
+    runs-on: ubuntu-latest
+    container: node:lts
+    steps:
+      - uses: thaibault/install-npm-package-dependencies-action@main
+        with:
+          debug: ${{ inputs.debug }}
+
+      - name: Build package contents
+        env:
+          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' }}
+        run: yarn build
+
+      - name: Update package.json mentioned version.
+        env:
+          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' }}
+        run: yarn version ${{ inputs.type || 'patch' }}
+
+      - name: Create git tag for newly create package version.
+        run: git tag "v$(node --eval 'console.log(require("./package.json").version)')"
+
+      - name: Update artefacts in git repository.
+        run: git commit --all --message 'Publish new version.' && git push --tags && git push
+
+      - name: Publish newly created package.
+        env:
+          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' }}
+        run: yarn publish
