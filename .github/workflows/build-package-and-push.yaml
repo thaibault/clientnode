@@ -29,6 +29,7 @@ jobs:
       - uses: thaibault/install-npm-package-dependencies-action@main
         with:
           debug: ${{ inputs.debug }}
+          fetch-depth: 0
 
       - name: Build package contents
         env:
