@@ -53,16 +53,16 @@ jobs:
         run: yarn install
         shell: bash
 
-      - name: Build package contents
-        env:
-          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
-        run: yarn build
-        shell: bash
-
       - name: Update package.json mentioned version.
         env:
           NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
         run: yarn version ${{ inputs.type || 'patch' }}
+        shell: bash
+
+      - name: Build package contents
+        env:
+          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
+        run: yarn build
         shell: bash
 
       - name: Create git tag for newly create package version.
