@@ -56,7 +56,7 @@ jobs:
       - name: Update package.json mentioned version.
         env:
           NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
-        run: ls -lha && yarn version ${{ inputs.type || 'patch' }}
+        run: ls -lha && yarn version ${{ inputs.type || 'patch' }} --no-git-tag-version
         shell: bash
 
       - name: Build package contents
