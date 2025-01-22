@@ -26,55 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     container: node:lts
     steps:
-      #- uses: thaibault/install-npm-package-dependencies-action@main
-      #  with:
-      #    debug: ${{ inputs.debug }}
-      #    fetch-depth: 0
-      #    fetch-tags: true
-
-      - name: Checkout repository.
-        uses: actions/checkout@v4.2.2
+      - uses: thaibault/build-package-push@main
         with:
-          fetch-depth: 1
-          fetch-tags: true
-
-      - name: Enable corepack to utilize latest or specified package manager.
-        run: corepack enable
-        shell: bash
-
-      - name: Install specified package manager.
-        run: corepack install
-        shell: bash
-
-      - name: Install packages marked as dependencies
-        env:
-          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
-          YARN_ENABLE_IMMUTABLE_INSTALLS: false
-        run: yarn install
-        shell: bash
-
-      - name: Update package.json mentioned version.
-        env:
-          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
-        run: yarn version ${{ inputs.type || 'patch' }}
-        shell: bash
-
-
-      - name: Build package contents
-        env:
-          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
-        run: yarn build
-        shell: bash
-
-      - name: Create git tag for newly create package version.
-        run: ls -lha && git tag "v$(node --eval 'console.log(require("./package.json").version)')"
-        shell: bash
-
-      - name: Update artefacts in git repository.
-        run: git commit --all --message 'Publish new version.' && git push --tags && git push
-        shell: bash
-
-      - name: Publish newly created package.
-        env:
-          NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
-        run: yarn publish
+          debug: ${{ inputs.debug || '' }}
+          type: ${{ inputs.type || 'patch' }}
