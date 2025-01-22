@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     container: node:lts
     steps:
-      - uses: thaibault/build-package-push@main
+      - uses: thaibault/build-package-push-action@main
         with:
           debug: ${{ inputs.debug || '' }}
           type: ${{ inputs.type || 'patch' }}
