@@ -56,8 +56,9 @@ jobs:
       - name: Update package.json mentioned version.
         env:
           NODE_ENV: ${{ contains(inputs.debug, 'true') && 'debug' || '' }}
-        run: yarn version ${{ inputs.type || 'patch' }} --no-git-tag-version
+        run: yarn version ${{ inputs.type || 'patch' }}
         shell: bash
+
 
       - name: Build package contents
         env:
@@ -66,7 +67,7 @@ jobs:
         shell: bash
 
       - name: Create git tag for newly create package version.
-        run: git tag "v$(node --eval 'console.log(require("./package.json").version)')"
+        run: ls -lha && git tag "v$(node --eval 'console.log(require("./package.json").version)')"
         shell: bash
 
       - name: Update artefacts in git repository.
