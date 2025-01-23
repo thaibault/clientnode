@@ -32,11 +32,6 @@ jobs:
           debug: ${{ inputs.debug || '' }}
           type: ${{ inputs.type || 'patch' }}
 
-      - name: print
+      - name: Print determined version.
         run: echo Newly determined version is \"${{ steps.build-package-and-push.outputs.version }}\".
         shell: bash
-
-      - uses: EndBug/add-and-commit@v9
-        with:
-          default_author: github_actions
-          tag: ${{ steps.build-package-and-push.outputs.version }}
