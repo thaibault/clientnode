@@ -30,6 +30,7 @@ jobs:
         id: build-package-and-push
         with:
           debug: ${{ inputs.debug || '' }}
+          npm-token: ${{ secrets.NPM_TOKEN }}
           type: ${{ inputs.type || 'patch' }}
 
       - name: Print determined version.
