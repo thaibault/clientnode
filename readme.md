@@ -17,7 +17,7 @@ Project status
 [![npm downloads](https://img.shields.io/npm/dy/clientnode.svg?style=for-the-badge)](https://www.npmjs.com/package/clientnode)
 
 [![build](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/build.yaml?style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/build.yaml)
-[![release package](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/build-package-and-push.yaml?style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/build-package-and-push.yaml)
+[![build push package](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/build-package-and-push.yaml?label=build%20push%20package&style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/build-package-and-push.yaml)
 
 [![check types](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/check-types.yaml?label=Check%20types&style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/check-types.yaml)
 [![lint](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/lint.yaml?label=lint&style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/lint.yaml)
