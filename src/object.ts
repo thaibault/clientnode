@@ -1795,6 +1795,9 @@ export const represent = (
     if (isNumeric(object) || typeof object === 'boolean')
         return String(object)
 
+    if (object instanceof Date)
+        return object.toISOString()
+
     if (Array.isArray(object)) {
         let result = '['
 
