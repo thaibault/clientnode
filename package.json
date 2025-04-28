@@ -98,7 +98,7 @@
     "prop-types": "^15.8.1",
     "rimraf": "^6.0.1",
     "typescript-eslint": "^8.31.0",
-    "weboptimizer": "^2.0.1578",
+    "weboptimizer": "^2.0.1579",
     "webpack-dev-server": "^5.2.1"
   },
   "peerDependencies": {
@@ -263,5 +263,5 @@
       }
     }
   },
-  "packageManager": "yarn@4.6.0+sha512.5383cc12567a95f1d668fbe762dfe0075c595b4bfff433be478dbbe24e05251a8e8c3eb992a986667c1d53b6c3a9c85b8398c35a960587fbd9fa3a0915406728"
+  "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538"
 }
