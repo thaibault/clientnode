@@ -18,18 +18,26 @@ import {expect, jest, test} from '@jest/globals'
 import {TimeoutPromise} from '../type'
 import {debounce, timeout} from '../utility'
 
-test('debounce', (): void => {
+test('debounce', async (): Promise<void> => {
     let testValue = false
     void debounce(() => {
         testValue = true
     })()
+    expect(testValue).toStrictEqual(false)
+    await timeout(1000)
     expect(testValue).toStrictEqual(true)
 
     const callback = jest.fn()
     const debouncedCallback = debounce(callback, 1000)
     void debouncedCallback()
     void debouncedCallback()
+    void debouncedCallback()
+    expect(callback).toHaveBeenCalledTimes(0)
+    await timeout(1000)
     expect(callback).toHaveBeenCalledTimes(1)
+    void debouncedCallback()
+    await timeout(1000)
+    expect(callback).toHaveBeenCalledTimes(2)
 
     const debouncedAsynchronousCallback =
         debounce(async (): Promise<boolean> => {
