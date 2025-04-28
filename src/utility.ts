@@ -18,9 +18,7 @@
 */
 import {NOOP} from './context'
 import {isFunction} from './indicators'
-import {
-    AnyFunction, ProcedureFunction, TimeoutPromise, UnknownFunction
-} from './type'
+import {AnyFunction, ProcedureFunction, TimeoutPromise} from './type'
 
 /**
  * Prevents event functions from triggering to often by defining a minimal
@@ -34,125 +32,34 @@ import {
  * @returns Returns the wrapped method.
  */
 export const debounce = <T = unknown>(
-    callback: UnknownFunction,
+    callback: (...parameters: Array<unknown>) => T,
     thresholdInMilliseconds = 600,
     ...additionalArguments: Array<unknown>
 ): ((...parameters: Array<unknown>) => Promise<T>) => {
-    let waitForNextSlot = false
-    let parametersForNextSlot: Array<unknown> | null = null
-    // NOTE: Type "T" will be added via "then" method when called.
-    let resolveNextSlotPromise: (value: T) => void
-    let rejectNextSlotPromise: (reason: unknown) => void
-    let nextSlotPromise: Promise<T> = new Promise<T>((
-        resolve: (value: T) => void, reject: (reason: unknown) => void
-    ) => {
-        resolveNextSlotPromise = resolve
-        rejectNextSlotPromise = reject
+    let timeoutPromise: TimeoutPromise | undefined
+
+    let nextResultPromiseResolver: (value: T) => void
+    let nextResultPromise = new Promise<T>((resolve) => {
+        nextResultPromiseResolver = resolve
     })
 
-    return (...parameters: Array<unknown>): Promise<T> => {
+    return (...parameters: Array<unknown>) => {
         parameters = parameters.concat(additionalArguments)
 
-        if (waitForNextSlot) {
-            /*
-                NOTE: We have to reserve next time slot let given callback
-                be called with latest known provided arguments.
-            */
-            parametersForNextSlot = parameters
+        timeoutPromise?.clear()
 
-            return nextSlotPromise
-        }
+        timeoutPromise = timeout(
+            () => {
+                nextResultPromiseResolver(callback(...parameters))
 
-        waitForNextSlot = true
+                nextResultPromise = new Promise<T>((resolve) => {
+                    nextResultPromiseResolver = resolve
+                })
+            },
+            thresholdInMilliseconds
+        )
 
-        const currentSlotPromise: Promise<T> = nextSlotPromise
-        const resolveCurrentSlotPromise = resolveNextSlotPromise
-        const rejectCurrentSlotPromise = rejectNextSlotPromise
-
-        // NOTE: We call callback synchronously if possible.
-        const result: Promise<T> | T = callback(...parameters) as Promise<T> | T
-
-        if (result && Object.prototype.hasOwnProperty.call(result, 'then'))
-            (result as Promise<T>).then(
-                (result: T) => {
-                    resolveCurrentSlotPromise(result)
-                },
-                (reason: unknown) => {
-                    rejectCurrentSlotPromise(reason)
-                }
-            )
-        else
-            resolveCurrentSlotPromise(result as T)
-
-        /*
-            Initialize new promise which will be used for next call request
-            and is marked as delayed.
-        */
-        nextSlotPromise = new Promise<T>((
-            resolve: (value: T) => void, reject: (reason: unknown) => void
-        ): void => {
-            resolveNextSlotPromise = resolve
-            rejectNextSlotPromise = reject
-
-            // Initialize new time slot to trigger given callback.
-            void timeout(
-                thresholdInMilliseconds,
-                (): void => {
-                    /*
-                        Next new incoming call request can be handled
-                        synchronously.
-                    */
-                    waitForNextSlot = false
-
-                    // NOTE: Check if this slot should be used.
-                    if (parametersForNextSlot) {
-                        const result: Promise<T> | T =
-                            callback(...parametersForNextSlot) as
-                                Promise<T> | T
-                        parametersForNextSlot = null
-
-                        if (
-                            result &&
-                            Object.prototype.hasOwnProperty.call(
-                                result, 'then'
-                            )
-                        )
-                            (result as Promise<T>).then(
-                                (result: T) => {
-                                    resolve(result)
-                                },
-                                (reason: unknown) => {
-                                    /*
-                                        eslint-disable
-                                        prefer-promise-reject-errors
-                                    */
-                                    reject(reason as Error)
-                                    /*
-                                        eslint-enable
-                                        prefer-promise-reject-errors
-                                    */
-                                }
-                            )
-                        else
-                            resolve(result as T)
-
-                        /*
-                            Initialize new promise which will be used for
-                            next call request without waiting.
-                        */
-                        nextSlotPromise = new Promise<T>((
-                            resolve: (value: T) => void,
-                            reject: (reason: unknown) => void
-                        ): void => {
-                            resolveNextSlotPromise = resolve
-                            rejectNextSlotPromise = reject
-                        })
-                    }
-                }
-            )
-        })
-
-        return currentSlotPromise
+        return nextResultPromise
     }
 }
 /**
