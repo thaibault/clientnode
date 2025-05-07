@@ -4971,7 +4971,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^8.32.0"
     "@typescript-eslint/parser": "npm:^8.32.0"
     clientnode: "workspace:."
-    documentation-website: "npm:^1.0.351"
+    documentation-website: "npm:^1.0.352"
     eslint: "npm:^9.26.0"
     eslint-config-google: "npm:^0.14.0"
     eslint-plugin-jsdoc: "npm:^50.6.11"
@@ -5553,12 +5553,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"documentation-website@npm:^1.0.351":
-  version: 1.0.351
-  resolution: "documentation-website@npm:1.0.351"
+"documentation-website@npm:^1.0.352":
+  version: 1.0.352
+  resolution: "documentation-website@npm:1.0.352"
   bin:
     documentation-website: build/deploy.js
-  checksum: 10c0/cecbbaa90bcd782b488ce304e2d16a7ce21b1f8421ba6785d4e847a95cc9517c191750f3e7a705ab1e09613181262fb414b0a5a9d7229d7c87135a093aeecce9
+  checksum: 10c0/91082508c561f72672695112f6f2581fdb2867fa96d78bc716a8e08785ecfbac1948c06a730b3b4d1635227cf6e83e13ae61c0fed14e7e535484a2655821a48b
   languageName: node
   linkType: hard
 
