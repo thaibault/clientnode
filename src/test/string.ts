@@ -1279,7 +1279,10 @@ testEach<typeof normalizeZipCode>(
     ['12345', 12345],
     ['', 'abc'],
     ['12345', '1B23A45'],
-    ['12345', ' 1B23A45 ']
+    ['12345', ' 1B23A45 '],
+    ['D-12345', 'D-1B23A45 '],
+    ['L-12345', 'L-12345'],
+    ['L-12345', 'xL-1a2b3c4d5e']
 )
 if (TARGET_TECHNOLOGY === 'node')
     testEach<typeof parseEncodedObject>(

@@ -1146,7 +1146,22 @@ export const normalizePhoneNumber = (
  */
 export const normalizeZipCode = (value: unknown): string => {
     if (typeof value === 'string' || typeof value === 'number')
-        return String(value).trim().replace(/[^0-9]+/g, '')
+        return String(value).trim().replace(
+            /^([^0-9]*[a-zA-Z]-)?(.+)$/,
+            (match: string, prefix?: string, code?: string) => {
+                if (prefix)
+                    prefix =
+                        prefix
+                            .substring(prefix.length - 2)
+                            .charAt(0)
+                            .toUpperCase() +
+                        '-'
+                return (
+                    (prefix ?? '') +
+                    (code ?? '').trim().replace(/[^0-9]+/g, '')
+                )
+            }
+        )
 
     return ''
 }
