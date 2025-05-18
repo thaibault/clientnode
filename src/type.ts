@@ -178,6 +178,7 @@ export interface CompareOptions {
 export type Encoding =
     'ascii' |
     'base64' |
+    'base64url' |
     'binary' |
     'hex' |
     'latin1' |
