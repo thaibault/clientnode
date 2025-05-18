@@ -19,9 +19,8 @@
 import {DEFAULT_ENCODING} from './constants'
 import {NOOP} from './context'
 import {optionalRequire} from './require'
-import {
-    AnyFunction, Encoding, File, FileTraverseResult, SecondParameter
-} from './type'
+import {AnyFunction, Encoding, File, FileTraverseResult} from './type'
+import {ObjectEncodingOptions} from 'node:fs'
 
 export const {
     mkdirSync = null,
@@ -331,7 +330,8 @@ export const walkDirectoryRecursively = async (
     directoryPath: string,
     callback: null | ((file: File) => FileTraverseResult) = null,
     options: (
-        Encoding | SecondParameter<typeof import('fs').readdir>
+        Encoding |
+        (ObjectEncodingOptions & {withFileTypes?: false; recursive?: boolean})
     ) = DEFAULT_ENCODING
 ): Promise<Array<File>> => {
     if (!(readdir && resolve && stat))
@@ -340,11 +340,14 @@ export const walkDirectoryRecursively = async (
     const files: Array<File> = []
     for (const directoryEntry of await readdir(
         directoryPath,
-        typeof options === 'string' ?
+        (typeof options === 'string' ?
             {encoding: options, withFileTypes: true} :
             {...options, withFileTypes: true}
+        )
     )) {
-        const filePath: string = resolve(directoryPath, directoryEntry.name)
+        const filePath: string = resolve(
+            directoryPath, directoryEntry.name
+        )
         const file: File = {
             directoryPath,
             directoryEntry,
@@ -419,7 +422,8 @@ export const walkDirectoryRecursivelySync = (
     directoryPath: string,
     callback: AnyFunction | null = NOOP,
     options: (
-        Encoding | SecondParameter<typeof import('fs').readdirSync>
+        Encoding |
+        (ObjectEncodingOptions & {withFileTypes?: false; recursive?: boolean})
     ) = DEFAULT_ENCODING
 ): Array<File> => {
     if (!(readdirSync && resolve && statSync))
