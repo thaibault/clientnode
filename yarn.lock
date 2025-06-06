@@ -2692,12 +2692,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.15.29":
-  version: 22.15.29
-  resolution: "@types/node@npm:22.15.29"
+"@types/node@npm:^22.15.30":
+  version: 22.15.30
+  resolution: "@types/node@npm:22.15.30"
   dependencies:
     undici-types: "npm:~6.21.0"
-  checksum: 10c0/602cc88c6150780cd9b5b44604754e0ce13983ae876a538861d6ecfb1511dff289e5576fffd26c841cde2142418d4bb76e2a72a382b81c04557ccb17cff29e1d
+  checksum: 10c0/ca330ac0e7fd502686d6df115fcc606aba46fd334220f749bbba2f639accdadcb23f7900603ceccdc8240be736739cad5c0b87c0fa92c9255a4dff245f07d664
   languageName: node
   linkType: hard
 
@@ -4895,13 +4895,13 @@ __metadata:
     "@types/html-minifier": "npm:^4.0.5"
     "@types/imagemin": "npm:^9.0.1"
     "@types/jquery": "npm:^3.5.32"
-    "@types/node": "npm:^22.15.29"
+    "@types/node": "npm:^22.15.30"
     "@types/prop-types": "npm:^15.7.14"
     "@types/webpack-env": "npm:^1.18.8"
     "@typescript-eslint/eslint-plugin": "npm:^8.33.1"
     "@typescript-eslint/parser": "npm:^8.33.1"
     clientnode: "workspace:."
-    documentation-website: "npm:^1.0.363"
+    documentation-website: "npm:^1.0.364"
     eslint: "npm:^9.28.0"
     eslint-config-google: "npm:^0.14.0"
     eslint-plugin-jsdoc: "npm:^50.7.1"
@@ -5462,12 +5462,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"documentation-website@npm:^1.0.363":
-  version: 1.0.363
-  resolution: "documentation-website@npm:1.0.363"
+"documentation-website@npm:^1.0.364":
+  version: 1.0.364
+  resolution: "documentation-website@npm:1.0.364"
   bin:
     documentation-website: build/deploy.js
-  checksum: 10c0/44dccd79825fd1ab502fd122ec6cb0aaaf0d7a07effc309b8c4b4cd744d751b5f118e82aac3612dca690b9e1fc72ac6ceca7476785433759118b7d56fb593f52
+  checksum: 10c0/8c1a18af73a2f0d3a22ac09c47cef0404b94d869f08d808a7ed251307b269fcad8405e9df9d68da736eb6eca14d8f55c38916c93cbc5994723845039b4d619fd
   languageName: node
   linkType: hard
 
