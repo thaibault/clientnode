@@ -2537,16 +2537,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/eslint-plugin-ts@npm:^4.4.1":
+"@stylistic/eslint-plugin@npm:^4.4.1":
   version: 4.4.1
-  resolution: "@stylistic/eslint-plugin-ts@npm:4.4.1"
+  resolution: "@stylistic/eslint-plugin@npm:4.4.1"
   dependencies:
     "@typescript-eslint/utils": "npm:^8.32.1"
     eslint-visitor-keys: "npm:^4.2.0"
     espree: "npm:^10.3.0"
+    estraverse: "npm:^5.3.0"
+    picomatch: "npm:^4.0.2"
   peerDependencies:
     eslint: ">=9.0.0"
-  checksum: 10c0/9b2d88364dc39441666a3963783fdbf2420689e6af88d58556472ee6fd8a6f115f8f42713f0be64db58b03df8c5ebbde2547872cee9372215ec32123f81d33a9
+  checksum: 10c0/94160bfc172a3934dd35be87887f43f7e3ffe9d1645096860a4e4c61877bb0fb62eb20a90e50ad74767ee794ed10f334f7165952cf9bcbd8bae6b80dc10c0d62
   languageName: node
   linkType: hard
 
@@ -2883,12 +2885,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.15.31":
-  version: 22.15.31
-  resolution: "@types/node@npm:22.15.31"
+"@types/node@npm:^24.0.0":
+  version: 24.0.0
+  resolution: "@types/node@npm:24.0.0"
   dependencies:
-    undici-types: "npm:~6.21.0"
-  checksum: 10c0/ef7d5dc890da41cfd554d35ab8998bc18be9e3a0caa642e720599ac4410a94a4879766e52b3c9cafa06c66b7b8aebdc51f322cf67df23a6489927890196a316d
+    undici-types: "npm:~7.8.0"
+  checksum: 10c0/075f3129aa88932a0b4c3c9c28486f93a8d295151138b1fdd590cbbb59ec92d59b66201f99a0f061a7c8955a09d06ecc3fa070ed3c438a521a9890d1a3460958
   languageName: node
   linkType: hard
 
@@ -5130,12 +5132,12 @@ __metadata:
     "@babel/eslint-parser": "npm:^7.27.5"
     "@babel/plugin-transform-proto-to-assign": "npm:^7.27.1"
     "@babel/runtime": "npm:^7.27.6"
-    "@stylistic/eslint-plugin-ts": "npm:^4.4.1"
+    "@stylistic/eslint-plugin": "npm:^4.4.1"
     "@types/ejs": "npm:^3.1.5"
     "@types/html-minifier": "npm:^4.0.5"
     "@types/imagemin": "npm:^9.0.1"
     "@types/jquery": "npm:^3.5.32"
-    "@types/node": "npm:^22.15.31"
+    "@types/node": "npm:^24.0.0"
     "@types/prop-types": "npm:^15.7.15"
     "@types/webpack-env": "npm:^1.18.8"
     "@typescript-eslint/eslint-plugin": "npm:^8.34.0"
@@ -6124,7 +6126,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"estraverse@npm:^5.1.0, estraverse@npm:^5.2.0":
+"estraverse@npm:^5.1.0, estraverse@npm:^5.2.0, estraverse@npm:^5.3.0":
   version: 5.3.0
   resolution: "estraverse@npm:5.3.0"
   checksum: 10c0/1ff9447b96263dec95d6d67431c5e0771eb9776427421260a3e2f0fdd5d6bd4f8e37a7338f5ad2880c9f143450c9b1e4fc2069060724570a49cf9cf0312bd107
@@ -10959,10 +10961,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici-types@npm:~6.21.0":
-  version: 6.21.0
-  resolution: "undici-types@npm:6.21.0"
-  checksum: 10c0/c01ed51829b10aa72fc3ce64b747f8e74ae9b60eafa19a7b46ef624403508a54c526ffab06a14a26b3120d055e1104d7abe7c9017e83ced038ea5cf52f8d5e04
+"undici-types@npm:~7.8.0":
+  version: 7.8.0
+  resolution: "undici-types@npm:7.8.0"
+  checksum: 10c0/9d9d246d1dc32f318d46116efe3cfca5a72d4f16828febc1918d94e58f6ffcf39c158aa28bf5b4fc52f410446bc7858f35151367bd7a49f21746cab6497b709b
   languageName: node
   linkType: hard
 
