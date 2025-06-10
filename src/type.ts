@@ -158,6 +158,7 @@ export type SetterFunction =
 /// endregion
 /// region clientnode helper
 export interface CheckReachabilityOptions {
+    abortController: AbortController
     expectedIntermediateStatusCodes: Array<number> | number
     options: RequestInit
     pollIntervallInSeconds: number
