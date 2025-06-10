@@ -4969,9 +4969,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001669, caniuse-lite@npm:^1.0.30001688":
-  version: 1.0.30001715
-  resolution: "caniuse-lite@npm:1.0.30001715"
-  checksum: 10c0/0109a7da797ffbe1aa197baa5242b205011098eecec1087ef3d0c58ceea19be325ab6679b2751a78660adc3051a9f77e99d5789938fd1eb1235e6fdf6a1dbf8e
+  version: 1.0.30001721
+  resolution: "caniuse-lite@npm:1.0.30001721"
+  checksum: 10c0/fa3a8926899824b385279f1f886fe34c5efb1321c9ece1b9df25c8d567a2706db8450cc5b4d969e769e641593e08ea644909324aba93636a43e4949a75f81c4c
   languageName: node
   linkType: hard
 
@@ -5156,7 +5156,7 @@ __metadata:
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^6.0.1"
     typescript-eslint: "npm:^8.34.0"
-    weboptimizer: "npm:^2.0.1582"
+    weboptimizer: "npm:^2.0.1583"
     webpack-dev-server: "npm:^5.2.2"
   peerDependencies:
     "@babel/runtime": "*"
@@ -11153,9 +11153,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^2.0.1582":
-  version: 2.0.1582
-  resolution: "weboptimizer@npm:2.0.1582"
+"weboptimizer@npm:^2.0.1583":
+  version: 2.0.1583
+  resolution: "weboptimizer@npm:2.0.1583"
   dependencies:
     "@babel/core": "npm:^7.27.4"
     "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
@@ -11169,7 +11169,7 @@ __metadata:
     babel-loader: "npm:^10.0.0"
     babel-plugin-transform-modern-regexp: "npm:^0.0.6"
     babel-preset-minify: "npm:^0.5.2"
-    clientnode: "npm:3.0.1282"
+    clientnode: "npm:3.0.1284"
     ejs: "npm:^3.1.10"
     exports-loader: "npm:^5.0.0"
     extract-loader: "npm:^5.1.0"
@@ -11295,7 +11295,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/f71fd3a9edbebd74d8763a4f8d3e2e81daff1e9a5da79dbe6770c1134eb54d199d71ef9055c7599c66b925c9d8aaa12ff2d56cd7c279ba1c7d6c74d1a9e7a317
+  checksum: 10c0/1f70cf6ad295b1b80382661a5c6c3ac58a5d96aca4a7395923ae0dc78e79e6ed0d405ead9dad482bd1a39d8b16655a84862235ddcbb696dea76cfbf86ff7d690
   languageName: node
   linkType: hard
 
