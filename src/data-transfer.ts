@@ -54,11 +54,14 @@ export const checkReachability = async (
     if (!globalContext.fetch)
         throw new Error('Missing fetch implementation available.')
 
+    const abortController: AbortController =
+        givenOptions.abortController as AbortController | undefined ??
+        new AbortController()
     const options: CheckReachabilityOptions = extend(
         true,
         {
             expectedIntermediateStatusCodes: [],
-            options: {},
+            options: {signal: abortController.signal},
             pollIntervallInSeconds: 0.1,
             statusCodes: 200,
             timeoutInSeconds: 10,
@@ -154,6 +157,8 @@ export const checkReachability = async (
                         `Timeout of ${String(options.timeoutInSeconds)} ` +
                         'seconds reached.'
                     ))
+
+                    abortController.abort()
                 },
                 () => {
                     // Do nothing.
@@ -186,14 +191,17 @@ export const checkUnreachability = async (
     if (!globalContext.fetch)
         throw new Error('Missing fetch implementation available.')
 
+    const abortController: AbortController =
+        givenOptions.abortController as AbortController | undefined ??
+        new AbortController()
     const options: CheckReachabilityOptions = extend(
         true,
         {
-            wait: false,
-            timeoutInSeconds: 10,
+            options: {signal: abortController.signal},
             pollIntervallInSeconds: 0.1,
             statusCodes: [],
-            options: {}
+            timeoutInSeconds: 10,
+            wait: false
         },
         givenOptions
     )
@@ -278,6 +286,8 @@ export const checkUnreachability = async (
                         `Timeout of ${String(options.timeoutInSeconds)} ` +
                         'seconds reached.'
                     ))
+
+                    abortController.abort()
                 },
                 () => {
                     // Do nothing.
