@@ -85,7 +85,7 @@
     "@typescript-eslint/eslint-plugin": "^8.34.0",
     "@typescript-eslint/parser": "^8.34.0",
     "clientnode": "workspace:.",
-    "documentation-website": "^1.0.369",
+    "documentation-website": "^1.0.370",
     "eslint": "^9.28.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-jsdoc": "^50.8.0",
