@@ -5143,10 +5143,10 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^8.34.0"
     "@typescript-eslint/parser": "npm:^8.34.0"
     clientnode: "workspace:."
-    documentation-website: "npm:^1.0.368"
+    documentation-website: "npm:^1.0.369"
     eslint: "npm:^9.28.0"
     eslint-config-google: "npm:^0.14.0"
-    eslint-plugin-jsdoc: "npm:^50.7.1"
+    eslint-plugin-jsdoc: "npm:^50.8.0"
     favicons-webpack-plugin: "npm:^6.0.1"
     image-minimizer-webpack-plugin: "npm:^4.1.3"
     jest: "npm:^29.7.0"
@@ -5674,12 +5674,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"documentation-website@npm:^1.0.368":
-  version: 1.0.368
-  resolution: "documentation-website@npm:1.0.368"
+"documentation-website@npm:^1.0.369":
+  version: 1.0.369
+  resolution: "documentation-website@npm:1.0.369"
   bin:
     documentation-website: build/deploy.js
-  checksum: 10c0/0c00ca07af63a51cf19243c0d0cde9fe522db18827f1e274bbe6ff95ac45b9cef75f78c1102a2bfedd655865cded11722746d59edcf5b10ab16029c818f96be7
+  checksum: 10c0/ac928d1cb6f4e2584e599e7b459ca506360b9412e0ccf1940f3a9412f016bdaf4c112d3bdf57a26b710ef265d25bb5f5ca535f4810dfea4bac1a9af22b2820c1
   languageName: node
   linkType: hard
 
@@ -5969,9 +5969,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:^50.7.1":
-  version: 50.7.1
-  resolution: "eslint-plugin-jsdoc@npm:50.7.1"
+"eslint-plugin-jsdoc@npm:^50.8.0":
+  version: 50.8.0
+  resolution: "eslint-plugin-jsdoc@npm:50.8.0"
   dependencies:
     "@es-joy/jsdoccomment": "npm:~0.50.2"
     are-docs-informative: "npm:^0.0.2"
@@ -5985,7 +5985,7 @@ __metadata:
     spdx-expression-parse: "npm:^4.0.0"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/8ec6295ce789534c1ff47f2988e56c05dc5afb6c1ae54d7036196522aa32de0dee47affe1526697f4ad63ca41124f45175e175ac1f0efe60592f15d1501b57bb
+  checksum: 10c0/8829eb841666e897ddce2677e8288fcdc231bab73add93236e14f2fc7f5d494f5809ac7fc1f809c64817abe532e9a7f4a6aa2eeac303c518d4f70f22ef13642c
   languageName: node
   linkType: hard
 
