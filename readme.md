@@ -33,16 +33,9 @@ Project status
 Use case
 --------
 
-The main goal of this plugin is providing an generic interface logic like
-controller for calling instance methods or getting property values of an object
-orientated designed plugin. A set of reusable logic elements for building gui
-components is integrated as well.
+Simple generic (web and node compatible) utility library.
 <!--deDE:
-    Hauptziel dieses Plugins ist es einen generischen Weg zu bieten indem
-    Objekt Orientierte Plugins verfasst werden können, ohne dabei gegen
-    jQuery's Vorgaben an Plugins zu verstoßen.
-    Desweiteren werden einige wiederverwendbare Logikbausteine zum Bau
-    verschiedener GUI-Komponenten mitgeliefert.
+    Einfache generische (Web- und Node-kompatible) Hilfsbibliothek.
 -->
 
 <!--Place for automatic generated table of contents.-->
