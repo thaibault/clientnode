@@ -5207,7 +5207,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^8.35.0"
     "@typescript-eslint/parser": "npm:^8.35.0"
     clientnode: "workspace:."
-    documentation-website: "npm:^1.0.379"
+    documentation-website: "npm:^1.0.383"
     eslint: "npm:^9.29.0"
     eslint-config-google: "npm:^0.14.0"
     eslint-plugin-jsdoc: "npm:^51.2.3"
@@ -5220,7 +5220,7 @@ __metadata:
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^6.0.1"
     typescript-eslint: "npm:^8.35.0"
-    weboptimizer: "npm:^2.0.1588"
+    weboptimizer: "npm:^2.0.1589"
     webpack-dev-server: "npm:^5.2.2"
   peerDependencies:
     "@babel/runtime": "*"
@@ -5714,12 +5714,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"documentation-website@npm:^1.0.379":
-  version: 1.0.379
-  resolution: "documentation-website@npm:1.0.379"
+"documentation-website@npm:^1.0.383":
+  version: 1.0.383
+  resolution: "documentation-website@npm:1.0.383"
   bin:
     documentation-website: build/deploy.js
-  checksum: 10c0/0254183189f1c237dfd9e52ce25de5de51ffbf0091cb72aa78c188401b37a231e7470ed05b6f02302cd840cbb94f7a7f93fb07728ac755821dd0352e26ac61d3
+  checksum: 10c0/5ad107db10f0e105ce41079161a6d5b3618f8255c170386bd9a1f64e6f4644823a242a8bd38ebd2b6fd1d5dffa731f7cc06eff592c4e1f1bdc23e578aaffb57e
   languageName: node
   linkType: hard
 
@@ -11192,9 +11192,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^2.0.1588":
-  version: 2.0.1588
-  resolution: "weboptimizer@npm:2.0.1588"
+"weboptimizer@npm:^2.0.1589":
+  version: 2.0.1589
+  resolution: "weboptimizer@npm:2.0.1589"
   dependencies:
     "@babel/core": "npm:^7.27.4"
     "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
@@ -11208,7 +11208,7 @@ __metadata:
     babel-loader: "npm:^10.0.0"
     babel-plugin-transform-modern-regexp: "npm:^0.0.6"
     babel-preset-minify: "npm:^0.5.2"
-    clientnode: "npm:3.0.1291"
+    clientnode: "npm:3.0.1292"
     ejs: "npm:^3.1.10"
     exports-loader: "npm:^5.0.0"
     extract-loader: "npm:^5.1.0"
@@ -11334,7 +11334,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/1c204d41d403d0d054ca770aa8e2dc72b887a0ff4e308c31ae43bd59b2ed14bd540e147e2218dbaa3b26bbc9e19584f0101c85c9a9d6476f87a094fbd7ef5c6b
+  checksum: 10c0/93dbe36357a691d3640d113656948b5b228184a47652bf17203adbd5fb45878c4bb0412969adc9e663cf7b633f53bdc3e8ea3d1ec054bf536c69a1bd57d1b82c
   languageName: node
   linkType: hard
 
