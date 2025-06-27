@@ -5164,9 +5164,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:3.0.1250":
-  version: 3.0.1250
-  resolution: "clientnode@npm:3.0.1250"
+"clientnode@npm:3.0.1292":
+  version: 3.0.1292
+  resolution: "clientnode@npm:3.0.1292"
   peerDependencies:
     "@babel/runtime": "*"
     "@types/prop-types": "*"
@@ -5184,7 +5184,7 @@ __metadata:
       optional: true
     prop-types:
       optional: true
-  checksum: 10c0/58e6e7d6a91d1f508486ee5823b8a37fa7eab57d812b69117fe2ad1c65aaf13177fb3c0669a1cf8cb36030fa70a62ac5b5f1ad802d111c15e1cf1c25bac626fc
+  checksum: 10c0/bf6806e64e95e1497d528ed5d76c7b6a4ea80ecd5696eb8fea92dc9b2c545a3def129614f2d4cabe1f022538330dfcfee034493102d5a890c5c05cea36a841d3
   languageName: node
   linkType: hard
 
