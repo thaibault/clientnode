@@ -76,8 +76,7 @@ export const isolatedRequire = (
     const backup = clearRequireCache(requireFunction.cache)
 
     try {
-        // @ts-expect-error Typescript cannot reolve this.
-        return requireFunction(path) as ReturnType<typeof require>
+        return requireFunction(path)
     // eslint-disable-next-line no-useless-catch
     } catch (error) {
         throw error
