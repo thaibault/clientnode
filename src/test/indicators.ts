@@ -39,7 +39,8 @@ testEachSingleParameterAgainstSameExpectation<typeof isNumeric>(
     '0xFF',
     '8e5',
     '3.1415',
-    +10
+    10,
+    -10
 )
 testEachSingleParameterAgainstSameExpectation<typeof isNumeric>(
     'isNumeric',

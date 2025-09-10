@@ -782,7 +782,7 @@ testEach<typeof evaluateDynamicData>(
             a: {__evaluate__: 'toString(self.b)'},
             b: {__evaluate__: `'a'`}
         },
-        {toString: (value: string): string => value.toString()}
+        {toString: (value: string): string => value}
     ],
     [
         {a: ['a'], b: {a: 2}},

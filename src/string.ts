@@ -101,7 +101,6 @@ export const convertToValidVariableName = (name: string): string => {
         return `_${name}`
 
     return name
-        .toString()
         // Remove all disallowed starting characters.
         .replace(new RegExp(`^[^${ALLOWED_STARTING_VARIABLE_SYMBOLS}]+`), '')
         // Remove all disallowed characters within a variable name and make

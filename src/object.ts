@@ -833,7 +833,7 @@ export const equals = (
 
                     let doBreak = false
                     for (const exceptionPrefix of options.exceptionPrefixes)
-                        if (key.toString().startsWith(exceptionPrefix)) {
+                        if (key.startsWith(exceptionPrefix)) {
                             doBreak = true
                             break
                         }

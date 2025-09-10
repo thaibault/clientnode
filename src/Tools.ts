@@ -371,7 +371,7 @@ export class Tools<TElement = HTMLElement> {
             for (const [key, value] of Object.entries(
                 object as Mapping<unknown>
             )) {
-                output += `${key.toString()}: `
+                output += `${key}: `
 
                 if (currentLevel <= level)
                     output += Tools.show(value, level, currentLevel + 1)

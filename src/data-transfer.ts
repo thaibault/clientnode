@@ -78,10 +78,9 @@ export const checkReachability = async (
 
     const isStatusCodeExpected = (
         response: Response, statusCodes: Array<number>
-    ): boolean => Boolean(
+    ): boolean =>
         'status' in response &&
         statusCodes.includes(response.status)
-    )
 
     const checkAndThrow = (response: Response): Response => {
         if (!isStatusCodeExpected(response, statusCodes))
