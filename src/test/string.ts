@@ -1041,23 +1041,19 @@ testEach<typeof mark>(
         }
     ],
     [
-        '<span class="tools-mark">a</span>b' +
-        '<span class="tools-mark">c</span>d',
+        '<span class="tools-mark">a</span>b<span class="tools-mark">c</span>d',
         'abcd',
         ['a', 'c']
     ],
     [
-        '<span class="tools-mark">a</span>' +
-        '<span class="tools-mark">a</span>b' +
+        '<span class="tools-mark">a</span><span class="tools-mark">a</span>b' +
         '<span class="tools-mark">c</span>d',
         'aabcd',
         ['a', 'c']
     ],
     [
-        '<span class="tools-mark">a</span>' +
-        '<span class="tools-mark">c</span>b' +
-        '<span class="tools-mark">c</span>' +
-        '<span class="tools-mark">d</span>',
+        '<span class="tools-mark">a</span><span class="tools-mark">c</span>b' +
+        '<span class="tools-mark">c</span><span class="tools-mark">d</span>',
         'acbcd',
         ['a', 'c', 'd']
     ],
@@ -1214,6 +1210,15 @@ testEach<typeof mark>(
     [
         ['a', {foundWord: 'b'}, 'a'],
         'aba',
+        ['b'],
+        {
+            marker: (foundWord: string): {foundWord: string} => ({foundWord}),
+            normalizer: identity as (value: unknown) => string
+        }
+    ],
+    [
+        ['a ', {foundWord: 'b'}, ' a'],
+        'a b a',
         ['b'],
         {
             marker: (foundWord: string): {foundWord: string} => ({foundWord}),
