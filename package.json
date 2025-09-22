@@ -88,7 +88,7 @@
     "documentation-website": "^1.0.394",
     "eslint": "^9.36.0",
     "eslint-config-google": "^0.14.0",
-    "eslint-plugin-jsdoc": "^60.1.0",
+    "eslint-plugin-jsdoc": "^60.1.1",
     "favicons-webpack-plugin": "^6.0.1",
     "image-minimizer-webpack-plugin": "^4.1.4",
     "jest": "^30.1.3",
