@@ -1010,7 +1010,6 @@ export const mark = (
                         (target as string)
                             .substring(offset, offset + nearestRange[0])
                     )
-                // TODO what about whitespaces after a found marker?
                 markedTarget.push(
                     typeof options.marker === 'string' ?
                         format(
