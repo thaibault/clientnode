@@ -17,7 +17,7 @@ import {expect, test} from '@jest/globals'
 import nodeFetch from 'node-fetch'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 
-import {$, globalContext, NOOP} from '../context'
+import {$, globalContext} from '../context'
 import {
     TEST_DEFINED_SYMBOL, testEach, testEachAgainstSameExpectation
 } from '../test-helper'
@@ -61,8 +61,8 @@ test('initialize', () => {
         domNodeSelectorPrefix: 'body.{1} div.{1}'
     })
 
-    expect(tools.options).toHaveProperty('logging', false)
-    expect(secondToolsInstance.options).toHaveProperty('logging', true)
+    expect(tools.options).toHaveProperty('name', 'Tools')
+    expect(secondToolsInstance.options).toHaveProperty('name', 'Tools')
     expect(thirdToolsInstance.options.domNodeSelectorPrefix)
         .toStrictEqual('body.tools div.tools')
 })
@@ -79,43 +79,6 @@ test('controller', () => {
         .constructor.name
     ).toStrictEqual(Tools.name)
 })
-/// endregion
-/// region logging
-test('log', () => {
-    tools.log('test')
-    expect(true).toStrictEqual(true)
-})
-test('info', () => {
-    tools.info('test {0}')
-    expect(true).toStrictEqual(true)
-})
-test('debug', () => {
-    tools.debug('test')
-    expect(true).toStrictEqual(true)
-})
-// NOTE: This test breaks javaScript modules in strict mode.
-test.skip(`${TEST_ENVIRONMENT}-error`, () => {
-    tools.error('ignore this error, it is only a {1}', 'test')
-    expect(true).toStrictEqual(true)
-})
-test('warn', () => {
-    tools.warn('test')
-    expect(true).toStrictEqual(true)
-})
-test('show', () => {
-    expect(/^.+\(Type: "function"\)$/su.test(Tools.show(NOOP)))
-        .toStrictEqual(true)
-})
-testEach<typeof Tools.show>(
-    'show',
-    Tools.show.bind(Tools),
-
-    ['1 (Type: "number")', 1],
-    ['null (Type: "null")', null],
-    ['/a/ (Type: "regexp")', /a/],
-    ['hans (Type: "string")', 'hans'],
-    ['A: a (Type: "string")\nB: b (Type: "string")', {A: 'a', B: 'b'}]
-)
 /// endregion
 /// region dom node handling
 if (HAS_DOM) {
