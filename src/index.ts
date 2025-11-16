@@ -44,6 +44,7 @@ export * from './scope'
 export * from './Semaphore'
 export * from './string'
 
+export * from './Logger'
 export * from './Tools'
 export * from './type'
 

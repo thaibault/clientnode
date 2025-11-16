@@ -23,6 +23,7 @@ import Tools, {BoundTools} from './Tools'
 import {
     TEST_DEFINED_SYMBOL, TEST_THROW_SYMBOL, TEST_UNDEFINED_SYMBOL
 } from './test-helper'
+import {Level} from './Logger'
 // endregion
 // region exports
 /// region helper
@@ -343,7 +344,6 @@ export interface Options<Type = string> {
     domNodes: DomNodes<Type>
     domNodeSelectorInfix: null | string
     domNodeSelectorPrefix: string
-    logging: boolean
     name: string
 }
 
@@ -389,5 +389,9 @@ export interface StringMarkOptions {
         ((foundWord: string, markedTarget: Array<unknown>) => unknown) | string
     normalizer: (value: unknown) => string
     skipTagDelimitedParts: null | [string, string]
+}
+export interface LoggerOptions {
+    level: Level
+    name: string
 }
 // endregion
