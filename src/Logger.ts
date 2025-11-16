@@ -42,8 +42,11 @@ export type Level = typeof LEVELS[number]
  * @property name - Logger description.
  */
 export class Logger {
-    private level: Level = 'info'
-    private name = 'app'
+    static defaultLevel: Level = 'info'
+    static defaultName = 'app'
+
+    level: Level = Logger.defaultLevel
+    name = Logger.defaultName
 
     /**
      * Initializes logger.
@@ -61,9 +64,13 @@ export class Logger {
     configure({level, name}: Partial<LoggerOptions>) {
         if (level)
             this.level = level
+        else
+            this.level = Logger.defaultLevel
 
         if (name)
             this.name = name
+        else
+            this.name = Logger.defaultName
     }
     /**
      * Shows the given object's representation in the browsers console if
