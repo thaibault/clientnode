@@ -44,6 +44,16 @@ export type Level = typeof LEVELS[number]
 export class Logger {
     static defaultLevel: Level = 'info'
     static defaultName = 'app'
+    static instances: Array<Logger> = []
+
+    /**
+     * Configures all logger instances.
+     * @param options - Options to set.
+     */
+    static configureAllInstances(options: Partial<LoggerOptions> = {}) {
+        for (const logger of Logger.instances)
+            logger.configure(options)
+    }
 
     level: Level = Logger.defaultLevel
     name = Logger.defaultName
@@ -54,6 +64,8 @@ export class Logger {
      */
     constructor(options: Partial<LoggerOptions> = {}) {
         this.configure(options)
+
+        Logger.instances.push(this)
     }
     /**
      * Configures logger.
