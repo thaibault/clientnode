@@ -111,11 +111,11 @@ export class Logger {
                 message = object
             else if (typeof object === 'string')
                 message =
-                    `${level}: ${this.name} - ${new Date().toISOString()} ` +
+                    `${level}: ${this.name} - ${new Date().toISOString()} - ` +
                     format(object, ...additionalArguments)
             else if (isNumeric(object) || typeof object === 'boolean')
                 message =
-                    `${level}: ${this.name} - ${new Date().toISOString()} ` +
+                    `${level}: ${this.name} - ${new Date().toISOString()} - ` +
                     object.toString()
             else {
                 this.log(',--------------------------------------------,')
