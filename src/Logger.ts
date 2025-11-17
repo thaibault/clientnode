@@ -43,6 +43,8 @@ export type Level = typeof LEVELS[number]
 export class Logger {
     static defaultLevel: Level = 'info'
     static defaultName = 'app'
+
+    static selfClass = Logger
     static instances: Mapping<Logger> = {}
 
     /**
