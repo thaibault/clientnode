@@ -19,7 +19,6 @@
 import {$, NOOP} from './context'
 import {isNumeric} from './indicators'
 import {determineType} from './object'
-import {format} from './string'
 import {LoggerOptions, Mapping} from './type'
 
 export const LEVELS = [
@@ -94,8 +93,7 @@ export class Logger {
      * @param avoidAnnotation - If set to "true" given input has no module or
      * log level specific annotations.
      * @param level - Description of log messages importance.
-     * @param additionalArguments - Additional arguments are used for string
-     * formatting.
+     * @param additionalArguments - Additional values to print.
      */
     log(
         object: unknown,
@@ -105,25 +103,33 @@ export class Logger {
         ...additionalArguments: Array<unknown>
     ): void {
         if (force || LEVELS.indexOf(this.level) <= LEVELS.indexOf(level)) {
-            let message: unknown
+            const messages: Array<unknown> = []
+            const annotation =
+                `${level}: ${this.name} - ${new Date().toISOString()} -`
 
             if (avoidAnnotation)
-                message = object
+                messages.push(object)
             else if (typeof object === 'string')
-                message =
-                    `${level}: ${this.name} - ${new Date().toISOString()} - ` +
-                    format(object, ...additionalArguments)
+                messages.push(annotation, object, ...additionalArguments)
             else if (isNumeric(object) || typeof object === 'boolean')
-                message =
-                    `${level}: ${this.name} - ${new Date().toISOString()} - ` +
-                    object.toString()
+                messages.push(
+                    annotation, object.toString(), ...additionalArguments
+                )
             else {
-                this.log(',--------------------------------------------,')
+                const lineLength = 79 - 2
+                const remainingLength = lineLength - annotation.length
+                const halfRemainingLength = Math.floor(remainingLength / 2)
+                this.log(
+                    `,${'-'.repeat(halfRemainingLength)}` +
+                    annotation +
+                    '-'.repeat(halfRemainingLength) +
+                    `${'-'.repeat(remainingLength % 2)},`
+                )
                 this.log(object, force, true)
-                this.log(`'--------------------------------------------'`)
+                this.log(`'${'-'.repeat(lineLength)}'`)
             }
 
-            if (message)
+            if (messages.length)
                 if (
                     !($.global.console && level in $.global.console) ||
                     ($.global.console[level as keyof Console] === NOOP)
@@ -136,11 +142,11 @@ export class Logger {
                             $.global.window, 'alert'
                         )
                     )
-                        $.global.window?.alert(message)
+                        $.global.window?.alert(messages.join(' '))
                 } else
                     ($.global.console[level as keyof Console] as
                         Console['log']
-                    )(message)
+                    )(...messages)
         }
     }
     /**
