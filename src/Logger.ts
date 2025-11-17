@@ -104,7 +104,7 @@ export class Logger {
         level: Level = 'info',
         ...additionalArguments: Array<unknown>
     ): void {
-        if (force || LEVELS.indexOf(this.level) >= LEVELS.indexOf(level)) {
+        if (force || LEVELS.indexOf(this.level) <= LEVELS.indexOf(level)) {
             let message: unknown
 
             if (avoidAnnotation)
