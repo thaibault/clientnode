@@ -47,6 +47,8 @@ export class Logger {
     static selfClass = Logger
     static instances: Mapping<Logger> = {}
 
+    static runtimeVersion = Math.random()
+
     /**
      * Configures all logger instances.
      * @param options - Options to set.
