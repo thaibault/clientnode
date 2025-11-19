@@ -16,19 +16,26 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import {CLI_COLOR} from './cli'
 import {$, NOOP} from './context'
 import {isNumeric} from './indicators'
 import {determineType} from './object'
 import {LoggerOptions, Mapping} from './type'
 
 export const LEVELS = [
-    'debug',
-    'info',
-    'warn',
-    'warning',
+    'error',
     'critical',
-    'error'
+    'warn',
+    'info',
+    'debug'
 ] as const
+export const LEVELS_COLOR = [
+    CLI_COLOR.red,
+    CLI_COLOR.magenta,
+    CLI_COLOR.yellow,
+    CLI_COLOR.green,
+    CLI_COLOR.blue
+]
 
 export type Level = typeof LEVELS[number]
 /**
@@ -112,10 +119,14 @@ export class Logger {
         level: Level = 'info',
         ...additionalArguments: Array<unknown>
     ): void {
-        if (force || LEVELS.indexOf(this.level) <= LEVELS.indexOf(level)) {
+        const currentLevelIndex = LEVELS.indexOf(this.level)
+        const levelIndex = LEVELS.indexOf(level)
+        if (force || currentLevelIndex >= levelIndex) {
             const messages: Array<unknown> = []
             const annotation =
-                `${level}:${this.name}:${new Date().toISOString()}:`
+                `${LEVELS_COLOR[levelIndex]}${level}` +
+                `${CLI_COLOR.default}:${this.name}:` +
+                `${new Date().toISOString()}:`
 
             if (avoidAnnotation)
                 messages.push(object)

@@ -18,6 +18,7 @@
 */
 export * from './array'
 
+export * from './cli'
 export * from './constants'
 export * from './context'
 export * from './cookie'
