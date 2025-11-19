@@ -115,15 +115,15 @@ export class Logger {
         if (force || LEVELS.indexOf(this.level) <= LEVELS.indexOf(level)) {
             const messages: Array<unknown> = []
             const annotation =
-                `${level}: ${this.name} - ${new Date().toISOString()} -`
+                `${level}:${this.name}:${new Date().toISOString()}:`
 
             if (avoidAnnotation)
                 messages.push(object)
             else if (typeof object === 'string')
-                messages.push(annotation, object, ...additionalArguments)
+                messages.push(`${annotation}${object}`, ...additionalArguments)
             else if (isNumeric(object) || typeof object === 'boolean')
                 messages.push(
-                    annotation, object.toString(), ...additionalArguments
+                    `${annotation}${object.toString()}`, ...additionalArguments
                 )
             else {
                 const lineLength = 79 - 2
