@@ -131,10 +131,10 @@ export class Logger {
             if (avoidAnnotation)
                 messages.push(object)
             else if (typeof object === 'string')
-                messages.push(`${annotation}${object}`, ...additionalArguments)
+                messages.push(annotation, object, ...additionalArguments)
             else if (isNumeric(object) || typeof object === 'boolean')
                 messages.push(
-                    `${annotation}${object.toString()}`, ...additionalArguments
+                    annotation, object.toString(), ...additionalArguments
                 )
             else {
                 const lineLength = 79 - 2
