@@ -25,6 +25,7 @@ import * as datetime from './datetime'
 import * as filesystem from './filesystem'
 import * as functions from './function'
 import * as indicators from './indicators'
+import * as logger from './Logger'
 import * as number from './number'
 import * as object from './object'
 import * as require from './require'
@@ -37,6 +38,7 @@ export const UTILITY_SCOPE = {
     filesystem,
     functions,
     indicators,
+    logger,
     number,
     object,
     require,
@@ -53,6 +55,7 @@ export const UTILITY_SCOPE_NAMES = [
     'filesystem',
     'functions',
     'indicators',
+    'logger',
     'number',
     'object',
     'require',
@@ -65,6 +68,7 @@ export const UTILITY_SCOPE_VALUES = [
     filesystem,
     functions,
     indicators,
+    logger,
     number,
     object,
     require,
