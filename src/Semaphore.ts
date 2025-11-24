@@ -60,7 +60,7 @@ export class Semaphore {
      * Releases a resource and runs a waiting resolver if there exists some.
      */
     release() {
-        const callback: AnyFunction | undefined = this.queue.pop()
+        const callback: AnyFunction | undefined = this.queue.shift()
         if (callback === undefined)
             this.numberOfFreeResources += 1
         else

@@ -85,7 +85,7 @@ export class Lock<Type = string | undefined> {
         })
     }
     /**
-     * Calling this method  causes the given critical area to be finished and
+     * Calling this method causes the given critical area to be finished and
      * all functions given to "acquire()" will be executed in right order.
      * @param description - A short string describing the critical areas
      * properties.
