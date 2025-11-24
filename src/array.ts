@@ -336,7 +336,7 @@ export const makeArray = <T = unknown>(object: unknown): Array<T> => {
  * @returns Produced array of integers.
  */
 export const makeRange = (
-    range: number | Array<number>, // | [number] | [number, number]
+    range: number | Array<number> | [number] | [number, number],
     step = 1,
     ignoreLastStep = false
 ): Array<number> => {
