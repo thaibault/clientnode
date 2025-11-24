@@ -93,7 +93,14 @@ const _testEach = <
     tester([...functionTestTuple])(
         `%p === ${functionName}(%p, ...)`,
         ((
-            expected: TestSymbol, // | ReturnType<FunctionType>
+            /*
+                eslint-disable
+                @typescript-eslint/no-redundant-type-constituents
+            */
+            expected: ReturnType<FunctionType> | TestSymbol,
+            /*
+                eslint-enable @typescript-eslint/no-redundant-type-constituents
+            */
             ...parameters: Parameters<FunctionType>
         ) => {
             expectExpectedType<ReturnType<FunctionType>>(
@@ -160,7 +167,14 @@ const _testEachPromise = <
     tester([...functionTestTuple])(
         `%p === ${functionName}(%p, ...)`,
         ((
-            expected: TestSymbol, // | ThenParameter<ReturnType<FunctionType>>
+            /*
+                eslint-disable
+                @typescript-eslint/no-redundant-type-constituents
+            */
+            expected: TestSymbol | ThenParameter<ReturnType<FunctionType>>,
+            /*
+                eslint-enable @typescript-eslint/no-redundant-type-constituents
+            */
             ...parameters: Parameters<FunctionType>
         ): Promise<void> =>
             expectExpectedType<
@@ -305,7 +319,13 @@ const _testEachSingleParameterAgainstSameExpectation = <
         tester: typeof test.each,
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // ReturnType<FunctionType> |
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: ReturnType<FunctionType> | TestSymbol,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...parameters: Array<FirstParameter<FunctionType>>
     ) => {
     tester([...parameters])(
@@ -335,7 +355,13 @@ export const testEachSingleParameterAgainstSameExpectation = <
 >(
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // ReturnType<FunctionType> |
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: ReturnType<FunctionType> | TestSymbol,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...parameters: Array<FirstParameter<FunctionType>>
     ) => {
     _testEachSingleParameterAgainstSameExpectation(
@@ -347,7 +373,13 @@ testEachSingleParameterAgainstSameExpectation.only = <
 >(
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // ReturnType<FunctionType> |
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: ReturnType<FunctionType> | TestSymbol,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...parameters: Array<FirstParameter<FunctionType>>
     ) => {
     _testEachSingleParameterAgainstSameExpectation(
@@ -359,7 +391,13 @@ testEachSingleParameterAgainstSameExpectation.skip = <
 >(
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // ReturnType<FunctionType> |
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: ReturnType<FunctionType> | TestSymbol,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...parameters: Array<FirstParameter<FunctionType>>
     ) => {
     _testEachSingleParameterAgainstSameExpectation(
@@ -382,7 +420,13 @@ const _testEachSingleParameterAgainstSamePromisedExpectation = <
         tester: typeof test.each,
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // | ThenParameter<ReturnType<FunctionType>>
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: TestSymbol | ThenParameter<ReturnType<FunctionType>>,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...parameters: Array<FirstParameter<FunctionType>>
     ) => {
     tester([...parameters])(
@@ -408,7 +452,13 @@ export const testEachSingleParameterAgainstSamePromisedExpectation = <
 >(
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // | ThenParameter<ReturnType<FunctionType>>
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: TestSymbol | ThenParameter<ReturnType<FunctionType>>,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...parameters: Array<FirstParameter<FunctionType>>
     ) => {
     _testEachSingleParameterAgainstSamePromisedExpectation(
@@ -420,7 +470,13 @@ testEachSingleParameterAgainstSamePromisedExpectation.only = <
 >(
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // | ThenParameter<ReturnType<FunctionType>>
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: TestSymbol | ThenParameter<ReturnType<FunctionType>>,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...parameters: Array<FirstParameter<FunctionType>>
     ) => {
     _testEachSingleParameterAgainstSamePromisedExpectation(
@@ -432,7 +488,13 @@ testEachSingleParameterAgainstSamePromisedExpectation.skip = <
 >(
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // | ThenParameter<ReturnType<FunctionType>>
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: TestSymbol | ThenParameter<ReturnType<FunctionType>>,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...parameters: Array<FirstParameter<FunctionType>>
     ) => {
     _testEachSingleParameterAgainstSamePromisedExpectation(
@@ -529,7 +591,13 @@ const _testEachAgainstSameExpectation = <
         tester: typeof test.each,
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // ReturnType<FunctionType> |
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: ReturnType<FunctionType> | TestSymbol,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...functionParameters: Array<Parameters<FunctionType>>
     ) => {
     tester([...functionParameters])(
@@ -560,7 +628,13 @@ export const testEachAgainstSameExpectation = <
 >(
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // ReturnType<FunctionType> |
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: ReturnType<FunctionType> | TestSymbol,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...functionParameters: Array<Parameters<FunctionType>>
     ) => {
     _testEachAgainstSameExpectation(
@@ -572,7 +646,13 @@ testEachAgainstSameExpectation.only = <
 >(
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // ReturnType<FunctionType> |
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: ReturnType<FunctionType> | TestSymbol,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...functionParameters: Array<Parameters<FunctionType>>
     ) => {
     _testEachAgainstSameExpectation(
@@ -584,7 +664,13 @@ testEachAgainstSameExpectation.skip = <
 >(
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // ReturnType<FunctionType> |
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: ReturnType<FunctionType> | TestSymbol,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...functionParameters: Array<Parameters<FunctionType>>
     ) => {
     _testEachAgainstSameExpectation(
@@ -608,7 +694,13 @@ const _testEachPromiseAgainstSameExpectation = <
         tester: typeof test.each,
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // | ThenParameter<ReturnType<FunctionType>>
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: TestSymbol | ThenParameter<ReturnType<FunctionType>>,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...functionParameters: Array<Parameters<FunctionType>>
     ) => {
     tester([...functionParameters])(
@@ -635,7 +727,13 @@ export const testEachPromiseAgainstSameExpectation = <
 >(
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // | ThenParameter<ReturnType<FunctionType>>
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: TestSymbol | ThenParameter<ReturnType<FunctionType>>,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...functionParameters: Array<Parameters<FunctionType>>
     ) => {
     _testEachPromiseAgainstSameExpectation(
@@ -647,7 +745,13 @@ testEachPromiseAgainstSameExpectation.only = <
 >(
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // | ThenParameter<ReturnType<FunctionType>>
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: TestSymbol | ThenParameter<ReturnType<FunctionType>>,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...functionParameters: Array<Parameters<FunctionType>>
     ) => {
     _testEachPromiseAgainstSameExpectation(
@@ -659,7 +763,13 @@ testEachPromiseAgainstSameExpectation.skip = <
 >(
         functionName: string,
         callback: FunctionType,
-        expected: TestSymbol, // | ThenParameter<ReturnType<FunctionType>>
+        /*
+            eslint-disable @typescript-eslint/no-redundant-type-constituents
+        */
+        expected: TestSymbol | ThenParameter<ReturnType<FunctionType>>,
+        /*
+            eslint-enable @typescript-eslint/no-redundant-type-constituents
+        */
         ...functionParameters: Array<Parameters<FunctionType>>
     ) => {
     _testEachPromiseAgainstSameExpectation(
