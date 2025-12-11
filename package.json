@@ -79,7 +79,7 @@
     "@types/html-minifier": "^4.0.6",
     "@types/imagemin": "^9.0.1",
     "@types/jquery": "^3.5.33",
-    "@types/node": "^24.10.2",
+    "@types/node": "^25.0.0",
     "@types/prop-types": "^15.7.15",
     "@types/webpack-env": "^1.18.8",
     "@typescript-eslint/eslint-plugin": "^8.49.0",
