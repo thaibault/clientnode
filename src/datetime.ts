@@ -210,7 +210,6 @@ export const interpretDateTime = (
         )
     }
     // endregion
-    // TODO handle am/pm
     if (!DATE_TIME_PATTERN_CACHE.length) {
         // region pre-compile regular expressions
         /// region pattern
@@ -221,6 +220,8 @@ export const interpretDateTime = (
         const secondPattern = `(?<second>${minuteAndSecondPattern})`
         const minutePattern = `(?<minute>${minuteAndSecondPattern})`
         const hourPattern = '(?<hour>(?:0?[0-9])|(?:1[0-9])|(?:2[0-4]))'
+        const noonIndicatorPattern =
+            '(?<noonIndicator> *(?:(?:a\\.?m\\.?)|(?:p\\.?m\\.?)))?'
         const dayPattern = '(?<day>(?:0?[1-9])|(?:[1-2][0-9])|(?:3[01]))'
         const monthPattern = '(?<month>(?:0?[1-9])|(?:1[0-2]))'
         const yearPattern = '(?<year>(?:0?[1-9])|(?:[1-9][0-9]+))'
@@ -233,13 +234,15 @@ export const interpretDateTime = (
                 for (const timeFormat of [
                     hourPattern +
                     `${timeComponentDelimiter}+` +
-                    minutePattern,
+                    minutePattern +
+                    noonIndicatorPattern,
 
                     hourPattern +
                     `${timeComponentDelimiter}+` +
                     minutePattern +
                     `${timeComponentDelimiter}+` +
-                    secondPattern,
+                    secondPattern +
+                    noonIndicatorPattern,
 
                     hourPattern +
                     `${timeComponentDelimiter}+` +
@@ -247,9 +250,11 @@ export const interpretDateTime = (
                     `${timeComponentDelimiter}+` +
                     secondPattern +
                     `${timeComponentDelimiter}+` +
-                    millisecondPattern,
+                    millisecondPattern +
+                    noonIndicatorPattern,
 
-                    hourPattern
+                    hourPattern +
+                    noonIndicatorPattern
                 ])
                     for (const dateTimeFormat of [
                         {
@@ -476,7 +481,7 @@ export const interpretDateTime = (
     value = value.toLowerCase()
     /*
         Reduce each sequence on none alphanumeric symbols to the first
-        symbol.
+        symbol (consolidate delimiters).
     */
     value = value.replace(/([^0-9a-z])[^0-9a-z]+/g, '$1')
 
@@ -546,6 +551,16 @@ export const interpretDateTime = (
                 get('hour'), get('minute'), get('second'),
                 get('millisecond')
             ]
+
+            if (
+                match.groups?.noonIndicator &&
+                match.groups.noonIndicator
+                    .trim()
+                    .replace(/\./g, '') ===
+                        'pm' &&
+                parameter[3] <= 12
+            )
+                parameter[3] += 12
 
             let result: Date | null = null
             if (timezoneMatch) {

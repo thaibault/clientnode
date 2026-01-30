@@ -36,7 +36,6 @@ const {
     stat = null,
     writeFile = null
 } = optionalRequire<typeof import('fs/promises')>('fs/promises') || {}
-// eslint-disable-next-line @typescript-eslint/unbound-method
 const {basename = null, join = null, resolve = null} =
     optionalRequire<typeof import('path')>('path') || {}
 /**
