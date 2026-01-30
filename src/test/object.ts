@@ -379,7 +379,15 @@ testEach<typeof determineType>(
     }],
     ['function', NOOP],
     ['array', []],
-    // TODO ['array', new Array()],
+    /*
+        eslint-disable
+        @typescript-eslint/no-array-constructor,no-array-constructor
+    */
+    ['array', new Array()],
+    /*
+        eslint-enable
+        @typescript-eslint/no-array-constructor,no-array-constructor
+    */
     ['date', now],
     ['error', new Error()],
     ['map', new Map()],

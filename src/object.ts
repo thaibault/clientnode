@@ -520,7 +520,7 @@ export const copy = <Type = unknown>(
  * @param value - Value to analyze.
  * @returns Name of determined type.
  */
-export const determineType = (value: unknown = undefined): string => {
+export const determineType = (value?: unknown): string => {
     if ([null, undefined].includes(value as null))
         return String(value)
 
