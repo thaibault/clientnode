@@ -91,9 +91,7 @@ export const determine$: (() => $TStatic) = (): $TStatic => {
             typeof $ === 'undefined' ||
             typeof $ === 'object' && Object.keys($).length === 0
         ) {
-            // eslint-disable-next-line @typescript-eslint/no-deprecated
             const selector = globalContext.document?.querySelectorAll ?
-                // eslint-disable-next-line @typescript-eslint/no-deprecated
                 globalContext.document.querySelectorAll.bind(
                     globalContext.document
                 ) :
@@ -197,7 +195,6 @@ export const MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION = {value: ((
         version === 0 &&
         Object.prototype.hasOwnProperty.call($.global.window, 'navigator')
     ) {
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
         if ($.global.window?.navigator.appVersion.indexOf('MSIE 10') !== -1)
             return 10
 

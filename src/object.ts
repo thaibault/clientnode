@@ -445,7 +445,8 @@ export const copy = <Type = unknown>(
                     } catch (error) {
                         throw new Error(
                             'Failed to copy property value object "' +
-                            `${key}": ${represent(error)}`
+                            `${key}": ${represent(error)}`,
+                            {cause: error}
                         )
                     }
         } else {
@@ -1296,9 +1297,9 @@ export const getSubstructure = <T = unknown, E = unknown>(
                     // NOTE: We add index assignments into path array.
                     for (const subPart of subParts) {
                         const match = /(.*?)(\[[0-9]+])/.exec(subPart)
-                        let prefix = ''
                         let indexAssignment= ''
                         if (match) {
+                            let prefix: string
                             [, prefix, indexAssignment] = match
 
                             if (prefix)

@@ -987,7 +987,7 @@ export const mark = (
             iteration++
         ) {
             let nearestRange: Array<number> | null = null
-            let currentRange: Array<number> | null = null
+            let currentRange: Array<number> | null
 
             // Find the nearest next matching word.
             for (const word of words) {
