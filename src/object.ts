@@ -1764,6 +1764,7 @@ export const removeKeyPrefixes = <T>(
 /**
  * Represents given object as formatted string.
  * @param object - Object to represent.
+ * @param maximumLengthOfLists - Maximum number of array item to render.
  * @param indention - String (usually whitespaces) to use as indention.
  * @param initialIndention - String (usually whitespaces) to use as
  * additional indention for the first object traversing level.
@@ -1775,6 +1776,7 @@ export const removeKeyPrefixes = <T>(
  */
 export const represent = (
     object: unknown,
+    maximumLengthOfLists = 10,
     indention = '    ',
     initialIndention = '',
     maximumNumberOfLevelsReachedIdentifier: number | string =
@@ -1803,6 +1805,7 @@ export const represent = (
         let result = '['
 
         let firstSeen = false
+        let counter = 1
         for (const item of object) {
             if (firstSeen)
                 result += ','
@@ -1811,6 +1814,7 @@ export const represent = (
                 `\n${initialIndention}${indention}` +
                 represent(
                     item,
+                    maximumLengthOfLists,
                     indention,
                     `${initialIndention}${indention}`,
                     maximumNumberOfLevelsReachedIdentifier,
@@ -1818,6 +1822,11 @@ export const represent = (
                 )
 
             firstSeen = true
+
+            if (counter === maximumLengthOfLists)
+                break
+
+            counter += 1
         }
 
         if (firstSeen)
@@ -1832,6 +1841,7 @@ export const represent = (
         let result = ''
 
         let firstSeen = false
+        let counter = 1
         for (const [key, item] of object) {
             if (firstSeen)
                 result += `,\n${initialIndention}${indention}`
@@ -1839,6 +1849,7 @@ export const represent = (
             result +=
                 represent(
                     key,
+                    maximumLengthOfLists,
                     indention,
                     `${initialIndention}${indention}`,
                     maximumNumberOfLevelsReachedIdentifier,
@@ -1847,6 +1858,7 @@ export const represent = (
                 ' -> ' +
                 represent(
                     item,
+                    maximumLengthOfLists,
                     indention,
                     `${initialIndention}${indention}`,
                     maximumNumberOfLevelsReachedIdentifier,
@@ -1854,6 +1866,11 @@ export const represent = (
                 )
 
             firstSeen = true
+
+            if (counter === maximumLengthOfLists)
+                break
+
+            counter += 1
         }
 
         if (!firstSeen)
@@ -1866,6 +1883,7 @@ export const represent = (
         let result = '{'
 
         let firstSeen = false
+        let counter = 1
         for (const item of object) {
             if (firstSeen)
                 result += ','
@@ -1874,6 +1892,7 @@ export const represent = (
                 `\n${initialIndention}${indention}` +
                 represent(
                     item,
+                    maximumLengthOfLists,
                     indention,
                     `${initialIndention}${indention}`,
                     maximumNumberOfLevelsReachedIdentifier,
@@ -1881,6 +1900,11 @@ export const represent = (
                 )
 
             firstSeen = true
+
+            if (counter === maximumLengthOfLists)
+                break
+
+            counter += 1
         }
 
         if (firstSeen)
@@ -1897,6 +1921,7 @@ export const represent = (
     let result = '{'
     const keys: Array<string> = Object.getOwnPropertyNames(object).sort()
     let firstSeen = false
+    let counter = 1
     for (const key of keys) {
         if (firstSeen)
             result += ','
@@ -1905,6 +1930,7 @@ export const represent = (
             `\n${initialIndention}${indention}${key}: ` +
             represent(
                 (object as Mapping<unknown>)[key],
+                maximumLengthOfLists,
                 indention,
                 `${initialIndention}${indention}`,
                 maximumNumberOfLevelsReachedIdentifier,
@@ -1912,6 +1938,11 @@ export const represent = (
             )
 
         firstSeen = true
+
+        if (counter === maximumLengthOfLists)
+            break
+
+        counter += 1
     }
 
     if (firstSeen)
