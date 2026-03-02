@@ -121,6 +121,7 @@ export class Logger {
     ): void {
         const currentLevelIndex = LEVELS.indexOf(this.level)
         const levelIndex = LEVELS.indexOf(level)
+
         if (force || currentLevelIndex >= levelIndex) {
             const messages: Array<unknown> = []
             const annotation =
@@ -140,14 +141,23 @@ export class Logger {
                 const lineLength = 79 - 2
                 const remainingLength = lineLength - annotation.length
                 const halfRemainingLength = Math.floor(remainingLength / 2)
+
                 this.log(
                     `,${'-'.repeat(halfRemainingLength)}` +
                     annotation +
                     '-'.repeat(halfRemainingLength) +
-                    `${'-'.repeat(remainingLength % 2)},`
+                    `${'-'.repeat(remainingLength % 2)},`,
+                    force,
+                    avoidAnnotation,
+                    level
                 )
-                this.log(object, force, true)
-                this.log(`'${'-'.repeat(lineLength)}'`)
+                this.log(object, force, avoidAnnotation, level)
+                this.log(
+                    `'${'-'.repeat(lineLength)}'`,
+                    force,
+                    avoidAnnotation,
+                    level
+                )
             }
 
             if (messages.length)
