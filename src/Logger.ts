@@ -148,14 +148,14 @@ export class Logger {
                     '-'.repeat(halfRemainingLength) +
                     `${'-'.repeat(remainingLength % 2)},`,
                     force,
-                    avoidAnnotation,
+                    true,
                     level
                 )
-                this.log(object, force, avoidAnnotation, level)
+                this.log(object, force, true, level)
                 this.log(
                     `'${'-'.repeat(lineLength)}'`,
                     force,
-                    avoidAnnotation,
+                    true,
                     level
                 )
             }
