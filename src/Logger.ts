@@ -138,15 +138,31 @@ export class Logger {
                     annotation, object.toString(), ...additionalArguments
                 )
             else {
+                const multiLineAnnotation =
+                    annotation.substring(0, annotation.length - 1)
                 const lineLength = 79 - 2
-                const remainingLength = lineLength - annotation.length
+                // Color codes are invisible so we have to add it.
+                const remainingLength =
+                    lineLength +
+                    LEVELS_COLOR[levelIndex].length +
+                    CLI_COLOR.default.length -
+                    multiLineAnnotation.length
                 const halfRemainingLength = Math.floor(remainingLength / 2)
 
+                console.log(
+                    'annotationlengt', multiLineAnnotation.length,
+                    'remainingLength', remainingLength,
+                    'halfRemainingLength', halfRemainingLength,
+                    'rest', remainingLength % 2
+                )
+
                 this.log(
-                    `,${'-'.repeat(halfRemainingLength)}` +
-                    annotation +
-                    '-'.repeat(halfRemainingLength) +
-                    `${'-'.repeat(remainingLength % 2)},`,
+                    (
+                        `,${'-'.repeat(halfRemainingLength)}` +
+                        multiLineAnnotation +
+                        '-'.repeat(halfRemainingLength) +
+                        `${'-'.repeat(remainingLength % 2)},`
+                    ),
                     force,
                     true,
                     level
