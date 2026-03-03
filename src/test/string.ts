@@ -39,7 +39,7 @@ import {
     getPortNumber,
     getProtocolName,
     getURLParameter,
-    hasPathPrefix,
+    hasPathPrefix, limit,
     lowerCase,
     mark,
     maskForRegularExpression,
@@ -1349,4 +1349,14 @@ testEach<typeof normalizeDomNodeSelector>(
     ['', ''],
     ['div', 'div'],
     ['div, p', 'div, p']
+)
+testEach<typeof limit>(
+    'limit',
+    limit,
+
+    ['', ''],
+    ['test', 'test'],
+    ['test ', 'test '],
+    ['12345...', '123456789excess', 8],
+    ['1...', '123456789excess', 4]
 )

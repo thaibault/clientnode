@@ -1285,3 +1285,16 @@ export const normalizeDomNodeSelector = (
 
     return selector.trim()
 }
+/**
+ * Abbreviates given string if it excesses a given limit.
+ * @param value - String to abbreviate.
+ * @param limit - Maximum length of processed string.
+ * @returns Abbreviated given string.
+ */
+export const limit = (value: string, limit = 100) => {
+    if (value.length <= limit)
+        return value
+
+    const dots = '...'
+    return value.substring(0, limit - dots.length) + dots
+}
