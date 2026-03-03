@@ -149,13 +149,6 @@ export class Logger {
                     multiLineAnnotation.length
                 const halfRemainingLength = Math.floor(remainingLength / 2)
 
-                console.log(
-                    'annotationlengt', multiLineAnnotation.length,
-                    'remainingLength', remainingLength,
-                    'halfRemainingLength', halfRemainingLength,
-                    'rest', remainingLength % 2
-                )
-
                 this.log(
                     (
                         `,${'-'.repeat(halfRemainingLength)}` +
