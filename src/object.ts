@@ -1776,7 +1776,7 @@ export const removeKeyPrefixes = <T>(
  */
 export const represent = (
     object: unknown,
-    maximumLengthOfLists = 10,
+    maximumLengthOfLists = 30,
     indention = '    ',
     initialIndention = '',
     maximumNumberOfLevelsReachedIdentifier: number | string =
@@ -1807,6 +1807,11 @@ export const represent = (
         let firstSeen = false
         let counter = 1
         for (const item of object) {
+            if (counter > maximumLengthOfLists) {
+                result += `\n${initialIndention}...`
+                break
+            }
+
             if (firstSeen)
                 result += ','
 
@@ -1822,9 +1827,6 @@ export const represent = (
                 )
 
             firstSeen = true
-
-            if (counter === maximumLengthOfLists)
-                break
 
             counter += 1
         }
@@ -1843,6 +1845,11 @@ export const represent = (
         let firstSeen = false
         let counter = 1
         for (const [key, item] of object) {
+            if (counter > maximumLengthOfLists) {
+                result += `,\n${initialIndention}...`
+                break
+            }
+
             if (firstSeen)
                 result += `,\n${initialIndention}${indention}`
 
@@ -1867,9 +1874,6 @@ export const represent = (
 
             firstSeen = true
 
-            if (counter === maximumLengthOfLists)
-                break
-
             counter += 1
         }
 
@@ -1885,6 +1889,11 @@ export const represent = (
         let firstSeen = false
         let counter = 1
         for (const item of object) {
+            if (counter > maximumLengthOfLists) {
+                result += `,\n${initialIndention}...`
+                break
+            }
+
             if (firstSeen)
                 result += ','
 
@@ -1900,9 +1909,6 @@ export const represent = (
                 )
 
             firstSeen = true
-
-            if (counter === maximumLengthOfLists)
-                break
 
             counter += 1
         }
@@ -1923,6 +1929,11 @@ export const represent = (
     let firstSeen = false
     let counter = 1
     for (const key of keys) {
+        if (counter > maximumLengthOfLists) {
+            result += `,\n${initialIndention}...`
+            break
+        }
+
         if (firstSeen)
             result += ','
 
@@ -1938,9 +1949,6 @@ export const represent = (
             )
 
         firstSeen = true
-
-        if (counter === maximumLengthOfLists)
-            break
 
         counter += 1
     }
