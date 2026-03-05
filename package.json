@@ -91,7 +91,7 @@
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-jsdoc": "^62.7.1",
     "favicons-webpack-plugin": "^6.0.1",
-    "image-minimizer-webpack-plugin": "^4.1.4",
+    "image-minimizer-webpack-plugin": "^5.0.0",
     "jest": "^30.2.0",
     "jquery": "^4.0.0",
     "jsdoc": "^4.0.5",
