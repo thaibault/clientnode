@@ -5941,10 +5941,10 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^8.57.0"
     "@typescript-eslint/parser": "npm:^8.57.0"
     clientnode: "workspace:."
-    documentation-website: "npm:^1.0.398"
+    documentation-website: "npm:^1.0.401"
     eslint: "npm:^10.0.3"
     eslint-config-google: "npm:^0.14.0"
-    eslint-plugin-jsdoc: "npm:^62.7.1"
+    eslint-plugin-jsdoc: "npm:^62.8.0"
     favicons-webpack-plugin: "npm:^6.0.1"
     image-minimizer-webpack-plugin: "npm:^5.0.0"
     jest: "npm:^30.3.0"
@@ -5954,7 +5954,7 @@ __metadata:
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^6.1.3"
     typescript-eslint: "npm:^8.57.0"
-    weboptimizer: "npm:^3.0.4"
+    weboptimizer: "npm:^3.0.7"
     webpack-dev-server: "npm:^5.2.3"
   peerDependencies:
     "@babel/runtime": "*"
@@ -6458,12 +6458,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"documentation-website@npm:^1.0.398":
-  version: 1.0.398
-  resolution: "documentation-website@npm:1.0.398"
+"documentation-website@npm:^1.0.401":
+  version: 1.0.401
+  resolution: "documentation-website@npm:1.0.401"
   bin:
     documentation-website: build/deploy.js
-  checksum: 10c0/81cb393c19b7c1b65e70a01e05a00456a40c39fed8da7aa0fed7bbddd85648e83ac82f650bafb619e93246178e491fb2dd336d16ebb814680dc240ef0a0f1c80
+  checksum: 10c0/cd8a550517c38a702b4fd8e8eb740d092b3f7158f10f5fcf5438ffd6f512b1646ec808b81c846ba49cddeef6c1e9f9bfe95310171eb7eae5cb4eec1f75c6bc58
   languageName: node
   linkType: hard
 
@@ -6760,9 +6760,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:^62.7.1":
-  version: 62.7.1
-  resolution: "eslint-plugin-jsdoc@npm:62.7.1"
+"eslint-plugin-jsdoc@npm:^62.8.0":
+  version: 62.8.0
+  resolution: "eslint-plugin-jsdoc@npm:62.8.0"
   dependencies:
     "@es-joy/jsdoccomment": "npm:~0.84.0"
     "@es-joy/resolve.exports": "npm:1.2.0"
@@ -6780,7 +6780,7 @@ __metadata:
     to-valid-identifier: "npm:^1.0.0"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
-  checksum: 10c0/949c1f11ed86ddac0903ffe65e5e30d36766badea2e42ceeaf85168ec6f540f94a9974896600410ce1fcbbf34809b39236cc9614411c15d05b93be166c21ec3c
+  checksum: 10c0/57dc7d297f514c1f89112386d701e7ef4a2af44d3a385eb9f140b5eed29eea762651b5459546208a4b9bf55d22cd3b78eb73aa39f32adb17821eee76377d9ebd
   languageName: node
   linkType: hard
 
@@ -12175,9 +12175,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^3.0.4":
-  version: 3.0.4
-  resolution: "weboptimizer@npm:3.0.4"
+"weboptimizer@npm:^3.0.7":
+  version: 3.0.7
+  resolution: "weboptimizer@npm:3.0.7"
   dependencies:
     "@babel/core": "npm:^7.29.0"
     "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
@@ -12191,7 +12191,7 @@ __metadata:
     babel-loader: "npm:^10.1.1"
     babel-plugin-transform-modern-regexp: "npm:^0.0.6"
     babel-preset-minify: "npm:^0.5.2"
-    clientnode: "npm:4.0.1355"
+    clientnode: "npm:4.0.1356"
     ejs: "npm:^5.0.1"
     exports-loader: "npm:^5.0.0"
     extract-loader: "npm:^5.1.0"
@@ -12324,7 +12324,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/c5d8374ef0ac33545240a87ec026de181fd4465975ad1a985f7610bcb1b4e9872f7b49fb99c821cd0d64d6351176de59b2ae13a8dc5e6411cad67625bc61ced4
+  checksum: 10c0/67f50c93b1e637169ec670bdfde8f21696798bd9674fce7bb8a221b6630d92c6d19fa2ca81b07500749744046c5eea575d97eec0cc9c7fd88022815f31cc38fa
   languageName: node
   linkType: hard
 
