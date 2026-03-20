@@ -856,6 +856,10 @@ test('extend', () => {
     const target: PlainObject = {a: [1, 2]}
     extend(true, target, {a: [3, 4]})
     expect(target).toStrictEqual({a: [3, 4]})
+
+    const blob = new Blob()
+    extend(true, target, {blob} as unknown as PlainObject)
+    expect(target.blob).toStrictEqual(blob)
 })
 testEach<typeof extend>(
     'extend',
