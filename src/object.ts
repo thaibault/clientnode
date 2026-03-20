@@ -349,6 +349,7 @@ export const convertSubstringInPlainObject = <
 /**
  * Copies given object (of any type) into optionally given destination.
  * @param source - Object to copy.
+ * @param copyBlobs - Determines whether to copy blobs as well.
  * @param recursionLimit - Specifies how deep we should traverse into given
  * object recursively.
  * @param recursionEndValue - Indicates which value to use for recursion ends.
@@ -365,6 +366,7 @@ export const convertSubstringInPlainObject = <
  */
 export const copy = <Type = unknown>(
     source: Type,
+    copyBlobs = false,
     recursionLimit = -1,
     recursionEndValue: unknown = VALUE_COPY_SYMBOL,
     destination: null | Type = null,
@@ -403,6 +405,7 @@ export const copy = <Type = unknown>(
 
                 const result: null | V = copy(
                     value,
+                    copyBlobs,
                     recursionLimit,
                     recursionEndValue,
                     null,
@@ -453,6 +456,7 @@ export const copy = <Type = unknown>(
             if (Array.isArray(source))
                 return copy(
                     source,
+                    copyBlobs,
                     recursionLimit,
                     recursionEndValue,
                     ([] as unknown as Type),
@@ -464,6 +468,7 @@ export const copy = <Type = unknown>(
             if (source instanceof Map)
                 return copy(
                     source,
+                    copyBlobs,
                     recursionLimit,
                     recursionEndValue,
                     (new Map() as unknown as Type),
@@ -475,6 +480,7 @@ export const copy = <Type = unknown>(
             if (source instanceof Set)
                 return copy(
                     source,
+                    copyBlobs,
                     recursionLimit,
                     recursionEndValue,
                     (new Set() as unknown as Type),
@@ -499,12 +505,15 @@ export const copy = <Type = unknown>(
             }
 
             if (typeof Blob !== 'undefined' && source instanceof Blob)
-                return source.slice(0, source.size, source.type) as
-                    unknown as
-                    Type
+                return copyBlobs ?
+                    source.slice(0, source.size, source.type) as
+                        unknown as
+                        Type :
+                    source
 
             return copy(
                 source,
+                copyBlobs,
                 recursionLimit,
                 recursionEndValue,
                 ({} as unknown as Type),

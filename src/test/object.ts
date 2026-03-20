@@ -254,104 +254,119 @@ testEach<typeof copy>(
 
     [21, 21],
     [0, 0],
-    [0, 0, -1],
-    [0, 0, 1],
-    [0, 0, 10],
+    [0, 0, false, -1],
+    [0, 0, false, 1],
+    [0, 0, false, 10],
     [new Date(0), new Date(0)],
     [/a/, /a/],
     [{}, {}],
-    [{}, {}, -1],
+    [{}, {}, false, -1],
     [[], []],
     [new Map(), new Map()],
     [new Set(), new Set()],
-    [{a: 2}, {a: 2}, 0],
-    [{a: null}, {a: {a: 2}}, 0, null],
-    [{a: {a: 2}}, {a: {a: 2}}, 0],
-    [{a: {a: 2}}, {a: {a: 2}}, 1],
-    [{a: {a: 2}}, {a: {a: 2}}, 2],
-    [{a: [null]}, {a: [{a: 2}]}, 1, null],
-    [{a: [{a: 2}]}, {a: [{a: 2}]}, 2],
-    [{a: {a: 2}}, {a: {a: 2}}, 10],
-    [new Map([['a', 2]]), new Map([['a', 2]]), 0],
+    [{a: 2}, {a: 2}, false, 0],
+    [{a: null}, {a: {a: 2}}, false, 0, null],
+    [{a: {a: 2}}, {a: {a: 2}}, false, 0],
+    [{a: {a: 2}}, {a: {a: 2}}, false, 1],
+    [{a: {a: 2}}, {a: {a: 2}}, false, 2],
+    [{a: [null]}, {a: [{a: 2}]}, false, 1, null],
+    [{a: [{a: 2}]}, {a: [{a: 2}]}, false, 2],
+    [{a: {a: 2}}, {a: {a: 2}}, false, 10],
+    [new Map([['a', 2]]), new Map([['a', 2]]), false, 0],
     [
         new Map([['a', null]]),
         new Map([['a', new Map([['a', 2]])]]),
+        false,
         0,
         null
     ],
     [
         new Map([['a', new Map([['a', 2]])]]),
         new Map([['a', new Map([['a', 2]])]]),
+        false,
         0
     ],
     [
         new Map([['a', new Map([['a', 2]])]]),
         new Map([['a', new Map([['a', 2]])]]),
+        false,
         1
     ],
     [
         new Map([['a', new Map([['a', 2]])]]),
         new Map([['a', new Map([['a', 2]])]]),
+        false,
         2
     ],
     [
         new Map([['a', [null]]]),
         new Map([['a', [new Map([['a', 2]])]]]),
+        false,
         1,
         null
     ],
     [
         new Map([['a', [new Map([['a', 2]])]]]),
         new Map([['a', [new Map([['a', 2]])]]]),
+        false,
         2
     ],
     [
         new Map([['a', new Map([['a', 2]])]]),
         new Map([['a', new Map([['a', 2]])]]),
+        false,
         10
     ],
     [
         new Map([['a', new Map([['a', 2]])]]),
         new Map([['a', new Map([['a', 2]])]]),
+        false,
         10
     ],
-    [new Set(['a', 2]), new Set(['a', 2]), 0],
-    [new Set([null, null]), new Set(['a', new Set(['a', 2])]), 0, null],
+    [new Set(['a', 2]), new Set(['a', 2]), false, 0],
+    [new Set([null, null]), new Set(['a', new Set(['a', 2])]), false, 0, null],
     [
         new Set(['a', new Set([null, null])]),
         new Set(['a', new Set(['a', 2])]),
+        false,
         1,
         null
     ],
     [
         new Set(['a', new Set(['a', 2])]),
         new Set(['a', new Set(['a', 2])]),
+        false,
         1
     ],
     [
         new Set(['a', new Set(['a', 2])]),
         new Set(['a', new Set(['a', 2])]),
+        false,
         2
     ],
     [
         new Set(['a', [null]]),
         new Set(['a', [new Set(['a', 2])]]),
+        false,
         1,
         null
     ],
     [
         new Set(['a', [new Set(['a', 2])]]),
         new Set(['a', [new Set(['a', 2])]]),
+        false,
         2
     ],
     [
         new Set(['a', new Set(['a', 2])]),
         new Set(['a', new Set(['a', 2])]),
+        false,
         10
     ],
     [
         new Set(['a', new Set(['a', 2])]),
         new Set(['a', new Set(['a', 2])]),
+        false,
         10
     ],
     [{VALUE_COPY_SYMBOL}, {VALUE_COPY_SYMBOL}]
