@@ -591,7 +591,9 @@ export const equals = (
         firstValue === secondValue ||
         isNotANumber(firstValue) && isNotANumber(secondValue) ||
         firstValue instanceof RegExp && secondValue instanceof RegExp &&
-        firstValue.toString() === secondValue.toString() ||
+        firstValue.toString() === secondValue.toString() &&
+        firstValue.flags.split('').sort().join('') ===
+        secondValue.flags.split('').sort().join('') ||
         firstValue instanceof Date && secondValue instanceof Date &&
         (
             isNaN(firstValue.getTime()) &&
@@ -1247,7 +1249,9 @@ export const extend = <T = Mapping<unknown>>(
                     )
             else if (
                 isObject(target) && !Array.isArray(target) &&
-                isObject(source) && !Array.isArray(source)
+                !(typeof Blob !== 'undefined' && target instanceof Blob) &&
+                isObject(source) && !Array.isArray(source) &&
+                !(typeof Blob !== 'undefined' && source instanceof Blob)
             ) {
                 for (const [key, value] of Object.entries(source))
                     if (!(
