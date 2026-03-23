@@ -587,7 +587,7 @@ export const delimitedToCamelCase = (
 export const compile = <T = string, N extends Array<string> = Array<string>>(
     expression: string,
     scope:
-        Mapping<unknown, N[number]> |
+        Mapping<unknown> |
         N |
         N[number] |
         string = [] as unknown as N,

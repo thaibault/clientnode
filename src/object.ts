@@ -94,7 +94,7 @@ export const addDynamicGetterAndSetter = <T = unknown>(
         } else if (object !== null)
             for (const [key, value] of Object.entries(object))
                 (object as unknown as Mapping<unknown>)[key] =
-                    addDynamicGetterAndSetter<T[Extract<keyof T, string>]>(
+                    addDynamicGetterAndSetter(
                         value as T[Extract<keyof T, string>],
                         getterWrapper,
                         setterWrapper,
@@ -442,9 +442,7 @@ export const copy = <Type = unknown>(
                 for (const [key, value] of Object.entries(source))
                     try {
                         (destination as Mapping<ValueOf<Type>>)[key] =
-                            copyValue<ValueOf<Type>>(
-                                value as ValueOf<Type>
-                            ) as ValueOf<Type>
+                            copyValue(value as ValueOf<Type>) as ValueOf<Type>
                     } catch (error) {
                         throw new Error(
                             'Failed to copy property value object "' +
@@ -1231,7 +1229,7 @@ export const extend = <T = Mapping<unknown>>(
                     targetValue :
                     {} as unknown as ValueOf<T>
 
-            return extend<ValueOf<T>>(deep, clone, value)
+            return extend(deep, clone, value)
         }
 
         return value
@@ -1546,7 +1544,7 @@ export const modifyObject = <T = unknown>(
     if (isMap(source) && isMap(target)) {
         for (const [key, value] of source)
             if (target.has(key))
-                modifyObject<ValueOf<T>>(
+                modifyObject(
                     target.get(key) as ValueOf<T>,
                     value as Map<unknown, unknown> | Mapping<unknown> | null,
                     removeIndicatorKey,
@@ -1622,19 +1620,16 @@ export const modifyObject = <T = unknown>(
                     else if (isObject(target[index]) && isObject(sourceValue))
                         extend(
                             true,
-                            modifyObject<RecursivePartial<ValueOf<T>>>(
-                                target[index] as
-                                    RecursivePartial<ValueOf<T>>,
-                                sourceValue as
-                                    RecursivePartial<ValueOf<T>>,
+                            modifyObject(
+                                target[index] as RecursivePartial<ValueOf<T>>,
+                                sourceValue as RecursivePartial<ValueOf<T>>,
                                 removeIndicatorKey,
                                 prependIndicatorKey,
                                 appendIndicatorKey,
                                 positionPrefix,
                                 positionSuffix
                             ),
-                            target[index] as
-                                RecursivePartial<ValueOf<T>>,
+                            target[index] as RecursivePartial<ValueOf<T>>,
                             sourceValue as RecursivePartial<ValueOf<T>>
                         )
                     else
@@ -1663,7 +1658,7 @@ export const modifyObject = <T = unknown>(
                 Object.prototype.hasOwnProperty.call(target, key)
             )
                 (target as unknown as Mapping<unknown>)[key] =
-                    modifyObject<ValueOf<T>>(
+                    modifyObject(
                         (target as unknown as Mapping<ValueOf<T>>)[key],
                         sourceValue,
                         removeIndicatorKey,

@@ -27,8 +27,7 @@ import {
     BoundToolsFunction,
     Mapping,
     ParametersExceptFirst,
-    ToolsFunction,
-    UnknownFunction
+    ToolsFunction
 } from './type'
 
 export const determineGlobalContext: (() => $Global) = (): $Global => {
@@ -117,7 +116,7 @@ export const determine$: (() => $TStatic) = (): $TStatic => {
                     if (Object.prototype.hasOwnProperty.call($, 'fn'))
                         for (const [key, plugin] of Object.entries($.fn))
                             $domNodes[key as 'add'] = (
-                                plugin as unknown as UnknownFunction
+                                plugin
                             ).bind($domNodes) as $T['add']
 
                     $domNodes.jquery = 'clientnode'

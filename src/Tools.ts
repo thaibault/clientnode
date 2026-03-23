@@ -141,7 +141,7 @@ export class Tools<TElement = HTMLElement> {
             changing a static options object.
         */
         this.options =
-            extend<Options>(true, {} as Options, Tools._defaultOptions, options)
+            extend(true, {} as Options, Tools._defaultOptions, options)
         /*
             The selector prefix should be parsed after extending options
             because the selector would be overwritten otherwise.
@@ -180,9 +180,7 @@ export class Tools<TElement = HTMLElement> {
             )($domNode)
 
             if (!(object instanceof Tools))
-                object = extend<Tools>(
-                    true, new Tools<HTMLElement>(), object as Tools
-                )
+                object = extend(true, new Tools(), object as Tools)
         }
 
         const normalizedParameters: Array<unknown> = makeArray(parameters)
@@ -490,7 +488,7 @@ export class Tools<TElement = HTMLElement> {
             throw new Error('No window object available.')
 
         const delta: Position =
-            extend<Position>({bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
+            extend({bottom: 0, left: 0, right: 0, top: 0}, givenDelta)
 
         const $domNode: null | $T<TElement> = this.$domNode
 
