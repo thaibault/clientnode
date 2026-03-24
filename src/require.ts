@@ -76,7 +76,8 @@ export const isolatedRequire = (
     const backup = clearRequireCache(requireFunction.cache)
 
     try {
-        return requireFunction(path)
+        return requireFunction(path as unknown as string) as
+            ReturnType<typeof require>
     // eslint-disable-next-line no-useless-catch
     } catch (error) {
         throw error
