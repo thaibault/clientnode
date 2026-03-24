@@ -117,9 +117,8 @@ export const checkReachability = async (
             const wrapper = async (): Promise<Error | Response> => {
                 let response: Response
                 try {
-                    /* eslint-disable @typescript-eslint/no-unsafe-call */
+                    // @ts-expect-error Already wrapped in try catch.
                     response = await globalContext.fetch(url, options.options)
-                    /* eslint-enable @typescript-eslint/no-unsafe-call */
                 } catch (error) {
                     return retryErrorHandler(error as Error)
                 }
@@ -162,10 +161,7 @@ export const checkReachability = async (
             )
         })
 
-    return checkAndThrow(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        await globalContext.fetch(url, options.options) as Response
-    )
+    return checkAndThrow(await globalContext.fetch(url, options.options))
 }
 /**
  * Checks if given url isn't reachable.
@@ -237,9 +233,8 @@ export const checkUnreachability = async (
             const wrapper = async (): Promise<Error | Response | null> => {
                 try {
                     const response: Response =
-                        /* eslint-disable @typescript-eslint/no-unsafe-call */
+                        // @ts-expect-error Already wrapped in try catch.
                         await globalContext.fetch(url, options.options)
-                        /* eslint-enable @typescript-eslint/no-unsafe-call */
 
                     if (timedOut)
                         return response
@@ -297,8 +292,7 @@ export const checkUnreachability = async (
 
     try {
         const result: Error | null =
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            check(await globalContext.fetch(url, options.options) as Response)
+            check(await globalContext.fetch(url, options.options))
 
         if (result)
             return result
