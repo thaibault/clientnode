@@ -97,7 +97,7 @@
     "prop-types": "^15.8.1",
     "rimraf": "^6.1.3",
     "typescript-eslint": "^8.57.2",
-    "weboptimizer": "^3.0.12",
+    "weboptimizer": "^3.0.14",
     "webpack-dev-server": "^5.2.3"
   },
   "peerDependencies": {
@@ -126,7 +126,7 @@
     "yarn": ">=4"
   },
   "resolutions": {
-    "weboptimizer/clientnode": "4.0.1359",
+    "weboptimizer/clientnode": "4.0.1360",
     "colors": "1.4.0",
     "globals@npm:^14.0.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
     "globals@npm:^11.1.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
