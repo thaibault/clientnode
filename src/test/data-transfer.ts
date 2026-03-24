@@ -17,21 +17,15 @@
 */
 import {expect, test} from '@jest/globals'
 
-import {$} from '../context'
-import {
-    checkReachability, checkUnreachability, sendToExternalURL, sendToIFrame
-} from '../data-transfer'
+import {checkReachability, checkUnreachability} from '../data-transfer'
 import {
     TEST_DEFINED_SYMBOL,
     testEachPromiseAgainstSameExpectation,
     testEachPromiseRejectionAgainstSameExpectation
 } from '../test-helper'
-import {$T} from '../type'
 import {timeout} from '../utility'
 
-declare const TARGET_TECHNOLOGY: string
-
-testEachPromiseRejectionAgainstSameExpectation<typeof checkReachability>(
+testEachPromiseRejectionAgainstSameExpectation(
     'checkReachability',
     checkReachability,
     TEST_DEFINED_SYMBOL,
@@ -51,7 +45,7 @@ testEachPromiseRejectionAgainstSameExpectation<typeof checkReachability>(
         {statusCodes: [200, 301], timeoutInSeconds: .001, wait: true}
     ]
 )
-testEachPromiseAgainstSameExpectation<typeof checkUnreachability>(
+testEachPromiseAgainstSameExpectation(
     'checkUnreachability',
     checkUnreachability,
     TEST_DEFINED_SYMBOL,
@@ -76,20 +70,3 @@ test('checkUnreachability', () => {
         }
     )).resolves.toBeDefined()
 })
-if (TARGET_TECHNOLOGY !== 'node') {
-    test('sendToIFrame', () => {
-        const $iFrame: $T<HTMLIFrameElement> =
-            $<HTMLIFrameElement>('<iframe>').hide().attr('name', 'test')
-
-        $('body').append($iFrame[0])
-
-        expect(sendToIFrame(
-            $iFrame, window.document.URL, {test: 5}, 'get', true
-        )).toBeDefined()
-    })
-
-    test('sendToExternalURL', () => {
-        expect(sendToExternalURL(window.document.URL, {test: 5}))
-            .toBeDefined()
-    })
-}

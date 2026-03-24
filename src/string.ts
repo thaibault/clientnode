@@ -204,7 +204,7 @@ export const getDomainName = (
 export const getPortNumber = (
     url: string = globalContext.location?.href || '',
     fallback: null | number = globalContext.location?.port ?
-        parseInt(globalContext.location.port as string) :
+        parseInt(globalContext.location.port) :
         null
 ): null | number => {
     const result: Array<string> | null =
@@ -220,9 +220,9 @@ export const getPortNumber = (
         // NOTE: Would result in an endless loop:
         // serviceURLEquals(url, ...parameters) &&
         globalContext.location?.port &&
-        parseInt(globalContext.location.port as string, 10)
+        parseInt(globalContext.location.port, 10)
     )
-        return parseInt(globalContext.location.port as string, 10)
+        return parseInt(globalContext.location.port, 10)
 
     return getProtocolName(url) === 'https' ? 443 : 80
 }
@@ -239,7 +239,7 @@ export const getProtocolName = (
     url: string = globalContext.location?.href || '',
     fallback: string = (
         globalContext.location?.protocol &&
-        (globalContext.location.protocol as string).substring(
+        globalContext.location.protocol.substring(
             0, globalContext.location.protocol.length - 1
         ) ||
         ''
@@ -498,7 +498,7 @@ export const compressStyleValue = (styleValue: string): string => {
 export const decodeHTMLEntities = (htmlString: string): null | string => {
     if (globalContext.document) {
         const textareaDomNode =
-            (globalContext.document as Document).createElement('textarea')
+            globalContext.document.createElement('textarea')
         textareaDomNode.innerHTML = htmlString
 
         return textareaDomNode.value
@@ -629,11 +629,14 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
     }
     // region try to polyfill template string literals for older engines
     if (POLYFILL_TEMPLATES.value)
-        if (globalContext.Babel?.transform)
+        if (((
+            globalContext as Mapping<unknown>
+        ).Babel as Mapping<unknown> | undefined)?.transform)
             expression = (
-                globalContext.Babel.transform as
-                    ((value: string, options: Mapping<unknown>) =>
-                        {code: string})
+                ((globalContext as Mapping<unknown>).Babel as Mapping<unknown>)
+                    .transform as
+                        ((value: string, options: Mapping<unknown>) =>
+                            {code: string})
             )(
                 `(${expression})`,
                 {plugins: ['transform-template-literals']}

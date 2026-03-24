@@ -141,8 +141,8 @@ testEach(
     ['localhost', 'http://localhost'],
     ['a', 'localhost', 'a'],
     /*
-        NOTE: "$.location?.hostname" does not work since experiencing a
-        compiler bug.
+        NOTE: "globalContext.location?.hostname" does not work since
+        experiencing a compiler bug.
     */
     [
         globalContext.location && globalContext.location.hostname || '',
@@ -189,8 +189,8 @@ testEach(
     ['https', 'https://www.test.de/site/subSite?param=value#hash'],
     ['http', 'http://www.test.de'],
     /*
-        NOTE: "$.location?.hostname" does not work since experiencing a
-        compiler bug.
+        NOTE: "globalContext.location?.hostname" does not work since
+        experiencing a compiler bug.
     */
     [
         globalContext.location &&
@@ -313,8 +313,8 @@ testEachAgainstSameExpectation(
         '//www.test.de/site/subSite?param=value#hash'
     ],
     /*
-        NOTE: "$.location?.hostname" does not work since experiencing a
-        compiler bug.
+        NOTE: "globalContext.location?.hostname" does not work since
+        experiencing a compiler bug.
     */
     [
         `${
@@ -366,8 +366,8 @@ testEachAgainstSameExpectation(
     false,
 
     /*
-        NOTE: "$.location?.hostname" does not work since experiencing a
-        compiler bug.
+        NOTE: "globalContext.location?.hostname" does not work since
+        experiencing a compiler bug.
     */
     [
         `${

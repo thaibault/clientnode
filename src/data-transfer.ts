@@ -20,11 +20,7 @@ import {isObject} from './indicators'
 import {globalContext} from './context'
 import {extend} from './object'
 import {
-    $T,
-    CheckReachabilityOptions,
-    Mapping,
-    RecursivePartial,
-    TimeoutPromise
+    CheckReachabilityOptions, RecursivePartial, TimeoutPromise
 } from './type'
 import {timeout} from './utility'
 
@@ -121,8 +117,9 @@ export const checkReachability = async (
             const wrapper = async (): Promise<Error | Response> => {
                 let response: Response
                 try {
-                    // @ts-expect-error We already catch the error.
+                    /* eslint-disable @typescript-eslint/no-unsafe-call */
                     response = await globalContext.fetch(url, options.options)
+                    /* eslint-enable @typescript-eslint/no-unsafe-call */
                 } catch (error) {
                     return retryErrorHandler(error as Error)
                 }
@@ -165,7 +162,10 @@ export const checkReachability = async (
             )
         })
 
-    return checkAndThrow(await globalContext.fetch(url, options.options))
+    return checkAndThrow(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        await globalContext.fetch(url, options.options) as Response
+    )
 }
 /**
  * Checks if given url isn't reachable.
@@ -237,8 +237,9 @@ export const checkUnreachability = async (
             const wrapper = async (): Promise<Error | Response | null> => {
                 try {
                     const response: Response =
-                        // @ts-expect-error We already catch the error.
+                        /* eslint-disable @typescript-eslint/no-unsafe-call */
                         await globalContext.fetch(url, options.options)
+                        /* eslint-enable @typescript-eslint/no-unsafe-call */
 
                     if (timedOut)
                         return response
@@ -296,7 +297,8 @@ export const checkUnreachability = async (
 
     try {
         const result: Error | null =
-            check(await globalContext.fetch(url, options.options))
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            check(await globalContext.fetch(url, options.options) as Response)
 
         if (result)
             return result
@@ -324,88 +326,4 @@ export const cacheImage = (url: string) => {
         }
         imageElement.src = url
     })
-}
-/**
- * Send given data to a given iframe.
- * @param target - Name of the target iframe or the target iframe itself.
- * @param url - URL to send to data to.
- * @param data - Data holding object to send data to.
- * @param requestType - The forms action attribute value. If nothing is
- * provided "post" will be used as default.
- * @param removeAfterLoad - Indicates if created iframe should be removed right
- * after load event. Only works if an iframe object is given instead of a
- * simple target name.
- * @returns Returns the given target as extended dom node.
- */
-export const sendToIFrame = (
-    target: $T<HTMLIFrameElement> | HTMLIFrameElement | string,
-    url: string,
-    data: Mapping<unknown>,
-    requestType = 'post',
-    removeAfterLoad = false
-): $T<HTMLIFrameElement> => {
-    const $targetDomNode: $T<HTMLIFrameElement> =
-    (typeof target === 'string') ?
-        $<HTMLIFrameElement>(`iframe[name"${target}"]`) :
-        $(target as HTMLIFrameElement)
-
-    const $formDomNode: $T<HTMLFormElement> =
-        $<HTMLFormElement>('<form>').attr({
-            action: url,
-            method: requestType,
-            target: $targetDomNode.attr('name')
-        })
-
-    for (const [name, value] of Object.entries(data))
-        $formDomNode.append(
-            $<HTMLInputElement>('<input>')
-                .attr({name, type: 'hidden', value}) as
-                unknown as
-                JQuery.Node
-        )
-
-    /*
-        NOTE: The given target form have to be injected into document
-        object model to successfully submit.
-    */
-    if (removeAfterLoad)
-        $targetDomNode.on('load', (): $T<HTMLIFrameElement> =>
-            $targetDomNode.remove()
-        )
-
-    $formDomNode.insertAfter($targetDomNode as unknown as JQuery.Node)
-    $formDomNode[0].submit()
-    $formDomNode.remove()
-
-    return $targetDomNode
-}
-/**
- * Send given data to a temporary created iframe.
- * @param url - URL to send to data to.
- * @param data - Data holding object to send data to.
- * @param requestType - The forms action attribute value. If nothing is
- * provided "post" will be used as default.
- * @param removeAfterLoad - Indicates if created iframe should be removed right
- * after load event.
- * @param domNode - Optional dom node to append dynamically created iframe to.
- * @returns Returns the dynamically created iframe.
- */
-export const sendToExternalURL = (
-    url: string,
-    data: Mapping<unknown>,
-    requestType = 'post',
-    removeAfterLoad = true,
-    domNode: HTMLElement | null = null
-): $T<HTMLIFrameElement> => {
-    const $iFrameDomNode: $T<HTMLIFrameElement> =
-        $<HTMLIFrameElement>('<iframe>')
-            .attr('name', `clientnode-${String((new Date()).getTime())}`)
-            .hide()
-
-    if (domNode)
-        domNode.append($iFrameDomNode as unknown as JQuery.Node)
-
-    sendToIFrame($iFrameDomNode, url, data, requestType, removeAfterLoad)
-
-    return $iFrameDomNode
 }

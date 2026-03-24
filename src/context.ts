@@ -18,28 +18,28 @@
 */
 import {CONSOLE_METHODS} from './constants'
 import {currentImport, optionalRequire} from './require'
-import {$Global, AnyFunction, Mapping} from './type'
+import {AnyFunction, Mapping} from './type'
 
-export const determineGlobalContext: (() => $Global) = (): $Global => {
+export const determineGlobalContext = (): Partial<typeof globalThis> => {
     if (typeof globalThis === 'undefined') {
         if (typeof window === 'undefined') {
             if (typeof global === 'undefined')
                 return ((typeof module === 'undefined') ? {} : module) as
-                    $Global
+                    typeof globalThis
 
             if (Object.prototype.hasOwnProperty.call(global, 'window'))
-                return global.window as unknown as $Global
+                return global.window as unknown as typeof globalThis
 
-            return global as unknown as $Global
+            return global as unknown as typeof globalThis
         }
 
-        return window as unknown as $Global
+        return window as unknown as typeof globalThis
     }
 
-    return globalThis as unknown as $Global
+    return globalThis as unknown as typeof globalThis
 }
-export let globalContext: $Global = determineGlobalContext()
-export const setGlobalContext = (context: $Global) => {
+export let globalContext = determineGlobalContext()
+export const setGlobalContext = (context: typeof globalThis) => {
     globalContext = context
 }
 
