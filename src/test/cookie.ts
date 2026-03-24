@@ -16,7 +16,7 @@
 import {expect, test} from '@jest/globals'
 
 import {getInitializedBrowser} from 'weboptimizer/browser'
-import {$} from '../context'
+import {globalContext} from '../context'
 import {deleteCookie, getCookie, setCookie} from '../cookie'
 
 declare const TARGET_TECHNOLOGY: string
@@ -36,7 +36,7 @@ if (HAS_DOM) {
         `deleteCookie (${TEST_ENVIRONMENT})`, async (): Promise<void> => {
             await getInitializedBrowser()
 
-            expect($.document?.cookie).toStrictEqual('')
+            expect(globalContext.document?.cookie).toStrictEqual('')
 
             expect(setCookie('name', 'value', {minimal: true}))
                 .toStrictEqual(true)
@@ -44,14 +44,14 @@ if (HAS_DOM) {
             deleteCookie('name')
             expect(getCookie('name')).toStrictEqual('')
 
-            if ($.document)
-                $.document.cookie = ''
+            if (globalContext.document)
+                globalContext.document.cookie = ''
         }
     )
     test(`getCookie (${TEST_ENVIRONMENT})`, async (): Promise<void> => {
         await getInitializedBrowser()
 
-        if (!$.document)
+        if (!globalContext.document)
             throw new Error('Browser api is missing.')
 
         expect(getCookie('')).toStrictEqual('')
@@ -62,25 +62,25 @@ if (HAS_DOM) {
             .toStrictEqual(true)
         expect(getCookie('name')).toStrictEqual('value')
 
-        $.document.cookie = ''
+        globalContext.document.cookie = ''
     })
     test(`setCookie (${TEST_ENVIRONMENT})`, async (): Promise<void> => {
         await getInitializedBrowser()
 
-        if (!$.document)
+        if (!globalContext.document)
             throw new Error('Browser api is missing.')
 
-        $.document.cookie = ''
+        globalContext.document.cookie = ''
 
         expect(setCookie('name', 'value', {minimal: true}))
             .toStrictEqual(true)
         expect(getCookie('name')).toStrictEqual('value')
 
-        $.document.cookie = ''
+        globalContext.document.cookie = ''
 
         expect(setCookie('name', '', {minimal: true})).toStrictEqual(true)
         expect(getCookie('name')).toStrictEqual('')
 
-        $.document.cookie = ''
+        globalContext.document.cookie = ''
     })
 }

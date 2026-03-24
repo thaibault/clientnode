@@ -16,7 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {$} from './context'
+import {globalContext} from './context'
 import {CookieOptions} from './type'
 
 /**
@@ -24,8 +24,8 @@ import {CookieOptions} from './type'
  * @param name - Name to identify requested value.
  */
 export const deleteCookie = (name: string): void => {
-    if ($.document)
-        $.document.cookie = `${name}=; Max-Age=-99999999;`
+    if (globalContext.document)
+        globalContext.document.cookie = `${name}=; Max-Age=-99999999;`
 }
 /**
  * Gets a cookie value by given name.
@@ -33,9 +33,10 @@ export const deleteCookie = (name: string): void => {
  * @returns Requested value.
  */
 export const getCookie = (name: string): string | null => {
-    if ($.document) {
+    if (globalContext.document) {
         const key = `${name}=`
-        const decodedCookie: string = decodeURIComponent($.document.cookie)
+        const decodedCookie: string =
+            decodeURIComponent(globalContext.document.cookie)
         for (let date of decodedCookie.split(';')) {
             while (date.startsWith(' '))
                 date = date.substring(1)
@@ -70,7 +71,7 @@ export const getCookie = (name: string): string | null => {
 export const setCookie = (
     name: string, value: string, givenOptions: Partial<CookieOptions> = {}
 ): boolean => {
-    if ($.document) {
+    if (globalContext.document) {
         const options: CookieOptions = {
             domain: '',
             httpOnly: false,
@@ -88,10 +89,10 @@ export const setCookie = (
             (options.numberOfDaysUntilExpiration * 24 * 60 * 60 * 1000)
         )
 
-        if (options.domain === '' && $.location?.hostname)
-            options.domain = $.location.hostname
+        if (options.domain === '' && globalContext.location?.hostname)
+            options.domain = globalContext.location.hostname
 
-        $.document.cookie =
+        globalContext.document.cookie =
             `${name}=${value}` +
             (
                 options.minimal ?

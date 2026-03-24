@@ -17,7 +17,7 @@
     endregion
 */
 import {CLI_COLOR} from './cli'
-import {$, NOOP} from './context'
+import {globalContext, NOOP} from './context'
 import {isNumeric} from './indicators'
 import {determineType} from './object'
 import {LoggerOptions, Mapping} from './type'
@@ -171,20 +171,23 @@ export class Logger {
 
             if (messages.length)
                 if (
-                    !($.global.console && level in $.global.console) ||
-                    ($.global.console[level as keyof Console] === NOOP)
+                    !(
+                        globalContext.console &&
+                        level in globalContext.console
+                    ) ||
+                    (globalContext.console[level as keyof Console] === NOOP)
                 ) {
                     if (
                         Object.prototype.hasOwnProperty.call(
-                            $.global, 'window'
+                            globalContext, 'window'
                         ) &&
                         Object.prototype.hasOwnProperty.call(
-                            $.global.window, 'alert'
+                            globalContext.window, 'alert'
                         )
                     )
-                        $.global.window?.alert(messages.join(' '))
+                        globalContext.window?.alert(messages.join(' '))
                 } else
-                    ($.global.console[level as keyof Console] as
+                    (globalContext.console[level as keyof Console] as
                         Console['log']
                     )(...messages)
         }

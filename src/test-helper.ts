@@ -58,7 +58,7 @@ export const expectExpectedType = <
         wrap = true
     ): Result => {
     const result: Matchers<Result> = wrap ?
-        expect<Result>(givenResult as Result) as unknown as Matchers<Result> :
+        expect(givenResult as Result) as unknown as Matchers<Result> :
         givenResult as Matchers<Result>
 
     if (expected === TEST_DEFINED_SYMBOL)
