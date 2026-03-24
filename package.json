@@ -7,7 +7,7 @@
     "tools",
     "node",
     "polymorph",
-    "jquery"
+    "utility"
   ],
   "homepage": "https://torben.website/clientnode",
   "bugs": {
@@ -19,8 +19,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./dist/*": "./dist/*",
-    "./property-types": "./dist/property-types",
-    "./test-helper": "./dist/test-helper"
+    "./property-types": "./dist/property-types.js",
+    "./test-helper": "./dist/test-helper.js"
   },
   "typesVersions": {
     "*": {
@@ -46,7 +46,7 @@
   },
   "scripts": {
     "build": "yarn build:types; yarn build:plain",
-    "build:alternate": "command='babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/preset-env,@babel/preset-typescript --source-maps inline --out-file' && $command index.js src/index.ts && $command property-types.js src/property-types.ts && yarn make:executable",
+    "build:alternate": "command='node_modules/.bin/babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/preset-env,@babel/preset-typescript --source-maps inline --out-file'; for name in array cli cookie constants context data-transfer datetime filesystem function index indicators Logger Lock number object process property-types require scope Semaphore string type utility; do $command \"dist/${name}.js\" \"src/${name}.ts\"; done; yarn make:executable",
     "build:bundle": "yarn build:types; yarn build:bundle:plain",
     "build:bundle:compatible": "yarn build:types; weboptimizer build '{__reference__: [\"target:bundle\", \"target:compatible\"]}'",
     "build:bundle:plain": "weboptimizer build '{__reference__: \"target:bundle\"}'",
@@ -57,7 +57,7 @@
     "clear": "weboptimizer clear",
     "document": "weboptimizer document",
     "lint": "weboptimizer lint",
-    "make:executable": "node --eval \"fs.chmodSync('index.js', '700')\"",
+    "make:executable": "node --eval \"fs.chmodSync('dist/index.js', '700')\"",
     "prepare": "if ! yarn build; then echo You should rerun install procedure to resolve dependency cycle. && yarn build:alternate; fi",
     "serve": "weboptimizer serve",
     "start": "yarn serve",
@@ -79,7 +79,6 @@
     "@types/ejs": "^3.1.5",
     "@types/html-minifier": "^4.0.6",
     "@types/imagemin": "^9.0.1",
-    "@types/jquery": "^4.0.0",
     "@types/node": "^25.5.0",
     "@types/prop-types": "^15.7.15",
     "@types/webpack-env": "^1.18.8",
@@ -93,19 +92,17 @@
     "favicons-webpack-plugin": "^6.0.1",
     "image-minimizer-webpack-plugin": "^5.0.0",
     "jest": "^30.3.0",
-    "jquery": "^4.0.0",
     "jsdoc": "^4.0.5",
     "node-fetch": "^3.3.2",
     "prop-types": "^15.8.1",
     "rimraf": "^6.1.3",
     "typescript-eslint": "^8.57.2",
-    "weboptimizer": "^3.0.9",
+    "weboptimizer": "^3.0.11",
     "webpack-dev-server": "^5.2.3"
   },
   "peerDependencies": {
     "@babel/runtime": "*",
     "@types/prop-types": "*",
-    "jquery": "*",
     "node-fetch": "*",
     "prop-types": "*"
   },
@@ -114,9 +111,6 @@
       "optional": true
     },
     "@types/prop-types": {
-      "optional": true
-    },
-    "jquery": {
       "optional": true
     },
     "node-fetch": {
@@ -179,11 +173,10 @@
     "module": {
       "aliases": {
         "#": "Ensure that dependent modules uses latest clientnode version.",
-        "TODO clientnode$": "../../src/index",
-        "TODO clientnode/property-types$": "../../src/property-types",
-        "TODO clientnode/type$": "../../src/type",
-        "formdata-polyfill/esm.min.js$": "formdata-polyfill",
-        "jquery$": "jquery/dist/jquery.min"
+        "clientnode$": "../../src/index",
+        "clientnode/property-types$": "../../src/property-types",
+        "clientnode/type$": "../../src/type",
+        "formdata-polyfill/esm.min.js$": "formdata-polyfill"
       },
       "optimizer": {
         "babelMinify": {

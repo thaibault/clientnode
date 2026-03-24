@@ -3399,13 +3399,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jquery@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "@types/jquery@npm:4.0.0"
-  checksum: 10c0/3e453accf2786e6ea5a5fb4b7f8c2298f42d3bc22253cc5a14f4d4a1a5ccc461db7af5a5df92a0b0c03c75a1968d2deda06597b63f8118613f88f27452911275
-  languageName: node
-  linkType: hard
-
 "@types/jsdom@npm:^21.1.7":
   version: 21.1.7
   resolution: "@types/jsdom@npm:21.1.7"
@@ -5892,7 +5885,6 @@ __metadata:
     "@types/ejs": "npm:^3.1.5"
     "@types/html-minifier": "npm:^4.0.6"
     "@types/imagemin": "npm:^9.0.1"
-    "@types/jquery": "npm:^4.0.0"
     "@types/node": "npm:^25.5.0"
     "@types/prop-types": "npm:^15.7.15"
     "@types/webpack-env": "npm:^1.18.8"
@@ -5906,26 +5898,22 @@ __metadata:
     favicons-webpack-plugin: "npm:^6.0.1"
     image-minimizer-webpack-plugin: "npm:^5.0.0"
     jest: "npm:^30.3.0"
-    jquery: "npm:^4.0.0"
     jsdoc: "npm:^4.0.5"
     node-fetch: "npm:^3.3.2"
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^6.1.3"
     typescript-eslint: "npm:^8.57.2"
-    weboptimizer: "npm:^3.0.9"
+    weboptimizer: "npm:^3.0.11"
     webpack-dev-server: "npm:^5.2.3"
   peerDependencies:
     "@babel/runtime": "*"
     "@types/prop-types": "*"
-    jquery: "*"
     node-fetch: "*"
     prop-types: "*"
   peerDependenciesMeta:
     "@babel/runtime":
       optional: true
     "@types/prop-types":
-      optional: true
-    jquery:
       optional: true
     node-fetch:
       optional: true
@@ -8758,13 +8746,6 @@ __metadata:
   bin:
     jest: ./bin/jest.js
   checksum: 10c0/1f940424b741d1541c3d71e311f77c3cfaf31cff9ab2d53180333f00a31f157790a8d3d413b72b8dd2bb191aa75769fa741d9bc9085df779cd59689559a65815
-  languageName: node
-  linkType: hard
-
-"jquery@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "jquery@npm:4.0.0"
-  checksum: 10c0/06d8d0f51121af5a691f8b59c74823157bb5b60eea915b30eaa920d6c0ffd91e60ba81e9b97bd8203f331f9dd8d0ec9a4b010935ea314bdd2f15453c29bc780b
   languageName: node
   linkType: hard
 
@@ -12133,9 +12114,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^3.0.9":
-  version: 3.0.9
-  resolution: "weboptimizer@npm:3.0.9"
+"weboptimizer@npm:^3.0.11":
+  version: 3.0.11
+  resolution: "weboptimizer@npm:3.0.11"
   dependencies:
     "@babel/core": "npm:^7.29.0"
     "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
@@ -12282,7 +12263,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/0fcd6af1ef8b710ddc2cd649f85fcfa67c53bee0c1b243e9402c8090365dc07b18caec747ca46189711ce28801470ea3e53703f02ba00fcffeac6c8354e104ae
+  checksum: 10c0/c9a99a059875290943bb008ee2c1d7620c2cb46bb2d75457bf508e1dcd6ded7fc546b4aa00c6a670ed8ba23699cd24de7680674980538faff1ae95e6736c9587
   languageName: node
   linkType: hard
 

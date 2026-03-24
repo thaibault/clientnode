@@ -17,7 +17,7 @@
 */
 import {expect, test} from '@jest/globals'
 
-import {$, MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION} from '../context'
+import {globalContext} from '../context'
 import {identity} from '../function'
 import {
     addSeparatorToPath,
@@ -47,7 +47,7 @@ import {
     normalizePhoneNumber,
     normalizeURL,
     normalizeZipCode,
-    parseEncodedObject,
+    parseEncodedObject, POLYFILL_TEMPLATES,
     representPhoneNumber,
     representURL,
     serviceURLEquals,
@@ -58,7 +58,7 @@ import {EvaluationResult, FirstParameter, Mapping} from '../type'
 
 declare const TARGET_TECHNOLOGY: string
 
-testEach<typeof escapeRegularExpressions>(
+testEach(
     'EscapeRegularExpressions',
     escapeRegularExpressions,
 
@@ -72,7 +72,7 @@ testEach<typeof escapeRegularExpressions>(
     ],
     ['\\-', '-', ['\\']]
 )
-testEach<typeof convertToValidVariableName>(
+testEach(
     'convertToValidVariableName',
     convertToValidVariableName,
 
@@ -86,7 +86,7 @@ testEach<typeof convertToValidVariableName>(
     ['aA', '--a--a']
 )
 //// region url handling
-testEach<typeof encodeURIComponentExtended>(
+testEach(
     'encodeURIComponentExtended',
     encodeURIComponentExtended,
 
@@ -96,7 +96,7 @@ testEach<typeof encodeURIComponentExtended>(
     ['@:$,+', '@:$, '],
     ['%2B', '+']
 )
-testEach<typeof addSeparatorToPath>(
+testEach(
     'addSeparatorToPath',
     addSeparatorToPath,
 
@@ -108,7 +108,7 @@ testEach<typeof addSeparatorToPath>(
     ['/a/bb|', '/a/bb', '|'],
     ['/a/bb/|', '/a/bb/', '|']
 )
-testEachAgainstSameExpectation<typeof hasPathPrefix>(
+testEachAgainstSameExpectation(
     'hasPathPrefix',
     hasPathPrefix,
     true,
@@ -120,7 +120,7 @@ testEachAgainstSameExpectation<typeof hasPathPrefix>(
     ['a/', 'a/b'],
     ['/admin', '/admin#test', '#']
 )
-testEachAgainstSameExpectation<typeof hasPathPrefix>(
+testEachAgainstSameExpectation(
     'hasPathPrefix',
     hasPathPrefix,
     false,
@@ -130,7 +130,7 @@ testEachAgainstSameExpectation<typeof hasPathPrefix>(
     ['/admin/', '/admin/test', '#'],
     ['/admin', '/admin/test', '#']
 )
-testEach<typeof getDomainName>(
+testEach(
     'getDomainName',
     getDomainName,
 
@@ -145,20 +145,20 @@ testEach<typeof getDomainName>(
         compiler bug.
     */
     [
-        $.location && $.location.hostname || '',
+        globalContext.location && globalContext.location.hostname || '',
         'a',
-        $.location && $.location.hostname
+        globalContext.location && globalContext.location.hostname
     ],
     ['a', '//a'],
     [
-        $.location && $.location.hostname || '',
+        globalContext.location && globalContext.location.hostname || '',
         'a/site/subSite?param=value#hash',
-        $.location && $.location.hostname
+        globalContext.location && globalContext.location.hostname
     ],
     [
-        $.location && $.location.hostname || '',
+        globalContext.location && globalContext.location.hostname || '',
         '/a/site/subSite?param=value#hash',
-        $.location && $.location.hostname
+        globalContext.location && globalContext.location.hostname
     ],
     [
         'alternate.local',
@@ -166,7 +166,7 @@ testEach<typeof getDomainName>(
     ],
     ['alternate.local', '//alternate.local/']
 )
-testEach<typeof getPortNumber>(
+testEach(
     'getPortNumber',
     getPortNumber,
 
@@ -182,7 +182,7 @@ testEach<typeof getPortNumber>(
     [89, 'http://localhost:89'],
     [89, 'https://localhost:89']
 )
-testEach<typeof getProtocolName>(
+testEach(
     'getProtocolName',
     getProtocolName,
 
@@ -193,43 +193,59 @@ testEach<typeof getProtocolName>(
         compiler bug.
     */
     [
-        $.location &&
-        $.location.protocol.substring(0, $.location.protocol.length - 1) ||
+        globalContext.location &&
+        (globalContext.location.protocol as string).substring(
+            0, globalContext.location.protocol.length - 1
+        ) ||
         '',
         '//www.test.de',
-        $.location &&
-        $.location.protocol.substring(0, $.location.protocol.length - 1)
+        globalContext.location &&
+        (globalContext.location.protocol as string).substring(
+            0, globalContext.location.protocol.length - 1
+        )
     ],
     ['http', 'http://a.de'],
     ['ftp', 'ftp://localhost'],
     [
-        $.location &&
-        $.location.protocol.substring(0, $.location.protocol.length - 1) ||
+        globalContext.location &&
+        (globalContext.location.protocol as string).substring(
+            0, globalContext.location.protocol.length - 1
+        ) ||
         '',
         'a',
-        $.location &&
-        $.location.protocol.substring(0, $.location.protocol.length - 1)
+        globalContext.location &&
+        (globalContext.location.protocol as string).substring(
+            0, globalContext.location.protocol.length - 1
+        )
 
     ],
     [
-        $.location &&
-        $.location.protocol.substring(0, $.location.protocol.length - 1) ||
+        globalContext.location &&
+        (globalContext.location.protocol as string).substring(
+            0, globalContext.location.protocol.length - 1
+        ) ||
         '',
         'a/site/subSite?param=value#hash',
-        $.location &&
-        $.location.protocol.substring(0, $.location.protocol.length - 1)
+        globalContext.location &&
+        (globalContext.location.protocol as string).substring(
+            0, globalContext.location.protocol.length - 1
+        )
 
     ],
     ['a', '/a/site/subSite?param=value#hash', 'a'],
     ['b', 'alternate.local/a/site/subSite?param=value#hash', 'b'],
     ['c', 'alternate.local/', 'c'],
     [
-        $.location &&
-        $.location.protocol.substring(0, $.location.protocol.length - 1) ||
+        globalContext.location &&
+        (globalContext.location.protocol as string).substring(
+            0, globalContext.location.protocol.length - 1
+        ) ||
         '',
         '',
-        $.location &&
-        $.location.protocol.substring(0, $.location.protocol.length - 1)
+        globalContext.location &&
+        (globalContext.location.protocol as string).substring(
+            0, globalContext.location.protocol.length - 1
+        )
     ]
 )
 test.each([
@@ -241,7 +257,7 @@ test.each([
             .toStrictEqual(true)
     }
 )
-testEach<typeof getURLParameter>(
+testEach(
     'getURLParameter',
     getURLParameter,
 
@@ -283,7 +299,7 @@ testEach<typeof getURLParameter>(
         '#!test?test=3#$test=2&test=4'
     ]
 )
-testEachAgainstSameExpectation<typeof serviceURLEquals>(
+testEachAgainstSameExpectation(
     'serviceURLEquals',
     serviceURLEquals,
     true,
@@ -301,9 +317,17 @@ testEachAgainstSameExpectation<typeof serviceURLEquals>(
         compiler bug.
     */
     [
-        `${$.location && $.location.protocol || 'http:'}//www.test.de/` +
+        `${
+            globalContext.location ?
+                globalContext.location?.protocol as string :
+                'http:'
+        }//www.test.de/` +
         'site/subSite?param=value#hash',
-        `${$.location && $.location.protocol || 'http:'}//www.test.de/` +
+        `${
+            globalContext.location ?
+                globalContext.location.protocol as string :
+                'http:'
+        }//www.test.de/` +
         'site/subSite?param=value#hash'
     ],
     [
@@ -315,14 +339,28 @@ testEachAgainstSameExpectation<typeof serviceURLEquals>(
         '//www.test.de/site/subSite?param=value#hash'
     ],
     [
-        $.location && $.location.href || 'http://localhost',
-        $.location && $.location.href || 'http://localhost'
+        globalContext.location && globalContext.location.href ||
+        'http://localhost',
+        globalContext.location && globalContext.location.href ||
+        'http://localhost'
     ],
-    ['1', $.location && $.location.href || 'http://localhost'],
-    ['#1', $.location && $.location.href || 'http://localhost'],
-    ['/a', $.location && $.location.href || 'http://localhost']
+    [
+        '1',
+        globalContext.location && globalContext.location.href ||
+        'http://localhost'
+    ],
+    [
+        '#1',
+        globalContext.location && globalContext.location.href ||
+        'http://localhost'
+    ],
+    [
+        '/a',
+        globalContext.location && globalContext.location.href ||
+        'http://localhost'
+    ]
 )
-testEachAgainstSameExpectation<typeof serviceURLEquals>(
+testEachAgainstSameExpectation(
     'serviceURLEquals',
     serviceURLEquals,
     false,
@@ -332,7 +370,11 @@ testEachAgainstSameExpectation<typeof serviceURLEquals>(
         compiler bug.
     */
     [
-        `${$.location && $.location.protocol || 'http:'}//www.test.de/` +
+        `${
+            globalContext.location ?
+                globalContext.location.protocol as string :
+                'http:'
+        }//www.test.de/` +
         'site/subSite?param=value#hash',
         'ftp://www.test.de/site/subSite?param=value#hash'
     ],
@@ -345,18 +387,24 @@ testEachAgainstSameExpectation<typeof serviceURLEquals>(
         'test.de/site/subSite?param=value#hash'
     ],
     [
-        `${$.location && $.location.protocol || 'http:'}//www.test.de:` +
-        `${String($.location && $.location.port || 8)}/site/subSite` +
-        '?param=value#hash/site/subSite?param=value#hash',
-        $.location && $.location.href || 'http://localhost:8080'
+        `${
+            globalContext.location ?
+                globalContext.location.protocol as string :
+                'http:'
+        }//www.test.de:` +
+        String(globalContext.location && globalContext.location.port || 8) +
+        '/site/subSite?param=value#hash/site/subSite?param=value#hash',
+        globalContext.location && globalContext.location.href ||
+        'http://localhost:8080'
     ],
     [
-        `http://www.test.de:${String($.location && $.location.port || 80)}/` +
-        'site/subSite?param=value#hash',
+        'http://www.test.de:' +
+        String(globalContext.location && globalContext.location.port || 80) +
+        '/site/subSite?param=value#hash',
         'https://www.test.de/site/subSite?param=value#hash'
     ]
 )
-testEach<typeof normalizeURL>(
+testEach(
     'normalizeURL',
     normalizeURL,
 
@@ -365,7 +413,7 @@ testEach<typeof normalizeURL>(
     ['http://test', 'http://test'],
     ['https://test', 'https://test']
 )
-testEach<typeof representURL>(
+testEach(
     'representURL',
     representURL,
 
@@ -380,7 +428,7 @@ testEach<typeof representURL>(
     ['', ' ']
 )
 //// endregion
-testEach<typeof camelCaseToDelimited>(
+testEach(
     'camelCaseToDelimited',
     camelCaseToDelimited,
 
@@ -397,7 +445,7 @@ testEach<typeof camelCaseToDelimited>(
     ['hans-api-url', 'hansAPIURL', '-', ['api', 'url']],
     ['hans-peter', 'hansPeter', '-', []]
 )
-testEach<typeof capitalize>(
+testEach(
     'capitalize',
     capitalize,
 
@@ -409,7 +457,7 @@ testEach<typeof capitalize>(
     ['Aa', 'Aa'],
     ['Aa', 'aa']
 )
-testEach<typeof compressStyleValue>(
+testEach(
     'compressStyleValue',
     compressStyleValue,
 
@@ -423,19 +471,19 @@ testEach<typeof compressStyleValue>(
     ['height:1px;width:2px', ' ;;height: 1px ; width:2px ; ;'],
     ['height:1px;width:2px', ';height: 1px ; width:2px ; ']
 )
-testEach<typeof decodeHTMLEntities>(
+testEach(
     'decodeHTMLEntities',
     decodeHTMLEntities,
 
-    [$.document ? '' : null, ''],
-    [$.document ? '<div></div>' : null, '<div></div>'],
-    [$.document ? '<div>&</div>' : null, '<div>&amp;</div>'],
+    [globalContext.document ? '' : null, ''],
+    [globalContext.document ? '<div></div>' : null, '<div></div>'],
+    [globalContext.document ? '<div>&</div>' : null, '<div>&amp;</div>'],
     [
-        $.document ? '<div>&äÄüÜöÖ</div>' : null,
+        globalContext.document ? '<div>&äÄüÜöÖ</div>' : null,
         '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>'
     ]
 )
-testEach<typeof delimitedToCamelCase>(
+testEach(
     'delimitedToCamelCase',
     delimitedToCamelCase,
 
@@ -469,7 +517,7 @@ test.each([
 ])(
     `'%s' === typeof compile('%s', %p).templateFunction`,
     (expected: string, ...parameters: Parameters<typeof compile>) => {
-        expect<string>(typeof compile(...parameters).templateFunction)
+        expect(typeof compile(...parameters).templateFunction)
             .toStrictEqual(expected)
     }
 )
@@ -844,8 +892,8 @@ test.each(([
         expected: unknown,
         binding: unknown
     ): void => {
-        const backup = MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value
-        MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value = 11
+        const backup = POLYFILL_TEMPLATES.value
+        POLYFILL_TEMPLATES.value = true
 
         const evaluation: EvaluationResult = evaluate(
             expression,
@@ -868,12 +916,12 @@ test.each(([
                 expect(evaluation[resultKey as keyof EvaluationResult])
                     .toStrictEqual(expected)
 
-        MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value = backup
+        POLYFILL_TEMPLATES.value = backup
     }
 )
 ///// endregion
 //// endregion
-testEach<typeof findNormalizedMatchRange>(
+testEach(
     'findNormalizedMatchRange',
     findNormalizedMatchRange,
 
@@ -912,7 +960,7 @@ testEach<typeof findNormalizedMatchRange>(
             (value as string).replace(/ß/g, 'ss').toLowerCase()
     ]
 )
-testEach<typeof fixKnownEncodingErrors>(
+testEach(
     'fixKnownEncodingErrors',
     fixKnownEncodingErrors,
 
@@ -921,7 +969,7 @@ testEach<typeof fixKnownEncodingErrors>(
     ['-', '\x96'],
     ['a-a', 'a\x96a']
 )
-testEach<typeof format>(
+testEach(
     'gormat',
     format,
 
@@ -930,7 +978,7 @@ testEach<typeof format>(
     ['{1}', '{1}'],
     ['1 test 2 - 2', '{1} test {2} - {2}', 1, 2]
 )
-testEach<typeof getEditDistance>(
+testEach(
     'getEditDistance',
     getEditDistance,
 
@@ -944,7 +992,7 @@ testEach<typeof getEditDistance>(
     [2, 'hbbs', 'hans'],
     [4, 'beer', 'hans']
 )
-testEach<typeof maskForRegularExpression>(
+testEach(
     'maskForRegularExpression',
     maskForRegularExpression,
 
@@ -954,7 +1002,7 @@ testEach<typeof maskForRegularExpression>(
     ['\\-', '-']
 )
 
-testEach<typeof lowerCase>(
+testEach(
     'lowerCase',
     lowerCase,
 
@@ -966,7 +1014,7 @@ testEach<typeof lowerCase>(
     ['aa', 'Aa'],
     ['aA', 'aA']
 )
-testEach<typeof mark>(
+testEach(
     'mark',
     mark,
 
@@ -1226,7 +1274,7 @@ testEach<typeof mark>(
         }
     ]
 )
-testEach<typeof normalizePhoneNumber>(
+testEach(
     'normalizePhoneNumber',
     normalizePhoneNumber,
 
@@ -1274,7 +1322,7 @@ testEach<typeof normalizePhoneNumber>(
     ['0671-12345', '0671/12345 o.543210', false],
     ['067112345', '0671/12345 o.543210', true]
 )
-testEach<typeof normalizeZipCode>(
+testEach(
     'normalizeZipCode',
     normalizeZipCode,
 
@@ -1290,7 +1338,7 @@ testEach<typeof normalizeZipCode>(
     ['L-12345', 'xL-1a2b3c4d5e']
 )
 if (TARGET_TECHNOLOGY === 'node')
-    testEach<typeof parseEncodedObject>(
+    testEach(
         'parseEncodedObject',
         parseEncodedObject,
 
@@ -1309,7 +1357,7 @@ if (TARGET_TECHNOLOGY === 'node')
         [{a: 2}, '{a: scope.a}', {a: 2}],
         [{a: 2}, Buffer.from('{a: scope.a}').toString('base64'), {a: 2}]
     )
-testEach<typeof sliceAllExceptNumberAndLastSeparator>(
+testEach(
     'sliceAllExceptNumberAndLastSeparator',
     sliceAllExceptNumberAndLastSeparator,
 
@@ -1317,7 +1365,7 @@ testEach<typeof sliceAllExceptNumberAndLastSeparator>(
     ['123456', '12 34 56'],
     ['123456', '123456']
 )
-testEach<typeof representPhoneNumber>(
+testEach(
     'representPhoneNumber',
     representPhoneNumber,
 
@@ -1332,7 +1380,7 @@ testEach<typeof representPhoneNumber>(
     ['', ''],
     ['', ' ']
 )
-testEach<typeof normalizeDomNodeSelector>(
+testEach(
     'normalizeDomNodeSelector',
     normalizeDomNodeSelector,
 
@@ -1342,7 +1390,7 @@ testEach<typeof normalizeDomNodeSelector>(
     ['body div p', 'body div p', 'body'],
     ['body', '', 'body']
 )
-testEach<typeof normalizeDomNodeSelector>(
+testEach(
     'normalizeDomNodeSelector',
     normalizeDomNodeSelector,
 
@@ -1350,7 +1398,7 @@ testEach<typeof normalizeDomNodeSelector>(
     ['div', 'div'],
     ['div, p', 'div, p']
 )
-testEach<typeof limit>(
+testEach(
     'limit',
     limit,
 

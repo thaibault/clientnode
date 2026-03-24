@@ -19,7 +19,6 @@
 import {Matchers} from 'expect'
 import {Dirent as DirectoryEntry, Stats as FileStats} from 'fs'
 
-import Tools, {BoundTools} from './Tools'
 import {
     TEST_DEFINED_SYMBOL, TEST_THROW_SYMBOL, TEST_UNDEFINED_SYMBOL
 } from './test-helper'
@@ -157,7 +156,7 @@ export type SetterFunction =
     (key: string | symbol, value: unknown, target: unknown) => unknown
 //// endregion
 /// endregion
-/// region clientnode helper
+/// region helper
 export interface CheckReachabilityOptions {
     abortController: AbortController
     expectedIntermediateStatusCodes: Array<number> | number
@@ -328,61 +327,6 @@ export type EvaluationResult<Type = string> =
 
 export type LockCallbackFunction<Type> =
     (description: string) => Promise<Type> | Type
-/// endregion
-/// region global scope
-export type DomNodes<Type = string> =
-    Mapping<Type> &
-    {
-        hideJavaScriptEnabled: Type
-        parent?: Type
-        showJavaScriptEnabled: Type
-        window?: Type
-    }
-export type $DomNodes<TElement = HTMLElement> = DomNodes<$T<TElement>>
-
-export interface Options<Type = string> {
-    domNodes: DomNodes<Type>
-    domNodeSelectorInfix: null | string
-    domNodeSelectorPrefix: string
-    name: string
-}
-
-export type $TStatic = JQueryStatic
-export type $T<TElement = HTMLElement> = JQuery<TElement>
-export interface $Global extends Partial<Window> {
-    Babel?: {transform: (code: string, configuration: PlainObject) => {
-        code: string
-    }}
-    console?: Console
-    dataLayer?: Array<PlainObject>
-    $: $TStatic
-}
-export interface ToolsFunction<TElement = HTMLElement> {
-    class: typeof Tools
-
-    (...parameters: Array<unknown>): Tools<TElement>
-}
-export interface BoundToolsFunction<TElement = HTMLElement> {
-    (
-        methodName: 'normalizedClassNames' | 'normalizedStyles'
-    ): BoundTools<TElement>
-    (methodName: 'removeDirective', directiveName: string): $T<TElement>
-    (methodName: 'style'): Mapping<number | string>
-    (methodName: 'text'): string
-    (...parameters: Array<unknown>): BoundTools<TElement>
-}
-
-declare global {
-    interface JQuery<TElement = HTMLElement> {
-        Tools: BoundToolsFunction<TElement>
-    }
-    interface JQueryStatic {
-        document?: Document
-        global: $Global
-        location?: Location
-        Tools: ToolsFunction
-    }
-}
 /// endregion
 export interface StringMarkOptions {
     marker:

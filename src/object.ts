@@ -1229,7 +1229,8 @@ export const extend = <T = Mapping<unknown>>(
                     targetValue :
                     {} as unknown as ValueOf<T>
 
-            return extend(deep, clone, value)
+            return extend(deep, clone as RecursivePartial<T>, value) as
+                ValueOf<T>
         }
 
         return value

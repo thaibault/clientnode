@@ -16,10 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {$} from './context'
-import {Mapping} from './type'
-
-import {MAXIMAL_NUMBER_OF_ITERATIONS} from './context'
+import {globalContext, MAXIMAL_NUMBER_OF_ITERATIONS} from './context'
 import * as array from './array'
 import * as datetime from './datetime'
 import * as filesystem from './filesystem'
@@ -30,6 +27,7 @@ import * as number from './number'
 import * as object from './object'
 import * as require from './require'
 import * as string from './string'
+import {Mapping} from './type'
 import * as utility from './utility'
 
 export const UTILITY_SCOPE = {
@@ -110,7 +108,7 @@ export const isolateScope = <T extends Mapping<unknown>>(
 export const determineUniqueScopeName = (
     prefix = 'callback',
     suffix = '',
-    scope: Mapping<unknown> = $.global as unknown as Mapping<unknown>,
+    scope: Mapping<unknown> = globalContext as unknown as Mapping<unknown>,
     initialUniqueName = ''
 ): string => {
     if (initialUniqueName.length && !(initialUniqueName in scope))

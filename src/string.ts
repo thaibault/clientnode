@@ -20,11 +20,7 @@
 import {
     ABBREVIATIONS, DEFAULT_ENCODING, SPECIAL_REGEX_SEQUENCES
 } from './constants'
-import {
-    MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION,
-    $,
-    MAXIMAL_NUMBER_OF_ITERATIONS
-} from './context'
+import {globalContext, MAXIMAL_NUMBER_OF_ITERATIONS} from './context'
 import {isFileSync, readFileSync} from './filesystem'
 import {determineType, represent} from './object'
 import {
@@ -38,6 +34,7 @@ import {
     ValueOf
 } from './type'
 
+export const POLYFILL_TEMPLATES = {value: false}
 // Partial regular expression matching symbols which should be allowed within a
 // variable name excluding the first character.
 export const ALLOWED_VARIABLE_SYMBOLS = '0-9a-zA-Z_$'
@@ -157,7 +154,7 @@ export const addSeparatorToPath = (
  */
 export const hasPathPrefix = (
     prefix: unknown = '/admin',
-    path: string = $.location?.pathname || '',
+    path: string = globalContext.location?.pathname || '',
     separator = '/'
 ): boolean => {
     if (typeof prefix === 'string') {
@@ -183,8 +180,8 @@ export const hasPathPrefix = (
  * @returns Extracted domain.
  */
 export const getDomainName = (
-    url: string = $.location?.href || '',
-    fallback: string = $.location?.hostname || ''
+    url: string = globalContext.location?.href || '',
+    fallback: string = globalContext.location?.hostname || ''
 ): string => {
     const result: Array<string> | null =
         /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec(url)
@@ -205,9 +202,9 @@ export const getDomainName = (
  * @returns Extracted port number.
  */
 export const getPortNumber = (
-    url: string = $.location?.href || '',
-    fallback: null | number = $.location?.port ?
-        parseInt($.location.port) :
+    url: string = globalContext.location?.href || '',
+    fallback: null | number = globalContext.location?.port ?
+        parseInt(globalContext.location.port as string) :
         null
 ): null | number => {
     const result: Array<string> | null =
@@ -222,10 +219,10 @@ export const getPortNumber = (
     if (
         // NOTE: Would result in an endless loop:
         // serviceURLEquals(url, ...parameters) &&
-        $.location?.port &&
-        parseInt($.location.port, 10)
+        globalContext.location?.port &&
+        parseInt(globalContext.location.port as string, 10)
     )
-        return parseInt($.location.port, 10)
+        return parseInt(globalContext.location.port as string, 10)
 
     return getProtocolName(url) === 'https' ? 443 : 80
 }
@@ -239,10 +236,12 @@ export const getPortNumber = (
  * @returns Extracted protocol.
  */
 export const getProtocolName = (
-    url: string = $.location?.href || '',
+    url: string = globalContext.location?.href || '',
     fallback: string = (
-        $.location?.protocol &&
-        $.location.protocol.substring(0, $.location.protocol.length - 1) ||
+        globalContext.location?.protocol &&
+        (globalContext.location.protocol as string).substring(
+            0, globalContext.location.protocol.length - 1
+        ) ||
         ''
     )
 ): string => {
@@ -286,7 +285,7 @@ export const getURLParameter = (
     subDelimiter = '$',
     hashedPathIndicator = '!',
     givenSearch: null | string = null,
-    givenHash: null | string = $.location?.hash ?? ''
+    givenHash: null | string = globalContext.location?.hash ?? ''
 ): Array<string> | null | QueryParameters | string => {
     // region set search and hash
     let hash: string = givenHash ?? '#'
@@ -308,8 +307,8 @@ export const getURLParameter = (
         const subSearchStartIndex: number = pathAndSearch.indexOf('?')
         if (subSearchStartIndex !== -1)
             search = pathAndSearch.substring(subSearchStartIndex)
-    } else if ($.location)
-        search = $.location.search || ''
+    } else if (globalContext.location)
+        search = globalContext.location.search || ''
     let input: string = givenInput ? givenInput : search
     // endregion
     // region determine data from search and hash if specified
@@ -384,7 +383,7 @@ export const getURLParameter = (
  * second (or current).
  */
 export const serviceURLEquals = (
-    url: string, referenceURL: string = $.location?.href || ''
+    url: string, referenceURL: string = globalContext.location?.href || ''
 ): boolean => {
     const domain: string = getDomainName(url, '')
     const protocol: string = getProtocolName(url, '')
@@ -497,8 +496,9 @@ export const compressStyleValue = (styleValue: string): string => {
  * @returns Decoded html string.
  */
 export const decodeHTMLEntities = (htmlString: string): null | string => {
-    if ($.document) {
-        const textareaDomNode = $.document.createElement('textarea')
+    if (globalContext.document) {
+        const textareaDomNode =
+            (globalContext.document as Document).createElement('textarea')
         textareaDomNode.innerHTML = htmlString
 
         return textareaDomNode.value
@@ -627,10 +627,14 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
         result.scopeNameMapping[name as N[number]] = newName
         result.scopeNames.push(newName)
     }
-    // region try to polyfill template string literals for older browsers
-    if (MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value !== 0)
-        if ($.global.Babel?.transform)
-            expression = $.global.Babel.transform(
+    // region try to polyfill template string literals for older engines
+    if (POLYFILL_TEMPLATES.value)
+        if (globalContext.Babel?.transform)
+            expression = (
+                globalContext.Babel.transform as
+                    ((value: string, options: Mapping<unknown>) =>
+                        {code: string})
+            )(
                 `(${expression})`,
                 {plugins: ['transform-template-literals']}
             ).code
@@ -722,7 +726,13 @@ export const evaluate = <T = string, S extends object = object>(
         originalScopeNames,
         scopeNames,
         templateFunction
-    } = compile<T, N>(expression, scope, execute, removeGlobalScope, binding)
+    } = compile<T, N>(
+        expression,
+        scope as Mapping<unknown>,
+        execute,
+        removeGlobalScope,
+        binding
+    )
 
     let result: EvaluationResult<T> = {
         compileError: null,
