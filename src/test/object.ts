@@ -38,7 +38,6 @@ import {
     evaluateDynamicData,
     extend,
     getProxyHandler,
-    getSubstructure,
     mask,
     modifyObject,
     removeKeyPrefixes,
@@ -152,7 +151,7 @@ test('convertCircularObjectToJSON', () => {
     expect(convertCircularObjectToJSON(rootObject))
         .toStrictEqual('[{"a":"__circularReference__"}]')
 })
-testEach<typeof convertCircularObjectToJSON>(
+testEach(
     'convertCircularObjectToJSON',
     convertCircularObjectToJSON,
 
@@ -169,7 +168,7 @@ testEach<typeof convertCircularObjectToJSON>(
     ['{"a":{"a":2}}', {a: {a: 2}}],
     ['{"a":{"a":null}}', {a: {a: Infinity}}]
 )
-testEach<typeof convertMapToPlainObject>(
+testEach(
     'convertMapToPlainObject',
     convertMapToPlainObject,
 
@@ -195,7 +194,7 @@ testEach<typeof convertMapToPlainObject>(
         )]]
     ]
 )
-testEach<typeof convertPlainObjectToMap>(
+testEach(
     'convertPlainObjectToMap',
     convertPlainObjectToMap,
 
@@ -238,7 +237,7 @@ testEach<typeof convertPlainObjectToMap>(
         [{b: 2, a: new Set([{}])}]
     ]
 )
-testEach<typeof convertSubstringInPlainObject>(
+testEach(
     'convertSubstringInPlainObject',
     convertSubstringInPlainObject,
 
@@ -248,7 +247,7 @@ testEach<typeof convertSubstringInPlainObject>(
     [{a: 'bb'}, {a: 'aa'}, /a/g, 'b'],
     [{a: {a: 'bb'}}, {a: {a: 'aa'}}, /a/g, 'b']
 )
-testEach<typeof copy>(
+testEach(
     'copy',
     copy,
 
@@ -374,7 +373,7 @@ testEach<typeof copy>(
 test('determineType', () => {
     expect(determineType()).toStrictEqual('undefined')
 })
-testEach<typeof determineType>(
+testEach(
     'determineType',
     determineType,
 
@@ -409,7 +408,7 @@ testEach<typeof determineType>(
     ['set', new Set()],
     ['regexp', /test/]
 )
-testEachAgainstSameExpectation<typeof equals>(
+testEachAgainstSameExpectation(
     'equals',
     equals,
     true,
@@ -455,7 +454,7 @@ if (TARGET_TECHNOLOGY === 'node')
         )).toStrictEqual(true)
     })
 else {
-    testEachPromiseAgainstSameExpectation<typeof equals>(
+    testEachPromiseAgainstSameExpectation(
         'equals',
         equals,
         true,
@@ -506,7 +505,7 @@ else {
                     Parameters<typeof equals>
         )
     )
-    testEachPromiseAgainstSameExpectation<typeof equals>(
+    testEachPromiseAgainstSameExpectation(
         'equals',
         equals,
         false,
@@ -557,7 +556,7 @@ else {
                     Parameters<typeof equals>
         )
     )
-    testEachPromise<typeof equals>(
+    testEachPromise(
         'equals',
         equals,
 
@@ -591,7 +590,7 @@ else {
         ]
     )
 }
-testEachAgainstSameExpectation<typeof equals>(
+testEachAgainstSameExpectation(
     'equals',
     equals,
     false,
@@ -622,7 +621,7 @@ testEachAgainstSameExpectation<typeof equals>(
         {deep: -1, ignoreFunctions: false, properties: []}
     ]
 )
-testEach<typeof equals>(
+testEach(
     'equals',
     equals,
 
@@ -653,7 +652,7 @@ testEach<typeof equals>(
         {returnReasonIfNotEqual: true}
     ]
 )
-testEach<typeof evaluateDynamicData>(
+testEach(
     'evaluateDynamicData',
     evaluateDynamicData,
 
@@ -855,7 +854,7 @@ testEach<typeof evaluateDynamicData>(
         }
     ]
 )
-testEach<typeof removeKeysInEvaluation>(
+testEach(
     'removeKeysInEvaluation',
     removeKeysInEvaluation,
 
@@ -876,7 +875,7 @@ test('extend', () => {
     extend(true, target, {blob} as unknown as PlainObject)
     expect(target.blob).toStrictEqual(blob)
 })
-testEach<typeof extend>(
+testEach(
     'extend',
     extend,
 
@@ -987,39 +986,13 @@ testEach<typeof extend>(
     [undefined, true, [1, 2], undefined as unknown as Partial<unknown>],
     [null, [1, 2], null as unknown as Partial<unknown>]
 )
-testEach<typeof getSubstructure>(
-    'getSubstructure',
-    getSubstructure,
-
-    [{}, {}, []],
-    [{}, {}, ['']],
-    [{}, {}, ''],
-    [1, {a: 1}, ['a']],
-    [null, {a: {a: null}}, 'a.a'],
-    [[], {a: {a: []}}, 'a.a'],
-    [3, {a: {b: {c: 3}}}, ['a', 'b.c']],
-    [3, {a: {b: {c: [3]}}}, ['a', 'b.c[0]']],
-    [3, {a: {b: {c: [3]}}}, ['', 'a', '', 'b.c[0]', '', '']],
-    [
-        3,
-        {a: {b: {c: [1, 3, 2]}}},
-        (root: unknown): number =>
-            (root as {a: {b: {c: Array<number>}}}).a.b.c[1]
-    ],
-    [
-        3,
-        {a: {b: {c: [1, 3, 2]}}},
-        ['a', (root: unknown): number =>
-            (root as {b: {c: Array<number>}}).b.c[1]]
-    ]
-)
 test('getProxyHandler', () => {
     expect(isPlainObject(getProxyHandler({})))
         .toStrictEqual(true)
     expect(isPlainObject(getProxyHandler(new Map(), {get: 'get'})))
         .toStrictEqual(true)
 })
-testEach<typeof mask>(
+testEach(
     'mask',
     mask,
 
@@ -1177,7 +1150,7 @@ test.each([
         expect(parameters[1]).toStrictEqual(modified)
     }
 )
-testEach<typeof removeKeyPrefixes>(
+testEach(
     'removeKeyPrefixes',
     removeKeyPrefixes,
 
@@ -1214,7 +1187,7 @@ testEach<typeof removeKeyPrefixes>(
         '#'
     ]
 )
-testEach<typeof represent>(
+testEach(
     'represent',
     represent,
 
@@ -1238,7 +1211,7 @@ testEach<typeof represent>(
         }
     ]
 )
-testEach<typeof sort>(
+testEach(
     'sort',
     sort,
 
@@ -1255,7 +1228,7 @@ testEach<typeof sort>(
     [['a', 'b', 'c'], {c: 2, b: 5, a: 'a'}],
     [['b', 'c', 'z'], {b: 2, c: 5, z: 'a'}]
 )
-testEach<typeof unwrapProxy>(
+testEach(
     'unwrapProxy',
     unwrapProxy,
 

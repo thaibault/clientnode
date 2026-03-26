@@ -60,11 +60,6 @@ export type FunctionTestPromiseRejectionTuple<
     FunctionType extends AnyFunction
 > = [Error, ...Parameters<FunctionType>]
 
-export type BaseSelector<T = unknown, E = unknown> =
-    number | string | ((target: T) => E)
-export type Selector<T = unknown, E = unknown> =
-    Array<BaseSelector<T, E>> | BaseSelector<T, E>
-
 export type TestSymbol = (
     typeof TEST_DEFINED_SYMBOL |
     typeof TEST_THROW_SYMBOL |

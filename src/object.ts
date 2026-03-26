@@ -26,10 +26,11 @@ import {isNotANumber} from './number'
 import {escapeRegularExpressions, evaluate} from './string'
 import {
     AnyFunction,
-    BaseSelector,
+    BasicScopeType,
     CompareOptions,
     EvaluationResult,
     GetterFunction,
+    KeyPathOf,
     Mapping,
     NormalizedObjectMask,
     ObjectMaskConfiguration,
@@ -39,7 +40,7 @@ import {
     ProxyType,
     RecursiveEvaluateable,
     RecursivePartial,
-    Selector,
+    RecursiveKeyOf,
     SetterFunction,
     UnknownFunction,
     ValueOf
@@ -1277,74 +1278,6 @@ export const extend = <T = Mapping<unknown>>(
     }
 
     return target as T
-}
-/**
- * Retrieves substructure in given object referenced by given selector
- * path.
- * @param target - Object to search in.
- * @param selector - Selector path.
- * @param skipMissingLevel - Indicates to skip missing level in given path.
- * @param delimiter - Delimiter to delimit given selector components.
- * @returns Determined sub structure of given data or "undefined".
- */
-export const getSubstructure = <T = unknown, E = unknown>(
-    target: T,
-    selector: Selector<T, E>,
-    skipMissingLevel = true,
-    delimiter = '.'
-): E => {
-    let path: Array<BaseSelector<T, E>> = []
-    for (const component of ([] as Array<BaseSelector<T, E>>).concat(
-        selector
-    ))
-        if (typeof component === 'string') {
-            const parts: Array<string> = component.split(delimiter)
-            for (const part of parts) {
-                if (!part)
-                    continue
-
-                const subParts: Array<string> | null =
-                    part.match(/(.*?)(\[[0-9]+])/g)
-                if (subParts)
-                    // NOTE: We add index assignments into path array.
-                    for (const subPart of subParts) {
-                        const match = /(.*?)(\[[0-9]+])/.exec(subPart)
-                        let indexAssignment= ''
-                        if (match) {
-                            let prefix: string
-                            [, prefix, indexAssignment] = match
-
-                            if (prefix)
-                                path.push(prefix)
-                        }
-
-                        // Trim bracket padding "[index]" => "index".
-                        path.push(indexAssignment.substring(
-                            1, indexAssignment.length - 1
-                        ))
-                    }
-                else
-                    path.push(part)
-            }
-        } else
-            path = path.concat(component)
-
-    let result: unknown = target
-    for (const selector of path)
-        if (isObject(result)) {
-            if (
-                typeof selector === 'string' &&
-                Object.prototype.hasOwnProperty.call(result, selector)
-            )
-                result = result[selector]
-            else if (isFunction(selector))
-                result = selector(result as unknown as T)
-            else if (!skipMissingLevel)
-                return undefined as unknown as E
-        } else if (!skipMissingLevel)
-            return undefined as unknown as E
-
-    return result as E
 }
 /**
  * Generates a proxy handler which forwards all operations to given object
