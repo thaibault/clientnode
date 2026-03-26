@@ -19,6 +19,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./dist/*": "./dist/*",
+    "./dist/expression/*": "./dist/expression/*",
     "./property-types": "./dist/property-types.js",
     "./test-helper": "./dist/test-helper.js"
   },
