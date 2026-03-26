@@ -1,4 +1,4 @@
-import {equals, Mapping} from '../'
+import {equals, isPlainObject, Mapping} from '../'
 
 import {
     isAndExpression,
@@ -33,11 +33,29 @@ import {
     RecursiveKeyOf,
     MappingExpression, ArrayContainsExpression
 } from './types'
-import {isPlainObject} from '../indicators'
 
 export const SELECTOR_KEY_NAMES = new Set<string>(['name'])
 export const NO_ITEM_FOUND_SYMBOL =
     Symbol.for('EXPRESSION_EVALUATOR_NO_ITEM_FOUND')
+
+const addBracketBasedPathElements = (subParts: Array<string>) => {
+    const path: Array<RecursiveKeyOf<BasicScopeType>> = []
+    // NOTE: We add index assignments into path array.
+    for (const subPart of subParts)
+        if (subPart.startsWith('['))
+            // Trim bracket padding "[index]" => "index".
+            path.push(subPart.substring(1, subPart.length - 1))
+        else {
+            const openingBracketPosition = subPart.indexOf('[')
+            path.push(subPart.substring(0, openingBracketPosition))
+            // Trim bracket padding "[index]" => "index".
+            path.push(subPart.substring(
+                openingBracketPosition + 1, subPart.length - 1
+            ))
+        }
+
+    return path
+}
 
 export const normalizeSelector = <ScopeType extends BasicScopeType>(
     selector: (
@@ -54,11 +72,23 @@ export const normalizeSelector = <ScopeType extends BasicScopeType>(
             continue
 
         if (typeof part !== 'string') {
-            path.push(
-                evaluate<RecursiveKeyOf<ScopeType>, ScopeType>(part, scope)
-            )
+            path.push(evaluateExpression<RecursiveKeyOf<ScopeType>, ScopeType>(
+                part, scope
+            ))
+
             continue
         }
+
+        /*
+            Gather a list of assignments via brackets.
+            E.g. "'name[INDEX][INDEX][INDEX]'.match(...)"
+            evaluates to
+            ['name[INDEX]', '[INDEX]', '[INDEX]']
+        */
+        const subParts: null | Array<string> = part.match(/[^[]*\[\d+]/g)
+        path.push(
+            ...(subParts ? addBracketBasedPathElements(subParts) : [part])
+        )
     }
 
     return path
@@ -143,8 +173,10 @@ export const evaluateSelector = <Type, ScopeType extends BasicScopeType>(
 export const evaluateCondition = <ScopeType extends BasicScopeType>(
     condition: Condition, scope: ScopeType
 ): boolean => {
-    const value1 = evaluate<unknown, ScopeType>(condition.value1, scope)
-    const value2 = evaluate<unknown, ScopeType>(condition.value2, scope)
+    const value1 =
+        evaluateExpression<unknown, ScopeType>(condition.value1, scope)
+    const value2 =
+        evaluateExpression<unknown, ScopeType>(condition.value2, scope)
 
     switch (condition.$comparator) {
     case '==':
@@ -165,7 +197,8 @@ export const evaluateCondition = <ScopeType extends BasicScopeType>(
 export const evaluateUnaryOperation = <ScopeType extends BasicScopeType>(
     operation: UnaryOperation, scope: ScopeType
 ): boolean => {
-    const operand = evaluate<unknown, ScopeType>(operation.operand, scope)
+    const operand =
+        evaluateExpression<unknown, ScopeType>(operation.operand, scope)
 
     switch (operation.$operator) {
     case '!':
@@ -178,8 +211,10 @@ export const evaluateUnaryOperation = <ScopeType extends BasicScopeType>(
 export const evaluateOperation = <ScopeType extends BasicScopeType>(
     operation: Operation, scope: ScopeType
 ): number => {
-    const operand1 = evaluate<number, ScopeType>(operation.operand1, scope)
-    const operand2 = evaluate<number, ScopeType>(operation.operand2, scope)
+    const operand1 =
+        evaluateExpression<number, ScopeType>(operation.operand1, scope)
+    const operand2 =
+        evaluateExpression<number, ScopeType>(operation.operand2, scope)
 
     switch (operation.$operator) {
     case '+':
@@ -201,31 +236,31 @@ export const evaluateOptionalThen = <Type, ScopeType extends BasicScopeType>(
     if (typeof expression.then === 'undefined')
         return undefined as Type
 
-    return evaluate<Type, ScopeType>(expression.then, scope)
+    return evaluateExpression<Type, ScopeType>(expression.then, scope)
 }
 
 export const evaluateIf = <Type, ScopeType extends BasicScopeType>(
     expression: IfExpression<Type>, scope: ScopeType
 ): Type => {
-    if (evaluate<boolean, ScopeType>(expression.$if, scope))
+    if (evaluateExpression<boolean, ScopeType>(expression.$if, scope))
         return evaluateOptionalThen<Type, ScopeType>(expression, scope)
 
     return typeof expression.else === 'undefined' ?
         undefined as Type :
-        evaluate<Type, ScopeType>(expression.else, scope)
+        evaluateExpression<Type, ScopeType>(expression.else, scope)
 }
 
 export const evaluateSwitch = <Type, ScopeType extends BasicScopeType>(
     expression: SwitchExpression<Type>, scope: ScopeType
 ): Type => {
-    const value = evaluate(expression.$switch, scope)
+    const value = evaluateExpression(expression.$switch, scope)
 
     for (const caseExpression of expression.caseExpressions)
-        if (value === evaluate(caseExpression.$case, scope))
+        if (value === evaluateExpression(caseExpression.$case, scope))
             return evaluateOptionalThen<Type, ScopeType>(caseExpression, scope)
 
     if (typeof expression.default !== 'undefined')
-        return evaluate<Type, ScopeType>(expression.default, scope)
+        return evaluateExpression<Type, ScopeType>(expression.default, scope)
 
     return undefined as Type
 }
@@ -234,7 +269,7 @@ export const evaluateAnd = <ScopeType extends BasicScopeType>(
     expression: AndExpression, scope: ScopeType
 ): boolean => {
     for (const condition of expression.$and)
-        if (!evaluate<boolean, ScopeType>(condition, scope))
+        if (!evaluateExpression<boolean, ScopeType>(condition, scope))
             return false
 
     return true
@@ -244,7 +279,7 @@ export const evaluateOr = <ScopeType extends BasicScopeType>(
     expression: OrExpression, scope: ScopeType
 ): boolean => {
     for (const condition of expression.$or)
-        if (evaluate<boolean, ScopeType>(condition, scope))
+        if (evaluateExpression<boolean, ScopeType>(condition, scope))
             return true
 
     return false
@@ -256,7 +291,8 @@ export const evaluateConcat = <ScopeType extends BasicScopeType>(
     let result: Array<unknown> = []
     let isArray = false
     for (const item of expression.$concat) {
-        const value = evaluate<Array<unknown> | string, ScopeType>(item, scope)
+        const value =
+            evaluateExpression<Array<unknown> | string, ScopeType>(item, scope)
         if (Array.isArray(value))
             isArray = true
 
@@ -268,8 +304,8 @@ export const evaluateConcat = <ScopeType extends BasicScopeType>(
 
 export const evaluateMapping = <ScopeType extends BasicScopeType>(
     expression: MappingExpression, scope: ScopeType
-): Mapping<Array<unknown>> => {
-    const givenData = evaluate<
+): Array<Mapping<unknown>> => {
+    const givenData = evaluateExpression<
         Mapping<Mapping<unknown>> | Array<Mapping<unknown>>,
         ScopeType
     >(expression.data, scope)
@@ -302,12 +338,12 @@ export const evaluateArrayContains = (
     let array: unknown = scope
 
     if (expression.$arrayContains.target != null)
-        array = evaluate<unknown, BasicScopeType>(
+        array = evaluateExpression<unknown, BasicScopeType>(
             expression.$arrayContains.target, scope
         )
 
-    const value = evaluate(expression.$arrayContains.value, scope)
-    const key = evaluate(expression.$arrayContains.key, scope)
+    const value = evaluateExpression(expression.$arrayContains.value, scope)
+    const key = evaluateExpression(expression.$arrayContains.key, scope)
 
     if (!Array.isArray(array))
         return false
@@ -325,7 +361,7 @@ export const evaluateArrayContains = (
     })
 }
 
-export function evaluate<Type, ScopeType extends BasicScopeType>(
+export function evaluateExpression<Type, ScopeType extends BasicScopeType>(
     expression: Expression<Type, ScopeType>, scope: ScopeType = {} as ScopeType
 ): Type {
     if (isSelector<Type, ScopeType>(expression))
@@ -369,4 +405,4 @@ export function evaluate<Type, ScopeType extends BasicScopeType>(
     return expression
 }
 
-export default evaluate
+export default evaluateExpression

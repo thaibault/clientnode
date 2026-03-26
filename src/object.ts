@@ -26,11 +26,9 @@ import {isNotANumber} from './number'
 import {escapeRegularExpressions, evaluate} from './string'
 import {
     AnyFunction,
-    BasicScopeType,
     CompareOptions,
     EvaluationResult,
     GetterFunction,
-    KeyPathOf,
     Mapping,
     NormalizedObjectMask,
     ObjectMaskConfiguration,
@@ -40,7 +38,6 @@ import {
     ProxyType,
     RecursiveEvaluateable,
     RecursivePartial,
-    RecursiveKeyOf,
     SetterFunction,
     UnknownFunction,
     ValueOf

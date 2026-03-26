@@ -137,7 +137,7 @@ describe('Evaluators', () => {
             `
                 when input is an array of primitive values, evaluates to true
                 when array contains the specified value
-            `,
+            `.trim(),
             () => {
                 expect(evaluate({$arrayContains: {value: 2}}, [1, 2, 3]))
                     .toStrictEqual(true)
@@ -148,7 +148,7 @@ describe('Evaluators', () => {
             `
                 when input is an array of objects, evaluates to true when array
                 contains the specified key and value
-            `,
+            `.trim(),
             () => {
                 expect(evaluate(
                     {$arrayContains: {key: 'b', value: 'foo'}},
@@ -161,7 +161,7 @@ describe('Evaluators', () => {
             `
                 when input is an array of objects, evaluates to false when
                 array does not contain the specified value
-            `,
+            `.trim(),
             () => {
                 expect(evaluate(
                     {$arrayContains: {key: 'b', value: 'baz'}},
@@ -174,7 +174,7 @@ describe('Evaluators', () => {
             `
                 when input is an array of objects, evaluates to false when
                 array does not contain the specified key
-            `,
+            `.trim(),
             () => {
                 expect(evaluate(
                     {$arrayContains: {key: 'c', value: 'foo'}},
@@ -216,7 +216,7 @@ describe('Evaluators', () => {
             `
                 when selector is an expression that returns the array, returns
                 true
-            `,
+            `.trim(),
             () => {
                 expect(evaluate(
                     {
@@ -858,7 +858,7 @@ describe('Evaluators', () => {
                 (a == 2 || equals(a, a)) &&
                 a.a[0][1].a == 5
             ) then "final value"
-        `,
+        `.trim(),
         () => {
             expect(evaluate(
                 {

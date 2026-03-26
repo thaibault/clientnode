@@ -1,10 +1,10 @@
-import evaluateFunction from './evaluators'
+import evaluateExpressionFunction from './evaluators'
 
 export * from './evaluators'
 export * from './helper'
 export * from './indicator-functions'
 export * from './types'
 
-export const evaluate = evaluateFunction
+export const evaluateExpression = evaluateExpressionFunction
 
-export default evaluate
+export default evaluateExpression

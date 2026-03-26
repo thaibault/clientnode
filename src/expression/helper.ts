@@ -1,11 +1,15 @@
+import {Mapping} from '../'
+
 import {BasicScopeType, RecursiveKeyOf} from './types'
 
-export const viewArrayAsScope = <Type extends Record<string, unknown>[], ScopeType extends BasicScopeType>(
-    data: Type,
-    childrenPropertyNames: Array<RecursiveKeyOf<Type>>,
-    propertyReferenceKeys: Array<RecursiveKeyOf<Type>>
-): ScopeType =>
-    new Proxy<Type>(data, {
+export const viewArrayAsScope = <
+    Type extends Array<Mapping<unknown>>, ScopeType extends BasicScopeType
+>(
+        data: Type,
+        childrenPropertyNames: Array<RecursiveKeyOf<Type>>,
+        propertyReferenceKeys: Array<RecursiveKeyOf<Type>>
+    ): ScopeType =>
+    new Proxy(data, {
         ownKeys(target: Type) {
             return Reflect.ownKeys(target)
         },
@@ -13,11 +17,17 @@ export const viewArrayAsScope = <Type extends Record<string, unknown>[], ScopeTy
             for (const element of target)
                 for (const key of propertyReferenceKeys)
                     if (element[key as keyof typeof element] === name) {
-                        type ValueType = Record<string, unknown> // NOTE: Type[keyof Type]
-                        //type ScopeValueType = object // NOTE: ScopeType[keyof ScopeType]
+                        // NOTE: Type[keyof Type]
+                        type ValueType = Record<string, unknown>
+                        // NOTE: ScopeType[keyof ScopeType]
+                        // type ScopeValueType = object
 
-                        return viewObjectAsScope<ValueType/*, ScopeValueType*/>(
-                            element, childrenPropertyNames, propertyReferenceKeys
+                        return viewObjectAsScope<
+                            ValueType/*, ScopeValueType*/
+                        >(
+                            element,
+                            childrenPropertyNames,
+                            propertyReferenceKeys
                         )
                     }
 
@@ -25,9 +35,9 @@ export const viewArrayAsScope = <Type extends Record<string, unknown>[], ScopeTy
         },
         set(target: Type, name: string | symbol, value: unknown): boolean {
             let index = 0
-            for (const element of target) {
+            for (const item of target) {
                 for (const key of propertyReferenceKeys)
-                    if (element[key as keyof typeof element] === name) {
+                    if (item[key as keyof typeof item] === name) {
                         (target[index] as unknown) = value
 
                         return true
@@ -39,14 +49,17 @@ export const viewArrayAsScope = <Type extends Record<string, unknown>[], ScopeTy
         }
     }) as unknown as ScopeType
 
-export const viewObjectAsScope = <Type extends Record<string, unknown>, ScopeType extends object = BasicScopeType>(
-    data: Type,
-    childrenPropertyNames: Array<RecursiveKeyOf<Type>> = ['children'] as
-        Array<RecursiveKeyOf<Type>>,
-    propertyReferenceKeys: Array<RecursiveKeyOf<Type>> = ['name'] as
-        Array<RecursiveKeyOf<Type>>
+export const viewObjectAsScope = <
+    Type extends Record<string, unknown>,
+    ScopeType extends object = BasicScopeType
+>(
+        data: Type,
+        childrenPropertyNames: Array<RecursiveKeyOf<Type>> = ['children'] as
+            Array<RecursiveKeyOf<Type>>,
+        propertyReferenceKeys: Array<RecursiveKeyOf<Type>> = ['name'] as
+            Array<RecursiveKeyOf<Type>>
 ): ScopeType =>
-    new Proxy<Type>(data, {
+    new Proxy(data, {
         ownKeys(target: Type) {
             return Reflect.ownKeys(target)
         },
@@ -55,11 +68,15 @@ export const viewObjectAsScope = <Type extends Record<string, unknown>, ScopeTyp
 
             if (Object.prototype.hasOwnProperty.call(target, name)) {
                 if (
-                    childrenPropertyNames.includes(name as RecursiveKeyOf<Type>) &&
+                    childrenPropertyNames.includes(
+                        name as RecursiveKeyOf<Type>
+                    ) &&
                     Array.isArray(value)
                 ) {
-                    type ValueType = Array<Record<string, unknown>> // NOTE: Type[keyof Type]
-                    type ScopeValueType = Array<BasicScopeType> // NOTE: ScopeType[keyof ScopeType]
+                    // NOTE: Type[keyof Type]
+                    type ValueType = Array<Record<string, unknown>>
+                    // NOTE: ScopeType[keyof ScopeType]
+                    type ScopeValueType = Array<BasicScopeType>
 
                     return viewArrayAsScope<ValueType, ScopeValueType>(
                         value,
@@ -69,11 +86,17 @@ export const viewObjectAsScope = <Type extends Record<string, unknown>, ScopeTyp
                 }
 
                 if (value !== null && typeof value === 'object') {
-                    type ValueType = Record<string, unknown> // NOTE: Type[keyof Type]
-                    //type ScopeValueType = object // NOTE: ScopeType[keyof ScopeType]
+                    // NOTE: Type[keyof Type]
+                    type ValueType = Mapping<unknown>
+                    // NOTE: ScopeType[keyof ScopeType]
+                    // type ScopeValueType = object
 
-                    return viewObjectAsScope<ValueType/*, ScopeValueType*/>(
-                        value as ValueType, childrenPropertyNames, propertyReferenceKeys
+                    return viewObjectAsScope<
+                        ValueType/*, ScopeValueType*/
+                    >(
+                        value as ValueType,
+                        childrenPropertyNames,
+                        propertyReferenceKeys
                     )
                 }
 
@@ -83,13 +106,12 @@ export const viewObjectAsScope = <Type extends Record<string, unknown>, ScopeTyp
             return undefined
         },
         set(target: Type, name: string | symbol, value: Type[keyof Type]) {
-            if (Object.prototype.hasOwnProperty.call(target, name)) {
+            if (Object.prototype.hasOwnProperty.call(target, name))
                 if (Object.prototype.hasOwnProperty.call(target, name)) {
                     target[name as keyof Type] = value
 
                     return true
                 }
-            }
 
             return false
         }
