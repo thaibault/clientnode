@@ -28,46 +28,47 @@ import evaluate, {
 import {testEach} from '../../test-helper'
 
 describe('Evaluators', () => {
-    test('evaluates values', () => {
-        expect(evaluate(false)).toStrictEqual(false)
-        expect(evaluate(true)).toStrictEqual(true)
+    testEach(
+        'evaluates values',
+        evaluate,
 
-        expect(evaluate(0)).toStrictEqual(0)
-        expect(evaluate(5)).toStrictEqual(5)
-        expect(evaluate(Infinity)).toStrictEqual(Infinity)
+        [false, false],
+        [true, true],
+        [0, 0],
+        [5, 5],
+        [Infinity, Infinity],
+        [null, null],
+        ['', ''],
+        ['value', 'value'],
+        [[], []],
+        [[1], [1]],
+        [[1, 2], [1, 2]],
+        [[{}, 1, 2], [{}, 1, 2]],
+        [[undefined, 'Hello', {$if: {}}], [undefined, 'Hello', {$if: {}}]],
+        [{}, {}],
+        [{a: 2}, {a: 2}]
+    )
 
-        expect(evaluate(null)).toStrictEqual(null)
+    testEach(
+        'normalizeSelector',
+        normalizeSelector,
 
-        expect(evaluate('')).toStrictEqual('')
-        expect(evaluate('value')).toStrictEqual('value')
+        [[], ''],
+        [[], '', {}],
+        [['key'], 'key', {}],
+        [['a', 'b'], 'a.b', {}],
+        [['a', 'b', '1'], 'a.b[1]']
+    )
 
-        expect(evaluate([])).toStrictEqual([])
-        expect(evaluate([1])).toStrictEqual([1])
-        expect(evaluate([1, 2])).toStrictEqual([1, 2])
-        expect(evaluate([{}, 1, 2])).toStrictEqual([{}, 1, 2])
-        expect(evaluate([undefined, 'Hello', {$if: {}}]))
-            .toStrictEqual([undefined, 'Hello', {$if: {}}])
+    testEach(
+        'evaluateSelectorUntilLastObject',
+        evaluateSelectorUntilLastObject,
 
-        expect(evaluate({})).toStrictEqual({})
-        expect(evaluate({a: 2})).toStrictEqual({a: 2})
-    })
-
-    test('normalize selectors', () => {
-        expect(normalizeSelector('')).toStrictEqual([])
-        expect(normalizeSelector('', {})).toStrictEqual([])
-        expect(normalizeSelector('key', {})).toStrictEqual(['key'])
-        expect(normalizeSelector('a.b', {})).toStrictEqual(['a', 'b'])
-        expect(normalizeSelector('a.b[1]')).toStrictEqual(['a', 'b', '1'])
-    })
-
-    test('evaluate selector until last object', () => {
-        expect(evaluateSelectorUntilLastObject('')).toStrictEqual([{}, ''])
-        expect(evaluateSelectorUntilLastObject('', {})).toStrictEqual([{}, ''])
-        expect(evaluateSelectorUntilLastObject('1', [0]))
-            .toStrictEqual([[0], '1'])
-        expect(evaluateSelectorUntilLastObject('a.1', {a: [0]}))
-            .toStrictEqual([[0], '1'])
-    })
+        [[{}, ''], ''],
+        [[{}, ''], '', {}],
+        [[[0], '1'], '1', [0]],
+        [[[0], '1'], 'a.1', {a: [0]}]
+    )
 
     testEach(
         'evaluateSelector',
@@ -99,91 +100,73 @@ describe('Evaluators', () => {
         ]
     )
 
-    test('evaluates selected values', () => {
-        expect(evaluate({$select: 'key'}, {key: 5}))
-            .toStrictEqual(5)
-        expect(evaluate({$select: 'a.b.c'}, {a: {b: {c: 2}}}))
-            .toStrictEqual(2)
-        expect(evaluate({$select: 'a.b.c.d'}, {a: {b: {c: 2}}}))
-            .toStrictEqual(undefined)
-        expect(evaluate({$select: ''}, {a: 2}))
-            .toStrictEqual({a: 2})
+    testEach(
+        'evaluateSelectorExpression',
+        evaluate,
 
-        expect(evaluate({$select: 'a[0]'}, {a: [1, 2]}))
-            .toStrictEqual(1)
-        expect(evaluate({$select: 'a[0][1]'}, {a: [[1, 2]]}))
-            .toStrictEqual(2)
-        expect(evaluate(
+        [5, {$select: 'key'}, {key: 5}],
+        [2, {$select: 'a.b.c'}, {a: {b: {c: 2}}}],
+        [undefined, {$select: 'a.b.c.d'}, {a: {b: {c: 2}}}],
+        [{a: 2}, {$select: ''}, {a: 2}],
+        [1, {$select: 'a[0]'}, {a: [1, 2]}],
+        [2, {$select: 'a[0][1]'}, {a: [[1, 2]]}],
+        [
+            'deep',
             {$select: 'a[0][1][0].b[0][1]'}, {a: [[0, [{b: [[1, 'deep']]}]]]}
-        )).toStrictEqual('deep')
-        expect(evaluate({$select: 'a[1]'}, {a: [1, 2]}))
-            .toStrictEqual(2)
-        expect(evaluate({$select: 'a[2]'}, {a: [1, 2]}))
-            .toStrictEqual(undefined)
-        expect(evaluate({$select: 'a.b.c[1]'}, {a: {b: {c: [1, 2]}}}))
-            .toStrictEqual(2)
-        expect(evaluate({$select: 'a.b.c.1'}, {a: {b: {c: [1, 2]}}}))
-            .toStrictEqual(2)
-        expect(evaluate({$select: 'a.b.c.1'}, {a: {b: {}}}))
-            .toStrictEqual(undefined)
-        expect(evaluate({$select: 'a.b b.c'}, {a: {'b b': {c: 1}}}))
-            .toStrictEqual(1)
-        expect(evaluate(
+        ],
+        [2, {$select: 'a[1]'}, {a: [1, 2]}],
+        [undefined, {$select: 'a[2]'}, {a: [1, 2]}],
+        [2, {$select: 'a.b.c[1]'}, {a: {b: {c: [1, 2]}}}],
+        [2, {$select: 'a.b.c.1'}, {a: {b: {c: [1, 2]}}}],
+        [undefined, {$select: 'a.b.c.1'}, {a: {b: {}}}],
+        [1, {$select: 'a.b b.c'}, {a: {'b b': {c: 1}}}],
+        [
+            'dynamically selected',
             {$select: ['a', {$select: 'keyB'}]},
             {a: {b: 'dynamically selected'}, keyB: 'b'}
-        )).toStrictEqual('dynamically selected')
-        expect(evaluate(
+        ],
+        [
+            'dynamically selected',
             {$select: ['a', 'b', {$select: 'key.of.c'}]},
             {
                 a: {b: {c: 'dynamically selected'}},
                 key: {of: {c: 'c'}}
-            })
-        ).toStrictEqual('dynamically selected')
+            }
+        ],
+        [5, {$select: 'a.b.c'}, {a: [{name: 'b', c: 5}]}],
+        [4, {$select: 'a.b.c.d'}, {a: [{name: 'b', c: {d: 4}}]}],
+        [5, {$select: 'a.b'}, [{name: 'a', b: 5}]],
+        [4, {$select: 'a.b.c.d'}, [{name: 'a', b: [{name: 'c', d: 4}]}]]
+    )
 
+    SELECTOR_KEY_NAMES.add('headline')
+    expect(evaluate(
+        {$select: 'a.b.c.d'}, [{headline: 'a', b: [{name: 'c', d: 4}]}]
+    )).toStrictEqual(4)
+    SELECTOR_KEY_NAMES.delete('headline')
 
-        expect(evaluate({$select: 'a.b.c'}, {a: [{name: 'b', c: 5}]}))
-            .toStrictEqual(5)
-        expect(evaluate({$select: 'a.b.c.d'}, {a: [{name: 'b', c: {d: 4}}]}))
-            .toStrictEqual(4)
+    const nestedObject = {name: 'From', value: 'target'}
+    expect(evaluate(
+        {$select: 'MappingGroup.children.Mapping.children.From'},
 
-        expect(evaluate({$select: 'a.b'}, [{name: 'a', b: 5}]))
-            .toStrictEqual(5)
-
-        SELECTOR_KEY_NAMES.add('headline')
-
-        expect(evaluate(
-            {$select: 'a.b.c.d'}, [{headline: 'a', b: [{name: 'c', d: 4}]}]
-        )).toStrictEqual(4)
-
-        SELECTOR_KEY_NAMES.delete('headline')
-
-        expect(evaluate(
-            {$select: 'a.b.c.d'}, [{name: 'a', b: [{name: 'c', d: 4}]}]
-        )).toStrictEqual(4)
-
-        const nestedObject = {name: 'From', value: 'target'}
-        expect(evaluate(
-            {$select: 'MappingGroup.children.Mapping.children.From'},
-
-            [
-                {name: 'BasicInformationGroup'},
-                {name: 'ConfigurationGroup'},
-                {
-                    name: 'MappingGroup',
-                    children: [
-                        {
-                            name: 'Mapping',
-                            children: [{name: 'From', value: 'target'}]
-                        }
-                    ]
-                },
-                {
-                    name: 'MappingGroup',
-                    children: [{name: 'Mapping', children: [nestedObject]}]
-                }
-            ]
-        )).toStrictEqual(nestedObject)
-    })
+        [
+            {name: 'BasicInformationGroup'},
+            {name: 'ConfigurationGroup'},
+            {
+                name: 'MappingGroup',
+                children: [
+                    {
+                        name: 'Mapping',
+                        children: [{name: 'From', value: 'target'}]
+                    }
+                ]
+            },
+            {
+                name: 'MappingGroup',
+                children: [{name: 'Mapping', children: [nestedObject]}]
+            }
+        ]
+    )).toStrictEqual(nestedObject)
 
     describe('evaluateArrayContains', () => {
         test(

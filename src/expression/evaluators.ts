@@ -65,7 +65,7 @@ export const NO_ITEM_FOUND_SYMBOL =
     Symbol.for('EXPRESSION_EVALUATOR_NO_ITEM_FOUND')
 
 const addBracketBasedPathElements = (subParts: Array<string>) => {
-    const path: Array<SimpleRecursiveKeyOf<BasicScopeType>> = []
+    const path: Array<SimpleRecursiveKeyOf> = []
     // NOTE: We add index assignments into path array.
     for (const subPart of subParts)
         if (subPart.startsWith('['))
@@ -110,7 +110,7 @@ export const normalizeSelector = <ScopeType extends BasicScopeType>(
                 path.push(...(subParts ?
                     addBracketBasedPathElements(subParts) :
                     [part]
-                ) as unknown as Array<RecursiveKeyOf<ScopeType>>)
+                ) as unknown as Array<RecursiveKeyOf>)
             }
         } else
             path.push(
@@ -150,7 +150,7 @@ export const evaluateSelectorUntilLastObject = <
         scope: ScopeType = {} as ScopeType,
         skipMissingLevel = false,
         delimiter = '.'
-    ): [ScopeType, RecursiveKeyOf<ScopeType>] => {
+    ): [ScopeType, RecursiveKeyOf] => {
     /*
         Create a list of keys or indexes to retrieve specified value from given
         object.
@@ -178,13 +178,13 @@ export const evaluateSelectorUntilLastObject = <
                                 result,
                                 result.indexOf(item) as
                                     unknown as
-                                    RecursiveKeyOf<ScopeType>
+                                    RecursiveKeyOf
                             ]
 
                     result = item as ScopeType
                 }
             } else if (isLastPart)
-                return [result, keyOrIndex as RecursiveKeyOf<ScopeType>]
+                return [result, keyOrIndex as RecursiveKeyOf]
             else if (isFunction(keyOrIndex))
                 result = keyOrIndex(result) as ScopeType
             else if (Object.prototype.hasOwnProperty.call(
@@ -193,19 +193,17 @@ export const evaluateSelectorUntilLastObject = <
                 result = result[keyOrIndex as keyof ScopeType] as ScopeType
             else
                 return [
-                    result, keyOrIndex as unknown as RecursiveKeyOf<ScopeType>
+                    result, keyOrIndex as unknown as RecursiveKeyOf
                 ]
         else if (isLastPart)
-            return [result, keyOrIndex as RecursiveKeyOf<ScopeType>]
+            return [result, keyOrIndex as RecursiveKeyOf]
         else if (!skipMissingLevel)
-            return [
-                undefined as ScopeType, keyOrIndex as RecursiveKeyOf<ScopeType>
-            ]
+            return [undefined as ScopeType, keyOrIndex as RecursiveKeyOf]
 
         index += 1
     }
 
-    return [{} as ScopeType, '' as unknown as RecursiveKeyOf<ScopeType>]
+    return [{} as ScopeType, '' as unknown as RecursiveKeyOf]
 }
 /**
  * Retrieves substructure in given object referenced by given selector
