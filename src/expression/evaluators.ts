@@ -1,4 +1,7 @@
-import {equals, isPlainObject, Mapping} from '../'
+import {
+    equals, isFunction, isObject, isPlainObject, Mapping,
+    SimpleRecursiveKeyOf
+} from '../'
 
 import {
     isAndExpression,
@@ -39,7 +42,7 @@ export const NO_ITEM_FOUND_SYMBOL =
     Symbol.for('EXPRESSION_EVALUATOR_NO_ITEM_FOUND')
 
 const addBracketBasedPathElements = (subParts: Array<string>) => {
-    const path: Array<RecursiveKeyOf<BasicScopeType>> = []
+    const path: Array<SimpleRecursiveKeyOf<BasicScopeType>> = []
     // NOTE: We add index assignments into path array.
     for (const subPart of subParts)
         if (subPart.startsWith('['))
@@ -62,14 +65,21 @@ export const normalizeSelector = <ScopeType extends BasicScopeType>(
         KeyPathOf<ScopeType> |
         Array<Expression<RecursiveKeyOf<ScopeType>, ScopeType>>
     ),
-    scope: ScopeType = {} as ScopeType
+    scope: ScopeType = {} as ScopeType,
+    delimiter = '.'
 ): Array<RecursiveKeyOf<ScopeType>> => {
     const path: Array<RecursiveKeyOf<ScopeType>> = []
     for (const part of (
-        Array.isArray(selector) ? selector : selector.split('.')
+        Array.isArray(selector) ? selector : selector.split(delimiter)
     )) {
         if (!part)
             continue
+
+        if (isFunction(part)) {
+            path.push(part)
+
+            continue
+        }
 
         if (typeof part !== 'string') {
             path.push(evaluateExpression<RecursiveKeyOf<ScopeType>, ScopeType>(
@@ -87,7 +97,9 @@ export const normalizeSelector = <ScopeType extends BasicScopeType>(
         */
         const subParts: null | Array<string> = part.match(/[^[]*\[\d+]/g)
         path.push(
-            ...(subParts ? addBracketBasedPathElements(subParts) : [part])
+            ...(subParts ? addBracketBasedPathElements(subParts) : [part]) as
+                unknown as
+                Array<RecursiveKeyOf<ScopeType>>
         )
     }
 
@@ -108,7 +120,15 @@ export const selectArrayItem = (
 
     return NO_ITEM_FOUND_SYMBOL
 }
-
+/**
+ * Retrieves substructure in given object referenced by given selector
+ * path.
+ * @param selector - Selector path.
+ * @param scope - Object to search in.
+ * @param skipMissingLevel - Indicates to skip missing level in given path.
+ * @param delimiter - Delimiter to delimit given selector components.
+ * @returns Determined sub structure of given data or "undefined".
+ */
 export const evaluateSelectorUntilLastObject = <
     ScopeType extends BasicScopeType
 >(
@@ -116,53 +136,83 @@ export const evaluateSelectorUntilLastObject = <
             KeyPathOf<ScopeType> |
             Array<Expression<RecursiveKeyOf<ScopeType>, ScopeType>>
         ),
-        scope: ScopeType = {} as ScopeType
+        scope: ScopeType = {} as ScopeType,
+        skipMissingLevel = false,
+        delimiter = '.'
     ): [ScopeType, RecursiveKeyOf<ScopeType>] => {
-    // Create a list of keys or indexes to retrieve specified value from given
-    // object.
+    /*
+        Create a list of keys or indexes to retrieve specified value from given
+        object.
+    */
     const path: Array<RecursiveKeyOf<ScopeType>> =
-        normalizeSelector(selector, scope)
+        normalizeSelector(selector, scope, delimiter)
     // Dig into given scope for each previously found key or index.
     let result = scope
     let index = 0
     for (const keyOrIndex of path) {
         const isLastPart = index === path.length - 1
-        if (Object.prototype.hasOwnProperty.call(result, keyOrIndex)) {
-            if (isLastPart)
+
+        if (isObject(result))
+            if (
+                Array.isArray(result) &&
+                (typeof keyOrIndex === 'string' && isNaN(parseInt(keyOrIndex)))
+            ) {
+                const item = selectArrayItem(result, keyOrIndex)
+                if (item !== NO_ITEM_FOUND_SYMBOL) {
+                    if (isLastPart)
+                        return typeof keyOrIndex === 'number' ?
+                            [result, keyOrIndex] :
+                            [result, result.indexOf(item)]
+
+                    result = item as ScopeType
+                }
+            } else if (isLastPart)
                 return [result, keyOrIndex]
-
-            result = result[keyOrIndex as keyof ScopeType] as ScopeType
-        } else if (
-            Array.isArray(result) &&
-            (typeof keyOrIndex === 'string' && isNaN(parseInt(keyOrIndex)))
-        ) {
-            const item = selectArrayItem(result, keyOrIndex)
-            if (item !== NO_ITEM_FOUND_SYMBOL) {
-                if (isLastPart)
-                    return typeof keyOrIndex === 'number' ?
-                        [result, keyOrIndex] :
-                        [result, result.indexOf(item)]
-
-                result = item as ScopeType
-            }
-        } else
+            else if (isFunction(keyOrIndex))
+                result = keyOrIndex(result) as ScopeType
+            else if (
+                Object.prototype.hasOwnProperty.call(result, keyOrIndex)
+            )
+                result = result[keyOrIndex as keyof ScopeType] as ScopeType
+            else
+                return [result, keyOrIndex]
+        else if (isLastPart)
             return [result, keyOrIndex]
+        else if (!skipMissingLevel)
+            return [undefined as ScopeType, keyOrIndex]
 
         index += 1
     }
 
-    return [{} as ScopeType, '']
+    return [{} as ScopeType, '' as unknown as RecursiveKeyOf<ScopeType>]
 }
-
+/**
+ * Retrieves substructure in given object referenced by given selector
+ * path.
+ * @param selector - Selector path.
+ * @param scope - Object to search in.
+ * @param skipMissingLevel - Indicates to skip missing level in given path.
+ * @param delimiter - Delimiter to delimit given selector components.
+ * @returns Determined sub structure of given data or "undefined".
+ */
 export const evaluateSelector = <Type, ScopeType extends BasicScopeType>(
     selector: (
         KeyPathOf<ScopeType> |
         Array<Expression<RecursiveKeyOf<ScopeType>, ScopeType>>
     ),
-    scope: ScopeType
+    scope: ScopeType,
+    skipMissingLevel = false,
+    delimiter = '.'
 ): Type => {
-    const [lastObject, lastKey] =
-        evaluateSelectorUntilLastObject(selector, scope)
+    const [lastObject, lastKey] = evaluateSelectorUntilLastObject(
+        selector, scope, skipMissingLevel, delimiter
+    )
+
+    if ((lastKey as unknown as string) === '')
+        return scope as unknown as Type
+
+    if (isFunction(lastKey))
+        return lastKey(lastObject) as Type
 
     if (Object.prototype.hasOwnProperty.call(lastObject, lastKey))
         return (lastObject as Mapping<Type>)[lastKey]
@@ -197,8 +247,7 @@ export const evaluateCondition = <ScopeType extends BasicScopeType>(
 export const evaluateUnaryOperation = <ScopeType extends BasicScopeType>(
     operation: UnaryOperation, scope: ScopeType
 ): boolean => {
-    const operand =
-        evaluateExpression<unknown, ScopeType>(operation.operand, scope)
+    const operand = evaluateExpression(operation.operand, scope)
 
     switch (operation.$operator) {
     case '!':

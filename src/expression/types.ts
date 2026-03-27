@@ -25,12 +25,14 @@ import {Mapping} from '../'
                     TKey
     }[keyof TObj & (string | number)]
 */
-export type BasicScopeType = Array<unknown> | Mapping<unknown>
+export type BasicScopeType = Array<unknown> | Mapping<unknown> | unknown
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type KeyPathOf<TObj extends BasicScopeType> = string
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type RecursiveKeyOf<TObj extends BasicScopeType> = number | string
+export type SimpleRecursiveKeyOf<TObj extends BasicScopeType> = number | string
+export type RecursiveKeyOf<TObj extends BasicScopeType> =
+    (scope: unknown) => unknown | SimpleRecursiveKeyOf<TObj>
 
 export type Comparator = '==' | '!=' | '<' | '>' | '<=' | '>='
 export type UnaryOperator = '!' | '!!'
