@@ -207,7 +207,7 @@ export interface TimeoutPromise extends Promise<boolean> {
 
 // NOTE: Mapping cannot be used here to avoid circular references.
 export type ObjectMask = Array<string> | boolean | {[key: string]: ObjectMask}
-export type NormalizedObjectMask = boolean | Record<string, ObjectMask>
+export type NormalizedObjectMask = boolean | Mapping<ObjectMask>
 export interface ObjectMaskConfiguration {
     exclude?: ObjectMask
     include?: ObjectMask

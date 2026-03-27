@@ -1,13 +1,30 @@
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+'use strict'
+/* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stand under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/
 import {Mapping} from '../'
 
-import {BasicScopeType, RecursiveKeyOf} from './types'
+import {BasicScopeType} from './types'
 
 export const viewArrayAsScope = <
     Type extends Array<Mapping<unknown>>, ScopeType extends BasicScopeType
 >(
         data: Type,
-        childrenPropertyNames: Array<RecursiveKeyOf<Type>>,
-        propertyReferenceKeys: Array<RecursiveKeyOf<Type>>
+        childrenPropertyNames: Array<string>,
+        propertyReferenceKeys: Array<string>
     ): ScopeType =>
     new Proxy(data, {
         ownKeys(target: Type) {
@@ -16,19 +33,25 @@ export const viewArrayAsScope = <
         get(target: Type, name: string | symbol) {
             for (const element of target)
                 for (const key of propertyReferenceKeys)
-                    if (element[key as keyof typeof element] === name) {
+                    if (element[key as unknown as string] === name) {
                         // NOTE: Type[keyof Type]
-                        type ValueType = Record<string, unknown>
+                        type ValueType = Mapping<unknown>
                         // NOTE: ScopeType[keyof ScopeType]
                         // type ScopeValueType = object
 
-                        return viewObjectAsScope<
-                            ValueType/*, ScopeValueType*/
-                        >(
+                        /*
+                            eslint-disable
+                            @typescript-eslint/no-unnecessary-type-arguments
+                        */
+                        return viewObjectAsScope<ValueType>(
                             element,
                             childrenPropertyNames,
                             propertyReferenceKeys
                         )
+                        /*
+                            eslint-enable
+                            @typescript-eslint/no-unnecessary-type-arguments
+                        */
                     }
 
             return undefined
@@ -37,7 +60,7 @@ export const viewArrayAsScope = <
             let index = 0
             for (const item of target) {
                 for (const key of propertyReferenceKeys)
-                    if (item[key as keyof typeof item] === name) {
+                    if (item[key as unknown as keyof typeof item] === name) {
                         (target[index] as unknown) = value
 
                         return true
@@ -50,15 +73,13 @@ export const viewArrayAsScope = <
     }) as unknown as ScopeType
 
 export const viewObjectAsScope = <
-    Type extends Record<string, unknown>,
-    ScopeType extends object = BasicScopeType
+    Type extends Mapping<unknown>,
+    ScopeType extends BasicScopeType = BasicScopeType
 >(
         data: Type,
-        childrenPropertyNames: Array<RecursiveKeyOf<Type>> = ['children'] as
-            Array<RecursiveKeyOf<Type>>,
-        propertyReferenceKeys: Array<RecursiveKeyOf<Type>> = ['name'] as
-            Array<RecursiveKeyOf<Type>>
-): ScopeType =>
+        childrenPropertyNames = ['children'],
+        propertyReferenceKeys = ['name']
+    ): ScopeType =>
     new Proxy(data, {
         ownKeys(target: Type) {
             return Reflect.ownKeys(target)
@@ -68,13 +89,11 @@ export const viewObjectAsScope = <
 
             if (Object.prototype.hasOwnProperty.call(target, name)) {
                 if (
-                    childrenPropertyNames.includes(
-                        name as RecursiveKeyOf<Type>
-                    ) &&
+                    childrenPropertyNames.includes(name as string) &&
                     Array.isArray(value)
                 ) {
                     // NOTE: Type[keyof Type]
-                    type ValueType = Array<Record<string, unknown>>
+                    type ValueType = Array<Mapping<unknown>>
                     // NOTE: ScopeType[keyof ScopeType]
                     type ScopeValueType = Array<BasicScopeType>
 
@@ -91,13 +110,19 @@ export const viewObjectAsScope = <
                     // NOTE: ScopeType[keyof ScopeType]
                     // type ScopeValueType = object
 
-                    return viewObjectAsScope<
-                        ValueType/*, ScopeValueType*/
-                    >(
+                    /*
+                        eslint-disable
+                        @typescript-eslint/no-unnecessary-type-arguments
+                    */
+                    return viewObjectAsScope<ValueType>(
                         value as ValueType,
                         childrenPropertyNames,
                         propertyReferenceKeys
                     )
+                    /*
+                        eslint-enable
+                        @typescript-eslint/no-unnecessary-type-arguments
+                    */
                 }
 
                 return value

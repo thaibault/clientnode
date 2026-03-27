@@ -23,7 +23,7 @@ import {testEach} from '../test-helper'
 const now = new Date()
 const testDate = new Date(0)
 
-testEach<typeof dateTimeFormat>(
+testEach(
     'dateTimeFormat',
     dateTimeFormat,
 
@@ -63,7 +63,7 @@ testEach<typeof dateTimeFormat>(
         {timeZone: 'UTC'}
     ]
 )
-testEach<typeof interpretDateTime>(
+testEach(
     'interpretDateTime',
     interpretDateTime,
 
@@ -154,7 +154,7 @@ testEach<typeof interpretDateTime>(
 test('normalizeDateTime', () => {
     expect(typeof normalizeDateTime()).toStrictEqual('object')
 })
-testEach<typeof normalizeDateTime>(
+testEach(
     'normalizeDateTime',
     normalizeDateTime,
 
@@ -177,7 +177,7 @@ testEach<typeof normalizeDateTime>(
     [null, 'abc'],
     [null, '1+1+1970 08+30+00']
 )
-testEach<typeof sliceWeekday>(
+testEach(
     'sliceWeekday',
     sliceWeekday,
 

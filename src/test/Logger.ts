@@ -54,7 +54,7 @@ test('show', () => {
     expect(/^.+\(Type: "function"\)$/su.test(Logger.show(NOOP)))
         .toStrictEqual(true)
 })
-testEach<typeof Logger.show>(
+testEach(
     'show',
     Logger.show.bind(Logger),
 

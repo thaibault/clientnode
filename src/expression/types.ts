@@ -1,38 +1,66 @@
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+'use strict'
+/* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stand under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/
 import {Mapping} from '../'
 
 /*
     TOO expensive so far:
 
-    export type KeyPathOf<TObj extends BasicScopeType> = {
-        [TKey in keyof TObj & (string | number)]:
-            TObj[TKey] extends unknown[] ?
-                // NOTE: "TKey | `${TKey}[${KeyPathOf<TObj[TKey]>}]` :" cannot
+    export type KeyPathOf<Type extends BasicScopeType> = {
+        [TKey in keyof Type & (string | number)]:
+            Type[TKey] extends unknown[] ?
+                // NOTE: "TKey | `${TKey}[${KeyPathOf<Type[TKey]>}]` :" cannot
                 // statically analyze multiple array item types.
                 string :
-                TObj[TKey] extends object ?
-                    TKey | `${TKey}.${KeyPathOf<TObj[TKey]>}` :
+                Type[TKey] extends object ?
+                    TKey | `${TKey}.${KeyPathOf<Type[TKey]>}` :
                     TKey
-        }[keyof TObj & (string | number)]
+        }[keyof Type & (string | number)]
 
-    export type RecursiveKeyOf<TObj extends BasicScopeType> = {
-        [TKey in keyof TObj & (string | number)]:
-            TObj[TKey] extends unknown[] ?
-                // NOTE: "TKey | RecursiveKeyOf<TObj[TKey]> :" cannot
+    export type RecursiveKeyOf<Type extends BasicScopeType> = {
+        [TKey in keyof Type & (string | number)]:
+            Type[TKey] extends unknown[] ?
+                // NOTE: "TKey | RecursiveKeyOf<Type[TKey]> :" cannot
                 // statically analyze multiple array item types.
                 number | string :
-                TObj[TKey] extends object ?
-                    TKey | RecursiveKeyOf<TObj[TKey]> :
+                Type[TKey] extends object ?
+                    TKey | RecursiveKeyOf<Type[TKey]> :
                     TKey
-    }[keyof TObj & (string | number)]
+    }[keyof Type & (string | number)]
 */
 export type BasicScopeType = Array<unknown> | Mapping<unknown> | unknown
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type KeyPathOf<TObj extends BasicScopeType> = string
+export type KeyPathOf<Type extends BasicScopeType> = string
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type SimpleRecursiveKeyOf<TObj extends BasicScopeType> = number | string
-export type RecursiveKeyOf<TObj extends BasicScopeType> =
-    (scope: unknown) => unknown | SimpleRecursiveKeyOf<TObj>
+export type SimpleRecursiveKeyOf<Type extends BasicScopeType> = number | string
+export type RecursiveKeyOf<Type extends BasicScopeType> =
+    (scope: unknown) => unknown | SimpleRecursiveKeyOf<Type>
+
+export type SelectorItem<Type extends BasicScopeType> =
+    string |
+    number |
+    ((scope: unknown) => unknown) |
+    Expression<RecursiveKeyOf<Type> | number, Type> |
+    RecursiveKeyOf<Type>
+export type NormalizedSelector<Type extends BasicScopeType> =
+    Array<SelectorItem<Type>>
+export type Selector<Type extends BasicScopeType> =
+    SelectorItem<Type> | NormalizedSelector<Type>
 
 export type Comparator = '==' | '!=' | '<' | '>' | '<=' | '>='
 export type UnaryOperator = '!' | '!!'
@@ -110,15 +138,8 @@ export interface Operation {
 
 // Dynamically picking data
 
-export interface Selector<ScopeType extends BasicScopeType> {
-    $select: (
-        KeyPathOf<ScopeType> |
-        Array<
-            number |
-            Expression<RecursiveKeyOf<ScopeType> | number> |
-            RecursiveKeyOf<ScopeType>
-        >
-    )
+export interface SelectorExpression<ScopeType extends BasicScopeType> {
+    $select: Selector<ScopeType>
 }
 
 export type Expression<
@@ -139,6 +160,6 @@ export type Expression<
     SwitchExpression<Type> |
     ArrayContainsExpression |
 
-    Selector<ScopeType> |
+    SelectorExpression<ScopeType> |
 
     Type

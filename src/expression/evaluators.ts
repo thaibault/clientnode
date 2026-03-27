@@ -1,5 +1,29 @@
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+'use strict'
+/* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stand under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/
 import {
-    equals, isFunction, isObject, isPlainObject, Mapping,
+    equals,
+    isFunction,
+    isObject,
+    isPlainObject,
+    Mapping,
+    NormalizedSelector,
+    Selector,
+    SelectorItem,
     SimpleRecursiveKeyOf
 } from '../'
 
@@ -32,7 +56,6 @@ import {
     Condition,
 
     BasicScopeType,
-    KeyPathOf,
     RecursiveKeyOf,
     MappingExpression, ArrayContainsExpression
 } from './types'
@@ -61,47 +84,38 @@ const addBracketBasedPathElements = (subParts: Array<string>) => {
 }
 
 export const normalizeSelector = <ScopeType extends BasicScopeType>(
-    selector: (
-        KeyPathOf<ScopeType> |
-        Array<Expression<RecursiveKeyOf<ScopeType>, ScopeType>>
-    ),
+    selector: Selector<ScopeType>,
     scope: ScopeType = {} as ScopeType,
     delimiter = '.'
-): Array<RecursiveKeyOf<ScopeType>> => {
-    const path: Array<RecursiveKeyOf<ScopeType>> = []
-    for (const part of (
-        Array.isArray(selector) ? selector : selector.split(delimiter)
-    )) {
-        if (!part)
-            continue
+): NormalizedSelector<ScopeType> => {
+    const path: NormalizedSelector<ScopeType> = []
+    for (const component of ([] as NormalizedSelector<ScopeType>).concat(
+        selector
+    ))
+        if (typeof component === 'string') {
+            const parts: Array<string> = component.split(delimiter)
+            for (const part of parts) {
+                if (!part)
+                    continue
 
-        if (isFunction(part)) {
-            path.push(part)
+                if (isFunction(part)) {
+                    path.push(part)
 
-            continue
-        }
+                    continue
+                }
 
-        if (typeof part !== 'string') {
-            path.push(evaluateExpression<RecursiveKeyOf<ScopeType>, ScopeType>(
-                part, scope
-            ))
-
-            continue
-        }
-
-        /*
-            Gather a list of assignments via brackets.
-            E.g. "'name[INDEX][INDEX][INDEX]'.match(...)"
-            evaluates to
-            ['name[INDEX]', '[INDEX]', '[INDEX]']
-        */
-        const subParts: null | Array<string> = part.match(/[^[]*\[\d+]/g)
-        path.push(
-            ...(subParts ? addBracketBasedPathElements(subParts) : [part]) as
-                unknown as
-                Array<RecursiveKeyOf<ScopeType>>
-        )
-    }
+                // Trim bracket padding "[index]" => "index".
+                const subParts: null | Array<string> =
+                    part.match(/[^[]*\[\d+]/g)
+                path.push(...(subParts ?
+                    addBracketBasedPathElements(subParts) :
+                    [part]
+                ) as unknown as Array<RecursiveKeyOf<ScopeType>>)
+            }
+        } else
+            path.push(
+                evaluateExpression(component, scope) as SelectorItem<ScopeType>
+            )
 
     return path
 }
@@ -132,10 +146,7 @@ export const selectArrayItem = (
 export const evaluateSelectorUntilLastObject = <
     ScopeType extends BasicScopeType
 >(
-        selector: (
-            KeyPathOf<ScopeType> |
-            Array<Expression<RecursiveKeyOf<ScopeType>, ScopeType>>
-        ),
+        selector: Selector<ScopeType>,
         scope: ScopeType = {} as ScopeType,
         skipMissingLevel = false,
         delimiter = '.'
@@ -144,7 +155,7 @@ export const evaluateSelectorUntilLastObject = <
         Create a list of keys or indexes to retrieve specified value from given
         object.
     */
-    const path: Array<RecursiveKeyOf<ScopeType>> =
+    const path: NormalizedSelector<ScopeType> =
         normalizeSelector(selector, scope, delimiter)
     // Dig into given scope for each previously found key or index.
     let result = scope
@@ -155,31 +166,41 @@ export const evaluateSelectorUntilLastObject = <
         if (isObject(result))
             if (
                 Array.isArray(result) &&
-                (typeof keyOrIndex === 'string' && isNaN(parseInt(keyOrIndex)))
+                (typeof keyOrIndex === 'string' &&
+                isNaN(parseInt(keyOrIndex)))
             ) {
                 const item = selectArrayItem(result, keyOrIndex)
                 if (item !== NO_ITEM_FOUND_SYMBOL) {
                     if (isLastPart)
                         return typeof keyOrIndex === 'number' ?
                             [result, keyOrIndex] :
-                            [result, result.indexOf(item)]
+                            [
+                                result,
+                                result.indexOf(item) as
+                                    unknown as
+                                    RecursiveKeyOf<ScopeType>
+                            ]
 
                     result = item as ScopeType
                 }
             } else if (isLastPart)
-                return [result, keyOrIndex]
+                return [result, keyOrIndex as RecursiveKeyOf<ScopeType>]
             else if (isFunction(keyOrIndex))
                 result = keyOrIndex(result) as ScopeType
-            else if (
-                Object.prototype.hasOwnProperty.call(result, keyOrIndex)
-            )
+            else if (Object.prototype.hasOwnProperty.call(
+                result, keyOrIndex as unknown as string
+            ))
                 result = result[keyOrIndex as keyof ScopeType] as ScopeType
             else
-                return [result, keyOrIndex]
+                return [
+                    result, keyOrIndex as unknown as RecursiveKeyOf<ScopeType>
+                ]
         else if (isLastPart)
-            return [result, keyOrIndex]
+            return [result, keyOrIndex as RecursiveKeyOf<ScopeType>]
         else if (!skipMissingLevel)
-            return [undefined as ScopeType, keyOrIndex]
+            return [
+                undefined as ScopeType, keyOrIndex as RecursiveKeyOf<ScopeType>
+            ]
 
         index += 1
     }
@@ -196,10 +217,7 @@ export const evaluateSelectorUntilLastObject = <
  * @returns Determined sub structure of given data or "undefined".
  */
 export const evaluateSelector = <Type, ScopeType extends BasicScopeType>(
-    selector: (
-        KeyPathOf<ScopeType> |
-        Array<Expression<RecursiveKeyOf<ScopeType>, ScopeType>>
-    ),
+    selector: Selector<ScopeType>,
     scope: ScopeType,
     skipMissingLevel = false,
     delimiter = '.'
@@ -223,10 +241,8 @@ export const evaluateSelector = <Type, ScopeType extends BasicScopeType>(
 export const evaluateCondition = <ScopeType extends BasicScopeType>(
     condition: Condition, scope: ScopeType
 ): boolean => {
-    const value1 =
-        evaluateExpression<unknown, ScopeType>(condition.value1, scope)
-    const value2 =
-        evaluateExpression<unknown, ScopeType>(condition.value2, scope)
+    const value1 = evaluateExpression(condition.value1, scope)
+    const value2 = evaluateExpression(condition.value2, scope)
 
     switch (condition.$comparator) {
     case '==':
@@ -260,10 +276,8 @@ export const evaluateUnaryOperation = <ScopeType extends BasicScopeType>(
 export const evaluateOperation = <ScopeType extends BasicScopeType>(
     operation: Operation, scope: ScopeType
 ): number => {
-    const operand1 =
-        evaluateExpression<number, ScopeType>(operation.operand1, scope)
-    const operand2 =
-        evaluateExpression<number, ScopeType>(operation.operand2, scope)
+    const operand1 = evaluateExpression(operation.operand1, scope)
+    const operand2 = evaluateExpression(operation.operand2, scope)
 
     switch (operation.$operator) {
     case '+':
@@ -285,18 +299,18 @@ export const evaluateOptionalThen = <Type, ScopeType extends BasicScopeType>(
     if (typeof expression.then === 'undefined')
         return undefined as Type
 
-    return evaluateExpression<Type, ScopeType>(expression.then, scope)
+    return evaluateExpression(expression.then, scope)
 }
 
 export const evaluateIf = <Type, ScopeType extends BasicScopeType>(
     expression: IfExpression<Type>, scope: ScopeType
 ): Type => {
-    if (evaluateExpression<boolean, ScopeType>(expression.$if, scope))
-        return evaluateOptionalThen<Type, ScopeType>(expression, scope)
+    if (evaluateExpression(expression.$if, scope))
+        return evaluateOptionalThen(expression, scope)
 
     return typeof expression.else === 'undefined' ?
         undefined as Type :
-        evaluateExpression<Type, ScopeType>(expression.else, scope)
+        evaluateExpression(expression.else, scope)
 }
 
 export const evaluateSwitch = <Type, ScopeType extends BasicScopeType>(
@@ -306,10 +320,10 @@ export const evaluateSwitch = <Type, ScopeType extends BasicScopeType>(
 
     for (const caseExpression of expression.caseExpressions)
         if (value === evaluateExpression(caseExpression.$case, scope))
-            return evaluateOptionalThen<Type, ScopeType>(caseExpression, scope)
+            return evaluateOptionalThen(caseExpression, scope)
 
     if (typeof expression.default !== 'undefined')
-        return evaluateExpression<Type, ScopeType>(expression.default, scope)
+        return evaluateExpression(expression.default, scope)
 
     return undefined as Type
 }
@@ -318,7 +332,7 @@ export const evaluateAnd = <ScopeType extends BasicScopeType>(
     expression: AndExpression, scope: ScopeType
 ): boolean => {
     for (const condition of expression.$and)
-        if (!evaluateExpression<boolean, ScopeType>(condition, scope))
+        if (!evaluateExpression(condition, scope))
             return false
 
     return true
@@ -328,7 +342,7 @@ export const evaluateOr = <ScopeType extends BasicScopeType>(
     expression: OrExpression, scope: ScopeType
 ): boolean => {
     for (const condition of expression.$or)
-        if (evaluateExpression<boolean, ScopeType>(condition, scope))
+        if (evaluateExpression(condition, scope))
             return true
 
     return false
@@ -340,8 +354,7 @@ export const evaluateConcat = <ScopeType extends BasicScopeType>(
     let result: Array<unknown> = []
     let isArray = false
     for (const item of expression.$concat) {
-        const value =
-            evaluateExpression<Array<unknown> | string, ScopeType>(item, scope)
+        const value = evaluateExpression(item, scope)
         if (Array.isArray(value))
             isArray = true
 
@@ -354,10 +367,7 @@ export const evaluateConcat = <ScopeType extends BasicScopeType>(
 export const evaluateMapping = <ScopeType extends BasicScopeType>(
     expression: MappingExpression, scope: ScopeType
 ): Array<Mapping<unknown>> => {
-    const givenData = evaluateExpression<
-        Mapping<Mapping<unknown>> | Array<Mapping<unknown>>,
-        ScopeType
-    >(expression.data, scope)
+    const givenData = evaluateExpression(expression.data, scope)
 
     let normalizedGivenData: Array<Mapping<unknown>> = []
     if (Array.isArray(givenData))
@@ -387,9 +397,7 @@ export const evaluateArrayContains = (
     let array: unknown = scope
 
     if (expression.$arrayContains.target != null)
-        array = evaluateExpression<unknown, BasicScopeType>(
-            expression.$arrayContains.target, scope
-        )
+        array = evaluateExpression(expression.$arrayContains.target, scope)
 
     const value = evaluateExpression(expression.$arrayContains.value, scope)
     const key = evaluateExpression(expression.$arrayContains.key, scope)
@@ -413,7 +421,7 @@ export const evaluateArrayContains = (
 export function evaluateExpression<Type, ScopeType extends BasicScopeType>(
     expression: Expression<Type, ScopeType>, scope: ScopeType = {} as ScopeType
 ): Type {
-    if (isSelector<Type, ScopeType>(expression))
+    if (isSelector(expression))
         return evaluateSelector(expression.$select, scope)
 
 

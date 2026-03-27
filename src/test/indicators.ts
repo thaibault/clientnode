@@ -26,7 +26,7 @@ import {
     testEachSingleParameterAgainstSameExpectation
 } from '../test-helper'
 
-testEachSingleParameterAgainstSameExpectation<typeof isNumeric>(
+testEachSingleParameterAgainstSameExpectation(
     'isNumeric',
     isNumeric,
     true,
@@ -42,7 +42,7 @@ testEachSingleParameterAgainstSameExpectation<typeof isNumeric>(
     10,
     -10
 )
-testEachSingleParameterAgainstSameExpectation<typeof isNumeric>(
+testEachSingleParameterAgainstSameExpectation(
     'isNumeric',
     isNumeric,
     false,
@@ -75,7 +75,7 @@ test('isArrayLike', async (): Promise<void> => {
     ])
         expect(isArrayLike(value)).toStrictEqual(true)
 })
-testEachSingleParameterAgainstSameExpectation<typeof isArrayLike>(
+testEachSingleParameterAgainstSameExpectation(
     'isArrayLike',
     isArrayLike,
     false,
@@ -87,7 +87,7 @@ testEachSingleParameterAgainstSameExpectation<typeof isArrayLike>(
     true,
     /a/
 )
-testEachAgainstSameExpectation<typeof isAnyMatching>(
+testEachAgainstSameExpectation(
     'isAnyMatching',
     isAnyMatching,
     true,
@@ -97,7 +97,7 @@ testEachAgainstSameExpectation<typeof isAnyMatching>(
     ['test', [/a/, /b/, /es/]],
     ['test', ['', 'test']]
 )
-testEachAgainstSameExpectation<typeof isAnyMatching>(
+testEachAgainstSameExpectation(
     'isAnyMatching',
     isAnyMatching,
     false,
@@ -108,7 +108,7 @@ testEachAgainstSameExpectation<typeof isAnyMatching>(
     ['test', [/^est$/]],
     ['test', ['a']]
 )
-testEachSingleParameterAgainstSameExpectation<typeof isPlainObject>(
+testEachSingleParameterAgainstSameExpectation(
     'isPlainObject',
     isPlainObject,
     true,
@@ -118,7 +118,7 @@ testEachSingleParameterAgainstSameExpectation<typeof isPlainObject>(
     // eslint-disable-next-line no-new-object
     new Object()
 )
-testEachSingleParameterAgainstSameExpectation<typeof isPlainObject>(
+testEachSingleParameterAgainstSameExpectation(
     'isPlainObject',
     isPlainObject,
     false,
@@ -131,7 +131,7 @@ testEachSingleParameterAgainstSameExpectation<typeof isPlainObject>(
     true,
     undefined
 )
-testEachSingleParameterAgainstSameExpectation<typeof isFunction>(
+testEachSingleParameterAgainstSameExpectation(
     'isFunction',
     isFunction,
     true,
@@ -147,7 +147,7 @@ testEachSingleParameterAgainstSameExpectation<typeof isFunction>(
         // Do nothing.
     }
 )
-testEachSingleParameterAgainstSameExpectation<typeof isFunction>(
+testEachSingleParameterAgainstSameExpectation(
     'isFunction',
     isFunction,
     false,
