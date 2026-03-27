@@ -40,7 +40,7 @@ import {
     testEach, testEachSingleParameterAgainstSameExpectation, TEST_THROW_SYMBOL
 } from '../test-helper'
 
-testEach<typeof aggregatePropertyIfEqual>(
+testEach(
     'aggregatePropertyIfEqual',
     aggregatePropertyIfEqual,
 
@@ -49,7 +49,7 @@ testEach<typeof aggregatePropertyIfEqual>(
     ['', [{a: 'b'}, {a: 'c'}], 'a'],
     [false, [{a: 'b'}, {a: 'c'}], 'a', false]
 )
-testEach<typeof deleteEmptyItems>(
+testEach(
     'deleteEmptyItems',
     deleteEmptyItems,
 
@@ -59,7 +59,7 @@ testEach<typeof deleteEmptyItems>(
     [[], [], ['a']],
     [[], []]
 )
-testEach<typeof extract>(
+testEach(
     'extract',
     extract,
 
@@ -69,7 +69,7 @@ testEach<typeof extract>(
     [[{c: 'd'}, {}], [{a: 'b', c: 'd'}, {a: 3}], ['c']],
     [[{c: 'd'}, {c: 3}], [{a: 'b', c: 'd'}, {c: 3}], ['c']]
 )
-testEach<typeof extractIfMatches>(
+testEach(
     'extractIfMatches',
     extractIfMatches,
 
@@ -82,7 +82,7 @@ testEach<typeof extractIfMatches>(
     [['b'], ['a', 'b'], 'b'],
     [['a', 'b'], ['a', 'b'], '[ab]']
 )
-testEach<typeof extractIfPropertyExists>(
+testEach(
     'extractIfPropertyExists',
     extractIfPropertyExists,
 
@@ -91,7 +91,7 @@ testEach<typeof extractIfPropertyExists>(
     [[], [], 'b'],
     [[{a: 2}], [{a: 2}, {b: 3}], 'a']
 )
-testEach<typeof extractIfPropertyMatches>(
+testEach(
     'extractIfPropertyMatches',
     extractIfPropertyMatches,
 
@@ -106,7 +106,7 @@ testEach<typeof extractIfPropertyMatches>(
         {mimeType: /^text\/x-webm$/}
     ]
 )
-testEach<typeof intersect>(
+testEach(
     'intersect',
     intersect,
 
@@ -129,7 +129,7 @@ testEach<typeof intersect>(
     [[{b: undefined}], [{b: undefined}], [{}], ['b'], true],
     [[{b: 1}], [{b: 1}], [{a: 1}], {b: 'a'}, true]
 )
-testEach<typeof makeArray>(
+testEach(
     'makeArray',
     makeArray,
 
@@ -137,7 +137,7 @@ testEach<typeof makeArray>(
     [[1, 2, 3], [1, 2, 3]],
     [[1], 1]
 )
-testEach<typeof makeRange>(
+testEach(
     'makeRange',
     makeRange,
 
@@ -151,7 +151,7 @@ testEach<typeof makeRange>(
     [[2, 4, 6, 8, 10], [2, 10], 2],
     [[2, 4, 6, 8], [2, 10], 2, true]
 )
-testEach<typeof merge>(
+testEach(
     'merge',
     merge,
 
@@ -161,7 +161,7 @@ testEach<typeof merge>(
     [[1, 1], [1], [1]],
     [[1, 2, 3, 1, 1, 2, 3], [1, 2, 3, 1], [1, 2, 3]]
 )
-testEach<typeof paginate>(
+testEach(
     'paginate',
     paginate,
 
@@ -251,7 +251,7 @@ testEach<typeof paginate>(
         }
     ]
 )
-testEach<typeof permute>(
+testEach(
     'permute',
     permute,
 
@@ -281,7 +281,7 @@ testEach<typeof permute>(
         ['1', '2', '3']
     ]
 )
-testEach<typeof permuteLength>(
+testEach(
     'permuteLength',
     permuteLength,
 
@@ -313,7 +313,7 @@ testEach<typeof permuteLength>(
         ['1', '2', '3']
     ]
 )
-testEach<typeof sumUpProperty>(
+testEach(
     'sumUpProperty',
     sumUpProperty,
 
@@ -321,7 +321,7 @@ testEach<typeof sumUpProperty>(
     [2, [{a: 2}, {b: 3}], 'a'],
     [0, [{a: 2}, {b: 3}], 'c']
 )
-testEach<typeof removeArrayItem>(
+testEach(
     'removeArrayItem',
     removeArrayItem,
 
@@ -335,7 +335,7 @@ test('arrayRemove([], 2, true) -> throws Exception', () => {
     expect((): Array<number> => removeArrayItem<number>([], 2, true))
         .toThrow(new Error(`Given target doesn't exists in given list.`))
 })
-testEach<typeof sortTopological>(
+testEach(
     'sortTopological',
     sortTopological,
 
@@ -348,7 +348,7 @@ testEach<typeof sortTopological>(
     [['a', 'b', 'c'], {c: 'b', a: [], b: ['a']}],
     [['a', 'b', 'c'], {b: ['a'], a: [], c: ['a', 'b']}]
 )
-testEachSingleParameterAgainstSameExpectation<typeof sortTopological>(
+testEachSingleParameterAgainstSameExpectation(
     'sortTopological',
     sortTopological,
     TEST_THROW_SYMBOL,
@@ -357,7 +357,7 @@ testEachSingleParameterAgainstSameExpectation<typeof sortTopological>(
     {a: 'b', b: 'a'},
     {a: 'b', b: 'c', c: 'a'}
 )
-testEach<typeof unique>(
+testEach(
     'unique',
     unique,
 

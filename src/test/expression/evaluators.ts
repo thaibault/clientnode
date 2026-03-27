@@ -1,8 +1,31 @@
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+'use strict'
+/* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stand under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/
 import {describe, expect, test} from '@jest/globals'
 
+import {Mapping} from '../../'
+
 import evaluate, {
-    evaluateSelectorUntilLastObject, normalizeSelector, SELECTOR_KEY_NAMES
+    evaluateSelector,
+    evaluateSelectorUntilLastObject,
+    normalizeSelector,
+    SELECTOR_KEY_NAMES
 } from '../../expression'
+import {testEach} from '../../test-helper'
 
 describe('Evaluators', () => {
     test('evaluates values', () => {
@@ -46,6 +69,36 @@ describe('Evaluators', () => {
             .toStrictEqual([[0], '1'])
     })
 
+    testEach(
+        'evaluateSelector',
+        evaluateSelector,
+
+        [{}, [], {}],
+        [{}, [''], {}],
+        [{}, '', {}],
+        [1, ['a'], {a: 1}],
+        [null, 'a.a', {a: {a: null}}],
+        [[], 'a.a', {a: {a: []}}],
+        [3, ['a', 'b.c'], {a: {b: {c: 3}}}],
+        [3, ['a', 'b.c[0]'], {a: {b: {c: [3]}}}],
+        [3, ['', 'a', '', 'b.c[0]', '', ''], {a: {b: {c: [3]}}}],
+        [
+            3,
+            (root: unknown): unknown =>
+                (root as {a: {b: {c: Array<number>}}}).a.b.c[1],
+            {a: {b: {c: [1, 3, 2]}}}
+        ],
+        [
+            3,
+            [
+                'a',
+                (root: unknown): number =>
+                    (root as {b: {c: Array<number>}}).b.c[1]
+            ],
+            {a: {b: {c: [1, 3, 2]}}}
+        ]
+    )
+
     test('evaluates selected values', () => {
         expect(evaluate({$select: 'key'}, {key: 5}))
             .toStrictEqual(5)
@@ -54,7 +107,7 @@ describe('Evaluators', () => {
         expect(evaluate({$select: 'a.b.c.d'}, {a: {b: {c: 2}}}))
             .toStrictEqual(undefined)
         expect(evaluate({$select: ''}, {a: 2}))
-            .toStrictEqual(undefined)
+            .toStrictEqual({a: 2})
 
         expect(evaluate({$select: 'a[0]'}, {a: [1, 2]}))
             .toStrictEqual(1)
@@ -75,7 +128,6 @@ describe('Evaluators', () => {
             .toStrictEqual(undefined)
         expect(evaluate({$select: 'a.b b.c'}, {a: {'b b': {c: 1}}}))
             .toStrictEqual(1)
-
         expect(evaluate(
             {$select: ['a', {$select: 'keyB'}]},
             {a: {b: 'dynamically selected'}, keyB: 'b'}
@@ -87,6 +139,7 @@ describe('Evaluators', () => {
                 key: {of: {c: 'c'}}
             })
         ).toStrictEqual('dynamically selected')
+
 
         expect(evaluate({$select: 'a.b.c'}, {a: [{name: 'b', c: 5}]}))
             .toStrictEqual(5)
@@ -631,7 +684,7 @@ describe('Evaluators', () => {
             default: 'fallback value'
         })).toStrictEqual('fallback value')
 
-        expect(evaluate<string, Record<string, never>>({
+        expect(evaluate<string, Mapping<never>>({
             $switch: true,
             caseExpressions: [
                 {$case: 5},
@@ -655,7 +708,7 @@ describe('Evaluators', () => {
             default: 'fallback value'
         })).toStrictEqual('then value')
 
-        expect(evaluate<string, Record<string, never>>({
+        expect(evaluate<string, Mapping<never>>({
             $switch: 5,
             caseExpressions: [{$case: 5, then: 'first case'}, {
                 $case: 5,

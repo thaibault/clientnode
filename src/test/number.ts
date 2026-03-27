@@ -20,7 +20,7 @@ import {testEach} from '../test-helper'
 
 const now = new Date()
 
-testEach<typeof getUTCTimestamp>(
+testEach(
     'getUTCTimestamp',
     getUTCTimestamp,
 
@@ -33,7 +33,7 @@ testEach<typeof getUTCTimestamp>(
     [1000, 1000, true],
     [0, new Date(0), false]
 )
-testEach<typeof isNotANumber>(
+testEach(
     'isNotANumber',
     isNotANumber,
 
@@ -46,7 +46,7 @@ testEach<typeof isNotANumber>(
     [false, true],
     [false, 0]
 )
-testEach<typeof round>(
+testEach(
     'round',
     round,
 
@@ -65,7 +65,7 @@ testEach<typeof round>(
     [700, 650, -2],
     [600, 649, -2]
 )
-testEach<typeof floor>(
+testEach(
     'floor',
     floor,
 
@@ -84,7 +84,7 @@ testEach<typeof floor>(
     [600, 650, -2],
     [600, 649, -2]
 )
-testEach<typeof ceil>(
+testEach(
     'ceil',
     ceil,
 

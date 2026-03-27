@@ -134,7 +134,7 @@ if (TARGET_TECHNOLOGY === 'node') {
             expect(result).toStrictEqual(false)
         }
     })
-    testEachSingleParameterAgainstSameExpectation<typeof isDirectorySync>(
+    testEachSingleParameterAgainstSameExpectation(
         'isDirectorySync',
         isDirectorySync,
         true,
@@ -142,7 +142,7 @@ if (TARGET_TECHNOLOGY === 'node') {
         './',
         '../'
     )
-    testEachSingleParameterAgainstSameExpectation<typeof isDirectorySync>(
+    testEachSingleParameterAgainstSameExpectation(
         'isDirectorySync',
         isDirectorySync,
         false,
@@ -170,14 +170,14 @@ if (TARGET_TECHNOLOGY === 'node') {
             expect(result).toStrictEqual(false)
         }
     })
-    testEachSingleParameterAgainstSameExpectation<typeof isFileSync>(
+    testEachSingleParameterAgainstSameExpectation(
         'isFileSync',
         isFileSync,
         true,
 
         resolve('./src/filesystem.ts')
     )
-    testEachSingleParameterAgainstSameExpectation<typeof isFileSync>(
+    testEachSingleParameterAgainstSameExpectation(
         'isFileSync',
         isFileSync,
         false,
