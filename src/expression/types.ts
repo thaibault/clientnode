@@ -44,19 +44,14 @@ import {Mapping} from '../'
 */
 export type BasicScopeType = Array<unknown> | Mapping<unknown> | unknown
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type KeyPathOf<Type extends BasicScopeType> = string
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type SimpleRecursiveKeyOf<Type extends BasicScopeType> = number | string
-export type RecursiveKeyOf<Type extends BasicScopeType> =
-    (scope: unknown) => unknown | SimpleRecursiveKeyOf<Type>
+export type KeyPathOf = string
+export type SimpleRecursiveKeyOf = number | string
+export type RecursiveKeyOf =
+    ((scope: unknown) => unknown) | SimpleRecursiveKeyOf
 
 export type SelectorItem<Type extends BasicScopeType> =
-    string |
-    number |
-    ((scope: unknown) => unknown) |
-    Expression<RecursiveKeyOf<Type> | number, Type> |
-    RecursiveKeyOf<Type>
+    RecursiveKeyOf |
+    Expression<RecursiveKeyOf | number, Type>
 export type NormalizedSelector<Type extends BasicScopeType> =
     Array<SelectorItem<Type>>
 export type Selector<Type extends BasicScopeType> =

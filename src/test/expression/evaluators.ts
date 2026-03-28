@@ -17,8 +17,6 @@
 */
 import {describe, expect, test} from '@jest/globals'
 
-import {Mapping} from '../../'
-
 import evaluate, {
     evaluateSelector,
     evaluateSelectorUntilLastObject,
@@ -28,46 +26,47 @@ import evaluate, {
 import {testEach} from '../../test-helper'
 
 describe('Evaluators', () => {
-    test('evaluates values', () => {
-        expect(evaluate(false)).toStrictEqual(false)
-        expect(evaluate(true)).toStrictEqual(true)
+    testEach(
+        'evaluates values',
+        evaluate,
 
-        expect(evaluate(0)).toStrictEqual(0)
-        expect(evaluate(5)).toStrictEqual(5)
-        expect(evaluate(Infinity)).toStrictEqual(Infinity)
+        [false, false],
+        [true, true],
+        [0, 0],
+        [5, 5],
+        [Infinity, Infinity],
+        [null, null],
+        ['', ''],
+        ['value', 'value'],
+        [[], []],
+        [[1], [1]],
+        [[1, 2], [1, 2]],
+        [[{}, 1, 2], [{}, 1, 2]],
+        [[undefined, 'Hello', {$if: {}}], [undefined, 'Hello', {$if: {}}]],
+        [{}, {}],
+        [{a: 2}, {a: 2}]
+    )
 
-        expect(evaluate(null)).toStrictEqual(null)
+    testEach(
+        'normalizeSelector',
+        normalizeSelector,
 
-        expect(evaluate('')).toStrictEqual('')
-        expect(evaluate('value')).toStrictEqual('value')
+        [[], ''],
+        [[], '', {}],
+        [['key'], 'key', {}],
+        [['a', 'b'], 'a.b', {}],
+        [['a', 'b', '1'], 'a.b[1]']
+    )
 
-        expect(evaluate([])).toStrictEqual([])
-        expect(evaluate([1])).toStrictEqual([1])
-        expect(evaluate([1, 2])).toStrictEqual([1, 2])
-        expect(evaluate([{}, 1, 2])).toStrictEqual([{}, 1, 2])
-        expect(evaluate([undefined, 'Hello', {$if: {}}]))
-            .toStrictEqual([undefined, 'Hello', {$if: {}}])
+    testEach(
+        'evaluateSelectorUntilLastObject',
+        evaluateSelectorUntilLastObject,
 
-        expect(evaluate({})).toStrictEqual({})
-        expect(evaluate({a: 2})).toStrictEqual({a: 2})
-    })
-
-    test('normalize selectors', () => {
-        expect(normalizeSelector('')).toStrictEqual([])
-        expect(normalizeSelector('', {})).toStrictEqual([])
-        expect(normalizeSelector('key', {})).toStrictEqual(['key'])
-        expect(normalizeSelector('a.b', {})).toStrictEqual(['a', 'b'])
-        expect(normalizeSelector('a.b[1]')).toStrictEqual(['a', 'b', '1'])
-    })
-
-    test('evaluate selector until last object', () => {
-        expect(evaluateSelectorUntilLastObject('')).toStrictEqual([{}, ''])
-        expect(evaluateSelectorUntilLastObject('', {})).toStrictEqual([{}, ''])
-        expect(evaluateSelectorUntilLastObject('1', [0]))
-            .toStrictEqual([[0], '1'])
-        expect(evaluateSelectorUntilLastObject('a.1', {a: [0]}))
-            .toStrictEqual([[0], '1'])
-    })
+        [[{}, ''], ''],
+        [[{}, ''], '', {}],
+        [[[0], '1'], '1', [0]],
+        [[[0], '1'], 'a.1', {a: [0]}]
+    )
 
     testEach(
         'evaluateSelector',
@@ -99,91 +98,73 @@ describe('Evaluators', () => {
         ]
     )
 
-    test('evaluates selected values', () => {
-        expect(evaluate({$select: 'key'}, {key: 5}))
-            .toStrictEqual(5)
-        expect(evaluate({$select: 'a.b.c'}, {a: {b: {c: 2}}}))
-            .toStrictEqual(2)
-        expect(evaluate({$select: 'a.b.c.d'}, {a: {b: {c: 2}}}))
-            .toStrictEqual(undefined)
-        expect(evaluate({$select: ''}, {a: 2}))
-            .toStrictEqual({a: 2})
+    testEach(
+        'evaluateSelectorExpression',
+        evaluate,
 
-        expect(evaluate({$select: 'a[0]'}, {a: [1, 2]}))
-            .toStrictEqual(1)
-        expect(evaluate({$select: 'a[0][1]'}, {a: [[1, 2]]}))
-            .toStrictEqual(2)
-        expect(evaluate(
+        [5, {$select: 'key'}, {key: 5}],
+        [2, {$select: 'a.b.c'}, {a: {b: {c: 2}}}],
+        [undefined, {$select: 'a.b.c.d'}, {a: {b: {c: 2}}}],
+        [{a: 2}, {$select: ''}, {a: 2}],
+        [1, {$select: 'a[0]'}, {a: [1, 2]}],
+        [2, {$select: 'a[0][1]'}, {a: [[1, 2]]}],
+        [
+            'deep',
             {$select: 'a[0][1][0].b[0][1]'}, {a: [[0, [{b: [[1, 'deep']]}]]]}
-        )).toStrictEqual('deep')
-        expect(evaluate({$select: 'a[1]'}, {a: [1, 2]}))
-            .toStrictEqual(2)
-        expect(evaluate({$select: 'a[2]'}, {a: [1, 2]}))
-            .toStrictEqual(undefined)
-        expect(evaluate({$select: 'a.b.c[1]'}, {a: {b: {c: [1, 2]}}}))
-            .toStrictEqual(2)
-        expect(evaluate({$select: 'a.b.c.1'}, {a: {b: {c: [1, 2]}}}))
-            .toStrictEqual(2)
-        expect(evaluate({$select: 'a.b.c.1'}, {a: {b: {}}}))
-            .toStrictEqual(undefined)
-        expect(evaluate({$select: 'a.b b.c'}, {a: {'b b': {c: 1}}}))
-            .toStrictEqual(1)
-        expect(evaluate(
+        ],
+        [2, {$select: 'a[1]'}, {a: [1, 2]}],
+        [undefined, {$select: 'a[2]'}, {a: [1, 2]}],
+        [2, {$select: 'a.b.c[1]'}, {a: {b: {c: [1, 2]}}}],
+        [2, {$select: 'a.b.c.1'}, {a: {b: {c: [1, 2]}}}],
+        [undefined, {$select: 'a.b.c.1'}, {a: {b: {}}}],
+        [1, {$select: 'a.b b.c'}, {a: {'b b': {c: 1}}}],
+        [
+            'dynamically selected',
             {$select: ['a', {$select: 'keyB'}]},
             {a: {b: 'dynamically selected'}, keyB: 'b'}
-        )).toStrictEqual('dynamically selected')
-        expect(evaluate(
+        ],
+        [
+            'dynamically selected',
             {$select: ['a', 'b', {$select: 'key.of.c'}]},
             {
                 a: {b: {c: 'dynamically selected'}},
                 key: {of: {c: 'c'}}
-            })
-        ).toStrictEqual('dynamically selected')
+            }
+        ],
+        [5, {$select: 'a.b.c'}, {a: [{name: 'b', c: 5}]}],
+        [4, {$select: 'a.b.c.d'}, {a: [{name: 'b', c: {d: 4}}]}],
+        [5, {$select: 'a.b'}, [{name: 'a', b: 5}]],
+        [4, {$select: 'a.b.c.d'}, [{name: 'a', b: [{name: 'c', d: 4}]}]]
+    )
 
+    SELECTOR_KEY_NAMES.add('headline')
+    expect(evaluate(
+        {$select: 'a.b.c.d'}, [{headline: 'a', b: [{name: 'c', d: 4}]}]
+    )).toStrictEqual(4)
+    SELECTOR_KEY_NAMES.delete('headline')
 
-        expect(evaluate({$select: 'a.b.c'}, {a: [{name: 'b', c: 5}]}))
-            .toStrictEqual(5)
-        expect(evaluate({$select: 'a.b.c.d'}, {a: [{name: 'b', c: {d: 4}}]}))
-            .toStrictEqual(4)
+    const nestedObject = {name: 'From', value: 'target'}
+    expect(evaluate(
+        {$select: 'MappingGroup.children.Mapping.children.From'},
 
-        expect(evaluate({$select: 'a.b'}, [{name: 'a', b: 5}]))
-            .toStrictEqual(5)
-
-        SELECTOR_KEY_NAMES.add('headline')
-
-        expect(evaluate(
-            {$select: 'a.b.c.d'}, [{headline: 'a', b: [{name: 'c', d: 4}]}]
-        )).toStrictEqual(4)
-
-        SELECTOR_KEY_NAMES.delete('headline')
-
-        expect(evaluate(
-            {$select: 'a.b.c.d'}, [{name: 'a', b: [{name: 'c', d: 4}]}]
-        )).toStrictEqual(4)
-
-        const nestedObject = {name: 'From', value: 'target'}
-        expect(evaluate(
-            {$select: 'MappingGroup.children.Mapping.children.From'},
-
-            [
-                {name: 'BasicInformationGroup'},
-                {name: 'ConfigurationGroup'},
-                {
-                    name: 'MappingGroup',
-                    children: [
-                        {
-                            name: 'Mapping',
-                            children: [{name: 'From', value: 'target'}]
-                        }
-                    ]
-                },
-                {
-                    name: 'MappingGroup',
-                    children: [{name: 'Mapping', children: [nestedObject]}]
-                }
-            ]
-        )).toStrictEqual(nestedObject)
-    })
+        [
+            {name: 'BasicInformationGroup'},
+            {name: 'ConfigurationGroup'},
+            {
+                name: 'MappingGroup',
+                children: [
+                    {
+                        name: 'Mapping',
+                        children: [{name: 'From', value: 'target'}]
+                    }
+                ]
+            },
+            {
+                name: 'MappingGroup',
+                children: [{name: 'Mapping', children: [nestedObject]}]
+            }
+        ]
+    )).toStrictEqual(nestedObject)
 
     describe('evaluateArrayContains', () => {
         test(
@@ -295,308 +276,190 @@ describe('Evaluators', () => {
         )
     })
 
-    test('evaluates operations', () => {
-        expect(evaluate({operand: false, $operator: '!'})).toStrictEqual(true)
-        expect(evaluate({operand: true, $operator: '!'})).toStrictEqual(false)
-        expect(evaluate({operand: true, $operator: '!!'})).toStrictEqual(true)
-        expect(evaluate({operand: 0, $operator: '!'})).toStrictEqual(true)
-        expect(evaluate({operand: 1, $operator: '!'})).toStrictEqual(false)
-        expect(evaluate({operand: 0, $operator: '!!'})).toStrictEqual(false)
-        expect(evaluate({operand: 1, $operator: '!!'})).toStrictEqual(true)
+    testEach(
+        'evaluate operator expressions',
+        evaluate,
+        [true, {operand: false, $operator: '!'}],
+        [false, {operand: true, $operator: '!'}],
+        [true, {operand: true, $operator: '!!'}],
+        [true, {operand: 0, $operator: '!'}],
+        [false, {operand: 1, $operator: '!'}],
+        [false, {operand: 0, $operator: '!!'}],
+        [true, {operand: 1, $operator: '!!'}],
 
-        expect(evaluate({
-            operand1: 0,
-            $operator: '+',
-            operand2: 0
-        })).toStrictEqual(0)
-        expect(evaluate({
-            operand1: 0,
-            $operator: '+',
-            operand2: 1
-        })).toStrictEqual(1)
-        expect(evaluate({
-            operand1: 1,
-            $operator: '+',
-            operand2: 1
-        })).toStrictEqual(2)
+        [0, {operand1: 0, $operator: '+', operand2: 0}],
+        [1, {operand1: 0, $operator: '+', operand2: 1}],
+        [2, {operand1: 1, $operator: '+', operand2: 1}],
 
-        expect(evaluate({
-            operand1: 0,
-            $operator: '-',
-            operand2: 0
-        })).toStrictEqual(0)
-        expect(evaluate({
-            operand1: 0,
-            $operator: '-',
-            operand2: 1
-        })).toStrictEqual(-1)
-        expect(evaluate({
-            operand1: 2,
-            $operator: '-',
-            operand2: 1
-        })).toStrictEqual(1)
+        [0, {operand1: 0, $operator: '-', operand2: 0}],
+        [-1, {operand1: 0, $operator: '-', operand2: 1}],
+        [1, {operand1: 2, $operator: '-', operand2: 1}],
 
-        expect(evaluate({
-            operand1: 0,
-            $operator: '*',
-            operand2: 0
-        })).toStrictEqual(0)
-        expect(evaluate({
-            operand1: 0,
-            $operator: '*',
-            operand2: 1
-        })).toStrictEqual(0)
-        expect(evaluate({
-            operand1: 2,
-            $operator: '*',
-            operand2: 3
-        })).toStrictEqual(6)
+        [0, {operand1: 0, $operator: '*', operand2: 0}],
+        [0, {operand1: 0, $operator: '*', operand2: 1}],
+        [6, {operand1: 2, $operator: '*', operand2: 3}],
 
-        expect(evaluate({
-            operand1: 0,
-            $operator: '/',
-            operand2: 1
-        })).toStrictEqual(0)
-        expect(evaluate({
-            operand1: 1,
-            $operator: '/',
-            operand2: 1
-        })).toStrictEqual(1)
-        expect(evaluate({
-            operand1: 4,
-            $operator: '/',
-            operand2: 2
-        })).toStrictEqual(2)
+        [0, {operand1: 0, $operator: '/', operand2: 1}],
+        [1, {operand1: 1, $operator: '/', operand2: 1}],
+        [2, {operand1: 4, $operator: '/', operand2: 2}],
 
-        expect(evaluate({
-            operand1: 0,
-            $operator: '**',
-            operand2: 1
-        })).toStrictEqual(0)
-        expect(evaluate({
-            operand1: 1,
-            $operator: '**',
-            operand2: 1
-        })).toStrictEqual(1)
-        expect(evaluate({
-            operand1: 2,
-            $operator: '**',
-            operand2: 3
-        })).toStrictEqual(8)
-    })
+        [0, {operand1: 0, $operator: '**', operand2: 1}],
+        [1, {operand1: 1, $operator: '**', operand2: 1}],
+        [8, {operand1: 2, $operator: '**', operand2: 3}]
+    )
 
-    test('evaluates conditions', () => {
-        expect(evaluate({
-            value1: 1,
-            $comparator: '==',
-            value2: 1
-        })).toStrictEqual(true)
-        expect(evaluate({
-            value1: 1,
-            $comparator: '!=',
-            value2: 1
-        })).toStrictEqual(false)
+    testEach(
+        'evaluate condition expressions',
+        evaluate,
 
-        expect(evaluate({
-            value1: true,
-            $comparator: '==',
-            value2: true
-        })).toStrictEqual(true)
-
-        expect(evaluate({
+        [true, {value1: 1, $comparator: '==', value2: 1}],
+        [false, {value1: 1, $comparator: '!=', value2: 1}],
+        [true, {value1: true, $comparator: '==', value2: true}],
+        [true, {
             value1: true,
             $comparator: '==',
             value2: {operand: false, $operator: '!'}
-        }))
-            .toStrictEqual(true)
+        }],
 
-        expect(evaluate({
-            value1: {},
-            $comparator: '==',
-            value2: {}
-        })).toStrictEqual(true)
-        expect(evaluate({
-            value1: [],
-            $comparator: '==',
-            value2: []
-        })).toStrictEqual(true)
+        [true, {value1: {}, $comparator: '==', value2: {}}],
+        [true, {value1: [], $comparator: '==', value2: []}],
 
-        expect(evaluate({
-            value1: {a: 1},
-            $comparator: '==',
-            value2: {a: 1, b: 1}
-        })).toStrictEqual(false)
-        expect(evaluate({
-            value1: {a: 1, b: 1},
-            $comparator: '==',
-            value2: {a: 1}
-        })).toStrictEqual(false)
-        expect(evaluate({
-            value1: {a: 1},
-            $comparator: '==',
-            value2: {a: 1}
-        })).toStrictEqual(true)
+        [false, {value1: {a: 1}, $comparator: '==', value2: {a: 1, b: 1}}],
+        [false, {value1: {a: 1, b: 1}, $comparator: '==', value2: {a: 1}}],
+        [true, {value1: {a: 1}, $comparator: '==', value2: {a: 1}}],
 
-        expect(evaluate({
-            value1: [1],
-            $comparator: '==',
-            value2: []
-        })).toStrictEqual(false)
-        expect(evaluate({
-            value1: [1],
-            $comparator: '==',
-            value2: [1]
-        })).toStrictEqual(true)
+        [false, {value1: [1], $comparator: '==', value2: []}],
+        [true, {value1: [1], $comparator: '==', value2: [1]}],
 
-        expect(evaluate({
-            value1: new Map([['a', 1]]),
-            $comparator: '==',
-            value2: new Map([['a', 1], ['b', 1]])
-        })).toStrictEqual(false)
-        expect(evaluate({
-            value1: new Map([['a', 1], ['b', 1]]),
-            $comparator: '==',
-            value2: new Map([['a', 1]])
-        })).toStrictEqual(false)
-        expect(evaluate({
-            value1: new Map([['a', 1]]),
-            $comparator: '==',
-            value2: new Map([['a', 1]])
-        })).toStrictEqual(true)
-
-        expect(evaluate({
-            value1: new Set(['a']),
-            $comparator: '==',
-            value2: new Set(['a', 'b'])
-        }))
-            .toStrictEqual(false)
-        expect(evaluate({
-            value1: new Set(['a', 'b']),
-            $comparator: '==',
-            value2: new Set(['a'])
-        }))
-            .toStrictEqual(false)
-        expect(evaluate({
-            value1: new Set(['a']),
-            $comparator: '==',
-            value2: new Set(['a'])
-        }))
-            .toStrictEqual(true)
-    })
-
-    test('evaluates if expressions', () => {
-        expect(evaluate({
-            $if: {value1: 5, $comparator: '==', value2: 5},
-            then: true
-        })).toStrictEqual(true)
-        expect(evaluate({
-            $if: {
-                value1: 5,
-                $comparator: '==',
-                value2: 5
-            }
-        })).toStrictEqual(undefined)
-        expect(evaluate({
-            $if: {value1: 0, $comparator: '==', value2: 0},
-            then: true
-        })).toStrictEqual(true)
-        expect(evaluate({
-            $if: {
-                value1: false,
-                $comparator: '==',
-                value2: false
-            },
-            then: true
-        })).toStrictEqual(true)
-        expect(evaluate({
-            $if: {value1: true, $comparator: '==', value2: true},
-            then: true
-        })).toStrictEqual(true)
-
-        expect(evaluate({
-            $if: {value1: 5, $comparator: '==', value2: 2},
-            else: false
-        })).toStrictEqual(false)
-        expect(evaluate({
-            $if: {value1: 0, $comparator: '==', value2: 2},
-            else: false
-        })).toStrictEqual(false)
-        expect(evaluate({
-            $if: {value1: false, $comparator: '==', value2: true},
-            else: false
-        })).toStrictEqual(false)
-        expect(evaluate({
-            $if: {value1: false, $comparator: '==', value2: true},
-            else: false
-        })).toStrictEqual(false)
-
-        expect(evaluate({
-            $if: {value1: 2, $comparator: '!=', value2: 5},
-            then: true
-        })).toStrictEqual(true)
-        expect(evaluate({
-            $if: {value1: 2, $comparator: '!=', value2: 0},
-            then: true
-        })).toStrictEqual(true)
-        expect(evaluate({
-            $if: {
-                value1: false,
-                $comparator: '!=',
-                value2: false
-            },
-            else: false
-        })).toStrictEqual(false)
-        expect(evaluate({
-            $if: {value1: true, $comparator: '!=', value2: true},
-            else: false
-        })).toStrictEqual(false)
-
-        expect(evaluate({
-            $if: {value1: 2, $comparator: '<', value2: 5},
-            then: true
-        })).toStrictEqual(true)
-        expect(evaluate({
-            $if: {value1: 0, $comparator: '<', value2: 0},
-            else: false
-        })).toStrictEqual(false)
-        expect(evaluate({
-            $if: {value1: 2, $comparator: '>', value2: 5},
-            else: false
-        })).toStrictEqual(false)
-        expect(evaluate({
-            $if: {value1: 5, $comparator: '>', value2: 2},
-            then: true
-        })).toStrictEqual(true)
-
-        expect(evaluate({
-            $if: {value1: 2, $comparator: '<=', value2: 5},
-            then: true
-        })).toStrictEqual(true)
-        expect(evaluate({
-            $if: {value1: 0, $comparator: '<=', value2: 0},
-            then: true
-        })).toStrictEqual(true)
-        expect(evaluate({
-            $if: {value1: 2, $comparator: '>=', value2: 5},
-            else: false
-        })).toStrictEqual(false)
-        expect(evaluate({
-            $if: {value1: 5, $comparator: '>=', value2: 2},
-            then: true
-        })).toStrictEqual(true)
-
-        expect(evaluate(
+        [
+            false,
             {
-                $if: {
-                    value1: {$select: 'a'},
-                    $comparator: '==',
-                    value2: 5
-                },
+                value1: new Map([['a', 1]]),
+                $comparator: '==',
+                value2: new Map([['a', 1], ['b', 1]])
+            }
+        ],
+        [
+            false,
+            {
+                value1: new Map([['a', 1], ['b', 1]]),
+                $comparator: '==',
+                value2: new Map([['a', 1]])
+            }
+        ],
+        [
+            true,
+            {
+                value1: new Map([['a', 1]]),
+                $comparator: '==',
+                value2: new Map([['a', 1]])
+            }
+        ],
+
+        [
+            false,
+            {
+                value1: new Set(['a']),
+                $comparator: '==',
+                value2: new Set(['a', 'b'])
+            }
+        ],
+        [
+            false,
+            {
+                value1: new Set(['a', 'b']),
+                $comparator: '==',
+                value2: new Set(['a'])
+            }
+        ],
+        [
+            true,
+            {value1: new Set(['a']), $comparator: '==', value2: new Set(['a'])}
+        ]
+    )
+
+    testEach(
+        'evaluate if expressions',
+        evaluate,
+
+        // == true (then branch)
+        [true, {$if: {value1: 5, $comparator: '==', value2: 5}, then: true}],
+        [undefined, {$if: {value1: 5, $comparator: '==', value2: 5}}],
+        [true, {$if: {value1: 0, $comparator: '==', value2: 0}, then: true}],
+        [
+            true,
+            {
+                $if: {value1: false, $comparator: '==', value2: false},
+                then: true
+            }
+        ],
+        [
+            true,
+            {
+                $if: {value1: true, $comparator: '==', value2: true},
+                then: true
+            }
+        ],
+
+        // == false (else branch)
+        [false, {$if: {value1: 5, $comparator: '==', value2: 2}, else: false}],
+        [false, {$if: {value1: 0, $comparator: '==', value2: 2}, else: false}],
+        [
+            false,
+            {
+                $if: {value1: false, $comparator: '==', value2: true},
+                else: false
+            }
+        ],
+        [
+            false,
+            {
+                $if: {value1: false, $comparator: '==', value2: true},
+                else: false
+            }
+        ],
+
+        // !=
+        [true, {$if: {value1: 2, $comparator: '!=', value2: 5}, then: true}],
+        [true, {$if: {value1: 2, $comparator: '!=', value2: 0}, then: true}],
+        [
+            false,
+            {
+                $if: {value1: false, $comparator: '!=', value2: false},
+                else: false
+            }
+        ],
+        [
+            false,
+            {
+                $if: {value1: true, $comparator: '!=', value2: true},
+                else: false
+            }
+        ],
+
+        // < and >
+        [true, {$if: {value1: 2, $comparator: '<', value2: 5}, then: true}],
+        [false, {$if: {value1: 0, $comparator: '<', value2: 0}, else: false}],
+        [false, {$if: {value1: 2, $comparator: '>', value2: 5}, else: false}],
+        [true, {$if: {value1: 5, $comparator: '>', value2: 2}, then: true}],
+
+        // <= and >=
+        [true, {$if: {value1: 2, $comparator: '<=', value2: 5}, then: true}],
+        [true, {$if: {value1: 0, $comparator: '<=', value2: 0}, then: true}],
+        [false, {$if: {value1: 2, $comparator: '>=', value2: 5}, else: false}],
+        [true, {$if: {value1: 5, $comparator: '>=', value2: 2}, then: true}],
+
+        // with $select
+        [
+            true,
+            {
+                $if: {value1: {$select: 'a'}, $comparator: '==', value2: 5},
                 then: true
             },
             {a: 5}
-        )).toStrictEqual(true)
-        expect(evaluate(
+        ],
+        [
+            true,
             {
                 $if: {
                     value1: {$select: 'a'},
@@ -606,37 +469,39 @@ describe('Evaluators', () => {
                 then: true
             },
             {a: 5}
-        )).toStrictEqual(true)
+        ],
 
-        expect(evaluate(
+        [
+            false,
             {
-                $if: {
-                    value1: {$select: 'a'},
-                    $comparator: '==',
-                    value2: 2
-                }, else: false
+                $if: {value1: {$select: 'a'}, $comparator: '==', value2: 2},
+                else: false
             },
             {a: 5}
-        )).toStrictEqual(false)
-        expect(evaluate(
+        ],
+        [
+            false,
             {
                 $if: {
                     value1: {$select: 'a'},
                     $comparator: '==',
                     value2: {$select: 'b'}
-                }, else: false
+                },
+                else: false
             },
             {a: 5}
-        )).toStrictEqual(false)
+        ],
 
-        expect(evaluate(
+        [
+            'then value',
             {
                 $if: {value1: {$select: 'a'}, $comparator: '==', value2: 5},
                 then: 'then value'
             },
             {a: 5}
-        )).toStrictEqual('then value')
-        expect(evaluate(
+        ],
+        [
+            5,
             {
                 $if: {
                     value1: {$select: 'a'},
@@ -646,113 +511,115 @@ describe('Evaluators', () => {
                 then: {$select: 'a'}
             },
             {a: 5}
-        )).toStrictEqual(5)
-    })
+        ]
+    )
 
-    test('evaluates switch case default expressions', () => {
-        expect(evaluate(
+    testEach(
+        'evaluate switch case default expressions',
+        evaluate,
+
+        [
+            'then value',
             {
                 $switch: {$select: 'a'},
-                caseExpressions: [
-                    {
-                        $case: 5,
-                        then: 'then value'
-                    }
-                ]
+                caseExpressions: [{$case: 5, then: 'then value'}]
             },
             {a: 5}
-        )).toStrictEqual('then value')
+        ],
+        [true, {$switch: 5, caseExpressions: [{$case: 5, then: true}]}],
+        [undefined, {$switch: 2, caseExpressions: [{$case: 5, then: true}]}],
+        [false, {$switch: 2, caseExpressions: [{$case: 5}], default: false}],
+        [
+            'fallback value',
+            {
+                $switch: 2, caseExpressions: [{$case: 5}],
+                default: 'fallback value'
+            }
+        ],
+        [
+            'second case',
+            {
+                $switch: true,
+                caseExpressions: [
+                    {$case: 5},
+                    {
+                        $case: {value1: 2, $comparator: '<', value2: 5},
+                        then: 'second case'
+                    }
+                ],
+                default: 'fallback value'
+            }
+        ],
+        [
+            'then value',
+            {
+                $switch: true,
+                caseExpressions: [
+                    {$case: 5},
+                    {
+                        $case: {value1: 2, $comparator: '<', value2: 5},
+                        then: 'then value'
+                    }
+                ],
+                default: 'fallback value'
+            }
+        ],
+        [
+            'first case',
+            {
+                $switch: 5,
+                caseExpressions: [
+                    {$case: 5, then: 'first case'},
+                    {$case: 5, then: 'second case'}
+                ],
+                default: 'fallback value'
+            }
+        ],
+        [
+            'then value',
+            {
+                $switch: true,
+                caseExpressions: [
+                    {$case: {value1: 2, $comparator: '>', value2: 5}},
+                    {$case: {value1: 2, $comparator: '==', value2: 5}},
+                    {$case: {value1: 1, $comparator: '!=', value2: 1}},
+                    {
+                        $case: {value1: true, $comparator: '!=', value2: false},
+                        then: 'then value'
+                    }
+                ],
+                default: 'fallback value'
+            }
+        ],
+        [
+            'fallback value',
+            {
+                $switch: true,
+                caseExpressions: [
+                    {$case: {value1: 2, $comparator: '>', value2: 5}},
+                    {
+                        $case: {value1: 2, $comparator: '==', value2: 5},
+                        then: 'then value'
+                    },
+                    {$case: {value1: 1, $comparator: '!=', value2: 1}},
+                    {$case: {value1: true, $comparator: '==', value2: false}}
+                ],
+                default: 'fallback value'
+            }
+        ]
+    )
 
-        expect(evaluate({
-            $switch: 5, caseExpressions: [{$case: 5, then: true}]
-        })).toStrictEqual(true)
+    testEach(
+        'evaluate and expressions',
+        evaluate,
 
-        expect(evaluate({
-            $switch: 2,
-            caseExpressions: [{$case: 5, then: true}]
-        })).toStrictEqual(undefined)
-
-        expect(evaluate({
-            $switch: 2,
-            caseExpressions: [{$case: 5}],
-            default: false
-        })).toStrictEqual(false)
-
-        expect(evaluate({
-            $switch: 2,
-            caseExpressions: [{$case: 5}],
-            default: 'fallback value'
-        })).toStrictEqual('fallback value')
-
-        expect(evaluate<string, Mapping<never>>({
-            $switch: true,
-            caseExpressions: [
-                {$case: 5},
-                {
-                    $case: {value1: 2, $comparator: '<', value2: 5},
-                    then: 'second case'
-                }
-            ],
-            default: 'fallback value'
-        })).toStrictEqual('second case')
-
-        expect(evaluate({
-            $switch: true,
-            caseExpressions: [
-                {$case: 5},
-                {
-                    $case: {value1: 2, $comparator: '<', value2: 5},
-                    then: 'then value'
-                }
-            ],
-            default: 'fallback value'
-        })).toStrictEqual('then value')
-
-        expect(evaluate<string, Mapping<never>>({
-            $switch: 5,
-            caseExpressions: [{$case: 5, then: 'first case'}, {
-                $case: 5,
-                then: 'second case'
-            }],
-            default: 'fallback value'
-        })).toStrictEqual('first case')
-
-        expect(evaluate({
-            $switch: true,
-            caseExpressions: [
-                {$case: {value1: 2, $comparator: '>', value2: 5}},
-                {$case: {value1: 2, $comparator: '==', value2: 5}},
-                {$case: {value1: 1, $comparator: '!=', value2: 1}},
-                {
-                    $case: {value1: true, $comparator: '!=', value2: false},
-                    then: 'then value'
-                }
-            ],
-            default: 'fallback value'
-        })).toStrictEqual('then value')
-
-        expect(evaluate({
-            $switch: true,
-            caseExpressions: [
-                {$case: {value1: 2, $comparator: '>', value2: 5}},
-                {
-                    $case: {value1: 2, $comparator: '==', value2: 5},
-                    then: 'then value'
-                },
-                {$case: {value1: 1, $comparator: '!=', value2: 1}},
-                {$case: {value1: true, $comparator: '==', value2: false}}
-            ],
-            default: 'fallback value'
-        })).toStrictEqual('fallback value')
-    })
-
-    test('evaluates and expressions', () => {
-        expect(evaluate(
+        [
+            true,
             {$and: [{value1: {$select: 'a'}, $comparator: '==', value2: 5}]},
             {a: 5}
-        )).toStrictEqual(true)
-
-        expect(evaluate(
+        ],
+        [
+            true,
             {
                 $and: [
                     {value1: {$select: 'a'}, $comparator: '==', value2: 5},
@@ -760,9 +627,9 @@ describe('Evaluators', () => {
                 ]
             },
             {a: 5}
-        )).toStrictEqual(true)
-
-        expect(evaluate(
+        ],
+        [
+            false,
             {
                 $and: [
                     {value1: {$select: 'a'}, $comparator: '==', value2: 5},
@@ -770,9 +637,9 @@ describe('Evaluators', () => {
                 ]
             },
             {a: 5}
-        )).toStrictEqual(false)
-
-        expect(evaluate(
+        ],
+        [
+            false,
             {
                 $and: [
                     {value1: {$select: 'a'}, $comparator: '==', value2: 5},
@@ -780,9 +647,9 @@ describe('Evaluators', () => {
                 ]
             },
             {a: 5}
-        )).toStrictEqual(false)
-
-        expect(evaluate(
+        ],
+        [
+            5,
             {
                 $if: {
                     $and: [
@@ -793,16 +660,20 @@ describe('Evaluators', () => {
                 then: 5
             },
             {a: 5}
-        )).toStrictEqual(5)
-    })
+        ]
+    )
 
-    test('evaluates or expressions', () => {
-        expect(evaluate(
+    testEach(
+        'evaluate or expressions',
+        evaluate,
+
+        [
+            true,
             {$or: [{value1: {$select: 'a'}, $comparator: '==', value2: 5}]},
             {a: 5}
-        )).toStrictEqual(true)
-
-        expect(evaluate(
+        ],
+        [
+            true,
             {
                 $or: [
                     {value1: {$select: 'a'}, $comparator: '==', value2: 5},
@@ -810,9 +681,9 @@ describe('Evaluators', () => {
                 ]
             },
             {a: 5}
-        )).toStrictEqual(true)
-
-        expect(evaluate(
+        ],
+        [
+            true,
             {
                 $or: [
                     {value1: {$select: 'a'}, $comparator: '==', value2: 5},
@@ -820,9 +691,9 @@ describe('Evaluators', () => {
                 ]
             },
             {a: 5}
-        )).toStrictEqual(true)
-
-        expect(evaluate(
+        ],
+        [
+            false,
             {
                 $or: [
                     {value1: {$select: 'a'}, $comparator: '!=', value2: 5},
@@ -830,9 +701,9 @@ describe('Evaluators', () => {
                 ]
             },
             {a: 5}
-        )).toStrictEqual(false)
-
-        expect(evaluate(
+        ],
+        [
+            5,
             {
                 $if: {
                     $or: [
@@ -843,37 +714,40 @@ describe('Evaluators', () => {
                 then: 5
             },
             {a: 5}
-        )).toStrictEqual(5)
-    })
+        ]
+    )
 
-    test('evaluates concat expressions', () => {
-        expect(evaluate({$concat: []})).toStrictEqual('')
-        expect(evaluate({$concat: [[]]})).toStrictEqual([])
+    testEach(
+        'evaluate concat expressions',
+        evaluate,
 
-        expect(evaluate({$concat: ['a']})).toStrictEqual('a')
-        expect(evaluate({$concat: ['a', 'b']})).toStrictEqual('ab')
-        expect(evaluate({$concat: ['a', 'b', 'c']})).toStrictEqual('abc')
+        ['', {$concat: []}],
+        [[], {$concat: [[]]}],
+        ['a', {$concat: ['a']}],
+        ['ab', {$concat: ['a', 'b']}],
+        ['abc', {$concat: ['a', 'b', 'c']}],
+        ['1', {$concat: [1]}],
+        ['ab3', {$concat: ['a', 'b', 3]}],
+        ['1b3', {$concat: [1, 'b', 3]}]
+    )
 
-        expect(evaluate({$concat: [1]})).toStrictEqual('1')
-        expect(evaluate({$concat: ['a', 'b', 3]})).toStrictEqual('ab3')
-        expect(evaluate({$concat: [1, 'b', 3]})).toStrictEqual('1b3')
-    })
+    testEach(
+        'evaluate mapping expressions',
+        evaluate,
 
-    test('evaluates mapping expressions', () => {
-        expect(evaluate({$mapping: {}, data: []})).toStrictEqual([])
-        expect(evaluate({$mapping: {source: 'target'}, data: []}))
-            .toStrictEqual([])
-        expect(evaluate(
-            {$mapping: {noExisting: 'target'}, data: [{key: 'value'}]}
-        )).toStrictEqual([{}])
-
-        expect(evaluate(
+        [[], {$mapping: {}, data: []}],
+        [[], {$mapping: {source: 'target'}, data: []}],
+        [[{}], {$mapping: {noExisting: 'target'}, data: [{key: 'value'}]}],
+        [
+            [{target: 'value'}],
             {$mapping: {source: 'target'}, data: [{source: 'value'}]}
-        )).toStrictEqual([{target: 'value'}])
-        expect(evaluate(
+        ],
+        [
+            [{A: 'a', B: 'b'}],
             {$mapping: {a: 'A', b: 'B'}, data: [{a: 'a', b: 'b', c: 'c'}]}
-        )).toStrictEqual([{A: 'a', B: 'b'}])
-        expect(evaluate(
+        ],
+        [
+            [{A: 'a', B: 'b'}, {A: 'a', B: 'b'}, {A: 'a', B: 'b'}],
             {
                 $mapping: {a: 'A', b: 'B'},
                 data: [
@@ -881,14 +755,10 @@ describe('Evaluators', () => {
                     {a: 'a', b: 'b', c: 'c$'},
                     {a: 'a', b: 'b', c: 'c'}
                 ]
-            })
-        ).toStrictEqual([
-            {A: 'a', B: 'b'},
-            {A: 'a', B: 'b'},
-            {A: 'a', B: 'b'}
-        ])
-
-        expect(evaluate(
+            }
+        ],
+        [
+            [{ID: 'a', B: 'b'}, {ID: 'b', B: 'b'}, {ID: 'c', B: 'b'}],
             {
                 $mapping: {$key: 'ID', b: 'B'},
                 data: {
@@ -897,12 +767,8 @@ describe('Evaluators', () => {
                     c: {b: 'b', c: 'c'}
                 }
             }
-        )).toStrictEqual([
-            {ID: 'a', B: 'b'},
-            {ID: 'b', B: 'b'},
-            {ID: 'c', B: 'b'}
-        ])
-    })
+        ]
+    )
 
     test(
         `

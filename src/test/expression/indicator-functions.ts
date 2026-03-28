@@ -15,31 +15,33 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {describe, expect, test} from '@jest/globals'
+import {describe} from '@jest/globals'
 
 import {isValue} from '../../expression'
+import {testEach} from '../../test-helper'
 
 describe('indicator-functions', () => {
-    test('isValue', () => {
-        expect(isValue(5)).toStrictEqual(true)
-        expect(isValue({})).toStrictEqual(true)
-        expect(isValue({$value: 2})).toStrictEqual(true)
-        expect(isValue({$operator: {}})).toStrictEqual(true)
+    testEach(
+        'isValue',
+        isValue,
 
-        expect(isValue({$operator: {}, operand: 2}))
-            .toStrictEqual(false)
-        expect(isValue({$select: ''})).toStrictEqual(false)
-        expect(isValue({$switch: []})).toStrictEqual(false)
-        expect(isValue({$operator: {}})).toStrictEqual(true)
+        [true, 5],
+        [true, {}],
+        [true, {$value: 2}],
+        [true, {$operator: {}}],
 
-        expect(isValue({$mapping: {}})).toStrictEqual(true)
-        expect(isValue({$mapping: {}, data: []})).toStrictEqual(false)
+        [false, {$operator: {}, operand: 2}],
+        [false, {$select: ''}],
+        [false, {$switch: []}],
+        [true, {$operator: {}}],
 
-        expect(isValue({$arrayContains: {key: 'foo'}})).toStrictEqual(false)
-        expect(isValue({$arrayContains: {key: 'foo', value: 'bar'}}))
-            .toStrictEqual(false)
-        expect(isValue({
+        [true, {$mapping: {}}],
+        [false, {$mapping: {}, data: []}],
+
+        [false, {$arrayContains: {key: 'foo'}}],
+        [false, {$arrayContains: {key: 'foo', value: 'bar'}}],
+        [false, {
             $arrayContains: {key: 'foo', value: 'bar', target: {$select: ''}}
-        })).toStrictEqual(false)
-    })
+        }]
+    )
 })
