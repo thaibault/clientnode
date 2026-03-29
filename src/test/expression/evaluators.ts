@@ -66,7 +66,10 @@ describe('Evaluators', () => {
         [[{}, ''], '', {}],
         [[[0], '1'], '1', [0]],
         [[[0], '1'], 'a.1', {a: [0]}],
-        [[{a: 'A', b: 'B'}, 'b'], 'sub.b', {sub: {a: 'A', b: 'B'}}]
+        [[{a: 'A', b: 'B'}, 'b'], 'sub.b', {sub: {a: 'A', b: 'B'}}],
+        [[{}, 'notExisting'], 'notExisting', {}],
+        [[{}, 'sub'], 'sub.notExisting', {}],
+        [[{}, 'notExisting'], 'sub.notExisting', {}, true]
     )
 
     testEach(
