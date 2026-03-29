@@ -163,11 +163,11 @@ export const evaluateSelectorUntilLastObject = <
     for (const keyOrIndex of path) {
         const isLastPart = index === path.length - 1
 
-        if (isObject(result))
+        if (isObject(result)) {
             if (
                 Array.isArray(result) &&
                 (typeof keyOrIndex === 'string' &&
-                isNaN(parseInt(keyOrIndex)))
+                    isNaN(parseInt(keyOrIndex)))
             ) {
                 const item = selectArrayItem(result, keyOrIndex)
                 if (item !== NO_ITEM_FOUND_SYMBOL) {
@@ -191,14 +191,12 @@ export const evaluateSelectorUntilLastObject = <
                 result, keyOrIndex as unknown as string
             ))
                 result = result[keyOrIndex as keyof ScopeType] as ScopeType
-            else
-                return [
-                    result, keyOrIndex as unknown as RecursiveKeyOf
-                ]
-        else if (isLastPart)
+            else if (!skipMissingLevel)
+                return [result, keyOrIndex as RecursiveKeyOf]
+        } else if (isLastPart)
             return [result, keyOrIndex as RecursiveKeyOf]
         else if (!skipMissingLevel)
-            return [undefined as ScopeType, keyOrIndex as RecursiveKeyOf]
+            return [result, keyOrIndex as RecursiveKeyOf]
 
         index += 1
     }
