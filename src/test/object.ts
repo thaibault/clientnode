@@ -1127,6 +1127,14 @@ test.each([
         {a: [2, 1, 2]},
         {a: {__1__: 's'}}
     ],
+    // A nested object in an array should be extended.
+    [
+        {a: [1, {a: 2, b: 3}, 2]},
+        {},
+        {a: [1, {a: 1, b: 3}, 2]},
+        {a: {__1__: {a: 2}}}
+    ],
+    // Index assignment is not present. Nothing will be modified.
     [
         {a: [2, 1, 2]},
         {a: {__3__: 's'}},
