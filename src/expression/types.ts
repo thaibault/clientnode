@@ -57,6 +57,15 @@ export type NormalizedSelector<Type extends BasicScopeType> =
 export type Selector<Type extends BasicScopeType> =
     SelectorItem<Type> | NormalizedSelector<Type>
 
+export type ContextReplacements<ScopeType extends BasicScopeType> =
+    Mapping<Selector<ScopeType>>
+
+export interface Options<ScopeType extends BasicScopeType> {
+    contextReplacements: ContextReplacements<ScopeType>
+    delimiter: string
+    skipMissingLevel: boolean
+}
+
 export type Comparator = '==' | '!=' | '<' | '>' | '<=' | '>='
 export type UnaryOperator = '!' | '!!'
 export type Operator = '+' | '-' | '*' | '**' | '/'

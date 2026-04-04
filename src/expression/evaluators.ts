@@ -20,11 +20,7 @@ import {
     isFunction,
     isObject,
     isPlainObject,
-    Mapping,
-    NormalizedSelector,
-    Selector,
-    SelectorItem,
-    SimpleRecursiveKeyOf
+    Mapping, Options
 } from '../'
 
 import {
@@ -41,6 +37,12 @@ import {
     isArrayContainsExpression
 } from './indicator-functions'
 import {
+    NormalizedSelector,
+    Selector,
+    SelectorItem,
+    SimpleRecursiveKeyOf,
+
+    ArrayContainsExpression,
     AndExpression,
     OrExpression,
     ConcatExpression,
@@ -57,44 +59,50 @@ import {
 
     BasicScopeType,
     RecursiveKeyOf,
-    MappingExpression, ArrayContainsExpression
+    MappingExpression
 } from './types'
 
 export const SELECTOR_KEY_NAMES = new Set<string>(['name'])
 export const NO_ITEM_FOUND_SYMBOL =
     Symbol.for('EXPRESSION_EVALUATOR_NO_ITEM_FOUND')
 
+export const DEFAULT_OPTIONS = {
+    skipMissingLevel: false,
+    contextReplacements: {},
+    delimiter: '.'
+}
+
 const addBracketBasedPathElements = (subParts: Array<string>) => {
     const path: Array<SimpleRecursiveKeyOf> = []
     // NOTE: We add index assignments into path array.
-    for (const subPart of subParts)
-        if (subPart.startsWith('['))
-            // Trim bracket padding "[index]" => "index".
-            path.push(subPart.substring(1, subPart.length - 1))
-        else {
-            const openingBracketPosition = subPart.indexOf('[')
+    for (const subPart of subParts) {
+        const openingBracketPosition = subPart.indexOf('[')
+        if (openingBracketPosition > 0)
             path.push(subPart.substring(0, openingBracketPosition))
-            // Trim bracket padding "[index]" => "index".
-            path.push(subPart.substring(
-                openingBracketPosition + 1, subPart.length - 1
-            ))
-        }
+
+        // Trim bracket padding "[index]" => "index".
+        path.push(subPart.substring(
+            openingBracketPosition + 1, subPart.length - 1
+        ))
+    }
 
     return path
 }
 
 export const normalizeSelector = <ScopeType extends BasicScopeType>(
     selector: Selector<ScopeType>,
-    scope: ScopeType = {} as ScopeType,
-    delimiter = '.'
+    givenOptions: Partial<Options<ScopeType> & {scope: ScopeType}> = {}
 ): NormalizedSelector<ScopeType> => {
+    const options: Options<ScopeType> & {scope: ScopeType} =
+        {...DEFAULT_OPTIONS, scope: {} as ScopeType, ...givenOptions}
+
     const path: NormalizedSelector<ScopeType> = []
     for (const component of ([] as NormalizedSelector<ScopeType>).concat(
         selector
     ))
         if (typeof component === 'string') {
-            const parts: Array<string> = component.split(delimiter)
-            for (const part of parts) {
+            const parts: Array<string> = component.split(options.delimiter)
+            for (let part of parts) {
                 if (!part)
                     continue
 
@@ -104,17 +112,37 @@ export const normalizeSelector = <ScopeType extends BasicScopeType>(
                     continue
                 }
 
-                // Trim bracket padding "[index]" => "index".
-                const subParts: null | Array<string> =
-                    part.match(/[^[]*\[\d+]/g)
-                path.push(...(subParts ?
-                    addBracketBasedPathElements(subParts) :
-                    [part]
-                ) as unknown as Array<RecursiveKeyOf>)
+                // Identify bracket based selectors like "[index]".
+                const openingBracketPosition = part.indexOf('[')
+                let restPart = part
+                if (openingBracketPosition !== -1) {
+                    restPart = part.substring(openingBracketPosition)
+                    part = part.substring(0, openingBracketPosition)
+                }
+
+                if (Object.prototype.hasOwnProperty.call(
+                    options.contextReplacements, part
+                ))
+                    path.push(...normalizeSelector(
+                        options.contextReplacements[part], options
+                    ))
+                else
+                    path.push(part)
+
+                if (restPart !== part) {
+                    // Trim bracket padding "[index]" => "index".
+                    const subParts = restPart.match(/[^[]*\[\d+]/g) as
+                        Array<string>
+                    path.push(...addBracketBasedPathElements(subParts) as
+                        unknown as
+                        Array<RecursiveKeyOf>
+                    )
+                }
             }
         } else
             path.push(
-                evaluateExpression(component, scope) as SelectorItem<ScopeType>
+                evaluateExpression(component, options.scope, options) as
+                    SelectorItem<ScopeType>
             )
 
     return path
@@ -139,8 +167,13 @@ export const selectArrayItem = (
  * path.
  * @param selector - Selector path.
  * @param scope - Object to search in.
- * @param skipMissingLevel - Indicates to skip missing level in given path.
- * @param delimiter - Delimiter to delimit given selector components.
+ * @param givenOptions - Object to configure evaluation.
+ * @param givenOptions.contextReplacements - Configuration how to replace
+ * "this" and "thisParent" keywords in selectors.
+ * @param givenOptions.delimiter - Delimiter to delimit given selector
+ * components.
+ * @param givenOptions.skipMissingLevel - Indicates to skip missing level in
+ * given path.
  * @returns Determined sub structure of given data or "undefined".
  */
 export const evaluateSelectorUntilLastObject = <
@@ -148,15 +181,16 @@ export const evaluateSelectorUntilLastObject = <
 >(
         selector: Selector<ScopeType>,
         scope: ScopeType = {} as ScopeType,
-        skipMissingLevel = false,
-        delimiter = '.'
+        givenOptions: Partial<Options<ScopeType>> = {}
     ): [ScopeType, RecursiveKeyOf] => {
+    const options: Options<ScopeType> = {...DEFAULT_OPTIONS, ...givenOptions}
+
     /*
         Create a list of keys or indexes to retrieve specified value from given
         object.
     */
     const path: NormalizedSelector<ScopeType> =
-        normalizeSelector(selector, scope, delimiter)
+        normalizeSelector(selector, {...options, scope})
     // Dig into given scope for each previously found key or index.
     let result = scope
     let index = 0
@@ -166,8 +200,7 @@ export const evaluateSelectorUntilLastObject = <
         if (isObject(result)) {
             if (
                 Array.isArray(result) &&
-                (typeof keyOrIndex === 'string' &&
-                    isNaN(parseInt(keyOrIndex)))
+                (typeof keyOrIndex === 'string' && isNaN(parseInt(keyOrIndex)))
             ) {
                 const item = selectArrayItem(result, keyOrIndex)
                 if (item !== NO_ITEM_FOUND_SYMBOL) {
@@ -191,11 +224,11 @@ export const evaluateSelectorUntilLastObject = <
                 result, keyOrIndex as unknown as string
             ))
                 result = result[keyOrIndex as keyof ScopeType] as ScopeType
-            else if (!skipMissingLevel)
+            else if (!options.skipMissingLevel)
                 return [result, keyOrIndex as RecursiveKeyOf]
         } else if (isLastPart)
             return [result, keyOrIndex as RecursiveKeyOf]
-        else if (!skipMissingLevel)
+        else if (!options.skipMissingLevel)
             return [result, keyOrIndex as RecursiveKeyOf]
 
         index += 1
@@ -208,19 +241,21 @@ export const evaluateSelectorUntilLastObject = <
  * path.
  * @param selector - Selector path.
  * @param scope - Object to search in.
- * @param skipMissingLevel - Indicates to skip missing level in given path.
- * @param delimiter - Delimiter to delimit given selector components.
+ * @param options - Options object to configure evaluation.
+ * @param options.contextReplacements - Configuration how to replace "this"
+ * and "thisParent" keywords in selectors.
+ * @param options.delimiter - Delimiter to delimit given selector components.
+ * @param options.skipMissingLevel - Indicates to skip missing level in given
+ * path.
  * @returns Determined sub structure of given data or "undefined".
  */
 export const evaluateSelector = <Type, ScopeType extends BasicScopeType>(
     selector: Selector<ScopeType>,
-    scope: ScopeType,
-    skipMissingLevel = false,
-    delimiter = '.'
+    scope: ScopeType = {} as ScopeType,
+    options: Partial<Options<ScopeType>> = {}
 ): Type => {
-    const [lastObject, lastKey] = evaluateSelectorUntilLastObject(
-        selector, scope, skipMissingLevel, delimiter
-    )
+    const [lastObject, lastKey] =
+        evaluateSelectorUntilLastObject(selector, scope, options)
 
     if ((lastKey as unknown as string) === '')
         return scope as unknown as Type
@@ -235,10 +270,12 @@ export const evaluateSelector = <Type, ScopeType extends BasicScopeType>(
 }
 
 export const evaluateCondition = <ScopeType extends BasicScopeType>(
-    condition: Condition, scope: ScopeType
+    condition: Condition,
+    scope: ScopeType,
+    options: Partial<Options<ScopeType>>
 ): boolean => {
-    const value1 = evaluateExpression(condition.value1, scope)
-    const value2 = evaluateExpression(condition.value2, scope)
+    const value1 = evaluateExpression(condition.value1, scope, options)
+    const value2 = evaluateExpression(condition.value2, scope, options)
 
     switch (condition.$comparator) {
     case '==':
@@ -257,9 +294,11 @@ export const evaluateCondition = <ScopeType extends BasicScopeType>(
 }
 
 export const evaluateUnaryOperation = <ScopeType extends BasicScopeType>(
-    operation: UnaryOperation, scope: ScopeType
+    operation: UnaryOperation,
+    scope: ScopeType,
+    options: Partial<Options<ScopeType>>
 ): boolean => {
-    const operand = evaluateExpression(operation.operand, scope)
+    const operand = evaluateExpression(operation.operand, scope, options)
 
     switch (operation.$operator) {
     case '!':
@@ -270,10 +309,12 @@ export const evaluateUnaryOperation = <ScopeType extends BasicScopeType>(
 }
 
 export const evaluateOperation = <ScopeType extends BasicScopeType>(
-    operation: Operation, scope: ScopeType
+    operation: Operation,
+    scope: ScopeType,
+    options: Partial<Options<ScopeType>>
 ): number => {
-    const operand1 = evaluateExpression(operation.operand1, scope)
-    const operand2 = evaluateExpression(operation.operand2, scope)
+    const operand1 = evaluateExpression(operation.operand1, scope, options)
+    const operand2 = evaluateExpression(operation.operand2, scope, options)
 
     switch (operation.$operator) {
     case '+':
@@ -290,19 +331,23 @@ export const evaluateOperation = <ScopeType extends BasicScopeType>(
 }
 
 export const evaluateOptionalThen = <Type, ScopeType extends BasicScopeType>(
-    expression: IfExpression<Type> | CaseExpression<Type>, scope: ScopeType
+    expression: IfExpression<Type> | CaseExpression<Type>,
+    scope: ScopeType,
+    options: Partial<Options<ScopeType>>
 ): Type => {
     if (typeof expression.then === 'undefined')
         return undefined as Type
 
-    return evaluateExpression(expression.then, scope)
+    return evaluateExpression(expression.then, scope, options)
 }
 
 export const evaluateIf = <Type, ScopeType extends BasicScopeType>(
-    expression: IfExpression<Type>, scope: ScopeType
+    expression: IfExpression<Type>,
+    scope: ScopeType,
+    options: Partial<Options<ScopeType>>
 ): Type => {
-    if (evaluateExpression(expression.$if, scope))
-        return evaluateOptionalThen(expression, scope)
+    if (evaluateExpression(expression.$if, scope, options))
+        return evaluateOptionalThen(expression, scope, options)
 
     return typeof expression.else === 'undefined' ?
         undefined as Type :
@@ -310,47 +355,55 @@ export const evaluateIf = <Type, ScopeType extends BasicScopeType>(
 }
 
 export const evaluateSwitch = <Type, ScopeType extends BasicScopeType>(
-    expression: SwitchExpression<Type>, scope: ScopeType
+    expression: SwitchExpression<Type>,
+    scope: ScopeType,
+    options: Partial<Options<ScopeType>>
 ): Type => {
     const value = evaluateExpression(expression.$switch, scope)
 
     for (const caseExpression of expression.caseExpressions)
-        if (value === evaluateExpression(caseExpression.$case, scope))
-            return evaluateOptionalThen(caseExpression, scope)
+        if (value === evaluateExpression(caseExpression.$case, scope, options))
+            return evaluateOptionalThen(caseExpression, scope, options)
 
     if (typeof expression.default !== 'undefined')
-        return evaluateExpression(expression.default, scope)
+        return evaluateExpression(expression.default, scope, options)
 
     return undefined as Type
 }
 
 export const evaluateAnd = <ScopeType extends BasicScopeType>(
-    expression: AndExpression, scope: ScopeType
+    expression: AndExpression,
+    scope: ScopeType,
+    options: Partial<Options<ScopeType>>
 ): boolean => {
     for (const condition of expression.$and)
-        if (!evaluateExpression(condition, scope))
+        if (!evaluateExpression(condition, scope, options))
             return false
 
     return true
 }
 
 export const evaluateOr = <ScopeType extends BasicScopeType>(
-    expression: OrExpression, scope: ScopeType
+    expression: OrExpression,
+    scope: ScopeType,
+    options: Partial<Options<ScopeType>>
 ): boolean => {
     for (const condition of expression.$or)
-        if (evaluateExpression(condition, scope))
+        if (evaluateExpression(condition, scope, options))
             return true
 
     return false
 }
 
 export const evaluateConcat = <ScopeType extends BasicScopeType>(
-    expression: ConcatExpression, scope: ScopeType
+    expression: ConcatExpression,
+    scope: ScopeType,
+    options: Partial<Options<ScopeType>>
 ): Array<unknown> | string => {
     let result: Array<unknown> = []
     let isArray = false
     for (const item of expression.$concat) {
-        const value = evaluateExpression(item, scope)
+        const value = evaluateExpression(item, scope, options)
         if (Array.isArray(value))
             isArray = true
 
@@ -361,9 +414,11 @@ export const evaluateConcat = <ScopeType extends BasicScopeType>(
 }
 
 export const evaluateMapping = <ScopeType extends BasicScopeType>(
-    expression: MappingExpression, scope: ScopeType
+    expression: MappingExpression,
+    scope: ScopeType,
+    options: Partial<Options<ScopeType>>
 ): Array<Mapping<unknown>> => {
-    const givenData = evaluateExpression(expression.data, scope)
+    const givenData = evaluateExpression(expression.data, scope, options)
 
     let normalizedGivenData: Array<Mapping<unknown>> = []
     if (Array.isArray(givenData))
@@ -387,16 +442,22 @@ export const evaluateMapping = <ScopeType extends BasicScopeType>(
     return result
 }
 
-export const evaluateArrayContains = (
-    expression: ArrayContainsExpression, scope: BasicScopeType
+export const evaluateArrayContains = <ScopeType extends BasicScopeType>(
+    expression: ArrayContainsExpression,
+    scope: ScopeType,
+    options: Partial<Options<ScopeType>>
 ): boolean => {
     let array: unknown = scope
 
     if (expression.$arrayContains.target != null)
-        array = evaluateExpression(expression.$arrayContains.target, scope)
+        array = evaluateExpression(
+            expression.$arrayContains.target, scope, options
+        )
 
-    const value = evaluateExpression(expression.$arrayContains.value, scope)
-    const key = evaluateExpression(expression.$arrayContains.key, scope)
+    const value =
+        evaluateExpression(expression.$arrayContains.value, scope, options)
+    const key =
+        evaluateExpression(expression.$arrayContains.key, scope, options)
 
     if (!Array.isArray(array))
         return false
@@ -415,44 +476,46 @@ export const evaluateArrayContains = (
 }
 
 export function evaluateExpression<Type, ScopeType extends BasicScopeType>(
-    expression: Expression<Type, ScopeType>, scope: ScopeType = {} as ScopeType
+    expression: Expression<Type, ScopeType>,
+    scope: ScopeType = {} as ScopeType,
+    options: Partial<Options<ScopeType>> = {}
 ): Type {
     if (isSelector(expression))
-        return evaluateSelector(expression.$select, scope)
+        return evaluateSelector(expression.$select, scope, options)
 
 
     if (isCondition(expression))
-        return evaluateCondition(expression, scope) as Type
+        return evaluateCondition(expression, scope, options) as Type
 
 
     if (isUnaryOperation(expression))
-        return evaluateUnaryOperation(expression, scope) as Type
+        return evaluateUnaryOperation(expression, scope, options) as Type
 
     if (isOperation(expression))
-        return evaluateOperation(expression, scope) as Type
+        return evaluateOperation(expression, scope, options) as Type
 
 
     if (isOrExpression(expression))
-        return evaluateOr(expression, scope) as Type
+        return evaluateOr(expression, scope, options) as Type
 
     if (isAndExpression(expression))
-        return evaluateAnd(expression, scope) as Type
+        return evaluateAnd(expression, scope, options) as Type
 
     if (isConcatExpression(expression))
-        return evaluateConcat(expression, scope) as Type
+        return evaluateConcat(expression, scope, options) as Type
 
     if (isMappingExpression(expression))
-        return evaluateMapping(expression, scope) as Type
+        return evaluateMapping(expression, scope, options) as Type
 
 
     if (isIfExpression(expression))
-        return evaluateIf(expression, scope)
+        return evaluateIf(expression, scope, options)
 
     if (isSwitchExpression(expression))
-        return evaluateSwitch(expression, scope)
+        return evaluateSwitch(expression, scope, options)
 
     if (isArrayContainsExpression(expression))
-        return evaluateArrayContains(expression, scope) as Type
+        return evaluateArrayContains(expression, scope, options) as Type
 
 
     return expression
