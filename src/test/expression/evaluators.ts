@@ -52,10 +52,36 @@ describe('Evaluators', () => {
         normalizeSelector,
 
         [[], ''],
-        [[], '', {}],
-        [['key'], 'key', {}],
-        [['a', 'b'], 'a.b', {}],
-        [['a', 'b', '1'], 'a.b[1]']
+        [[], '', {scope: {}}],
+        [['key'], 'key', {scope: {}}],
+        [['a', 'b'], 'a.b', {scope: {}}],
+        [['a', 'b', '1'], 'a.b[1]'],
+        [['a', 'b'], 'this', {contextReplacements: {this: ['a', 'b']}}],
+        [
+            ['a', 'b', 'c', '0', 'd'],
+            'this.c.0.d',
+            {contextReplacements: {this: ['a', 'b']}}
+        ],
+        [
+            ['a', 'b', '0', '0', 'd'],
+            'this[0].0.d',
+            {contextReplacements: {this: ['a', 'b']}}
+        ],
+        [
+            ['a', 'b'],
+            'thisParent',
+            {contextReplacements: {thisParent: ['a', 'b']}}
+        ],
+        [
+            ['a', 'b', 'c', '0', 'd'],
+            'thisParent.c.0.d',
+            {contextReplacements: {thisParent: ['a', 'b']}}
+        ],
+        [
+            ['a', 'b', '0', '0', 'd'],
+            'thisParent[0].0.d',
+            {contextReplacements: {thisParent: ['a', 'b']}}
+        ]
     )
 
     testEach(
@@ -67,9 +93,10 @@ describe('Evaluators', () => {
         [[[0], '1'], '1', [0]],
         [[[0], '1'], 'a.1', {a: [0]}],
         [[{a: 'A', b: 'B'}, 'b'], 'sub.b', {sub: {a: 'A', b: 'B'}}],
+        [[{a: 'A', b: 'B'}, 'b'], 'sub.b', {sub: {a: 'A', b: 'B'}}],
         [[{}, 'notExisting'], 'notExisting', {}],
         [[{}, 'sub'], 'sub.notExisting', {}],
-        [[{}, 'notExisting'], 'sub.notExisting', {}, true]
+        [[{}, 'notExisting'], 'sub.notExisting', {}, {skipMissingLevel: true}]
     )
 
     testEach(
@@ -84,6 +111,7 @@ describe('Evaluators', () => {
         [[], 'a.a', {a: {a: []}}],
         [3, ['a', 'b.c'], {a: {b: {c: 3}}}],
         [3, ['a', 'b.c[0]'], {a: {b: {c: [3]}}}],
+        [3, ['a', 'b/c[0]'], {a: {b: {c: [3]}}}, {delimiter: '/'}],
         [3, ['', 'a', '', 'b.c[0]', '', ''], {a: {b: {c: [3]}}}],
         [
             3,
@@ -108,6 +136,18 @@ describe('Evaluators', () => {
 
         [5, {$select: 'key'}, {key: 5}],
         [2, {$select: 'a.b.c'}, {a: {b: {c: 2}}}],
+        [
+            2,
+            {$select: 'this.c'},
+            {a: {b: {c: 2}}},
+            {contextReplacements: {this: ['a', 'b']}}
+        ],
+        [
+            2,
+            {$select: 'thisParent.c'},
+            {a: {b: {c: 2}}},
+            {contextReplacements: {thisParent: ['a', 'b']}}
+        ],
         [undefined, {$select: 'a.b.c.d'}, {a: {b: {c: 2}}}],
         [{a: 2}, {$select: ''}, {a: 2}],
         [1, {$select: 'a[0]'}, {a: [1, 2]}],
@@ -129,11 +169,53 @@ describe('Evaluators', () => {
         ],
         [
             'dynamically selected',
+            {$select: ['a', {$select: 'this'}]},
+            {a: {b: 'dynamically selected'}, keyB: 'b'},
+            {contextReplacements: {this: ['keyB']}}
+        ],
+        [
+            'dynamically selected',
+            {$select: ['a', {$select: 'thisParent'}]},
+            {a: {b: 'dynamically selected'}, keyB: 'b'},
+            {contextReplacements: {thisParent: ['keyB']}}
+        ],
+        [
+            'dynamically selected',
             {$select: ['a', 'b', {$select: 'key.of.c'}]},
             {
                 a: {b: {c: 'dynamically selected'}},
                 key: {of: {c: 'c'}}
             }
+        ],
+        [
+            'dynamically selected',
+            {$select: ['a', 'b', {$select: 'key.this.c'}]},
+            {
+                a: {b: {c: 'dynamically selected'}},
+                key: {of: {c: 'c'}}
+            },
+            {contextReplacements: {this: 'of'}}
+        ],
+        [
+            'dynamically selected',
+            {$select: ['a', 'b', {$if: true, then: 'this'}]},
+            {a: {b: {this: 'dynamically selected'}}},
+            {contextReplacements: {this: 'of'}}
+        ],
+        [
+            'dynamically selected',
+            {$select: ['a', 'b', {$select: 'key.thisParent.c'}]},
+            {
+                a: {b: {c: 'dynamically selected'}},
+                key: {of: {c: 'c'}}
+            },
+            {contextReplacements: {thisParent: 'of'}}
+        ],
+        [
+            'dynamically selected',
+            {$select: ['a', 'b', {$if: true, then: 'thisParent'}]},
+            {a: {b: {thisParent: 'dynamically selected'}}},
+            {contextReplacements: {thisParent: 'of'}}
         ],
         [5, {$select: 'a.b.c'}, {a: [{name: 'b', c: 5}]}],
         [4, {$select: 'a.b.c.d'}, {a: [{name: 'b', c: {d: 4}}]}],
