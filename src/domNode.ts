@@ -16,7 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-export const getAllNodes = (root: Node) => {
+export const getAll = (root: Node) => {
     const nodes: Array<Node> = []
     // SHOW_ALL includes elements, text, and comments
     const walker =
@@ -29,4 +29,16 @@ export const getAllNodes = (root: Node) => {
     }
 
     return nodes
+}
+export const getText = (root: Node, recursive = false): Array<string> => {
+    const result: Array<string> = []
+    for (const domNode of root.childNodes) {
+        if (domNode.nodeType === Node.TEXT_NODE && domNode.nodeValue)
+            result.push(domNode.nodeValue.trim())
+
+        if (recursive)
+            result.push(...getText(domNode))
+    }
+
+    return result
 }

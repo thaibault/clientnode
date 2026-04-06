@@ -15,7 +15,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {getAllNodes} from '../domNode'
+import {getAll, getText} from '../domNode'
 import {testEach} from '../test-helper'
 
 declare const TARGET_TECHNOLOGY: string
@@ -30,10 +30,18 @@ const TEST_ENVIRONMENT: string = (
 
 if (TEST_ENVIRONMENT !== 'node') {
     const divElement = document.createElement('div')
+
     testEach(
-        'getAllNodes',
-        getAllNodes,
+        'getAll',
+        getAll,
 
         [[divElement], divElement]
+    )
+
+    testEach(
+        'getText',
+        getText,
+
+        [[], divElement]
     )
 }
