@@ -16,6 +16,27 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+export const fadeIn = (domNode: HTMLElement, intervalInMilliseconds = 200) => {
+    domNode.style.visibility = 'visible'
+    domNode.style.opacity = '1'
+    domNode.style.transition =
+        `opacity ${String(intervalInMilliseconds)}ms linear`
+
+    return () => {
+        domNode.style.transition = 'none'
+    }
+}
+export const fadeOut = (domNode: HTMLElement, intervalInMilliseconds = 200)=> {
+    domNode.style.visibility = 'hidden'
+    domNode.style.opacity = '0'
+    domNode.style.transition =
+        `visibility 0s ${String(intervalInMilliseconds)}ms, ` +
+        `opacity ${String(intervalInMilliseconds)}ms linear`
+
+    return () => {
+        domNode.style.transition = 'none'
+    }
+}
 export const getAll = (root: Node) => {
     const nodes: Array<Node> = []
     // SHOW_ALL includes elements, text, and comments
