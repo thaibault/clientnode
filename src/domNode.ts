@@ -16,8 +16,8 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-export const getAllNodes = (root: HTMLElement) => {
-    const nodes = []
+export const getAllNodes = (root: Node) => {
+    const nodes: Array<Node> = []
     // SHOW_ALL includes elements, text, and comments
     const walker =
         document.createTreeWalker(root, NodeFilter.SHOW_ALL, null)
