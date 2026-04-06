@@ -16,27 +16,50 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-export const fadeIn = (domNode: HTMLElement, intervalInMilliseconds = 200) => {
-    domNode.style.visibility = 'visible'
-    domNode.style.opacity = '1'
-    domNode.style.transition =
-        `opacity ${String(intervalInMilliseconds)}ms linear`
+import {NOOP} from './context'
+import {timeout} from './utility'
 
-    return () => {
-        domNode.style.transition = 'none'
+export const fade = (
+    domNode: HTMLElement, intervalInMilliseconds = 200, out = true
+) => {
+    if (out) {
+        domNode.style.visibility = 'hidden'
+        domNode.style.opacity = '0'
+        domNode.style.transition =
+            `visibility 0s ${String(intervalInMilliseconds)}ms, ` +
+            `opacity ${String(intervalInMilliseconds)}ms linear`
+    } else {
+        domNode.style.visibility = 'visible'
+        domNode.style.opacity = '1'
+        domNode.style.transition =
+            `opacity ${String(intervalInMilliseconds)}ms linear`
     }
-}
-export const fadeOut = (domNode: HTMLElement, intervalInMilliseconds = 200)=> {
-    domNode.style.visibility = 'hidden'
-    domNode.style.opacity = '0'
-    domNode.style.transition =
-        `visibility 0s ${String(intervalInMilliseconds)}ms, ` +
-        `opacity ${String(intervalInMilliseconds)}ms linear`
 
-    return () => {
-        domNode.style.transition = 'none'
+    let clearTimeout = NOOP
+    let resolved = false
+    const promise = new Promise((resolve) => {
+        clearTimeout = () => {
+            resolved = true
+            resolve()
+        }
+        void timeout(intervalInMilliseconds).then(clearTimeout)
+    }) as
+        Promise<void> &
+        {clear: () => void}
+
+    promise.clear = () => {
+        if (!resolved) {
+            domNode.style.transition = 'none'
+            clearTimeout()
+        }
     }
+
+    return promise
 }
+export const fadeIn = (domNode: HTMLElement, intervalInMilliseconds = 200) =>
+    fade(domNode, intervalInMilliseconds, false)
+export const fadeOut = (domNode: HTMLElement, intervalInMilliseconds = 200)=>
+    fade(domNode, intervalInMilliseconds)
 export const getAll = (root: Node) => {
     const nodes: Array<Node> = []
     // SHOW_ALL includes elements, text, and comments
