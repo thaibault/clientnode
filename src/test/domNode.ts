@@ -15,7 +15,9 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {getAll, getText} from '../domNode'
+import {expect, test} from '@jest/globals'
+
+import {fadeIn, fadeOut, getAll, getText} from '../domNode'
 import {testEach} from '../test-helper'
 
 declare const TARGET_TECHNOLOGY: string
@@ -30,6 +32,14 @@ const TEST_ENVIRONMENT: string = (
 
 if (TEST_ENVIRONMENT !== 'node') {
     const divElement = document.createElement('div')
+
+    test('fadeIn', () => {
+        expect(fadeIn(divElement)).toBeDefined()
+    })
+
+    test('fadeOut', () => {
+        expect(fadeOut(divElement)).toBeDefined()
+    })
 
     testEach(
         'getAll',
