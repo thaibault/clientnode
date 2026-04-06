@@ -18,6 +18,8 @@
 */
 export * from './array'
 
+export * from './domNode'
+
 export * from './cli'
 export * from './constants'
 export * from './context'
