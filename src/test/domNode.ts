@@ -17,7 +17,7 @@
 */
 import {expect, test} from '@jest/globals'
 
-import {fadeIn, fadeOut, getAll, getText} from '../domNode'
+import {fade, fadeIn, fadeOut, getAll, getText} from '../domNode'
 import {testEach} from '../test-helper'
 
 declare const TARGET_TECHNOLOGY: string
@@ -33,12 +33,16 @@ const TEST_ENVIRONMENT: string = (
 if (TEST_ENVIRONMENT !== 'node') {
     const divElement = document.createElement('div')
 
+    test('fade', () => {
+        void expect(fade(divElement)).resolves.toBeUndefined()
+    })
+
     test('fadeIn', () => {
-        expect(fadeIn(divElement)).toBeDefined()
+        void expect(fadeIn(divElement)).resolves.toBeUndefined()
     })
 
     test('fadeOut', () => {
-        expect(fadeOut(divElement)).toBeDefined()
+        void expect(fadeOut(divElement)).resolves.toBeUndefined()
     })
 
     testEach(
