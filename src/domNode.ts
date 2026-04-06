@@ -33,8 +33,11 @@ export const getAll = (root: Node) => {
 export const getText = (root: Node, recursive = false): Array<string> => {
     const result: Array<string> = []
     for (const domNode of root.childNodes) {
-        if (domNode.nodeType === Node.TEXT_NODE && domNode.nodeValue)
-            result.push(domNode.nodeValue.trim())
+        if (domNode.nodeType === Node.TEXT_NODE) {
+            const content = domNode.nodeValue?.trim()
+            if (content)
+                result.push(content)
+        }
 
         if (recursive)
             result.push(...getText(domNode))
