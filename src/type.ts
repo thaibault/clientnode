@@ -104,7 +104,7 @@ export type TestMatchers<T extends Promise<void> | void> =
 /// region native
 export type ImportFunction =
     (id: string) => Promise<ReturnType<typeof require>>
-export type HTMLItem = Comment | Document | HTMLElement | Text
+export type HTMLItem = Comment | HTMLElement | Text
 
 export type Primitive = boolean | null | number | string | undefined
 export type Mapping<V = string, K extends string = string> = Record<K, V>
