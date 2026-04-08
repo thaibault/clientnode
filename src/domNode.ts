@@ -16,7 +16,8 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {NOOP} from './context'
+import {globalContext, NOOP} from './context'
+import {Mapping} from './type'
 import {timeout} from './utility'
 
 export const fade = (
@@ -60,6 +61,7 @@ export const fadeIn = (domNode: HTMLElement, intervalInMilliseconds = 200) =>
     fade(domNode, intervalInMilliseconds, false)
 export const fadeOut = (domNode: HTMLElement, intervalInMilliseconds = 200)=>
     fade(domNode, intervalInMilliseconds)
+
 export const getAll = (root: Node) => {
     const nodes: Array<Node> = []
     // SHOW_ALL includes elements, text, and comments
@@ -88,4 +90,85 @@ export const getText = (root: Node, recursive = false): Array<string> => {
     }
 
     return result
+}
+
+export const createDomNodes = (html: string) => {
+    const domNode = document.createElement('div')
+    domNode.innerHTML = html
+
+    if (domNode.childNodes.length === 1)
+        return domNode.childNodes[0]
+
+    return domNode
+}
+/**
+ * Checks whether given html or text strings are equal.
+ * @param first - First html, selector to dom node or text to compare.
+ * @param second - Second html, selector to dom node  or text to compare.
+ * @param forceHTMLString - Indicates whether given contents are
+ * interpreted as html string (otherwise an automatic detection will be
+ * triggered).
+ * @returns Returns true if both dom representations are equivalent.
+ */
+export const isEquivalentDOM = (
+    first: Node | string, second: Node | string, forceHTMLString = false
+): boolean => {
+    if (first === second)
+        return true
+
+    if (!(first && second))
+        return false
+
+    if (!globalContext.document)
+        throw new Error('Missing document in global context.')
+
+    const createElement =
+        globalContext.document.createElement.bind(globalContext.document)
+
+    const determineHTMLPattern = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/
+    const inputs: Mapping<Node | string> = {first, second}
+    const domNodes: Mapping<Node> = {
+        first: createElement('dummy'),
+        second: createElement('dummy')
+    }
+
+    /*
+        NOTE: Assume that strings that start "<" and end with ">" are markup
+        and skip the more expensive regular expression check.
+    */
+    for (const [type, html] of Object.entries(inputs))
+        if (typeof html === 'string')
+            if (
+                forceHTMLString ||
+                (
+                    html.startsWith('<') &&
+                    html.endsWith('>') &&
+                    html.length >= 3 ||
+                    determineHTMLPattern.test(html)
+                )
+            )
+                domNodes[type] = createDomNodes(html)
+            else {
+                const domNode = document.querySelector(html)
+                if (domNode)
+                    /*
+                        NOTE: We copy the node tree to not manipulate the
+                        original dom node by normalizing it afterward.
+                    */
+                    domNodes[type] = domNode.cloneNode(true)
+                else
+                    return false
+            }
+        else if ('cloneNode' in html)
+            domNodes[type] = html.cloneNode(true)
+        else
+            return false
+
+    console.log('A', (domNodes.first as Element).outerHTML)
+    console.log('B', (domNodes.second as Element).outerHTML)
+
+    domNodes.first.normalize()
+    domNodes.second.normalize()
+
+    return domNodes.first.isEqualNode((domNodes.second))
 }
