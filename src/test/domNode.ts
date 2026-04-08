@@ -17,8 +17,16 @@
 */
 import {expect, test} from '@jest/globals'
 
-import {fade, fadeIn, fadeOut, getAll, getText} from '../domNode'
-import {testEach} from '../test-helper'
+import {
+    createDomNodes,
+    fade,
+    fadeIn,
+    fadeOut,
+    getAll,
+    getText,
+    isEquivalentDOM
+} from '../domNode'
+import {testEach, testEachAgainstSameExpectation} from '../test-helper'
 
 declare const TARGET_TECHNOLOGY: string
 
@@ -56,6 +64,83 @@ if (TEST_ENVIRONMENT !== 'node') {
         'getText',
         getText,
 
-        [[], divElement]
+        [[], divElement],
+        [['hans'], createDomNodes('<div>hans</div>')],
+        [[], createDomNodes('<div><div>hans</div</div>')],
+        [['hans'], createDomNodes('<div>hans<div>peter</div></div>')]
+    )
+
+    testEachAgainstSameExpectation(
+        'isEquivalentDOM',
+        isEquivalentDOM,
+        true,
+
+        ['test', 'test'],
+        ['test test', 'test test'],
+        ['<div>', '<div>'],
+        ['<div class>', '<div class="">'],
+        ['<div style>', '<div style="">'],
+        ['<div></div>', '<div>'],
+        ['<div class="a"></div>', '<div class="a"></div>'],
+        [
+            createDomNodes('<a target="_blank" class="a"></a>'),
+            '<a class="a" target="_blank"></a>'
+        ],
+        [
+            '<a target="_blank" class="a"></a>',
+            '<a class="a" target="_blank"></a>'
+        ],
+        [
+            '<a target="_blank" class="a"><div b="3" a="2"></div></a>',
+            '<a class="a" target="_blank"><div a="2" b="3"></div></a>'
+        ],
+        [
+            `
+                <a target="_blank" class="a b">
+                    <div b="3" a="2"></div>
+                </a>
+            `,
+            `
+                <a class="a b" target="_blank">
+                    <div a="2" b="3"></div>
+                </a>
+            `
+        ],
+        ['<div>a</div><div>b</div>', '<div>a</div><div>b</div>'],
+        ['<div>a</div>b', '<div>a</div>b'],
+        ['<br>', '<br />'],
+        ['<div><br><br /></div>', '<div><br /><br /></div>'],
+        [
+            ' <div style="">' +
+            'german<!--deDE--><!--enUS: english --> </div>',
+            ' <div style="">german<!--deDE--><!--enUS: english --> ' +
+            '</div>'
+        ],
+        ['a<br>', 'a<br />', true]
+    )
+    testEachAgainstSameExpectation(
+        'isEquivalentDOM',
+        isEquivalentDOM,
+        false,
+
+        ['test', ''],
+        ['test', 'hans'],
+        ['test test', 'testtest'],
+        ['test test:', ''],
+        ['<div class="a"></div>', '<div>'],
+        [
+            createDomNodes('<a class="a"></a>'),
+            '<a class="a" target="_blank"></a>'
+        ],
+        [
+            '<a target="_blank" class="a"><div a="2"></div></a>',
+            '<a class="a" target="_blank"></a>'
+        ],
+        ['<div>a</div>b', '<div>a</div>c'],
+        [' <div>a</div>', '<div>a</div>'],
+        ['<div>a</div><div>bc</div>', '<div>a</div><div>b</div>'],
+        ['text', 'text a'],
+        ['text', 'text a'],
+        ['text', 'text a & +']
     )
 }
