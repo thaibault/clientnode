@@ -22,7 +22,7 @@ import {
     fade,
     fadeIn,
     fadeOut,
-    getAll,
+    getAll, getParents,
     getText,
     isEquivalentDOM
 } from '../domNode'
@@ -40,6 +40,13 @@ const TEST_ENVIRONMENT: string = (
 
 if (TEST_ENVIRONMENT !== 'node') {
     const divElement = document.createElement('div')
+
+    test('createDomNodes', () => {
+        const document = createDomNodes('<div></div>')
+
+        expect(document.nodeName).toStrictEqual('DIV')
+        expect(document.parentNode).toBeNull()
+    })
 
     test('fade', () => {
         void expect(fade(divElement)).resolves.toBeUndefined()
@@ -59,6 +66,22 @@ if (TEST_ENVIRONMENT !== 'node') {
 
         [[divElement], divElement]
     )
+
+    test.each([
+        [[], '<div id="start"></div>'],
+        [['DIV'], '<div><div id="start"></div></div>'],
+        [['DIV', 'P'], '<div><p><a id="start"></a></p></div>'],
+        [
+            ['DIV', 'DIV', 'P'],
+            '<div><div><p><a id="start"></a></p></div></div>'
+        ]
+    ])('%o === getParents(%o)', (expected, domNodes) => {
+        expect(
+            getParents((createDomNodes<HTMLElement>(domNodes))
+                .querySelector('#start') as HTMLElement
+            ).map((node) => node.nodeName)
+        ).toEqual(expected)
+    })
 
     testEach(
         'getText',

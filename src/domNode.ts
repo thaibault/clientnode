@@ -20,6 +20,22 @@ import {globalContext, NOOP} from './context'
 import {Mapping} from './type'
 import {timeout} from './utility'
 
+export const createDomNodes = <Type extends Node = Node>(
+    html: string
+): Type => {
+    const domNodeWrapper = document.createElement('div')
+    domNodeWrapper.innerHTML = html
+
+    if (domNodeWrapper.childNodes.length === 1)
+        /*
+            NOTE: We need to clone the nested child to decouple it from its
+            parent node.
+        */
+        return domNodeWrapper.childNodes[0].cloneNode(true) as Type
+
+    return domNodeWrapper as unknown as Type
+}
+
 export const fade = (
     domNode: HTMLElement, intervalInMilliseconds = 200, out = true
 ) => {
@@ -76,6 +92,15 @@ export const getAll = (root: Node) => {
 
     return nodes
 }
+export const getParents = (node: Node | null) => {
+    const result: Array<Node> = []
+    while (node?.parentNode) {
+        result.unshift(node.parentNode)
+        node = node.parentNode
+    }
+
+    return result
+}
 export const getText = (root: Node, recursive = false): Array<string> => {
     if (root.nodeType === Node.TEXT_NODE) {
         const content = root.nodeValue?.trim()
@@ -91,15 +116,6 @@ export const getText = (root: Node, recursive = false): Array<string> => {
     return result
 }
 
-export const createDomNodes = (html: string) => {
-    const domNode = document.createElement('div')
-    domNode.innerHTML = html
-
-    if (domNode.childNodes.length === 1)
-        return domNode.childNodes[0]
-
-    return domNode
-}
 /**
  * Checks whether given html or text strings are equal.
  * @param first - First html, selector to dom node or text to compare.
@@ -162,9 +178,6 @@ export const isEquivalentDOM = (
             domNodes[type] = html.cloneNode(true)
         else
             return false
-
-    console.log('A', (domNodes.first as Element).outerHTML)
-    console.log('B', (domNodes.second as Element).outerHTML)
 
     domNodes.first.normalize()
     domNodes.second.normalize()
