@@ -77,17 +77,16 @@ export const getAll = (root: Node) => {
     return nodes
 }
 export const getText = (root: Node, recursive = false): Array<string> => {
-    const result: Array<string> = []
-    for (const domNode of root.childNodes) {
-        if (domNode.nodeType === Node.TEXT_NODE) {
-            const content = domNode.nodeValue?.trim()
-            if (content)
-                result.push(content)
-        }
-
-        if (recursive)
-            result.push(...getText(domNode))
+    if (root.nodeType === Node.TEXT_NODE) {
+        const content = root.nodeValue?.trim()
+        if (content)
+            return [content]
     }
+
+    const result: Array<string> = []
+    for (const domNode of root.childNodes)
+        if (recursive || domNode.nodeType === Node.TEXT_NODE)
+            result.push(...getText(domNode))
 
     return result
 }
