@@ -15,16 +15,18 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {expect, test} from '@jest/globals'
+import {expect, jest, test} from '@jest/globals'
 
 import {
     createDomNodes,
     fade,
     fadeIn,
     fadeOut,
-    getAll, getParents,
+    getAll,
+    getParents,
     getText,
-    isEquivalentDOM
+    isEquivalentDOM,
+    onDocumentReady
 } from '../domNode'
 import {testEach, testEachAgainstSameExpectation} from '../test-helper'
 
@@ -166,4 +168,10 @@ if (TEST_ENVIRONMENT !== 'node') {
         ['text', 'text a'],
         ['text', 'text a & +']
     )
+
+    test('onDocumentReady', async () => {
+        const mockCallback = jest.fn()
+        await onDocumentReady(mockCallback)
+        expect(mockCallback).toHaveBeenCalledTimes(1)
+    })
 }

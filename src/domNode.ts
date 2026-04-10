@@ -184,3 +184,20 @@ export const isEquivalentDOM = (
 
     return domNodes.first.isEqualNode((domNodes.second))
 }
+
+export const onDocumentReady = (callback?: () => void): Promise<void> =>
+    new Promise((resolve) =>
+        void (async () => {
+            // see if DOM is already available
+            if (['complete', 'interactive'].includes(document.readyState)) {
+                // call on next available tick
+                await timeout()
+                resolve()
+                callback?.()
+            } else
+                document.addEventListener('DOMContentLoaded', () => {
+                    resolve()
+                    callback?.()
+                })
+        })()
+    )
