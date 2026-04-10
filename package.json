@@ -122,8 +122,8 @@
     }
   },
   "engines": {
-    "node": ">=20",
-    "npm": ">=10",
+    "node": ">=24",
+    "npm": ">=11",
     "yarn": ">=4"
   },
   "resolutions": {
