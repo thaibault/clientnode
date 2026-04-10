@@ -147,44 +147,6 @@ in given context.
 -->
 
 ```JavaScript
-...
-import Tools from 'clientnode'
-clas Plugin extends Tools...
-Tools({logging: true}).log('test') // shows "test" in console
-// or
-import {$} from 'clientnode'
-$.Tools().isEquivalentDom('<div>', '<script>') // false
-// or
-{makeArray} = require('clientnode').default
-makeArray(2) // [2]
-// or
-$ = require('clientnode').$
-$.Tools().isEquivalentDom('<div>', '<script>') // false
-...
-```
-
-<!--|deDE:Plugin-Vorlage-->
-Plugin pattern
---------------
-
-Use as extension for object orientated, node and browser compatible (optionally
-jQuery) plugin using inheritance and dom node as return value reference. This
-plugin pattern gives their instance back if no dom node is provided. Direct
-initializing the plugin without providing a dom node is also provided.
-Note: if you want to use it as jQuery (or another or even custom) plugin you
-have to provide "$" globally before loading this module.
-<!--deDE:
-    Einsatz von "$.Tools" um Objekt orientierte, node und Browser kompatible
-    (optional jQuery) Plugins zu implementieren, indem von "$.Tools" geerbt
-    wird und der durch jQuery erweiterte DOM-Knoten als return-Wert
-    referenziert wird. Sollte kein DOM-Knoten an die $-Funktion übergeben
-    worden sein, gibt dieser Pattern seine Instanz zurück.
-    Beachte: Wenn das Modul als jQuery (oder anderem potentiell eigenen) Plugin
-    einer bereits bestehenden Instanz hinzugefügt werden soll muss dieses unter
-    "$" global verfügbar sein bevor das Modul geladen wird.
--->
-
-```JavaScript
 'use strict'
 import {$} from 'clientnode'
 /**
