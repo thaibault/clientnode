@@ -16,7 +16,7 @@
 import {expect, jest, test} from '@jest/globals'
 
 import {TimeoutPromise} from '../type'
-import {debounce, timeout} from '../utility'
+import {debounce, preventDefault, stopPropagation, timeout} from '../utility'
 
 test('debounce', async (): Promise<void> => {
     let testValue = false
@@ -67,4 +67,16 @@ test('timeout', async (): Promise<void> => {
 
     expect(await timeout(callback)).toStrictEqual(false)
     expect(callback).toHaveBeenCalledTimes(2)
+})
+test('preventDefault', () => {
+    const mockCallback = jest.fn()
+    const mockEvent = {preventDefault: mockCallback} as unknown as Event
+    preventDefault(mockEvent)
+    expect(mockCallback).toHaveBeenCalledTimes(1)
+})
+test('stopPropagation', () => {
+    const mockCallback = jest.fn()
+    const mockEvent = {stopPropagation: mockCallback} as unknown as Event
+    stopPropagation(mockEvent)
+    expect(mockCallback).toHaveBeenCalledTimes(1)
 })
