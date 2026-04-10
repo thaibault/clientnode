@@ -48,7 +48,7 @@ export type Level = typeof LEVELS[number]
  * @property name - Logger description.
  */
 export class Logger {
-    static defaultLevel: Level = 'info'
+    static defaultLevel: Level = 'warn'
     static defaultName = 'app'
 
     static selfClass = Logger
