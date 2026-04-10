@@ -184,6 +184,32 @@ export const isEquivalentDOM = (
 
     return domNodes.first.isEqualNode((domNodes.second))
 }
+/**
+ * Checks whether the given dom node is visible or takes space in the document
+ * flow.
+ * Elements with visibility: hidden or opacity: 0 are considered to be visible,
+ * since they still consume space in the layout. During animations that hide an
+ * element, the element is considered to be visible until the end of the
+ * animation.
+ * @param domNode - To inspect.
+ * @returns A boolean indicating the visibility.
+ */
+export const isHidden = (domNode: HTMLElement): boolean =>
+    !globalContext.document?.contains(domNode) ||
+
+    domNode.style.display === 'none' ||
+
+    domNode.nodeName === 'INPUT' &&
+    domNode.getAttribute('type') === 'hidden' ||
+
+    ['contents', 'inline'].includes(domNode.style.display) &&
+    (!('innerHTML' in domNode) || domNode.innerHTML.trim() === '') ||
+
+    domNode.style.height === '0px' &&
+    domNode.style.width === '0px' ||
+
+    Boolean(domNode.parentElement) &&
+    isHidden(domNode.parentElement as HTMLElement)
 
 export const onDocumentReady = (callback?: () => void): Promise<void> =>
     new Promise((resolve) =>
