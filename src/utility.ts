@@ -144,3 +144,9 @@ export const timeout = (...parameters: Array<unknown>): TimeoutPromise => {
 
     return result
 }
+export const preventDefault = (event: Event) => {
+    event.preventDefault()
+}
+export const stopPropagation = (event: Event) => {
+    event.stopPropagation()
+}
