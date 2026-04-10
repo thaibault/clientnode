@@ -26,6 +26,7 @@ import {
     getParents,
     getText,
     isEquivalentDOM,
+    isHidden,
     onDocumentReady
 } from '../domNode'
 import {testEach, testEachAgainstSameExpectation} from '../test-helper'
@@ -168,6 +169,58 @@ if (TEST_ENVIRONMENT !== 'node') {
         ['text', 'text a'],
         ['text', 'text a & +']
     )
+
+    test('isHidden', () => {
+        const domNode =
+            createDomNodes<HTMLDivElement>('<div></div>')
+        domNode.style.height = '100px'
+        domNode.style.width = '100px'
+
+        // Not connected to DOM.
+        expect(isHidden(domNode)).toStrictEqual(true)
+
+        document.body.appendChild(domNode)
+
+        // Connected to DOM.
+        expect(isHidden(domNode)).toStrictEqual(false)
+
+        // Hidden via CSS.
+        domNode.style.display = 'none'
+        expect(isHidden(domNode)).toStrictEqual(true)
+        // Hidden block elements still take space in layout.
+        domNode.style.display = 'block'
+        domNode.style.visibility = 'hidden'
+        expect(isHidden(domNode)).toStrictEqual(false)
+        domNode.style.height = '0'
+        domNode.style.width = '0'
+        expect(isHidden(domNode)).toStrictEqual(true)
+        domNode.style.height = '100px'
+        domNode.style.width = '100px'
+        domNode.style.display = 'inline'
+        expect(isHidden(domNode)).toStrictEqual(true)
+
+        domNode.textContent = 'some content'
+        expect(isHidden(domNode)).toStrictEqual(false)
+
+        // Parent is hidden.
+        const wrapperDomNode = createDomNodes<HTMLDivElement>(
+            '<div><div id="target"></div></div>'
+        )
+        document.body.appendChild(wrapperDomNode)
+        const nestedDomNode =
+            wrapperDomNode.querySelector('#target') as HTMLDivElement
+        expect(isHidden(nestedDomNode)).toStrictEqual(false)
+        wrapperDomNode.style.display = 'none'
+        expect(isHidden(nestedDomNode)).toStrictEqual(true)
+
+        // Form input is visible/hidden.
+        const inputDomNode =
+            createDomNodes<HTMLDivElement>('<input />')
+        document.body.appendChild(inputDomNode)
+        expect(isHidden(inputDomNode)).toStrictEqual(false)
+        inputDomNode.setAttribute('type', 'hidden')
+        expect(isHidden(inputDomNode)).toStrictEqual(true)
+    })
 
     test('onDocumentReady', async () => {
         const mockCallback = jest.fn()
