@@ -115,7 +115,6 @@ export const getText = (root: Node, recursive = false): Array<string> => {
 
     return result
 }
-
 /**
  * Checks whether given html or text strings are equal.
  * @param first - First html, selector to dom node or text to compare.
@@ -125,7 +124,7 @@ export const getText = (root: Node, recursive = false): Array<string> => {
  * triggered).
  * @returns Returns true if both dom representations are equivalent.
  */
-export const isEquivalentDOM = (
+export const isEquivalent = (
     first: Node | string, second: Node | string, forceHTMLString = false
 ): boolean => {
     if (first === second)
@@ -214,9 +213,9 @@ export const isHidden = (domNode: HTMLElement): boolean =>
 export const onDocumentReady = (callback?: () => void): Promise<void> =>
     new Promise((resolve) =>
         void (async () => {
-            // see if DOM is already available
+            // See if document object model is already available.
             if (['complete', 'interactive'].includes(document.readyState)) {
-                // call on next available tick
+                // Call on next available tick.
                 await timeout()
                 resolve()
                 callback?.()
@@ -227,3 +226,19 @@ export const onDocumentReady = (callback?: () => void): Promise<void> =>
                 })
         })()
     )
+export const wrap = (
+    domNodes: Node | NodeListOf<Node>, wrapper: HTMLElement
+) => {
+    const domNodeList = (domNodes as NodeListOf<Node>).length ?
+        Array.from(domNodes as NodeListOf<Node>) :
+        [domNodes as Node]
+
+    // Use the first element's position as the anchor point
+    const first = domNodeList[0]
+
+    if (first.parentNode)
+        first.parentNode.insertBefore(wrapper, first)
+
+    for (const domNode of domNodeList)
+        wrapper.appendChild(domNode)
+}

@@ -25,9 +25,10 @@ import {
     getAll,
     getParents,
     getText,
-    isEquivalentDOM,
+    isEquivalent,
     isHidden,
-    onDocumentReady
+    onDocumentReady,
+    wrap
 } from '../domNode'
 import {testEach, testEachAgainstSameExpectation} from '../test-helper'
 
@@ -97,8 +98,8 @@ if (TEST_ENVIRONMENT !== 'node') {
     )
 
     testEachAgainstSameExpectation(
-        'isEquivalentDOM',
-        isEquivalentDOM,
+        'isEquivalent',
+        isEquivalent,
         true,
 
         ['test', 'test'],
@@ -145,8 +146,8 @@ if (TEST_ENVIRONMENT !== 'node') {
         ['a<br>', 'a<br />', true]
     )
     testEachAgainstSameExpectation(
-        'isEquivalentDOM',
-        isEquivalentDOM,
+        'isEquivalent',
+        isEquivalent,
         false,
 
         ['test', ''],
@@ -226,5 +227,25 @@ if (TEST_ENVIRONMENT !== 'node') {
         const mockCallback = jest.fn()
         await onDocumentReady(mockCallback)
         expect(mockCallback).toHaveBeenCalledTimes(1)
+    })
+
+    test('wrap', () => {
+        const domNode = createDomNodes('<div></div>')
+        const wrapper = createDomNodes<HTMLElement>('<wrapper></wrapper>')
+
+        wrap(domNode, wrapper)
+
+        expect(isEquivalent(wrapper, '<wrapper><div></div></wrapper>'))
+            .toStrictEqual(true)
+
+        const boundWrapper = createDomNodes<HTMLElement>('<wrapper></wrapper>')
+
+        document.body.appendChild(boundWrapper)
+
+        wrap(wrapper, boundWrapper)
+
+        expect(isEquivalent(
+            boundWrapper, '<wrapper><wrapper><div></div></wrapper></wrapper>'
+        )).toStrictEqual(true)
     })
 }
