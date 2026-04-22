@@ -1221,8 +1221,8 @@ export const representPhoneNumber = (value: unknown): string => {
     if (['number', 'string'].includes(determineType(value)) && value) {
         // Represent country code and leading area code zero.
         let normalizedValue =
-            String(value as number)
-                .replace(/^(00|\+)([0-9]+)-([0-9-]+)$/, '+$2 (0) $3')
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+            String(value).replace(/^(00|\+)([0-9]+)-([0-9-]+)$/, '+$2 (0) $3')
 
         // Add German country code if not exists.
         normalizedValue =

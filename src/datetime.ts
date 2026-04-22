@@ -66,8 +66,7 @@ export const dateTimeFormat = (
 
         const dateTimeFormat: Intl.DateTimeFormat = new Intl.DateTimeFormat(
             ([] as Array<string>).concat(locales, 'en-US'),
-            {dateStyle: style, timeStyle: style, ...options} as
-                SecondParameter<typeof Intl.DateTimeFormat>
+            {dateStyle: style, timeStyle: style, ...options}
         )
 
         scope[style] = dateTimeFormat.format(normalizedDateTime)

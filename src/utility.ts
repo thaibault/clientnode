@@ -125,9 +125,7 @@ export const timeout = (...parameters: Array<unknown>): TimeoutPromise => {
                 numberOfRemainingTimeouts -= 1
 
                 result.timeoutID =
-                    setTimeout(delay, maximumTimeoutDelayInMilliseconds) as
-                        unknown as
-                        NodeJS.Timeout
+                    setTimeout(delay, maximumTimeoutDelayInMilliseconds)
             } else
                 result.timeoutID =
                     setTimeout(wrappedCallback, finalTimeoutDuration)

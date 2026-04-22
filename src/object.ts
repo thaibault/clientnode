@@ -33,7 +33,6 @@ import {
     NormalizedObjectMask,
     ObjectMaskConfiguration,
     PlainObject,
-    Primitive,
     ProxyHandler,
     ProxyType,
     RecursiveEvaluateable,
@@ -98,7 +97,7 @@ export const addDynamicGetterAndSetter = <T = unknown>(
                         setterWrapper,
                         methodNames,
                         deep
-                    ) as unknown as T[Extract<keyof T, string>]
+                    )
 
     if (getterWrapper || setterWrapper)
         for (const type of typesToExtend)
@@ -285,7 +284,7 @@ export const convertPlainObjectToMap = (
             for (const [key, value] of Object.entries(object)) {
                 if (deep)
                     (object as Mapping<unknown>)[key] =
-                        convertPlainObjectToMap(value, deep) as Primitive
+                        convertPlainObjectToMap(value, deep)
 
                 newObject.set(key, (object as Mapping<unknown>)[key])
             }
@@ -334,12 +333,11 @@ export const convertSubstringInPlainObject = <
     for (const [key, value] of Object.entries(object))
         if (isPlainObject(value))
             object[key as keyof Type] =
-                convertSubstringInPlainObject(
-                    value as unknown as PlainObject, pattern, replacement
-                ) as unknown as ValueOf<Type>
+                convertSubstringInPlainObject(value, pattern, replacement) as
+                    unknown as ValueOf<Type>
         else if (typeof value === 'string')
             (object as unknown as Mapping)[key] =
-                (value as unknown as string).replace(pattern, replacement)
+                value.replace(pattern, replacement)
 
     return object
 }
@@ -1161,9 +1159,7 @@ export const removeKeysInEvaluation = <
         if (
             !expressionIndicators.includes(key) &&
             expressionIndicators.some((name: string): boolean =>
-                Object.prototype.hasOwnProperty.call(
-                    data as unknown as Mapping<unknown>, name
-                )
+                Object.prototype.hasOwnProperty.call(data, name)
             )
         )
             delete (data as unknown as Mapping<unknown>)[key]
@@ -1371,17 +1367,17 @@ export const mask = <Type extends Mapping<unknown> = Mapping<unknown>>(
             maskConfiguration.exclude.reduce(
                 (mask, key) => ({...mask, [key]: true}),
                 {}
-            ) as NormalizedObjectMask :
+            ) :
             maskConfiguration.exclude as NormalizedObjectMask
     const include: NormalizedObjectMask =
         Array.isArray(maskConfiguration.include) ?
             maskConfiguration.include.reduce(
                 (mask, key) => ({...mask, [key]: true}),
                 {}
-            ) as NormalizedObjectMask :
+            ) :
             maskConfiguration.include as NormalizedObjectMask
 
-    let result: Partial<Type> = {} as Partial<Type>
+    let result: Partial<Type> = {}
     if (isPlainObject(include)) {
         for (const [key, value] of Object.entries(include))
             if (Object.prototype.hasOwnProperty.call(object, key))
