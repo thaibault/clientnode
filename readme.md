@@ -28,7 +28,7 @@ Project status
 [![deploy web documentation](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/deploy-web-documentation.yaml?label=deploy%20web%20documentation&style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/deploy-web-documentation.yaml)
 [![documentation website](https://img.shields.io/website-up-down-green-red/https/torben.website/clientnode.svg?label=documentation-website&style=for-the-badge)](https://torben.website/clientnode)
 
-[![Try out](https://img.shields.io/badge/Try%20it%20on%20runkit-%2345cc11?style=for-the-badge)](https://npm.runkit.com/clientnode)
+[![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?style=for-the-badge&logo=codesandbox)](https://githubbox.com/thaibault/clientnode)
 
 <!--|deDE:Einsatz-->
 Use case
