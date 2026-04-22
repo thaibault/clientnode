@@ -28,15 +28,15 @@ export const determineGlobalContext = (): Partial<typeof globalThis> => {
                     typeof globalThis
 
             if (Object.prototype.hasOwnProperty.call(global, 'window'))
-                return global.window as unknown as typeof globalThis
+                return global.window
 
-            return global as unknown as typeof globalThis
+            return global
         }
 
-        return window as unknown as typeof globalThis
+        return window
     }
 
-    return globalThis as unknown as typeof globalThis
+    return globalThis
 }
 export let globalContext = determineGlobalContext()
 export const setGlobalContext = (context: typeof globalThis) => {

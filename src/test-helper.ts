@@ -24,7 +24,6 @@
 */
 // region imports
 import {expect, test} from '@jest/globals'
-import {Global as JestGlobal} from '@jest/types'
 
 import {represent} from './object'
 import {
@@ -36,7 +35,7 @@ import {
     TestMatchers as Matchers,
     TestSymbol,
     ThenParameter,
-    UnknownFunction, TestMatchers
+    UnknownFunction
 } from './type'
 // endregion
 export const TEST_DEFINED_SYMBOL = Symbol.for('clientnodeTestHelperDefined')
@@ -97,10 +96,10 @@ const _testEach = <
             ...parameters: Parameters<FunctionType>
         ) => {
             expectExpectedType<ReturnType<FunctionType>>(
-                callback(...parameters) as TestMatchers<void> | void,
+                callback(...parameters) as Matchers<void> | void,
                 expected
             )
-        }) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+        })
     )
 }
 /**
@@ -166,7 +165,7 @@ const _testEachPromise = <
             expectExpectedType<
                 ThenParameter<ReturnType<FunctionType>>, Promise<void>
             >(expect(callback(...parameters)).resolves, expected, false)
-        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+        )
     )
 }
 /**
@@ -238,7 +237,7 @@ const _testEachPromiseRejection = <
             expectExpectedType<Error, Promise<void>>(
                 expect(callback(...parameters)).rejects, expected, false
             )
-        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+        )
     )
 }
 /**
@@ -315,10 +314,10 @@ const _testEachSingleParameterAgainstSameExpectation = <
                 (expected === TEST_THROW_SYMBOL ?
                     () => callback(parameter) as unknown :
                     callback(parameter)
-                ) as TestMatchers<void> | void,
+                ) as Matchers<void> | void,
                 expected
             )
-        }) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+        })
     )
 }
 /**
@@ -391,7 +390,7 @@ const _testEachSingleParameterAgainstSamePromisedExpectation = <
             expectExpectedType<
                 ThenParameter<ReturnType<FunctionType>>, Promise<void>
             >(expect(callback(parameter)).resolves, expected, false)
-        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+        )
     )
 }
 /**
@@ -464,7 +463,7 @@ const _testEachSingleParameterAgainstSameRejectedExpectation = <
             expectExpectedType<Error, Promise<void>>(
                 expect(callback(parameter)).rejects, expected, false
             )
-        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+        )
     )
 }
 /**
@@ -539,10 +538,10 @@ const _testEachAgainstSameExpectation = <
                 (expected === TEST_THROW_SYMBOL ?
                     () => callback(...parameters) as unknown :
                     callback(...parameters)
-                ) as TestMatchers<void> | void,
+                ) as Matchers<void> | void,
                 expected
             )
-        }) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+        })
     )
 }
 /**
@@ -617,7 +616,7 @@ const _testEachPromiseAgainstSameExpectation = <
             expectExpectedType<
                 ThenParameter<ReturnType<FunctionType>>, Promise<void>
             >(expect(callback(...parameters)).resolves, expected, false)
-        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+        )
     )
 }
 /**
@@ -692,7 +691,7 @@ const _testEachPromiseRejectionAgainstSameExpectation = <
             expectExpectedType<Error, Promise<void>>(
                 expect(callback(...parameters)).rejects, expected, false
             )
-        ) as JestGlobal.EachTestFn<JestGlobal.TestFn>
+        )
     )
 }
 /**

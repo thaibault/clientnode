@@ -108,7 +108,7 @@ export const isolateScope = <T extends Mapping<unknown>>(
 export const determineUniqueScopeName = (
     prefix = 'callback',
     suffix = '',
-    scope: Mapping<unknown> = globalContext as unknown as Mapping<unknown>,
+    scope: Mapping<unknown> = globalContext,
     initialUniqueName = ''
 ): string => {
     if (initialUniqueName.length && !(initialUniqueName in scope))
