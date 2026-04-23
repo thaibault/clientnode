@@ -28,6 +28,7 @@ import {
     isEquivalent,
     isHidden,
     onDocumentReady,
+    unwrap,
     wrap
 } from '../domNode'
 import {testEach, testEachAgainstSameExpectation} from '../test-helper'
@@ -247,5 +248,48 @@ if (TEST_ENVIRONMENT !== 'node') {
         expect(isEquivalent(
             boundWrapper, '<wrapper><wrapper><div></div></wrapper></wrapper>'
         )).toStrictEqual(true)
+    })
+
+    test.each(
+        [
+            ['<div><wrapper><p></p></wrapper></div>', '<div><p></p></div>', 1],
+            [
+                '<div><wrapper><p></p>text</wrapper></div>',
+                '<div><p></p>text</div>',
+                2
+            ],
+            ['<wrapper>text</wrapper>', '<wrapper>text</wrapper>', 1],
+            ['<div><wrapper></wrapper></div>', '<div></div>', 0]
+        ]
+    )(
+        '%s => %s; unwrap().length === %d',
+        (context, expectedContext, expectedChildNodesLength) => {
+            const contextDomNode = createDomNodes<HTMLElement>(context)
+            const wrapper =
+                contextDomNode.querySelector<HTMLElement>('wrapper') ??
+                contextDomNode
+
+            expect(unwrap(wrapper))
+                .toHaveProperty('length', expectedChildNodesLength)
+
+            expect(isEquivalent(contextDomNode, expectedContext))
+                .toStrictEqual(true)
+        }
+    )
+
+    test('bound unwrap', () => {
+        const boundWrapperContext = createDomNodes<HTMLElement>(
+            '<div><wrapper><div></div></wrapper></div>'
+        )
+        const boundWrapper =
+            boundWrapperContext.querySelector<HTMLElement>('wrapper') ??
+            boundWrapperContext
+
+        document.body.appendChild(boundWrapperContext)
+
+        expect(unwrap(boundWrapper)).toHaveProperty('length', 1)
+
+        expect(isEquivalent(boundWrapperContext, '<div><div></div></div>'))
+            .toStrictEqual(true)
     })
 }

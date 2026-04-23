@@ -242,3 +242,25 @@ export const wrap = (
     for (const domNode of domNodeList)
         wrapper.appendChild(domNode)
 }
+/**
+ * Moves content of given dom node one level up and removes given node.
+ * @param domNode - Node to unwrap.
+ * @returns List of unwrapped nodes.
+ */
+export const unwrap = (domNode: HTMLElement): Array<ChildNode> => {
+    const parent = domNode.parentNode
+
+    const result: Array<ChildNode> = []
+    // NOTE: We need to use "Array.from" to copy the list.
+    for (const childNode of Array.from(domNode.childNodes)) {
+        result.push(childNode)
+
+        if (parent)
+            parent.insertBefore(childNode, domNode)
+    }
+
+    if (parent)
+        parent.removeChild(domNode)
+
+    return result
+}
