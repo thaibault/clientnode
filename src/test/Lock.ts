@@ -22,6 +22,10 @@ test('acquire|release', async (): Promise<void> => {
     const lock = new Lock<void>()
     const anotherLock = new Lock<void>()
 
+    const simpleLock = new Lock<void>()
+    await expect(lock.acquire()).resolves.toBeUndefined()
+    await expect(simpleLock.release()).resolves.toBeUndefined()
+
     let testValue = 'a'
     await lock.acquire('test', () => {
         testValue = 'b'
@@ -29,7 +33,7 @@ test('acquire|release', async (): Promise<void> => {
     expect(testValue).toStrictEqual('b')
     expect(lock.acquire(
         'test',
-        ()=> {
+        () => {
             testValue = 'a'
         }
     )).toBeInstanceOf(Promise)

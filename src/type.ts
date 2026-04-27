@@ -321,7 +321,7 @@ export type EvaluationResult<Type = string> =
     PositiveEvaluationResult<Type> | NegativeEvaluationResult
 
 export type LockCallbackFunction<Type> =
-    (description: string) => Promise<Type> | Type
+    (description?: string) => Promise<Type> | Type
 /// endregion
 export interface StringMarkOptions {
     marker:

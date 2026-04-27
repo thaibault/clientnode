@@ -24,6 +24,7 @@ import {LockCallbackFunction, Mapping} from './type'
  * callbacks.
  */
 export class Lock<Type = string | undefined> {
+    lock?: Array<LockCallbackFunction<Type>>
     locks: Mapping<Array<LockCallbackFunction<Type>>>
     /**
      * Initializes locks.
@@ -46,13 +47,13 @@ export class Lock<Type = string | undefined> {
      * @returns Returns a promise which will be resolved after releasing lock.
      */
     acquire(
-        description: string,
+        description?: string,
         callback?: LockCallbackFunction<Type>,
         autoRelease = false
     ): Promise<Type> {
         return new Promise<Type>((resolve: (value: Type) => void): void => {
             const wrappedCallback: LockCallbackFunction<Type> = (
-                description: string
+                description?: string
             ): Promise<Type> | Type => {
                 let result: Promise<Type> | Type | undefined
                 if (callback)
@@ -75,10 +76,24 @@ export class Lock<Type = string | undefined> {
                 return result as Type
             }
 
-            if (Object.prototype.hasOwnProperty.call(this.locks, description))
-                this.locks[description].push(wrappedCallback)
+            if (description) {
+                if (Object.prototype.hasOwnProperty.call(
+                    this.locks, description)
+                )
+                    this.locks[description].push(wrappedCallback)
+                else {
+                    this.locks[description] = []
+
+                    void wrappedCallback(description)
+                }
+
+                return
+            }
+
+            if (this.lock)
+                this.lock.push(wrappedCallback)
             else {
-                this.locks[description] = []
+                this.lock = []
 
                 void wrappedCallback(description)
             }
@@ -92,16 +107,30 @@ export class Lock<Type = string | undefined> {
      * @returns Returns the return (maybe promise resolved) value of the
      * callback given to the "acquire" method.
      */
-    async release(description: string): Promise<Type | undefined> {
-        if (Object.prototype.hasOwnProperty.call(this.locks, description)) {
-            const callback: LockCallbackFunction<Type> | undefined =
-                this.locks[description].shift()
+    async release(description?: string): Promise<Type | undefined> {
+        if (description) {
+            if (Object.prototype.hasOwnProperty.call(
+                this.locks, description
+            )) {
+                const callback: LockCallbackFunction<Type> | undefined =
+                    this.locks[description].shift()
 
-            if (callback === undefined)
-                delete this.locks[description]
-            else
-                return await callback(description)
+                if (callback === undefined)
+                    delete this.locks[description]
+                else
+                    return await callback(description)
+            }
+
+            return
         }
+
+        const callback: LockCallbackFunction<Type> | undefined =
+            this.lock?.shift()
+
+        if (callback === undefined)
+            this.lock = undefined
+        else
+            return await callback()
     }
 }
 
