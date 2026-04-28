@@ -34,7 +34,7 @@ import {
     ValueOf
 } from './type'
 
-export const POLYFILL_TEMPLATES = {value: false}
+export const POLYFILL_TEMPLATE_STRINGS = {value: false}
 // Partial regular expression matching symbols which should be allowed within a
 // variable name excluding the first character.
 export const ALLOWED_VARIABLE_SYMBOLS = '0-9a-zA-Z_$'
@@ -628,7 +628,7 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
         result.scopeNames.push(newName)
     }
     // region try to polyfill template string literals for older engines
-    if (POLYFILL_TEMPLATES.value)
+    if (POLYFILL_TEMPLATE_STRINGS.value)
         if (((
             globalContext as Mapping<unknown>
         ).Babel as Mapping<unknown> | undefined)?.transform)

@@ -47,7 +47,8 @@ import {
     normalizePhoneNumber,
     normalizeURL,
     normalizeZipCode,
-    parseEncodedObject, POLYFILL_TEMPLATES,
+    parseEncodedObject,
+    POLYFILL_TEMPLATE_STRINGS,
     representPhoneNumber,
     representURL,
     serviceURLEquals,
@@ -714,14 +715,14 @@ test.each([
 ])(
     'IE 11: "%s" === String(compile("%s").templateFunction)',
     (expected: string, expression: FirstParameter<typeof compile>) => {
-        const backup = MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value
-        MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value = 11
+        const backup = POLYFILL_TEMPLATE_STRINGS.value
+        POLYFILL_TEMPLATE_STRINGS.value = true
 
         expect(
             String(compile(expression, [], false, false).templateFunction)
         ).toStrictEqual(expected.trim().replace(/\n +/g, '\n'))
 
-        MAXIMAL_SUPPORTED_INTERNET_EXPLORER_VERSION.value = backup
+        POLYFILL_TEMPLATE_STRINGS.value = backup
     }
 )
  */
@@ -892,8 +893,8 @@ test.each(([
         expected: unknown,
         binding: unknown
     ): void => {
-        const backup = POLYFILL_TEMPLATES.value
-        POLYFILL_TEMPLATES.value = true
+        const backup = POLYFILL_TEMPLATE_STRINGS.value
+        POLYFILL_TEMPLATE_STRINGS.value = true
 
         const evaluation: EvaluationResult = evaluate(
             expression,
@@ -916,7 +917,7 @@ test.each(([
                 expect(evaluation[resultKey as keyof EvaluationResult])
                     .toStrictEqual(expected)
 
-        POLYFILL_TEMPLATES.value = backup
+        POLYFILL_TEMPLATE_STRINGS.value = backup
     }
 )
 ///// endregion

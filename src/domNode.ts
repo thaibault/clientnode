@@ -75,7 +75,7 @@ export const fade = (
 }
 export const fadeIn = (domNode: HTMLElement, intervalInMilliseconds = 200) =>
     fade(domNode, intervalInMilliseconds, false)
-export const fadeOut = (domNode: HTMLElement, intervalInMilliseconds = 200)=>
+export const fadeOut = (domNode: HTMLElement, intervalInMilliseconds = 200) =>
     fade(domNode, intervalInMilliseconds)
 
 export const getAll = (root: Node) => {
