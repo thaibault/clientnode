@@ -28,6 +28,7 @@ import {
     isEquivalent,
     isHidden,
     onDocumentReady,
+    replace,
     unwrap,
     wrap
 } from '../domNode'
@@ -228,6 +229,17 @@ if (TEST_ENVIRONMENT !== 'node') {
         const mockCallback = jest.fn()
         await onDocumentReady(mockCallback)
         expect(mockCallback).toHaveBeenCalledTimes(1)
+    })
+
+    test('replace', () => {
+        const context = createDomNodes<HTMLDivElement>('<div><p></p></div>')
+        const domNode = context.querySelector('p')
+        const replacement = createDomNodes('<span></span>')
+
+        replace(domNode as HTMLElement, replacement)
+
+        expect(isEquivalent(context, '<div><span></span></div>'))
+            .toStrictEqual(true)
     })
 
     test('wrap', () => {

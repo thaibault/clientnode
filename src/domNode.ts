@@ -226,6 +226,34 @@ export const onDocumentReady = (callback?: () => void): Promise<void> =>
                 })
         })()
     )
+
+/**
+ * Replaces given dom node with given nodes.
+ * @param domNodeToReplace - Node to replace its children.
+ * @param replacementDomNodes - Node or array of nodes to use as replacement.
+ * @param skipEmptyTextNodes - Configures whether to trim text.
+ */
+export const replace = (
+    domNodeToReplace: HTMLElement,
+    replacementDomNodes: Array<Node> | Node,
+    skipEmptyTextNodes = false
+) => {
+    for (
+        const replacement of
+        ([] as Array<Node>).concat(replacementDomNodes).reverse()
+    )
+        if (!(
+            skipEmptyTextNodes &&
+            (
+                replacement.nodeType === Node.TEXT_NODE &&
+                replacement.nodeValue?.trim() === ''
+            )
+        ))
+            domNodeToReplace.after(replacement)
+
+    domNodeToReplace.remove()
+}
+
 export const wrap = (
     domNodes: Node | NodeListOf<Node>, wrapper: HTMLElement
 ) => {
