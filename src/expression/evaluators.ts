@@ -266,7 +266,7 @@ export const evaluateSelector = <Type, ScopeType extends BasicScopeType>(
     if (Object.prototype.hasOwnProperty.call(lastObject, lastKey))
         return (lastObject as Mapping<Type>)[lastKey]
 
-    return undefined as Type
+    return options.skipMissingLevel ? lastObject : undefined as Type
 }
 
 export const evaluateCondition = <ScopeType extends BasicScopeType>(

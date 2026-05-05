@@ -104,6 +104,8 @@ describe('Evaluators', () => {
         evaluateSelector,
 
         [{}, [], {}],
+        [undefined, ['notExisting'], {}],
+        [{}, ['notExisting'], {}, {skipMissingLevel: true}],
         [{}, [''], {}],
         [{}, '', {}],
         [1, ['a'], {a: 1}],
