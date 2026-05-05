@@ -11,7 +11,7 @@
     License
     -------
 
-    This library written by Torben Sickert stand under a creative commons
+    This library written by Torben Sickert stands under a creative commons
     naming 3.0 unported license.
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
@@ -118,9 +118,9 @@ export const getText = (root: Node, recursive = false): Array<string> => {
 /**
  * Checks whether given html or text strings are equal.
  * @param first - First html, selector to dom node or text to compare.
- * @param second - Second html, selector to dom node  or text to compare.
+ * @param second - Second html, selector to dom node or text to compare.
  * @param forceHTMLString - Indicates whether given contents are
- * interpreted as html string (otherwise an automatic detection will be
+ * interpreted as html string (otherwise automatic detection will be
  * triggered).
  * @returns Returns true if both dom representations are equivalent.
  */
@@ -147,7 +147,7 @@ export const isEquivalent = (
     }
 
     /*
-        NOTE: Assume that strings that start "<" and end with ">" are markup
+        NOTE: Assume that strings that start "<" and end with ">" are mark up
         and skip the more expensive regular expression check.
     */
     for (const [type, html] of Object.entries(inputs))
@@ -228,7 +228,7 @@ export const onDocumentReady = (callback?: () => void): Promise<void> =>
     )
 
 /**
- * Replaces given dom node with given nodes.
+ * Replaces a given dom node with given nodes.
  * @param domNodeToReplace - Node to replace its children.
  * @param replacementDomNodes - Node or array of nodes to use as replacement.
  * @param skipEmptyTextNodes - Configures whether to trim text.
@@ -271,7 +271,8 @@ export const wrap = (
         wrapper.appendChild(domNode)
 }
 /**
- * Moves content of given dom node one level up and removes given node.
+ * Moves the content of a given dom node one level up and removes the given
+ * node.
  * @param domNode - Node to unwrap.
  * @returns List of unwrapped nodes.
  */
