@@ -11,7 +11,7 @@
     License
     -------
 
-    This library written by Torben Sickert stand under a creative commons
+    This library written by Torben Sickert stands under a creative commons
     naming 3.0 unported license.
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
@@ -64,7 +64,7 @@ export const FIX_ENCODING_ERROR_MAPPING = [
 ] as const
 
 /**
- * Translates given string into the regular expression validated
+ * Translates a given string into the regular expression validated
  * representation.
  * @param value - String to convert.
  * @param excludeSymbols - Symbols not to escape.
@@ -89,7 +89,7 @@ export const escapeRegularExpressions = (
     return value
 }
 /**
- * Translates given name into a valid javaScript one.
+ * Translates a given name into a valid JavaScript one.
  * @param name - Name to convert.
  * @returns Converted name is returned.
  */
@@ -109,7 +109,7 @@ export const convertToValidVariableName = (name: string): string => {
         )
 }
 /**
- * This method is intended for encoding *key* or *value* parts of query
+ * This method is intended for encoding *key* or *value* parts of a query
  * component. We need a custom method because "encodeURIComponent()" is too
  * aggressive and encodes stuff that doesn't have to be encoded per
  * "http://tools.ietf.org/html/rfc3986:".
@@ -131,7 +131,7 @@ export const encodeURIComponentExtended = (
 /**
  * Appends a path selector to the given path if there isn't one yet.
  * @param path - The path for appending a selector.
- * @param pathSeparator - The selector for appending to path.
+ * @param pathSeparator - The selector for appending to a path.
  * @returns The appended path.
  */
 export const addSeparatorToPath = (
@@ -145,12 +145,12 @@ export const addSeparatorToPath = (
     return path
 }
 /**
- * Checks if given path has given path prefix.
+ * Checks if a given path has given path prefix.
  * @param prefix - Path prefix to search for.
  * @param path - Path to search in.
- * @param separator - Delimiter to use in path (default is the posix
+ * @param separator - Delimiter to use in a path (default is the posix
  * conform slash).
- * @returns Value "true" if given prefix occur and "false" otherwise.
+ * @returns Value "true" if given prefix occurs and "false" otherwise.
  */
 export const hasPathPrefix = (
     prefix: unknown = '/admin',
@@ -172,7 +172,7 @@ export const hasPathPrefix = (
 }
 /**
  * Extracts domain name from given url. If no explicit domain name given
- * current domain name will be assumed. If no parameter given current
+ * current domain name will be assumed. If no parameter is given, the current
  * domain name will be determined.
  * @param url - The url to extract domain from.
  * @param fallback - The fallback host name if no one exits in given url
@@ -192,13 +192,13 @@ export const getDomainName = (
     return fallback
 }
 /**
- * Extracts port number from given url. If no explicit port number given
- * and no fallback is defined current port number will be assumed for local
+ * Extracts port number from given url. If no explicit port number is given
+ * and no fallback is defined, the current port number will be assumed for local
  * links. For external links 80 will be assumed for http protocols and 443
  * for https protocols.
  * @param url - The url to extract port from.
  * @param fallback - Fallback port number if no explicit one was found.
- * Default is derived from current protocol name.
+ * Default is derived from the current protocol name.
  * @returns Extracted port number.
  */
 export const getPortNumber = (
@@ -228,8 +228,8 @@ export const getPortNumber = (
 }
 /**
  * Extracts protocol name from given url. If no explicit url is given,
- * current protocol will be assumed. If no parameter given current protocol
- * number will be determined.
+ * the current protocol will be assumed. If no parameter is given, the current
+ * protocol number will be determined.
  * @param url - The url to extract protocol from.
  * @param fallback - Fallback port to use if no protocol exists in given
  * url (default is current protocol).
@@ -255,28 +255,28 @@ export const getProtocolName = (
 /**
  * Read a page's GET URL variables and return them as an associative array
  * and preserves ordering.
- * @param keyToGet - If provided the corresponding value for given key is
+ * @param keyToGet - If provided the corresponding value for a given key is
  * returned or full object otherwise.
  * @param allowDuplicates - Indicates whether to return arrays of values or
  * single values. If set to "false" (default) last values will overwrite
  * preceding values.
  * @param givenInput - An alternative input to the url search parameter. If
- * "#" is given the complete current hashtag will be interpreted as url and
- * search parameter will be extracted from there. If "&" is given classical
- * search parameter and hash parameter will be taken in account. If a search
- * string is given this will be analyzed. The default is to take given search
- * part into account.
+ * "#" is given, the complete current hashtag will be interpreted as url and
+ * search parameter will be extracted from there. If "&" is given a classical
+ * search parameter, and hash parameter will be taken in an account. If a
+ * search string is given, this will be analyzed. The default is to take a
+ * given search part into account.
  * @param subDelimiter - Defines which sequence indicates the start of
  * parameter in a hash part of the url.
  * @param hashedPathIndicator - If defined and given hash starts with this
- * indicator given hash will be interpreted as path containing search and
+ * indicator, given hash will be interpreted as a path containing search and
  * hash parts.
  * @param givenSearch - Search part to take into account defaults to
  * current url search part.
  * @param givenHash - Hash part to take into account defaults to current
  * url hash part.
- * @returns Returns the current get array or requested value. If requested
- * key doesn't exist "undefined" is returned.
+ * @returns Returns the current get array or requested value. If the requested
+ * key doesn't exist, "undefined" is returned.
  */
 export const getURLParameter = (
     keyToGet: null | string = null,
@@ -375,8 +375,8 @@ export const getURLParameter = (
     return parameters
 }
 /**
- * Checks if given url points to another "service" than second given url.
- * If no second given url provided current url will be assumed.
+ * Checks if given url points to another "service" than the second given url.
+ * If no second given url is provided, the current url will be assumed.
  * @param url - URL to check against second url.
  * @param referenceURL - URL to check against first url.
  * @returns Returns "true" if given first url has same domain as given
@@ -428,7 +428,7 @@ export const representURL = (url: unknown): string => {
 }
 //// endregion
 /**
- * Converts a camel cased string to its delimited string version.
+ * Converts a camel-cased string to its delimited string version.
  * @param value - The string to format.
  * @param delimiter - Defines delimiter string.
  * @param abbreviations - Collection of shortcut words to represent uppercased.
@@ -470,7 +470,7 @@ export const camelCaseToDelimited = (
         .toLowerCase()
 }
 /**
- * Converts a string to its capitalize representation.
+ * Converts a string to its capitalized representation.
  * @param string - The string to format.
  * @returns The formatted string.
  */
@@ -491,7 +491,7 @@ export const compressStyleValue = (styleValue: string): string => {
         .trim()
 }
 /**
- * Decodes all html symbols in text nodes in given html string.
+ * Decodes all html symbols in text nodes in a given html string.
  * @param htmlString - HTML string to decode.
  * @returns Decoded html string.
  */
@@ -574,7 +574,7 @@ export const delimitedToCamelCase = (
     return value
 }
 /**
- * Compiles a given string as expression with given scope names.
+ * Compiles a given string as an expression with given scope names.
  * @param expression - The string to interpret.
  * @param scope - Scope to extract names from.
  * @param execute - Indicates whether to execute or evaluate.
@@ -596,7 +596,7 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
     binding: unknown = {}
 ): CompilationResult<T, N> => {
     /*
-        NOTE: We do this global variable names determining as close as possible
+        NOTE: We do this global variable name determining as close as possible
         to the compiling step to cover as much as possible global introduces
         variables.
     */
@@ -659,7 +659,7 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
             const quote: string =
                 expression.charAt(0) === '`' ? `'` : expression.charAt(0)
             expression = expression
-                // Replace simple placeholder.
+                // Replace a simple placeholder.
                 // NOTE: Replace complete bracket pairs.
                 .replace(
                     /\$\{((([^{]*{[^}]*}[^}]*})|[^{}]+)+)}/g,
@@ -705,14 +705,14 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
     return result
 }
 /**
- * Evaluates a given string as expression against given scope.
+ * Evaluates a given string as an expression against a given scope.
  * @param expression - The string to interpret.
  * @param scope - Scope to render against.
  * @param execute - Indicates whether to execute or evaluate.
  * @param removeGlobalScope - Indicates whether to shadow global variables via
  * "undefined".
  * @param binding - Object to apply as "this" in evaluation scope.
- * @returns Object with error message during parsing / running or result.
+ * @returns Object with an error message during parsing / running or result.
  */
 export const evaluate = <T = string, S extends object = object>(
     expression: string,
@@ -721,7 +721,7 @@ export const evaluate = <T = string, S extends object = object>(
     removeGlobalScope = true,
     binding: unknown = {}
 ): EvaluationResult<T> => {
-    // NOTE: We extract string only types from given scope type.
+    // NOTE: We extract string-only types from given scope type.
     type N = Array<keyof S extends string ? keyof S : never>
 
     const {
@@ -758,9 +758,9 @@ export const evaluate = <T = string, S extends object = object>(
             error: null,
             result: templateFunction(
                 /*
-                    NOTE: We want to be sure to have same ordering as we have
-                    for the scope names and to call internal registered getter
-                    by retrieving values. So simple using
+                    NOTE: We want to be sure to have the same ordering as we
+                    have for the scope names and to call internal registered
+                    getter by retrieving values. So simple using
                     "...Object.values(scope)" is not appreciate here.
                 */
                 ...originalScopeNames.map((name: keyof S): ValueOf<S> =>
@@ -780,14 +780,14 @@ export const evaluate = <T = string, S extends object = object>(
     return result
 }
 /**
- * Finds the string match of given query in given target text by applying given
- * normalisation function to target and query.
+ * Finds the string match of a given query in a given target text by applying a
+ * given normalization function to target and query.
  * @param target - Target to search in.
  * @param query - Search string to search for.
- * @param normalizer - Function to use as normalisation for queries and search
+ * @param normalizer - Function to use as normalization for queries and search
  * targets.
- * @param skipTagDelimitedParts - Indicates whether to for example ignore html
- * tags via "['<', '>']" (the default).
+ * @param skipTagDelimitedParts - Indicates whether to, for example, ignore
+ * html tags via "['<', '>']" (the default).
  * @returns Start and end index of matching range.
  */
 export const findNormalizedMatchRange = (
@@ -898,18 +898,18 @@ export const getEditDistance = (first: string, second: string): number => {
         )
     /*
         Fill the first row of the matrix.
-        If this is first row then we're transforming empty string to "first".
-        In this case the number of transformations equals to size of "first"
-        substring.
+        If this is the first row, then, we're transforming an empty string to
+        "first". In this case the number of transformations equals to the size
+        of the "first" substring.
     */
     for (let index = 0; index <= first.length; index++)
         distanceMatrix[0][index] = index
     /*
         Fill the first column of the matrix.
-        If this is first column then we're transforming empty string to
+        If this is the first column, then we're transforming an empty string to
         "second".
-        In this case the number of transformations equals to size of "second"
-        substring.
+        In this case the number of transformations equals to the size of the
+        "second" substring.
     */
     for (let index = 0; index <= second.length; index++)
         distanceMatrix[index][0] = index
@@ -952,15 +952,15 @@ export const lowerCase = (string: string): string => {
     return string.charAt(0).toLowerCase() + string.substring(1)
 }
 /**
- * Wraps given mark strings in given target with given marker.
+ * Wraps given mark strings in a given target with a given marker.
  * @param target - String to search for marker.
  * @param givenWords - String or array of strings to search in target for.
  * @param givenOptions - Defines highlighting behavior.
  * @param givenOptions.marker - HTML template string to mark.
- * @param givenOptions.normalizer - Pure normalisation function to use before
+ * @param givenOptions.normalizer - Pure normalization function to use before
  * searching for matches.
- * @param givenOptions.skipTagDelimitedParts - Indicates whether to for example
- * ignore html tags via "['<', '>']" (the default).
+ * @param givenOptions.skipTagDelimitedParts - Indicates whether to, for
+ * example, ignore html tags via "['<', '>']" (the default).
  * @returns Processed result.
  */
 export const mark = (
@@ -1060,7 +1060,7 @@ export const mark = (
     return target
 }
 /**
- * Normalizes given phone number for automatic dialing or comparison.
+ * Normalizes a given phone number for automatic dialing or comparison.
  * @param value - Number to normalize.
  * @param dialable - Indicates whether the result should be dialed or
  * represented as lossless data.
@@ -1101,7 +1101,7 @@ export const normalizePhoneNumber = (
             '$1-$2-$3'
         )
         /*
-            Remove separators which doesn't mark semantics:
+            Remove separators that don't mark semantics:
             1: Country code
             2: Area code
             3: Number
@@ -1152,7 +1152,7 @@ export const normalizePhoneNumber = (
     return ''
 }
 /**
- * Normalizes given zip code for automatic address processing.
+ * Normalizes a given zip code for automatic address processing.
  * @param value - Number to normalize.
  * @returns Normalized number.
  */
@@ -1178,8 +1178,8 @@ export const normalizeZipCode = (value: unknown): string => {
     return ''
 }
 /**
- * Converts given serialized, base64 encoded or file path given object into a
- * native javaScript one if possible.
+ * Converts a given serialized, base64 encoded or file path given object into a
+ * native JavaScript one if possible.
  * @param serializedObject - Object as string.
  * @param scope - An optional scope which will be used to evaluate given object
  * in.
@@ -1212,7 +1212,7 @@ export const parseEncodedObject = <T = PlainObject>(
     return null
 }
 /**
- * Represents given phone number. NOTE: Currently only support german phone
+ * Represents a given phone number. NOTE: Currently only support German phone
  * numbers.
  * @param value - Number to format.
  * @returns Formatted number.
@@ -1299,7 +1299,7 @@ export const normalizeDomNodeSelector = (
     return selector.trim()
 }
 /**
- * Abbreviates given string if it excesses a given limit.
+ * Abbreviates a given string if it excesses a given limit.
  * @param value - String to abbreviate.
  * @param limit - Maximum length of processed string.
  * @returns Abbreviated given string.
