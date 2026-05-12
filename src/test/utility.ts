@@ -16,8 +16,36 @@
 import {expect, jest, test} from '@jest/globals'
 
 import {TimeoutPromise} from '../type'
-import {debounce, preventDefault, stopPropagation, timeout} from '../utility'
+import {
+    debounce,
+    preventDefault,
+    stopPropagation,
+    timeout,
+    trailingThrottle
+} from '../utility'
 
+
+test('trailingThrottle', async (): Promise<void> => {
+    let testValue = false
+    trailingThrottle(() => {
+        testValue = true
+    })()
+    expect(testValue).toStrictEqual(false)
+    await timeout(1000)
+    expect(testValue).toStrictEqual(true)
+
+    const callback = jest.fn()
+    const throttledCallback = trailingThrottle(callback, 1000)
+    throttledCallback()
+    throttledCallback()
+    throttledCallback()
+    expect(callback).toHaveBeenCalledTimes(0)
+    await timeout(1000)
+    expect(callback).toHaveBeenCalledTimes(1)
+    throttledCallback()
+    await timeout(1000)
+    expect(callback).toHaveBeenCalledTimes(2)
+})
 test('debounce', async (): Promise<void> => {
     let testValue = false
     void debounce(() => {
