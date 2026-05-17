@@ -36,21 +36,21 @@ export const trailingThrottle = <T = unknown>(
     thresholdInMilliseconds = 600,
     ...additionalArguments: Array<unknown>
 ) => {
-    let timeoutId: NodeJS.Timeout | null = null
+    let timeoutID: NodeJS.Timeout | null = null
     let recentParameters: Array<unknown> = []
 
     return (...parameters: Array<unknown>) => {
         recentParameters = parameters
 
-        if (timeoutId)
+        if (timeoutID)
             return
 
-        timeoutId = setTimeout(
+        timeoutID = setTimeout(
             () => {
                 callback(...recentParameters, ...additionalArguments)
 
                 // Reset for next cycle.
-                timeoutId = null
+                timeoutID = null
                 recentParameters = []
             },
             thresholdInMilliseconds
