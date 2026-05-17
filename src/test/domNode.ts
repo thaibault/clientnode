@@ -96,6 +96,7 @@ if (TEST_ENVIRONMENT !== 'node') {
         [[], divElement],
         [['hans'], createDomNodes('<div>hans</div>')],
         [[], createDomNodes('<div><div>hans</div</div>')],
+        [['hans'], createDomNodes('<div><div>hans</div</div>'), true],
         [['hans'], createDomNodes('<div>hans<div>peter</div></div>')]
     )
 
