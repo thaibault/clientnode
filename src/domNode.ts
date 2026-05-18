@@ -95,7 +95,7 @@ export const getAll = (root: Node) => {
 export const getParents = (node: Node | null) => {
     const result: Array<Node> = []
     while (node?.parentNode) {
-        result.unshift(node.parentNode)
+        result.push(node.parentNode)
         node = node.parentNode
     }
 

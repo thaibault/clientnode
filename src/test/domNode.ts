@@ -76,9 +76,9 @@ if (TEST_ENVIRONMENT !== 'node') {
     test.each([
         [[], '<div id="start"></div>'],
         [['DIV'], '<div><div id="start"></div></div>'],
-        [['DIV', 'P'], '<div><p><a id="start"></a></p></div>'],
+        [['P', 'DIV'], '<div><p><a id="start"></a></p></div>'],
         [
-            ['DIV', 'DIV', 'P'],
+            ['P', 'DIV', 'DIV'],
             '<div><div><p><a id="start"></a></p></div></div>'
         ]
     ])('%o === getParents(%o)', (expected, domNodes) => {
