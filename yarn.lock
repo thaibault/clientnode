@@ -2943,12 +2943,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^25.8.0":
-  version: 25.8.0
-  resolution: "@types/node@npm:25.8.0"
+"@types/node@npm:^25.9.0":
+  version: 25.9.0
+  resolution: "@types/node@npm:25.9.0"
   dependencies:
     undici-types: "npm:>=7.24.0 <7.24.7"
-  checksum: 10c0/ff53e5428309d2e6060190ec5e02afd0e4a7369456b16130a7f5898f12a6ad0efd62d752830f2f7355d714ae429bc0acbb2dc0cbf761cadb03e88c4996cdf1dc
+  checksum: 10c0/1845f0ce5471213a4f0c887845c50993968ea863c03bb355282b59bdcc877d009a2785f0f506cfc40b8ce7548a21e33ac826e998be62d42b000bfd9ccdc6c910
   languageName: node
   linkType: hard
 
@@ -5253,7 +5253,7 @@ __metadata:
     "@types/ejs": "npm:^3.1.5"
     "@types/html-minifier": "npm:^4.0.6"
     "@types/imagemin": "npm:^9.0.1"
-    "@types/node": "npm:^25.8.0"
+    "@types/node": "npm:^25.9.0"
     "@types/prop-types": "npm:^15.7.15"
     "@types/webpack-env": "npm:^1.18.8"
     "@typescript-eslint/eslint-plugin": "npm:^8.59.3"
@@ -5270,7 +5270,7 @@ __metadata:
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^6.1.3"
     typescript-eslint: "npm:^8.59.3"
-    web-documentation: "npm:^1.0.13"
+    web-documentation: "npm:^1.0.14"
     weboptimizer: "npm:^3.0.22"
     webpack-dev-server: "npm:^5.2.4"
   peerDependencies:
@@ -10966,12 +10966,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"web-documentation@npm:^1.0.13":
-  version: 1.0.13
-  resolution: "web-documentation@npm:1.0.13"
+"web-documentation@npm:^1.0.14":
+  version: 1.0.14
+  resolution: "web-documentation@npm:1.0.14"
   bin:
     web-documentation: build/deploy.js
-  checksum: 10c0/5a6b0d4a97bbcbdd81e1b82e55b2447d84e163658802b79d1f7c36e899ff6022ae99347266c793194174dc4be782c0209f8ffcadfe51ac07f756b7f3ee9aa4c9
+  checksum: 10c0/fedbf390f8af9ac5ad509f1a33a918d27e89a3c05edd3bc018be61940d05327bc34128278ec2e855d7a8b22333697cfb0339164d0ce5200d8e8c2bee5d656e7c
   languageName: node
   linkType: hard
 
