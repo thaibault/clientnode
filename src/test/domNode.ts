@@ -77,19 +77,24 @@ if (TEST_ENVIRONMENT !== 'node') {
     test.each([
         [null, '<div></div>', 'p'],
         ['DIV', '<div></div>', 'div'],
+        [null, '<div></div>', 'div', true],
         ['DIV', '<div><div id="start"></div></div>', 'div'],
         ['P', '<div><p><a id="start"></a></p></div>', 'p'],
         ['DIV', '<div><p><a id="start"></a></p></div>', 'div']
-    ])('%o === closest(%o, %s)', (expected, domNodes, selector) => {
-        const rootNode = createDomNodes<Element>(domNodes)
+    ])(
+        '%o === closest(%o, %s, %b)',
+        (expected, domNodes, selector, startWithParent = false) => {
+            const rootNode = createDomNodes<Element>(domNodes)
 
-        expect(
-            closest(
-                rootNode.querySelector('#start') as Node | null || rootNode,
-                selector
-            )?.nodeName || null
-        ).toEqual(expected)
-    })
+            expect(
+                closest(
+                    rootNode.querySelector('#start') as Node | null || rootNode,
+                    selector,
+                    startWithParent
+                )?.nodeName || null
+            ).toEqual(expected)
+        }
+    )
 
     test.each([
         [[], '<div></div>'],
