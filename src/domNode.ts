@@ -92,8 +92,10 @@ export const getAll = (root: Node) => {
 
     return nodes
 }
-export const closest = (node: Node, selector: string): Element | null =>
-    'closest' in node ?
+export const closest = (
+    node: Node, selector: string, startWithParent = false
+): Element | null =>
+    'closest' in node && !startWithParent ?
         (node as Element).closest(selector) :
         node.parentElement?.closest(selector) || null
 export const getParents = (node: Node): Array<Node> => {
