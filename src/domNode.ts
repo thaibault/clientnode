@@ -39,6 +39,16 @@ export const createDomNodes = <Type extends Node = Node>(
 export const fade = (
     domNode: HTMLElement, intervalInMilliseconds = 200, out = true
 ) => {
+    const transitionBackup = domNode.style.transition
+    const visibleBackup = domNode.style.visibility
+    const opacityBackup = domNode.style.opacity
+    console.log('backups', transitionBackup, visibleBackup, opacityBackup)
+    const resetStyles = () => {
+        domNode.style.transition = transitionBackup
+        domNode.style.visibility = visibleBackup
+        domNode.style.opacity = opacityBackup
+    }
+
     if (out) {
         domNode.style.visibility = 'hidden'
         domNode.style.opacity = '0'
@@ -52,14 +62,16 @@ export const fade = (
             `opacity ${String(intervalInMilliseconds)}ms linear`
     }
 
-    let clearTimeout = NOOP
+    let clearTimeoutAndResetDomNode = NOOP
     let resolved = false
     const promise = new Promise((resolve) => {
-        clearTimeout = () => {
+        clearTimeoutAndResetDomNode = () => {
+            resetStyles()
+
             resolved = true
             resolve()
         }
-        void timeout(intervalInMilliseconds).then(clearTimeout)
+        void timeout(intervalInMilliseconds).then(clearTimeoutAndResetDomNode)
     }) as
         Promise<void> &
         {clear: () => void}
@@ -67,7 +79,7 @@ export const fade = (
     promise.clear = () => {
         if (!resolved) {
             domNode.style.transition = 'none'
-            clearTimeout()
+            clearTimeoutAndResetDomNode()
         }
     }
 
