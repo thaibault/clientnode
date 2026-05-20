@@ -42,6 +42,7 @@ export const fade = (
     const transitionBackup = domNode.style.transition
     const visibleBackup = domNode.style.visibility
     const opacityBackup = domNode.style.opacity
+    const hadStyleAttribute = domNode.hasAttribute('style')
 
     if (out) {
         domNode.style.visibility = 'hidden'
@@ -80,9 +81,12 @@ export const fade = (
         }
     }
     promise.resetStyles = () => {
-        domNode.style.transition = transitionBackup
-        domNode.style.visibility = visibleBackup
-        domNode.style.opacity = opacityBackup
+        if (hadStyleAttribute) {
+            domNode.style.transition = transitionBackup
+            domNode.style.visibility = visibleBackup
+            domNode.style.opacity = opacityBackup
+        } else
+            domNode.removeAttribute('style')
     }
 
     return promise
