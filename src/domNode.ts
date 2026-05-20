@@ -42,7 +42,6 @@ export const fade = (
     const transitionBackup = domNode.style.transition
     const visibleBackup = domNode.style.visibility
     const opacityBackup = domNode.style.opacity
-    console.log('backups', transitionBackup, visibleBackup, opacityBackup)
     const resetStyles = () => {
         domNode.style.transition = transitionBackup
         domNode.style.visibility = visibleBackup
