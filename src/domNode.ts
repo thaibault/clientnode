@@ -92,9 +92,13 @@ export const getAll = (root: Node) => {
 
     return nodes
 }
-export const getParents = (node: Node | null) => {
+export const closest = (node: Node, selector: string): Element | null =>
+    'closest' in node ?
+        (node as Element).closest(selector) :
+        node.parentElement?.closest(selector) || null
+export const getParents = (node: Node): Array<Node> => {
     const result: Array<Node> = []
-    while (node?.parentNode) {
+    while (node.parentNode) {
         result.push(node.parentNode)
         node = node.parentNode
     }
