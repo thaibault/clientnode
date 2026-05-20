@@ -42,11 +42,6 @@ export const fade = (
     const transitionBackup = domNode.style.transition
     const visibleBackup = domNode.style.visibility
     const opacityBackup = domNode.style.opacity
-    const resetStyles = () => {
-        domNode.style.transition = transitionBackup
-        domNode.style.visibility = visibleBackup
-        domNode.style.opacity = opacityBackup
-    }
 
     if (out) {
         domNode.style.visibility = 'hidden'
@@ -65,7 +60,7 @@ export const fade = (
     let resolved = false
     const promise = new Promise((resolve) => {
         clearTimeoutAndResetDomNode = () => {
-            resetStyles()
+            domNode.style.transition = transitionBackup
 
             resolved = true
             resolve()
@@ -73,13 +68,21 @@ export const fade = (
         void timeout(intervalInMilliseconds).then(clearTimeoutAndResetDomNode)
     }) as
         Promise<void> &
-        {clear: () => void}
+        {
+            clear: () => void
+            resetStyles: () => void
+        }
 
     promise.clear = () => {
         if (!resolved) {
             domNode.style.transition = 'none'
             clearTimeoutAndResetDomNode()
         }
+    }
+    promise.resetStyles = () => {
+        domNode.style.transition = transitionBackup
+        domNode.style.visibility = visibleBackup
+        domNode.style.opacity = opacityBackup
     }
 
     return promise
