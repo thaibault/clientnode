@@ -18,6 +18,7 @@
 import {expect, jest, test} from '@jest/globals'
 
 import {
+    closest,
     createDomNodes,
     fade,
     fadeIn,
@@ -74,7 +75,24 @@ if (TEST_ENVIRONMENT !== 'node') {
     )
 
     test.each([
-        [[], '<div id="start"></div>'],
+        [null, '<div></div>', 'p'],
+        ['DIV', '<div></div>', 'div'],
+        ['DIV', '<div><div id="start"></div></div>', 'div'],
+        ['P', '<div><p><a id="start"></a></p></div>', 'p'],
+        ['DIV', '<div><p><a id="start"></a></p></div>', 'div']
+    ])('%o === closest(%o, %s)', (expected, domNodes, selector) => {
+        const rootNode = createDomNodes<Element>(domNodes)
+
+        expect(
+            closest(
+                rootNode.querySelector('#start') as Node | null || rootNode,
+                selector
+            )?.nodeName || null
+        ).toEqual(expected)
+    })
+
+    test.each([
+        [[], '<div></div>'],
         [['DIV'], '<div><div id="start"></div></div>'],
         [['P', 'DIV'], '<div><p><a id="start"></a></p></div>'],
         [
@@ -82,9 +100,11 @@ if (TEST_ENVIRONMENT !== 'node') {
             '<div><div><p><a id="start"></a></p></div></div>'
         ]
     ])('%o === getParents(%o)', (expected, domNodes) => {
+        const rootNode = createDomNodes<Element>(domNodes)
+
         expect(
-            getParents((createDomNodes<HTMLElement>(domNodes))
-                .querySelector('#start') as HTMLElement
+            getParents(
+                rootNode.querySelector('#start') as Node | null || rootNode
             ).map((node) => node.nodeName)
         ).toEqual(expected)
     })
