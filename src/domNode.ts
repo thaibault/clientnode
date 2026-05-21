@@ -102,15 +102,20 @@ export const fadeOut = (domNode: HTMLElement, intervalInMilliseconds = 200) =>
     fade(domNode, intervalInMilliseconds)
 
 export const STOP_AUTO_SCROLLING = {value: NOOP}
-export const KNOWN_SCROLL_EVENT_NAMES: Array<KnownEventName> = [
+export const MANUAL_SCROLL_EVENT_NAMES: Array<KnownEventName> = [
     'DOMMouseScroll',
-    'keyup',
+
+    'keydown',
+
     'mousedown',
     'mousewheel',
-    'scroll',
-    'touchmove',
-    'wheel'
+    'wheel',
+
+    'touchstart',
+    'touchmove'
 ]
+export const SCROLL_EVENT_NAMES: Array<KnownEventName> =
+    (['scroll'] as Array<KnownEventName>).concat(MANUAL_SCROLL_EVENT_NAMES)
 /**
  * Smoothly scrolls both horizontally and vertically to a target DOM node.
  * Cancels instantly if the user interacts with the mouse, touch, or keys.
@@ -226,7 +231,7 @@ export const interruptableScrollTo = (
             for (const node of [
                 body, document.querySelector('html'), window
             ])
-                for (const name of KNOWN_SCROLL_EVENT_NAMES)
+                for (const name of MANUAL_SCROLL_EVENT_NAMES)
                     node?.removeEventListener(name, STOP_AUTO_SCROLLING.value)
 
             STOP_AUTO_SCROLLING.value = NOOP
@@ -235,7 +240,7 @@ export const interruptableScrollTo = (
         for (const node of [
             body, document.querySelector('html'), window
         ])
-            for (const name of KNOWN_SCROLL_EVENT_NAMES)
+            for (const name of MANUAL_SCROLL_EVENT_NAMES)
                 node?.addEventListener(
                     name, STOP_AUTO_SCROLLING.value, {passive: true}
                 )
