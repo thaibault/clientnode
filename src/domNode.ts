@@ -115,14 +115,15 @@ export const interruptableScrollTo = (
     const {left: x, top: y} = targetDomNode ?
         (targetDomNode as Element).getBoundingClientRect() :
         {left: 0, top: 0}
-    const startY = y - globalContext.window.pageYOffset
-    const startX = x - globalContext.window.pageXOffset
+
+    const targetPositionY = globalContext.window.pageYOffset - y
+    const targetPositionX = globalContext.window.pageXOffset - x
     const startTime = performance.now()
 
     CONTINUE_AUTO_SCROLLING.value = true
 
     const step = (currentTime: DOMHighResTimeStamp) => {
-        if (CONTINUE_AUTO_SCROLLING.value)
+        if (!CONTINUE_AUTO_SCROLLING.value)
             return
 
         const elapsed = currentTime - startTime
@@ -131,7 +132,10 @@ export const interruptableScrollTo = (
         // Easing (optional for soft start / stopp animation)
         const ease = progress * (2 - progress)
 
-        globalContext.window?.scrollTo(startX * (1 - ease), startY * (1 - ease))
+        globalContext.window?.scrollTo(
+            targetPositionX * (1 - ease),
+            targetPositionY * (1 - ease)
+        )
 
         if (progress < 1)
             requestAnimationFrame(step)
