@@ -96,6 +96,71 @@ export const fadeIn = (domNode: HTMLElement, intervalInMilliseconds = 200) =>
 export const fadeOut = (domNode: HTMLElement, intervalInMilliseconds = 200) =>
     fade(domNode, intervalInMilliseconds)
 
+export const CONTINUE_AUTO_SCROLLING = {value: false}
+/**
+ * Scrolls to the given DomNode of the page smoothly via being interruptible.
+ * @param intervalInMilliseconds - Duration time for the animation.
+ * @param targetDomNode - DomNode to scroll to. If not given, scrolls to the
+ * top of the page.
+ */
+export const interruptableScrollTo = (
+    intervalInMilliseconds = 500, targetDomNode: Node | null = null
+) => {
+    if (!globalContext.window)
+        return
+
+    if (targetDomNode && !('getBoundingClientRect' in targetDomNode))
+        targetDomNode = targetDomNode.parentElement
+
+    const {left: x, top: y} = targetDomNode ?
+        (targetDomNode as Element).getBoundingClientRect() :
+        {left: 0, top: 0}
+    const startY = y - globalContext.window.pageYOffset
+    const startX = x - globalContext.window.pageXOffset
+    const startTime = performance.now()
+
+    CONTINUE_AUTO_SCROLLING.value = true
+
+    const step = (currentTime: DOMHighResTimeStamp) => {
+        if (CONTINUE_AUTO_SCROLLING.value)
+            return
+
+        const elapsed = currentTime - startTime
+        const progress = Math.min(elapsed / intervalInMilliseconds, 1)
+
+        // Easing (optional for soft start / stopp animation)
+        const ease = progress * (2 - progress)
+
+        globalContext.window?.scrollTo(startX * (1 - ease), startY * (1 - ease))
+
+        if (progress < 1)
+            requestAnimationFrame(step)
+        else
+            CONTINUE_AUTO_SCROLLING.value = false
+    }
+
+    requestAnimationFrame(step)
+}
+/**
+ * Scrolls to the given DomNode's location or tio of the page.
+ * @param targetDomNode - DomNode to scroll to. If not given, scrolls to the
+ * top of the page.
+ * @param behavior - Scroll behavior to use.
+ */
+export const scrollTo = (
+    targetDomNode: Node | null = null,
+    behavior: ScrollToOptions['behavior'] = 'smooth'
+) => {
+    if (targetDomNode && !('getBoundingClientRect' in targetDomNode))
+        targetDomNode = targetDomNode.parentElement
+
+    const {left, top} = targetDomNode ?
+        (targetDomNode as Element).getBoundingClientRect() :
+        {left: 0, top: 0}
+
+    globalContext.window?.scrollTo({left, top, behavior})
+}
+
 export const getAll = (root: Node) => {
     const nodes: Array<Node> = []
     // SHOW_ALL includes elements, text, and comments
