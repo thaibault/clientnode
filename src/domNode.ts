@@ -17,7 +17,12 @@
     endregion
 */
 import {globalContext, NOOP} from './context'
-import {Mapping} from './type'
+import {
+    GivenInterruptableScrollToOptions,
+    InterruptableScrollToOptions,
+    KnownEventName,
+    Mapping
+} from './type'
 import {timeout} from './utility'
 
 export const createDomNodes = <Type extends Node = Node>(
@@ -96,54 +101,176 @@ export const fadeIn = (domNode: HTMLElement, intervalInMilliseconds = 200) =>
 export const fadeOut = (domNode: HTMLElement, intervalInMilliseconds = 200) =>
     fade(domNode, intervalInMilliseconds)
 
-export const CONTINUE_AUTO_SCROLLING = {value: false}
+export const STOP_AUTO_SCROLLING = {value: NOOP}
+export const KNOWN_SCROLL_EVENT_NAMES: Array<KnownEventName> = [
+    'DOMMouseScroll',
+    'keyup',
+    'mousedown',
+    'mousewheel',
+    'scroll',
+    'touchmove',
+    'wheel'
+]
 /**
- * Scrolls to the given DomNode of the page smoothly via being interruptible.
- * @param targetDomNode - DomNode to scroll to. If not given, scrolls to the
- * top of the page.
- * @param intervalInMilliseconds - Duration time for the animation.
+ * Smoothly scrolls both horizontally and vertically to a target DOM node.
+ * Cancels instantly if the user interacts with the mouse, touch, or keys.
+ * @param givenOptions - Configuration options.
+ * @param givenOptions.targetDomNode - The DOM node you want to scroll to.
+ * @param givenOptions.containerDomNode - The scrollable parent.
+ * @param givenOptions.durationInMilliseconds - Animation duration in
+ * milliseconds.
+ * @param givenOptions.interruptOnManualScroll - Whether to stop the animation
+ * if the user starts to scroll manually.
+ * @param givenOptions.offset - Pixel offsets.
+ * @param givenOptions.offset.top - Vertical offset in pixels.
+ * @param givenOptions.offset.left - Horizontal offset in pixels.
  */
-export const interruptableScrollTo = (
-    targetDomNode: Node | null = null, intervalInMilliseconds = 500
+export const interruptibleScrollTo = (
+    givenOptions: GivenInterruptableScrollToOptions = {}
 ) => {
-    if (!globalContext.window)
+    if (!(globalContext.document && globalContext.window))
         return
 
-    if (targetDomNode && !('getBoundingClientRect' in targetDomNode))
-        targetDomNode = targetDomNode.parentElement
+    const document: HTMLDocument = globalContext.document
+    const body: HTMLElement = document.body
+    const window: Window = globalContext.window
 
-    const {left: x, top: y} = targetDomNode ?
-        (targetDomNode as Element).getBoundingClientRect() :
-        {left: 0, top: 0}
+    if (
+        givenOptions.containerDomNode &&
+        !('getBoundingClientRect' in givenOptions.containerDomNode) &&
+        'parentElement' in givenOptions.containerDomNode
+    )
+        givenOptions.containerDomNode =
+            givenOptions.containerDomNode.parentElement
+    if (
+        givenOptions.targetDomNode &&
+        !('getBoundingClientRect' in givenOptions.targetDomNode) &&
+        'parentElement' in givenOptions.targetDomNode
+    )
+        givenOptions.targetDomNode = givenOptions.targetDomNode.parentElement
 
-    const targetPositionY = globalContext.window.pageYOffset - y
-    const targetPositionX = globalContext.window.pageXOffset - x
-    const startTime = performance.now()
-
-    CONTINUE_AUTO_SCROLLING.value = true
-
-    const step = (currentTime: DOMHighResTimeStamp) => {
-        if (!CONTINUE_AUTO_SCROLLING.value)
-            return
-
-        const elapsed = currentTime - startTime
-        const progress = Math.min(elapsed / intervalInMilliseconds, 1)
-
-        // Easing (optional for soft start / stopp animation)
-        const ease = progress * (2 - progress)
-
-        globalContext.window?.scrollTo(
-            targetPositionX * (1 - ease),
-            targetPositionY * (1 - ease)
-        )
-
-        if (progress < 1)
-            requestAnimationFrame(step)
-        else
-            CONTINUE_AUTO_SCROLLING.value = false
+    const options: InterruptableScrollToOptions = {
+        targetDomNode: body,
+        containerDomNode: window,
+        durationInMilliseconds: 500,
+        offset: {
+            top: 0,
+            left: 0,
+            ...givenOptions.offset || {}
+        },
+        interruptOnManualScroll: true,
+        ...givenOptions as Partial<InterruptableScrollToOptions>
     }
 
-    requestAnimationFrame(step)
+    const isWindow = options.containerDomNode === window
+
+    // 1. Get current starting scroll positions
+    const startY = isWindow ?
+        (window.scrollY || document.documentElement.scrollTop) :
+        (options.containerDomNode as HTMLElement).scrollTop
+    const startX = isWindow ?
+        (window.scrollX || document.documentElement.scrollLeft) :
+        (options.containerDomNode as HTMLElement).scrollLeft
+
+    // 2. Calculate targetDomNode positions for both axes
+    let targetY
+    let targetX
+
+    if (isWindow) {
+        const rect = options.targetDomNode.getBoundingClientRect()
+        targetY =
+            rect.top +
+            (window.scrollY || document.documentElement.scrollTop) -
+            options.offset.top
+        targetX =
+            rect.left +
+            (window.scrollX || document.documentElement.scrollLeft) -
+            options.offset.left
+    } else {
+        // Relative to the scrollable parent container
+        targetY =
+            (
+                options.targetDomNode.offsetTop -
+                (options.containerDomNode as HTMLElement).offsetTop
+            ) -
+            options.offset.top
+        targetX =
+            (
+                options.targetDomNode.offsetLeft -
+                (options.containerDomNode as HTMLElement).offsetLeft
+            ) -
+            options.offset.left
+    }
+
+    const distanceY = targetY - startY
+    const distanceX = targetX - startX
+
+    // If no movement is needed, exit immediately
+    if (distanceY === 0 && distanceX === 0)
+        return
+
+    let startTime: null | number = null
+    let animationFrameId: null | number = null
+
+    // Easing function
+    const easeInOutQuad = (time: number) =>
+        time < 0.5 ? 2 * time * time : -1 + (4 - 2 * time) * time
+
+    if (options.interruptOnManualScroll) {
+        // 3. Define the interrupt / teardown system
+        STOP_AUTO_SCROLLING.value = () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId)
+                animationFrameId = null
+            }
+            for (const node of [
+                body, document.querySelector('html'), window
+            ])
+                for (const name of KNOWN_SCROLL_EVENT_NAMES)
+                    node?.removeEventListener(name, STOP_AUTO_SCROLLING.value)
+
+            STOP_AUTO_SCROLLING.value = NOOP
+        }
+
+        for (const node of [
+            body, document.querySelector('html'), window
+        ])
+            for (const name of KNOWN_SCROLL_EVENT_NAMES)
+                node?.addEventListener(
+                    name, STOP_AUTO_SCROLLING.value, {passive: true}
+                )
+    }
+
+    // 4. Multi-axis animation loop
+    const step = (currentTime: number) => {
+        if (!startTime)
+            startTime = currentTime
+
+        const progress = currentTime - startTime
+        const timeRatio =
+            Math.min(progress / options.durationInMilliseconds, 1)
+
+        const easedRatio = easeInOutQuad(timeRatio)
+
+        // Linearly interpolate the positions based on eased progress.
+        const nextY = startY + (distanceY * easedRatio)
+        const nextX = startX + (distanceX * easedRatio)
+
+        // Apply scroll to window or container.
+        if (isWindow)
+            window.scrollTo(nextX, nextY)
+        else {
+            ;(options.containerDomNode as HTMLElement).scrollTop = nextY
+            ;(options.containerDomNode as HTMLElement).scrollLeft = nextX
+        }
+
+        if (timeRatio < 1)
+            animationFrameId = requestAnimationFrame(step)
+        else
+            STOP_AUTO_SCROLLING.value()
+    }
+
+    animationFrameId = requestAnimationFrame(step)
 }
 /**
  * Scrolls to the given DomNode's location or tio of the page.
@@ -166,10 +293,13 @@ export const scrollTo = (
 }
 
 export const getAll = (root: Node) => {
+    if (!globalContext.document)
+        return []
+
     const nodes: Array<Node> = []
     // SHOW_ALL includes elements, text, and comments
     const walker =
-        document.createTreeWalker(root, NodeFilter.SHOW_ALL, null)
+        globalContext.document.createTreeWalker(root, NodeFilter.SHOW_ALL, null)
 
     let currentNode: Node | null = walker.currentNode
     while (currentNode) {

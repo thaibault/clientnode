@@ -132,6 +132,12 @@ export interface CookieOptions {
     sameSite: 'Lax' | 'None' | 'Strict' | ''
     secure: boolean
 }
+
+export interface KnownWindowEventMap extends WindowEventMap {
+    DOMMouseScroll: Event
+    mousewheel: Event
+}
+export type KnownEventName = keyof KnownWindowEventMap
 //// region functions
 export type UnknownFunction = (...parameters: Array<unknown>) => unknown
 export type ArrayTransformer<T = unknown, R = unknown, P = unknown> = (
@@ -328,6 +334,23 @@ export interface StringMarkOptions {
         ((foundWord: string, markedTarget: Array<unknown>) => unknown) | string
     normalizer: (value: unknown) => string
     skipTagDelimitedParts: null | [string, string]
+}
+export interface InterruptableScrollToOptions {
+    targetDomNode: HTMLElement
+    containerDomNode: HTMLElement | Window
+    durationInMilliseconds: number
+    interruptOnManualScroll: boolean
+    offset: {
+        top: number
+        left: number
+    }
+}
+export interface GivenInterruptableScrollToOptions
+    extends
+Partial<ScrollToOptions> {
+    targetDomNode?: Node | null
+    containerDomNode?: Node | null | Window
+    offset?: Partial<InterruptableScrollToOptions['offset']>
 }
 export interface LoggerOptions {
     level: Level
