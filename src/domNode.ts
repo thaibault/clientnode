@@ -99,12 +99,12 @@ export const fadeOut = (domNode: HTMLElement, intervalInMilliseconds = 200) =>
 export const CONTINUE_AUTO_SCROLLING = {value: false}
 /**
  * Scrolls to the given DomNode of the page smoothly via being interruptible.
- * @param intervalInMilliseconds - Duration time for the animation.
  * @param targetDomNode - DomNode to scroll to. If not given, scrolls to the
  * top of the page.
+ * @param intervalInMilliseconds - Duration time for the animation.
  */
 export const interruptableScrollTo = (
-    intervalInMilliseconds = 500, targetDomNode: Node | null = null
+    targetDomNode: Node | null = null, intervalInMilliseconds = 500
 ) => {
     if (!globalContext.window)
         return
