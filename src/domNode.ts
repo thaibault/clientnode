@@ -125,7 +125,7 @@ export const KNOWN_SCROLL_EVENT_NAMES: Array<KnownEventName> = [
  * @param givenOptions.offset.top - Vertical offset in pixels.
  * @param givenOptions.offset.left - Horizontal offset in pixels.
  */
-export const interruptibleScrollTo = (
+export const interruptableScrollTo = (
     givenOptions: GivenInterruptableScrollToOptions = {}
 ) => {
     if (!(globalContext.document && globalContext.window))
