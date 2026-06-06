@@ -1,7 +1,7 @@
 {
   "name": "clientnode",
   "version": "4.0.1411",
-  "description": "upgrade to object orientated rock solid plugins",
+  "description": "Handy utilities for any JavaScript environments.",
   "keywords": [
     "client",
     "tools",
@@ -139,7 +139,7 @@
       "enUS"
     ],
     "name": "clientnode",
-    "tagline": "upgrade to object orientated rock solid plugins<!--deDE:Schreibe Objekt orientierte solide Plugins-->",
+    "tagline": "Utilities for your JavaScript environment.<!--deDE:Hilfsfunktionen für Ihre JavaScript-Umgebung.-->",
     "trackingCode": "UA-40192634-7"
   },
   "webOptimizer": {
