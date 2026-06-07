@@ -71,9 +71,6 @@ You need utilities for:<!--deDE:Sie benötigen Hilfsfunktionen für:-->
 Installation
 ------------
 
-<!--|deDE:Klassische Dom-Integration-->
-### Classical dom injection
-
 You can install via package manager, simply download the compiled version as
 zip file here and inject or request via cdn in HTML:
 <!--deDE:
