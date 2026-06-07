@@ -61,10 +61,10 @@ You need utilities for:<!--deDE:Sie benötigen Hilfsfunktionen für:-->
 - Typescript
 - URLs
 
-<!--Place for automatic generated table of contents.-->
-<div class="doc-toc" style="display:none">
+<div class="wd-table-of-contents">
     <!--|deDE:Inhalt-->
     <h2 id="content">Content</h2>
+    <!--wd-table-of-contents-->
 </div>
 
 <!--|deDE:Installation-->
