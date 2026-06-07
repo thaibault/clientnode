@@ -5239,7 +5239,7 @@ __metadata:
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^6.1.3"
     typescript-eslint: "npm:^8.60.1"
-    web-documentation: "npm:^1.0.21"
+    web-documentation: "npm:^1.0.22"
     weboptimizer: "npm:^3.0.24"
     webpack-dev-server: "npm:^5.2.4"
   peerDependencies:
@@ -10884,12 +10884,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"web-documentation@npm:^1.0.21":
-  version: 1.0.21
-  resolution: "web-documentation@npm:1.0.21"
+"web-documentation@npm:^1.0.22":
+  version: 1.0.22
+  resolution: "web-documentation@npm:1.0.22"
   bin:
     web-documentation: build/deploy.js
-  checksum: 10c0/54ceb63d784f2be0df143a4fd29a2a4e5ed73c05125193ca85866f5a93647545227ed1ed57bef06e13cffb606ab2f0cfae84eac1580447c4089c5f42f2c85b8f
+  checksum: 10c0/91714c25703065bacc55aeb792d0717fc045ba2b71f3b562184d1feb4714b69473e6c2264f1b283ba207b51970c7e786725c23ad0b423066efbf738a75652891
   languageName: node
   linkType: hard
 
