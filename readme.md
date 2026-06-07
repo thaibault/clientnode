@@ -67,6 +67,44 @@ You need utilities for:<!--deDE:Sie benötigen Hilfsfunktionen für:-->
     <h2 id="content">Content</h2>
 </div>
 
+<!--|deDE:Installation-->
+Installation
+------------
+
+<!--|deDE:Klassische Dom-Integration-->
+### Classical dom injection
+
+You can install via package manager, simply download the compiled version as
+zip file here and inject or request via cdn in HTML:
+<!--deDE:
+    Sie können das Paket über den Paketmanager installieren oder einfach die
+    kompilierte Version als ZIP-Datei hier herunterladen und in HTML einbinden
+    oder über ein CDN abrufen:
+-->
+
+```bash
+npm install clientnode
+```
+
+```HTML
+<!--Inject downloaded file:
+<script src="index.js"></script>
+-->
+<!--Or integrate via cdn:-->
+<script
+    src="https://torben.website/clientnode/data/distributionBundle/index.js"
+></script>
+```
+
+The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
+into given context (UMD) as export format: You can use a module bundler if you
+want.
+<!--deDE:
+    Das kompilierte Bundle unterstützt AMD, commonjs, commonjs2 und
+    Variable-Injection in den gegebenen Context (UMD) als Export-Format:
+    Dadurch können verschiedene Module-Bundler genutzt werden.
+-->
+
 <!--|deDE:Nutzung-->
 Usage
 -----
@@ -79,8 +117,5 @@ reference:
 -->
 
 ```JavaScript
-const returnValue = $('#domNode').Example('method', 'anArgument')
-const returnValue = $('#domNode').Example().method('anArgument')
-const exampleInstance = $.Example({firstOption: 'value'})
-const returnValue = exampleInstance.method('anArgument')
+console.log('TEST')
 ```
