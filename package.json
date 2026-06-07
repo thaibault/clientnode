@@ -96,7 +96,7 @@
     "prop-types": "^15.8.1",
     "rimraf": "^6.1.3",
     "typescript-eslint": "^8.60.1",
-    "web-documentation": "^1.0.25",
+    "web-documentation": "^1.0.26",
     "weboptimizer": "^3.0.24",
     "webpack-dev-server": "^5.2.4"
   },
