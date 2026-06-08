@@ -46,9 +46,10 @@
     "url": "https://github.com/thaibault/clientnode"
   },
   "scripts": {
-    "build": "yarn build:types; yarn build:plain",
+    "build": "yarn build:types; yarn build:plain; yarn build:bundle:additional",
     "build:alternate": "command='node_modules/.bin/babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/preset-env,@babel/preset-typescript --source-maps inline --out-file'; for name in array cli cookie constants context data-transfer datetime filesystem function index indicators Logger Lock number object process property-types require scope Semaphore string type utility; do $command \"dist/${name}.js\" \"src/${name}.ts\"; done; yarn make:executable",
     "build:bundle": "yarn build:types; yarn build:bundle:plain",
+    "build:bundle:additional": "weboptimizer build '{__reference__: [\"target:bundle\", \"target:bundle:additional\"]}'",
     "build:bundle:compatible": "yarn build:types; weboptimizer build '{__reference__: [\"target:bundle\", \"target:compatible\"]}'",
     "build:bundle:plain": "weboptimizer build '{__reference__: \"target:bundle\"}'",
     "build:plain": "weboptimizer build",
@@ -96,7 +97,7 @@
     "prop-types": "^15.8.1",
     "rimraf": "^6.1.3",
     "typescript-eslint": "^8.60.1",
-    "web-documentation": "^1.0.27",
+    "web-documentation": "^1.0.28",
     "weboptimizer": "^3.0.24",
     "webpack-dev-server": "^5.2.4"
   },
@@ -226,6 +227,13 @@
               }
             }
           }
+        }
+      }
+    },
+    "target:bundle:additional": {
+      "path": {
+        "target": {
+          "base": "dist/bundle/"
         }
       }
     },
