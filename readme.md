@@ -83,6 +83,8 @@ zip file here and inject or request via cdn in HTML:
 npm install clientnode
 ```
 
+<!--showExample-->
+
 ```HTML
 <!--Inject downloaded file:
 <script src="index.js"></script>
@@ -106,12 +108,10 @@ want.
 Usage
 -----
 
-Function call from previous generated instance via dom node or instance
-reference:
-<!--deDE:
-    Aufruf einer Plugin-Methode anhand der zuvor generierten Instanz bzw. über
-    den zurückgegebene DOM-Knoten:
--->
+Execute a JSON based expression:
+<!--deDE:Ausführung eines JSON basierten Ausdrucks:-->
+
+<!--showExample-->
 
 ```JavaScript
 console.log('TEST')
