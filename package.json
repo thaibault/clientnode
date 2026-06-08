@@ -218,11 +218,6 @@
       }
     },
     "target:bundle": {
-      "injection": {
-        "entry": {
-          "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2].startsWith('test') ? {testBundle: './test'} : './index'"
-        }
-      },
       "libraryName": "clientnode",
       "module": {
         "preprocessor": {
