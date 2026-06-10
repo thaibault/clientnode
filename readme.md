@@ -83,6 +83,12 @@ zip file here and inject or request via cdn in HTML:
 npm install clientnode
 ```
 
+```TypeScript
+import {createDomNodes, evaluateExpression} from 'cientnode'
+
+// ...
+```
+
 <!--showExample-->
 
 ```HTML
