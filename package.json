@@ -46,12 +46,10 @@
     "url": "https://github.com/thaibault/clientnode"
   },
   "scripts": {
-    "build": "yarn build:types; yarn build:plain; yarn build:bundle:additional",
+    "build": "yarn build:types; yarn build:plain; yarn build:compatible; yarn build:bundle; yarn build:bundle:compatible",
     "build:alternate": "command='node_modules/.bin/babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/preset-env,@babel/preset-typescript --source-maps inline --out-file'; for name in array cli cookie constants context data-transfer datetime filesystem function index indicators Logger Lock number object process property-types require scope Semaphore string type utility; do $command \"dist/${name}.js\" \"src/${name}.ts\"; done; yarn make:executable",
-    "build:bundle": "yarn build:types; yarn build:bundle:plain",
-    "build:bundle:additional": "weboptimizer build '{__reference__: [\"target:bundle\", \"target:bundle:additional\"]}'",
+    "build:bundle": "weboptimizer build '{__reference__: \"target:bundle\"}'",
     "build:bundle:compatible": "yarn build:types; weboptimizer build '{__reference__: [\"target:bundle\", \"target:compatible\"]}'",
-    "build:bundle:plain": "weboptimizer build '{__reference__: \"target:bundle\"}'",
     "build:plain": "weboptimizer build",
     "build:types": "weboptimizer build:types",
     "check": "yarn check:types; yarn lint",
@@ -86,7 +84,7 @@
     "@typescript-eslint/eslint-plugin": "^8.61.0",
     "@typescript-eslint/parser": "^8.61.0",
     "clientnode": "workspace:.",
-    "eslint": "^10.4.1",
+    "eslint": "^10.5.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-jsdoc": "^63.0.2",
     "favicons-webpack-plugin": "^6.0.1",
@@ -97,9 +95,9 @@
     "prop-types": "^15.8.1",
     "rimraf": "^6.1.3",
     "typescript-eslint": "^8.61.0",
-    "web-documentation": "^1.0.36",
+    "web-documentation": "^1.0.37",
     "weboptimizer": "^3.0.24",
-    "webpack-dev-server": "^5.2.4"
+    "webpack-dev-server": "^5.2.5"
   },
   "peerDependencies": {
     "@babel/runtime": "*",
@@ -214,6 +212,11 @@
             }
           }
         }
+      },
+      "path": {
+        "target": {
+          "base": "dist/compatible/"
+        }
       }
     },
     "target:bundle": {
@@ -228,9 +231,7 @@
             }
           }
         }
-      }
-    },
-    "target:bundle:additional": {
+      },
       "path": {
         "target": {
           "base": "dist/bundle/"
