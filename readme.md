@@ -62,8 +62,7 @@ You need utilities for:<!--deDE:Sie benötigen Hilfsfunktionen für:-->
 - URLs
 
 <div class="wd-table-of-contents">
-    <!--|deDE:Inhalt-->
-    <h2 id="content">Content</h2>
+    <h2 id="content">Content<!--deDE:Inhalt--></h2>
     <!--wd-table-of-contents-->
 </div>
 
