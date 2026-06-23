@@ -45,6 +45,8 @@ const {basename = null, join = null, resolve = null} =
  * @param sourcePath - Path to directory to copy.
  * @param targetPath - Target directory or complete directory location to copy
  * in.
+ * @param contents - Indicates whether we only want to copy content of source
+ * path without recreating the sourcefile itself on target location.
  * @param callback - Function to invoke for each traversed file.
  * @param readOptions - Options to use for reading source file.
  * @param writeOptions - Options to use for writing to target file.
@@ -53,6 +55,7 @@ const {basename = null, join = null, resolve = null} =
 export const copyDirectoryRecursive = async (
     sourcePath: string,
     targetPath: string,
+    contents = false,
     callback: AnyFunction = NOOP,
     readOptions = {encoding: null, flag: 'r'},
     writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
@@ -60,21 +63,28 @@ export const copyDirectoryRecursive = async (
     if (!(basename && join && mkdir && resolve))
         throw new Error('Could not load filesystem functions.')
 
-    // NOTE: Check if folder needs to be created or integrated.
     sourcePath = resolve(sourcePath)
     if (await isDirectory(targetPath))
         targetPath = resolve(targetPath, basename(sourcePath))
 
+    // NOTE: Check if folder needs to be created or integrated.
     try {
         await mkdir(targetPath)
     } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'EEXIST')
             throw error
     }
+
+    let ignoreFirst = contents
     for (
         const currentSourceFile of
         await walkDirectoryRecursively(sourcePath, callback)
     ) {
+        if (ignoreFirst) {
+            ignoreFirst = false
+            continue
+        }
+
         const currentTargetPath: string = join(
             targetPath, currentSourceFile.path.substring(sourcePath.length)
         )
@@ -104,6 +114,8 @@ export const copyDirectoryRecursive = async (
  * @param sourcePath - Path to directory to copy.
  * @param targetPath - Target directory or complete directory location to copy
  * in.
+ * @param contents - Indicates whether we only want to copy content of source
+ * path without recreating the sourcefile itself on target location.
  * @param callback - Function to invoke for each traversed file.
  * @param readOptions - Options to use for reading source file.
  * @param writeOptions - Options to use for writing to target file.
@@ -112,6 +124,7 @@ export const copyDirectoryRecursive = async (
 export const copyDirectoryRecursiveSync = (
     sourcePath: string,
     targetPath: string,
+    contents = false,
     callback: AnyFunction = NOOP,
     readOptions = {encoding: null, flag: 'r'},
     writeOptions = {encoding: DEFAULT_ENCODING, flag: 'w', mode: 0o666}
@@ -119,10 +132,11 @@ export const copyDirectoryRecursiveSync = (
     if (!(basename && join && mkdirSync && resolve))
         throw new Error('Could not load filesystem functions.')
 
-    // NOTE: Check if folder needs to be created or integrated.
     sourcePath = resolve(sourcePath)
     if (isDirectorySync(targetPath))
         targetPath = resolve(targetPath, basename(sourcePath))
+
+    // NOTE: Check if folder needs to be created or integrated.
     try {
         mkdirSync(targetPath)
     } catch (error) {
@@ -130,10 +144,16 @@ export const copyDirectoryRecursiveSync = (
             throw error
     }
 
+    let ignoreFirst = contents
     for (
         const currentSourceFile of
         walkDirectoryRecursivelySync(sourcePath, callback)
     ) {
+        if (ignoreFirst) {
+            ignoreFirst = false
+            continue
+        }
+
         const currentTargetPath: string = join(
             targetPath, currentSourceFile.path.substring(sourcePath.length)
         )
