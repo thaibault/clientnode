@@ -64,7 +64,7 @@ export const copyDirectoryRecursive = async (
         throw new Error('Could not load filesystem functions.')
 
     sourcePath = resolve(sourcePath)
-    if (await isDirectory(targetPath))
+    if (!contents && await isDirectory(targetPath))
         targetPath = resolve(targetPath, basename(sourcePath))
 
     // NOTE: Check if folder needs to be created or integrated.
@@ -133,10 +133,10 @@ export const copyDirectoryRecursiveSync = (
         throw new Error('Could not load filesystem functions.')
 
     sourcePath = resolve(sourcePath)
-    if (isDirectorySync(targetPath))
+    if (!contents && isDirectorySync(targetPath))
         targetPath = resolve(targetPath, basename(sourcePath))
 
-    // NOTE: Check if folder needs to be created or integrated.
+    // NOTE: Try/Check if target folder needs to be created.
     try {
         mkdirSync(targetPath)
     } catch (error) {
