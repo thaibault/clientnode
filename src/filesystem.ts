@@ -75,16 +75,10 @@ export const copyDirectoryRecursive = async (
             throw error
     }
 
-    let ignoreFirst = contents
     for (
         const currentSourceFile of
         await walkDirectoryRecursively(sourcePath, callback)
     ) {
-        if (ignoreFirst) {
-            ignoreFirst = false
-            continue
-        }
-
         const currentTargetPath: string = join(
             targetPath, currentSourceFile.path.substring(sourcePath.length)
         )
@@ -144,16 +138,10 @@ export const copyDirectoryRecursiveSync = (
             throw error
     }
 
-    let ignoreFirst = contents
     for (
         const currentSourceFile of
         walkDirectoryRecursivelySync(sourcePath, callback)
     ) {
-        if (ignoreFirst) {
-            ignoreFirst = false
-            continue
-        }
-
         const currentTargetPath: string = join(
             targetPath, currentSourceFile.path.substring(sourcePath.length)
         )
