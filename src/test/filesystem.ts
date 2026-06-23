@@ -61,14 +61,14 @@ if (TARGET_TECHNOLOGY === 'node') {
     test('copyDirectoryRecursive', async (): Promise<void> => {
         removeDirectoryRecursivelySync(testPath)
         expect(await copyDirectoryRecursive(
-            './node_modules/.bin', testPath, NOOP
+            './node_modules/.bin', testPath, false, NOOP
         )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
         removeDirectoryRecursivelySync(testPath)
     })
     test('copyDirectoryRecursiveSync', () => {
         removeDirectoryRecursivelySync(testPath)
         expect(copyDirectoryRecursiveSync(
-            './node_modules/.bin', testPath, NOOP
+            './node_modules/.bin', testPath, false, NOOP
         )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
         removeDirectoryRecursivelySync(testPath)
     })
