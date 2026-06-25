@@ -48,6 +48,7 @@
   "scripts": {
     "build": "yarn build:types; yarn build:plain; yarn build:compatible; yarn build:bundle; yarn build:bundle:compatible",
     "build:alternate": "command='node_modules/.bin/babel --plugins @babel/plugin-proposal-class-properties,@babel/plugin-transform-runtime --presets @babel/preset-env,@babel/preset-typescript --source-maps inline --out-file'; for name in array cli cookie constants context data-transfer datetime filesystem function index indicators Logger Lock number object process property-types require scope Semaphore string type utility; do $command \"dist/${name}.js\" \"src/${name}.ts\"; done; yarn make:executable",
+    "build:compatible": "yarn build:types; weboptimizer build '{__reference__: \"target:compatible\"}'",
     "build:bundle": "weboptimizer build '{__reference__: \"target:bundle\"}'",
     "build:bundle:compatible": "yarn build:types; weboptimizer build '{__reference__: [\"target:bundle\", \"target:compatible\"]}'",
     "build:plain": "weboptimizer build",
