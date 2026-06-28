@@ -32,7 +32,7 @@ import {
     ABBREVIATIONS, DEFAULT_ENCODING, SPECIAL_REGEX_SEQUENCES
 } from './constants'
 import {globalContext, MAXIMAL_NUMBER_OF_ITERATIONS} from './context'
-import {isFileSync, readFileSync} from './filesystem'
+import {isFileSync, imports} from './filesystem'
 import {determineType, represent} from './object'
 
 export const POLYFILL_TEMPLATE_STRINGS = {value: false}
@@ -1190,12 +1190,12 @@ export const normalizeZipCode = (value: unknown): string => {
 export const parseEncodedObject = <T = PlainObject>(
     serializedObject: string, scope: Mapping<unknown> = {}, name = 'scope'
 ): null | T => {
-    if (!readFileSync)
+    if (!imports.fs.readFileSync)
         throw new Error('File system api could not be loaded.')
 
     if (serializedObject.endsWith('.json') && isFileSync(serializedObject))
         serializedObject =
-            readFileSync(serializedObject, {encoding: DEFAULT_ENCODING})
+            imports.fs.readFileSync(serializedObject, {encoding: DEFAULT_ENCODING})
 
     serializedObject = serializedObject.trim()
 

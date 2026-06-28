@@ -19,26 +19,10 @@
 import type {AnyFunction, Mapping} from './type'
 
 import {CONSOLE_METHODS} from './constants'
-import {currentImport, optionalRequire} from './require'
+import {
+    determineGlobalContext, optionalImport, optionalRequire
+} from './require'
 
-export const determineGlobalContext = (): Partial<typeof globalThis> => {
-    if (typeof globalThis === 'undefined') {
-        if (typeof window === 'undefined') {
-            if (typeof global === 'undefined')
-                return ((typeof module === 'undefined') ? {} : module) as
-                    typeof globalThis
-
-            if (Object.prototype.hasOwnProperty.call(global, 'window'))
-                return global.window
-
-            return global
-        }
-
-        return window
-    }
-
-    return globalThis
-}
 export let globalContext = determineGlobalContext()
 export const setGlobalContext = (context: typeof globalThis) => {
     globalContext = context
@@ -49,14 +33,12 @@ globalContext.fetch =
         globalContext.fetch.bind(globalContext) :
         optionalRequire<{default: typeof fetch}>('node-fetch')?.default ??
         ((...parameters: Parameters<typeof fetch>): ReturnType<typeof fetch> =>
-            currentImport ?
-                currentImport(/* webpackIgnore: true */ 'node-fetch')
-                    .then((module: unknown): ReturnType<typeof fetch> =>
-                        (module as {default: typeof fetch}).default(
-                            ...parameters
-                        )
-                    ) :
-                null as unknown as ReturnType<typeof fetch>
+            optionalImport(/* webpackIgnore: true */ 'node-fetch')
+                .then((module: unknown): ReturnType<typeof fetch> =>
+                    (module as {default: typeof fetch}).default(
+                        ...parameters
+                    )
+                )
         )
 
 export const MAXIMAL_NUMBER_OF_ITERATIONS = {value: 100}

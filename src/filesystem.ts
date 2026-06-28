@@ -22,24 +22,85 @@ import type {AnyFunction, Encoding, File, FileTraverseResult} from './type'
 
 import {DEFAULT_ENCODING} from './constants'
 import {NOOP} from './context'
-import {optionalRequire} from './require'
+import {optionalImport} from './require'
 
-export const {
-    mkdirSync = null,
-    readdirSync = null,
-    readFileSync = null,
-    statSync = null,
-    writeFileSync = null
-} = optionalRequire<typeof import('fs')>('fs') || {}
-const {
-    mkdir = null,
-    readdir = null,
-    readFile = null,
-    stat = null,
-    writeFile = null
-} = optionalRequire<typeof import('fs/promises')>('fs/promises') || {}
-const {basename = null, join = null, resolve = null} =
-    optionalRequire<typeof import('path')>('path') || {}
+export const imports = {
+    fs: null,
+    fsPromises: null,
+    path: null
+}
+
+let mkdirSync
+let readdirSync
+let readFileSync
+let statSync
+let writeFileSync
+const fsImportPromise = optionalImport<typeof import('fs')>('fs')
+fsImportPromise.then((module) => {
+    imports.fs = module
+
+    if (module) {
+        mkdirSync = module.mkdirSync
+        readdirSync = module.readdirSync
+        readFileSync = module.readFileSync
+        statSync = module.statSync
+        writeFileSync = module.writeFileSync
+    } else {
+        mkdirSync = null
+        readdirSync = null
+        readFileSync = null
+        statSync = null
+        writeFileSync = null
+    }
+})
+
+let mkdir
+let readdir
+let readFile
+let stat
+let writeFile
+const fsPromisesImportPromise =
+    optionalImport<typeof import('fs/promises')>('fs/promises')
+fsPromisesImportPromise.then((module) => {
+    imports.fsPromises = module
+
+    if (module) {
+        mkdir = module.mkdir
+        readdir = module.readdir
+        readFile = module.readFile
+        stat = module.stat
+        writeFile = module.writeFile
+    } else {
+        mkdir = null
+        readdir = null
+        readFile = null
+        stat = null
+        writeFile = null
+    }
+})
+
+let basename
+let join
+let resolve
+const pathImportPromise = optionalImport<typeof import('path')>('path')
+pathImportPromise.then((module) => {
+    imports.path = module
+
+    if (module) {
+        basename = module.basename
+        join = module.join
+        resolve = module.resolve
+    } else {
+        basename = null
+        join = null
+        resolve = null
+    }
+})
+
+export const importsPromise = Promise.all([
+    fsImportPromise, fsPromisesImportPromise, pathImportPromise
+])
+
 /**
  * Copies given source directory via path to given target directory location
  * with same target name as source file has or copy to given complete target
