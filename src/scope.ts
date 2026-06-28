@@ -16,6 +16,8 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {Mapping} from './type'
+
 import {globalContext, MAXIMAL_NUMBER_OF_ITERATIONS} from './context'
 import * as array from './array'
 import * as datetime from './datetime'
@@ -27,7 +29,6 @@ import * as number from './number'
 import * as object from './object'
 import * as require from './require'
 import * as string from './string'
-import {Mapping} from './type'
 import * as utility from './utility'
 
 export const UTILITY_SCOPE = {

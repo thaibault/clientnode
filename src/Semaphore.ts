@@ -16,7 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {AnyFunction} from './type'
+import type {AnyFunction} from './type'
 
 /**
  * Represents the semaphore state.

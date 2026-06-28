@@ -16,9 +16,10 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {Encoding, FirstParameter} from './type'
+
 export {Lock} from './Lock'
 export {Semaphore} from './Semaphore'
-import {Encoding, FirstParameter} from './type'
 
 export const DEFAULT_ENCODING: Encoding = 'utf8'
 export const CLOSE_EVENT_NAMES = [

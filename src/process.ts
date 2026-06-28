@@ -16,15 +16,16 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {ChildProcess} from 'child_process'
-import {NOOP} from './context'
-import {
+import type {
     AnyFunction,
     ProcessCloseCallback,
     ProcessError,
     ProcessErrorCallback,
     ProcessHandler
 } from './type'
+
+import {ChildProcess} from 'child_process'
+import {NOOP} from './context'
 
 /**
  * Generates a one shot close handler which triggers given promise methods.

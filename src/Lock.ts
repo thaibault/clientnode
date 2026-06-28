@@ -16,7 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {LockCallbackFunction, Mapping} from './type'
+import type {LockCallbackFunction, Mapping} from './type'
 
 /**
  * Represents the lock state.

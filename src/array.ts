@@ -16,8 +16,9 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {Mapping, Page, PageType, PaginateOptions, ValueOf} from './type'
+
 import {isArrayLike, isPlainObject} from './indicators'
-import {Mapping, Page, PageType, PaginateOptions, ValueOf} from './type'
 
 /**
  * Summarizes given property of given item list.

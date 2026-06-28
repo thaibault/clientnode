@@ -17,13 +17,7 @@
     endregion
 */
 // region url handling
-import {
-    ABBREVIATIONS, DEFAULT_ENCODING, SPECIAL_REGEX_SEQUENCES
-} from './constants'
-import {globalContext, MAXIMAL_NUMBER_OF_ITERATIONS} from './context'
-import {isFileSync, readFileSync} from './filesystem'
-import {determineType, represent} from './object'
-import {
+import type {
     CompilationResult,
     EvaluationResult,
     Mapping,
@@ -33,6 +27,13 @@ import {
     QueryParameters,
     ValueOf
 } from './type'
+
+import {
+    ABBREVIATIONS, DEFAULT_ENCODING, SPECIAL_REGEX_SEQUENCES
+} from './constants'
+import {globalContext, MAXIMAL_NUMBER_OF_ITERATIONS} from './context'
+import {isFileSync, readFileSync} from './filesystem'
+import {determineType, represent} from './object'
 
 export const POLYFILL_TEMPLATE_STRINGS = {value: false}
 // Partial regular expression matching symbols which should be allowed within a

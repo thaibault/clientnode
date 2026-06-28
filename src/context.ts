@@ -16,9 +16,10 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {AnyFunction, Mapping} from './type'
+
 import {CONSOLE_METHODS} from './constants'
 import {currentImport, optionalRequire} from './require'
-import {AnyFunction, Mapping} from './type'
 
 export const determineGlobalContext = (): Partial<typeof globalThis> => {
     if (typeof globalThis === 'undefined') {

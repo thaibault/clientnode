@@ -15,7 +15,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {Mapping} from '../'
+import type {Mapping} from '../'
 
 /*
     TOO expensive so far:

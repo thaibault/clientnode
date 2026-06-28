@@ -17,9 +17,9 @@
     endregion
 */
 // region imports
-import PropTypes, {Requireable} from 'prop-types'
+import type {ValueOf} from './type'
 
-import {ValueOf} from './type'
+import PropTypes, {Requireable} from 'prop-types'
 // endregion
 export const NullSymbol = Symbol('clientnodePropertyTypesNull')
 export const UndefinedSymbol = Symbol('clientnodePropertyTypesUndefined')

@@ -16,9 +16,10 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {AnyFunction, ProcedureFunction, TimeoutPromise} from './type'
+
 import {NOOP} from './context'
 import {isFunction} from './indicators'
-import {AnyFunction, ProcedureFunction, TimeoutPromise} from './type'
 
 /**
  * Prevents event functions from triggering too often by defining a minimal

@@ -16,11 +16,13 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {ObjectEncodingOptions} from 'node:fs'
+
+import type {AnyFunction, Encoding, File, FileTraverseResult} from './type'
+
 import {DEFAULT_ENCODING} from './constants'
 import {NOOP} from './context'
 import {optionalRequire} from './require'
-import {AnyFunction, Encoding, File, FileTraverseResult} from './type'
-import {ObjectEncodingOptions} from 'node:fs'
 
 export const {
     mkdirSync = null,

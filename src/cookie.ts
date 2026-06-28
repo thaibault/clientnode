@@ -16,8 +16,9 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {CookieOptions} from './type'
+
 import {globalContext} from './context'
-import {CookieOptions} from './type'
 
 /**
  * Deletes a cookie value by given name.

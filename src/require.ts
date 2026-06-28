@@ -16,7 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {FirstParameter, ImportFunction} from './type'
+import type {FirstParameter, ImportFunction} from './type'
 // Make preprocessed require function available at runtime.
 /*
     NOTE: This results in a webpack error when postprocessing this compiled

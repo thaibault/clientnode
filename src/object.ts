@@ -16,15 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {
-    CLASS_TO_TYPE_MAPPING, IGNORE_NULL_AND_UNDEFINED_SYMBOL, VALUE_COPY_SYMBOL
-} from './constants'
-import {
-    isFunction, isObject, isPlainObject, isMap, isProxy, isSet, isNumeric
-} from './indicators'
-import {isNotANumber} from './number'
-import {escapeRegularExpressions, evaluate} from './string'
-import {
+import type {
     AnyFunction,
     CompareOptions,
     EvaluationResult,
@@ -41,6 +33,15 @@ import {
     UnknownFunction,
     ValueOf
 } from './type'
+
+import {
+    CLASS_TO_TYPE_MAPPING, IGNORE_NULL_AND_UNDEFINED_SYMBOL, VALUE_COPY_SYMBOL
+} from './constants'
+import {
+    isFunction, isObject, isPlainObject, isMap, isProxy, isSet, isNumeric
+} from './indicators'
+import {isNotANumber} from './number'
+import {escapeRegularExpressions, evaluate} from './string'
 
 /**
  * Adds dynamic getter and setter to any given data structure such as maps.
