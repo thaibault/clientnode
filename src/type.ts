@@ -357,4 +357,10 @@ export interface LoggerOptions {
     level: Level
     name: string
 }
+export interface EvaluateDynamicDataOptions {
+    scope: Mapping<unknown>
+    selfReferenceName: string
+    expressionIndicatorKey: string
+    executionIndicatorKey: string
+}
 // endregion

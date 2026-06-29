@@ -16,7 +16,26 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import type {ObjectEncodingOptions} from 'node:fs'
+import type {
+    ObjectEncodingOptions,
+    mkdirSync as mkdirSyncType,
+    readdirSync as readdirSyncType,
+    readFileSync as readFileSyncType,
+    statSync as statSyncType,
+    writeFileSync as writeFileSyncType,
+} from 'node:fs'
+import type {
+    mkdir as mkdirType,
+    readdir as readdirType,
+    readFile as readFileType,
+    stat as statType,
+    writeFile as writeFileType
+} from 'fs/promises'
+import type {
+    basename as basenameType,
+    join as joinType,
+    resolve as resolveType
+} from 'path'
 
 import type {AnyFunction, Encoding, File, FileTraverseResult} from './type'
 
@@ -24,17 +43,21 @@ import {DEFAULT_ENCODING} from './constants'
 import {NOOP} from './context'
 import {optionalImport} from './require'
 
-export const imports = {
+export const imports: {
+    fs: null | typeof import('fs')
+    fsPromises: null | typeof import('fs/promises')
+    path: null | typeof import('path')
+} = {
     fs: null,
     fsPromises: null,
     path: null
 }
 
-let mkdirSync
-let readdirSync
-let readFileSync
-let statSync
-let writeFileSync
+let mkdirSync: null | typeof mkdirSyncType
+let readdirSync: null | typeof readdirSyncType
+let readFileSync: null | typeof readFileSyncType
+let statSync: null | typeof statSyncType
+let writeFileSync: null | typeof writeFileSyncType
 const fsImportPromise = optionalImport<typeof import('fs')>('fs')
 fsImportPromise.then((module) => {
     imports.fs = module
@@ -54,11 +77,11 @@ fsImportPromise.then((module) => {
     }
 })
 
-let mkdir
-let readdir
-let readFile
-let stat
-let writeFile
+let mkdir: null | typeof mkdirType
+let readdir: null | typeof readdirType
+let readFile: null | typeof readFileType
+let stat: null | typeof statType
+let writeFile: null | typeof writeFileType
 const fsPromisesImportPromise =
     optionalImport<typeof import('fs/promises')>('fs/promises')
 fsPromisesImportPromise.then((module) => {
@@ -79,9 +102,9 @@ fsPromisesImportPromise.then((module) => {
     }
 })
 
-let basename
-let join
-let resolve
+let basename: null | typeof basenameType
+let join: null | typeof joinType
+let resolve: null | typeof resolveType
 const pathImportPromise = optionalImport<typeof import('path')>('path')
 pathImportPromise.then((module) => {
     imports.path = module

@@ -19,6 +19,7 @@
 import type {
     AnyFunction,
     CompareOptions,
+    EvaluateDynamicDataOptions,
     EvaluationResult,
     GetterFunction,
     Mapping,
@@ -917,32 +918,38 @@ export const equals = (
  * marked values. Additionally, all objects are wrapped with a proxy to
  * dynamically resolve nested properties.
  * @param object - Given mapping to resolve.
- * @param scope - Scope to use evaluate again.
- * @param selfReferenceName - Name to use for reference to given object.
- * @param expressionIndicatorKey - Indicator property name to mark a value
- * to evaluate.
- * @param executionIndicatorKey - Indicator property name to mark a value
- * to evaluate.
+ * @param options - Options to configure evaluation.
+ * @param options.scope - Scope to use evaluate again.
+ * @param options.selfReferenceName - Name to use for reference to given
+ * object.
+ * @param options.expressionIndicatorKey - Indicator property name to mark a
+ * value to evaluate.
+ * @param options.executionIndicatorKey - Indicator property name to mark a
+ * value to evaluate.
  * @returns Evaluated given mapping.
  */
 export const evaluateDynamicData = <Type = unknown>(
     object: null | RecursiveEvaluateable<Type>,
-    scope: Mapping<unknown> = {},
-    selfReferenceName = 'self',
-    expressionIndicatorKey = '__evaluate__',
-    executionIndicatorKey = '__execute__'
+    givenOptions: Partial<EvaluateDynamicDataOptions> = {}
 ): Type => {
+    const options = {
+        scope: {},
+        selfReferenceName: 'self',
+        expressionIndicatorKey: '__evaluate__',
+        executionIndicatorKey: '__execute__',
+        ...givenOptions
+    }
     if (typeof object !== 'object' || object === null)
         return object as unknown as Type
 
-    if (!(selfReferenceName in scope))
-        scope[selfReferenceName] = object
+    if (!(options.selfReferenceName in options.scope))
+        options.scope[options.selfReferenceName] = object
 
     const evaluateAndThrowError = (
-        code: string, type: string = expressionIndicatorKey
+        code: string, type: string = options.expressionIndicatorKey
     ): unknown => {
         const evaluated: EvaluationResult = evaluate(
-            code, scope, type === executionIndicatorKey
+            code, options.scope, type === options.executionIndicatorKey
         )
 
         if (evaluated.error)
@@ -967,10 +974,10 @@ export const evaluateDynamicData = <Type = unknown>(
                 // NOTE: We only wrap needed objects for performance reasons.
                 if (
                     Object.prototype.hasOwnProperty.call(
-                        value, expressionIndicatorKey
+                        value, options.expressionIndicatorKey
                     ) ||
                     Object.prototype.hasOwnProperty.call(
-                        value, executionIndicatorKey
+                        value, options.executionIndicatorKey
                     )
                 ) {
                     const backup: Mapping<unknown> =
@@ -993,8 +1000,8 @@ export const evaluateDynamicData = <Type = unknown>(
                                     changes while having good tests.
                                 */
                                 for (const type of [
-                                    expressionIndicatorKey,
-                                    executionIndicatorKey
+                                    options.expressionIndicatorKey,
+                                    options.executionIndicatorKey
                                 ])
                                     if (
                                         key === type &&
@@ -1030,8 +1037,8 @@ export const evaluateDynamicData = <Type = unknown>(
                                 }
 
                                 for (const type of [
-                                    expressionIndicatorKey,
-                                    executionIndicatorKey
+                                    options.expressionIndicatorKey,
+                                    options.executionIndicatorKey
                                 ])
                                     if (Object.prototype.hasOwnProperty
                                         .call(target, type)
@@ -1049,8 +1056,8 @@ export const evaluateDynamicData = <Type = unknown>(
                                 target: Mapping<unknown>
                             ): Array<string> => {
                                 for (const type of [
-                                    expressionIndicatorKey,
-                                    executionIndicatorKey
+                                    options.expressionIndicatorKey,
+                                    options.executionIndicatorKey
                                 ])
                                     if (Object.prototype.hasOwnProperty
                                         .call(target, type)
@@ -1084,7 +1091,8 @@ export const evaluateDynamicData = <Type = unknown>(
             if (isProxy(data)) {
                 // NOTE: We have to skip "ownKeys" proxy trap here.
                 for (const type of [
-                    expressionIndicatorKey, executionIndicatorKey
+                    options.expressionIndicatorKey,
+                    options.executionIndicatorKey
                 ])
                     if (Object.prototype.hasOwnProperty.call(data, type))
                         return (data as Mapping<unknown>)[type]
@@ -1096,7 +1104,8 @@ export const evaluateDynamicData = <Type = unknown>(
                 data as Mapping<unknown>
             )) {
                 if ([
-                    expressionIndicatorKey, executionIndicatorKey
+                    options.expressionIndicatorKey,
+                    options.executionIndicatorKey
                 ].includes(key)) {
                     if (typeof Proxy === 'undefined')
                         return resolve(evaluateAndThrowError(value as string))
@@ -1111,7 +1120,7 @@ export const evaluateDynamicData = <Type = unknown>(
         return data
     }
 
-    scope.resolve = resolve
+    options.scope.resolve = resolve
     const removeProxyRecursively = (data: unknown): unknown => {
         if (isObject(data))
             for (const [key, value] of Object.entries(data))
@@ -1130,16 +1139,19 @@ export const evaluateDynamicData = <Type = unknown>(
         return data
     }
 
-    if (Object.prototype.hasOwnProperty.call(object, expressionIndicatorKey))
+    if (Object.prototype.hasOwnProperty.call(
+        object, options.expressionIndicatorKey
+    ))
         return evaluateAndThrowError(object[
-            expressionIndicatorKey as keyof RecursiveEvaluateable<Type>
+            options.expressionIndicatorKey as keyof RecursiveEvaluateable<Type>
         ]) as Type
     else if (Object.prototype.hasOwnProperty.call(
-        object, executionIndicatorKey
+        object, options.executionIndicatorKey
     ))
         return evaluateAndThrowError(
-            object[executionIndicatorKey as keyof RecursiveEvaluateable<Type>],
-            executionIndicatorKey
+            object[options.executionIndicatorKey as
+                keyof RecursiveEvaluateable<Type>],
+            options.executionIndicatorKey
         ) as Type
 
     return removeProxyRecursively(resolve(addProxyRecursively(object))) as Type

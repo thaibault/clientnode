@@ -96,10 +96,14 @@ export const isImportSyntaxSupported = () => {
         return false
     }
 }
-export const optionalImport = <T = unknown>(id: string): Promise<T> => {
+export const optionalImport = <T = unknown>(
+    id: string, options = {}
+): Promise<null | T> => {
     try {
         return isImportSyntaxSupported() ?
-            (new Function(`return import('${id}')`))() as Promise<T> :
+            (new Function(
+                'options', `return import('${id}', options)`
+            ))(options) as Promise<T> :
             Promise.resolve(null)
     } catch {
         return Promise.resolve(null)

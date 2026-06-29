@@ -670,20 +670,39 @@ testEach(
     [
         {a: {__evaluate__: 'self.b'}, b: 2},
         {a: {__evaluate__: 'self.b'}, b: 2},
-        {},
-        'self',
-        '__run__'
+        {
+            scope: {},
+            selfReferenceName: 'self',
+            expressionIndicatorKey: '__run__'
+        }
     ],
-    [{a: 1, b: 1}, {a: {__run: '_.b'}, b: 1}, {}, '_', '__run'],
+    [
+        {a: 1, b: 1},
+        {a: {__run: '_.b'}, b: 1},
+        {
+            scope: {},
+            selfReferenceName: '_',
+            expressionIndicatorKey: '__run'
+        }
+    ],
     [
         {a: [1], b: 1},
         {a: [{__run: 'self.b'}], b: 1},
-        {},
-        'self',
-        '__run'
+        {
+            scope: {},
+            selfReferenceName: 'self',
+            expressionIndicatorKey: '__run'
+            }
     ],
     [{a: 2, b: 2}, {a: {__evaluate__: 'self.b'}, b: 2}],
-    [{a: 2, b: 2}, {a: {__evaluate__: 'c.b'}, b: 2}, {}, 'c'],
+    [
+        {a: 2, b: 2},
+        {a: {__evaluate__: 'c.b'}, b: 2},
+        {
+            scope: {},
+            selfReferenceName: 'c'
+        }
+    ],
     [
         {a: 2, b: 2, c: 2},
         {
@@ -750,8 +769,7 @@ testEach(
             b: {__evaluate__: '_.c'},
             c: {d: {e: {__evaluate__: 'tools.copy([2])'}}}
         },
-        {tools: {copy}},
-        '_'
+        {scope: {tools: {copy}}, selfReferenceName: '_'}
     ],
     [
         {a: {b: 1, c: 1}},
@@ -796,7 +814,12 @@ testEach(
             b: {__evaluate__: '"t" + "es" + "t"'},
             c: {__evaluate__: 'removeS(self.a.b)'}
         }},
-        {removeS: (value: string): string => value.replace('s', '')}
+        {
+            scope: {
+                removeS: (value: string): string =>
+                    value.replace('s', '')
+            }
+        }
     ],
     [
         {a: 'a', b: 'a'},
@@ -804,7 +827,7 @@ testEach(
             a: {__evaluate__: 'toString(self.b)'},
             b: {__evaluate__: `'a'`}
         },
-        {toString: (value: string): string => value}
+        {scope: {toString: (value: string): string => value}}
     ],
     [
         {a: ['a'], b: {a: 2}},
