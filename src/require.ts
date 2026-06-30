@@ -96,12 +96,12 @@ export const isImportSyntaxSupported = () => {
         return false
     }
 }
-export const optionalImport = <T = unknown>(
+export const optionalImport = async <T = unknown>(
     id: string, options = {}
 ): Promise<null | T> => {
     try {
         return isImportSyntaxSupported() ?
-            (new Function(
+            await (new Function(
                 'options', `return import('${id}', options)`
             ))(options) as Promise<T> :
             Promise.resolve(null)
