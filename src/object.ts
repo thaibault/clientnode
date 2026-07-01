@@ -918,14 +918,14 @@ export const equals = (
  * marked values. Additionally, all objects are wrapped with a proxy to
  * dynamically resolve nested properties.
  * @param object - Given mapping to resolve.
- * @param options - Options to configure evaluation.
- * @param options.scope - Scope to use evaluate again.
- * @param options.selfReferenceName - Name to use for reference to given
+ * @param givenOptions - Options to configure evaluation.
+ * @param givenOptions.scope - Scope to use evaluate again.
+ * @param givenOptions.selfReferenceName - Name to use for reference to given
  * object.
- * @param options.expressionIndicatorKey - Indicator property name to mark a
- * value to evaluate.
- * @param options.executionIndicatorKey - Indicator property name to mark a
- * value to evaluate.
+ * @param givenOptions.expressionIndicatorKey - Indicator property name to mark
+ * a value to evaluate.
+ * @param givenOptions.executionIndicatorKey - Indicator property name to mark
+ * a value to evaluate.
  * @returns Evaluated given mapping.
  */
 export const evaluateDynamicData = <Type = unknown>(

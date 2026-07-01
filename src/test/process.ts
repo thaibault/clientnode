@@ -20,7 +20,7 @@ import {ChildProcess as ChildProcessType} from 'child_process'
 
 import {NOOP} from '../context'
 import {getProcessCloseHandler, handleChildProcess} from '../process'
-import {optionalRequire} from '../require'
+import {optionalRequire} from '../module'
 import {Duplex as DuplexType} from 'stream'
 import {AnyFunction} from '../type'
 

@@ -1,6 +1,6 @@
 // #!/usr/bin/env babel-node
 // -*- coding: utf-8 -*-
-/** @module require */
+/** @module module */
 'use strict'
 /* !
     region header
@@ -16,7 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import type {FirstParameter, ImportFunction} from './type'
+import type {FirstParameter} from './type'
 
 export const determineGlobalContext = (): Partial<typeof globalThis> => {
     if (typeof globalThis === 'undefined') {
@@ -90,6 +90,7 @@ export const isolatedRequire = (
 // Make preprocessed import function available at runtime.
 export const isImportSyntaxSupported = () => {
     try {
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
         new Function('import("data:text/javascript,")')
         return true
     } catch {
@@ -101,11 +102,21 @@ export const optionalImport = async <T = unknown>(
 ): Promise<null | T> => {
     try {
         return isImportSyntaxSupported() ?
-            await (new Function(
+            /*
+                eslint-disable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */
+            await ((new Function(
                 'options', `return import('${id}', options)`
-            ))(options) as Promise<T> :
-            Promise.resolve(null)
+            ))(options) as Promise<T>) :
+            await Promise.resolve(null)
+            /*
+                eslint-enable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */
     } catch {
-        return Promise.resolve(null)
+        return await Promise.resolve(null)
     }
 }

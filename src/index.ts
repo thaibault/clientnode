@@ -43,7 +43,7 @@ export * from './object'
 
 export * from './process'
 
-export * from './require'
+export * from './module'
 
 export * from './scope'
 export * from './Semaphore'
