@@ -21,7 +21,7 @@ import type {AnyFunction, Mapping} from './type'
 import {CONSOLE_METHODS} from './constants'
 import {
     determineGlobalContext, optionalImport, optionalRequire
-} from './require'
+} from './module'
 
 export let globalContext = determineGlobalContext()
 export const setGlobalContext = (context: typeof globalThis) => {

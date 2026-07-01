@@ -30,7 +30,7 @@ import {
     walkDirectoryRecursively,
     walkDirectoryRecursivelySync
 } from '../filesystem'
-import {optionalRequire} from '../require'
+import {optionalRequire} from '../module'
 import {testEachSingleParameterAgainstSameExpectation} from '../test-helper'
 import {File} from '../type'
 import {timeout} from '../utility'

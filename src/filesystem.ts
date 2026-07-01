@@ -22,7 +22,7 @@ import type {
     readdirSync as readdirSyncType,
     readFileSync as readFileSyncType,
     statSync as statSyncType,
-    writeFileSync as writeFileSyncType,
+    writeFileSync as writeFileSyncType
 } from 'node:fs'
 import type {
     mkdir as mkdirType,
@@ -41,7 +41,7 @@ import type {AnyFunction, Encoding, File, FileTraverseResult} from './type'
 
 import {DEFAULT_ENCODING} from './constants'
 import {NOOP} from './context'
-import {optionalImport} from './require'
+import {optionalImport} from './module'
 
 export const imports: {
     fs: null | typeof import('fs')
@@ -59,7 +59,7 @@ let readFileSync: null | typeof readFileSyncType
 let statSync: null | typeof statSyncType
 let writeFileSync: null | typeof writeFileSyncType
 const fsImportPromise = optionalImport<typeof import('fs')>('fs')
-fsImportPromise.then((module) => {
+void fsImportPromise.then((module) => {
     imports.fs = module
 
     if (module) {
@@ -84,7 +84,7 @@ let stat: null | typeof statType
 let writeFile: null | typeof writeFileType
 const fsPromisesImportPromise =
     optionalImport<typeof import('fs/promises')>('fs/promises')
-fsPromisesImportPromise.then((module) => {
+void fsPromisesImportPromise.then((module) => {
     imports.fsPromises = module
 
     if (module) {
@@ -106,7 +106,7 @@ let basename: null | typeof basenameType
 let join: null | typeof joinType
 let resolve: null | typeof resolveType
 const pathImportPromise = optionalImport<typeof import('path')>('path')
-pathImportPromise.then((module) => {
+void pathImportPromise.then((module) => {
     imports.path = module
 
     if (module) {
