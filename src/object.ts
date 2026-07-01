@@ -1516,11 +1516,8 @@ export const modifyObject = <T = unknown>(
             }
 
             if (
-                [
-                    removeIndicatorKey,
-                    prependIndicatorKey,
-                    appendIndicatorKey
-                ].includes(key) ||
+                [removeIndicatorKey, prependIndicatorKey, appendIndicatorKey]
+                    .includes(key) ||
                 !isNaN(index)
             ) {
                 if (Array.isArray(target))

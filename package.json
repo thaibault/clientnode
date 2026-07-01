@@ -48,10 +48,10 @@
   },
   "scripts": {
     "build": "yarn build:types; yarn build:plain; yarn build:compatible; yarn build:bundle; yarn build:bundle:compatible",
-    "build:standalone": "node_modules/.bin/babel src --source-maps inline --extensions .ts,.tsx --ignore 'src/test/**' --out-dir dist; yarn make:executable",
-    "build:compatible": "yarn build:types; weboptimizer build '{__reference__: \"target:compatible\"}'",
+    "build:standalone": "npx babel --config-file ./standalone.babel.config.json --source-maps inline --extensions .ts,.tsx --ignore 'src/test/**' --out-dir dist src; yarn make:executable",
+    "build:compatible": "weboptimizer build '{__reference__: \"target:compatible\"}'",
     "build:bundle": "weboptimizer build '{__reference__: \"target:bundle\"}'",
-    "build:bundle:compatible": "yarn build:types; weboptimizer build '{__reference__: [\"target:bundle\", \"target:compatible\"]}'",
+    "build:bundle:compatible": "weboptimizer build '{__reference__: [\"target:bundle\", \"target:compatible\"]}'",
     "build:plain": "weboptimizer build",
     "build:types": "weboptimizer build:types",
     "check": "yarn check:types; yarn lint",
@@ -82,11 +82,11 @@
     "@types/ejs": "^3.1.5",
     "@types/html-minifier": "^4.0.6",
     "@types/imagemin": "^9.0.1",
-    "@types/node": "^26.0.1",
+    "@types/node": "^26.1.0",
     "@types/prop-types": "^15.7.15",
     "@types/webpack-env": "^1.18.8",
-    "@typescript-eslint/eslint-plugin": "^8.62.0",
-    "@typescript-eslint/parser": "^8.62.0",
+    "@typescript-eslint/eslint-plugin": "^8.62.1",
+    "@typescript-eslint/parser": "^8.62.1",
     "babel-plugin-polyfill-corejs3": "^1.0.0",
     "babel-plugin-transform-rewrite-imports": "^1.5.4",
     "clientnode": "workspace:.",
@@ -100,7 +100,7 @@
     "node-fetch": "^3.3.2",
     "prop-types": "^15.8.1",
     "rimraf": "^6.1.3",
-    "typescript-eslint": "^8.62.0",
+    "typescript-eslint": "^8.62.1",
     "web-documentation": "^1.0.42",
     "weboptimizer": "^4.0.3",
     "webpack-dev-server": "^5.2.5"
@@ -228,7 +228,7 @@
           "javaScript": {
             "options": {
               "plugins": {
-                "__remove__": "babel-plugin-polyfill-corejs3"
+                "__remove__": 1
               }
             }
           }
