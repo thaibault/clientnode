@@ -16,13 +16,14 @@
     endregion
 */
 // region imports
-import {Matchers} from 'expect'
-import {Dirent as DirectoryEntry, Stats as FileStats} from 'fs'
+import type {Matchers} from 'expect'
+import type {Dirent as DirectoryEntry, Stats as FileStats} from 'fs'
 
-import {
+import type {Level} from './Logger'
+
+import type {
     TEST_DEFINED_SYMBOL, TEST_THROW_SYMBOL, TEST_UNDEFINED_SYMBOL
 } from './test-helper'
-import {Level} from './Logger'
 // endregion
 // region exports
 /// region helper
@@ -355,5 +356,11 @@ Partial<ScrollToOptions> {
 export interface LoggerOptions {
     level: Level
     name: string
+}
+export interface EvaluateDynamicDataOptions {
+    scope: Mapping<unknown>
+    selfReferenceName: string
+    expressionIndicatorKey: string
+    executionIndicatorKey: string
 }
 // endregion

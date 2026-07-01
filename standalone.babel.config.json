@@ -1,0 +1,24 @@
+{
+  "targets": "defaults",
+  "plugins": [
+    ["@babel/plugin-transform-class-properties"],
+    [
+      "polyfill-corejs3",
+      {
+        "method": "usage-global",
+        "version": "3.48"
+      }
+    ],
+    [
+      "babel-plugin-transform-rewrite-imports",
+      {
+        "appendExtension": ".js",
+        "recognizedExtensions": [".js", ".jsx", ".d.ts", ".ts", ".tsx", ".json"]
+      }
+    ]
+  ],
+  "presets": [
+    ["@babel/preset-env"],
+    ["@babel/preset-typescript"]
+  ]
+}

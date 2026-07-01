@@ -16,13 +16,14 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {LOCALES} from './constants'
-import {
+import type {
     EvaluationResult,
     Mapping,
     PositiveEvaluationResult,
     SecondParameter
 } from './type'
+
+import {LOCALES} from './constants'
 import {capitalize, evaluate} from './string'
 
 // Caches compiled date tine pattern regular expressions.

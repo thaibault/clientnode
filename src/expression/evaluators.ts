@@ -15,28 +15,9 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {
-    equals,
-    isFunction,
-    isObject,
-    isPlainObject,
-    Mapping, Options
-} from '../'
+import type {Mapping, Options} from '../'
 
-import {
-    isAndExpression,
-    isOrExpression,
-    isConcatExpression,
-    isMappingExpression,
-    isIfExpression,
-    isSwitchExpression,
-    isSelector,
-    isCondition,
-    isOperation,
-    isUnaryOperation,
-    isArrayContainsExpression
-} from './indicator-functions'
-import {
+import type {
     NormalizedSelector,
     Selector,
     SelectorItem,
@@ -60,7 +41,23 @@ import {
     BasicScopeType,
     RecursiveKeyOf,
     MappingExpression
-} from './types'
+} from './type'
+
+import {equals, isFunction, isObject, isPlainObject} from '../'
+
+import {
+    isAndExpression,
+    isOrExpression,
+    isConcatExpression,
+    isMappingExpression,
+    isIfExpression,
+    isSwitchExpression,
+    isSelector,
+    isCondition,
+    isOperation,
+    isUnaryOperation,
+    isArrayContainsExpression
+} from './indicator-functions'
 
 export const SELECTOR_KEY_NAMES = new Set<string>(['name'])
 export const NO_ITEM_FOUND_SYMBOL =

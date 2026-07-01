@@ -28,7 +28,7 @@ export * from './cookie'
 export * from './data-transfer'
 export * from './datetime'
 
-export * from './expression'
+export * from './expression/index'
 
 export * from './filesystem'
 export * from './function'

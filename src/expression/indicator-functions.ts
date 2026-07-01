@@ -15,9 +15,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {isPlainObject} from '../indicators'
-
-import {
+import type {
     BasicScopeType,
 
     AndExpression,
@@ -35,7 +33,9 @@ import {
     Condition,
     SelectorExpression,
     ArrayContainsExpression
-} from './types'
+} from './type'
+
+import {isPlainObject} from '../indicators'
 
 export const isSpecificExpression = (
     expression: Expression,

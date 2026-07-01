@@ -16,11 +16,12 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {LoggerOptions, Mapping} from './type'
+
 import {CLI_COLOR} from './cli'
 import {globalContext, NOOP} from './context'
 import {isNumeric} from './indicators'
 import {determineType} from './object'
-import {LoggerOptions, Mapping} from './type'
 
 export const LEVELS = [
     'error',

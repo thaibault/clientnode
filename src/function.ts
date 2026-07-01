@@ -16,7 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {AnyFunction, ArrayTransformer} from './type'
+import type {AnyFunction, ArrayTransformer} from './type'
 
 /**
  * Determines all parameter names from given callable (function or class,

@@ -16,13 +16,14 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {globalContext, NOOP} from './context'
-import {
+import type {
     GivenInterruptableScrollToOptions,
     InterruptableScrollToOptions,
     KnownEventName,
     Mapping
 } from './type'
+
+import {globalContext, NOOP} from './context'
 import {timeout} from './utility'
 
 export const createDomNodes = <Type extends Node = Node>(

@@ -23,9 +23,6 @@
     )
 */
 // region imports
-import {expect, test} from '@jest/globals'
-
-import {represent} from './object'
 import {
     AnyFunction,
     FirstParameter,
@@ -37,6 +34,10 @@ import {
     ThenParameter,
     UnknownFunction
 } from './type'
+
+import {expect, test} from '@jest/globals'
+
+import {represent} from './object'
 // endregion
 export const TEST_DEFINED_SYMBOL = Symbol.for('clientnodeTestHelperDefined')
 export const TEST_THROW_SYMBOL = Symbol.for('clientnodeTestHelperThrow')

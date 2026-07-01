@@ -16,12 +16,13 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {
+    CheckReachabilityOptions, RecursivePartial, TimeoutPromise
+} from './type'
+
 import {isObject} from './indicators'
 import {globalContext} from './context'
 import {extend} from './object'
-import {
-    CheckReachabilityOptions, RecursivePartial, TimeoutPromise
-} from './type'
 import {timeout} from './utility'
 
 /**

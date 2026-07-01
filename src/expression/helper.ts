@@ -15,9 +15,9 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {Mapping} from '../'
+import type {Mapping} from '../'
 
-import {BasicScopeType} from './types'
+import type {BasicScopeType} from './type'
 
 export const viewArrayAsScope = <
     Type extends Array<Mapping<unknown>>, ScopeType extends BasicScopeType

@@ -15,12 +15,13 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+export * from './type'
+
 import evaluateExpressionFunction from './evaluators'
 
 export * from './evaluators'
 export * from './helper'
 export * from './indicator-functions'
-export * from './types'
 
 export const evaluateExpression = evaluateExpressionFunction
 

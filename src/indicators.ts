@@ -16,9 +16,10 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {AnyFunction, Mapping, PlainObject, ProxyType} from './type'
+
 import {PLAIN_OBJECT_PROTOTYPES} from './constants'
 import {determineType} from './object'
-import {AnyFunction, Mapping, PlainObject, ProxyType} from './type'
 
 /**
  * Determines whether its argument represents a JavaScript number.
