@@ -227,7 +227,6 @@ export interface ExecuteObject {
     __execute__: string
 }
 export type Evaluateable = EvaluateObject | ExecuteObject
-
 export type EvaluatedObject<Type extends object> = {
     [Property in keyof Type]: (
         Type[Property] extends Evaluateable ?
@@ -247,6 +246,37 @@ export type RecursiveEvaluateable<Type> =
                     RecursiveEvaluateable<Type[Property]> :
                     Evaluateable | Type[Property]
             )
+        )
+    }
+
+export interface AsyncEvaluateObject {
+    __await_evaluate__: string
+}
+export interface AsyncExecuteObject {
+    __await_execute__: string
+}
+export type AsyncEvaluateable = AsyncEvaluateObject | AsyncExecuteObject
+
+export type AsyncEvaluatedObject<Type extends object> = {
+    [Property in keyof Type]: (
+        Type[Property] extends AsyncEvaluateable ?
+            unknown :
+            Type[Property] extends object ?
+                AsyncEvaluatedObject<Type[Property]> :
+                Type[Property]
+        )
+}
+export type RecursiveAsyncEvaluateable<Type> =
+    AsyncEvaluateable |
+    {
+        [Property in keyof Type]: (
+        AsyncEvaluateable | (
+            Type[Property] extends Array<infer OtherType> ?
+                Array<RecursiveAsyncEvaluateable<OtherType>> :
+                Type[Property] extends Mapping<unknown> ?
+                    RecursiveAsyncEvaluateable<Type[Property]> :
+                    AsyncEvaluateable | Type[Property]
+                )
         )
     }
 
