@@ -35,6 +35,7 @@ import {
     copy,
     determineType,
     equals,
+    evaluateAsyncDynamicData,
     evaluateDynamicData,
     extend,
     getProxyHandler,
@@ -876,6 +877,14 @@ testEach(
             b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
         }
     ]
+)
+testEachPromise(
+    'evaluateAsyncDynamicData',
+    evaluateAsyncDynamicData,
+
+    [4, {__await_evaluate__: 'Promise.resolve(1 + 3)'}],
+    [[1], [{__await_evaluate__: 'Promise.resolve(1)'}]],
+    [['1'], [{__await_evaluate__: `Promise.resolve('1')`}]]
 )
 testEach(
     'removeKeysInEvaluation',

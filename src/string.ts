@@ -781,6 +781,36 @@ export const evaluate = <T = string, S extends object = object>(
     return result
 }
 /**
+ * Evaluates a given string as an expression against a given scope. Does same
+ * as "evaluate" but throws an exception if an error occurs and returns the
+ * evaluated value instead of an object with error and result.
+ * @param expression - The string to interpret.
+ * @param scope - Scope to render against.
+ * @param execute - Indicates whether to execute or evaluate.
+ * @param removeGlobalScope - Indicates whether to shadow global variables via
+ * "undefined".
+ * @param binding - Object to apply as "this" in evaluation scope.
+ * @returns Object with an error message during parsing / running or result.
+ */
+export const evaluateAndThrowError = <
+    Result = string, Scope extends object = object
+>(
+        expression: string,
+        scope: Scope = {} as Scope,
+        execute = false,
+        removeGlobalScope = true,
+        binding: unknown = {}
+    ): Result => {
+    const evaluated: EvaluationResult<Result> = evaluate<Result, Scope>(
+        expression, scope, execute, removeGlobalScope, binding
+    )
+
+    if (evaluated.error)
+        throw new Error(evaluated.error)
+
+    return evaluated.result as Result
+}
+/**
  * Finds the string match of a given query in a given target text by applying a
  * given normalization function to target and query.
  * @param target - Target to search in.

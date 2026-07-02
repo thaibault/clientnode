@@ -30,7 +30,7 @@ import {
     delimitedToCamelCase,
     encodeURIComponentExtended,
     escapeRegularExpressions,
-    evaluate,
+    evaluate, evaluateAndThrowError,
     findNormalizedMatchRange,
     fixKnownEncodingErrors,
     format,
@@ -833,6 +833,12 @@ test.each(([
                     .toStrictEqual(expected)
     }
 )
+test('evaluateAndThrowError', () => {
+    expect(() => {
+        evaluate('notExistingVariable')
+    })
+        .toThrow()
+})
 test.each(([
     [
         '`test \\${test} value \\${test}`',

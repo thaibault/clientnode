@@ -16,11 +16,10 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import type {
+import {
     AnyFunction,
     CompareOptions,
     EvaluateDynamicDataOptions,
-    EvaluationResult,
     GetterFunction,
     Mapping,
     NormalizedObjectMask,
@@ -28,6 +27,7 @@ import type {
     PlainObject,
     ProxyHandler,
     ProxyType,
+    RecursiveAsyncEvaluateable,
     RecursiveEvaluateable,
     RecursivePartial,
     SetterFunction,
@@ -42,7 +42,7 @@ import {
     isFunction, isObject, isPlainObject, isMap, isProxy, isSet, isNumeric
 } from './indicators'
 import {isNotANumber} from './number'
-import {escapeRegularExpressions, evaluate} from './string'
+import {escapeRegularExpressions, evaluateAndThrowError} from './string'
 
 /**
  * Adds dynamic getter and setter to any given data structure such as maps.
@@ -153,7 +153,7 @@ export const addDynamicGetterAndSetter = <T = unknown>(
     return object
 }
 /**
- * Converts given object into its serialized json representation by
+ * Converts given object into its serialized JSON representation by
  * replacing circular references with a given provided value.
  *
  * This method traverses given object recursively and tracks of seen and
@@ -163,7 +163,7 @@ export const addDynamicGetterAndSetter = <T = unknown>(
  * @param determineCircularReferenceValue - Callback to create a fallback
  * value depending on given redundant value.
  * @param numberOfSpaces - Number of spaces to use for string formatting.
- * @returns The formatted json string.
+ * @returns The formatted JSON string.
  */
 export const convertCircularObjectToJSON = (
     object: unknown,
@@ -794,7 +794,6 @@ export const equals = (
                                 )
                         }
 
-
                         const determineResult = (
                             equal: boolean
                         ): boolean | string => equal ?
@@ -914,9 +913,10 @@ export const equals = (
         false
 }
 /**
- * Searches for nested mappings with given indicator key and resolves
- * marked values. Additionally, all objects are wrapped with a proxy to
- * dynamically resolve nested properties.
+ * Wraps given data structure into proxies recursively to evaluate and resolve
+ * each get request to data having an object with indicating keys and replaces
+ * that object with corresponding evaluated values. All nested objects are
+ * wrapped with a proxy to resolve chains of referencing expressions as well.
  * @param object - Given mapping to resolve.
  * @param givenOptions - Options to configure evaluation.
  * @param givenOptions.scope - Scope to use evaluate again.
@@ -939,24 +939,19 @@ export const evaluateDynamicData = <Type = unknown>(
         executionIndicatorKey: '__execute__',
         ...givenOptions
     }
+
     if (typeof object !== 'object' || object === null)
         return object as unknown as Type
 
     if (!(options.selfReferenceName in options.scope))
         options.scope[options.selfReferenceName] = object
 
-    const evaluateAndThrowError = (
+    const internalEvaluateAndThrowError = (
         code: string, type: string = options.expressionIndicatorKey
-    ): unknown => {
-        const evaluated: EvaluationResult = evaluate(
+    ): Type =>
+        evaluateAndThrowError<Type>(
             code, options.scope, type === options.executionIndicatorKey
         )
-
-        if (evaluated.error)
-            throw new Error(evaluated.error)
-
-        return evaluated.result
-    }
 
     const addProxyRecursively = (data: unknown): unknown => {
         if (
@@ -1007,14 +1002,16 @@ export const evaluateDynamicData = <Type = unknown>(
                                         key === type &&
                                         typeof target[key] === 'string'
                                     )
-                                        return resolve(evaluateAndThrowError(
-                                            target[key], type
-                                        ))
+                                        return resolve(
+                                            internalEvaluateAndThrowError(
+                                                target[key], type
+                                            )
+                                        )
 
                                 const resolvedTarget: unknown = resolve(target)
                                 if (key === 'toString') {
                                     const result: Mapping<UnknownFunction> =
-                                        evaluateAndThrowError(
+                                        internalEvaluateAndThrowError(
                                             resolvedTarget as string
                                         ) as Mapping<UnknownFunction>
 
@@ -1022,9 +1019,10 @@ export const evaluateDynamicData = <Type = unknown>(
                                 }
 
                                 if (typeof key !== 'string') {
-                                    const result = evaluateAndThrowError(
-                                        resolvedTarget as string
-                                    ) as Record<symbol, unknown>
+                                    const result =
+                                        internalEvaluateAndThrowError(
+                                            resolvedTarget as string
+                                        ) as Record<symbol, unknown>
 
                                     if ((
                                         result[key] as null | UnknownFunction
@@ -1043,7 +1041,7 @@ export const evaluateDynamicData = <Type = unknown>(
                                     if (Object.prototype.hasOwnProperty
                                         .call(target, type)
                                     )
-                                        return (evaluateAndThrowError(
+                                        return (internalEvaluateAndThrowError(
                                             resolvedTarget as string, type
                                         ) as Mapping<unknown>)[key]
 
@@ -1063,9 +1061,12 @@ export const evaluateDynamicData = <Type = unknown>(
                                         .call(target, type)
                                     )
                                         return Object.getOwnPropertyNames(
-                                            resolve(evaluateAndThrowError(
-                                                target[type] as string, type
-                                            ))
+                                            resolve(
+                                                internalEvaluateAndThrowError(
+                                                    target[type] as string,
+                                                    type
+                                                )
+                                            )
                                         )
 
                                 return Object.getOwnPropertyNames(target)
@@ -1108,7 +1109,9 @@ export const evaluateDynamicData = <Type = unknown>(
                     options.executionIndicatorKey
                 ].includes(key)) {
                     if (typeof Proxy === 'undefined')
-                        return resolve(evaluateAndThrowError(value as string))
+                        return resolve(
+                            internalEvaluateAndThrowError(value as string)
+                        )
 
                     return value
                 }
@@ -1142,19 +1145,65 @@ export const evaluateDynamicData = <Type = unknown>(
     if (Object.prototype.hasOwnProperty.call(
         object, options.expressionIndicatorKey
     ))
-        return evaluateAndThrowError(object[
+        return internalEvaluateAndThrowError(object[
             options.expressionIndicatorKey as keyof RecursiveEvaluateable<Type>
-        ]) as Type
+        ])
     else if (Object.prototype.hasOwnProperty.call(
         object, options.executionIndicatorKey
     ))
-        return evaluateAndThrowError(
+        return internalEvaluateAndThrowError(
             object[options.executionIndicatorKey as
                 keyof RecursiveEvaluateable<Type>],
             options.executionIndicatorKey
-        ) as Type
+        )
 
     return removeProxyRecursively(resolve(addProxyRecursively(object))) as Type
+}
+/**
+ * Searches for indicating keys and replaces that data with corresponding
+ * evaluated and promise resolved value.
+ * @param data - Given mapping to resolve.
+ * @param givenOptions - Options to configure evaluation.
+ * @param givenOptions.scope - Scope to use evaluate again.
+ * @param givenOptions.selfReferenceName - Name to use for reference to given
+ * object.
+ * @param givenOptions.expressionIndicatorKey - Indicator property name to mark
+ * a value to evaluate.
+ * @param givenOptions.executionIndicatorKey - Indicator property name to mark
+ * a value to evaluate.
+ * @returns Evaluated given mapping.
+ */
+export const evaluateAsyncDynamicData = async <Type = unknown>(
+    data: null | RecursiveAsyncEvaluateable<Type>,
+    givenOptions: Partial<EvaluateDynamicDataOptions> = {}
+): Promise<Type> => {
+    const options = {
+        scope: {},
+        selfReferenceName: 'self',
+        expressionIndicatorKey: '__await_evaluate__',
+        executionIndicatorKey: '__await_execute__',
+        ...givenOptions
+    }
+
+    if (typeof data !== 'object' || data === null)
+        return data as unknown as Type
+
+    if (!(options.selfReferenceName in options.scope))
+        options.scope[options.selfReferenceName] = data
+
+    const result: Type = data as Type
+    for (const [key, value] of Object.entries(data))
+        if ([
+            options.expressionIndicatorKey, options.executionIndicatorKey
+        ].includes(key))
+            (result as Mapping<unknown>)[key] = await evaluateAndThrowError(
+                value as string,
+                options.scope, key === options.executionIndicatorKey
+            )
+        else if (isPlainObject(value))
+            await evaluateAsyncDynamicData(value, options)
+
+    return result
 }
 /**
  * Removes properties in objects where a dynamic indicator lives.
