@@ -16,7 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {
+import type {
     AnyFunction,
     CompareOptions,
     EvaluateDynamicDataOptions,

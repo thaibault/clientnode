@@ -16,7 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-// region url handling
+// region imports
 import type {
     CompilationResult,
     EvaluationResult,
@@ -34,7 +34,7 @@ import {
 import {globalContext, MAXIMAL_NUMBER_OF_ITERATIONS} from './context'
 import {isFileSync, imports} from './filesystem'
 import {determineType, represent} from './object'
-
+// endregion
 export const POLYFILL_TEMPLATE_STRINGS = {value: false}
 // Partial regular expression matching symbols which should be allowed within a
 // variable name excluding the first character.
@@ -109,6 +109,7 @@ export const convertToValidVariableName = (name: string): string => {
                 firstLetter.toUpperCase()
         )
 }
+// region url handline
 /**
  * This method is intended for encoding *key* or *value* parts of a query
  * component. We need a custom method because "encodeURIComponent()" is too
@@ -427,7 +428,7 @@ export const representURL = (url: unknown): string => {
 
     return ''
 }
-//// endregion
+// endregion
 /**
  * Converts a camel-cased string to its delimited string version.
  * @param value - The string to format.

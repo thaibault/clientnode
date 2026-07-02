@@ -21,6 +21,10 @@
             expect(FUNCTION(...parameters)).toStrictEqual(expected)
     )
 */
+import type {
+    FirstParameter, PlainObject, ProxyType, SecondParameter
+} from '../type'
+
 import {expect, test} from '@jest/globals'
 
 import {VALUE_COPY_SYMBOL} from '../constants'
@@ -53,7 +57,6 @@ import {
     testEachPromise,
     testEachPromiseAgainstSameExpectation
 } from '../test-helper'
-import {FirstParameter, PlainObject, ProxyType, SecondParameter} from '../type'
 
 declare const TARGET_TECHNOLOGY: string
 
