@@ -1192,16 +1192,20 @@ export const evaluateAsyncDynamicData = async <Type = unknown>(
         options.scope[options.selfReferenceName] = data
 
     const result: Type = data as Type
-    for (const [key, value] of Object.entries(data))
+    for (const [key, value] of Object.entries(data)) {
         if ([
             options.expressionIndicatorKey, options.executionIndicatorKey
         ].includes(key))
-            (result as Mapping<unknown>)[key] = await evaluateAndThrowError(
+            return await evaluateAndThrowError(
                 value as string,
-                options.scope, key === options.executionIndicatorKey
+                options.scope,
+                key === options.executionIndicatorKey
             )
-        else if (isPlainObject(value))
-            await evaluateAsyncDynamicData(value, options)
+
+        if (isPlainObject(value))
+            (result as Mapping<unknown>)[key] =
+                await evaluateAsyncDynamicData(value, options)
+    }
 
     return result
 }

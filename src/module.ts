@@ -38,11 +38,42 @@ export const determineGlobalContext = (): Partial<typeof globalThis> => {
 }
 const globalContext = determineGlobalContext()
 
+// Make preprocessed import function available at runtime.
+export const isImportSyntaxSupported = () => {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        new Function('import("data:text/javascript,")')
+        return true
+    } catch {
+        return false
+    }
+}
+
 // Make preprocessed require function available at runtime.
-export const currentRequire: null | typeof require =
+let customRequire: null | typeof require =
     typeof globalContext.require === 'undefined' ?
         null :
         globalContext.require as null | typeof require
+if (!customRequire && isImportSyntaxSupported())
+    try {
+        const {createRequire} =
+            /*
+                eslint-disable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */
+            await new Function('return import("node:module")')()
+            /*
+                eslint-enable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        customRequire = createRequire(import.meta.url)
+    } catch {
+        // Ignore error.
+    }
+export const currentRequire = customRequire
 export const optionalRequire = <T = unknown>(id: string): null | T => {
     try {
         return currentRequire ? currentRequire(id) as T : null
@@ -87,16 +118,6 @@ export const isolatedRequire = (
     }
 }
 
-// Make preprocessed import function available at runtime.
-export const isImportSyntaxSupported = () => {
-    try {
-        // eslint-disable-next-line @typescript-eslint/no-implied-eval
-        new Function('import("data:text/javascript,")')
-        return true
-    } catch {
-        return false
-    }
-}
 export const optionalImport = async <T = unknown>(
     id: string, options = {}
 ): Promise<null | T> => {
