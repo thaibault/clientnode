@@ -102,7 +102,7 @@
     "rimraf": "^6.1.3",
     "typescript-eslint": "^8.63.0",
     "web-documentation": "^1.0.42",
-    "weboptimizer": "^4.0.9",
+    "weboptimizer": "^4.0.10",
     "webpack-dev-server": "^6.0.0"
   },
   "peerDependencies": {
@@ -222,7 +222,6 @@
       }
     },
     "target:bundle": {
-      "libraryName": "clientnode",
       "module": {
         "preprocessor": {
           "javaScript": {

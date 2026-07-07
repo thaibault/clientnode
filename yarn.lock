@@ -5274,7 +5274,7 @@ __metadata:
     rimraf: "npm:^6.1.3"
     typescript-eslint: "npm:^8.63.0"
     web-documentation: "npm:^1.0.42"
-    weboptimizer: "npm:^4.0.9"
+    weboptimizer: "npm:^4.0.10"
     webpack-dev-server: "npm:^6.0.0"
   peerDependencies:
     "@types/prop-types": "*"
@@ -10411,9 +10411,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^4.0.9":
-  version: 4.0.9
-  resolution: "weboptimizer@npm:4.0.9"
+"weboptimizer@npm:^4.0.10":
+  version: 4.0.10
+  resolution: "weboptimizer@npm:4.0.10"
   dependencies:
     "@babel/core": "npm:^8.0.1"
     "@babel/plugin-proposal-decorators": "npm:^8.0.2"
@@ -10562,7 +10562,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/d6ccabc2d38a63a8ca6c701bcecf98f0e2a00fa7ebb2fb9af48726371dccfa61a2d4b86257515f6a0273585f1d707710ff10792731fc2da43b8c3d72096d6219
+  checksum: 10c0/903b7de8f47290394010b8a3d1c73ebefabba7ee0a6ccd314f67a037be5bd17779edfd98389b34821eb7a4cf2f0fda0c11b858e5f560dae0629cf75a1ca6f93f
   languageName: node
   linkType: hard
 
