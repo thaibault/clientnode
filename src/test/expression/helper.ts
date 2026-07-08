@@ -17,7 +17,7 @@
 */
 import {describe, expect, test} from '@jest/globals'
 
-import {viewObjectAsScope} from '../../expression'
+import {viewObjectAsScope} from '../../expression/index'
 
 describe('helper', () => {
     test('viewObjectAsScope with children', () => {

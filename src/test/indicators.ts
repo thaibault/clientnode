@@ -13,8 +13,9 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {InitializedBrowser} from 'weboptimizer/type'
+
 import {expect, test} from '@jest/globals'
-import {InitializedBrowser} from 'weboptimizer/type'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 
 import {NOOP} from '../context'
