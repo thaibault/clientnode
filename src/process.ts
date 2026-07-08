@@ -16,6 +16,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {ChildProcess} from 'child_process'
 import type {
     AnyFunction,
     ProcessCloseCallback,
@@ -24,7 +25,6 @@ import type {
     ProcessHandler
 } from './type'
 
-import {ChildProcess} from 'child_process'
 import {NOOP} from './context'
 
 /**
