@@ -3011,12 +3011,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^26.1.0":
-  version: 26.1.0
-  resolution: "@types/node@npm:26.1.0"
+"@types/node@npm:^26.1.1":
+  version: 26.1.1
+  resolution: "@types/node@npm:26.1.1"
   dependencies:
     undici-types: "npm:~8.3.0"
-  checksum: 10c0/61c22ad1ef215e24138cb8b7368fb68bab9de4c123b3f23d411749b015ba1b7d22f878ad54add26a0b69068d7e07c04af665069d8571b6c6c3b9b2fb73b7bd91
+  checksum: 10c0/25ac5093195736dd074d5027adbba85617bc951d5a41506ebd3b9073048acb7233613f3822d5f9b9447f9c0841c91f6387c46283916767e3ef79f23917452c46
   languageName: node
   linkType: hard
 
@@ -5254,7 +5254,7 @@ __metadata:
     "@types/ejs": "npm:^3.1.5"
     "@types/html-minifier": "npm:^4.0.6"
     "@types/imagemin": "npm:^9.0.1"
-    "@types/node": "npm:^26.1.0"
+    "@types/node": "npm:^26.1.1"
     "@types/prop-types": "npm:^15.7.15"
     "@types/webpack-env": "npm:^1.18.8"
     "@typescript-eslint/eslint-plugin": "npm:^8.63.0"
@@ -5274,7 +5274,7 @@ __metadata:
     rimraf: "npm:^6.1.3"
     typescript-eslint: "npm:^8.63.0"
     web-documentation: "npm:^1.0.42"
-    weboptimizer: "npm:^4.0.10"
+    weboptimizer: "npm:^4.0.15"
     webpack-dev-server: "npm:^6.0.0"
   peerDependencies:
     "@types/prop-types": "*"
@@ -10411,9 +10411,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^4.0.10":
-  version: 4.0.10
-  resolution: "weboptimizer@npm:4.0.10"
+"weboptimizer@npm:^4.0.15":
+  version: 4.0.15
+  resolution: "weboptimizer@npm:4.0.15"
   dependencies:
     "@babel/core": "npm:^8.0.1"
     "@babel/plugin-proposal-decorators": "npm:^8.0.2"
@@ -10562,7 +10562,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/903b7de8f47290394010b8a3d1c73ebefabba7ee0a6ccd314f67a037be5bd17779edfd98389b34821eb7a4cf2f0fda0c11b858e5f560dae0629cf75a1ca6f93f
+  checksum: 10c0/d37c393bdc695879247b726ad01b592406da90a5ef5fccf543f3ad3644703969b94f8690a54c0d2a039d8a34754f2e0ffd61a1f12c6f32affbf364211e276f1c
   languageName: node
   linkType: hard
 
