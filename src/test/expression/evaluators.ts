@@ -22,7 +22,7 @@ import evaluate, {
     evaluateSelectorUntilLastObject,
     normalizeSelector,
     SELECTOR_KEY_NAMES
-} from '../../expression'
+} from '../../expression/index'
 import {testEach} from '../../test-helper'
 
 describe('Evaluators', () => {

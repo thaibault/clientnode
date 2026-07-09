@@ -17,7 +17,7 @@
 */
 import {describe} from '@jest/globals'
 
-import {isValue} from '../../expression'
+import {isValue} from '../../expression/index'
 import {testEach} from '../../test-helper'
 
 describe('indicator-functions', () => {
