@@ -1185,7 +1185,7 @@ export const evaluateAsyncDynamicData = async <Type = unknown>(
         ...givenOptions
     }
 
-    if (typeof data !== 'object' || data === null)
+    if (!isObject(data))
         return data as unknown as Type
 
     if (!(options.selfReferenceName in options.scope))
@@ -1196,7 +1196,7 @@ export const evaluateAsyncDynamicData = async <Type = unknown>(
     if (Array.isArray(data)) {
         let index = 0
         for (const item of data) {
-            data[index] = await evaluateAsyncDynamicData(
+            (result as Array<unknown>)[index] = await evaluateAsyncDynamicData(
                 item as null | RecursiveAsyncEvaluateable<Type>, options
             )
             index += 1
@@ -1215,9 +1215,9 @@ export const evaluateAsyncDynamicData = async <Type = unknown>(
                 key === options.executionIndicatorKey
             )
 
-        if (isPlainObject(value))
-            (result as Mapping<unknown>)[key] =
-                await evaluateAsyncDynamicData(value, options)
+        ;(result as Mapping<unknown>)[key] = await evaluateAsyncDynamicData(
+            value as null | RecursiveAsyncEvaluateable<Type>, options
+        )
     }
 
     return result
