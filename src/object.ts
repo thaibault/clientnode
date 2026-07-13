@@ -1191,6 +1191,18 @@ export const evaluateAsyncDynamicData = async <Type = unknown>(
     if (!(options.selfReferenceName in options.scope))
         options.scope[options.selfReferenceName] = data
 
+    if (Array.isArray(data)) {
+        let index = 0
+        for (const item of data) {
+            data[index] = await evaluateAsyncDynamicData(
+                item as null | RecursiveAsyncEvaluateable<Type>, options
+            )
+            index += 1
+        }
+
+        return data as unknown as Type
+    }
+
     const result: Type = data as Type
     for (const [key, value] of Object.entries(data)) {
         if ([
