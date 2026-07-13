@@ -793,7 +793,7 @@ export const evaluate = <T = string, S extends object = object>(
  * @param binding - Object to apply as "this" in evaluation scope.
  * @returns Object with an error message during parsing / running or result.
  */
-export const evaluateAndThrowError = <
+export const evaluateOrThrowError = <
     Result = string, Scope extends object = object
 >(
         expression: string,
