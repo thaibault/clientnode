@@ -64,11 +64,11 @@ export const expectExpectedType = <
     if (expected === TEST_DEFINED_SYMBOL)
         return result.toBeDefined()
 
-    if (expected === TEST_THROW_SYMBOL)
-        return result.toThrow()
-
     if (expected === TEST_UNDEFINED_SYMBOL)
         return result.not.toBeDefined()
+
+    if (expected === TEST_THROW_SYMBOL)
+        return result.toThrow()
 
     return result.toStrictEqual(expected)
 }
