@@ -5192,25 +5192,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:4.0.1442":
-  version: 4.0.1442
-  resolution: "clientnode@npm:4.0.1442"
-  peerDependencies:
-    "@types/prop-types": "*"
-    node-fetch: "*"
-    prop-types: "*"
-  peerDependenciesMeta:
-    "@types/prop-types":
-      optional: true
-    node-fetch:
-      optional: true
-    prop-types:
-      optional: true
-  checksum: 10c0/7499fcd467e11b8fbc585d701336982d972613e97e66d968d497b84d5885239f3499c92c15fa45fdadd7020144fa22acd67b865de697f0d057e028e77224c931
-  languageName: node
-  linkType: hard
-
-"clientnode@workspace:.":
+"clientnode@npm:4.0.1447, clientnode@workspace:.":
   version: 0.0.0-use.local
   resolution: "clientnode@workspace:."
   dependencies:
