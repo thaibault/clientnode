@@ -31,7 +31,7 @@ import {
     encodeURIComponentExtended,
     escapeRegularExpressions,
     evaluate,
-    evaluateAndThrowError,
+    evaluateOrThrowError,
     findNormalizedMatchRange,
     fixKnownEncodingErrors,
     format,
@@ -834,9 +834,9 @@ test.each(([
                     .toStrictEqual(expected)
     }
 )
-test('evaluateAndThrowError', () => {
+test('evaluateOrThrowError', () => {
     expect(() => {
-        evaluateAndThrowError('notExistingVariable')
+        evaluateOrThrowError('notExistingVariable')
     })
         .toThrow()
 })

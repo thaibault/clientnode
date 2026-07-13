@@ -42,7 +42,7 @@ import {
     isFunction, isObject, isPlainObject, isMap, isProxy, isSet, isNumeric
 } from './indicators'
 import {isNotANumber} from './number'
-import {escapeRegularExpressions, evaluateAndThrowError} from './string'
+import {escapeRegularExpressions, evaluateOrThrowError} from './string'
 
 /**
  * Adds dynamic getter and setter to any given data structure such as maps.
@@ -949,7 +949,7 @@ export const evaluateDynamicData = <Type = unknown>(
     const internalEvaluateAndThrowError = (
         code: string, type: string = options.expressionIndicatorKey
     ): Type =>
-        evaluateAndThrowError<Type>(
+        evaluateOrThrowError<Type>(
             code, options.scope, type === options.executionIndicatorKey
         )
 
@@ -1191,6 +1191,8 @@ export const evaluateAsyncDynamicData = async <Type = unknown>(
     if (!(options.selfReferenceName in options.scope))
         options.scope[options.selfReferenceName] = data
 
+    const result: Type = data as Type
+
     if (Array.isArray(data)) {
         let index = 0
         for (const item of data) {
@@ -1200,15 +1202,14 @@ export const evaluateAsyncDynamicData = async <Type = unknown>(
             index += 1
         }
 
-        return data as unknown as Type
+        return result
     }
 
-    const result: Type = data as Type
     for (const [key, value] of Object.entries(data)) {
         if ([
             options.expressionIndicatorKey, options.executionIndicatorKey
         ].includes(key))
-            return await evaluateAndThrowError(
+            return await evaluateOrThrowError(
                 value as string,
                 options.scope,
                 key === options.executionIndicatorKey
