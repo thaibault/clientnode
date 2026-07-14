@@ -143,15 +143,6 @@
     "trackingCode": "UA-40192634-7"
   },
   "webOptimizer": {
-    "debug": {
-      "module": {
-        "optimizer": {
-          "babelMinify": {
-            "module": null
-          }
-        }
-      }
-    },
     "commandLine": {
       "test": {
         "environments": [
@@ -179,15 +170,18 @@
         "formdata-polyfill/esm.min.js$": "formdata-polyfill"
       },
       "optimizer": {
-        "babelMinify": {
-          "bundle": {
-            "transform": {
+        "terser": {
+          "terserOptions": {
+            "compress": {
               "#": "To provide a logging output we need to exclude this feature.",
-              "removeConsole": false
+              "drop_console": {
+                "__evaluate__": "false"
+              },
+              "drop_debugger": {
+                "__evaluate__": "false"
+              }
             }
-          },
-          "#": "Avoids Couldn't find intersection at NodePath.getDeepestCommonAncestorFrom ...",
-          "module": null
+          }
         }
       }
     },
