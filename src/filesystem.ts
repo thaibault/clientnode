@@ -44,85 +44,92 @@ import {NOOP} from './context'
 import {optionalImport} from './module'
 
 export const imports: {
-    fs: null | typeof import('fs')
-    fsPromises: null | typeof import('fs/promises')
-    path: null | typeof import('path')
-} = {
-    fs: null,
-    fsPromises: null,
-    path: null
-}
+    fs?: null | typeof import('fs')
+    fsPromises?: null | typeof import('fs/promises')
+    path?: null | typeof import('path')
+} = {}
 
 let mkdirSync: null | typeof mkdirSyncType
 let readdirSync: null | typeof readdirSyncType
 let readFileSync: null | typeof readFileSyncType
 let statSync: null | typeof statSyncType
 let writeFileSync: null | typeof writeFileSyncType
-const fsImportPromise = optionalImport<typeof import('fs')>('fs')
-void fsImportPromise.then((module) => {
-    imports.fs = module
-
-    if (module) {
-        mkdirSync = module.mkdirSync
-        readdirSync = module.readdirSync
-        readFileSync = module.readFileSync
-        statSync = module.statSync
-        writeFileSync = module.writeFileSync
-    } else {
-        mkdirSync = null
-        readdirSync = null
-        readFileSync = null
-        statSync = null
-        writeFileSync = null
-    }
-})
 
 let mkdir: null | typeof mkdirType
 let readdir: null | typeof readdirType
 let readFile: null | typeof readFileType
 let stat: null | typeof statType
 let writeFile: null | typeof writeFileType
-const fsPromisesImportPromise =
-    optionalImport<typeof import('fs/promises')>('fs/promises')
-void fsPromisesImportPromise.then((module) => {
-    imports.fsPromises = module
-
-    if (module) {
-        mkdir = module.mkdir
-        readdir = module.readdir
-        readFile = module.readFile
-        stat = module.stat
-        writeFile = module.writeFile
-    } else {
-        mkdir = null
-        readdir = null
-        readFile = null
-        stat = null
-        writeFile = null
-    }
-})
 
 let basename: null | typeof basenameType
 let join: null | typeof joinType
 let resolve: null | typeof resolveType
-const pathImportPromise = optionalImport<typeof import('path')>('path')
-void pathImportPromise.then((module) => {
-    imports.path = module
 
-    if (module) {
-        basename = module.basename
-        join = module.join
-        resolve = module.resolve
-    } else {
-        basename = null
-        join = null
-        resolve = null
-    }
-})
+const importPromises: Array<Promise<unknown>> = []
+export const importFilesystemAPI = () => {
+    if (importPromises.length > 0)
+        return Promise.all(importPromises)
 
-export const importsPromise = Promise.all([
-    fsImportPromise, fsPromisesImportPromise, pathImportPromise
-])
+    const fsImportPromise =
+        optionalImport<typeof import('fs')>('fs')
+    void fsImportPromise.then((module) => {
+        imports.fs = module
+
+        if (module) {
+            mkdirSync = module.mkdirSync
+            readdirSync = module.readdirSync
+            readFileSync = module.readFileSync
+            statSync = module.statSync
+            writeFileSync = module.writeFileSync
+        } else {
+            mkdirSync = null
+            readdirSync = null
+            readFileSync = null
+            statSync = null
+            writeFileSync = null
+        }
+    })
+
+    const fsPromisesImportPromise =
+        optionalImport<typeof import('fs/promises')>('fs/promises')
+    void fsPromisesImportPromise.then((module) => {
+        imports.fsPromises = module
+
+        if (module) {
+            mkdir = module.mkdir
+            readdir = module.readdir
+            readFile = module.readFile
+            stat = module.stat
+            writeFile = module.writeFile
+        } else {
+            mkdir = null
+            readdir = null
+            readFile = null
+            stat = null
+            writeFile = null
+        }
+    })
+
+    const pathImportPromise = optionalImport<typeof import('path')>('path')
+    void pathImportPromise.then((module) => {
+        imports.path = module
+
+        if (module) {
+            basename = module.basename
+            join = module.join
+            resolve = module.resolve
+        } else {
+            basename = null
+            join = null
+            resolve = null
+        }
+    })
+
+    importPromises.push(
+        fsImportPromise, fsPromisesImportPromise, pathImportPromise
+    )
+    return Promise.all(importPromises)
+}
 
 /**
  * Copies given source directory via path to given target directory location
