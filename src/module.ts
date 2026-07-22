@@ -137,9 +137,9 @@ export const optionalImport = async <T = unknown>(
                 @typescript-eslint/no-implied-eval,
                 @typescript-eslint/no-unsafe-call
             */
-    } catch (error) {
-        console.error('OptionalImport failed for', id, error)
-
+    } catch /* (error)*/ {
+        // NOTE: Use for debugging only:
+        // console.error('OptionalImport failed for', id, error)
         return await Promise.resolve(null)
     }
 }
