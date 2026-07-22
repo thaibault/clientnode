@@ -988,7 +988,15 @@ export const evaluateDynamicData = <Type = unknown>(
                                     return target
 
                                 if (key === 'hasOwnProperty')
+                                    /*
+                                        eslint-disable
+                                        @typescript-eslint/unbound-method
+                                    */
                                     return target[key]
+                                    /*
+                                        eslint-enable
+                                        @typescript-eslint/unbound-method
+                                    */
 
                                 /*
                                     NOTE: Very complicated section, do only
