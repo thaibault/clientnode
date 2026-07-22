@@ -41,7 +41,7 @@ test('debug', () => {
     logger.debug('test')
     expect(true).toStrictEqual(true)
 })
-// NOTE: This test breaks javaScript modules in strict mode.
+// NOTE: This test breaks JavaScript modules in strict mode.
 test.skip(`${TEST_ENVIRONMENT}-error`, () => {
     logger.error('ignore this error, it is only a {1}', 'test')
     expect(true).toStrictEqual(true)

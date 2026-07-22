@@ -30,11 +30,7 @@ export * from './datetime'
 
 export * from './expression/index'
 
-/*
-    NOTE: This module should be requested manually since it tries to load
-    optional backend specific modules on demand.
-*/
-// export * from './filesystem'
+export * from './filesystem'
 export * from './function'
 
 export * from './indicators'

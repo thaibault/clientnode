@@ -15,7 +15,7 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {expect, test} from '@jest/globals'
+import {beforeAll, expect, test} from '@jest/globals'
 
 import {NOOP} from '../context'
 import {
@@ -27,9 +27,11 @@ import {
     isDirectorySync,
     isFile,
     isFileSync,
+    importFilesystemAPI,
     walkDirectoryRecursively,
     walkDirectoryRecursivelySync
 } from '../filesystem'
+// NOTE: Jest does not support dynamic imports outside of test.
 import {optionalRequire} from '../module'
 import {testEachSingleParameterAgainstSameExpectation} from '../test-helper'
 import {File} from '../type'
@@ -45,19 +47,27 @@ const TEST_ENVIRONMENT: string = (
         'node-with-dom' :
     'browser'
 
-const path = optionalRequire<typeof import('path')>('path')
-const resolve = path?.resolve.bind(path)
-const {sync: removeDirectoryRecursivelySync = null} =
-    optionalRequire<typeof import('rimraf')>('rimraf') || {}
-const {unlink} =
-    optionalRequire<typeof import('fs/promises')>('fs/promises') || {}
-
 if (TARGET_TECHNOLOGY === 'node') {
-    if (!(removeDirectoryRecursivelySync && resolve && unlink))
-        throw new Error('Failed to load filesystem api.')
+    const {resolve} = optionalRequire<typeof import('path')>('path') as
+        typeof import('path')
+    const {sync: removeDirectoryRecursivelySync} =
+        optionalRequire<typeof import('rimraf')>('rimraf') as
+            typeof import('rimraf')
+    const {unlink} =
+        optionalRequire<typeof import('fs/promises')>('fs/promises') as
+            typeof import('fs/promises')
+
+    beforeAll(() => importFilesystemAPI())
 
     const testPath = './copyDirectoryRecursiveTest.compiled'
 
+    test('importFilesystemAPI', () => {
+        expect(removeDirectoryRecursivelySync).toBeDefined()
+        expect(resolve).toBeDefined()
+        expect(unlink).toBeDefined()
+
+        void expect(importFilesystemAPI()).resolves.toBeDefined()
+    })
     test('copyDirectoryRecursive', async (): Promise<void> => {
         removeDirectoryRecursivelySync(testPath)
         expect(await copyDirectoryRecursive(
