@@ -38,8 +38,7 @@ export const determineGlobalContext = (): Partial<typeof globalThis> => {
 }
 const globalContext = determineGlobalContext()
 
-// Make preprocessed import function available at runtime.
-export const isImportSyntaxSupported = () => {
+export const isImportSyntaxSupported = (): boolean => {
     try {
         // eslint-disable-next-line @typescript-eslint/no-implied-eval
         new Function('import("data:text/javascript,")')
@@ -49,12 +48,15 @@ export const isImportSyntaxSupported = () => {
     }
 }
 
-// Make preprocessed require function available at runtime.
-let customRequire: null | typeof require =
+export const currentRequire =
     typeof globalContext.require === 'undefined' ?
         null :
         globalContext.require as null | typeof require
-if (!customRequire && isImportSyntaxSupported())
+// Make preprocessed require function available at runtime.
+export const getCurrentRequire = async (): Promise<null | typeof require> => {
+    if (currentRequire)
+        return currentRequire
+
     try {
         const {createRequire} =
             /*
@@ -63,17 +65,19 @@ if (!customRequire && isImportSyntaxSupported())
                 @typescript-eslint/no-unsafe-call
             */
             await new Function('return import("node:module")')()
-            /*
-                eslint-enable
-                @typescript-eslint/no-implied-eval,
-                @typescript-eslint/no-unsafe-call
-            */
+        /*
+            eslint-enable
+            @typescript-eslint/no-implied-eval,
+            @typescript-eslint/no-unsafe-call
+        */
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        customRequire = createRequire(import.meta.url)
-    } catch {
-        // Ignore error.
+        return createRequire(import.meta.url) as typeof require
+    } catch (error) {
+        console.error(error)
+
+        return null
     }
-export const currentRequire = customRequire
+}
 export const optionalRequire = <T = unknown>(id: string): null | T => {
     try {
         return currentRequire ? currentRequire(id) as T : null
