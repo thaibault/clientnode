@@ -48,10 +48,23 @@ export const isImportSyntaxSupported = (): boolean => {
     }
 }
 
-export const currentRequire =
+export let currentRequire =
     typeof globalContext.require === 'undefined' ?
         null :
         globalContext.require as null | typeof require
+export let optionalRequire: <T = unknown>(id: string) => null | T
+export const setOptionalRequire = (
+    localCurrentRequire: typeof currentRequire
+) => {
+    optionalRequire = <T = unknown>(id: string): null | T => {
+        try {
+            return localCurrentRequire ? localCurrentRequire(id) as T : null
+        } catch {
+            return null
+        }
+    }
+}
+setOptionalRequire(currentRequire)
 // Make preprocessed require function available at runtime.
 export const getCurrentRequire = async (): Promise<null | typeof require> => {
     if (currentRequire)
@@ -71,17 +84,12 @@ export const getCurrentRequire = async (): Promise<null | typeof require> => {
             @typescript-eslint/no-unsafe-call
         */
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        return createRequire(import.meta.url) as typeof require
+        currentRequire = createRequire(import.meta.url) as typeof require
+        setOptionalRequire(currentRequire)
+        return currentRequire
     } catch (error) {
         console.error(error)
 
-        return null
-    }
-}
-export const optionalRequire = <T = unknown>(id: string): null | T => {
-    try {
-        return currentRequire ? currentRequire(id) as T : null
-    } catch {
         return null
     }
 }
