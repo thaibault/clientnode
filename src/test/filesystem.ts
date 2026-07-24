@@ -32,7 +32,7 @@ import {
     walkDirectoryRecursivelySync
 } from '../filesystem'
 // NOTE: Jest does not support dynamic imports outside of test.
-import {optionalRequire} from '../module'
+import {getCurrentRequire} from '../module'
 import {testEachSingleParameterAgainstSameExpectation} from '../test-helper'
 import {File} from '../type'
 import {timeout} from '../utility'
@@ -48,16 +48,26 @@ const TEST_ENVIRONMENT: string = (
     'browser'
 
 if (TARGET_TECHNOLOGY === 'node') {
-    const {resolve} = optionalRequire<typeof import('path')>('path') as
-        typeof import('path')
-    const {sync: removeDirectoryRecursivelySync} =
-        optionalRequire<typeof import('rimraf')>('rimraf') as
-            typeof import('rimraf')
-    const {unlink} =
-        optionalRequire<typeof import('fs/promises')>('fs/promises') as
-            typeof import('fs/promises')
+    let resolve =
+        null as unknown as (typeof import('path'))['resolve']
+    let removeDirectoryRecursivelySync =
+        null as unknown as (typeof import('rimraf'))['sync']
+    let unlink =
+        null as unknown as (typeof import('fs/promises'))['unlink']
 
-    beforeAll(() => importFilesystemAPI())
+    beforeAll(async () => {
+        const importFilesystemAPIPromise = importFilesystemAPI()
+        const currentRequire = await getCurrentRequire() as typeof require
+
+        resolve = currentRequire<typeof import('path')>('path').resolve
+        removeDirectoryRecursivelySync =
+            currentRequire<typeof import('rimraf')>('rimraf').sync
+        unlink =
+            currentRequire<typeof import('fs/promises')>('fs/promises')
+                .unlink
+
+        await importFilesystemAPIPromise
+    })
 
     const testPath = './copyDirectoryRecursiveTest.compiled'
 
@@ -157,7 +167,7 @@ if (TARGET_TECHNOLOGY === 'node') {
         isDirectorySync,
         false,
 
-        resolve('./test.ts')
+        './test.ts'
     )
     test('isFile', async (): Promise<void> => {
         for (const filePath of [resolve('./src/filesystem.ts')]) {
@@ -185,7 +195,7 @@ if (TARGET_TECHNOLOGY === 'node') {
         isFileSync,
         true,
 
-        resolve('./src/filesystem.ts')
+        './src/filesystem.ts'
     )
     testEachSingleParameterAgainstSameExpectation(
         'isFileSync',
