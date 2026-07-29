@@ -54,8 +54,8 @@ import {
 import {
     testEach,
     testEachAgainstSameExpectation,
-    testEachPromise,
-    testEachPromiseAgainstSameExpectation
+    testEachResolvedPromise,
+    testEachResolvedPromiseAgainstSameExpectation
 } from '../test-helper'
 
 declare const TARGET_TECHNOLOGY: string
@@ -458,7 +458,7 @@ if (TARGET_TECHNOLOGY === 'node')
         )).toStrictEqual(true)
     })
 else {
-    testEachPromiseAgainstSameExpectation(
+    testEachResolvedPromiseAgainstSameExpectation(
         'equals',
         equals,
         true,
@@ -509,7 +509,7 @@ else {
                     Parameters<typeof equals>
         )
     )
-    testEachPromiseAgainstSameExpectation(
+    testEachResolvedPromiseAgainstSameExpectation(
         'equals',
         equals,
         false,
@@ -560,7 +560,7 @@ else {
                     Parameters<typeof equals>
         )
     )
-    testEachPromise(
+    testEachResolvedPromise(
         'equals',
         equals,
 
@@ -881,7 +881,7 @@ testEach(
         }
     ]
 )
-testEachPromise(
+testEachResolvedPromise(
     'evaluateAsyncDynamicData',
     evaluateAsyncDynamicData,
 

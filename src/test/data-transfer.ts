@@ -20,12 +20,12 @@ import {expect, test} from '@jest/globals'
 import {checkReachability, checkUnreachability} from '../data-transfer'
 import {
     TEST_DEFINED_SYMBOL,
-    testEachPromiseAgainstSameExpectation,
-    testEachPromiseRejectionAgainstSameExpectation
+    testEachResolvedPromiseAgainstSameExpectation,
+    testEachRejectedPromiseAgainstSameExpectation
 } from '../test-helper'
 import {timeout} from '../utility'
 
-testEachPromiseRejectionAgainstSameExpectation(
+testEachRejectedPromiseAgainstSameExpectation(
     'checkReachability',
     checkReachability,
     TEST_DEFINED_SYMBOL,
@@ -45,7 +45,7 @@ testEachPromiseRejectionAgainstSameExpectation(
         {statusCodes: [200, 301], timeoutInSeconds: .001, wait: true}
     ]
 )
-testEachPromiseAgainstSameExpectation(
+testEachResolvedPromiseAgainstSameExpectation(
     'checkUnreachability',
     checkUnreachability,
     TEST_DEFINED_SYMBOL,
