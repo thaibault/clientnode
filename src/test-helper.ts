@@ -75,6 +75,7 @@ export const expectExpectedType = <
 
     return result.toStrictEqual(expected)
 }
+// region testEach
 /**
  * Tests each given test set (expected value follows by various list of
  * function parameters). It respects function signature to raise compile time
@@ -142,6 +143,8 @@ testEach.skip = <
     ) => {
     _testEach(test.skip.each, functionName, callback, ...functionTestTuple)
 }
+// endregion
+// region testEachPromise
 /**
  * Tests each given test set (expected value follows by various list of
  * function parameters). It respects function signature to raise compile time
@@ -212,6 +215,8 @@ testEachPromise.skip = <
         test.skip.each, functionName, callback, ...functionTestTuple
     )
 }
+// endregion
+// region testEachPromiseRejection
 /**
  * Tests each given test set (expected value follows by various list of
  * function parameters). It respects function signature to raise compile time
@@ -292,6 +297,8 @@ testEachPromiseRejection.skip = <
         test.skip.each, functionName, callback, ...functionTestTuple
     )
 }
+// endregion
+// region testEachSingleParameterAgainstSameExpectation
 /**
  * Tests each given single parameter against same given expected value. It
  * respects function signature to raise compile time errors if given test set
@@ -369,6 +376,8 @@ testEachSingleParameterAgainstSameExpectation.skip = <
         test.skip.each, functionName, callback, expected, ...parameters
     )
 }
+// endregion
+// region testEachSingleParameterAgainstSamePromisedExpectation
 /**
  * Tests each given single parameter against same given expected value. It
  * respects function signature to raise compile time errors if given test set
@@ -442,6 +451,8 @@ testEachSingleParameterAgainstSamePromisedExpectation.skip = <
         test.skip.each, functionName, callback, expected, ...parameters
     )
 }
+// endregion
+// region testEachSingleParameterAgainstSameRejectedExpectation
 /**
  * Tests each given single parameter against same given expected value. It
  * respects function signature to raise compile time errors if given test set
@@ -515,6 +526,8 @@ testEachSingleParameterAgainstSameRejectedExpectation.skip = <
         test.skip.each, functionName, callback, expected, ...parameters
     )
 }
+// endregion
+// region testEachAgainstSameExpectation
 /**
  * Tests each given test set (various list of function parameters) against same
  * given expected value. It respects function signature to raise compile time
@@ -594,6 +607,8 @@ testEachAgainstSameExpectation.skip = <
         test.skip.each, functionName, callback, expected, ...functionParameters
     )
 }
+// endregion
+// region testEachPromiseAgainstSameExpectation
 /**
  * Tests each given test set (various list of function parameters) against same
  * given expected value. It respects function signature to raise compile time
@@ -669,6 +684,8 @@ testEachPromiseAgainstSameExpectation.skip = <
         test.skip.each, functionName, callback, expected, ...functionParameters
     )
 }
+// endregion
+// region testEachPromiseRejectionAgainstSameExpectation
 /**
  * Tests each given test set (various list of function parameters) against same
  * given expected value. It respects function signature to raise compile time
@@ -744,4 +761,6 @@ testEachPromiseRejectionAgainstSameExpectation.skip = <
         test.skip.each, functionName, callback, expected, ...functionParameters
     )
 }
+// endregion
+
 export default testEach
