@@ -91,20 +91,21 @@ import {createDomNodes, evaluateExpression} from 'cientnode'
 <!--showExample-->
 
 ```HTML
-<script src="https://unpkg.com/clientnode@latest/dist/bundle/index.js">
-</script>
-
 <div id="first-example-playground"></div>
 ```
 
 <!--showExample:JavaScript-->
 
 ```JavaScript
-const domNode = clientnode.createDomNodes('<p>some content to animate</p>')
+import {
+    fadeIn, fadeOut, createDomNodes
+} from 'https://unpkg.com/clientnode@latest/dist/bundle/index.js'
+
+const domNode = createDomNodes('<p>some content to animate</p>')
 
 const endless = () => {
-    clientnode.fadeIn(domNode)
-        .then(() => clientnode.fadeOut(domNode))
+    fadeIn(domNode)
+        .then(() => fadeOut(domNode))
         .then(endless)
 }
 endless()
@@ -137,8 +138,12 @@ Execute a JSON based expression:
 <!--showExample:JavaScript-->
 
 ```JavaScript
+import {
+    evaluateExpression
+} from 'https://unpkg.com/clientnode@latest/dist/bundle/index.js'
+
 document.querySelector('#second-example-playground').innerText =
-    clientnode.evaluateExpression(
+    evaluateExpression(
         {
             $operator: '+',
             operand1: 2,
