@@ -55,11 +55,23 @@ export type ParametersExceptFirst<FunctionType> = FunctionType extends
 
 export type FunctionTestTuple<FunctionType extends AnyFunction> =
     [ReturnType<FunctionType>, ...Parameters<FunctionType>]
+export type FunctionTestAgainstResolvedPromiseTuple<
+    FunctionType extends AnyFunction
+> = [Promise<ReturnType<FunctionType>>, ...Parameters<FunctionType>]
 export type FunctionTestPromiseTuple<FunctionType extends AnyFunction> =
     [ThenParameter<ReturnType<FunctionType>>, ...Parameters<FunctionType>]
+export type FunctionTestPromiseAgainstResolvedPromiseTuple<
+    FunctionType extends AnyFunction
+> = [
+    Promise<ThenParameter<ReturnType<FunctionType>>>,
+    ...Parameters<FunctionType>
+]
 export type FunctionTestPromiseRejectionTuple<
     FunctionType extends AnyFunction
 > = [Error, ...Parameters<FunctionType>]
+export type FunctionTestPromiseRejectionAgainstResolvedPromiseTuple<
+    FunctionType extends AnyFunction
+> = [Promise<Error>, ...Parameters<FunctionType>]
 
 export type TestSymbol = (
     typeof TEST_DEFINED_SYMBOL |
