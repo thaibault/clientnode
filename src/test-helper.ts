@@ -1029,7 +1029,6 @@ testEachAgainstSameExpectation.skip = <
     )
 }
 // endregion
-// TODO introduce "testEach*AgainstResolvedPromise"
 // region testEachResolvedPromiseAgainstSameExpectation
 /**
  * Tests each given test set (various list of function parameters) against same
@@ -1107,6 +1106,89 @@ testEachResolvedPromiseAgainstSameExpectation.skip = <
     )
 }
 // endregion
+// region testEachResolvedPromiseAgainstSameResolvedPromise
+/**
+ * Tests each given test set (various list of function parameters) against same
+ * given promise resolving expected value. It respects function signature to
+ * raise compile time errors if given test set does not match given function
+ * signature.
+ * @param tester - Underling testing function to use.
+ * @param functionName - Function description to test.
+ * @param callback - Function reference to test.
+ * @param expected - Promise resolving to value to check each function call
+ * return value against.
+ * @param functionParameters - Additional lists of parameters to test given
+ * function again.
+ */
+const _testEachResolvedPromiseAgainstSameResolvedPromise = <
+    FunctionType extends AnyFunction = UnknownFunction
+>(
+        tester: typeof test.each,
+        functionName: string,
+        callback: FunctionType,
+        expected: Promise<
+            TestSymbol | ThenParameter<ReturnType<FunctionType>>
+        >,
+        ...functionParameters: Array<Parameters<FunctionType>>
+    ) => {
+    tester([...functionParameters])(
+        `${represent(expected)} === ${functionName}(%p, ...)`,
+        (async (...parameters: Parameters<FunctionType>) =>
+            expectExpectedType<
+                ThenParameter<ReturnType<FunctionType>>, Promise<void>
+            >(expect(callback(...parameters)).resolves, await expected, false)
+        )
+    )
+}
+/**
+ * Tests each given test set (various list of function parameters) against same
+ * given promise resolving expected value. It respects function signature to
+ * raise compile time errors if given test set does not match given function
+ * signature.
+ * @param functionName - Function description to test.
+ * @param callback - Function reference to test.
+ * @param expected - Promise resolving to value to check each function call
+ * return value against.
+ * @param functionParameters - Additional lists of parameters to test given
+ * function again.
+ */
+export const testEachResolvedPromiseAgainstSameResolvedPromise = <
+    FunctionType extends AnyFunction = UnknownFunction
+>(
+        functionName: string,
+        callback: FunctionType,
+        expected: Promise<TestSymbol | ThenParameter<ReturnType<FunctionType>>>,
+        ...functionParameters: Array<Parameters<FunctionType>>
+    ) => {
+    _testEachResolvedPromiseAgainstSameResolvedPromise(
+        test.each, functionName, callback, expected, ...functionParameters
+    )
+}
+testEachResolvedPromiseAgainstSameResolvedPromise.only = <
+    FunctionType extends AnyFunction = UnknownFunction
+>(
+        functionName: string,
+        callback: FunctionType,
+        expected: Promise<TestSymbol | ThenParameter<ReturnType<FunctionType>>>,
+        ...functionParameters: Array<Parameters<FunctionType>>
+    ) => {
+    _testEachResolvedPromiseAgainstSameResolvedPromise(
+        test.only.each, functionName, callback, expected, ...functionParameters
+    )
+}
+testEachResolvedPromiseAgainstSameResolvedPromise.skip = <
+    FunctionType extends AnyFunction = UnknownFunction
+>(
+        functionName: string,
+        callback: FunctionType,
+        expected: Promise<TestSymbol | ThenParameter<ReturnType<FunctionType>>>,
+        ...functionParameters: Array<Parameters<FunctionType>>
+    ) => {
+    _testEachResolvedPromiseAgainstSameResolvedPromise(
+        test.skip.each, functionName, callback, expected, ...functionParameters
+    )
+}
+// endregion
 // region testEachRejectedPromiseAgainstSameExpectation
 /**
  * Tests each given test set (various list of function parameters) against same
@@ -1180,6 +1262,87 @@ testEachRejectedPromiseAgainstSameExpectation.skip = <
         ...functionParameters: Array<Parameters<FunctionType>>
     ) => {
     _testEachRejectedPromiseAgainstSameExpectation(
+        test.skip.each, functionName, callback, expected, ...functionParameters
+    )
+}
+// endregion
+// region testEachRejectedPromiseAgainstSameResolvedPromise
+/**
+ * Tests each given test set (various list of function parameters) against same
+ * given promise resolving expected value. It respects function signature to
+ * raise compile time errors if given test set does not match given function
+ * signature.
+ * @param tester - Underling testing function to use.
+ * @param functionName - Function description to test.
+ * @param callback - Function reference to test.
+ * @param expected - Promise resolving to Value to check each function call
+ * return value against.
+ * @param functionParameters - Additional lists of parameters to test given
+ * function again.
+ */
+const _testEachRejectedPromiseAgainstSameResolvedPromise = <
+    FunctionType extends AnyFunction = UnknownFunction
+>(
+        tester: typeof test.each,
+        functionName: string,
+        callback: FunctionType,
+        expected: Promise<Error | TestSymbol>,
+        ...functionParameters: Array<Parameters<FunctionType>>
+    ) => {
+    tester([...functionParameters])(
+        `${represent(expected)} === ${functionName}(%p, ...)`,
+        (async (...parameters: Parameters<FunctionType>): Promise<void> =>
+            expectExpectedType<Error, Promise<void>>(
+                expect(callback(...parameters)).rejects, await expected, false
+            )
+        )
+    )
+}
+/**
+ * Tests each given test set (various list of function parameters) against same
+ * given promise resolving expected value. It respects function signature to
+ * raise compile time errors if given test set does not match given function
+ * signature.
+ * @param functionName - Function description to test.
+ * @param callback - Function reference to test.
+ * @param expected - Promise resolving to value to check each function call
+ * return value against.
+ * @param functionParameters - Additional lists of parameters to test given
+ * function again.
+ */
+export const testEachRejectedPromiseAgainstSameResolvedPromise = <
+    FunctionType extends AnyFunction = UnknownFunction
+>(
+        functionName: string,
+        callback: FunctionType,
+        expected: Promise<Error | TestSymbol>,
+        ...functionParameters: Array<Parameters<FunctionType>>
+    ) => {
+    _testEachRejectedPromiseAgainstSameResolvedPromise(
+        test.each, functionName, callback, expected, ...functionParameters
+    )
+}
+testEachRejectedPromiseAgainstSameResolvedPromise.only = <
+    FunctionType extends AnyFunction = UnknownFunction
+>(
+        functionName: string,
+        callback: FunctionType,
+        expected: Promise<Error | TestSymbol>,
+        ...functionParameters: Array<Parameters<FunctionType>>
+    ) => {
+    _testEachRejectedPromiseAgainstSameResolvedPromise(
+        test.only.each, functionName, callback, expected, ...functionParameters
+    )
+}
+testEachRejectedPromiseAgainstSameResolvedPromise.skip = <
+    FunctionType extends AnyFunction = UnknownFunction
+>(
+        functionName: string,
+        callback: FunctionType,
+        expected: Promise<Error | TestSymbol>,
+        ...functionParameters: Array<Parameters<FunctionType>>
+    ) => {
+    _testEachRejectedPromiseAgainstSameResolvedPromise(
         test.skip.each, functionName, callback, expected, ...functionParameters
     )
 }
