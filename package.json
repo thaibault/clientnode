@@ -130,8 +130,8 @@
     "weboptimizer/clientnode": "4.0.1478"
   },
   "engines": {
-    "node": ">=24",
-    "npm": ">=11",
+    "node": ">=26",
+    "npm": ">=12",
     "yarn": ">=4"
   },
   "webDocumentation": {
