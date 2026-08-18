@@ -15,7 +15,15 @@
     "url": "https://github.com/thaibault/clientnode/issues"
   },
   "license": "CC-BY-3.0",
-  "main": "dist/index.js",
+  "author": {
+    "email": "info@torben.website",
+    "name": "Torben Sickert",
+    "url": "https://torben.website"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thaibault/clientnode"
+  },
   "type": "module",
   "exports": {
     ".": "./dist/index.js",
@@ -24,6 +32,7 @@
     "./property-types": "./dist/property-types.js",
     "./test-helper": "./dist/test-helper.js"
   },
+  "main": "dist/index.js",
   "typesVersions": {
     "*": {
       "property-types": [
@@ -34,25 +43,17 @@
       ]
     }
   },
-  "author": {
-    "name": "Torben Sickert",
-    "email": "info@torben.website",
-    "url": "https://torben.website"
-  },
   "files": [
     "dist"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/thaibault/clientnode"
-  },
+  "sideEffects": false,
   "scripts": {
     "build": "yarn build:types; yarn build:plain; yarn build:compatible; yarn build:compatible:bundle",
-    "build:standalone": "npx babel --config-file ./standalone.babel.config.json --source-maps inline --extensions .ts,.tsx --ignore 'src/test/**' --out-dir dist src; yarn make:executable",
-    "build:compatible": "weboptimizer build '{__reference__: \"target:compatible\"}'",
     "build:bundle": "weboptimizer build '{__reference__: \"target:bundle\"}'",
+    "build:compatible": "weboptimizer build '{__reference__: \"target:compatible\"}'",
     "build:compatible:bundle": "weboptimizer build '{__reference__: [\"target:compatible\", \"target:bundle\"]}'",
     "build:plain": "weboptimizer build",
+    "build:standalone": "npx babel --config-file ./standalone.babel.config.json --source-maps inline --extensions .ts,.tsx --ignore 'src/test/**' --out-dir dist src; yarn make:executable",
     "build:types": "weboptimizer build:types",
     "check": "yarn check:types; yarn lint",
     "check:types": "weboptimizer check:types",
@@ -121,19 +122,18 @@
       "optional": true
     }
   },
+  "resolutions": {
+    "colors": "1.4.0",
+    "globals@npm:^11.1.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
+    "globals@npm:^14.0.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
+    "globals@npm:^9.18.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
+    "weboptimizer/clientnode": "4.0.1478"
+  },
   "engines": {
     "node": ">=24",
     "npm": ">=11",
     "yarn": ">=4"
   },
-  "resolutions": {
-    "weboptimizer/clientnode": "4.0.1478",
-    "colors": "1.4.0",
-    "globals@npm:^14.0.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
-    "globals@npm:^11.1.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
-    "globals@npm:^9.18.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch"
-  },
-  "sideEffects": false,
   "webDocumentation": {
     "languages": [
       "deDE",
@@ -197,24 +197,6 @@
         "base": "dist/"
       }
     },
-    "target:compatible": {
-      "module": {
-        "preprocessor": {
-          "javaScript": {
-            "options": {
-              "plugins": {
-                "__append__": "@babel/plugin-transform-proto-to-assign"
-              }
-            }
-          }
-        }
-      },
-      "path": {
-        "target": {
-          "base": "dist/compatible/"
-        }
-      }
-    },
     "target:bundle": {
       "injection": {
         "entry": {
@@ -241,6 +223,24 @@
       "path": {
         "target": {
           "base": "dist/bundle/"
+        }
+      }
+    },
+    "target:compatible": {
+      "module": {
+        "preprocessor": {
+          "javaScript": {
+            "options": {
+              "plugins": {
+                "__append__": "@babel/plugin-transform-proto-to-assign"
+              }
+            }
+          }
+        }
+      },
+      "path": {
+        "target": {
+          "base": "dist/compatible/"
         }
       }
     },
