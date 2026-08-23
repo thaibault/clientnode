@@ -727,6 +727,35 @@ testEach(
         }
     ],
     [
+        {
+            commandLine: {
+                test: {
+                    command: 'run node && run jsdom',
+                    environments: ['node', 'jsdom']
+                }
+            },
+            generic: {isWeb: true}
+        },
+        {
+            commandLine: {
+                test: {
+                    command: {
+                        __evaluate__:
+                            'self.commandLine.test.environments' +
+                                '.map((environment) => `run ${environment}`)' +
+                                ".join(' && ')"
+                    },
+                    environments: {
+                        __evaluate__: `['node'].concat(
+                            self.generic.isWeb ? 'jsdom' : []
+                        )`
+                    }
+                }
+            },
+            generic: {isWeb: true}
+        }
+    ],
+    [
         {a: 3, b: {d: {e: 3}}, c: {d: {e: 3}}},
         {
             a: {__evaluate__: 'self.b.d.e'},

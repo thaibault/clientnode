@@ -1048,10 +1048,24 @@ export const evaluateDynamicData = <Type = unknown>(
                                 ])
                                     if (Object.prototype.hasOwnProperty
                                         .call(target, type)
-                                    )
-                                        return (internalEvaluateAndThrowError(
-                                            resolvedTarget as string, type
-                                        ) as Mapping<unknown>)[key]
+                                    ) {
+                                        const result: Mapping<unknown> =
+                                            resolve(
+                                                internalEvaluateAndThrowError(
+                                                    target[type] as string, type
+                                                )
+                                            ) as Mapping<unknown>
+
+                                        if ((
+                                            result[key] as
+                                                null | UnknownFunction
+                                        )?.bind)
+                                            return (
+                                                result[key] as UnknownFunction
+                                            ).bind(result)
+
+                                        return result[key]
+                                    }
 
                                 return (
                                     resolvedTarget as Mapping<unknown>
