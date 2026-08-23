@@ -35,6 +35,12 @@ import {globalContext, MAXIMAL_NUMBER_OF_ITERATIONS} from './context'
 import {isFileSync, imports} from './filesystem'
 import {determineType, represent} from './object'
 // endregion
+export const KNOWN_DISALLOWED_VARIABLE_NAMES_BUT_OBJECT_KEYS = [
+    'default',
+    'if', 'for',
+    'class', 'function', 'return',
+    'const', 'let', 'var'
+]
 export const POLYFILL_TEMPLATE_STRINGS = {value: false}
 // Partial regular expression matching symbols which should be allowed within a
 // variable name excluding the first character.
@@ -608,7 +614,9 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
             new RegExp(
                 `^[${ALLOWED_STARTING_VARIABLE_SYMBOLS}]` +
                 `[${ALLOWED_VARIABLE_SYMBOLS}]*$`
-            ).test(name)
+            ).test(name) &&
+            !KNOWN_DISALLOWED_VARIABLE_NAMES_BUT_OBJECT_KEYS
+                .includes(name)
         )
     const result: CompilationResult<T, N> = {
         error: null,
@@ -617,7 +625,9 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
         originalScopeNames: (
             Array.isArray(scope) ?
                 scope :
-                typeof scope === 'string' ? [scope] : Object.keys(scope)
+                typeof scope === 'string' ?
+                    [scope] :
+                    Object.keys(scope)
         ) as N,
         scopeNameMapping: {} as Record<N[number], string>,
         scopeNames: [],
