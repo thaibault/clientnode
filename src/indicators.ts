@@ -114,9 +114,27 @@ export const isObject = (value: unknown): value is Mapping<unknown> =>
  * @returns Value "true" if given object is a plain javaScript object and
  * "false" otherwise.
  */
-export const isPlainObject = (value: unknown): value is PlainObject =>
-    isObject(value) &&
-    PLAIN_OBJECT_PROTOTYPES.includes(Object.getPrototypeOf(value))
+export const isPlainObject = (value: unknown): value is PlainObject => {
+    if (!isObject(value))
+        return false
+
+    const prototype = Object.getPrototypeOf(value) as null | PlainObject
+
+    if (PLAIN_OBJECT_PROTOTYPES.includes(prototype))
+        return true
+
+    /*
+        NOTE: Plain objects created in another realm (a vm context like used by
+        test runners or a worker for example) have their own "Object.prototype"
+        instance and would not be recognized by the identity check above.
+    */
+    return (
+        prototype !== null &&
+        Object.getPrototypeOf(prototype) === null &&
+        (prototype.constructor as {name?: string} | undefined)?.name ===
+            'Object'
+    )
+}
 /**
  * Checks whether given object is a set.
  * @param value - Value to check.

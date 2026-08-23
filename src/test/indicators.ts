@@ -109,6 +109,20 @@ testEachAgainstSameExpectation(
     ['test', [/^est$/]],
     ['test', ['a']]
 )
+/*
+    NOTE: Simulates a plain object created in another realm (a vm context used
+    by a test runner or a worker for example) which has its own
+    "Object.prototype" instance.
+*/
+const foreignRealmObjectPrototype = Object.create(null) as
+    {constructor: unknown}
+foreignRealmObjectPrototype.constructor = Object.defineProperty(
+    (): void => {
+        // Do nothing.
+    },
+    'name',
+    {value: 'Object'}
+)
 testEachSingleParameterAgainstSameExpectation(
     'isPlainObject',
     isPlainObject,
@@ -117,7 +131,8 @@ testEachSingleParameterAgainstSameExpectation(
     {},
     {a: 1},
     // eslint-disable-next-line no-new-object
-    new Object()
+    new Object(),
+    Object.create(foreignRealmObjectPrototype)
 )
 testEachSingleParameterAgainstSameExpectation(
     'isPlainObject',

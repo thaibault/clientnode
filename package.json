@@ -103,7 +103,7 @@
     "rimraf": "^6.1.3",
     "typescript-eslint": "^8.67.0",
     "web-documentation": "^1.0.49",
-    "weboptimizer": "^4.0.55",
+    "weboptimizer": "^4.0.57",
     "webpack-dev-server": "^6.0.0"
   },
   "peerDependencies": {
