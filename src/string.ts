@@ -17,7 +17,7 @@
     endregion
 */
 // region imports
-import {
+import type {
     CompilationResult,
     CompileExpressionOptions,
     EvaluateExpressionOptions,
