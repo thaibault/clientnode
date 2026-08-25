@@ -82,7 +82,7 @@ export const dateTimeFormat = (
                 scope[`${style}${capitalize(item.type)}`] = item.value
     }
 
-    const evaluated: EvaluationResult = evaluate(`\`${format}\``, scope)
+    const evaluated: EvaluationResult = evaluate(`\`${format}\``, {scope})
     if (evaluated.error)
         throw new Error(evaluated.error)
 
@@ -459,7 +459,7 @@ export const interpretDateTime = (
                             ) {
                                 const evaluatedPattern = evaluate(
                                     `\`^${pattern}$\``,
-                                    {delimiter: `${delimiter}+`}
+                                    {scope: {delimiter: `${delimiter}+`}}
                                 ).result
                                 if (
                                     evaluatedPattern &&

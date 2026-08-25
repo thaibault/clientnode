@@ -232,6 +232,23 @@ export interface ObjectMaskConfiguration {
     include?: ObjectMask
 }
 
+export interface ExpressionOptions {
+    async: boolean
+    execute: boolean
+    removeGlobalScope: boolean
+    binding: unknown
+}
+export interface CompileExpressionOptions<
+    N extends Array<string> = Array<string>
+> extends ExpressionOptions {
+    scope: Mapping<unknown> | N | N[number] | string
+}
+export interface EvaluateExpressionOptions<
+    S extends object = object
+> extends ExpressionOptions {
+    scope: S
+}
+
 export interface EvaluateObject {
     __evaluate__: string
 }
