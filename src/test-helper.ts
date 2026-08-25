@@ -23,7 +23,7 @@
     )
 */
 // region imports
-import {
+import type {
     AnyFunction,
     FirstParameter,
     FunctionTestTuple,
