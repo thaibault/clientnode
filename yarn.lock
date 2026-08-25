@@ -4924,9 +4924,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:4.0.1495":
-  version: 4.0.1495
-  resolution: "clientnode@npm:4.0.1495"
+"clientnode@npm:4.0.1498":
+  version: 4.0.1498
+  resolution: "clientnode@npm:4.0.1498"
   peerDependencies:
     "@types/prop-types": "*"
     node-fetch: "*"
@@ -4938,7 +4938,7 @@ __metadata:
       optional: true
     prop-types:
       optional: true
-  checksum: 10c0/bec2c18d9466065029c3151fda05c3befe01bc445320ce27f10c957a3e5a0343c0d0d822f6488708c6352a7a2ab88de12fa97eb33748b31c880315d1779b833c
+  checksum: 10c0/2392ab9a29607d9a4a54c596c1cbebdbc792d12718c14e28a68444af8ee3ded5d17c818cb445742af38356b1ffe657f454af53671f0531909a289a5dd30734aa
   languageName: node
   linkType: hard
 
@@ -4976,8 +4976,8 @@ __metadata:
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^6.1.3"
     typescript-eslint: "npm:^8.68.0"
-    web-documentation: "npm:^1.0.49"
-    weboptimizer: "npm:^4.0.60"
+    web-documentation: "npm:^1.0.50"
+    weboptimizer: "npm:^4.0.63"
     webpack-dev-server: "npm:^6.0.0"
   peerDependencies:
     "@types/prop-types": "*"
@@ -10094,12 +10094,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"web-documentation@npm:^1.0.49":
-  version: 1.0.49
-  resolution: "web-documentation@npm:1.0.49"
+"web-documentation@npm:^1.0.50":
+  version: 1.0.50
+  resolution: "web-documentation@npm:1.0.50"
   bin:
     web-documentation: build/deploy.js
-  checksum: 10c0/cbc11c7146a50b7e378a5fba17e5747d5eb85e2182c746d0cb80390b52b785062672b7ce240f88acf2a09517f3e82d9a591b9f41066bf44883f267efa2a87938
+  checksum: 10c0/0d9bc3d510be65b55aaee96b834cd89ab22a2d089c397ea23a0749b81fd495dcf2066f8e9e1b974aaa2954d3b5fe850ddeeff63f3d4370698fdbef634e41a12b
   languageName: node
   linkType: hard
 
@@ -10117,9 +10117,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^4.0.60":
-  version: 4.0.60
-  resolution: "weboptimizer@npm:4.0.60"
+"weboptimizer@npm:^4.0.63":
+  version: 4.0.63
+  resolution: "weboptimizer@npm:4.0.63"
   dependencies:
     "@babel/core": "npm:^8.0.1"
     "@babel/plugin-proposal-decorators": "npm:^8.0.2"
@@ -10130,7 +10130,7 @@ __metadata:
     babel-loader: "npm:^10.1.1"
     babel-plugin-polyfill-corejs3: "npm:^1.0.0"
     babel-plugin-transform-rewrite-imports: "npm:^1.5.4"
-    clientnode: "npm:4.0.1494"
+    clientnode: "npm:4.0.1499"
     core-js: "npm:^3.50.0"
     ejs: "npm:^6.0.1"
     exports-loader: "npm:^5.0.0"
@@ -10264,7 +10264,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/b9c392b7647bd559006f24b4f884c1cddd3b08cd351fb8463756cf5641ed8b25b1f84b49a8e3ebc1c0f4ea19ca004804b712539d59c598e663682079b1cb96d8
+  checksum: 10c0/cbf0975041a991a7da42ab5386ced2cd06ca3debf5fd054f160f664ee9043078657810347fe42c77baf018bf6c72c91827c98833b0fbacbdcdac2488832bab3b
   languageName: node
   linkType: hard
 
