@@ -73,8 +73,16 @@ export const FIX_ENCODING_ERROR_MAPPING = [
 ] as const
 
 export const AsyncFunction=
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    Object.getPrototypeOf(async function() {}).constructor
+    /*
+        eslint-disable
+        @typescript-eslint/no-implied-eval,@typescript-eslint/no-unsafe-call
+    */
+    new Function('return Object.getPrototypeOf(async function() {})')()
+        .constructor
+    /*
+        eslint-enable
+        @typescript-eslint/no-implied-eval,@typescript-eslint/no-unsafe-call
+    */
 
 /**
  * Translates a given string into the regular expression validated
@@ -704,7 +712,8 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
         ) as TemplateFunction<T>
     } catch (error) {
         result.error =
-            `Given expression "${expression}" could not be compiled width ` +
+            `Given ${options.async ? 'async' : 'sync'} expression ` +
+            `"${expression}" could not be compiled width ` +
             `given scope names "${result.scopeNames.join('", "')}": ` +
             represent(error)
     }
@@ -793,8 +802,9 @@ export const evaluate = <T = string, S extends object = object>(
     } catch (error) {
         result.error =
             result.runtimeError = (
-                `Given expression "${expression}" could not be evaluated ` +
-                `with given scope names "${scopeNames.join('", "')}": ` +
+                `Given ${options.async ? 'async' : 'sync'} expression ` +
+                `"${expression}" could not be evaluated with given scope ` +
+                `names "${scopeNames.join('", "')}": ` +
                 represent(error)
             )
     }

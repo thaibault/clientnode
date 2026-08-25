@@ -279,10 +279,10 @@ export type RecursiveEvaluateable<Type> =
     }
 
 export interface AsyncEvaluateObject {
-    __await_evaluate__: string
+    __async_evaluate__: string
 }
 export interface AsyncExecuteObject {
-    __await_execute__: string
+    __async_execute__: string
 }
 export type AsyncEvaluateable = AsyncEvaluateObject | AsyncExecuteObject
 

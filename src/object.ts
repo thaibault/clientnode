@@ -1207,8 +1207,8 @@ export const evaluateAsyncDynamicData = async <Type = unknown>(
     const options = {
         scope: {},
         selfReferenceName: 'self',
-        expressionIndicatorKey: '__await_evaluate__',
-        executionIndicatorKey: '__await_execute__',
+        expressionIndicatorKey: '__async_evaluate__',
+        executionIndicatorKey: '__async_execute__',
         ...givenOptions
     }
 
