@@ -950,7 +950,12 @@ export const evaluateDynamicData = <Type = unknown>(
         code: string, type: string = options.expressionIndicatorKey
     ): Type =>
         evaluateOrThrowError<Type>(
-            code, options.scope, type === options.executionIndicatorKey
+            code,
+            {
+                scope: options.scope,
+                async: false,
+                execute: type === options.executionIndicatorKey
+            }
         )
 
     const addProxyRecursively = (data: unknown): unknown => {
@@ -1233,8 +1238,11 @@ export const evaluateAsyncDynamicData = async <Type = unknown>(
         ].includes(key))
             return await evaluateOrThrowError(
                 value as string,
-                options.scope,
-                key === options.executionIndicatorKey
+                {
+                    scope: options.scope,
+                    async: true,
+                    execute: key === options.executionIndicatorKey
+                }
             )
 
         ;(result as Mapping<unknown>)[key] = await evaluateAsyncDynamicData(

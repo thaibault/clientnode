@@ -511,11 +511,11 @@ testEach(
     ['hansUrl', 'hans--Url', '-', [], false, true]
 )
 test.each([
-    ['function', 'null', []],
-    ['function', 'null', {}],
-    ['function', '5 === 3', {name: 2}],
-    ['function', '5 === 3', ['name']],
-    ['function', '', []]
+    ['function', 'null', {scope: []}],
+    ['function', 'null', {scope: {}}],
+    ['function', '5 === 3', {scope: {name: 2}}],
+    ['function', '5 === 3', {scope: ['name']}],
+    ['function', '', {scope: []}]
 ])(
     `'%s' === typeof compile('%s', %p).templateFunction`,
     (expected: string, ...parameters: Parameters<typeof compile>) => {
@@ -814,10 +814,13 @@ test.each(([
     ): void => {
         const evaluation: EvaluationResult = evaluate(
             expression,
-            scope,
-            false,
-            true,
-            binding
+            {
+                scope,
+                async: false,
+                execute: false,
+                removeGlobalScope: true,
+                binding
+            }
         )
 
         expect(evaluation).toHaveProperty(resultKey)
@@ -905,10 +908,12 @@ test.each(([
 
         const evaluation: EvaluationResult = evaluate(
             expression,
-            scope,
-            false,
-            true,
-            binding
+            {
+                scope,
+                execute: false,
+                removeGlobalScope: true,
+                binding
+            }
         )
 
         expect(evaluation).toHaveProperty(resultKey)

@@ -17,8 +17,10 @@
     endregion
 */
 // region imports
-import type {
+import {
     CompilationResult,
+    CompileExpressionOptions,
+    EvaluateExpressionOptions,
     EvaluationResult,
     Mapping,
     PlainObject,
@@ -69,6 +71,10 @@ export const FIX_ENCODING_ERROR_MAPPING = [
     ['Ã\\x9f', 'ß'],
     ['Ã', 'ß']
 ] as const
+
+export const AsyncFunction=
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    Object.getPrototypeOf(async function() {}).constructor
 
 /**
  * Translates a given string into the regular expression validated
@@ -584,25 +590,28 @@ export const delimitedToCamelCase = (
 /**
  * Compiles a given string as an expression with given scope names.
  * @param expression - The string to interpret.
- * @param scope - Scope to extract names from.
- * @param execute - Indicates whether to execute or evaluate.
- * @param removeGlobalScope - Indicates whether to shadow global variables via
- * "undefined".
- * @param binding - Object to apply as "this" in evaluation scope.
+ * @param givenOptions - Expression options.
+ * @param givenOptions.scope - Scope to extract names from.
+ * @param givenOptions.execute - Indicates whether to execute or evaluate.
+ * @param givenOptions.removeGlobalScope - Indicates whether to shadow global
+ * scope.
+ * @param givenOptions.binding - Object to apply as "this" in evaluation scope.
+ * @param givenOptions.async - Indicates whether to compile an async function.
  * @returns Object of prepared scope name mappings and compiled function or
  * error string message if given expression couldn't be compiled.
  */
 export const compile = <T = string, N extends Array<string> = Array<string>>(
     expression: string,
-    scope:
-        Mapping<unknown> |
-        N |
-        N[number] |
-        string = [] as unknown as N,
-    execute = false,
-    removeGlobalScope = true,
-    binding: unknown = {}
+    givenOptions: Partial<CompileExpressionOptions<N>> = {}
 ): CompilationResult<T, N> => {
+    const options: CompileExpressionOptions<N> = {
+        scope: [] as unknown as N,
+        async: false,
+        execute: false,
+        removeGlobalScope: true,
+        binding: {},
+        ...givenOptions
+    }
     /*
         NOTE: We do this global variable name determining as close as possible
         to the compiling step to cover as much as possible global introduces
@@ -623,11 +632,11 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
         globalNames: globalNames,
         globalNamesUndefinedList: globalNames.map(() => undefined),
         originalScopeNames: (
-            Array.isArray(scope) ?
-                scope :
-                typeof scope === 'string' ?
-                    [scope] :
-                    Object.keys(scope)
+            Array.isArray(options.scope) ?
+                options.scope :
+                typeof options.scope === 'string' ?
+                    [options.scope] :
+                    Object.keys(options.scope)
         ) as N,
         scopeNameMapping: {} as Record<N[number], string>,
         scopeNames: [],
@@ -687,11 +696,11 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
     let innerTemplateFunction: TemplateFunction<T> | undefined
 
     try {
-        // eslint-disable-next-line @typescript-eslint/no-implied-eval
-        innerTemplateFunction = new Function(
-            ...(removeGlobalScope ? result.globalNames : []),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        innerTemplateFunction = new (options.async ? AsyncFunction : Function)(
+            ...(options.removeGlobalScope ? result.globalNames : []),
             ...result.scopeNames,
-            `${execute ? '' : 'return '}${expression}`
+            `${options.execute ? '' : 'return '}${expression}`
         ) as TemplateFunction<T>
     } catch (error) {
         result.error =
@@ -701,8 +710,8 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
     }
     if (innerTemplateFunction) {
         const boundInnerTemplateFunction =
-            innerTemplateFunction.bind(binding)
-        result.templateFunction = removeGlobalScope ?
+            innerTemplateFunction.bind(options.binding)
+        result.templateFunction = options.removeGlobalScope ?
             (...parameters) =>
                 /*
                     NOTE: We shadow existing global names to sandbox
@@ -719,20 +728,27 @@ export const compile = <T = string, N extends Array<string> = Array<string>>(
 /**
  * Evaluates a given string as an expression against a given scope.
  * @param expression - The string to interpret.
- * @param scope - Scope to render against.
- * @param execute - Indicates whether to execute or evaluate.
- * @param removeGlobalScope - Indicates whether to shadow global variables via
- * "undefined".
- * @param binding - Object to apply as "this" in evaluation scope.
+ * @param givenOptions - Expression options.
+ * @param givenOptions.scope - Scope to extract names from.
+ * @param givenOptions.execute - Indicates whether to execute or evaluate.
+ * @param givenOptions.removeGlobalScope - Indicates whether to shadow global
+ * scope.
+ * @param givenOptions.binding - Object to apply as "this" in evaluation scope.
+ * @param givenOptions.async - Indicates whether to compile an async function.
  * @returns Object with an error message during parsing / running or result.
  */
 export const evaluate = <T = string, S extends object = object>(
     expression: string,
-    scope: S = {} as S,
-    execute = false,
-    removeGlobalScope = true,
-    binding: unknown = {}
+    givenOptions: Partial<EvaluateExpressionOptions<S>> = {}
 ): EvaluationResult<T> => {
+    const options: EvaluateExpressionOptions<S> = {
+        scope: {} as S,
+        async: false,
+        execute: false,
+        removeGlobalScope: true,
+        binding: {},
+        ...givenOptions
+    }
     // NOTE: We extract string-only types from given scope type.
     type N = Array<keyof S extends string ? keyof S : never>
 
@@ -741,13 +757,7 @@ export const evaluate = <T = string, S extends object = object>(
         originalScopeNames,
         scopeNames,
         templateFunction
-    } = compile<T, N>(
-        expression,
-        scope as Mapping<unknown>,
-        execute,
-        removeGlobalScope,
-        binding
-    )
+    } = compile<T, N>(expression, options as CompileExpressionOptions<N>)
 
     let result: EvaluationResult<T> = {
         compileError: null,
@@ -776,7 +786,7 @@ export const evaluate = <T = string, S extends object = object>(
                     "...Object.values(scope)" is not appreciate here.
                 */
                 ...originalScopeNames.map((name: keyof S): ValueOf<S> =>
-                    scope[name]
+                    options.scope[name]
                 )
             )
         }
@@ -796,24 +806,22 @@ export const evaluate = <T = string, S extends object = object>(
  * as "evaluate" but throws an exception if an error occurs and returns the
  * evaluated value instead of an object with error and result.
  * @param expression - The string to interpret.
- * @param scope - Scope to render against.
- * @param execute - Indicates whether to execute or evaluate.
- * @param removeGlobalScope - Indicates whether to shadow global variables via
- * "undefined".
- * @param binding - Object to apply as "this" in evaluation scope.
+ * @param options - Expression options.
+ * @param options.scope - Scope to extract names from.
+ * @param options.execute - Indicates whether to execute or evaluate.
+ * @param options.removeGlobalScope - Indicates whether to shadow global scope.
+ * @param options.binding - Object to apply as "this" in evaluation scope.
+ * @param options.async - Indicates whether to compile an async function.
  * @returns Object with an error message during parsing / running or result.
  */
 export const evaluateOrThrowError = <
     Result = string, Scope extends object = object
 >(
         expression: string,
-        scope: Scope = {} as Scope,
-        execute = false,
-        removeGlobalScope = true,
-        binding: unknown = {}
+        options: Partial<EvaluateExpressionOptions<Scope>> = {}
     ): Result => {
     const evaluated: EvaluationResult<Result> = evaluate<Result, Scope>(
-        expression, scope, execute, removeGlobalScope, binding
+        expression, options
     )
 
     if (evaluated.error)
@@ -1248,7 +1256,7 @@ export const parseEncodedObject = <T = PlainObject>(
             .toString(DEFAULT_ENCODING)
 
     const result: EvaluationResult<T> =
-        evaluate<T>(serializedObject, {[name]: scope})
+        evaluate<T>(serializedObject, {scope: {[name]: scope}})
 
     if (typeof result.result === 'object')
         return result.result
