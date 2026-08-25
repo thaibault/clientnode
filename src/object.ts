@@ -1055,21 +1055,27 @@ export const evaluateDynamicData = <Type = unknown>(
                                         .call(target, type)
                                     ) {
                                         const result: Mapping<unknown> =
-                                            resolve(
-                                                internalEvaluateAndThrowError(
-                                                    target[type] as string, type
-                                                )
+                                            internalEvaluateAndThrowError(
+                                                target[type] as string, type
                                             ) as Mapping<unknown>
+                                        /*
+                                            NOTE: Resolving the whole
+                                            evaluated result could re-enter
+                                            the currently running evaluation
+                                            (cyclic references between
+                                            dynamic values) so only the
+                                            accessed value gets resolved.
+                                        */
+                                        const value: unknown =
+                                            resolve(result[key])
 
                                         if ((
-                                            result[key] as
-                                                null | UnknownFunction
+                                            value as null | UnknownFunction
                                         )?.bind)
-                                            return (
-                                                result[key] as UnknownFunction
-                                            ).bind(result)
+                                            return (value as UnknownFunction)
+                                                .bind(result)
 
-                                        return result[key]
+                                        return value
                                     }
 
                                 return (

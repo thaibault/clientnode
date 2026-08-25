@@ -756,6 +756,36 @@ testEach(
         }
     ],
     [
+        {
+            module: {preprocessor: {
+                ejs: {options: {locals: {
+                    LANGUAGES: ['enUS', 'deDE'],
+                    NAME: 'web-documentation'
+                }}},
+                html: {options: {locals: {
+                    LANGUAGES: ['enUS', 'deDE'],
+                    NAME: 'web-documentation'
+                }}}
+            }}
+        },
+        {
+            module: {preprocessor: {
+                ejs: {options: {locals: {
+                    LANGUAGES: {
+                        __evaluate__:
+                            'self.module.preprocessor.html.options.locals' +
+                            ".NAME === 'web-documentation' ? " +
+                            "['enUS', 'deDE'] : ['enUS']"
+                    },
+                    NAME: 'web-documentation'
+                }}},
+                html: {options: {locals: {
+                    __evaluate__: 'self.module.preprocessor.ejs.options.locals'
+                }}}
+            }}
+        }
+    ],
+    [
         {a: 3, b: {d: {e: 3}}, c: {d: {e: 3}}},
         {
             a: {__evaluate__: 'self.b.d.e'},
