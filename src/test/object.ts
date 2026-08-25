@@ -914,9 +914,9 @@ testEachResolvedPromise(
     'evaluateAsyncDynamicData',
     evaluateAsyncDynamicData,
 
-    [4, {__await_evaluate__: 'Promise.resolve(1 + 3)'}],
-    [[1], [{__await_evaluate__: 'Promise.resolve(1)'}]],
-    [['1'], [{__await_evaluate__: `Promise.resolve('1')`}]]
+    [4, {__async_evaluate__: 'Promise.resolve(1 + 3)'}],
+    [[1], [{__async_evaluate__: 'Promise.resolve(1)'}]],
+    [['1'], [{__async_evaluate__: `Promise.resolve('1')`}]]
 )
 testEach(
     'removeKeysInEvaluation',
