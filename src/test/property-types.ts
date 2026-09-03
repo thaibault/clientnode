@@ -13,11 +13,13 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {Requireable} from 'prop-types'
+
+import type {UnknownFunction} from '../type'
+
 import {expect, test} from '@jest/globals'
-import {Requireable} from 'prop-types'
 
 import {DummyTypes} from '../property-types'
-import {UnknownFunction} from '../type'
 
 test('DummyTypes', () => {
     expect(DummyTypes.any).not.toStrictEqual(DummyTypes.array)

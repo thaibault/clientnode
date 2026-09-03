@@ -15,14 +15,16 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {ChildProcess as ChildProcessType} from 'child_process'
+
+import type {AnyFunction} from '../type'
+
 import {expect, test} from '@jest/globals'
-import {ChildProcess as ChildProcessType} from 'child_process'
 
 import {NOOP} from '../context'
 import {getProcessCloseHandler, handleChildProcess} from '../process'
 import {optionalRequire} from '../module'
 import {Duplex as DuplexType} from 'stream'
-import {AnyFunction} from '../type'
 
 const {ChildProcess = null} =
     optionalRequire<typeof import('child_process')>('child_process') || {}
