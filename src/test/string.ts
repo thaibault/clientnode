@@ -15,6 +15,8 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {EvaluationResult, FirstParameter, Mapping} from '../type'
+
 import {expect, test} from '@jest/globals'
 
 import {globalContext} from '../context'
@@ -56,7 +58,6 @@ import {
     sliceAllExceptNumberAndLastSeparator
 } from '../string'
 import {testEach, testEachAgainstSameExpectation} from '../test-helper'
-import {EvaluationResult, FirstParameter, Mapping} from '../type'
 
 declare const TARGET_TECHNOLOGY: string
 

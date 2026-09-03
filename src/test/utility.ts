@@ -13,17 +13,13 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {TimeoutPromise} from '../type'
+
 import {expect, jest, test} from '@jest/globals'
 
-import {TimeoutPromise} from '../type'
 import {
-    debounce,
-    preventDefault,
-    stopPropagation,
-    timeout,
-    trailingThrottle
+    debounce, preventDefault, stopPropagation, timeout, trailingThrottle
 } from '../utility'
-
 
 test('trailingThrottle', async (): Promise<void> => {
     let testValue = false

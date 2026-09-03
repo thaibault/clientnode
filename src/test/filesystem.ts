@@ -15,6 +15,8 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {File} from '../type'
+
 import {beforeAll, expect, test} from '@jest/globals'
 
 import {NOOP} from '../context'
@@ -34,7 +36,6 @@ import {
 // NOTE: Jest does not support dynamic imports outside of test.
 import {getCurrentRequire} from '../module'
 import {testEachSingleParameterAgainstSameExpectation} from '../test-helper'
-import {File} from '../type'
 import {timeout} from '../utility'
 
 declare const TARGET_TECHNOLOGY: string

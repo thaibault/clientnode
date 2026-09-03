@@ -13,10 +13,11 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
+import type {Mapping} from '../type'
+
 import {expect, test} from '@jest/globals'
 
 import {determineUniqueScopeName, isolateScope} from '../scope'
-import {Mapping} from '../type'
 
 test('isolateScope', (): void => {
     expect(isolateScope({})).toStrictEqual({})
