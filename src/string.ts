@@ -851,56 +851,75 @@ export const evaluateOrThrowError = <
  * @returns Start and end index of matching range.
  */
 export const findNormalizedMatchRange = (
-    target: unknown,
-    query: unknown,
-    normalizer = (value: unknown): string => String(value).toLowerCase(),
+    target: string,
+    query: RegExp | string,
+    normalizer = <T extends RegExp | string>(value: T): T =>
+        typeof value === 'string' ? value.trim().toLowerCase() as T : value,
     skipTagDelimitedParts: null | [string, string] = ['<', '>']
 ): Array<number> | null => {
-    const normalizedQuery: string = normalizer(query)
+    const normalizedQuery: RegExp | string = normalizer(query)
+    let stringNormalizedQuery: string
+    if (typeof normalizedQuery === 'string')
+        stringNormalizedQuery = normalizedQuery
+    else {
+        const match = target.match(normalizedQuery)
+        stringNormalizedQuery = match ? match[0] : ''
+    }
+    if (!stringNormalizedQuery)
+        return null
+
     const normalizedTarget: string = normalizer(target)
+    if (!normalizedTarget)
+        return null
 
     const stringTarget = typeof target === 'string' ?
         target :
         normalizedTarget
 
-    if (normalizedTarget && normalizedQuery) {
-        let inTag = false
-        for (let index = 0; index < stringTarget.length; index += 1) {
-            if (inTag) {
-                if (
-                    Array.isArray(skipTagDelimitedParts) &&
-                    stringTarget.charAt(index) === skipTagDelimitedParts[1]
-                )
-                    inTag = false
-
-                continue
-            }
-
+    let inTag = false
+    for (let index = 0; index < stringTarget.length; index += 1) {
+        if (inTag) {
             if (
                 Array.isArray(skipTagDelimitedParts) &&
-                stringTarget.charAt(index) === skipTagDelimitedParts[0]
-            ) {
-                inTag = true
+                stringTarget.charAt(index) === skipTagDelimitedParts[1]
+            )
+                inTag = false
 
-                continue
-            }
+            continue
+        }
 
-            if (normalizer(stringTarget.substring(index)).startsWith(
-                normalizedQuery
-            )) {
-                if (normalizedQuery.length === 1)
-                    return [index, index + 1]
+        if (
+            Array.isArray(skipTagDelimitedParts) &&
+            stringTarget.charAt(index) === skipTagDelimitedParts[0]
+        ) {
+            inTag = true
 
-                for (
-                    let subIndex = stringTarget.length;
-                    subIndex > index;
-                    subIndex -= 1
-                )
-                    if (!normalizer(stringTarget.substring(
-                        index, subIndex
-                    )).startsWith(normalizedQuery))
-                        return [index, subIndex + 1]
-            }
+            continue
+        }
+
+        /*
+            Skip positions the normalizer strips away (e.g. leading
+            whitespace), so the reported match index aligns with the real
+            character.
+        */
+        if (!normalizer(stringTarget.charAt(index)))
+            continue
+
+        if (normalizer(stringTarget.substring(index)).startsWith(
+            stringNormalizedQuery
+        )) {
+            if (stringNormalizedQuery.length === 1)
+                return [index, index + 1]
+
+            for (
+                let subIndex = stringTarget.length;
+                subIndex > index;
+                subIndex -= 1
+            )
+                if (!normalizer(stringTarget.substring(
+                    index, subIndex
+                )).startsWith(stringNormalizedQuery))
+                    return [index, subIndex + 1]
         }
     }
 
@@ -1013,8 +1032,9 @@ export const lowerCase = (string: string): string => {
 }
 /**
  * Wraps given mark strings in a given target with a given marker.
- * @param target - String to search for marker.
- * @param givenWords - String or array of strings to search in target for.
+ * @param target - String to search in.
+ * @param givenSearchWords - String or regular expression or array of those to
+ * search for.
  * @param givenOptions - Defines highlighting behavior.
  * @param givenOptions.marker - HTML template string to mark.
  * @param givenOptions.normalizer - Pure normalization function to use before
@@ -1024,14 +1044,24 @@ export const lowerCase = (string: string): string => {
  * @returns Processed result.
  */
 export const mark = (
-    target: unknown,
-    givenWords?: Array<string> | string,
+    target: RegExp | string,
+    givenSearchWords?: Array<RegExp | string> | RegExp | string,
     givenOptions: Partial<StringMarkOptions> = {}
 ): unknown => {
-    if (typeof target === 'string' && givenWords?.length) {
+    if (
+        typeof target === 'string' &&
+        (
+            Array.isArray(givenSearchWords) && givenSearchWords.length ||
+            givenSearchWords instanceof RegExp ||
+            typeof givenSearchWords === 'string' && givenSearchWords.length
+        )
+    ) {
         const options: StringMarkOptions = {
             marker: '<span class="tools-mark">{1}</span>',
-            normalizer: (value: unknown) => String(value).toLowerCase(),
+            normalizer: <T extends RegExp | string>(value: T): T =>
+                typeof value === 'string' ?
+                    value.trim().toLowerCase() as T :
+                    value,
             skipTagDelimitedParts: ['<', '>'],
             ...givenOptions
         }
@@ -1039,16 +1069,16 @@ export const mark = (
         target = target.trim()
         const markedTarget: Array<unknown> = []
 
-        const words: Array<string> =
-            ([] as Array<string>).concat(givenWords)
+        const searchWords: Array<RegExp | string> =
+            ([] as Array<RegExp | string>).concat(givenSearchWords)
         let index = 0
-        for (const word of words) {
-            words[index] = options.normalizer(word).trim()
+        for (const word of searchWords) {
+            searchWords[index] = options.normalizer(word)
 
             index += 1
         }
 
-        let restTarget: string = target as string
+        let restTarget: string = target
         let offset = 0
         /*
             Search for matches as long there is enough target text remaining to
@@ -1063,7 +1093,7 @@ export const mark = (
             let currentRange: Array<number> | null
 
             // Find the nearest next matching word.
-            for (const word of words) {
+            for (const word of searchWords) {
                 currentRange = findNormalizedMatchRange(
                     restTarget,
                     word,
@@ -1080,20 +1110,19 @@ export const mark = (
             if (nearestRange) {
                 if (nearestRange[0] > 0)
                     markedTarget.push(
-                        (target as string)
-                            .substring(offset, offset + nearestRange[0])
+                        target.substring(offset, offset + nearestRange[0])
                     )
                 markedTarget.push(
                     typeof options.marker === 'string' ?
                         format(
                             options.marker,
-                            (target as string).substring(
+                            target.substring(
                                 offset + nearestRange[0],
                                 offset + nearestRange[1]
                             )
                         ) :
                         options.marker(
-                            (target as string).substring(
+                            target.substring(
                                 offset + nearestRange[0],
                                 offset + nearestRange[1]
                             ),
@@ -1103,7 +1132,7 @@ export const mark = (
 
                 offset += nearestRange[1]
 
-                restTarget = (target as string).substring(offset)
+                restTarget = target.substring(offset)
             } else {
                 if (restTarget.length)
                     markedTarget.push(restTarget)

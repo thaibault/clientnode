@@ -392,7 +392,7 @@ export type LockCallbackFunction<Type> =
 export interface StringMarkOptions {
     marker:
         ((foundWord: string, markedTarget: Array<unknown>) => unknown) | string
-    normalizer: (value: unknown) => string
+    normalizer: <T extends RegExp | string>(value: T) => T
     skipTagDelimitedParts: null | [string, string]
 }
 export interface InterruptableScrollToOptions {
