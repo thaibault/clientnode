@@ -16,34 +16,10 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-export const CLI_COLOR = {
-    black: '\x1b[30m',
-    blink: '\x1b[5m',
-    blue: '\x1b[0;34m',
-    bold: '\x1b[1m',
-    cyan: '\x1b[36m',
-    darkGray: '\x1b[0;90m',
-    default: '\x1b[0m',
-    dim: '\x1b[2m',
-    green: '\x1b[32m',
-    invert: '\x1b[7m',
-    invisible: '\x1b[8m',
-    lightBlue: '\x1b[0;94m',
-    lightCyan: '\x1b[0;96m',
-    lightGray: '\x1b[0;37m',
-    lightGreen: '\x1b[0;92m',
-    lightMagenta: '\x1b[0;95m',
-    lightRed: '\x1b[0;91m',
-    lightYellow: '\x1b[0;93m',
-    magenta: '\x1b[35m',
-    nodim: '\x1b[22m',
-    noblink: '\x1b[25m',
-    nobold: '\x1b[21m',
-    noinvert: '\x1b[27m',
-    noinvisible: '\x1b[28m',
-    nounderline: '\x1b[24m',
-    red: '\x1b[31m',
-    underline: '\x1b[4m',
-    white: '\x1b[37m',
-    yellow: '\x1b[33m'
-} as const
+/*
+    NOTE: "CLI_COLOR" is defined in and re-exported from "./constants" (instead
+    of being declared here directly) to avoid a webpack code generation issue
+    where an import-less module loses its export declarations when bundled as a
+    dependency of another entry point.
+*/
+export {CLI_COLOR} from './constants'
