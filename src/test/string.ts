@@ -951,27 +951,27 @@ testEach(
         [2, 5],
         ' hAns ',
         'ans',
-        (value: unknown): string => (value as string).toLowerCase()
+        <T>(value: T): T => (value as string).toLowerCase() as T
     ],
     [
         [2, 8],
         'a straße b', 'strasse',
-        (value: unknown): string =>
-            (value as string).replace(/ß/g, 'ss').toLowerCase()
+        <T>(value: T): T =>
+            (value as string).replace(/ß/g, 'ss').toLowerCase() as T
     ],
     [
         [2, 9],
         'a strasse b',
         'strasse',
-        (value: unknown): string =>
-            (value as string).replace(/ß/g, 'ss').toLowerCase()
+        <T>(value: T): T =>
+            (value as string).replace(/ß/g, 'ss').toLowerCase() as T
     ],
     [
         [2, 9],
         'a strasse b',
         'straße',
-        (value: unknown): string =>
-            (value as string).replace(/ß/g, 'ss').toLowerCase()
+        <T>(value: T): T =>
+            (value as string).replace(/ß/g, 'ss').toLowerCase() as T
     ]
 )
 testEach(
@@ -1033,9 +1033,25 @@ testEach(
     mark,
 
     ['', ''],
+    ['', '', new RegExp('')],
     ['t<span class="tools-mark">e</span>st', 'test', 'e'],
+    ['t<span class="tools-mark">e</span>st', 'test', new RegExp('e')],
     ['t<span class="tools-mark">es</span>t', 'test', 'es'],
+    ['t<span class="tools-mark">es</span>t', 'test', new RegExp('es')],
     ['<span class="tools-mark">test</span>', 'test', 'test'],
+    ['<span class="tools-mark">test</span>', 'test', /test/],
+    [
+        'h<span class="tools-mark">a</span>ns ' +
+        '<span class="tools-mark">a</span>oom',
+        'hans aoom',
+        'a'
+    ],
+    [
+        'h<span class="tools-mark">a</span>ns ' +
+        '<span class="tools-mark">b</span>oom',
+        'hans boom',
+        /a|b/
+    ],
     ['test', 'test', ''],
     ['test', 'test', 'tests'],
     ['', '', 'test'],
@@ -1045,7 +1061,7 @@ testEach(
         'e',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value: unknown) => String(value).toLowerCase()
+            normalizer: <T>(value: T): T => String(value).toLowerCase() as T
         }
     ],
     [
@@ -1054,7 +1070,7 @@ testEach(
         ['e'],
         {
             marker: '<a>{1}</a>',
-            normalizer: identity as (_value: unknown) => string
+            normalizer: identity as <T>(value: T) => T
         }
     ],
     [
@@ -1063,7 +1079,7 @@ testEach(
         'E',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value: unknown) => String(value).toLowerCase()
+            normalizer: <T>(value: T): T => String(value).toLowerCase() as T
         }
     ],
     [
@@ -1072,7 +1088,7 @@ testEach(
         'e',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value: unknown) => String(value).toLowerCase()
+            normalizer: <T>(value: T): T => String(value).toLowerCase() as T
         }
     ],
     [
@@ -1081,7 +1097,7 @@ testEach(
         't',
         {
             marker: '<a>{1}</a>',
-            normalizer: (value: unknown) => String(value).toLowerCase()
+            normalizer: <T>(value: T): T => String(value).toLowerCase() as T
         }
     ],
     [
@@ -1090,7 +1106,7 @@ testEach(
         't',
         {
             marker: '<a>{1} - {1}</a>',
-            normalizer: (value: unknown) => String(value).toLowerCase()
+            normalizer: <T>(value: T): T => String(value).toLowerCase() as T
         }
     ],
     [
@@ -1099,7 +1115,7 @@ testEach(
         'E',
         {
             marker: '<a>{1}</a>',
-            normalizer: identity as (value: unknown) => string
+            normalizer: identity as <T>(value: T) => T
         }
     ],
     [
@@ -1125,7 +1141,7 @@ testEach(
         ['ebikes', 'münchen'],
         {
             marker: '<a>{1}</a>',
-            normalizer: (value: unknown) => String(value).toLowerCase()
+            normalizer: <T>(value: T): T => String(value).toLowerCase() as T
         }
     ],
     [
@@ -1134,8 +1150,8 @@ testEach(
         ['ebikes', 'münchen'],
         {
             marker: '<a>{1}</a>',
-            normalizer: (value: unknown): string =>
-                String(value).toLowerCase().replace('-', '')
+            normalizer: <T>(value: T): T =>
+                String(value).toLowerCase().replace('-', '') as T
         }
     ],
     [
@@ -1144,11 +1160,11 @@ testEach(
         ['straße', '2'],
         {
             marker: '<a>{1}</a>',
-            normalizer: (value: unknown): string =>
+            normalizer: <T>(value: T): T =>
                 String(value)
                     .toLowerCase()
                     .replace('str.', 'strasse')
-                    .replace('ß', 'ss')
+                    .replace('ß', 'ss') as T
         }
     ],
     [
@@ -1157,13 +1173,13 @@ testEach(
         ['eBikes', 'München'],
         {
             marker: '<a>{1}</a>',
-            normalizer: (value: unknown): string =>
+            normalizer: <T>(value: T): T =>
                 String(value)
                     .toLowerCase()
                     .replace(/[-_]+/g, '')
                     .replace(/ß/g, 'ss')
                     .replace(/(^| )str\./g, '$1strasse')
-                    .replace(/[& ]+/g, ' ')
+                    .replace(/[& ]+/g, ' ') as T
         }
     ],
     [
@@ -1172,13 +1188,13 @@ testEach(
         ['str.'],
         {
             marker: '<a>{1}</a>',
-            normalizer: (value: unknown): string =>
+            normalizer: <T>(value: T): T =>
                 String(value)
                     .toLowerCase()
                     .replace(/[-_]+/g, '')
                     .replace(/ß/g, 'ss')
                     .replace(/(^| )str\./g, '$1strasse')
-                    .replace(/[& ]+/g, ' ')
+                    .replace(/[& ]+/g, ' ') as T
         }
     ],
     [
@@ -1187,7 +1203,7 @@ testEach(
         ['test'],
         {
             marker: '<mark>{1}</mark>',
-            normalizer: identity as (value: unknown) => string
+            normalizer: identity as <T>(value: T) => T
         }
     ],
     [
@@ -1196,7 +1212,7 @@ testEach(
         ['link'],
         {
             marker: '<mark>{1}</mark>',
-            normalizer: identity as (value: unknown) => string
+            normalizer: identity as <T>(value: T) => T
         }
     ],
     [
@@ -1205,7 +1221,7 @@ testEach(
         ['foo'],
         {
             marker: '<mark>{1}</mark>',
-            normalizer: identity as (value: unknown) => string
+            normalizer: identity as <T>(value: T) => T
         }
     ],
     [
@@ -1214,7 +1230,7 @@ testEach(
         ['foo'],
         {
             marker: '<mark>{1}</mark>',
-            normalizer: identity as (value: unknown) => string
+            normalizer: identity as <T>(value: T) => T
         }
     ],
     [
@@ -1223,7 +1239,7 @@ testEach(
         ['foo'],
         {
             marker: '[mark]{1}[/mark]',
-            normalizer: identity as (value: unknown) => string,
+            normalizer: identity as <T>(value: T) => T,
             skipTagDelimitedParts: ['[', ']']
         }
     ],
@@ -1233,7 +1249,7 @@ testEach(
         ['foo'],
         {
             marker: '<mark>{1}</mark>',
-            normalizer: identity as (value: unknown) => string
+            normalizer: identity as <T>(value: T) => T
         }
     ],
     [
@@ -1248,7 +1264,7 @@ testEach(
         ['foo'],
         {
             marker: (foundWord: string) => `<mark>${foundWord}</mark>`,
-            normalizer: identity as (value: unknown) => string
+            normalizer: identity as <T>(value: T) => T
         }
     ],
     [
@@ -1257,7 +1273,7 @@ testEach(
         ['foo'],
         {
             marker: (foundWord: string) => `<a>${foundWord}</a>`,
-            normalizer: identity as (value: unknown) => string
+            normalizer: identity as <T>(value: T) => T
         }
     ],
     [
@@ -1266,7 +1282,7 @@ testEach(
         ['a'],
         {
             marker: (foundWord: string) => `<a>${foundWord}</a>`,
-            normalizer: identity as (value: unknown) => string
+            normalizer: identity as <T>(value: T) => T
         }
     ],
     [
@@ -1275,7 +1291,7 @@ testEach(
         ['b'],
         {
             marker: (foundWord: string): {foundWord: string} => ({foundWord}),
-            normalizer: identity as (value: unknown) => string
+            normalizer: identity as <T>(value: T) => T
         }
     ],
     [
@@ -1284,7 +1300,7 @@ testEach(
         ['b'],
         {
             marker: (foundWord: string): {foundWord: string} => ({foundWord}),
-            normalizer: identity as (value: unknown) => string
+            normalizer: identity as <T>(value: T) => T
         }
     ]
 )

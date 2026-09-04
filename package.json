@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "4.0.1504",
+  "version": "4.0.1503",
   "description": "Handy utilities for any JavaScript environments.",
   "keywords": [
     "client",
@@ -93,7 +93,7 @@
     "clientnode": "workspace:.",
     "eslint": "^10.9.1",
     "eslint-config-google": "^0.14.0",
-    "eslint-plugin-jsdoc": "^64.3.4",
+    "eslint-plugin-jsdoc": "^64.3.5",
     "favicons-webpack-plugin": "^6.0.1",
     "image-minimizer-webpack-plugin": "^5.0.0",
     "jest": "30.5.1",
@@ -127,7 +127,7 @@
     "globals@npm:^11.1.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
     "globals@npm:^14.0.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
     "globals@npm:^9.18.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
-    "webpack": ">=5.109.2 <5.110.0"
+    "weboptimizer/clientnode": "4.0.1501"
   },
   "engines": {
     "node": ">=26",
