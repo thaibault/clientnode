@@ -96,7 +96,7 @@
     "eslint-plugin-jsdoc": "^64.3.5",
     "favicons-webpack-plugin": "^6.0.1",
     "image-minimizer-webpack-plugin": "^5.0.0",
-    "jest": "30.5.1",
+    "jest": "^30.5.1",
     "jsdoc": "^4.0.5",
     "node-fetch": "^3.3.2",
     "prop-types": "^15.8.1",
