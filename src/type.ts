@@ -175,7 +175,7 @@ export interface CheckReachabilityOptions {
     abortController: AbortController
     expectedIntermediateStatusCodes: Array<number> | number
     options: RequestInit
-    pollIntervallInSeconds: number
+    pollIntervalInSeconds: number
     statusCodes: Array<number> | number
     timeoutInSeconds: number
     wait: boolean
