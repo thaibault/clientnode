@@ -34,7 +34,7 @@ import {timeout} from './utility'
  * @param givenOptions.statusCodes - Status codes to check for.
  * @param givenOptions.timeoutInSeconds - Delay after assuming given resource
  * isn't available if no response is coming.
- * @param givenOptions.pollIntervallInSeconds - Seconds between two tries to
+ * @param givenOptions.pollIntervalInSeconds - Seconds between two tries to
  * reach given url.
  * @param givenOptions.options - Fetch options to use.
  * @param givenOptions.expectedIntermediateStatusCodes - A list of expected but
@@ -59,7 +59,7 @@ export const checkReachability = async (
         {
             expectedIntermediateStatusCodes: [],
             options: {signal: abortController.signal},
-            pollIntervallInSeconds: 0.1,
+            pollIntervalInSeconds: 0.1,
             statusCodes: 200,
             timeoutInSeconds: 10,
             wait: false
@@ -101,7 +101,7 @@ export const checkReachability = async (
             const retryErrorHandler = (error: Error): Error => {
                 if (!timedOut) {
                     currentlyRunningTimer = timeout(
-                        options.pollIntervallInSeconds * 1000, wrapper
+                        options.pollIntervalInSeconds * 1000, wrapper
                     )
                     /*
                         NOTE: A timer rejection is expected. Avoid throwing
@@ -172,7 +172,7 @@ export const checkReachability = async (
  * status code will be given.
  * @param givenOptions.timeoutInSeconds - Delay after assuming given resource
  * will stay available.
- * @param givenOptions.pollIntervallInSeconds - Seconds between two tries to
+ * @param givenOptions.pollIntervalInSeconds - Seconds between two tries to
  * reach given url.
  * @param givenOptions.statusCodes - Status codes to check for.
  * @param givenOptions.options - Fetch options to use.
@@ -194,7 +194,7 @@ export const checkUnreachability = async (
         true,
         {
             options: {signal: abortController.signal},
-            pollIntervallInSeconds: 0.1,
+            pollIntervalInSeconds: 0.1,
             statusCodes: [],
             timeoutInSeconds: 10,
             wait: false
@@ -249,7 +249,7 @@ export const checkUnreachability = async (
                     }
 
                     currentlyRunningTimer = timeout(
-                        options.pollIntervallInSeconds * 1000, wrapper
+                        options.pollIntervalInSeconds * 1000, wrapper
                     )
 
                     /*
