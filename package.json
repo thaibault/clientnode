@@ -204,7 +204,7 @@
           "javascript": {
             "importMeta": {
               "#": "NOTE: This allows as to access node's native \"import.meta.url\" runtime value for creating a require function with proper context.",
-              "url": true
+              "url": false
             }
           }
         }
