@@ -57,6 +57,7 @@ import {
     testEachResolvedPromise,
     testEachResolvedPromiseAgainstSameExpectation
 } from '../test-helper'
+import {BufferView} from "node:buffer";
 
 declare const TARGET_TECHNOLOGY: string
 
@@ -969,6 +970,11 @@ test('extend', () => {
     extend(true, target, {blob} as unknown as PlainObject)
     expect(target.blob).toStrictEqual(blob)
 })
+
+const bufferA = new Buffer(0)
+const bufferB = new Buffer(1)
+const arrayBufferA = new ArrayBuffer(1)
+const arrayBufferB = new ArrayBuffer(2)
 testEach(
     'extend',
     extend,
@@ -980,6 +986,8 @@ testEach(
     [{a: 2}, {}, {a: 1}, {a: 2}],
     [{a: 2}, {}, {a: 1}, {a: 2}],
     [{a: 2, b: {b: 1}}, {a: 1, b: {a: 1}}, {a: 2, b: {b: 1}}],
+    [{a: {b: bufferB}}, {a: {b: bufferA}}, {a: {b: bufferB}}],
+    [{a: {b: arrayBufferB}}, {a: {b: arrayBufferA}}, {a: {b: arrayBufferB}}],
     [[1], [1, 2], [1]],
     [new Map(), new Map()],
     [new Set(), new Set()],

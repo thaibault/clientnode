@@ -72,12 +72,12 @@
     "watch": "weboptimizer build --watch"
   },
   "devDependencies": {
-    "@babel/cli": "^8.0.4",
-    "@babel/eslint-parser": "^8.0.1",
+    "@babel/cli": "^8.0.5",
+    "@babel/eslint-parser": "^8.0.5",
     "@babel/plugin-transform-class-properties": "^8.0.1",
-    "@babel/preset-env": "^8.0.2",
+    "@babel/preset-env": "^8.0.5",
     "@babel/preset-typescript": "^8.0.1",
-    "@babel/runtime": "^8.0.0",
+    "@babel/runtime": "^8.0.5",
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@types/ejs": "^3.1.5",
@@ -103,7 +103,7 @@
     "rimraf": "^6.1.3",
     "typescript-eslint": "^8.70.0",
     "web-documentation": "^1.0.52",
-    "weboptimizer": "^4.0.79",
+    "weboptimizer": "^4.0.81",
     "webpack-dev-server": "^6.0.0"
   },
   "peerDependencies": {
@@ -127,7 +127,7 @@
     "globals@npm:^11.1.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
     "globals@npm:^14.0.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
     "globals@npm:^9.18.0": "patch:globals@npm%3A11.12.0#~/.yarn/patches/globals-npm-11.12.0-1fa7f41a6c.patch",
-    "weboptimizer/clientnode": "4.0.1512",
+    "weboptimizer/clientnode": "4.0.1514",
     "webpack": "5.109.2"
   },
   "engines": {
