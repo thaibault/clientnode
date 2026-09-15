@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: process.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: process.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>if(typeof window==='undefined'||window===null)var window=(typeof globalThis==='undefined'||globalThis===null)?{}:globalThis;/******/ var __webpack_modules__ = ({
+
+/***/ 5
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+/* unused harmony exports globalContext, setGlobalContext, MAXIMAL_NUMBER_OF_ITERATIONS, mockConsole */
+/* unused harmony import specifier */ var CONSOLE_METHODS;
+/* harmony import */ var _module_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module context *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/let globalContext=(0,_module_js__WEBPACK_IMPORTED_MODULE_0__.determineGlobalContext)();const setGlobalContext=context=>{globalContext=context};globalContext.fetch=globalContext.fetch?globalContext.fetch.bind(globalContext):(0,_module_js__WEBPACK_IMPORTED_MODULE_0__.optionalRequire)("node-fetch")?.default??((...parameters)=>(0,_module_js__WEBPACK_IMPORTED_MODULE_0__.optionalImport)(/* webpackIgnore: true */"node-fetch").then(module=>module.default(...parameters)));const MAXIMAL_NUMBER_OF_ITERATIONS=(/* unused pure expression or super */ null &amp;&amp; ({value:100}));// A no-op dummy function.
+const NOOP=()=>{// Do nothing.
+};const mockConsole=()=>{// Avoid errors in browsers that lack a console.
+if(!Object.prototype.hasOwnProperty.call(globalContext,"console"))globalContext.console={};if(!globalContext.console)globalContext.console={};for(const methodName of CONSOLE_METHODS)if(!(methodName in globalContext.console))globalContext.console[methodName]=NOOP};
+/* harmony export */ __webpack_require__.d(__webpack_exports__, [
+/* harmony export */   "NOOP", 0, /* binding */ NOOP
+/* harmony export */ ]);
+
+
+/***/ },
+
+/***/ 2
+(module, __webpack_exports__, __webpack_require__) {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   determineGlobalContext: () => (/* binding */ determineGlobalContext),
+/* harmony export */   optionalImport: () => (/* binding */ optionalImport),
+/* harmony export */   optionalRequire: () => (/* binding */ optionalRequire)
+/* harmony export */ });
+/* unused harmony exports isImportSyntaxSupported, currentRequire, setOptionalRequire, getCurrentRequire, clearRequireCache, isolatedRequire */
+/* module decorator */ module = __webpack_require__.hmd(module);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module module *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/const determineGlobalContext=()=>{if(typeof globalThis==="undefined"){if(typeof window==="undefined"){if(typeof __webpack_require__.g==="undefined")return  false?0:module;if(Object.prototype.hasOwnProperty.call(__webpack_require__.g,"window"))return __webpack_require__.g.window;return __webpack_require__.g}return window}return globalThis};const globalContext=determineGlobalContext();const isImportSyntaxSupported=()=>{try{// eslint-disable-next-line @typescript-eslint/no-implied-eval
+new Function("import(\"data:text/javascript,\")");return true}catch{return false}};let currentRequire=typeof globalContext.require==="undefined"?null:globalContext.require;let optionalRequire;const setOptionalRequire=localCurrentRequire=>{optionalRequire=id=>{try{return localCurrentRequire?localCurrentRequire(id):null}catch{return null}}};setOptionalRequire(currentRequire);// Make preprocessed require function available at runtime.
+const getCurrentRequire=async()=>{if(currentRequire)return currentRequire;try{const{createRequire}=/*
+                eslint-disable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */await new Function("return import(\"node:module\")")();/*
+            eslint-enable
+            @typescript-eslint/no-implied-eval,
+            @typescript-eslint/no-unsafe-call
+        */// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+currentRequire=createRequire(import.meta.url);setOptionalRequire(currentRequire);return currentRequire}catch(error){console.error(error);return null}};const clearRequireCache=(cache=currentRequire?.cache||__webpack_require__.c)=>{const backup={};for(const[key,module]of Object.entries(cache)){backup[key]=module;delete cache[key]}return backup};const restoreRequireCache=(cache=currentRequire?.cache||__webpack_require__.c,backup)=>{clearRequireCache();for(const[key,module]of Object.entries(backup))cache[key]=module};const isolatedRequire=(path,requireFunction=currentRequire||__webpack_require__(6))=>{const backup=clearRequireCache(requireFunction.cache);try{return requireFunction(path);// eslint-disable-next-line no-useless-catch
+}catch(error){throw error}finally{restoreRequireCache(requireFunction.cache,backup)}};const optionalImport=async(id,options={})=>{try{return isImportSyntaxSupported()?/*
+                eslint-disable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */await new Function("options",`return import('${id}', options)`)(options):await Promise.resolve(null);/*
+                eslint-enable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */}catch/* (error)*/{// NOTE: Use for debugging only:
+// console.error('OptionalImport failed for', id, error)
+return await Promise.resolve(null)}};
+
+/***/ },
+
+/***/ 26
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _context_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module process *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*//**
+ * Generates a one shot close handler which triggers given promise methods.
+ * If a reason is provided it will be given as resolve target. An Error will be
+ * generated if return code is not zero. The generated Error has a property
+ * "returnCode" which provides corresponding process return code.
+ * @param resolve - Promise's resolve function.
+ * @param reject - Promise's reject function.
+ * @param reason - Promise target if process has a zero return code.
+ * @param callback - Optional function to call of process has successfully
+ * finished.
+ * @returns Process close handler function.
+ */const getProcessCloseHandler=(resolve,reject,reason=null,callback=_context_js__WEBPACK_IMPORTED_MODULE_0__.NOOP)=>{let finished=false;return(returnCode,...parameters)=>{if(finished)finished=true;else{finished=true;if(typeof returnCode!=="number"||returnCode===0){callback();resolve({reason,parameters})}else{const error=new Error(`Task exited with error code ${String(returnCode)}`);error.returnCode=returnCode;error.parameters=parameters;reject(error)}}}};/**
+ * Forwards given child process communication channels to corresponding current
+ * process communication channels.
+ * @param childProcess - Child process meta data.
+ * @returns Given child process meta data.
+ */const handleChildProcess=childProcess=>{if(childProcess.stdout)childProcess.stdout.pipe(process.stdout);if(childProcess.stderr)childProcess.stderr.pipe(process.stderr);childProcess.on("close",returnCode=>{if(returnCode!==0)console.error(`Task exited with error code ${String(returnCode)}`)});return childProcess};
+/* harmony export */ __webpack_require__.d(__webpack_exports__, [
+/* harmony export */   "getProcessCloseHandler", 0, /* binding */ getProcessCloseHandler,
+/* harmony export */   "handleChildProcess", 0, /* binding */ handleChildProcess
+/* harmony export */ ]);
+
+
+/***/ },
+
+/***/ 6
+(module) {
+
+function webpackEmptyContext(req) {
+	const e = new Error("Cannot find module '" + req + "'");
+	e.code = 'MODULE_NOT_FOUND';
+	throw e;
+}
+webpackEmptyContext.keys = () => ([]);
+webpackEmptyContext.resolve = webpackEmptyContext;
+webpackEmptyContext.id = 6;
+module.exports = webpackEmptyContext;
+
+/***/ }
+
+/******/ });
+/************************************************************************/
+/******/ // The module cache
+/******/ const __webpack_module_cache__ = {};
+/******/ 
+/******/ // The require function
+/******/ function __webpack_require__(moduleId) {
+/******/ 	// Check if module is in cache
+/******/ 	const cachedModule = __webpack_module_cache__[moduleId];
+/******/ 	if (cachedModule !== undefined) {
+/******/ 		return cachedModule.exports;
+/******/ 	}
+/******/ 	// Create a new module (and put it into the cache)
+/******/ 	const module = __webpack_module_cache__[moduleId] = {
+/******/ 		id: moduleId,
+/******/ 		loaded: false,
+/******/ 		exports: {}
+/******/ 	};
+/******/ 
+/******/ 	// Execute the module function
+/******/ 	__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 
+/******/ 	// Flag the module as loaded
+/******/ 	module.loaded = true;
+/******/ 
+/******/ 	// Return the exports of the module
+/******/ 	return module.exports;
+/******/ }
+/******/ 
+/******/ // expose the module cache
+/******/ __webpack_require__.c = __webpack_module_cache__;
+/******/ 
+/************************************************************************/
+/******/ /* webpack/runtime/define property getters */
+/******/ (() => {
+/******/ 	// define getter/value functions for harmony exports
+/******/ 	__webpack_require__.d = (exports, definition) => {
+/******/ 		if(Array.isArray(definition)) {
+/******/ 			var i = 0;
+/******/ 			while(i &lt; definition.length) {
+/******/ 				var key = definition[i++];
+/******/ 				var binding = definition[i++];
+/******/ 				if(!__webpack_require__.o(exports, key)) {
+/******/ 					if(binding === 0) {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, value: definition[i++] });
+/******/ 					} else {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, get: binding });
+/******/ 					}
+/******/ 				} else if(binding === 0) { i++; }
+/******/ 			}
+/******/ 		} else {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) &amp;&amp; !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		}
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/global */
+/******/ (() => {
+/******/ 	__webpack_require__.g = (function() {
+/******/ 		if (typeof globalThis === 'object') return globalThis;
+/******/ 		try {
+/******/ 			return this || new Function('return this')();
+/******/ 		} catch (e) {
+/******/ 			if (typeof window === 'object') return window;
+/******/ 		}
+/******/ 	})();
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/harmony module decorator */
+/******/ (() => {
+/******/ 	__webpack_require__.hmd = (module) => {
+/******/ 		module = Object.create(module);
+/******/ 		if (!module.children) module.children = [];
+/******/ 		Object.defineProperty(module, 'exports', {
+/******/ 			enumerable: true,
+/******/ 			set() {
+/******/ 				throw new Error('ES Modules may not assign module.exports or exports.*, Use ESM export syntax, instead: ' + module.id);
+/******/ 			}
+/******/ 		});
+/******/ 		return module;
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/hasOwnProperty shorthand */
+/******/ (() => {
+/******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/make namespace object */
+/******/ (() => {
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = (exports) => {
+/******/ 		if(Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/ })();
+/******/ 
+/************************************************************************/
+/******/ 
+/******/ // module cache are used so entry inlining is disabled
+/******/ // startup
+/******/ // Load entry module and return exports
+/******/ let __webpack_exports__ = __webpack_require__(26);
+/******/ (((((((((((((((((((((((((((window.expressionEvaluators = window.expressionEvaluators || {}).expressionHelper = window.expressionEvaluators.expressionHelper || {}).expressionIndex = window.expressionEvaluators.expressionHelper.expressionIndex || {}).expressionIndicatorFunctions = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions || {}).Lock = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock || {}).Logger = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger || {}).Semaphore = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore || {}).array = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array || {}).cli = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli || {}).constants = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants || {}).context = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context || {}).cookie = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie || {}).dataTransfer = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer || {}).datetime = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime || {}).domNode = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode || {}).filesystem = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem || {})["function"] = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"] || {}).index = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index || {}).indicators = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators || {}).module = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module || {}).number = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number || {}).object = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object || {}).process = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process || {}).propertyTypes = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes || {}).scope = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope || {}).string = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope.string || {}).testHelper = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope.string.testHelper || {}).utility = __webpack_exports__;
+/******/ 
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Lock.html">Lock</a></li><li><a href="module-Logger.html">Logger</a></li><li><a href="module-Semaphore.html">Semaphore</a></li><li><a href="module-array.html">array</a></li><li><a href="module-cli.html">cli</a></li><li><a href="module-constants.html">constants</a></li><li><a href="module-context.html">context</a></li><li><a href="module-cookie.html">cookie</a></li><li><a href="module-data-transfer.html">data-transfer</a></li><li><a href="module-dateTime.html">dateTime</a></li><li><a href="module-domNode.html">domNode</a></li><li><a href="module-filesystem.html">filesystem</a></li><li><a href="module-function.html">function</a></li><li><a href="module-indicators.html">indicators</a></li><li><a href="module-module.html">module</a></li><li><a href="module-number.html">number</a></li><li><a href="module-object.html">object</a></li><li><a href="module-process.html">process</a></li><li><a href="module-propertTypes.html">propertTypes</a></li><li><a href="module-scope.html">scope</a></li><li><a href="module-string.html">string</a></li><li><a href="module-testHelper.html">testHelper</a></li><li><a href="module-utility.html">utility</a></li></ul><h3>Classes</h3><ul><li><a href="module-Lock-Lock.html">Lock</a></li><li><a href="module-Logger-Logger.html">Logger</a></li><li><a href="module-Semaphore-Semaphore.html">Semaphore</a></li><li><a href="module-propertTypes-ValidationError.html">ValidationError</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Sep 15 2026 15:08:40 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

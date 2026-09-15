@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: utility.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: utility.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>if(typeof window==='undefined'||window===null)var window=(typeof globalThis==='undefined'||globalThis===null)?{}:globalThis;/******/ var __webpack_modules__ = ([
+/* 0 */
+/***/ ((module) => {
+
+module.exports = window["coreJsModulesEsArrayIncludesJs"];
+
+/***/ }),
+/* 1 */,
+/* 2 */
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   determineGlobalContext: () => (/* binding */ determineGlobalContext),
+/* harmony export */   optionalImport: () => (/* binding */ optionalImport),
+/* harmony export */   optionalRequire: () => (/* binding */ optionalRequire)
+/* harmony export */ });
+/* unused harmony exports isImportSyntaxSupported, currentRequire, setOptionalRequire, getCurrentRequire, clearRequireCache, isolatedRequire */
+/* module decorator */ module = __webpack_require__.hmd(module);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module module *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/const determineGlobalContext=()=>{if(typeof globalThis==="undefined"){if(typeof window==="undefined"){if(typeof __webpack_require__.g==="undefined")return  false?0:module;if(Object.prototype.hasOwnProperty.call(__webpack_require__.g,"window"))return __webpack_require__.g.window;return __webpack_require__.g}return window}return globalThis};const globalContext=determineGlobalContext();const isImportSyntaxSupported=()=>{try{// eslint-disable-next-line @typescript-eslint/no-implied-eval
+new Function("import(\"data:text/javascript,\")");return true}catch{return false}};let currentRequire=typeof globalContext.require==="undefined"?null:globalContext.require;let optionalRequire;const setOptionalRequire=localCurrentRequire=>{optionalRequire=id=>{try{return localCurrentRequire?localCurrentRequire(id):null}catch{return null}}};setOptionalRequire(currentRequire);// Make preprocessed require function available at runtime.
+const getCurrentRequire=async()=>{if(currentRequire)return currentRequire;try{const{createRequire}=/*
+                eslint-disable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */await new Function("return import(\"node:module\")")();/*
+            eslint-enable
+            @typescript-eslint/no-implied-eval,
+            @typescript-eslint/no-unsafe-call
+        */// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+currentRequire=createRequire(import.meta.url);setOptionalRequire(currentRequire);return currentRequire}catch(error){console.error(error);return null}};const clearRequireCache=(cache=currentRequire?.cache||__webpack_require__.c)=>{const backup={};for(const[key,module]of Object.entries(cache)){backup[key]=module;delete cache[key]}return backup};const restoreRequireCache=(cache=currentRequire?.cache||__webpack_require__.c,backup)=>{clearRequireCache();for(const[key,module]of Object.entries(backup))cache[key]=module};const isolatedRequire=(path,requireFunction=currentRequire||__webpack_require__(6))=>{const backup=clearRequireCache(requireFunction.cache);try{return requireFunction(path);// eslint-disable-next-line no-useless-catch
+}catch(error){throw error}finally{restoreRequireCache(requireFunction.cache,backup)}};const optionalImport=async(id,options={})=>{try{return isImportSyntaxSupported()?/*
+                eslint-disable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */await new Function("options",`return import('${id}', options)`)(options):await Promise.resolve(null);/*
+                eslint-enable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */}catch/* (error)*/{// NOTE: Use for debugging only:
+// console.error('OptionalImport failed for', id, error)
+return await Promise.resolve(null)}};
+
+/***/ }),
+/* 3 */,
+/* 4 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   isFunction: () => (/* binding */ isFunction)
+/* harmony export */ });
+/* unused harmony exports isNumeric, isWindow, isArrayLike, isAnyMatching, isObject, isPlainObject, isSet, isMap, isProxy */
+/* unused harmony import specifier */ var PLAIN_OBJECT_PROTOTYPES;
+/* unused harmony import specifier */ var determineType;
+/* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0__);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module indicators *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*//**
+ * Determines whether its argument represents a JavaScript number.
+ * @param value - Value to analyze.
+ * @returns A boolean value indicating whether given object is numeric
+ * like.
+ */const isNumeric=value=>{const type=determineType(value);/*
+        NOTE: "parseFloat" "NaNs" numeric-cast false positives ("") but
+        misinterprets leading-number strings, particularly hex literals
+        ("0x...") subtraction forces infinities to NaN.
+    */return["number","string"].includes(type)&amp;&amp;!isNaN(value-parseFloat(value))};/**
+ * Determine whether the argument is a window.
+ * @param value - Value to check for.
+ * @returns Boolean value indicating the result.
+ */const isWindow=value=>![null,undefined].includes(value)&amp;&amp;typeof value==="object"&amp;&amp;value===value?.window;/**
+ * Checks if given object is similar to an array and can be handled like an
+ * array.
+ * @param object - Object to check behavior for.
+ * @returns A boolean value indicating whether given object is array like.
+ */const isArrayLike=object=>{let length;try{length=Boolean(object)&amp;&amp;object.length}catch{return false}const type=determineType(object);if(type==="function"||isWindow(object))return false;if(type==="array"||length===0)return true;if(typeof length==="number"&amp;&amp;length>0)try{const _dump=object[length-1];return true}catch{// Continue regardless of an error.
+}return false};/**
+ * Checks whether one of the given pattern matches given string.
+ * @param target - Target to check in pattern for.
+ * @param pattern - List of pattern to check for.
+ * @returns Value "true" if given object is matches by at leas one of the
+ * given pattern and "false" otherwise.
+ */const isAnyMatching=(target,pattern)=>{for(const currentPattern of pattern)if(typeof currentPattern==="string"){if(currentPattern===target)return true}else if(currentPattern.test(target))return true;return false};/**
+ * Checks whether given object is a native object but not null.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a plain javaScript object and
+ * "false" otherwise.
+ */const isObject=value=>value!==null&amp;&amp;typeof value==="object";/**
+ * Checks whether given object is a plain native object.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a plain javaScript object and
+ * "false" otherwise.
+ */const isPlainObject=value=>{if(!isObject(value))return false;const prototype=Object.getPrototypeOf(value);if(PLAIN_OBJECT_PROTOTYPES.includes(prototype))return true;/*
+        NOTE: Plain objects created in another realm (a vm context like used by
+        test runners or a worker for example) have their own "Object.prototype"
+        instance and would not be recognized by the identity check above.
+    */return prototype!==null&amp;&amp;Object.getPrototypeOf(prototype)===null&amp;&amp;prototype.constructor?.name==="Object"};/**
+ * Checks whether given object is a set.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a set and "false" otherwise.
+ */const isSet=value=>determineType(value)==="set";/**
+ * Checks whether given object is a map.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a map and "false" otherwise.
+ */const isMap=value=>determineType(value)==="map";/**
+ * Checks whether given object is a proxy.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a proxy and "false" otherwise.
+ */const isProxy=value=>Boolean(value.__target__);/**
+ * Checks whether given object is a function.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a function and "false"
+ * otherwise.
+ */const isFunction=value=>Boolean(value)&amp;&amp;["[object AsyncFunction]","[object Function]"].includes({}.toString.call(value));
+
+/***/ }),
+/* 5 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* unused harmony exports globalContext, setGlobalContext, MAXIMAL_NUMBER_OF_ITERATIONS, mockConsole */
+/* unused harmony import specifier */ var CONSOLE_METHODS;
+/* harmony import */ var _module_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module context *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/let globalContext=(0,_module_js__WEBPACK_IMPORTED_MODULE_0__.determineGlobalContext)();const setGlobalContext=context=>{globalContext=context};globalContext.fetch=globalContext.fetch?globalContext.fetch.bind(globalContext):(0,_module_js__WEBPACK_IMPORTED_MODULE_0__.optionalRequire)("node-fetch")?.default??((...parameters)=>(0,_module_js__WEBPACK_IMPORTED_MODULE_0__.optionalImport)(/* webpackIgnore: true */"node-fetch").then(module=>module.default(...parameters)));const MAXIMAL_NUMBER_OF_ITERATIONS=(/* unused pure expression or super */ null &amp;&amp; ({value:100}));// A no-op dummy function.
+const NOOP=()=>{// Do nothing.
+};const mockConsole=()=>{// Avoid errors in browsers that lack a console.
+if(!Object.prototype.hasOwnProperty.call(globalContext,"console"))globalContext.console={};if(!globalContext.console)globalContext.console={};for(const methodName of CONSOLE_METHODS)if(!(methodName in globalContext.console))globalContext.console[methodName]=NOOP};
+/* harmony export */ __webpack_require__.d(__webpack_exports__, [
+/* harmony export */   "NOOP", 0, /* binding */ NOOP
+/* harmony export */ ]);
+
+
+/***/ }),
+/* 6 */
+/***/ ((module) => {
+
+function webpackEmptyContext(req) {
+	const e = new Error("Cannot find module '" + req + "'");
+	e.code = 'MODULE_NOT_FOUND';
+	throw e;
+}
+webpackEmptyContext.keys = () => ([]);
+webpackEmptyContext.resolve = webpackEmptyContext;
+webpackEmptyContext.id = 6;
+module.exports = webpackEmptyContext;
+
+/***/ }),
+/* 7 */,
+/* 8 */,
+/* 9 */,
+/* 10 */,
+/* 11 */,
+/* 12 */,
+/* 13 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _context_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var _indicators_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module utility *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*//**
+ * Prevents event functions from triggering too often by defining a minimal
+ * span between each function call. Additional arguments given to this function
+ * will be forwarded to the given event function call.
+ * @param callback - The function to call debounced.
+ * @param thresholdInMilliseconds - The minimum time span between each
+ * function call.
+ * @param additionalArguments - Additional arguments to forward to given
+ * function.
+ * @returns Returns the wrapped method.
+ */const trailingThrottle=(callback,thresholdInMilliseconds=600,...additionalArguments)=>{let timeoutID=null;let recentParameters=[];return(...parameters)=>{recentParameters=parameters;if(timeoutID)return;timeoutID=setTimeout(()=>{callback(...recentParameters,...additionalArguments);// Reset for next cycle.
+timeoutID=null;recentParameters=[]},thresholdInMilliseconds)}};/**
+ * Prevents event functions from triggering too close after each trigger by
+ * defining a minimal span between each function call. Additional arguments
+ * given to this function will be forwarded to the given event function call.
+ * @param callback - The function to call debounced.
+ * @param thresholdInMilliseconds - The minimum time span between each
+ * function call.
+ * @param additionalArguments - Additional arguments to forward to given
+ * function.
+ * @returns Returns the wrapped method.
+ */const debounce=(callback,thresholdInMilliseconds=600,...additionalArguments)=>{let timeoutPromise;let nextResultPromiseResolver;let nextResultPromise=new Promise(resolve=>{nextResultPromiseResolver=resolve});return(...parameters)=>{parameters=parameters.concat(additionalArguments);timeoutPromise?.clear();timeoutPromise=timeout(()=>{nextResultPromiseResolver(callback(...parameters));nextResultPromise=new Promise(resolve=>{nextResultPromiseResolver=resolve})},thresholdInMilliseconds);return nextResultPromise}};/**
+ * Triggers given callback after given duration. Supports unlimited
+ * duration length and returns a promise which will be resolved after given
+ * duration has been passed.
+ * @param parameters - Observes the first three existing parameters. If one
+ * is a number it will be interpreted as delay in milliseconds until given
+ * callback will be triggered. If one is of type function it will be used
+ * as callback and if one is of type boolean it will indicate if returning
+ * promise should be rejected or resolved if given internally created
+ * timeout should be canceled. Additional parameters will be forwarded to
+ * given callback.
+ * @returns A promise resolving after given delay or being rejected if
+ * value "true" is within one of the first three parameters. The promise
+ * holds a boolean indicating whether timeout has been canceled or
+ * resolved.
+ */const timeout=(...parameters)=>{let callback=_context_js__WEBPACK_IMPORTED_MODULE_0__.NOOP;let delayInMilliseconds=0;let throwOnTimeoutClear=false;for(const value of parameters)if(typeof value==="number"&amp;&amp;!isNaN(value))delayInMilliseconds=value;else if(typeof value==="boolean")throwOnTimeoutClear=value;else if((0,_indicators_js__WEBPACK_IMPORTED_MODULE_1__.isFunction)(value))callback=value;let rejectCallback;let resolveCallback;const result=new Promise((resolve,reject)=>{rejectCallback=reject;resolveCallback=resolve});const wrappedCallback=()=>{callback.call(result,...parameters);resolveCallback(false)};const maximumTimeoutDelayInMilliseconds=2147483647;if(delayInMilliseconds&lt;=maximumTimeoutDelayInMilliseconds)result.timeoutID=setTimeout(wrappedCallback,delayInMilliseconds);else{/*
+            Determine the number of times we need to delay by maximum
+            possible timeout duration.
+        */let numberOfRemainingTimeouts=Math.floor(delayInMilliseconds/maximumTimeoutDelayInMilliseconds);const finalTimeoutDuration=delayInMilliseconds%maximumTimeoutDelayInMilliseconds;const delay=()=>{if(numberOfRemainingTimeouts>0){numberOfRemainingTimeouts-=1;result.timeoutID=setTimeout(delay,maximumTimeoutDelayInMilliseconds)}else result.timeoutID=setTimeout(wrappedCallback,finalTimeoutDuration)};delay()}result.clear=()=>{if(Object.prototype.hasOwnProperty.call(result,"timeoutID")){clearTimeout(result.timeoutID);(throwOnTimeoutClear?rejectCallback:resolveCallback)(true)}};return result};const preventDefault=event=>{event.preventDefault()};const stopPropagation=event=>{event.stopPropagation()};
+/* harmony export */ __webpack_require__.d(__webpack_exports__, [
+/* harmony export */   "debounce", 0, /* binding */ debounce,
+/* harmony export */   "preventDefault", 0, /* binding */ preventDefault,
+/* harmony export */   "stopPropagation", 0, /* binding */ stopPropagation,
+/* harmony export */   "timeout", 0, /* binding */ timeout,
+/* harmony export */   "trailingThrottle", 0, /* binding */ trailingThrottle
+/* harmony export */ ]);
+
+
+/***/ })
+/******/ ]);
+/************************************************************************/
+/******/ // The module cache
+/******/ const __webpack_module_cache__ = {};
+/******/ 
+/******/ // The require function
+/******/ function __webpack_require__(moduleId) {
+/******/ 	// Check if module is in cache
+/******/ 	const cachedModule = __webpack_module_cache__[moduleId];
+/******/ 	if (cachedModule !== undefined) {
+/******/ 		return cachedModule.exports;
+/******/ 	}
+/******/ 	// Create a new module (and put it into the cache)
+/******/ 	const module = __webpack_module_cache__[moduleId] = {
+/******/ 		id: moduleId,
+/******/ 		loaded: false,
+/******/ 		exports: {}
+/******/ 	};
+/******/ 
+/******/ 	// Execute the module function
+/******/ 	__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 
+/******/ 	// Flag the module as loaded
+/******/ 	module.loaded = true;
+/******/ 
+/******/ 	// Return the exports of the module
+/******/ 	return module.exports;
+/******/ }
+/******/ 
+/******/ // expose the module cache
+/******/ __webpack_require__.c = __webpack_module_cache__;
+/******/ 
+/************************************************************************/
+/******/ /* webpack/runtime/compat get default export */
+/******/ (() => {
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = (module) => {
+/******/ 		const getter = module &amp;&amp; module.__esModule ?
+/******/ 			() => (module['default']) :
+/******/ 			() => (module);
+/******/ 		__webpack_require__.d(getter, { a: getter });
+/******/ 		return getter;
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/define property getters */
+/******/ (() => {
+/******/ 	// define getter/value functions for harmony exports
+/******/ 	__webpack_require__.d = (exports, definition) => {
+/******/ 		if(Array.isArray(definition)) {
+/******/ 			var i = 0;
+/******/ 			while(i &lt; definition.length) {
+/******/ 				var key = definition[i++];
+/******/ 				var binding = definition[i++];
+/******/ 				if(!__webpack_require__.o(exports, key)) {
+/******/ 					if(binding === 0) {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, value: definition[i++] });
+/******/ 					} else {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, get: binding });
+/******/ 					}
+/******/ 				} else if(binding === 0) { i++; }
+/******/ 			}
+/******/ 		} else {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) &amp;&amp; !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		}
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/global */
+/******/ (() => {
+/******/ 	__webpack_require__.g = (function() {
+/******/ 		if (typeof globalThis === 'object') return globalThis;
+/******/ 		try {
+/******/ 			return this || new Function('return this')();
+/******/ 		} catch (e) {
+/******/ 			if (typeof window === 'object') return window;
+/******/ 		}
+/******/ 	})();
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/harmony module decorator */
+/******/ (() => {
+/******/ 	__webpack_require__.hmd = (module) => {
+/******/ 		module = Object.create(module);
+/******/ 		if (!module.children) module.children = [];
+/******/ 		Object.defineProperty(module, 'exports', {
+/******/ 			enumerable: true,
+/******/ 			set() {
+/******/ 				throw new Error('ES Modules may not assign module.exports or exports.*, Use ESM export syntax, instead: ' + module.id);
+/******/ 			}
+/******/ 		});
+/******/ 		return module;
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/hasOwnProperty shorthand */
+/******/ (() => {
+/******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/make namespace object */
+/******/ (() => {
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = (exports) => {
+/******/ 		if(Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/ })();
+/******/ 
+/************************************************************************/
+/******/ 
+/******/ // module cache are used so entry inlining is disabled
+/******/ // startup
+/******/ // Load entry module and return exports
+/******/ let __webpack_exports__ = __webpack_require__(13);
+/******/ (((((((((((((((((((((((((((window.expressionEvaluators = window.expressionEvaluators || {}).expressionHelper = window.expressionEvaluators.expressionHelper || {}).expressionIndex = window.expressionEvaluators.expressionHelper.expressionIndex || {}).expressionIndicatorFunctions = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions || {}).Lock = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock || {}).Logger = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger || {}).Semaphore = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore || {}).array = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array || {}).cli = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli || {}).constants = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants || {}).context = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context || {}).cookie = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie || {}).dataTransfer = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer || {}).datetime = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime || {}).domNode = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode || {}).filesystem = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem || {})["function"] = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"] || {}).index = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index || {}).indicators = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators || {}).module = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module || {}).number = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number || {}).object = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object || {}).process = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process || {}).propertyTypes = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes || {}).scope = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope || {}).string = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope.string || {}).testHelper = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope.string.testHelper || {}).utility = __webpack_exports__;
+/******/ 
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Lock.html">Lock</a></li><li><a href="module-Logger.html">Logger</a></li><li><a href="module-Semaphore.html">Semaphore</a></li><li><a href="module-array.html">array</a></li><li><a href="module-cli.html">cli</a></li><li><a href="module-constants.html">constants</a></li><li><a href="module-context.html">context</a></li><li><a href="module-cookie.html">cookie</a></li><li><a href="module-data-transfer.html">data-transfer</a></li><li><a href="module-dateTime.html">dateTime</a></li><li><a href="module-domNode.html">domNode</a></li><li><a href="module-filesystem.html">filesystem</a></li><li><a href="module-function.html">function</a></li><li><a href="module-indicators.html">indicators</a></li><li><a href="module-module.html">module</a></li><li><a href="module-number.html">number</a></li><li><a href="module-object.html">object</a></li><li><a href="module-process.html">process</a></li><li><a href="module-propertTypes.html">propertTypes</a></li><li><a href="module-scope.html">scope</a></li><li><a href="module-string.html">string</a></li><li><a href="module-testHelper.html">testHelper</a></li><li><a href="module-utility.html">utility</a></li></ul><h3>Classes</h3><ul><li><a href="module-Lock-Lock.html">Lock</a></li><li><a href="module-Logger-Logger.html">Logger</a></li><li><a href="module-Semaphore-Semaphore.html">Semaphore</a></li><li><a href="module-propertTypes-ValidationError.html">ValidationError</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Sep 15 2026 15:08:40 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

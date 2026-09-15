@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: domNode.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: domNode.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>if(typeof window==='undefined'||window===null)var window=(typeof globalThis==='undefined'||globalThis===null)?{}:globalThis;/******/ var __webpack_modules__ = ({
+
+/***/ 5
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   globalContext: () => (/* binding */ globalContext)
+/* harmony export */ });
+/* unused harmony exports setGlobalContext, MAXIMAL_NUMBER_OF_ITERATIONS, mockConsole */
+/* unused harmony import specifier */ var CONSOLE_METHODS;
+/* harmony import */ var _module_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module context *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/let globalContext=(0,_module_js__WEBPACK_IMPORTED_MODULE_0__.determineGlobalContext)();const setGlobalContext=context=>{globalContext=context};globalContext.fetch=globalContext.fetch?globalContext.fetch.bind(globalContext):(0,_module_js__WEBPACK_IMPORTED_MODULE_0__.optionalRequire)("node-fetch")?.default??((...parameters)=>(0,_module_js__WEBPACK_IMPORTED_MODULE_0__.optionalImport)(/* webpackIgnore: true */"node-fetch").then(module=>module.default(...parameters)));const MAXIMAL_NUMBER_OF_ITERATIONS=(/* unused pure expression or super */ null &amp;&amp; ({value:100}));// A no-op dummy function.
+const NOOP=()=>{// Do nothing.
+};const mockConsole=()=>{// Avoid errors in browsers that lack a console.
+if(!Object.prototype.hasOwnProperty.call(globalContext,"console"))globalContext.console={};if(!globalContext.console)globalContext.console={};for(const methodName of CONSOLE_METHODS)if(!(methodName in globalContext.console))globalContext.console[methodName]=NOOP};
+/* harmony export */ __webpack_require__.d(__webpack_exports__, [
+/* harmony export */   "NOOP", 0, /* binding */ NOOP
+/* harmony export */ ]);
+
+
+/***/ },
+
+/***/ 25
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _context_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
+/* harmony import */ var _utility_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module domNode *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/const createDomNodes=html=>{const domNodeWrapper=document.createElement("div");domNodeWrapper.innerHTML=html;if(domNodeWrapper.childNodes.length===1)/*
+            NOTE: We need to clone the nested child to decouple it from its
+            parent node.
+        */return domNodeWrapper.childNodes[0].cloneNode(true);return domNodeWrapper};const fade=(domNode,intervalInMilliseconds=200,out=true)=>{const transitionBackup=domNode.style.transition;const visibleBackup=domNode.style.visibility;const opacityBackup=domNode.style.opacity;const hadStyleAttribute=domNode.hasAttribute("style");if(out){domNode.style.visibility="hidden";domNode.style.opacity="0";domNode.style.transition=`visibility 0s ${String(intervalInMilliseconds)}ms, `+`opacity ${String(intervalInMilliseconds)}ms linear`}else{domNode.style.visibility="visible";domNode.style.opacity="1";domNode.style.transition=`opacity ${String(intervalInMilliseconds)}ms linear`}let clearTimeoutAndResetDomNode=_context_js__WEBPACK_IMPORTED_MODULE_1__.NOOP;let resolved=false;const promise=new Promise(resolve=>{clearTimeoutAndResetDomNode=()=>{domNode.style.transition=transitionBackup;resolved=true;resolve()};void (0,_utility_js__WEBPACK_IMPORTED_MODULE_2__.timeout)(intervalInMilliseconds).then(clearTimeoutAndResetDomNode)});promise.clear=()=>{if(!resolved){domNode.style.transition="none";clearTimeoutAndResetDomNode()}};promise.resetStyles=()=>{if(hadStyleAttribute){domNode.style.transition=transitionBackup;domNode.style.visibility=visibleBackup;domNode.style.opacity=opacityBackup}else domNode.removeAttribute("style")};return promise};const fadeIn=(domNode,intervalInMilliseconds=200)=>fade(domNode,intervalInMilliseconds,false);const fadeOut=(domNode,intervalInMilliseconds=200)=>fade(domNode,intervalInMilliseconds);const STOP_AUTO_SCROLLING={value:_context_js__WEBPACK_IMPORTED_MODULE_1__.NOOP};const MANUAL_SCROLL_EVENT_NAMES=["DOMMouseScroll","keydown","mousedown","mousewheel","wheel","touchstart","touchmove"];const SCROLL_EVENT_NAMES=["scroll"].concat(MANUAL_SCROLL_EVENT_NAMES);/**
+ * Smoothly scrolls both horizontally and vertically to a target DOM node.
+ * Cancels instantly if the user interacts with the mouse, touch, or keys.
+ * @param givenOptions - Configuration options.
+ * @param givenOptions.targetDomNode - The DOM node you want to scroll to.
+ * @param givenOptions.containerDomNode - The scrollable parent.
+ * @param givenOptions.durationInMilliseconds - Animation duration in
+ * milliseconds.
+ * @param givenOptions.interruptOnManualScroll - Whether to stop the animation
+ * if the user starts to scroll manually.
+ * @param givenOptions.offset - Pixel offsets.
+ * @param givenOptions.offset.top - Vertical offset in pixels.
+ * @param givenOptions.offset.left - Horizontal offset in pixels.
+ */const interruptableScrollTo=(givenOptions={})=>{if(!(_context_js__WEBPACK_IMPORTED_MODULE_1__.globalContext.document&amp;&amp;_context_js__WEBPACK_IMPORTED_MODULE_1__.globalContext.window))return;const document=_context_js__WEBPACK_IMPORTED_MODULE_1__.globalContext.document;const body=document.body;const window=_context_js__WEBPACK_IMPORTED_MODULE_1__.globalContext.window;if(givenOptions.containerDomNode&amp;&amp;!("getBoundingClientRect"in givenOptions.containerDomNode)&amp;&amp;"parentElement"in givenOptions.containerDomNode)givenOptions.containerDomNode=givenOptions.containerDomNode.parentElement;if(givenOptions.targetDomNode&amp;&amp;!("getBoundingClientRect"in givenOptions.targetDomNode)&amp;&amp;"parentElement"in givenOptions.targetDomNode)givenOptions.targetDomNode=givenOptions.targetDomNode.parentElement;const options={targetDomNode:body,containerDomNode:window,durationInMilliseconds:500,offset:{top:0,left:0,...(givenOptions.offset||{})},interruptOnManualScroll:true,...givenOptions};const isWindow=options.containerDomNode===window;// 1. Get current starting scroll positions
+const startY=isWindow?window.scrollY||document.documentElement.scrollTop:options.containerDomNode.scrollTop;const startX=isWindow?window.scrollX||document.documentElement.scrollLeft:options.containerDomNode.scrollLeft;// 2. Calculate targetDomNode positions for both axes
+let targetY;let targetX;if(isWindow){const rect=options.targetDomNode.getBoundingClientRect();targetY=rect.top+(window.scrollY||document.documentElement.scrollTop)-options.offset.top;targetX=rect.left+(window.scrollX||document.documentElement.scrollLeft)-options.offset.left}else{// Relative to the scrollable parent container
+targetY=options.targetDomNode.offsetTop-options.containerDomNode.offsetTop-options.offset.top;targetX=options.targetDomNode.offsetLeft-options.containerDomNode.offsetLeft-options.offset.left}const distanceY=targetY-startY;const distanceX=targetX-startX;// If no movement is needed, exit immediately
+if(distanceY===0&amp;&amp;distanceX===0)return;let startTime=null;let animationFrameId=null;// Easing function
+const easeInOutQuad=time=>time&lt;0.5?2*time*time:-1+(4-2*time)*time;if(options.interruptOnManualScroll){// 3. Define the interrupt / teardown system
+STOP_AUTO_SCROLLING.value=()=>{if(animationFrameId){cancelAnimationFrame(animationFrameId);animationFrameId=null}for(const node of[body,document.querySelector("html"),window])for(const name of MANUAL_SCROLL_EVENT_NAMES)node?.removeEventListener(name,STOP_AUTO_SCROLLING.value);STOP_AUTO_SCROLLING.value=_context_js__WEBPACK_IMPORTED_MODULE_1__.NOOP};for(const node of[body,document.querySelector("html"),window])for(const name of MANUAL_SCROLL_EVENT_NAMES)node?.addEventListener(name,STOP_AUTO_SCROLLING.value,{passive:true})}// 4. Multi-axis animation loop
+const step=currentTime=>{if(!startTime)startTime=currentTime;const progress=currentTime-startTime;const timeRatio=Math.min(progress/options.durationInMilliseconds,1);const easedRatio=easeInOutQuad(timeRatio);// Linearly interpolate the positions based on eased progress.
+const nextY=startY+distanceY*easedRatio;const nextX=startX+distanceX*easedRatio;// Apply scroll to window or container.
+if(isWindow)window.scrollTo(nextX,nextY);else{;options.containerDomNode.scrollTop=nextY;options.containerDomNode.scrollLeft=nextX}if(timeRatio&lt;1)animationFrameId=requestAnimationFrame(step);else STOP_AUTO_SCROLLING.value()};animationFrameId=requestAnimationFrame(step)};/**
+ * Scrolls to the given DomNode's location or tio of the page.
+ * @param targetDomNode - DomNode to scroll to. If not given, scrolls to the
+ * top of the page.
+ * @param behavior - Scroll behavior to use.
+ */const scrollTo=(targetDomNode=null,behavior="smooth")=>{if(targetDomNode&amp;&amp;!("getBoundingClientRect"in targetDomNode))targetDomNode=targetDomNode.parentElement;const{left,top}=targetDomNode?targetDomNode.getBoundingClientRect():{left:0,top:0};_context_js__WEBPACK_IMPORTED_MODULE_1__.globalContext.window?.scrollTo({left,top,behavior})};const getAll=root=>{if(!_context_js__WEBPACK_IMPORTED_MODULE_1__.globalContext.document)return[];const nodes=[];// SHOW_ALL includes elements, text, and comments
+const walker=_context_js__WEBPACK_IMPORTED_MODULE_1__.globalContext.document.createTreeWalker(root,NodeFilter.SHOW_ALL,null);let currentNode=walker.currentNode;while(currentNode){nodes.push(currentNode);currentNode=walker.nextNode()}return nodes};const closest=(node,selector,startWithParent=false)=>"closest"in node&amp;&amp;!startWithParent?node.closest(selector):node.parentElement?.closest(selector)||null;const getParents=node=>{const result=[];while(node.parentNode){result.push(node.parentNode);node=node.parentNode}return result};const getText=(root,recursive=false)=>{if(root.nodeType===Node.TEXT_NODE){const content=root.nodeValue?.trim();if(content)return[content]}const result=[];for(const domNode of root.childNodes)if(recursive||domNode.nodeType===Node.TEXT_NODE)result.push(...getText(domNode));return result};/**
+ * Checks whether given html or text strings are equal.
+ * @param first - First html, selector to dom node or text to compare.
+ * @param second - Second html, selector to dom node or text to compare.
+ * @param forceHTMLString - Indicates whether given contents are
+ * interpreted as html string (otherwise automatic detection will be
+ * triggered).
+ * @returns Returns true if both dom representations are equivalent.
+ */const isEquivalent=(first,second,forceHTMLString=false)=>{if(first===second)return true;if(!(first&amp;&amp;second))return false;if(!_context_js__WEBPACK_IMPORTED_MODULE_1__.globalContext.document)throw new Error("Missing document in global context.");const createElement=_context_js__WEBPACK_IMPORTED_MODULE_1__.globalContext.document.createElement.bind(_context_js__WEBPACK_IMPORTED_MODULE_1__.globalContext.document);const determineHTMLPattern=/^(?:\s*(&lt;[\w\W]+>)[^>]*|#([\w-]+))$/;const inputs={first,second};const domNodes={first:createElement("dummy"),second:createElement("dummy")};/*
+        NOTE: Assume that strings that start "&lt;" and end with ">" are mark up
+        and skip the more expensive regular expression check.
+    */for(const[type,html]of Object.entries(inputs))if(typeof html==="string"){if(forceHTMLString||html.startsWith("&lt;")&amp;&amp;html.endsWith(">")&amp;&amp;html.length>=3||determineHTMLPattern.test(html))domNodes[type]=createDomNodes(html);else{const domNode=document.querySelector(html);if(domNode)/*
+                        NOTE: We copy the node tree to not manipulate the
+                        original dom node by normalizing it afterward.
+                    */domNodes[type]=domNode.cloneNode(true);else return false}}else if("cloneNode"in html)domNodes[type]=html.cloneNode(true);else return false;domNodes.first.normalize();domNodes.second.normalize();return domNodes.first.isEqualNode(domNodes.second)};/**
+ * Checks whether the given dom node is visible or takes space in the document
+ * flow.
+ * Elements with visibility: hidden or opacity: 0 are considered to be visible,
+ * since they still consume space in the layout. During animations that hide an
+ * element, the element is considered to be visible until the end of the
+ * animation.
+ * @param domNode - To inspect.
+ * @returns A boolean indicating the visibility.
+ */const isHidden=domNode=>!_context_js__WEBPACK_IMPORTED_MODULE_1__.globalContext.document?.contains(domNode)||domNode.style.display==="none"||domNode.nodeName==="INPUT"&amp;&amp;domNode.getAttribute("type")==="hidden"||["contents","inline"].includes(domNode.style.display)&amp;&amp;(!("innerHTML"in domNode)||domNode.innerHTML.trim()==="")||domNode.style.height==="0px"&amp;&amp;domNode.style.width==="0px"||Boolean(domNode.parentElement)&amp;&amp;isHidden(domNode.parentElement);const onDocumentReady=callback=>new Promise(resolve=>void(async()=>{// See if document object model is already available.
+if(["complete","interactive"].includes(document.readyState)){// Call on next available tick.
+await (0,_utility_js__WEBPACK_IMPORTED_MODULE_2__.timeout)();resolve();callback?.()}else document.addEventListener("DOMContentLoaded",()=>{resolve();callback?.()})})());/**
+ * Replaces a given dom node with given nodes.
+ * @param domNodeToReplace - Node to replace its children.
+ * @param replacementDomNodes - Node or array of nodes to use as replacement.
+ * @param skipEmptyTextNodes - Configures whether to trim text.
+ */const replace=(domNodeToReplace,replacementDomNodes,skipEmptyTextNodes=false)=>{for(const replacement of[].concat(replacementDomNodes).reverse())if(!(skipEmptyTextNodes&amp;&amp;replacement.nodeType===Node.TEXT_NODE&amp;&amp;replacement.nodeValue?.trim()===""))domNodeToReplace.after(replacement);domNodeToReplace.remove()};const wrap=(domNodes,wrapper)=>{const domNodeList=domNodes.length?Array.from(domNodes):[domNodes];// Use the first element's position as the anchor point
+const first=domNodeList[0];if(first.parentNode)first.parentNode.insertBefore(wrapper,first);for(const domNode of domNodeList)wrapper.appendChild(domNode)};/**
+ * Moves the content of a given dom node one level up and removes the given
+ * node.
+ * @param domNode - Node to unwrap.
+ * @returns List of unwrapped nodes.
+ */const unwrap=domNode=>{const parent=domNode.parentNode;const result=[];// NOTE: We need to use "Array.from" to copy the list.
+for(const childNode of Array.from(domNode.childNodes)){result.push(childNode);if(parent)parent.insertBefore(childNode,domNode)}if(parent)parent.removeChild(domNode);return result};
+/* harmony export */ __webpack_require__.d(__webpack_exports__, [
+/* harmony export */   "MANUAL_SCROLL_EVENT_NAMES", 0, /* binding */ MANUAL_SCROLL_EVENT_NAMES,
+/* harmony export */   "SCROLL_EVENT_NAMES", 0, /* binding */ SCROLL_EVENT_NAMES,
+/* harmony export */   "STOP_AUTO_SCROLLING", 0, /* binding */ STOP_AUTO_SCROLLING,
+/* harmony export */   "closest", 0, /* binding */ closest,
+/* harmony export */   "createDomNodes", 0, /* binding */ createDomNodes,
+/* harmony export */   "fade", 0, /* binding */ fade,
+/* harmony export */   "fadeIn", 0, /* binding */ fadeIn,
+/* harmony export */   "fadeOut", 0, /* binding */ fadeOut,
+/* harmony export */   "getAll", 0, /* binding */ getAll,
+/* harmony export */   "getParents", 0, /* binding */ getParents,
+/* harmony export */   "getText", 0, /* binding */ getText,
+/* harmony export */   "interruptableScrollTo", 0, /* binding */ interruptableScrollTo,
+/* harmony export */   "isEquivalent", 0, /* binding */ isEquivalent,
+/* harmony export */   "isHidden", 0, /* binding */ isHidden,
+/* harmony export */   "onDocumentReady", 0, /* binding */ onDocumentReady,
+/* harmony export */   "replace", 0, /* binding */ replace,
+/* harmony export */   "scrollTo", 0, /* binding */ scrollTo,
+/* harmony export */   "unwrap", 0, /* binding */ unwrap,
+/* harmony export */   "wrap", 0, /* binding */ wrap
+/* harmony export */ ]);
+
+
+/***/ },
+
+/***/ 4
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   isFunction: () => (/* binding */ isFunction)
+/* harmony export */ });
+/* unused harmony exports isNumeric, isWindow, isArrayLike, isAnyMatching, isObject, isPlainObject, isSet, isMap, isProxy */
+/* unused harmony import specifier */ var PLAIN_OBJECT_PROTOTYPES;
+/* unused harmony import specifier */ var determineType;
+/* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0__);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module indicators *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*//**
+ * Determines whether its argument represents a JavaScript number.
+ * @param value - Value to analyze.
+ * @returns A boolean value indicating whether given object is numeric
+ * like.
+ */const isNumeric=value=>{const type=determineType(value);/*
+        NOTE: "parseFloat" "NaNs" numeric-cast false positives ("") but
+        misinterprets leading-number strings, particularly hex literals
+        ("0x...") subtraction forces infinities to NaN.
+    */return["number","string"].includes(type)&amp;&amp;!isNaN(value-parseFloat(value))};/**
+ * Determine whether the argument is a window.
+ * @param value - Value to check for.
+ * @returns Boolean value indicating the result.
+ */const isWindow=value=>![null,undefined].includes(value)&amp;&amp;typeof value==="object"&amp;&amp;value===value?.window;/**
+ * Checks if given object is similar to an array and can be handled like an
+ * array.
+ * @param object - Object to check behavior for.
+ * @returns A boolean value indicating whether given object is array like.
+ */const isArrayLike=object=>{let length;try{length=Boolean(object)&amp;&amp;object.length}catch{return false}const type=determineType(object);if(type==="function"||isWindow(object))return false;if(type==="array"||length===0)return true;if(typeof length==="number"&amp;&amp;length>0)try{const _dump=object[length-1];return true}catch{// Continue regardless of an error.
+}return false};/**
+ * Checks whether one of the given pattern matches given string.
+ * @param target - Target to check in pattern for.
+ * @param pattern - List of pattern to check for.
+ * @returns Value "true" if given object is matches by at leas one of the
+ * given pattern and "false" otherwise.
+ */const isAnyMatching=(target,pattern)=>{for(const currentPattern of pattern)if(typeof currentPattern==="string"){if(currentPattern===target)return true}else if(currentPattern.test(target))return true;return false};/**
+ * Checks whether given object is a native object but not null.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a plain javaScript object and
+ * "false" otherwise.
+ */const isObject=value=>value!==null&amp;&amp;typeof value==="object";/**
+ * Checks whether given object is a plain native object.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a plain javaScript object and
+ * "false" otherwise.
+ */const isPlainObject=value=>{if(!isObject(value))return false;const prototype=Object.getPrototypeOf(value);if(PLAIN_OBJECT_PROTOTYPES.includes(prototype))return true;/*
+        NOTE: Plain objects created in another realm (a vm context like used by
+        test runners or a worker for example) have their own "Object.prototype"
+        instance and would not be recognized by the identity check above.
+    */return prototype!==null&amp;&amp;Object.getPrototypeOf(prototype)===null&amp;&amp;prototype.constructor?.name==="Object"};/**
+ * Checks whether given object is a set.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a set and "false" otherwise.
+ */const isSet=value=>determineType(value)==="set";/**
+ * Checks whether given object is a map.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a map and "false" otherwise.
+ */const isMap=value=>determineType(value)==="map";/**
+ * Checks whether given object is a proxy.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a proxy and "false" otherwise.
+ */const isProxy=value=>Boolean(value.__target__);/**
+ * Checks whether given object is a function.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a function and "false"
+ * otherwise.
+ */const isFunction=value=>Boolean(value)&amp;&amp;["[object AsyncFunction]","[object Function]"].includes({}.toString.call(value));
+
+/***/ },
+
+/***/ 2
+(module, __webpack_exports__, __webpack_require__) {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   determineGlobalContext: () => (/* binding */ determineGlobalContext),
+/* harmony export */   optionalImport: () => (/* binding */ optionalImport),
+/* harmony export */   optionalRequire: () => (/* binding */ optionalRequire)
+/* harmony export */ });
+/* unused harmony exports isImportSyntaxSupported, currentRequire, setOptionalRequire, getCurrentRequire, clearRequireCache, isolatedRequire */
+/* module decorator */ module = __webpack_require__.hmd(module);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module module *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/const determineGlobalContext=()=>{if(typeof globalThis==="undefined"){if(typeof window==="undefined"){if(typeof __webpack_require__.g==="undefined")return  false?0:module;if(Object.prototype.hasOwnProperty.call(__webpack_require__.g,"window"))return __webpack_require__.g.window;return __webpack_require__.g}return window}return globalThis};const globalContext=determineGlobalContext();const isImportSyntaxSupported=()=>{try{// eslint-disable-next-line @typescript-eslint/no-implied-eval
+new Function("import(\"data:text/javascript,\")");return true}catch{return false}};let currentRequire=typeof globalContext.require==="undefined"?null:globalContext.require;let optionalRequire;const setOptionalRequire=localCurrentRequire=>{optionalRequire=id=>{try{return localCurrentRequire?localCurrentRequire(id):null}catch{return null}}};setOptionalRequire(currentRequire);// Make preprocessed require function available at runtime.
+const getCurrentRequire=async()=>{if(currentRequire)return currentRequire;try{const{createRequire}=/*
+                eslint-disable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */await new Function("return import(\"node:module\")")();/*
+            eslint-enable
+            @typescript-eslint/no-implied-eval,
+            @typescript-eslint/no-unsafe-call
+        */// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+currentRequire=createRequire(import.meta.url);setOptionalRequire(currentRequire);return currentRequire}catch(error){console.error(error);return null}};const clearRequireCache=(cache=currentRequire?.cache||__webpack_require__.c)=>{const backup={};for(const[key,module]of Object.entries(cache)){backup[key]=module;delete cache[key]}return backup};const restoreRequireCache=(cache=currentRequire?.cache||__webpack_require__.c,backup)=>{clearRequireCache();for(const[key,module]of Object.entries(backup))cache[key]=module};const isolatedRequire=(path,requireFunction=currentRequire||__webpack_require__(6))=>{const backup=clearRequireCache(requireFunction.cache);try{return requireFunction(path);// eslint-disable-next-line no-useless-catch
+}catch(error){throw error}finally{restoreRequireCache(requireFunction.cache,backup)}};const optionalImport=async(id,options={})=>{try{return isImportSyntaxSupported()?/*
+                eslint-disable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */await new Function("options",`return import('${id}', options)`)(options):await Promise.resolve(null);/*
+                eslint-enable
+                @typescript-eslint/no-implied-eval,
+                @typescript-eslint/no-unsafe-call
+            */}catch/* (error)*/{// NOTE: Use for debugging only:
+// console.error('OptionalImport failed for', id, error)
+return await Promise.resolve(null)}};
+
+/***/ },
+
+/***/ 13
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+/* unused harmony exports trailingThrottle, debounce, preventDefault, stopPropagation */
+/* harmony import */ var _context_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var _indicators_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module utility *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*//**
+ * Prevents event functions from triggering too often by defining a minimal
+ * span between each function call. Additional arguments given to this function
+ * will be forwarded to the given event function call.
+ * @param callback - The function to call debounced.
+ * @param thresholdInMilliseconds - The minimum time span between each
+ * function call.
+ * @param additionalArguments - Additional arguments to forward to given
+ * function.
+ * @returns Returns the wrapped method.
+ */const trailingThrottle=(callback,thresholdInMilliseconds=600,...additionalArguments)=>{let timeoutID=null;let recentParameters=[];return(...parameters)=>{recentParameters=parameters;if(timeoutID)return;timeoutID=setTimeout(()=>{callback(...recentParameters,...additionalArguments);// Reset for next cycle.
+timeoutID=null;recentParameters=[]},thresholdInMilliseconds)}};/**
+ * Prevents event functions from triggering too close after each trigger by
+ * defining a minimal span between each function call. Additional arguments
+ * given to this function will be forwarded to the given event function call.
+ * @param callback - The function to call debounced.
+ * @param thresholdInMilliseconds - The minimum time span between each
+ * function call.
+ * @param additionalArguments - Additional arguments to forward to given
+ * function.
+ * @returns Returns the wrapped method.
+ */const debounce=(callback,thresholdInMilliseconds=600,...additionalArguments)=>{let timeoutPromise;let nextResultPromiseResolver;let nextResultPromise=new Promise(resolve=>{nextResultPromiseResolver=resolve});return(...parameters)=>{parameters=parameters.concat(additionalArguments);timeoutPromise?.clear();timeoutPromise=timeout(()=>{nextResultPromiseResolver(callback(...parameters));nextResultPromise=new Promise(resolve=>{nextResultPromiseResolver=resolve})},thresholdInMilliseconds);return nextResultPromise}};/**
+ * Triggers given callback after given duration. Supports unlimited
+ * duration length and returns a promise which will be resolved after given
+ * duration has been passed.
+ * @param parameters - Observes the first three existing parameters. If one
+ * is a number it will be interpreted as delay in milliseconds until given
+ * callback will be triggered. If one is of type function it will be used
+ * as callback and if one is of type boolean it will indicate if returning
+ * promise should be rejected or resolved if given internally created
+ * timeout should be canceled. Additional parameters will be forwarded to
+ * given callback.
+ * @returns A promise resolving after given delay or being rejected if
+ * value "true" is within one of the first three parameters. The promise
+ * holds a boolean indicating whether timeout has been canceled or
+ * resolved.
+ */const timeout=(...parameters)=>{let callback=_context_js__WEBPACK_IMPORTED_MODULE_0__.NOOP;let delayInMilliseconds=0;let throwOnTimeoutClear=false;for(const value of parameters)if(typeof value==="number"&amp;&amp;!isNaN(value))delayInMilliseconds=value;else if(typeof value==="boolean")throwOnTimeoutClear=value;else if((0,_indicators_js__WEBPACK_IMPORTED_MODULE_1__.isFunction)(value))callback=value;let rejectCallback;let resolveCallback;const result=new Promise((resolve,reject)=>{rejectCallback=reject;resolveCallback=resolve});const wrappedCallback=()=>{callback.call(result,...parameters);resolveCallback(false)};const maximumTimeoutDelayInMilliseconds=2147483647;if(delayInMilliseconds&lt;=maximumTimeoutDelayInMilliseconds)result.timeoutID=setTimeout(wrappedCallback,delayInMilliseconds);else{/*
+            Determine the number of times we need to delay by maximum
+            possible timeout duration.
+        */let numberOfRemainingTimeouts=Math.floor(delayInMilliseconds/maximumTimeoutDelayInMilliseconds);const finalTimeoutDuration=delayInMilliseconds%maximumTimeoutDelayInMilliseconds;const delay=()=>{if(numberOfRemainingTimeouts>0){numberOfRemainingTimeouts-=1;result.timeoutID=setTimeout(delay,maximumTimeoutDelayInMilliseconds)}else result.timeoutID=setTimeout(wrappedCallback,finalTimeoutDuration)};delay()}result.clear=()=>{if(Object.prototype.hasOwnProperty.call(result,"timeoutID")){clearTimeout(result.timeoutID);(throwOnTimeoutClear?rejectCallback:resolveCallback)(true)}};return result};const preventDefault=event=>{event.preventDefault()};const stopPropagation=event=>{event.stopPropagation()};
+/* harmony export */ __webpack_require__.d(__webpack_exports__, [
+/* harmony export */   "timeout", 0, /* binding */ timeout
+/* harmony export */ ]);
+
+
+/***/ },
+
+/***/ 6
+(module) {
+
+function webpackEmptyContext(req) {
+	const e = new Error("Cannot find module '" + req + "'");
+	e.code = 'MODULE_NOT_FOUND';
+	throw e;
+}
+webpackEmptyContext.keys = () => ([]);
+webpackEmptyContext.resolve = webpackEmptyContext;
+webpackEmptyContext.id = 6;
+module.exports = webpackEmptyContext;
+
+/***/ },
+
+/***/ 0
+(module) {
+
+module.exports = window["coreJsModulesEsArrayIncludesJs"];
+
+/***/ }
+
+/******/ });
+/************************************************************************/
+/******/ // The module cache
+/******/ const __webpack_module_cache__ = {};
+/******/ 
+/******/ // The require function
+/******/ function __webpack_require__(moduleId) {
+/******/ 	// Check if module is in cache
+/******/ 	const cachedModule = __webpack_module_cache__[moduleId];
+/******/ 	if (cachedModule !== undefined) {
+/******/ 		return cachedModule.exports;
+/******/ 	}
+/******/ 	// Create a new module (and put it into the cache)
+/******/ 	const module = __webpack_module_cache__[moduleId] = {
+/******/ 		id: moduleId,
+/******/ 		loaded: false,
+/******/ 		exports: {}
+/******/ 	};
+/******/ 
+/******/ 	// Execute the module function
+/******/ 	__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 
+/******/ 	// Flag the module as loaded
+/******/ 	module.loaded = true;
+/******/ 
+/******/ 	// Return the exports of the module
+/******/ 	return module.exports;
+/******/ }
+/******/ 
+/******/ // expose the module cache
+/******/ __webpack_require__.c = __webpack_module_cache__;
+/******/ 
+/************************************************************************/
+/******/ /* webpack/runtime/compat get default export */
+/******/ (() => {
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = (module) => {
+/******/ 		const getter = module &amp;&amp; module.__esModule ?
+/******/ 			() => (module['default']) :
+/******/ 			() => (module);
+/******/ 		__webpack_require__.d(getter, { a: getter });
+/******/ 		return getter;
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/define property getters */
+/******/ (() => {
+/******/ 	// define getter/value functions for harmony exports
+/******/ 	__webpack_require__.d = (exports, definition) => {
+/******/ 		if(Array.isArray(definition)) {
+/******/ 			var i = 0;
+/******/ 			while(i &lt; definition.length) {
+/******/ 				var key = definition[i++];
+/******/ 				var binding = definition[i++];
+/******/ 				if(!__webpack_require__.o(exports, key)) {
+/******/ 					if(binding === 0) {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, value: definition[i++] });
+/******/ 					} else {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, get: binding });
+/******/ 					}
+/******/ 				} else if(binding === 0) { i++; }
+/******/ 			}
+/******/ 		} else {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) &amp;&amp; !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		}
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/global */
+/******/ (() => {
+/******/ 	__webpack_require__.g = (function() {
+/******/ 		if (typeof globalThis === 'object') return globalThis;
+/******/ 		try {
+/******/ 			return this || new Function('return this')();
+/******/ 		} catch (e) {
+/******/ 			if (typeof window === 'object') return window;
+/******/ 		}
+/******/ 	})();
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/harmony module decorator */
+/******/ (() => {
+/******/ 	__webpack_require__.hmd = (module) => {
+/******/ 		module = Object.create(module);
+/******/ 		if (!module.children) module.children = [];
+/******/ 		Object.defineProperty(module, 'exports', {
+/******/ 			enumerable: true,
+/******/ 			set() {
+/******/ 				throw new Error('ES Modules may not assign module.exports or exports.*, Use ESM export syntax, instead: ' + module.id);
+/******/ 			}
+/******/ 		});
+/******/ 		return module;
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/hasOwnProperty shorthand */
+/******/ (() => {
+/******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/make namespace object */
+/******/ (() => {
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = (exports) => {
+/******/ 		if(Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/ })();
+/******/ 
+/************************************************************************/
+/******/ 
+/******/ // module cache are used so entry inlining is disabled
+/******/ // startup
+/******/ // Load entry module and return exports
+/******/ let __webpack_exports__ = __webpack_require__(25);
+/******/ (((((((((((((((((((((((((((window.expressionEvaluators = window.expressionEvaluators || {}).expressionHelper = window.expressionEvaluators.expressionHelper || {}).expressionIndex = window.expressionEvaluators.expressionHelper.expressionIndex || {}).expressionIndicatorFunctions = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions || {}).Lock = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock || {}).Logger = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger || {}).Semaphore = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore || {}).array = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array || {}).cli = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli || {}).constants = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants || {}).context = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context || {}).cookie = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie || {}).dataTransfer = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer || {}).datetime = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime || {}).domNode = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode || {}).filesystem = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem || {})["function"] = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"] || {}).index = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index || {}).indicators = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators || {}).module = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module || {}).number = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number || {}).object = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object || {}).process = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process || {}).propertyTypes = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes || {}).scope = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope || {}).string = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope.string || {}).testHelper = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope.string.testHelper || {}).utility = __webpack_exports__;
+/******/ 
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Lock.html">Lock</a></li><li><a href="module-Logger.html">Logger</a></li><li><a href="module-Semaphore.html">Semaphore</a></li><li><a href="module-array.html">array</a></li><li><a href="module-cli.html">cli</a></li><li><a href="module-constants.html">constants</a></li><li><a href="module-context.html">context</a></li><li><a href="module-cookie.html">cookie</a></li><li><a href="module-data-transfer.html">data-transfer</a></li><li><a href="module-dateTime.html">dateTime</a></li><li><a href="module-domNode.html">domNode</a></li><li><a href="module-filesystem.html">filesystem</a></li><li><a href="module-function.html">function</a></li><li><a href="module-indicators.html">indicators</a></li><li><a href="module-module.html">module</a></li><li><a href="module-number.html">number</a></li><li><a href="module-object.html">object</a></li><li><a href="module-process.html">process</a></li><li><a href="module-propertTypes.html">propertTypes</a></li><li><a href="module-scope.html">scope</a></li><li><a href="module-string.html">string</a></li><li><a href="module-testHelper.html">testHelper</a></li><li><a href="module-utility.html">utility</a></li></ul><h3>Classes</h3><ul><li><a href="module-Lock-Lock.html">Lock</a></li><li><a href="module-Logger-Logger.html">Logger</a></li><li><a href="module-Semaphore-Semaphore.html">Semaphore</a></li><li><a href="module-propertTypes-ValidationError.html">ValidationError</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Sep 15 2026 15:08:40 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
