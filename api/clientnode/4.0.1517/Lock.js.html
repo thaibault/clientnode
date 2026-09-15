@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Lock.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Lock.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>if(typeof window==='undefined'||window===null)var window=(typeof globalThis==='undefined'||globalThis===null)?{}:globalThis;/******/ // The require scope
+/******/ const __webpack_require__ = {};
+/******/ 
+/************************************************************************/
+/******/ /* webpack/runtime/define property getters */
+/******/ (() => {
+/******/ 	// define getter/value functions for harmony exports
+/******/ 	__webpack_require__.d = (exports, definition) => {
+/******/ 		if(Array.isArray(definition)) {
+/******/ 			var i = 0;
+/******/ 			while(i &lt; definition.length) {
+/******/ 				var key = definition[i++];
+/******/ 				var binding = definition[i++];
+/******/ 				if(!__webpack_require__.o(exports, key)) {
+/******/ 					if(binding === 0) {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, value: definition[i++] });
+/******/ 					} else {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, get: binding });
+/******/ 					}
+/******/ 				} else if(binding === 0) { i++; }
+/******/ 			}
+/******/ 		} else {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) &amp;&amp; !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		}
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/hasOwnProperty shorthand */
+/******/ (() => {
+/******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/make namespace object */
+/******/ (() => {
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = (exports) => {
+/******/ 		if(Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/ })();
+/******/ 
+/************************************************************************/
+let __webpack_exports__ = {};
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Lock: () => (/* binding */ Lock)
+/* harmony export */ });
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module Lock *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/function _defineProperty(e,r,t){return(r=_toPropertyKey(r))in e?Object.defineProperty(e,r,{value:t,enumerable:!0,configurable:!0,writable:!0}):e[r]=t,e}function _toPropertyKey(t){var i=_toPrimitive(t,"string");return"symbol"==typeof i?i:i+""}function _toPrimitive(t,r){if("object"!=typeof t||!t)return t;var e=t[Symbol.toPrimitive];if(void 0!==e){var i=e.call(t,r||"default");if("object"!=typeof i)return i;throw new TypeError("@@toPrimitive must return a primitive value.")}return("string"===r?String:Number)(t)}/**
+ * Represents the lock state.
+ * @property locks - Mapping of lock descriptions to their corresponding
+ * callbacks.
+ */class Lock{/**
+     * Initializes locks.
+     * @param locks - Mapping of a lock description to callbacks for calling
+     * when given lock should be released.
+     */constructor(locks={}){_defineProperty(this,"lock",void 0);_defineProperty(this,"locks",void 0);this.locks=locks}/**
+     * Calling this method introduces a starting point for a critical area with
+     * potential race conditions. The area will be bind to given description
+     * string. So don't use same names for different areas.
+     * @param description - A short string describing the critical areas
+     * properties.
+     * @param callback - A procedure which should only be executed if the
+     * interpreter isn't in the given critical area. The lock description
+     * string will be given to the callback function.
+     * @param autoRelease - Release the lock after execution of given callback.
+     * @returns Returns a promise which will be resolved after releasing lock.
+     */acquire(description,callback,autoRelease=false){return new Promise(resolve=>{const wrappedCallback=description=>{let result;if(callback)result=callback(description);const finish=value=>{if(autoRelease)void this.release(description);resolve(value);return value};if(result?.then)return result.then(finish);finish(result);return result};if(description){if(Object.prototype.hasOwnProperty.call(this.locks,description))this.locks[description].push(wrappedCallback);else{this.locks[description]=[];void wrappedCallback(description)}return}if(this.lock)this.lock.push(wrappedCallback);else{this.lock=[];void wrappedCallback(description)}})}/**
+     * Calling this method causes the given critical area to be finished and
+     * all functions given to "acquire()" will be executed in right order.
+     * @param description - A short string describing the critical areas
+     * properties.
+     * @returns Returns the return (maybe promise resolved) value of the
+     * callback given to the "acquire" method.
+     */async release(description){if(description){if(Object.prototype.hasOwnProperty.call(this.locks,description)){const callback=this.locks[description].shift();if(callback===undefined)delete this.locks[description];else return await callback(description)}return}const callback=this.lock?.shift();if(callback===undefined)this.lock=undefined;else return await callback()}}/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Lock);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, [
+/* harmony export */   "default", 0, /* export default binding */ __WEBPACK_DEFAULT_EXPORT__
+/* harmony export */ ]);
+
+(((((((((((((((((((((((((((window.expressionEvaluators = window.expressionEvaluators || {}).expressionHelper = window.expressionEvaluators.expressionHelper || {}).expressionIndex = window.expressionEvaluators.expressionHelper.expressionIndex || {}).expressionIndicatorFunctions = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions || {}).Lock = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock || {}).Logger = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger || {}).Semaphore = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore || {}).array = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array || {}).cli = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli || {}).constants = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants || {}).context = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context || {}).cookie = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie || {}).dataTransfer = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer || {}).datetime = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime || {}).domNode = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode || {}).filesystem = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem || {})["function"] = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"] || {}).index = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index || {}).indicators = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators || {}).module = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module || {}).number = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number || {}).object = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object || {}).process = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process || {}).propertyTypes = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes || {}).scope = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope || {}).string = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope.string || {}).testHelper = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope.string.testHelper || {}).utility = __webpack_exports__;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Lock.html">Lock</a></li><li><a href="module-Logger.html">Logger</a></li><li><a href="module-Semaphore.html">Semaphore</a></li><li><a href="module-array.html">array</a></li><li><a href="module-cli.html">cli</a></li><li><a href="module-constants.html">constants</a></li><li><a href="module-context.html">context</a></li><li><a href="module-cookie.html">cookie</a></li><li><a href="module-data-transfer.html">data-transfer</a></li><li><a href="module-dateTime.html">dateTime</a></li><li><a href="module-domNode.html">domNode</a></li><li><a href="module-filesystem.html">filesystem</a></li><li><a href="module-function.html">function</a></li><li><a href="module-indicators.html">indicators</a></li><li><a href="module-module.html">module</a></li><li><a href="module-number.html">number</a></li><li><a href="module-object.html">object</a></li><li><a href="module-process.html">process</a></li><li><a href="module-propertTypes.html">propertTypes</a></li><li><a href="module-scope.html">scope</a></li><li><a href="module-string.html">string</a></li><li><a href="module-testHelper.html">testHelper</a></li><li><a href="module-utility.html">utility</a></li></ul><h3>Classes</h3><ul><li><a href="module-Lock-Lock.html">Lock</a></li><li><a href="module-Logger-Logger.html">Logger</a></li><li><a href="module-Semaphore-Semaphore.html">Semaphore</a></li><li><a href="module-propertTypes-ValidationError.html">ValidationError</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Sep 15 2026 15:08:40 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
