@@ -122,7 +122,7 @@ want.
     Dadurch können verschiedene Module-Bundler genutzt werden.
 -->
 
-<!--|deDE:Nutzung-->
+<!--|deDE:Verwendung-->
 Usage
 -----
 
