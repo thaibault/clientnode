@@ -5526,9 +5526,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:4.0.1514":
-  version: 4.0.1514
-  resolution: "clientnode@npm:4.0.1514"
+"clientnode@npm:4.0.1516":
+  version: 4.0.1516
+  resolution: "clientnode@npm:4.0.1516"
   peerDependencies:
     "@types/prop-types": "*"
     node-fetch: "*"
@@ -5540,7 +5540,7 @@ __metadata:
       optional: true
     prop-types:
       optional: true
-  checksum: 10c0/a9a3cb0fcdbc466cfba9348cfc336337791f4e316afbb44c5367fbffbaf7a633d49868861e0cba0f01e17311689aca47f2334a5f987b20ba2a480df7e3fa8752
+  checksum: 10c0/bde9145af85a24aca108721e41498c09a43a8e211c98202d4ab545b03b23372c7db1d7c5819f906d43d426e90e089f251fd2906e2aa64f927f27ea86824f988f
   languageName: node
   linkType: hard
 
@@ -5569,7 +5569,7 @@ __metadata:
     clientnode: "workspace:."
     eslint: "npm:^10.10.0"
     eslint-config-google: "npm:^0.14.0"
-    eslint-plugin-jsdoc: "npm:^64.4.0"
+    eslint-plugin-jsdoc: "npm:^64.5.0"
     favicons-webpack-plugin: "npm:^6.0.1"
     image-minimizer-webpack-plugin: "npm:^5.0.0"
     jest: "npm:^30.5.1"
@@ -5578,8 +5578,8 @@ __metadata:
     prop-types: "npm:^15.8.1"
     rimraf: "npm:^6.1.3"
     typescript-eslint: "npm:^8.70.0"
-    web-documentation: "npm:^1.0.57"
-    weboptimizer: "npm:^4.0.84"
+    web-documentation: "npm:^1.0.60"
+    weboptimizer: "npm:^4.0.85"
     webpack-dev-server: "npm:^6.0.0"
   peerDependencies:
     "@types/prop-types": "*"
@@ -6269,9 +6269,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:^64.4.0":
-  version: 64.4.0
-  resolution: "eslint-plugin-jsdoc@npm:64.4.0"
+"eslint-plugin-jsdoc@npm:^64.5.0":
+  version: 64.5.0
+  resolution: "eslint-plugin-jsdoc@npm:64.5.0"
   dependencies:
     "@es-joy/jsdoccomment": "npm:~0.97.0"
     "@es-joy/resolve.exports": "npm:1.2.0"
@@ -6290,7 +6290,7 @@ __metadata:
     to-valid-identifier: "npm:^1.0.0"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
-  checksum: 10c0/2a091d96427f1e57ee7194db5c0bc2d6a5663dd6d2dcc99065abbc9cf1e1dd1b17160a8089b43cf4416b228aba98a1bf9ef28db932812e77ef6435ec3119ec10
+  checksum: 10c0/bb3250ad497eb421d3a589ed48fc0d1cf7b0d7f750057203a7ce32a7d0f231742c6c73017c6293965d12407d58b6e8b2d956adb9f7e9b669b4e235fe086a3e39
   languageName: node
   linkType: hard
 
@@ -10655,12 +10655,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"web-documentation@npm:^1.0.57":
-  version: 1.0.57
-  resolution: "web-documentation@npm:1.0.57"
+"web-documentation@npm:^1.0.60":
+  version: 1.0.60
+  resolution: "web-documentation@npm:1.0.60"
   bin:
     web-documentation: build/deploy.js
-  checksum: 10c0/06d3f671851f944346fe1452184c1c343bc85966996414972c1e87ba7d1490894f2fc61d103f68fad4dd4351b09bfee3a545a6d4c77583f720eba9d62860847e
+  checksum: 10c0/d6f3752fc21660fb9347f52042903992bfc6ba59e7bb78cac5ebe1166d86ccc9414ffc211e9d1370c333ab2e5edf22e0689d808cfc54fae234cbe649d4f4d489
   languageName: node
   linkType: hard
 
@@ -10678,9 +10678,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^4.0.84":
-  version: 4.0.84
-  resolution: "weboptimizer@npm:4.0.84"
+"weboptimizer@npm:^4.0.85":
+  version: 4.0.85
+  resolution: "weboptimizer@npm:4.0.85"
   dependencies:
     "@babel/core": "npm:^8.0.5"
     "@babel/plugin-proposal-decorators": "npm:^8.0.2"
@@ -10826,7 +10826,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/2760659b971b431a25496c2bdbe2beb295c3ee898f263ba6d6aaa25ed78f135a4c39ca2a540b37a7f0463456668ff1c51ead01722e34ead4bd24cde2411ee315
+  checksum: 10c0/644e41fd3912139e809a00ef605649ef76ab0f0245f53442a91f0f44139fc809076236458b6d4c805a58c85467ba398d0eea7d5280c7409a11f5e045275dd49a
   languageName: node
   linkType: hard
 
