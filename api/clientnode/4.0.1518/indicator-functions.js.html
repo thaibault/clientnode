@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: cli.js</title>
+    <title>JSDoc: Source: indicator-functions.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: cli.js</h1>
+    <h1 class="page-title">Source: indicator-functions.js</h1>
 
     
 
@@ -27,11 +27,16 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>if(typeof window==='undefined'||window===null)var window=(typeof globalThis==='undefined'||globalThis===null)?{}:globalThis;/******/ var __webpack_modules__ = ([
-/* 0 */,
+/* 0 */
+/***/ ((module) => {
+
+module.exports = window["coreJsModulesEsArrayIncludesJs"];
+
+/***/ }),
 /* 1 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-/* unused harmony exports DEFAULT_ENCODING, CLOSE_EVENT_NAMES, CONSOLE_METHODS, VALUE_COPY_SYMBOL, IGNORE_NULL_AND_UNDEFINED_SYMBOL, ABBREVIATIONS, ANIMATION_END_EVENT_NAMES, CLASS_TO_TYPE_MAPPING, KEY_CODES, KEYBOARD_CODES, LOCALES, PLAIN_OBJECT_PROTOTYPES, SPECIAL_REGEX_SEQUENCES, TRANSITION_END_EVENT_NAMES */
+/* unused harmony exports CLI_COLOR, DEFAULT_ENCODING, CLOSE_EVENT_NAMES, CONSOLE_METHODS, VALUE_COPY_SYMBOL, IGNORE_NULL_AND_UNDEFINED_SYMBOL, ABBREVIATIONS, ANIMATION_END_EVENT_NAMES, CLASS_TO_TYPE_MAPPING, KEY_CODES, KEYBOARD_CODES, LOCALES, SPECIAL_REGEX_SEQUENCES, TRANSITION_END_EVENT_NAMES */
 // #!/usr/bin/env babel-node
 // -*- coding: utf-8 -*-
 /** @module constants *//* !
@@ -47,7 +52,7 @@
     naming 3.0 unported license.
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
-*/const CLI_COLOR={black:"[30m",blink:"[5m",blue:"[0;34m",bold:"[1m",cyan:"[36m",darkGray:"[0;90m",default:"[0m",dim:"[2m",green:"[32m",invert:"[7m",invisible:"[8m",lightBlue:"[0;94m",lightCyan:"[0;96m",lightGray:"[0;37m",lightGreen:"[0;92m",lightMagenta:"[0;95m",lightRed:"[0;91m",lightYellow:"[0;93m",magenta:"[35m",nodim:"[22m",noblink:"[25m",nobold:"[21m",noinvert:"[27m",noinvisible:"[28m",nounderline:"[24m",red:"[31m",underline:"[4m",white:"[37m",yellow:"[33m"};const DEFAULT_ENCODING="utf8";const CLOSE_EVENT_NAMES=(/* unused pure expression or super */ null &amp;&amp; (["close","exit","SIGINT","SIGTERM","SIGQUIT","uncaughtException"]));const CONSOLE_METHODS=(/* unused pure expression or super */ null &amp;&amp; (["debug","error","info","log","warn"]));const VALUE_COPY_SYMBOL=Symbol.for("clientnodeValue");const IGNORE_NULL_AND_UNDEFINED_SYMBOL=Symbol.for("clientnodeIgnoreNullAndUndefined");// Lists all known abbreviation for proper camel case to delimited and back
+*/const CLI_COLOR=(/* unused pure expression or super */ null &amp;&amp; ({black:"[30m",blink:"[5m",blue:"[0;34m",bold:"[1m",cyan:"[36m",darkGray:"[0;90m",default:"[0m",dim:"[2m",green:"[32m",invert:"[7m",invisible:"[8m",lightBlue:"[0;94m",lightCyan:"[0;96m",lightGray:"[0;37m",lightGreen:"[0;92m",lightMagenta:"[0;95m",lightRed:"[0;91m",lightYellow:"[0;93m",magenta:"[35m",nodim:"[22m",noblink:"[25m",nobold:"[21m",noinvert:"[27m",noinvisible:"[28m",nounderline:"[24m",red:"[31m",underline:"[4m",white:"[37m",yellow:"[33m"}));const DEFAULT_ENCODING="utf8";const CLOSE_EVENT_NAMES=(/* unused pure expression or super */ null &amp;&amp; (["close","exit","SIGINT","SIGTERM","SIGQUIT","uncaughtException"]));const CONSOLE_METHODS=(/* unused pure expression or super */ null &amp;&amp; (["debug","error","info","log","warn"]));const VALUE_COPY_SYMBOL=Symbol.for("clientnodeValue");const IGNORE_NULL_AND_UNDEFINED_SYMBOL=Symbol.for("clientnodeIgnoreNullAndUndefined");// Lists all known abbreviation for proper camel case to delimited and back
 // conversion.
 const ABBREVIATIONS=(/* unused pure expression or super */ null &amp;&amp; (["html","id","url","us","de","api","href"]));// Saves a string with all css3 browser specific animation end event names.
 const ANIMATION_END_EVENT_NAMES="animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd";// String representation to object type name mapping.
@@ -56,9 +61,96 @@ const KEY_CODES=(/* unused pure expression or super */ null &amp;&amp; ({BACKSPA
 const SPECIAL_REGEX_SEQUENCES=(/* unused pure expression or super */ null &amp;&amp; (["-","[","]","(",")","^","$","*","+",".","{","}"]));// Saves a string with all css3 browser specific transition end event names.
 const TRANSITION_END_EVENT_NAMES="transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, [
-/* harmony export */   "CLI_COLOR", 0, /* binding */ CLI_COLOR
+/* harmony export */   "PLAIN_OBJECT_PROTOTYPES", 0, /* binding */ PLAIN_OBJECT_PROTOTYPES
 /* harmony export */ ]);
 
+
+/***/ }),
+/* 2 */,
+/* 3 */,
+/* 4 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   isPlainObject: () => (/* binding */ isPlainObject)
+/* harmony export */ });
+/* unused harmony exports isNumeric, isWindow, isArrayLike, isAnyMatching, isObject, isSet, isMap, isProxy, isFunction */
+/* unused harmony import specifier */ var determineType;
+/* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/** @module indicators *//* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*//**
+ * Determines whether its argument represents a JavaScript number.
+ * @param value - Value to analyze.
+ * @returns A boolean value indicating whether given object is numeric
+ * like.
+ */const isNumeric=value=>{const type=determineType(value);/*
+        NOTE: "parseFloat" "NaNs" numeric-cast false positives ("") but
+        misinterprets leading-number strings, particularly hex literals
+        ("0x...") subtraction forces infinities to NaN.
+    */return["number","string"].includes(type)&amp;&amp;!isNaN(value-parseFloat(value))};/**
+ * Determine whether the argument is a window.
+ * @param value - Value to check for.
+ * @returns Boolean value indicating the result.
+ */const isWindow=value=>![null,undefined].includes(value)&amp;&amp;typeof value==="object"&amp;&amp;value===value?.window;/**
+ * Checks if given object is similar to an array and can be handled like an
+ * array.
+ * @param object - Object to check behavior for.
+ * @returns A boolean value indicating whether given object is array like.
+ */const isArrayLike=object=>{let length;try{length=Boolean(object)&amp;&amp;object.length}catch{return false}const type=determineType(object);if(type==="function"||isWindow(object))return false;if(type==="array"||length===0)return true;if(typeof length==="number"&amp;&amp;length>0)try{const _dump=object[length-1];return true}catch{// Continue regardless of an error.
+}return false};/**
+ * Checks whether one of the given pattern matches given string.
+ * @param target - Target to check in pattern for.
+ * @param pattern - List of pattern to check for.
+ * @returns Value "true" if given object is matches by at leas one of the
+ * given pattern and "false" otherwise.
+ */const isAnyMatching=(target,pattern)=>{for(const currentPattern of pattern)if(typeof currentPattern==="string"){if(currentPattern===target)return true}else if(currentPattern.test(target))return true;return false};/**
+ * Checks whether given object is a native object but not null.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a plain javaScript object and
+ * "false" otherwise.
+ */const isObject=value=>value!==null&amp;&amp;typeof value==="object";/**
+ * Checks whether given object is a plain native object.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a plain javaScript object and
+ * "false" otherwise.
+ */const isPlainObject=value=>{if(!isObject(value))return false;const prototype=Object.getPrototypeOf(value);if(_constants_js__WEBPACK_IMPORTED_MODULE_1__.PLAIN_OBJECT_PROTOTYPES.includes(prototype))return true;/*
+        NOTE: Plain objects created in another realm (a vm context like used by
+        test runners or a worker for example) have their own "Object.prototype"
+        instance and would not be recognized by the identity check above.
+    */return prototype!==null&amp;&amp;Object.getPrototypeOf(prototype)===null&amp;&amp;prototype.constructor?.name==="Object"};/**
+ * Checks whether given object is a set.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a set and "false" otherwise.
+ */const isSet=value=>determineType(value)==="set";/**
+ * Checks whether given object is a map.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a map and "false" otherwise.
+ */const isMap=value=>determineType(value)==="map";/**
+ * Checks whether given object is a proxy.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a proxy and "false" otherwise.
+ */const isProxy=value=>Boolean(value.__target__);/**
+ * Checks whether given object is a function.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a function and "false"
+ * otherwise.
+ */const isFunction=value=>Boolean(value)&amp;&amp;["[object AsyncFunction]","[object Function]"].includes({}.toString.call(value));
 
 /***/ })
 /******/ ]);
@@ -88,6 +180,18 @@ const TRANSITION_END_EVENT_NAMES="transitionend webkitTransitionEnd oTransitionE
 /******/ }
 /******/ 
 /************************************************************************/
+/******/ /* webpack/runtime/compat get default export */
+/******/ (() => {
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = (module) => {
+/******/ 		const getter = module &amp;&amp; module.__esModule ?
+/******/ 			() => (module['default']) :
+/******/ 			() => (module);
+/******/ 		__webpack_require__.d(getter, { a: getter });
+/******/ 		return getter;
+/******/ 	};
+/******/ })();
+/******/ 
 /******/ /* webpack/runtime/define property getters */
 /******/ (() => {
 /******/ 	// define getter/value functions for harmony exports
@@ -134,13 +238,10 @@ const TRANSITION_END_EVENT_NAMES="transitionend webkitTransitionEnd oTransitionE
 /************************************************************************/
 let __webpack_exports__ = {};
 __webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   CLI_COLOR: () => (/* reexport safe */ _constants_js__WEBPACK_IMPORTED_MODULE_0__.CLI_COLOR)
-/* harmony export */ });
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
+/* harmony import */ var _indicators_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
 // #!/usr/bin/env babel-node
 // -*- coding: utf-8 -*-
-/** @module cli *//* !
+/* !
     region header
     [Project page](https://torben.website/clientnode)
 
@@ -153,12 +254,23 @@ __webpack_require__.r(__webpack_exports__);
     naming 3.0 unported license.
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
-*//*
-    NOTE: "CLI_COLOR" is defined in and re-exported from "./constants" (instead
-    of being declared here directly) to avoid a webpack code generation issue
-    where an import-less module loses its export declarations when bundled as a
-    dependency of another entry point.
-*/
+*/const isSpecificExpression=(expression,indicatorKey,properties=[])=>{if(!((0,_indicators_js__WEBPACK_IMPORTED_MODULE_0__.isPlainObject)(expression)&amp;&amp;Object.prototype.hasOwnProperty.call(expression,indicatorKey)))return false;for(const name of properties)if(!Object.prototype.hasOwnProperty.call(expression,name))return false;return true};const isCondition=expression=>isSpecificExpression(expression,"$comparator",["value1","value2"]);const isAndExpression=expression=>isSpecificExpression(expression,"$and");const isOrExpression=expression=>isSpecificExpression(expression,"$or");const isConcatExpression=expression=>isSpecificExpression(expression,"$concat");const isMappingExpression=expression=>isSpecificExpression(expression,"$mapping",["data"]);const isOperation=expression=>isSpecificExpression(expression,"$operator",["operand1","operand2"]);const isUnaryOperation=expression=>isSpecificExpression(expression,"$operator",["operand"]);const isIfExpression=expression=>isSpecificExpression(expression,"$if");const isSwitchExpression=expression=>isSpecificExpression(expression,"$switch");const isSelector=expression=>isSpecificExpression(expression,"$select");const isArrayContainsExpression=expression=>isSpecificExpression(expression,"$arrayContains");const isValue=expression=>!(isSelector(expression)||isCondition(expression)||isUnaryOperation(expression)||isOperation(expression)||isAndExpression(expression)||isOrExpression(expression)||isConcatExpression(expression)||isMappingExpression(expression)||isIfExpression(expression)||isSwitchExpression(expression)||isArrayContainsExpression(expression));
+/* harmony export */ __webpack_require__.d(__webpack_exports__, [
+/* harmony export */   "isAndExpression", 0, /* binding */ isAndExpression,
+/* harmony export */   "isArrayContainsExpression", 0, /* binding */ isArrayContainsExpression,
+/* harmony export */   "isConcatExpression", 0, /* binding */ isConcatExpression,
+/* harmony export */   "isCondition", 0, /* binding */ isCondition,
+/* harmony export */   "isIfExpression", 0, /* binding */ isIfExpression,
+/* harmony export */   "isMappingExpression", 0, /* binding */ isMappingExpression,
+/* harmony export */   "isOperation", 0, /* binding */ isOperation,
+/* harmony export */   "isOrExpression", 0, /* binding */ isOrExpression,
+/* harmony export */   "isSelector", 0, /* binding */ isSelector,
+/* harmony export */   "isSpecificExpression", 0, /* binding */ isSpecificExpression,
+/* harmony export */   "isSwitchExpression", 0, /* binding */ isSwitchExpression,
+/* harmony export */   "isUnaryOperation", 0, /* binding */ isUnaryOperation,
+/* harmony export */   "isValue", 0, /* binding */ isValue
+/* harmony export */ ]);
+
 (((((((((((((((((((((((((((window.expressionEvaluators = window.expressionEvaluators || {}).expressionHelper = window.expressionEvaluators.expressionHelper || {}).expressionIndex = window.expressionEvaluators.expressionHelper.expressionIndex || {}).expressionIndicatorFunctions = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions || {}).Lock = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock || {}).Logger = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger || {}).Semaphore = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore || {}).array = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array || {}).cli = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli || {}).constants = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants || {}).context = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context || {}).cookie = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie || {}).dataTransfer = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer || {}).datetime = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime || {}).domNode = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode || {}).filesystem = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem || {})["function"] = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"] || {}).index = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index || {}).indicators = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators || {}).module = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module || {}).number = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number || {}).object = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object || {}).process = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process || {}).propertyTypes = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes || {}).scope = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope || {}).string = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope.string || {}).testHelper = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope.string.testHelper || {}).utility = __webpack_exports__;
 </code></pre>
         </article>
@@ -170,13 +282,13 @@ __webpack_require__.r(__webpack_exports__);
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Lock.html">Lock</a></li><li><a href="module-Logger.html">Logger</a></li><li><a href="module-Semaphore.html">Semaphore</a></li><li><a href="module-array.html">array</a></li><li><a href="module-cli.html">cli</a></li><li><a href="module-constants.html">constants</a></li><li><a href="module-context.html">context</a></li><li><a href="module-cookie.html">cookie</a></li><li><a href="module-data-transfer.html">data-transfer</a></li><li><a href="module-dateTime.html">dateTime</a></li><li><a href="module-domNode.html">domNode</a></li><li><a href="module-filesystem.html">filesystem</a></li><li><a href="module-function.html">function</a></li><li><a href="module-indicators.html">indicators</a></li><li><a href="module-module.html">module</a></li><li><a href="module-number.html">number</a></li><li><a href="module-object.html">object</a></li><li><a href="module-process.html">process</a></li><li><a href="module-propertTypes.html">propertTypes</a></li><li><a href="module-scope.html">scope</a></li><li><a href="module-string.html">string</a></li><li><a href="module-testHelper.html">testHelper</a></li><li><a href="module-utility.html">utility</a></li></ul><h3>Classes</h3><ul><li><a href="module-Lock-Lock.html">Lock</a></li><li><a href="module-Logger-Logger.html">Logger</a></li><li><a href="module-Semaphore-Semaphore.html">Semaphore</a></li><li><a href="module-propertTypes-ValidationError.html">ValidationError</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-constants.html">constants</a></li><li><a href="module-context.html">context</a></li><li><a href="module-indicators.html">indicators</a></li><li><a href="module-module.html">module</a></li><li><a href="module-number.html">number</a></li><li><a href="module-object.html">object</a></li><li><a href="module-string.html">string</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Sep 15 2026 18:02:17 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed Sep 16 2026 18:42:14 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>
