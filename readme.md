@@ -11,7 +11,7 @@ This library written by Torben Sickert stands under a creative commons naming
 endregion -->
 
 <!--|deDE:Projektstatus-->
-Project status
+Project Status
 --------------
 
 [![npm](https://img.shields.io/npm/v/clientnode?color=%23d55e5d&label=npm%20package%20version&logoColor=%23d55e5d&style=for-the-badge)](https://www.npmjs.com/package/clientnode)
@@ -83,6 +83,10 @@ zip file here and inject or request via cdn in HTML:
 npm install clientnode
 ```
 
+<!--|deDE:Beispiel-->
+Example
+-------
+
 ```TypeScript
 import {createDomNodes, evaluateExpression} from 'cientnode'
 
@@ -122,10 +126,6 @@ want.
     Variable-Injection in den gegebenen Context (UMD) als Export-Format:
     Dadurch können verschiedene Module-Bundler genutzt werden.
 -->
-
-<!--|deDE:Verwendung-->
-Usage
------
 
 Execute a JSON based expression:
 <!--deDE:Ausführung eines JSON basierten Ausdrucks:-->
