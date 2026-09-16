@@ -30,20 +30,20 @@ Project status
 
 [![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?style=for-the-badge&logo=codesandbox)](https://githubbox.com/thaibault/clientnode)
 
-<!--|deDE:Einsatz-->
+<!--|deDE:Verwendung-->
 Use case
 --------
 
 You need utilities for:<!--deDE:Sie benötigen Hilfsfunktionen für:-->
 
-- Primitive types
+- Primitive types<!--deDE:Primitive Typen-->
   - Arrays
   - Functions
   - Numbers
   - Objects
   - Strings
   - Date and time
-- Mutual exclusion
+- Mutual exclusion<!--deDE:Wechselseitiger Ausschluss-->
   - Lock management
   - Semaphore management
 - Backend
@@ -54,7 +54,7 @@ You need utilities for:<!--deDE:Sie benötigen Hilfsfunktionen für:-->
   - Cookies
   - DOM
   - Data-Transfer
-- JSON-based Expressions
+- JSON-based Expressions<!--deDE:JSON-basierte Ausdrücke-->
 - Logging
 - Scopes
 - Testing
