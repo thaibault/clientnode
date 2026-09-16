@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: object.js</title>
+    <title>JSDoc: Source: index.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: object.js</h1>
+    <h1 class="page-title">Source: index.js</h1>
 
     
 
@@ -123,28 +123,12 @@ return await Promise.resolve(null)}};
 /* 3 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-__webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   addDynamicGetterAndSetter: () => (/* binding */ addDynamicGetterAndSetter),
-/* harmony export */   convertCircularObjectToJSON: () => (/* binding */ convertCircularObjectToJSON),
-/* harmony export */   convertMapToPlainObject: () => (/* binding */ convertMapToPlainObject),
-/* harmony export */   convertPlainObjectToMap: () => (/* binding */ convertPlainObjectToMap),
-/* harmony export */   convertSubstringInPlainObject: () => (/* binding */ convertSubstringInPlainObject),
-/* harmony export */   copy: () => (/* binding */ copy),
 /* harmony export */   determineType: () => (/* binding */ determineType),
 /* harmony export */   equals: () => (/* binding */ equals),
-/* harmony export */   evaluateAsyncDynamicData: () => (/* binding */ evaluateAsyncDynamicData),
-/* harmony export */   evaluateDynamicData: () => (/* binding */ evaluateDynamicData),
-/* harmony export */   extend: () => (/* binding */ extend),
-/* harmony export */   getProxyHandler: () => (/* binding */ getProxyHandler),
-/* harmony export */   mask: () => (/* binding */ mask),
-/* harmony export */   modifyObject: () => (/* binding */ modifyObject),
-/* harmony export */   removeKeyPrefixes: () => (/* binding */ removeKeyPrefixes),
-/* harmony export */   removeKeysInEvaluation: () => (/* binding */ removeKeysInEvaluation),
-/* harmony export */   represent: () => (/* binding */ represent),
-/* harmony export */   sort: () => (/* binding */ sort),
-/* harmony export */   unwrapProxy: () => (/* binding */ unwrapProxy)
+/* harmony export */   represent: () => (/* binding */ represent)
 /* harmony export */ });
+/* unused harmony exports addDynamicGetterAndSetter, convertCircularObjectToJSON, convertMapToPlainObject, convertPlainObjectToMap, convertSubstringInPlainObject, copy, evaluateDynamicData, evaluateAsyncDynamicData, removeKeysInEvaluation, extend, getProxyHandler, mask, modifyObject, removeKeyPrefixes, sort, unwrapProxy */
 /* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 /* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var core_js_modules_es_regexp_flags_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
@@ -973,6 +957,242 @@ module.exports = window["coreJsModulesEsRegexpFlagsJs"];
  * @returns Returns the rounded number.
  */const floor=(number,digits=0)=>Math.floor(number*Math.pow(10,digits))/Math.pow(10,digits);
 
+/***/ }),
+/* 10 */,
+/* 11 */,
+/* 12 */,
+/* 13 */,
+/* 14 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony import */ var _indicators_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/const isSpecificExpression=(expression,indicatorKey,properties=[])=>{if(!((0,_indicators_js__WEBPACK_IMPORTED_MODULE_0__.isPlainObject)(expression)&amp;&amp;Object.prototype.hasOwnProperty.call(expression,indicatorKey)))return false;for(const name of properties)if(!Object.prototype.hasOwnProperty.call(expression,name))return false;return true};const isCondition=expression=>isSpecificExpression(expression,"$comparator",["value1","value2"]);const isAndExpression=expression=>isSpecificExpression(expression,"$and");const isOrExpression=expression=>isSpecificExpression(expression,"$or");const isConcatExpression=expression=>isSpecificExpression(expression,"$concat");const isMappingExpression=expression=>isSpecificExpression(expression,"$mapping",["data"]);const isOperation=expression=>isSpecificExpression(expression,"$operator",["operand1","operand2"]);const isUnaryOperation=expression=>isSpecificExpression(expression,"$operator",["operand"]);const isIfExpression=expression=>isSpecificExpression(expression,"$if");const isSwitchExpression=expression=>isSpecificExpression(expression,"$switch");const isSelector=expression=>isSpecificExpression(expression,"$select");const isArrayContainsExpression=expression=>isSpecificExpression(expression,"$arrayContains");const isValue=expression=>!(isSelector(expression)||isCondition(expression)||isUnaryOperation(expression)||isOperation(expression)||isAndExpression(expression)||isOrExpression(expression)||isConcatExpression(expression)||isMappingExpression(expression)||isIfExpression(expression)||isSwitchExpression(expression)||isArrayContainsExpression(expression));
+/* harmony export */ __webpack_require__.d(__webpack_exports__, [
+/* harmony export */   "isAndExpression", 0, /* binding */ isAndExpression,
+/* harmony export */   "isArrayContainsExpression", 0, /* binding */ isArrayContainsExpression,
+/* harmony export */   "isConcatExpression", 0, /* binding */ isConcatExpression,
+/* harmony export */   "isCondition", 0, /* binding */ isCondition,
+/* harmony export */   "isIfExpression", 0, /* binding */ isIfExpression,
+/* harmony export */   "isMappingExpression", 0, /* binding */ isMappingExpression,
+/* harmony export */   "isOperation", 0, /* binding */ isOperation,
+/* harmony export */   "isOrExpression", 0, /* binding */ isOrExpression,
+/* harmony export */   "isSelector", 0, /* binding */ isSelector,
+/* harmony export */   "isSpecificExpression", 0, /* binding */ isSpecificExpression,
+/* harmony export */   "isSwitchExpression", 0, /* binding */ isSwitchExpression,
+/* harmony export */   "isUnaryOperation", 0, /* binding */ isUnaryOperation,
+/* harmony export */   "isValue", 0, /* binding */ isValue
+/* harmony export */ ]);
+
+
+/***/ }),
+/* 15 */,
+/* 16 */,
+/* 17 */,
+/* 18 */,
+/* 19 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   DEFAULT_OPTIONS: () => (/* binding */ DEFAULT_OPTIONS),
+/* harmony export */   NO_ITEM_FOUND_SYMBOL: () => (/* binding */ NO_ITEM_FOUND_SYMBOL),
+/* harmony export */   SELECTOR_KEY_NAMES: () => (/* binding */ SELECTOR_KEY_NAMES),
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
+/* harmony export */   evaluateAnd: () => (/* binding */ evaluateAnd),
+/* harmony export */   evaluateArrayContains: () => (/* binding */ evaluateArrayContains),
+/* harmony export */   evaluateConcat: () => (/* binding */ evaluateConcat),
+/* harmony export */   evaluateCondition: () => (/* binding */ evaluateCondition),
+/* harmony export */   evaluateIf: () => (/* binding */ evaluateIf),
+/* harmony export */   evaluateMapping: () => (/* binding */ evaluateMapping),
+/* harmony export */   evaluateOperation: () => (/* binding */ evaluateOperation),
+/* harmony export */   evaluateOptionalThen: () => (/* binding */ evaluateOptionalThen),
+/* harmony export */   evaluateOr: () => (/* binding */ evaluateOr),
+/* harmony export */   evaluateSelector: () => (/* binding */ evaluateSelector),
+/* harmony export */   evaluateSelectorUntilLastObject: () => (/* binding */ evaluateSelectorUntilLastObject),
+/* harmony export */   evaluateSwitch: () => (/* binding */ evaluateSwitch),
+/* harmony export */   evaluateUnaryOperation: () => (/* binding */ evaluateUnaryOperation),
+/* harmony export */   normalizeSelector: () => (/* binding */ normalizeSelector),
+/* harmony export */   selectArrayItem: () => (/* binding */ selectArrayItem)
+/* harmony export */ });
+/* unused harmony export evaluateExpression */
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
+/* harmony import */ var _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(14);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/const SELECTOR_KEY_NAMES=new Set(["name"]);const NO_ITEM_FOUND_SYMBOL=Symbol.for("EXPRESSION_EVALUATOR_NO_ITEM_FOUND");const DEFAULT_OPTIONS={skipMissingLevel:false,contextReplacements:{},delimiter:"."};const addBracketBasedPathElements=subParts=>{const path=[];// NOTE: We add index assignments into path array.
+for(const subPart of subParts){const openingBracketPosition=subPart.indexOf("[");if(openingBracketPosition>0)path.push(subPart.substring(0,openingBracketPosition));// Trim bracket padding "[index]" => "index".
+path.push(subPart.substring(openingBracketPosition+1,subPart.length-1))}return path};const normalizeSelector=(selector,givenOptions={})=>{const options={...DEFAULT_OPTIONS,scope:{},...givenOptions};const path=[];for(const component of[].concat(selector))if(typeof component==="string"){const parts=component.split(options.delimiter);for(let part of parts){if(!part)continue;if((0,_index_js__WEBPACK_IMPORTED_MODULE_0__.isFunction)(part)){path.push(part);continue}// Identify bracket based selectors like "[index]".
+const openingBracketPosition=part.indexOf("[");let restPart=part;if(openingBracketPosition!==-1){restPart=part.substring(openingBracketPosition);part=part.substring(0,openingBracketPosition)}if(Object.prototype.hasOwnProperty.call(options.contextReplacements,part))path.push(...normalizeSelector(options.contextReplacements[part],options));else path.push(part);if(restPart!==part){// Trim bracket padding "[index]" => "index".
+const subParts=restPart.match(/[^[]*\[\d+]/g);path.push(...addBracketBasedPathElements(subParts))}}}else path.push(evaluateExpression(component,options.scope,options));return path};const selectArrayItem=(data,keyOrIndex)=>{// Assume that an array item should be found by its property name.
+for(const item of data)for(const selectorKeyName of SELECTOR_KEY_NAMES)if(Object.prototype.hasOwnProperty.call(item,selectorKeyName)&amp;&amp;item[selectorKeyName]===keyOrIndex)return item;return NO_ITEM_FOUND_SYMBOL};/**
+ * Retrieves substructure in given object referenced by given selector
+ * path.
+ * @param selector - Selector path.
+ * @param scope - Object to search in.
+ * @param givenOptions - Object to configure evaluation.
+ * @param givenOptions.contextReplacements - Configuration how to replace
+ * "this" and "thisParent" keywords in selectors.
+ * @param givenOptions.delimiter - Delimiter to delimit given selector
+ * components.
+ * @param givenOptions.skipMissingLevel - Indicates to skip missing level in
+ * given path.
+ * @returns Determined sub structure of given data or "undefined".
+ */const evaluateSelectorUntilLastObject=(selector,scope={},givenOptions={})=>{const options={...DEFAULT_OPTIONS,...givenOptions};/*
+        Create a list of keys or indexes to retrieve specified value from given
+        object.
+    */const path=normalizeSelector(selector,{...options,scope});// Dig into given scope for each previously found key or index.
+let result=scope;let index=0;for(const keyOrIndex of path){const isLastPart=index===path.length-1;if((0,_index_js__WEBPACK_IMPORTED_MODULE_0__.isObject)(result)){if(Array.isArray(result)&amp;&amp;typeof keyOrIndex==="string"&amp;&amp;isNaN(parseInt(keyOrIndex))){const item=selectArrayItem(result,keyOrIndex);if(item!==NO_ITEM_FOUND_SYMBOL){if(isLastPart)return typeof keyOrIndex==="number"?[result,keyOrIndex]:[result,result.indexOf(item)];result=item}}else if(isLastPart)return[result,keyOrIndex];else if((0,_index_js__WEBPACK_IMPORTED_MODULE_0__.isFunction)(keyOrIndex))result=keyOrIndex(result);else if(Object.prototype.hasOwnProperty.call(result,keyOrIndex))result=result[keyOrIndex];else if(!options.skipMissingLevel)return[result,keyOrIndex]}else if(isLastPart)return[result,keyOrIndex];else if(!options.skipMissingLevel)return[result,keyOrIndex];index+=1}return[{},""]};/**
+ * Retrieves substructure in given object referenced by given selector
+ * path.
+ * @param selector - Selector path.
+ * @param scope - Object to search in.
+ * @param options - Options object to configure evaluation.
+ * @param options.contextReplacements - Configuration how to replace "this"
+ * and "thisParent" keywords in selectors.
+ * @param options.delimiter - Delimiter to delimit given selector components.
+ * @param options.skipMissingLevel - Indicates to skip missing level in given
+ * path.
+ * @returns Determined sub structure of given data or "undefined".
+ */const evaluateSelector=(selector,scope={},options={})=>{const[lastObject,lastKey]=evaluateSelectorUntilLastObject(selector,scope,options);if(lastKey==="")return scope;if((0,_index_js__WEBPACK_IMPORTED_MODULE_0__.isFunction)(lastKey))return lastKey(lastObject);if(Object.prototype.hasOwnProperty.call(lastObject,lastKey))return lastObject[lastKey];return options.skipMissingLevel?lastObject:undefined};const evaluateCondition=(condition,scope,options)=>{const value1=evaluateExpression(condition.value1,scope,options);const value2=evaluateExpression(condition.value2,scope,options);switch(condition.$comparator){case"==":return (0,_index_js__WEBPACK_IMPORTED_MODULE_1__.equals)(value1,value2);case"!=":return!(0,_index_js__WEBPACK_IMPORTED_MODULE_1__.equals)(value1,value2);case"&lt;":return value1&lt;value2;case"&lt;=":return value1&lt;=value2;case">":return value1>value2;case">=":return value1>=value2}};const evaluateUnaryOperation=(operation,scope,options)=>{const operand=evaluateExpression(operation.operand,scope,options);switch(operation.$operator){case"!":return!operand;case"!!":return Boolean(operand)}};const evaluateOperation=(operation,scope,options)=>{const operand1=evaluateExpression(operation.operand1,scope,options);const operand2=evaluateExpression(operation.operand2,scope,options);switch(operation.$operator){case"+":return operand1+operand2;case"-":return operand1-operand2;case"*":return operand1*operand2;case"**":return operand1**operand2;case"/":return operand1/operand2}};const evaluateOptionalThen=(expression,scope,options)=>{if(typeof expression.then==="undefined")return undefined;return evaluateExpression(expression.then,scope,options)};const evaluateIf=(expression,scope,options)=>{if(evaluateExpression(expression.$if,scope,options))return evaluateOptionalThen(expression,scope,options);return typeof expression.else==="undefined"?undefined:evaluateExpression(expression.else,scope)};const evaluateSwitch=(expression,scope,options)=>{const value=evaluateExpression(expression.$switch,scope);for(const caseExpression of expression.caseExpressions)if(value===evaluateExpression(caseExpression.$case,scope,options))return evaluateOptionalThen(caseExpression,scope,options);if(typeof expression.default!=="undefined")return evaluateExpression(expression.default,scope,options);return undefined};const evaluateAnd=(expression,scope,options)=>{for(const condition of expression.$and)if(!evaluateExpression(condition,scope,options))return false;return true};const evaluateOr=(expression,scope,options)=>{for(const condition of expression.$or)if(evaluateExpression(condition,scope,options))return true;return false};const evaluateConcat=(expression,scope,options)=>{let result=[];let isArray=false;for(const item of expression.$concat){const value=evaluateExpression(item,scope,options);if(Array.isArray(value))isArray=true;result=result.concat(value)}return isArray?result:result.join("")};const evaluateMapping=(expression,scope,options)=>{const givenData=evaluateExpression(expression.data,scope,options);let normalizedGivenData=[];if(Array.isArray(givenData))normalizedGivenData=givenData;else for(const[key,value]of Object.entries(givenData))normalizedGivenData.push({...value,$key:key});const result=[];for(const item of normalizedGivenData){const value={};for(const[sourceName,targetName]of Object.entries(expression.$mapping))if(Object.prototype.hasOwnProperty.call(item,sourceName))value[targetName]=item[sourceName];result.push(value)}return result};const evaluateArrayContains=(expression,scope,options)=>{let array=scope;if(expression.$arrayContains.target!=null)array=evaluateExpression(expression.$arrayContains.target,scope,options);const value=evaluateExpression(expression.$arrayContains.value,scope,options);const key=evaluateExpression(expression.$arrayContains.key,scope,options);if(!Array.isArray(array))return false;return array.some(item=>{if(typeof key==="string"&amp;&amp;(0,_index_js__WEBPACK_IMPORTED_MODULE_0__.isPlainObject)(item)&amp;&amp;Object.prototype.hasOwnProperty.call(item,key)){const record=item;return record[key]===value}return item===value})};function evaluateExpression(expression,scope={},options={}){if((0,_indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isSelector)(expression))return evaluateSelector(expression.$select,scope,options);if((0,_indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isCondition)(expression))return evaluateCondition(expression,scope,options);if((0,_indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isUnaryOperation)(expression))return evaluateUnaryOperation(expression,scope,options);if((0,_indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isOperation)(expression))return evaluateOperation(expression,scope,options);if((0,_indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isOrExpression)(expression))return evaluateOr(expression,scope,options);if((0,_indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isAndExpression)(expression))return evaluateAnd(expression,scope,options);if((0,_indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isConcatExpression)(expression))return evaluateConcat(expression,scope,options);if((0,_indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isMappingExpression)(expression))return evaluateMapping(expression,scope,options);if((0,_indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isIfExpression)(expression))return evaluateIf(expression,scope,options);if((0,_indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isSwitchExpression)(expression))return evaluateSwitch(expression,scope,options);if((0,_indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isArrayContainsExpression)(expression))return evaluateArrayContains(expression,scope,options);return expression}/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (evaluateExpression);
+
+/***/ }),
+/* 20 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_0__);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/const viewArrayAsScope=(data,childrenPropertyNames,propertyReferenceKeys)=>new Proxy(data,{ownKeys(target){return Reflect.ownKeys(target)},get(target,name){for(const element of target)for(const key of propertyReferenceKeys)if(element[key]===name){// NOTE: Type[keyof Type]
+// NOTE: ScopeType[keyof ScopeType]
+// type ScopeValueType = object
+/*
+                            eslint-disable
+                            @typescript-eslint/no-unnecessary-type-arguments
+                        */return viewObjectAsScope(element,childrenPropertyNames,propertyReferenceKeys);/*
+                            eslint-enable
+                            @typescript-eslint/no-unnecessary-type-arguments
+                        */}return undefined},set(target,name,value){let index=0;for(const item of target){for(const key of propertyReferenceKeys)if(item[key]===name){target[index]=value;return true}index+=1}return false}});const viewObjectAsScope=(data,childrenPropertyNames=["children"],propertyReferenceKeys=["name"])=>new Proxy(data,{ownKeys(target){return Reflect.ownKeys(target)},get(target,name){const value=target[name];if(Object.prototype.hasOwnProperty.call(target,name)){if(childrenPropertyNames.includes(name)&amp;&amp;Array.isArray(value)){// NOTE: Type[keyof Type]
+// NOTE: ScopeType[keyof ScopeType]
+return viewArrayAsScope(value,childrenPropertyNames,propertyReferenceKeys)}if(value!==null&amp;&amp;typeof value==="object"){// NOTE: Type[keyof Type]
+// NOTE: ScopeType[keyof ScopeType]
+// type ScopeValueType = object
+/*
+                        eslint-disable
+                        @typescript-eslint/no-unnecessary-type-arguments
+                    */return viewObjectAsScope(value,childrenPropertyNames,propertyReferenceKeys);/*
+                        eslint-enable
+                        @typescript-eslint/no-unnecessary-type-arguments
+                    */}return value}return undefined},set(target,name,value){if(Object.prototype.hasOwnProperty.call(target,name))if(Object.prototype.hasOwnProperty.call(target,name)){target[name]=value;return true}return false}});
+/* harmony export */ __webpack_require__.d(__webpack_exports__, [
+/* harmony export */   "viewArrayAsScope", 0, /* binding */ viewArrayAsScope,
+/* harmony export */   "viewObjectAsScope", 0, /* binding */ viewObjectAsScope
+/* harmony export */ ]);
+
+
+/***/ }),
+/* 21 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   DEFAULT_OPTIONS: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.DEFAULT_OPTIONS),
+/* harmony export */   NO_ITEM_FOUND_SYMBOL: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.NO_ITEM_FOUND_SYMBOL),
+/* harmony export */   SELECTOR_KEY_NAMES: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.SELECTOR_KEY_NAMES),
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
+/* harmony export */   evaluateAnd: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateAnd),
+/* harmony export */   evaluateArrayContains: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateArrayContains),
+/* harmony export */   evaluateConcat: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateConcat),
+/* harmony export */   evaluateCondition: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateCondition),
+/* harmony export */   evaluateExpression: () => (/* binding */ evaluateExpression),
+/* harmony export */   evaluateIf: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateIf),
+/* harmony export */   evaluateMapping: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateMapping),
+/* harmony export */   evaluateOperation: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateOperation),
+/* harmony export */   evaluateOptionalThen: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateOptionalThen),
+/* harmony export */   evaluateOr: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateOr),
+/* harmony export */   evaluateSelector: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateSelector),
+/* harmony export */   evaluateSelectorUntilLastObject: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateSelectorUntilLastObject),
+/* harmony export */   evaluateSwitch: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateSwitch),
+/* harmony export */   evaluateUnaryOperation: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.evaluateUnaryOperation),
+/* harmony export */   isAndExpression: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isAndExpression),
+/* harmony export */   isArrayContainsExpression: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isArrayContainsExpression),
+/* harmony export */   isConcatExpression: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isConcatExpression),
+/* harmony export */   isCondition: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isCondition),
+/* harmony export */   isIfExpression: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isIfExpression),
+/* harmony export */   isMappingExpression: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isMappingExpression),
+/* harmony export */   isOperation: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isOperation),
+/* harmony export */   isOrExpression: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isOrExpression),
+/* harmony export */   isSelector: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isSelector),
+/* harmony export */   isSpecificExpression: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isSpecificExpression),
+/* harmony export */   isSwitchExpression: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isSwitchExpression),
+/* harmony export */   isUnaryOperation: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isUnaryOperation),
+/* harmony export */   isValue: () => (/* reexport safe */ _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__.isValue),
+/* harmony export */   normalizeSelector: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.normalizeSelector),
+/* harmony export */   selectArrayItem: () => (/* reexport safe */ _evaluators_js__WEBPACK_IMPORTED_MODULE_0__.selectArrayItem),
+/* harmony export */   viewArrayAsScope: () => (/* reexport safe */ _helper_js__WEBPACK_IMPORTED_MODULE_1__.viewArrayAsScope),
+/* harmony export */   viewObjectAsScope: () => (/* reexport safe */ _helper_js__WEBPACK_IMPORTED_MODULE_1__.viewObjectAsScope)
+/* harmony export */ });
+/* harmony import */ var _evaluators_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(19);
+/* harmony import */ var _helper_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(20);
+/* harmony import */ var _indicator_functions_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(14);
+// #!/usr/bin/env babel-node
+// -*- coding: utf-8 -*-
+/* !
+    region header
+    [Project page](https://torben.website/clientnode)
+
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+    License
+    -------
+
+    This library written by Torben Sickert stands under a creative commons
+    naming 3.0 unported license.
+    See https://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/const evaluateExpression=_evaluators_js__WEBPACK_IMPORTED_MODULE_0__["default"];/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (evaluateExpression);
+
 /***/ })
 /******/ ]);
 /************************************************************************/
@@ -1094,7 +1314,7 @@ module.exports = window["coreJsModulesEsRegexpFlagsJs"];
 /******/ // module cache are used so entry inlining is disabled
 /******/ // startup
 /******/ // Load entry module and return exports
-/******/ let __webpack_exports__ = __webpack_require__(3);
+/******/ let __webpack_exports__ = __webpack_require__(21);
 /******/ (((((((((((((((((((((((((((window.expressionEvaluators = window.expressionEvaluators || {}).expressionHelper = window.expressionEvaluators.expressionHelper || {}).expressionIndex = window.expressionEvaluators.expressionHelper.expressionIndex || {}).expressionIndicatorFunctions = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions || {}).Lock = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock || {}).Logger = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger || {}).Semaphore = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore || {}).array = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array || {}).cli = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli || {}).constants = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants || {}).context = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context || {}).cookie = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie || {}).dataTransfer = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer || {}).datetime = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime || {}).domNode = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode || {}).filesystem = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem || {})["function"] = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"] || {}).index = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index || {}).indicators = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators || {}).module = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module || {}).number = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number || {}).object = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object || {}).process = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process || {}).propertyTypes = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes || {}).scope = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope || {}).string = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope.string || {}).testHelper = window.expressionEvaluators.expressionHelper.expressionIndex.expressionIndicatorFunctions.Lock.Logger.Semaphore.array.cli.constants.context.cookie.dataTransfer.datetime.domNode.filesystem["function"].index.indicators.module.number.object.process.propertyTypes.scope.string.testHelper || {}).utility = __webpack_exports__;
 /******/ 
 </code></pre>
@@ -1107,13 +1327,13 @@ module.exports = window["coreJsModulesEsRegexpFlagsJs"];
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Lock.html">Lock</a></li><li><a href="module-Logger.html">Logger</a></li><li><a href="module-Semaphore.html">Semaphore</a></li><li><a href="module-array.html">array</a></li><li><a href="module-cli.html">cli</a></li><li><a href="module-constants.html">constants</a></li><li><a href="module-context.html">context</a></li><li><a href="module-cookie.html">cookie</a></li><li><a href="module-data-transfer.html">data-transfer</a></li><li><a href="module-dateTime.html">dateTime</a></li><li><a href="module-domNode.html">domNode</a></li><li><a href="module-filesystem.html">filesystem</a></li><li><a href="module-function.html">function</a></li><li><a href="module-indicators.html">indicators</a></li><li><a href="module-module.html">module</a></li><li><a href="module-number.html">number</a></li><li><a href="module-object.html">object</a></li><li><a href="module-process.html">process</a></li><li><a href="module-propertTypes.html">propertTypes</a></li><li><a href="module-scope.html">scope</a></li><li><a href="module-string.html">string</a></li><li><a href="module-testHelper.html">testHelper</a></li><li><a href="module-utility.html">utility</a></li></ul><h3>Classes</h3><ul><li><a href="module-Lock-Lock.html">Lock</a></li><li><a href="module-Logger-Logger.html">Logger</a></li><li><a href="module-Semaphore-Semaphore.html">Semaphore</a></li><li><a href="module-propertTypes-ValidationError.html">ValidationError</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-constants.html">constants</a></li><li><a href="module-context.html">context</a></li><li><a href="module-indicators.html">indicators</a></li><li><a href="module-module.html">module</a></li><li><a href="module-number.html">number</a></li><li><a href="module-object.html">object</a></li><li><a href="module-string.html">string</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Sep 15 2026 18:02:17 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed Sep 16 2026 18:42:14 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>
