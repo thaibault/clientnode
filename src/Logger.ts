@@ -112,14 +112,16 @@ export class Logger {
      * log level specific annotations.
      * @param level - Description of log messages importance.
      * @param additionalArguments - Additional values to print.
+     * @returns Returns a promise which resolves when the log message has been
+     * printed.
      */
-    log(
+    async log(
         object: unknown,
         force = false,
         avoidAnnotation = false,
         level: Level = 'info',
         ...additionalArguments: Array<unknown>
-    ): void {
+    ): Promise<void> {
         const currentLevelIndex = LEVELS.indexOf(this.level)
         const levelIndex = LEVELS.indexOf(level)
 
@@ -150,7 +152,7 @@ export class Logger {
                     multiLineAnnotation.length
                 const halfRemainingLength = Math.floor(remainingLength / 2)
 
-                this.log(
+                await this.log(
                     (
                         `,${'-'.repeat(halfRemainingLength)}` +
                         multiLineAnnotation +
@@ -161,8 +163,8 @@ export class Logger {
                     true,
                     level
                 )
-                this.log(object, force, true, level)
-                this.log(
+                await this.log(object, force, true, level)
+                await this.log(
                     `'${'-'.repeat(lineLength)}'`,
                     force,
                     true,
@@ -187,7 +189,37 @@ export class Logger {
                         )
                     )
                         globalContext.window?.alert(messages.join(' '))
-                } else
+                /*
+                    eslint-disable @typescript-eslint/no-unnecessary-condition
+                */
+                } else if (typeof process !== 'undefined' && process.stdout)
+                /*
+                    eslint-enable @typescript-eslint/no-unnecessary-condition
+                */
+                    await new Promise(
+                        (
+                            resolve: (value?: undefined) => void,
+                            reject: (error: Error) => void
+                        ) => {
+                            process.stdout.write(
+                                `${messages.map(String).join(' ')}\n`,
+                                (error?: unknown) => {
+                                    if (error)
+                                        /*
+                                            eslint-disable
+                                            prefer-promise-reject-errors
+                                        */
+                                        reject(error as Error)
+                                        /*
+                                            eslint-enable
+                                            prefer-promise-reject-errors
+                                        */
+                                    else
+                                        resolve()
+                                }
+                            )
+                        })
+                else
                     (globalContext.console[level as keyof Console] as
                         Console['log']
                     )(...messages)
@@ -199,9 +231,13 @@ export class Logger {
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
+     * @returns Returns a promise which resolves when the log message has been
+     * printed.
      */
-    info(object: unknown, ...additionalArguments: Array<unknown>): void {
-        this.log(object, false, false, 'info', ...additionalArguments)
+    info(
+        object: unknown, ...additionalArguments: Array<unknown>
+    ): Promise<void> {
+        return this.log(object, false, false, 'info', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by
@@ -209,9 +245,13 @@ export class Logger {
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
+     * @returns Returns a promise which resolves when the log message has been
+     * printed.
      */
-    debug(object: unknown, ...additionalArguments: Array<unknown>): void {
-        this.log(object, false, false, 'debug', ...additionalArguments)
+    debug(
+        object: unknown, ...additionalArguments: Array<unknown>
+    ): Promise<void> {
+        return this.log(object, false, false, 'debug', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by
@@ -219,9 +259,13 @@ export class Logger {
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
+     * @returns Returns a promise which resolves when the log message has been
+     * printed.
      */
-    error(object: unknown, ...additionalArguments: Array<unknown>): void {
-        this.log(object, true, false, 'error', ...additionalArguments)
+    error(
+        object: unknown, ...additionalArguments: Array<unknown>
+    ): Promise<void> {
+        return this.log(object, true, false, 'error', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by
@@ -229,9 +273,13 @@ export class Logger {
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
+     * @returns Returns a promise which resolves when the log message has been
+     * printed.
      */
-    critical(object: unknown, ...additionalArguments: Array<unknown>) {
-        this.log(object, true, false, 'warn', ...additionalArguments)
+    critical(
+        object: unknown, ...additionalArguments: Array<unknown>
+    ): Promise<void> {
+        return this.log(object, true, false, 'warn', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by
@@ -239,9 +287,13 @@ export class Logger {
      * @param object - Any object to print.
      * @param additionalArguments - Additional arguments are used for string
      * formatting.
+     * @returns Returns a promise which resolves when the log message has been
+     * printed.
      */
-    warn(object: unknown, ...additionalArguments: Array<unknown>) {
-        this.log(object, false, false, 'warn', ...additionalArguments)
+    warn(
+        object: unknown, ...additionalArguments: Array<unknown>
+    ): Promise<void> {
+        return this.log(object, false, false, 'warn', ...additionalArguments)
     }
     /**
      * Dumps a given object in a human-readable format.

@@ -30,25 +30,21 @@ const TEST_ENVIRONMENT: string = (
 
 const logger = new Logger()
 test('log', () => {
-    logger.log('test')
-    expect(true).toStrictEqual(true)
+    expect(logger.log('test')).resolves.toBeUndefined()
 })
 test('info', () => {
-    logger.info('test {0}')
-    expect(true).toStrictEqual(true)
+    expect(logger.info('test {0}')).resolves.toBeUndefined()
 })
 test('debug', () => {
-    logger.debug('test')
-    expect(true).toStrictEqual(true)
+    expect(logger.debug('test')).resolves.toBeUndefined()
 })
 // NOTE: This test breaks JavaScript modules in strict mode.
 test.skip(`${TEST_ENVIRONMENT}-error`, () => {
-    logger.error('ignore this error, it is only a {1}', 'test')
-    expect(true).toStrictEqual(true)
+    expect(logger.error('ignore this error, it is only a {1}', 'test'))
+        .resolves.toBeUndefined()
 })
 test('warn', () => {
-    logger.warn('test')
-    expect(true).toStrictEqual(true)
+    expect(logger.warn('test')).resolves.toBeUndefined()
 })
 test('show', () => {
     expect(/^.+\(Type: "function"\)$/su.test(Logger.show(NOOP)))

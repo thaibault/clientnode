@@ -137,17 +137,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/eslint-parser@npm:^8.0.5":
-  version: 8.0.5
-  resolution: "@babel/eslint-parser@npm:8.0.5"
+"@babel/eslint-parser@npm:^7.29.7":
+  version: 7.29.7
+  resolution: "@babel/eslint-parser@npm:7.29.7"
   dependencies:
-    eslint-scope: "npm:^9.1.0"
-    eslint-visitor-keys: "npm:^5.0.0"
-    verkit: "npm:^0.3.2"
+    "@nicolo-ribaudo/eslint-scope-5-internals": "npm:5.1.1-v1"
+    eslint-visitor-keys: "npm:^2.1.0"
+    semver: "npm:^6.3.1"
   peerDependencies:
-    "@babel/core": ^8.0.0
-    eslint: ^9.0.0 || ^10.0.0
-  checksum: 10c0/a566c2031725147cc30feacf0302adaa65786bbed387e3f1bc1ebb29a60abc72d8c8f95f99133eb2a694849c8ad6f4527660d9c3dbde343239329421049f0ac5
+    "@babel/core": ^7.11.0
+    eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
+  checksum: 10c0/c24dcd941b0a149b197a9e9c3297a01d621775ac71cdf2e1134b1097c1691b46ce969355e1be3676d83b88f62c43ed33cf3a499da21ea11a5eb07339ce64ac20
   languageName: node
   linkType: hard
 
@@ -2645,6 +2645,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1":
+  version: 5.1.1-v1
+  resolution: "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1"
+  dependencies:
+    eslint-scope: "npm:5.1.1"
+  checksum: 10c0/75dda3e623b8ad7369ca22552d6beee337a814b2d0e8a32d23edd13fcb65c8082b32c5d86e436f3860dd7ade30d91d5db55d4ef9a08fb5a976c718ecc0d88a74
+  languageName: node
+  linkType: hard
+
 "@noble/hashes@npm:1.4.0":
   version: 1.4.0
   resolution: "@noble/hashes@npm:1.4.0"
@@ -3284,12 +3293,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^26.6.0":
-  version: 26.6.0
-  resolution: "@types/node@npm:26.6.0"
+"@types/node@npm:^26.6.1":
+  version: 26.6.1
+  resolution: "@types/node@npm:26.6.1"
   dependencies:
     undici-types: "npm:~8.9.0"
-  checksum: 10c0/147a3ad48c8deab7ba55b323be868b5ff9df950803a7a61662f70a50e703739c98041b68142363a7eef7a1e4b61b5d5c3d802cf2d9982125eecebe768d677bb9
+  checksum: 10c0/c90d3db40e7c9c92f0854ecdcaabd9c1923b7e2a43cf2c97cf147a5aba7e18a1c80034088edfb1bb2153ceffdd87be7ce0a256b80ec7cd92e619c564133ae5fe
   languageName: node
   linkType: hard
 
@@ -5549,7 +5558,7 @@ __metadata:
   resolution: "clientnode@workspace:."
   dependencies:
     "@babel/cli": "npm:^8.0.5"
-    "@babel/eslint-parser": "npm:^8.0.5"
+    "@babel/eslint-parser": "npm:^7.29.7"
     "@babel/plugin-transform-class-properties": "npm:^8.0.1"
     "@babel/preset-env": "npm:^8.0.5"
     "@babel/preset-typescript": "npm:^8.0.1"
@@ -5559,7 +5568,7 @@ __metadata:
     "@types/ejs": "npm:^3.1.5"
     "@types/html-minifier": "npm:^4.0.6"
     "@types/imagemin": "npm:^9.0.1"
-    "@types/node": "npm:^26.6.0"
+    "@types/node": "npm:^26.6.1"
     "@types/prop-types": "npm:^15.7.15"
     "@types/webpack-env": "npm:^1.18.8"
     "@typescript-eslint/eslint-plugin": "npm:^8.70.0"
@@ -5569,7 +5578,7 @@ __metadata:
     clientnode: "workspace:."
     eslint: "npm:^10.10.0"
     eslint-config-google: "npm:^0.14.0"
-    eslint-plugin-jsdoc: "npm:^64.5.0"
+    eslint-plugin-jsdoc: "npm:^64.5.2"
     favicons-webpack-plugin: "npm:^6.0.1"
     image-minimizer-webpack-plugin: "npm:^5.0.0"
     jest: "npm:^30.5.1"
@@ -6269,9 +6278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:^64.5.0":
-  version: 64.5.0
-  resolution: "eslint-plugin-jsdoc@npm:64.5.0"
+"eslint-plugin-jsdoc@npm:^64.5.2":
+  version: 64.5.2
+  resolution: "eslint-plugin-jsdoc@npm:64.5.2"
   dependencies:
     "@es-joy/jsdoccomment": "npm:~0.97.0"
     "@es-joy/resolve.exports": "npm:1.2.0"
@@ -6290,7 +6299,11 @@ __metadata:
     to-valid-identifier: "npm:^1.0.0"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
-  checksum: 10c0/bb3250ad497eb421d3a589ed48fc0d1cf7b0d7f750057203a7ce32a7d0f231742c6c73017c6293965d12407d58b6e8b2d956adb9f7e9b669b4e235fe086a3e39
+    typescript: "*"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 10c0/6a71dbba3d7a5e58384e39eb38e8750aa22684fac481baba25baf2f134e75e6bcfab22f8913964b5823fc67fac5faf99b259c2d5b02d60c011a4cf16ab3d3a25
   languageName: node
   linkType: hard
 
@@ -6304,7 +6317,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-scope@npm:^9.1.0, eslint-scope@npm:^9.1.2":
+"eslint-scope@npm:^9.1.2":
   version: 9.1.2
   resolution: "eslint-scope@npm:9.1.2"
   dependencies:
@@ -6313,6 +6326,13 @@ __metadata:
     esrecurse: "npm:^4.3.0"
     estraverse: "npm:^5.2.0"
   checksum: 10c0/9fb8bca5a73e5741efb6cec84467027b6cb6f4203ff9b43a938e272c5cd30800bde46a5c20dfd1609f840225f0b62b7673be391b20acadf8658ca9fa4729b3dd
+  languageName: node
+  linkType: hard
+
+"eslint-visitor-keys@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "eslint-visitor-keys@npm:2.1.0"
+  checksum: 10c0/9f0e3a2db751d84067d15977ac4b4472efd6b303e369e6ff241a99feac04da758f46d5add022c33d06b53596038dbae4b4aceb27c7e68b8dfc1055b35e495787
   languageName: node
   linkType: hard
 
