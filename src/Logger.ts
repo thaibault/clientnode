@@ -116,7 +116,7 @@ export class Logger {
      * printed.
      */
     async log(
-        object: unknown,
+        object: unknown = '',
         force = false,
         avoidAnnotation = false,
         level: Level = 'info',
@@ -235,7 +235,7 @@ export class Logger {
      * printed.
      */
     info(
-        object: unknown, ...additionalArguments: Array<unknown>
+        object: unknown = '', ...additionalArguments: Array<unknown>
     ): Promise<void> {
         return this.log(object, false, false, 'info', ...additionalArguments)
     }
@@ -249,7 +249,7 @@ export class Logger {
      * printed.
      */
     debug(
-        object: unknown, ...additionalArguments: Array<unknown>
+        object: unknown = '', ...additionalArguments: Array<unknown>
     ): Promise<void> {
         return this.log(object, false, false, 'debug', ...additionalArguments)
     }
@@ -263,7 +263,7 @@ export class Logger {
      * printed.
      */
     error(
-        object: unknown, ...additionalArguments: Array<unknown>
+        object: unknown = '', ...additionalArguments: Array<unknown>
     ): Promise<void> {
         return this.log(object, true, false, 'error', ...additionalArguments)
     }
@@ -277,7 +277,7 @@ export class Logger {
      * printed.
      */
     critical(
-        object: unknown, ...additionalArguments: Array<unknown>
+        object: unknown = '', ...additionalArguments: Array<unknown>
     ): Promise<void> {
         return this.log(object, true, false, 'warn', ...additionalArguments)
     }
@@ -291,7 +291,7 @@ export class Logger {
      * printed.
      */
     warn(
-        object: unknown, ...additionalArguments: Array<unknown>
+        object: unknown = '', ...additionalArguments: Array<unknown>
     ): Promise<void> {
         return this.log(object, false, false, 'warn', ...additionalArguments)
     }
