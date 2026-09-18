@@ -10,7 +10,8 @@ This library written by Torben Sickert stands under a creative commons naming
 3.0 unported license. See https://creativecommons.org/licenses/by/3.0/deed.de
 endregion -->
 
-Project status
+<!--|deDE:Projektstatus-->
+Project Status
 --------------
 
 [![npm](https://img.shields.io/npm/v/clientnode?color=%23d55e5d&label=npm%20package%20version&logoColor=%23d55e5d&style=for-the-badge)](https://www.npmjs.com/package/clientnode)
@@ -30,20 +31,20 @@ Project status
 
 [![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?style=for-the-badge&logo=codesandbox)](https://githubbox.com/thaibault/clientnode)
 
-<!--|deDE:Einsatz-->
+<!--|deDE:Verwendung-->
 Use case
 --------
 
 You need utilities for:<!--deDE:Sie benötigen Hilfsfunktionen für:-->
 
-- Primitive types
+- Primitive types<!--deDE:Primitive Typen-->
   - Arrays
   - Functions
   - Numbers
   - Objects
   - Strings
   - Date and time
-- Mutual exclusion
+- Mutual exclusion<!--deDE:Wechselseitiger Ausschluss-->
   - Lock management
   - Semaphore management
 - Backend
@@ -54,7 +55,7 @@ You need utilities for:<!--deDE:Sie benötigen Hilfsfunktionen für:-->
   - Cookies
   - DOM
   - Data-Transfer
-- JSON-based Expressions
+- JSON-based Expressions<!--deDE:JSON-basierte Ausdrücke-->
 - Logging
 - Scopes
 - Testing
@@ -81,6 +82,10 @@ zip file here and inject or request via cdn in HTML:
 ```bash
 npm install clientnode
 ```
+
+<!--|deDE:Beispiel-->
+Example
+-------
 
 ```TypeScript
 import {createDomNodes, evaluateExpression} from 'cientnode'
@@ -121,10 +126,6 @@ want.
     Variable-Injection in den gegebenen Context (UMD) als Export-Format:
     Dadurch können verschiedene Module-Bundler genutzt werden.
 -->
-
-<!--|deDE:Nutzung-->
-Usage
------
 
 Execute a JSON based expression:
 <!--deDE:Ausführung eines JSON basierten Ausdrucks:-->
