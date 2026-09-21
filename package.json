@@ -9,16 +9,16 @@
     "polymorph",
     "utility"
   ],
-  "homepage": "https://torben.website/clientnode",
+  "homepage": "https://tsickert.com/clientnode",
   "bugs": {
-    "email": "info@torben.website",
+    "email": "info@tsickert.com",
     "url": "https://github.com/thaibault/clientnode/issues"
   },
   "license": "CC-BY-3.0",
   "author": {
-    "email": "info@torben.website",
+    "email": "info@tsickert.com",
     "name": "Torben Sickert",
-    "url": "https://torben.website"
+    "url": "https://tsickert.com"
   },
   "repository": {
     "type": "git",

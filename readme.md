@@ -1,7 +1,7 @@
 <!-- !/usr/bin/env markdown
 -*- coding: utf-8 -*-
 region header
-Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+Copyright Torben Sickert (info["~at~"]tsickert.com) 16.12.2012
 
 License
 -------
@@ -27,7 +27,7 @@ Project Status
 [![code coverage](https://img.shields.io/coverallsCoverage/github/thaibault/clientnode?label=code%20coverage&style=for-the-badge)](https://coveralls.io/github/thaibault/clientnode)
 
 [![deploy web documentation](https://img.shields.io/github/actions/workflow/status/thaibault/clientnode/deploy-web-documentation.yaml?label=deploy%20web%20documentation&style=for-the-badge)](https://github.com/thaibault/clientnode/actions/workflows/deploy-web-documentation.yaml)
-[![web documentation](https://img.shields.io/website-up-down-green-red/https/torben.website/clientnode.svg?label=web-documentation&style=for-the-badge)](https://torben.website/clientnode)
+[![web documentation](https://img.shields.io/website-up-down-green-red/https/tsickert.com/clientnode.svg?label=web-documentation&style=for-the-badge)](https://tsickert.com/clientnode)
 
 [![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?style=for-the-badge&logo=codesandbox)](https://githubbox.com/thaibault/clientnode)
 
