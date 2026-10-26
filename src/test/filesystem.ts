@@ -51,8 +51,8 @@ const TEST_ENVIRONMENT: string = (
 if (TARGET_TECHNOLOGY === 'node') {
     let resolve =
         null as unknown as (typeof import('path'))['resolve']
-    let removeDirectoryRecursivelySync =
-        null as unknown as (typeof import('rimraf'))['sync']
+    let removeSync =
+        null as unknown as (typeof import('fs'))['rmSync']
     let unlink =
         null as unknown as (typeof import('fs/promises'))['unlink']
 
@@ -61,8 +61,7 @@ if (TARGET_TECHNOLOGY === 'node') {
         const currentRequire = await getCurrentRequire() as typeof require
 
         resolve = currentRequire<typeof import('path')>('path').resolve
-        removeDirectoryRecursivelySync =
-            currentRequire<typeof import('rimraf')>('rimraf').sync
+        removeSync = currentRequire<typeof import('fs')>('fs').rmSync
         unlink =
             currentRequire<typeof import('fs/promises')>('fs/promises')
                 .unlink
@@ -73,25 +72,25 @@ if (TARGET_TECHNOLOGY === 'node') {
     const testPath = './copyDirectoryRecursiveTest.compiled'
 
     test('importFilesystemAPI', () => {
-        expect(removeDirectoryRecursivelySync).toBeDefined()
+        expect(removeSync).toBeDefined()
         expect(resolve).toBeDefined()
         expect(unlink).toBeDefined()
 
         void expect(importFilesystemAPI()).resolves.toBeDefined()
     })
     test('copyDirectoryRecursive', async (): Promise<void> => {
-        removeDirectoryRecursivelySync(testPath)
+        removeSync(testPath, {force: true, recursive: true})
         expect(await copyDirectoryRecursive(
             './node_modules/.bin', testPath, false, NOOP
         )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
-        removeDirectoryRecursivelySync(testPath)
+        removeSync(testPath, {force: true, recursive: true})
     })
     test('copyDirectoryRecursiveSync', () => {
-        removeDirectoryRecursivelySync(testPath)
+        removeSync(testPath, {force: true, recursive: true})
         expect(copyDirectoryRecursiveSync(
             './node_modules/.bin', testPath, false, NOOP
         )).toMatch(/\/copyDirectoryRecursiveTest.compiled$/)
-        removeDirectoryRecursivelySync(testPath)
+        removeSync(testPath, {force: true, recursive: true})
     })
     test('copyFile', async (): Promise<void> => {
         try {
