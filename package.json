@@ -77,7 +77,6 @@
     "@babel/plugin-transform-class-properties": "^8.0.1",
     "@babel/preset-env": "^8.0.7",
     "@babel/preset-typescript": "^8.0.7",
-    "@babel/runtime": "^8.0.7",
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@types/ejs": "^3.1.5",
