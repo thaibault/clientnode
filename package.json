@@ -101,7 +101,7 @@
     "prop-types": "^15.8.1",
     "typescript-eslint": "^8.72.1",
     "web-documentation": "^1.0.68",
-    "weboptimizer": "^4.0.94",
+    "weboptimizer": "^4.0.95",
     "webpack-dev-server": "^6.1.0"
   },
   "peerDependencies": {
