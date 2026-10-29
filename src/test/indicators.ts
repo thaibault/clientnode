@@ -20,7 +20,16 @@ import {getInitializedBrowser} from 'weboptimizer/browser'
 
 import {NOOP} from '../context'
 import {
-    isAnyMatching, isArrayLike, isFunction, isNumeric, isPlainObject, isWindow
+    isAnyMatching,
+    isArrayLike,
+    isFunction,
+    isMap,
+    isNumeric,
+    isObject,
+    isPlainObject,
+    isProxy,
+    isSet,
+    isWindow
 } from '../indicators'
 import {
     testEachAgainstSameExpectation,
@@ -97,6 +106,21 @@ testEachSingleParameterAgainstSameExpectation(
     new Boolean()
 )
 testEachSingleParameterAgainstSameExpectation(
+    'isMap', isMap, true, new Map(), new Map([['a', 1]])
+)
+testEachSingleParameterAgainstSameExpectation(
+    'isMap',
+    isMap,
+    false,
+
+    null,
+    undefined,
+    {},
+    [],
+    new Set(),
+    new WeakMap()
+)
+testEachSingleParameterAgainstSameExpectation(
     'isNumeric',
     isNumeric,
     true,
@@ -129,6 +153,30 @@ testEachSingleParameterAgainstSameExpectation(
     '7.2acdgs',
     NaN,
     Infinity
+)
+testEachSingleParameterAgainstSameExpectation(
+    'isObject',
+    isObject,
+    true,
+
+    {},
+    [],
+    new Map(),
+    new Date(),
+    /a/,
+    Object.create(null)
+)
+testEachSingleParameterAgainstSameExpectation(
+    'isObject',
+    isObject,
+    false,
+
+    null,
+    undefined,
+    0,
+    '',
+    true,
+    NOOP
 )
 /*
     NOTE: Simulates a plain object created in another realm (a vm context used
@@ -167,6 +215,34 @@ testEachSingleParameterAgainstSameExpectation(
     1,
     true,
     undefined
+)
+testEachSingleParameterAgainstSameExpectation(
+    'isProxy', isProxy, true, {__target__: {}}, {__target__: []}
+)
+testEachSingleParameterAgainstSameExpectation(
+    'isProxy',
+    isProxy,
+    false,
+
+    {},
+    [],
+    {__target__: null},
+    new Proxy({}, {})
+)
+testEachSingleParameterAgainstSameExpectation(
+    'isSet', isSet, true, new Set(), new Set([1, 2])
+)
+testEachSingleParameterAgainstSameExpectation(
+    'isSet',
+    isSet,
+    false,
+
+    null,
+    undefined,
+    {},
+    [],
+    new Map(),
+    new WeakSet()
 )
 test('isWindow', async (): Promise<void> => {
     const browser: InitializedBrowser = await getInitializedBrowser()

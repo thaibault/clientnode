@@ -17,9 +17,41 @@
 */
 import {describe, expect, test} from '@jest/globals'
 
-import {viewObjectAsScope} from '../../expression/index'
+import {viewArrayAsScope, viewObjectAsScope} from '../../expression/index'
 
 describe('helper', () => {
+    test('viewArrayAsScope', () => {
+        const data = [
+            {name: 'first', value: 1, children: [{name: 'child', value: 3}]},
+            {id: 'second', value: 2}
+        ]
+        interface ScopeType {
+            first: {value: number, children: {child: {value: number}}},
+            second?: {value: number},
+            third?: {value: number}
+        }
+
+        const scope = viewArrayAsScope<typeof data, ScopeType>(
+            data, ['children'], ['name', 'id']
+        )
+        // Read items by any of the given reference keys.
+        expect(scope.first.value).toStrictEqual(1)
+        expect(scope.second?.value).toStrictEqual(2)
+        expect(scope.third).toStrictEqual(undefined)
+        // Children are viewed as scope as well.
+        expect(scope.first.children.child.value).toStrictEqual(3)
+
+        // Replace an item by its reference key.
+        const replacement = {name: 'first', value: 4, children: []}
+        ;(scope as unknown as {first: unknown}).first = replacement
+        expect(data[0]).toStrictEqual(replacement)
+        // Unknown items can not be set.
+        const shouldFail = () => {
+            scope.third = {value: 5}
+        }
+        expect(shouldFail).toThrow(TypeError)
+        expect(data).toHaveLength(2)
+    })
     test('viewObjectAsScope with children', () => {
         const data = {
             a: 'a',

@@ -29,6 +29,51 @@ const TEST_ENVIRONMENT: string = (
     'browser'
 
 const logger = new Logger()
+test('configureAllInstances', () => {
+    const {defaultLevel, defaultName} = Logger
+    const configurations = Object.values(Logger.instances).map(
+        (instance: Logger): [Logger, Logger['level'], string] =>
+            [instance, instance.level, instance.name]
+    )
+    const instance = new Logger({name: 'configureAllInstancesTest'})
+
+    try {
+        Logger.configureAllInstances({level: 'debug', name: 'other'})
+
+        expect(Logger.defaultLevel).toStrictEqual('debug')
+        expect(Logger.defaultName).toStrictEqual('other')
+        for (const configuredLogger of [instance, logger]) {
+            expect(configuredLogger.level).toStrictEqual('debug')
+            expect(configuredLogger.name).toStrictEqual('other')
+        }
+        expect(new Logger().level).toStrictEqual('debug')
+    } finally {
+        Logger.defaultLevel = defaultLevel
+        Logger.defaultName = defaultName
+        for (const [configuredLogger, level, name] of configurations)
+            configuredLogger.configure({level, name})
+        delete Logger.instances.configureAllInstancesTest
+        delete Logger.instances.other
+    }
+})
+test('configure', () => {
+    const instance = new Logger({level: 'error', name: 'configureTest'})
+
+    try {
+        expect(instance.level).toStrictEqual('error')
+        expect(instance.name).toStrictEqual('configureTest')
+        expect(Logger.instances.configureTest).toStrictEqual(instance)
+
+        instance.configure({level: 'debug'})
+        expect(instance.level).toStrictEqual('debug')
+        expect(instance.name).toStrictEqual(Logger.defaultName)
+
+        instance.configure({})
+        expect(instance.level).toStrictEqual(Logger.defaultLevel)
+    } finally {
+        delete Logger.instances.configureTest
+    }
+})
 test('log', () => {
     expect(logger.log('test')).resolves.toBeUndefined()
 })
