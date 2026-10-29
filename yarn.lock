@@ -5664,7 +5664,7 @@ __metadata:
     prop-types: "npm:^15.8.1"
     typescript-eslint: "npm:^8.72.1"
     web-documentation: "npm:^1.0.68"
-    weboptimizer: "npm:^4.0.94"
+    weboptimizer: "npm:^4.0.95"
     webpack-dev-server: "npm:^6.1.0"
   peerDependencies:
     "@types/prop-types": "*"
@@ -10805,9 +10805,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^4.0.94":
-  version: 4.0.94
-  resolution: "weboptimizer@npm:4.0.94"
+"weboptimizer@npm:^4.0.95":
+  version: 4.0.95
+  resolution: "weboptimizer@npm:4.0.95"
   dependencies:
     "@babel/core": "npm:^8.0.9"
     "@babel/plugin-proposal-decorators": "npm:^8.0.2"
@@ -10952,7 +10952,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: index.js
-  checksum: 10c0/8245b217ac79f4cea23ea3cca5e0343818be88a401f94dd2d5faab13ec2eda5fc66ac84bd54b9a23cd6399c5dff8fc6672fdb42740cf5ab35bd6d29583ba8534
+  checksum: 10c0/7ef02c69d2ed9b958f70096d3cdb82f118927bfb66f03fe414c872153ba8541661d630f3056e77891019c3db1674817bff1eaf50d3478524e3df11e6aa672a1a
   languageName: node
   linkType: hard
 
