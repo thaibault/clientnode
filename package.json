@@ -1,6 +1,6 @@
 {
   "name": "clientnode",
-  "version": "4.0.1524",
+  "version": "4.0.1525",
   "description": "Handy utilities for any JavaScript environments.",
   "keywords": [
     "client",
@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/thaibault/clientnode"
+    "url": "git+https://github.com/thaibault/clientnode.git"
   },
   "type": "module",
   "exports": {
