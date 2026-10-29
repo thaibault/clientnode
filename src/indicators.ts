@@ -150,7 +150,7 @@ export const isPlainObject = (value: unknown): value is PlainObject => {
  * @returns Value "true" if given object is a proxy and "false" otherwise.
  */
 export const isProxy = (value: unknown): value is ProxyType =>
-    Boolean((value as ProxyType).__target__)
+    Boolean((value as null | ProxyType | undefined)?.__target__)
 /**
  * Checks whether given object is a set.
  * @param value - Value to check.
