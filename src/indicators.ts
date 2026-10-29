@@ -22,32 +22,24 @@ import {PLAIN_OBJECT_PROTOTYPES} from './constants'
 import {determineType} from './object'
 
 /**
- * Determines whether its argument represents a JavaScript number.
- * @param value - Value to analyze.
- * @returns A boolean value indicating whether given object is numeric
- * like.
+ * Checks whether one of the given pattern matches given string.
+ * @param target - Target to check in pattern for.
+ * @param pattern - List of pattern to check for.
+ * @returns Value "true" if given object is matches by at leas one of the
+ * given pattern and "false" otherwise.
  */
-export const isNumeric = (value: unknown): value is number => {
-    const type: string = determineType(value)
-    /*
-        NOTE: "parseFloat" "NaNs" numeric-cast false positives ("") but
-        misinterprets leading-number strings, particularly hex literals
-        ("0x...") subtraction forces infinities to NaN.
-    */
-    return (
-        ['number', 'string'].includes(type) &&
-        !isNaN(value as number - parseFloat(value as string))
-    )
+export const isAnyMatching = (
+    target: string, pattern: Array<RegExp | string>
+): boolean => {
+    for (const currentPattern of pattern)
+        if (typeof currentPattern === 'string') {
+            if (currentPattern === target)
+                return true
+        } else if (currentPattern.test(target))
+            return true
+
+    return false
 }
-/**
- * Determine whether the argument is a window.
- * @param value - Value to check for.
- * @returns Boolean value indicating the result.
- */
-export const isWindow = (value: unknown): value is Window =>
-    ![null, undefined].includes(value as null) &&
-    typeof value === 'object' &&
-    value === (value as null | Window)?.window
 /**
  * Checks if given object is similar to an array and can be handled like an
  * array.
@@ -82,23 +74,40 @@ export const isArrayLike = (object: unknown): boolean => {
     return false
 }
 /**
- * Checks whether one of the given pattern matches given string.
- * @param target - Target to check in pattern for.
- * @param pattern - List of pattern to check for.
- * @returns Value "true" if given object is matches by at leas one of the
- * given pattern and "false" otherwise.
+ * Checks whether given object is a function.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a function and "false"
+ * otherwise.
  */
-export const isAnyMatching = (
-    target: string, pattern: Array<RegExp | string>
-): boolean => {
-    for (const currentPattern of pattern)
-        if (typeof currentPattern === 'string') {
-            if (currentPattern === target)
-                return true
-        } else if (currentPattern.test(target))
-            return true
-
-    return false
+export const isFunction = (value: unknown): value is AnyFunction =>
+    Boolean(value) &&
+    ['[object AsyncFunction]', '[object Function]'].includes(
+        {}.toString.call(value)
+    )
+/**
+ * Checks whether given object is a map.
+ * @param value - Value to check.
+ * @returns Value "true" if given object is a map and "false" otherwise.
+ */
+export const isMap = (value: unknown): value is Map<unknown, unknown> =>
+    determineType(value) === 'map'
+/**
+ * Determines whether its argument represents a JavaScript number.
+ * @param value - Value to analyze.
+ * @returns A boolean value indicating whether given object is numeric
+ * like.
+ */
+export const isNumeric = (value: unknown): value is number => {
+    const type: string = determineType(value)
+    /*
+        NOTE: "parseFloat" "NaNs" numeric-cast false positives ("") but
+        misinterprets leading-number strings, particularly hex literals
+        ("0x...") subtraction forces infinities to NaN.
+    */
+    return (
+        ['number', 'string'].includes(type) &&
+        !isNaN(value as number - parseFloat(value as string))
+    )
 }
 /**
  * Checks whether given object is a native object but not null.
@@ -136,20 +145,6 @@ export const isPlainObject = (value: unknown): value is PlainObject => {
     )
 }
 /**
- * Checks whether given object is a set.
- * @param value - Value to check.
- * @returns Value "true" if given object is a set and "false" otherwise.
- */
-export const isSet = (value: unknown): value is Set<unknown> =>
-    determineType(value) === 'set'
-/**
- * Checks whether given object is a map.
- * @param value - Value to check.
- * @returns Value "true" if given object is a map and "false" otherwise.
- */
-export const isMap = (value: unknown): value is Map<unknown, unknown> =>
-    determineType(value) === 'map'
-/**
  * Checks whether given object is a proxy.
  * @param value - Value to check.
  * @returns Value "true" if given object is a proxy and "false" otherwise.
@@ -157,13 +152,18 @@ export const isMap = (value: unknown): value is Map<unknown, unknown> =>
 export const isProxy = (value: unknown): value is ProxyType =>
     Boolean((value as ProxyType).__target__)
 /**
- * Checks whether given object is a function.
+ * Checks whether given object is a set.
  * @param value - Value to check.
- * @returns Value "true" if given object is a function and "false"
- * otherwise.
+ * @returns Value "true" if given object is a set and "false" otherwise.
  */
-export const isFunction = (value: unknown): value is AnyFunction =>
-    Boolean(value) &&
-    ['[object AsyncFunction]', '[object Function]'].includes(
-        {}.toString.call(value)
-    )
+export const isSet = (value: unknown): value is Set<unknown> =>
+    determineType(value) === 'set'
+/**
+ * Determine whether the argument is a window.
+ * @param value - Value to check for.
+ * @returns Boolean value indicating the result.
+ */
+export const isWindow = (value: unknown): value is Window =>
+    ![null, undefined].includes(value as null) &&
+    typeof value === 'object' &&
+    value === (value as null | Window)?.window

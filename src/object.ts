@@ -913,6 +913,72 @@ export const equals = (
         false
 }
 /**
+ * Searches for indicating keys and replaces that data with corresponding
+ * evaluated and promise resolved value.
+ * @param data - Given mapping to resolve.
+ * @param givenOptions - Options to configure evaluation.
+ * @param givenOptions.scope - Scope to use evaluate again.
+ * @param givenOptions.selfReferenceName - Name to use for reference to given
+ * object.
+ * @param givenOptions.expressionIndicatorKey - Indicator property name to mark
+ * a value to evaluate.
+ * @param givenOptions.executionIndicatorKey - Indicator property name to mark
+ * a value to evaluate.
+ * @returns Evaluated given mapping.
+ */
+export const evaluateAsyncDynamicData = async <Type = unknown>(
+    data: null | RecursiveAsyncEvaluateable<Type>,
+    givenOptions: Partial<EvaluateDynamicDataOptions> = {}
+): Promise<Type> => {
+    const options = {
+        scope: {},
+        selfReferenceName: 'self',
+        expressionIndicatorKey: '__async_evaluate__',
+        executionIndicatorKey: '__async_execute__',
+        ...givenOptions
+    }
+
+    if (!isObject(data))
+        return data as unknown as Type
+
+    if (!(options.selfReferenceName in options.scope))
+        options.scope[options.selfReferenceName] = data
+
+    const result: Type = data as Type
+
+    if (Array.isArray(data)) {
+        let index = 0
+        for (const item of data) {
+            (result as Array<unknown>)[index] = await evaluateAsyncDynamicData(
+                item as null | RecursiveAsyncEvaluateable<Type>, options
+            )
+            index += 1
+        }
+
+        return result
+    }
+
+    for (const [key, value] of Object.entries(data)) {
+        if ([
+            options.expressionIndicatorKey, options.executionIndicatorKey
+        ].includes(key))
+            return await evaluateOrThrowError(
+                value as string,
+                {
+                    scope: options.scope,
+                    async: true,
+                    execute: key === options.executionIndicatorKey
+                }
+            )
+
+        ;(result as Mapping<unknown>)[key] = await evaluateAsyncDynamicData(
+            value as null | RecursiveAsyncEvaluateable<Type>, options
+        )
+    }
+
+    return result
+}
+/**
  * Wraps given data structure into proxies recursively to evaluate and resolve
  * each get request to data having an object with indicating keys and replaces
  * that object with corresponding evaluated values. All nested objects are
@@ -1191,72 +1257,6 @@ export const evaluateDynamicData = <Type = unknown>(
         )
 
     return removeProxyRecursively(resolve(addProxyRecursively(object))) as Type
-}
-/**
- * Searches for indicating keys and replaces that data with corresponding
- * evaluated and promise resolved value.
- * @param data - Given mapping to resolve.
- * @param givenOptions - Options to configure evaluation.
- * @param givenOptions.scope - Scope to use evaluate again.
- * @param givenOptions.selfReferenceName - Name to use for reference to given
- * object.
- * @param givenOptions.expressionIndicatorKey - Indicator property name to mark
- * a value to evaluate.
- * @param givenOptions.executionIndicatorKey - Indicator property name to mark
- * a value to evaluate.
- * @returns Evaluated given mapping.
- */
-export const evaluateAsyncDynamicData = async <Type = unknown>(
-    data: null | RecursiveAsyncEvaluateable<Type>,
-    givenOptions: Partial<EvaluateDynamicDataOptions> = {}
-): Promise<Type> => {
-    const options = {
-        scope: {},
-        selfReferenceName: 'self',
-        expressionIndicatorKey: '__async_evaluate__',
-        executionIndicatorKey: '__async_execute__',
-        ...givenOptions
-    }
-
-    if (!isObject(data))
-        return data as unknown as Type
-
-    if (!(options.selfReferenceName in options.scope))
-        options.scope[options.selfReferenceName] = data
-
-    const result: Type = data as Type
-
-    if (Array.isArray(data)) {
-        let index = 0
-        for (const item of data) {
-            (result as Array<unknown>)[index] = await evaluateAsyncDynamicData(
-                item as null | RecursiveAsyncEvaluateable<Type>, options
-            )
-            index += 1
-        }
-
-        return result
-    }
-
-    for (const [key, value] of Object.entries(data)) {
-        if ([
-            options.expressionIndicatorKey, options.executionIndicatorKey
-        ].includes(key))
-            return await evaluateOrThrowError(
-                value as string,
-                {
-                    scope: options.scope,
-                    async: true,
-                    execute: key === options.executionIndicatorKey
-                }
-            )
-
-        ;(result as Mapping<unknown>)[key] = await evaluateAsyncDynamicData(
-            value as null | RecursiveAsyncEvaluateable<Type>, options
-        )
-    }
-
-    return result
 }
 /**
  * Removes properties in objects where a dynamic indicator lives.

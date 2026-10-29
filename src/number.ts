@@ -19,6 +19,30 @@
 import {determineType} from './object'
 
 /**
+ * Rounds a given number up accurate to given number of digits.
+ * @param number - The number to round.
+ * @param digits - The number of digits after comma.
+ * @returns Returns the rounded number.
+ */
+export const ceil = (number: number, digits = 0): number =>
+    Math.ceil(number * Math.pow(10, digits)) / Math.pow(10, digits)
+/**
+ * Rounds a given number down accurate to given number of digits.
+ * @param number - The number to round.
+ * @param digits - The number of digits after comma.
+ * @returns Returns the rounded number.
+ */
+export const floor = (number: number, digits = 0): number =>
+    Math.floor(number * Math.pow(10, digits)) / Math.pow(10, digits)
+/**
+ * Rounds a given number accurate to given number of digits.
+ * @param number - The number to round.
+ * @param digits - The number of digits after comma.
+ * @returns Returns the rounded number.
+ */
+export const round = (number: number, digits = 0): number =>
+    Math.round(number * Math.pow(10, digits)) / Math.pow(10, digits)
+/**
  * Determines corresponding utc timestamp for given date object.
  * @param value - Date to convert.
  * @param inMilliseconds - Indicates whether given number should be in
@@ -52,27 +76,3 @@ export const getUTCTimestamp = (
  */
 export const isNotANumber = (value: unknown): boolean =>
     determineType(value) === 'number' && isNaN(value as number)
-/**
- * Rounds a given number accurate to given number of digits.
- * @param number - The number to round.
- * @param digits - The number of digits after comma.
- * @returns Returns the rounded number.
- */
-export const round = (number: number, digits = 0): number =>
-    Math.round(number * Math.pow(10, digits)) / Math.pow(10, digits)
-/**
- * Rounds a given number up accurate to given number of digits.
- * @param number - The number to round.
- * @param digits - The number of digits after comma.
- * @returns Returns the rounded number.
- */
-export const ceil = (number: number, digits = 0): number =>
-    Math.ceil(number * Math.pow(10, digits)) / Math.pow(10, digits)
-/**
- * Rounds a given number down accurate to given number of digits.
- * @param number - The number to round.
- * @param digits - The number of digits after comma.
- * @returns Returns the rounded number.
- */
-export const floor = (number: number, digits = 0): number =>
-    Math.floor(number * Math.pow(10, digits)) / Math.pow(10, digits)

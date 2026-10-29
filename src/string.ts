@@ -84,52 +84,23 @@ export const AsyncFunction=
         @typescript-eslint/no-implied-eval,@typescript-eslint/no-unsafe-call
     */
 
+// region url handling
 /**
- * Translates a given string into the regular expression validated
- * representation.
- * @param value - String to convert.
- * @param excludeSymbols - Symbols not to escape.
- * @returns Converted string.
+ * Appends a path selector to the given path if there isn't one yet.
+ * @param path - The path for appending a selector.
+ * @param pathSeparator - The selector for appending to a path.
+ * @returns The appended path.
  */
-export const escapeRegularExpressions = (
-    value: string, excludeSymbols: Array<string> = []
+export const addSeparatorToPath = (
+    path: string, pathSeparator = '/'
 ): string => {
-    // NOTE: This is only for performance improvements.
-    if (value.length === 1 && !SPECIAL_REGEX_SEQUENCES.includes(value))
-        return value
+    path = path.trim()
 
-    // The escape sequence must also be escaped; but at first.
-    if (!excludeSymbols.includes('\\'))
-        value.replace(/\\/g, '\\\\')
+    if (path.substring(path.length - 1) !== pathSeparator && path.length)
+        return path + pathSeparator
 
-    for (const replace of SPECIAL_REGEX_SEQUENCES)
-        if (!excludeSymbols.includes(replace))
-            value = value.replace(
-                new RegExp(`\\${replace}`, 'g'), `\\${replace}`)
-
-    return value
+    return path
 }
-/**
- * Translates a given name into a valid JavaScript one.
- * @param name - Name to convert.
- * @returns Converted name is returned.
- */
-export const convertToValidVariableName = (name: string): string => {
-    if (['class', 'default'].includes(name))
-        return `_${name}`
-
-    return name
-        // Remove all disallowed starting characters.
-        .replace(new RegExp(`^[^${ALLOWED_STARTING_VARIABLE_SYMBOLS}]+`), '')
-        // Remove all disallowed characters within a variable name and make
-        // continuing character upper case.
-        .replace(
-            new RegExp(`[^${ALLOWED_VARIABLE_SYMBOLS}]+([a-zA-Z])`, 'g'),
-            (_fullMatch: string, firstLetter: string): string =>
-                firstLetter.toUpperCase()
-        )
-}
-// region url handline
 /**
  * This method is intended for encoding *key* or *value* parts of a query
  * component. We need a custom method because "encodeURIComponent()" is too
@@ -149,48 +120,6 @@ export const encodeURIComponentExtended = (
         .replace(/%24/g, '$')
         .replace(/%2C/gi, ',')
         .replace(/%20/g, encodeSpaces ? '%20' : '+')
-}
-/**
- * Appends a path selector to the given path if there isn't one yet.
- * @param path - The path for appending a selector.
- * @param pathSeparator - The selector for appending to a path.
- * @returns The appended path.
- */
-export const addSeparatorToPath = (
-    path: string, pathSeparator = '/'
-): string => {
-    path = path.trim()
-
-    if (path.substring(path.length - 1) !== pathSeparator && path.length)
-        return path + pathSeparator
-
-    return path
-}
-/**
- * Checks if a given path has given path prefix.
- * @param prefix - Path prefix to search for.
- * @param path - Path to search in.
- * @param separator - Delimiter to use in a path (default is the posix
- * conform slash).
- * @returns Value "true" if given prefix occurs and "false" otherwise.
- */
-export const hasPathPrefix = (
-    prefix: unknown = '/admin',
-    path: string = globalContext.location?.pathname || '',
-    separator = '/'
-): boolean => {
-    if (typeof prefix === 'string') {
-        if (!prefix.endsWith(separator))
-            prefix += separator
-
-        return (
-            path ===
-            prefix.substring(0, prefix.length - separator.length) ||
-            path.startsWith(prefix)
-        )
-    }
-
-    return false
 }
 /**
  * Extracts domain name from given url. If no explicit domain name given
@@ -397,25 +326,30 @@ export const getURLParameter = (
     return parameters
 }
 /**
- * Checks if given url points to another "service" than the second given url.
- * If no second given url is provided, the current url will be assumed.
- * @param url - URL to check against second url.
- * @param referenceURL - URL to check against first url.
- * @returns Returns "true" if given first url has same domain as given
- * second (or current).
+ * Checks if a given path has given path prefix.
+ * @param prefix - Path prefix to search for.
+ * @param path - Path to search in.
+ * @param separator - Delimiter to use in a path (default is the posix
+ * conform slash).
+ * @returns Value "true" if given prefix occurs and "false" otherwise.
  */
-export const serviceURLEquals = (
-    url: string, referenceURL: string = globalContext.location?.href || ''
+export const hasPathPrefix = (
+    prefix: unknown = '/admin',
+    path: string = globalContext.location?.pathname || '',
+    separator = '/'
 ): boolean => {
-    const domain: string = getDomainName(url, '')
-    const protocol: string = getProtocolName(url, '')
-    const port: null | number = getPortNumber(url)
+    if (typeof prefix === 'string') {
+        if (!prefix.endsWith(separator))
+            prefix += separator
 
-    return (
-        (domain === '' || domain === getDomainName(referenceURL)) &&
-        (protocol === '' || protocol === getProtocolName(referenceURL)) &&
-        (port === null || port === getPortNumber(referenceURL))
-    )
+        return (
+            path ===
+            prefix.substring(0, prefix.length - separator.length) ||
+            path.startsWith(prefix)
+        )
+    }
+
+    return false
 }
 /**
  * Normalized given website url.
@@ -447,6 +381,27 @@ export const representURL = (url: unknown): string => {
             .trim()
 
     return ''
+}
+/**
+ * Checks if given url points to another "service" than the second given url.
+ * If no second given url is provided, the current url will be assumed.
+ * @param url - URL to check against second url.
+ * @param referenceURL - URL to check against first url.
+ * @returns Returns "true" if given first url has same domain as given
+ * second (or current).
+ */
+export const serviceURLEquals = (
+    url: string, referenceURL: string = globalContext.location?.href || ''
+): boolean => {
+    const domain: string = getDomainName(url, '')
+    const protocol: string = getProtocolName(url, '')
+    const port: null | number = getPortNumber(url)
+
+    return (
+        (domain === '' || domain === getDomainName(referenceURL)) &&
+        (protocol === '' || protocol === getProtocolName(referenceURL)) &&
+        (port === null || port === getPortNumber(referenceURL))
+    )
 }
 // endregion
 /**
@@ -498,102 +453,6 @@ export const camelCaseToDelimited = (
  */
 export const capitalize = (string: string): string => {
     return string.charAt(0).toUpperCase() + string.substring(1)
-}
-/**
- * Compresses given style attribute value.
- * @param styleValue - Style value to compress.
- * @returns The compressed value.
- */
-export const compressStyleValue = (styleValue: string): string => {
-    return styleValue
-        .replace(/ *([:;]) */g, '$1')
-        .replace(/ +/g, ' ')
-        .replace(/^;+/, '')
-        .replace(/;+$/, '')
-        .trim()
-}
-/**
- * Decodes all html symbols in text nodes in a given html string.
- * @param htmlString - HTML string to decode.
- * @returns Decoded html string.
- */
-export const decodeHTMLEntities = (htmlString: string): null | string => {
-    if (globalContext.document) {
-        const textareaDomNode =
-            globalContext.document.createElement('textarea')
-        textareaDomNode.innerHTML = htmlString
-
-        return textareaDomNode.value
-    }
-
-    return null
-}
-/**
- * Converts a delimited string to its camel case representation.
- * @param value - The string to format.
- * @param delimiter - Delimiter string to use.
- * @param abbreviations - Collection of shortcut words to represent uppercased.
- * @param preserveWrongFormattedAbbreviations - If set to "True" wrong
- * formatted camel case abbreviations will be ignored.
- * @param removeMultipleDelimiter - Indicates whether a series of delimiter
- * should be consolidated.
- * @returns The formatted string.
- */
-export const delimitedToCamelCase = (
-    value: string,
-    delimiter = '-',
-    abbreviations: Array<string> | null = null,
-    preserveWrongFormattedAbbreviations = false,
-    removeMultipleDelimiter = false
-): string => {
-    let escapedDelimiter: string = maskForRegularExpression(delimiter)
-
-    if (!abbreviations)
-        abbreviations = ABBREVIATIONS
-    let abbreviationPattern: string
-    if (preserveWrongFormattedAbbreviations)
-        abbreviationPattern = ABBREVIATIONS.join('|')
-    else {
-        abbreviationPattern = ''
-        for (const abbreviation of abbreviations) {
-            if (abbreviationPattern)
-                abbreviationPattern += '|'
-            abbreviationPattern +=
-                `${capitalize(abbreviation)}|${abbreviation}`
-        }
-    }
-
-    const stringStartsWithDelimiter: boolean = value.startsWith(delimiter)
-    if (stringStartsWithDelimiter)
-        value = value.substring(delimiter.length)
-
-    value = value.replace(
-        new RegExp(
-            `(${escapedDelimiter})(${abbreviationPattern})` +
-            `(${escapedDelimiter}|$)`,
-            'g'
-        ),
-        (
-            _fullMatch: string,
-            before: string,
-            abbreviation: string,
-            after: string
-        ): string => before + abbreviation.toUpperCase() + after
-    )
-
-    if (removeMultipleDelimiter)
-        escapedDelimiter = `(?:${escapedDelimiter})+`
-
-    value = value.replace(
-        new RegExp(`${escapedDelimiter}([a-zA-Z0-9])`, 'g'),
-        (_fullMatch: string, firstLetter: string): string =>
-            firstLetter.toUpperCase()
-    )
-
-    if (stringStartsWithDelimiter)
-        value = delimiter + value
-
-    return value
 }
 /**
  * Compiles a given string as an expression with given scope names.
@@ -840,6 +699,147 @@ export const evaluateOrThrowError = <
     return evaluated.result as Result
 }
 /**
+ * Compresses given style attribute value.
+ * @param styleValue - Style value to compress.
+ * @returns The compressed value.
+ */
+export const compressStyleValue = (styleValue: string): string => {
+    return styleValue
+        .replace(/ *([:;]) */g, '$1')
+        .replace(/ +/g, ' ')
+        .replace(/^;+/, '')
+        .replace(/;+$/, '')
+        .trim()
+}
+/**
+ * Translates a given name into a valid JavaScript one.
+ * @param name - Name to convert.
+ * @returns Converted name is returned.
+ */
+export const convertToValidVariableName = (name: string): string => {
+    if (['class', 'default'].includes(name))
+        return `_${name}`
+
+    return name
+        // Remove all disallowed starting characters.
+        .replace(new RegExp(`^[^${ALLOWED_STARTING_VARIABLE_SYMBOLS}]+`), '')
+        // Remove all disallowed characters within a variable name and make
+        // continuing character upper case.
+        .replace(
+            new RegExp(`[^${ALLOWED_VARIABLE_SYMBOLS}]+([a-zA-Z])`, 'g'),
+            (_fullMatch: string, firstLetter: string): string =>
+                firstLetter.toUpperCase()
+        )
+}
+/**
+ * Decodes all html symbols in text nodes in a given html string.
+ * @param htmlString - HTML string to decode.
+ * @returns Decoded html string.
+ */
+export const decodeHTMLEntities = (htmlString: string): null | string => {
+    if (globalContext.document) {
+        const textareaDomNode =
+            globalContext.document.createElement('textarea')
+        textareaDomNode.innerHTML = htmlString
+
+        return textareaDomNode.value
+    }
+
+    return null
+}
+/**
+ * Converts a delimited string to its camel case representation.
+ * @param value - The string to format.
+ * @param delimiter - Delimiter string to use.
+ * @param abbreviations - Collection of shortcut words to represent uppercased.
+ * @param preserveWrongFormattedAbbreviations - If set to "True" wrong
+ * formatted camel case abbreviations will be ignored.
+ * @param removeMultipleDelimiter - Indicates whether a series of delimiter
+ * should be consolidated.
+ * @returns The formatted string.
+ */
+export const delimitedToCamelCase = (
+    value: string,
+    delimiter = '-',
+    abbreviations: Array<string> | null = null,
+    preserveWrongFormattedAbbreviations = false,
+    removeMultipleDelimiter = false
+): string => {
+    let escapedDelimiter: string = maskForRegularExpression(delimiter)
+
+    if (!abbreviations)
+        abbreviations = ABBREVIATIONS
+    let abbreviationPattern: string
+    if (preserveWrongFormattedAbbreviations)
+        abbreviationPattern = ABBREVIATIONS.join('|')
+    else {
+        abbreviationPattern = ''
+        for (const abbreviation of abbreviations) {
+            if (abbreviationPattern)
+                abbreviationPattern += '|'
+            abbreviationPattern +=
+                `${capitalize(abbreviation)}|${abbreviation}`
+        }
+    }
+
+    const stringStartsWithDelimiter: boolean = value.startsWith(delimiter)
+    if (stringStartsWithDelimiter)
+        value = value.substring(delimiter.length)
+
+    value = value.replace(
+        new RegExp(
+            `(${escapedDelimiter})(${abbreviationPattern})` +
+            `(${escapedDelimiter}|$)`,
+            'g'
+        ),
+        (
+            _fullMatch: string,
+            before: string,
+            abbreviation: string,
+            after: string
+        ): string => before + abbreviation.toUpperCase() + after
+    )
+
+    if (removeMultipleDelimiter)
+        escapedDelimiter = `(?:${escapedDelimiter})+`
+
+    value = value.replace(
+        new RegExp(`${escapedDelimiter}([a-zA-Z0-9])`, 'g'),
+        (_fullMatch: string, firstLetter: string): string =>
+            firstLetter.toUpperCase()
+    )
+
+    if (stringStartsWithDelimiter)
+        value = delimiter + value
+
+    return value
+}
+/**
+ * Translates a given string into the regular expression validated
+ * representation.
+ * @param value - String to convert.
+ * @param excludeSymbols - Symbols not to escape.
+ * @returns Converted string.
+ */
+export const escapeRegularExpressions = (
+    value: string, excludeSymbols: Array<string> = []
+): string => {
+    // NOTE: This is only for performance improvements.
+    if (value.length === 1 && !SPECIAL_REGEX_SEQUENCES.includes(value))
+        return value
+
+    // The escape sequence must also be escaped; but at first.
+    if (!excludeSymbols.includes('\\'))
+        value.replace(/\\/g, '\\\\')
+
+    for (const replace of SPECIAL_REGEX_SEQUENCES)
+        if (!excludeSymbols.includes(replace))
+            value = value.replace(
+                new RegExp(`\\${replace}`, 'g'), `\\${replace}`)
+
+    return value
+}
+/**
  * Finds the string match of a given query in a given target text by applying a
  * given normalization function to target and query.
  * @param target - Target to search in.
@@ -1014,13 +1014,17 @@ export const getEditDistance = (first: string, second: string): number => {
     return distanceMatrix[second.length][first.length]
 }
 /**
- * Validates the current string for using in a regular expression pattern.
- * Special regular expression chars will be escaped.
- * @param value - The string to format.
- * @returns The formatted string.
+ * Abbreviates a given string if it excesses a given limit.
+ * @param value - String to abbreviate.
+ * @param limit - Maximum length of processed string.
+ * @returns Abbreviated given string.
  */
-export const maskForRegularExpression = (value: string): string => {
-    return value.replace(/([\\|.*$^+[\]()?\-{}])/g, '\\$1')
+export const limit = (value: string, limit = 100) => {
+    if (value.length <= limit)
+        return value
+
+    const dots = '...'
+    return value.substring(0, limit - dots.length) + dots
 }
 /**
  * Converts a string to its lower case representation.
@@ -1147,6 +1151,35 @@ export const mark = (
     }
 
     return target
+}
+/**
+ * Validates the current string for using in a regular expression pattern.
+ * Special regular expression chars will be escaped.
+ * @param value - The string to format.
+ * @returns The formatted string.
+ */
+export const maskForRegularExpression = (value: string): string => {
+    return value.replace(/([\\|.*$^+[\]()?\-{}])/g, '\\$1')
+}
+/**
+ * Converts a dom selector to a prefixed dom selector string.
+ * @param selector - A dom node selector.
+ * @param selectorPrefix - A dom node selector prefix to take into account.
+ * @returns Returns given selector prefixed.
+ */
+export const normalizeDomNodeSelector = (
+    selector: string, selectorPrefix = ''
+): string => {
+    let domNodeSelectorPrefix = ''
+    if (selectorPrefix)
+        domNodeSelectorPrefix = `${selectorPrefix} `
+    if (!(
+        selector.startsWith(domNodeSelectorPrefix) ||
+        selector.trim().startsWith('<')
+    ))
+        selector = domNodeSelectorPrefix + selector
+
+    return selector.trim()
 }
 /**
  * Normalizes a given phone number for automatic dialing or comparison.
@@ -1368,37 +1401,4 @@ export const sliceAllExceptNumberAndLastSeparator = (value: string): string => {
         )
 
     return value.replace(/[^0-9]+/g, '')
-}
-/**
- * Converts a dom selector to a prefixed dom selector string.
- * @param selector - A dom node selector.
- * @param selectorPrefix - A dom node selector prefix to take into account.
- * @returns Returns given selector prefixed.
- */
-export const normalizeDomNodeSelector = (
-    selector: string, selectorPrefix = ''
-): string => {
-    let domNodeSelectorPrefix = ''
-    if (selectorPrefix)
-        domNodeSelectorPrefix = `${selectorPrefix} `
-    if (!(
-        selector.startsWith(domNodeSelectorPrefix) ||
-        selector.trim().startsWith('<')
-    ))
-        selector = domNodeSelectorPrefix + selector
-
-    return selector.trim()
-}
-/**
- * Abbreviates a given string if it excesses a given limit.
- * @param value - String to abbreviate.
- * @param limit - Maximum length of processed string.
- * @returns Abbreviated given string.
- */
-export const limit = (value: string, limit = 100) => {
-    if (value.length <= limit)
-        return value
-
-    const dots = '...'
-    return value.substring(0, limit - dots.length) + dots
 }

@@ -26,6 +26,25 @@ import {extend} from './object'
 import {timeout} from './utility'
 
 /**
+ * Preloads a given url via a temporary created image element.
+ * @param url - To image which should be downloaded.
+ * @returns A Promise indicating whether the image was loaded.
+ */
+export const cacheImage = (url: string) => {
+    return new Promise<void>((resolve, reject) => {
+        const imageElement = document.createElement('img')
+        imageElement.onload = () => {
+            const isLoaded = imageElement.complete
+            imageElement.remove()
+            if (isLoaded)
+                resolve()
+            else
+                reject(new Error('Image could not be loaded.'))
+        }
+        imageElement.src = url
+    })
+}
+/**
  * Checks if given url response with given status code.
  * @param url - Url to check reachability.
  * @param givenOptions - Options to configure.
@@ -302,23 +321,4 @@ export const checkUnreachability = async (
     }
 
     throw new Error(`Given url "${url}" is reachable.`)
-}
-/**
- * Preloads a given url via a temporary created image element.
- * @param url - To image which should be downloaded.
- * @returns A Promise indicating whether the image was loaded.
- */
-export const cacheImage = (url: string) => {
-    return new Promise<void>((resolve, reject) => {
-        const imageElement = document.createElement('img')
-        imageElement.onload = () => {
-            const isLoaded = imageElement.complete
-            imageElement.remove()
-            if (isLoaded)
-                resolve()
-            else
-                reject(new Error('Image could not be loaded.'))
-        }
-        imageElement.src = url
-    })
 }

@@ -22,43 +22,6 @@ import {NOOP} from './context'
 import {isFunction} from './indicators'
 
 /**
- * Prevents event functions from triggering too often by defining a minimal
- * span between each function call. Additional arguments given to this function
- * will be forwarded to the given event function call.
- * @param callback - The function to call debounced.
- * @param thresholdInMilliseconds - The minimum time span between each
- * function call.
- * @param additionalArguments - Additional arguments to forward to given
- * function.
- * @returns Returns the wrapped method.
- */
-export const trailingThrottle = <T = unknown>(
-    callback: (...parameters: Array<unknown>) => T,
-    thresholdInMilliseconds = 600,
-    ...additionalArguments: Array<unknown>
-) => {
-    let timeoutID: NodeJS.Timeout | null = null
-    let recentParameters: Array<unknown> = []
-
-    return (...parameters: Array<unknown>) => {
-        recentParameters = parameters
-
-        if (timeoutID)
-            return
-
-        timeoutID = setTimeout(
-            () => {
-                callback(...recentParameters, ...additionalArguments)
-
-                // Reset for next cycle.
-                timeoutID = null
-                recentParameters = []
-            },
-            thresholdInMilliseconds
-        )
-    }
-}
-/**
  * Prevents event functions from triggering too close after each trigger by
  * defining a minimal span between each function call. Additional arguments
  * given to this function will be forwarded to the given event function call.
@@ -99,6 +62,49 @@ export const debounce = <T = unknown>(
 
         return nextResultPromise
     }
+}
+/**
+ * Prevents event functions from triggering too often by defining a minimal
+ * span between each function call. Additional arguments given to this function
+ * will be forwarded to the given event function call.
+ * @param callback - The function to call debounced.
+ * @param thresholdInMilliseconds - The minimum time span between each
+ * function call.
+ * @param additionalArguments - Additional arguments to forward to given
+ * function.
+ * @returns Returns the wrapped method.
+ */
+export const trailingThrottle = <T = unknown>(
+    callback: (...parameters: Array<unknown>) => T,
+    thresholdInMilliseconds = 600,
+    ...additionalArguments: Array<unknown>
+) => {
+    let timeoutID: NodeJS.Timeout | null = null
+    let recentParameters: Array<unknown> = []
+
+    return (...parameters: Array<unknown>) => {
+        recentParameters = parameters
+
+        if (timeoutID)
+            return
+
+        timeoutID = setTimeout(
+            () => {
+                callback(...recentParameters, ...additionalArguments)
+
+                // Reset for next cycle.
+                timeoutID = null
+                recentParameters = []
+            },
+            thresholdInMilliseconds
+        )
+    }
+}
+export const preventDefault = (event: Event) => {
+    event.preventDefault()
+}
+export const stopPropagation = (event: Event) => {
+    event.stopPropagation()
 }
 /**
  * Triggers given callback after given duration. Supports unlimited
@@ -179,10 +185,4 @@ export const timeout = (...parameters: Array<unknown>): TimeoutPromise => {
     }
 
     return result
-}
-export const preventDefault = (event: Event) => {
-    event.preventDefault()
-}
-export const stopPropagation = (event: Event) => {
-    event.stopPropagation()
 }

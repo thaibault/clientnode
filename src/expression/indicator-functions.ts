@@ -94,17 +94,17 @@ export const isSwitchExpression = <Type>(
         isSpecificExpression(expression, '$switch')
 
 
-export const isSelector = <Type, ScopeType extends BasicScopeType>(
-    expression: Expression<Type, ScopeType>
-): expression is SelectorExpression<ScopeType> =>
-        isSpecificExpression(expression, '$select')
-
 export const isArrayContainsExpression = <
     Type, ScopeType extends BasicScopeType
 >(
         expression: Expression<Type, ScopeType>
     ): expression is ArrayContainsExpression =>
         isSpecificExpression(expression, '$arrayContains')
+
+export const isSelector = <Type, ScopeType extends BasicScopeType>(
+    expression: Expression<Type, ScopeType>
+): expression is SelectorExpression<ScopeType> =>
+        isSpecificExpression(expression, '$select')
 
 export const isValue = <Type, ScopeType extends BasicScopeType>(
     expression: Expression<Type, ScopeType>
