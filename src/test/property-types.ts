@@ -19,8 +19,19 @@ import type {UnknownFunction} from '../type'
 
 import {expect, test} from '@jest/globals'
 
-import {DummyTypes} from '../property-types'
+import {createDummy, DummyTypes} from '../property-types'
 
+test('createDummy', () => {
+    const dummy = createDummy() as Requireable<unknown>
+    expect(dummy).toBeInstanceOf(Function)
+    expect((dummy as UnknownFunction)()).toStrictEqual(null)
+    expect(dummy.isRequired({}, '', '', '', '')).toStrictEqual(null)
+
+    const error = new Error('test')
+    expect((createDummy(error) as UnknownFunction)()).toStrictEqual(error)
+
+    expect(createDummy()).not.toStrictEqual(createDummy())
+})
 test('DummyTypes', () => {
     expect(DummyTypes.any).not.toStrictEqual(DummyTypes.array)
     expect(DummyTypes.any).toBeInstanceOf(Function)
