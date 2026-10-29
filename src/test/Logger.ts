@@ -13,9 +13,9 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-import {expect, test} from '@jest/globals'
+import {expect, jest, test} from '@jest/globals'
 
-import {NOOP} from '../context'
+import {globalContext, NOOP} from '../context'
 import {testEach} from '../test-helper'
 import Logger from '../Logger'
 
@@ -42,6 +42,28 @@ test('debug', () => {
 test.skip(`${TEST_ENVIRONMENT}-error`, () => {
     expect(logger.error('ignore this error, it is only a {1}', 'test'))
         .resolves.toBeUndefined()
+})
+test('critical', async () => {
+    // NOTE: Node writes to stdout directly, otherwise the console is used.
+    const output = typeof process === 'undefined' ?
+        jest.spyOn(globalContext.console as Console, 'error')
+            .mockImplementation(NOOP) :
+        jest.spyOn(process.stdout, 'write').mockImplementation(((
+            _message: string, callback?: () => void
+        ) => {
+            callback?.()
+
+            return true
+        }) as typeof process.stdout.write)
+
+    try {
+        await logger.critical('test')
+
+        expect(output).toHaveBeenCalledTimes(1)
+        expect(String(output.mock.calls[0][0])).toContain('critical')
+    } finally {
+        output.mockRestore()
+    }
 })
 test('warn', () => {
     expect(logger.warn('test')).resolves.toBeUndefined()

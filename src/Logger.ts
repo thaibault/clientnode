@@ -172,13 +172,17 @@ export class Logger {
                 )
             }
 
+            // NOTE: There is no native "console.critical" method.
+            const consoleMethodName =
+                (level === 'critical' ? 'error' : level) as keyof Console
+
             if (messages.length)
                 if (
                     !(
                         globalContext.console &&
-                        level in globalContext.console
+                        consoleMethodName in globalContext.console
                     ) ||
-                    (globalContext.console[level as keyof Console] === NOOP)
+                    (globalContext.console[consoleMethodName] === NOOP)
                 ) {
                     if (
                         Object.prototype.hasOwnProperty.call(
@@ -220,7 +224,7 @@ export class Logger {
                             )
                         })
                 else
-                    (globalContext.console[level as keyof Console] as
+                    (globalContext.console[consoleMethodName] as
                         Console['log']
                     )(...messages)
         }
