@@ -254,147 +254,6 @@ describe('Evaluators', () => {
         ]
     )).toStrictEqual(nestedObject)
 
-    describe('evaluateArrayContains', () => {
-        test(
-            `
-                when input is an array of primitive values, evaluates to true
-                when array contains the specified value
-            `.trim(),
-            () => {
-                expect(evaluate({$arrayContains: {value: 2}}, [1, 2, 3]))
-                    .toStrictEqual(true)
-            }
-        )
-
-        test(
-            `
-                when input is an array of objects, evaluates to true when array
-                contains the specified key and value
-            `.trim(),
-            () => {
-                expect(evaluate(
-                    {$arrayContains: {key: 'b', value: 'foo'}},
-                    [{a: 1, b: 'foo'}, {a: 2, b: 'bar'}]
-                )).toStrictEqual(true)
-            }
-        )
-
-        test(
-            `
-                when input is an array of objects, evaluates to false when
-                array does not contain the specified value
-            `.trim(),
-            () => {
-                expect(evaluate(
-                    {$arrayContains: {key: 'b', value: 'baz'}},
-                    [{a: 1, b: 'foo'}, {a: 2, b: 'bar'}]
-                )).toStrictEqual(false)
-            }
-        )
-
-        test(
-            `
-                when input is an array of objects, evaluates to false when
-                array does not contain the specified key
-            `.trim(),
-            () => {
-                expect(evaluate(
-                    {$arrayContains: {key: 'c', value: 'foo'}},
-                    [{a: 1, b: 'foo'}, {a: 2, b: 'bar'}]
-                )).toStrictEqual(false)
-            }
-        )
-
-        test('when input is a nested object, traverses to the array', () => {
-            expect(evaluate(
-                {
-                    $arrayContains: {
-                        target: {$select: ['foo', 'bar']},
-                        key: 'b',
-                        value: 'abc'
-                    }
-                },
-                {foo: {bar: [{a: 1, b: 'abc'}, {a: 2, b: 'def'}]}}
-            )).toStrictEqual(true)
-        })
-
-        test('when key and value are expressions, returns true', () => {
-            expect(evaluate(
-                {
-                    $arrayContains: {
-                        target: {$select: ['foo', 'bar']},
-                        key: {
-                            $if: {value1: 5, $comparator: '==', value2: 5},
-                            then: 'b'
-                        },
-                        value: {$select: ['val']}
-                    }
-                },
-                {foo: {bar: [{a: 1, b: 'abc'}, {a: 2, b: 'def'}]}, val: 'def'}
-            )).toStrictEqual(true)
-        })
-
-        test(
-            `
-                when selector is an expression that returns the array, returns
-                true
-            `.trim(),
-            () => {
-                expect(evaluate(
-                    {
-                        $arrayContains: {
-                            target: {
-                                $if: {
-                                    value1: 5,
-                                    $comparator: '==',
-                                    value2: 5
-                                },
-                                then: [{a: 1, b: 'abc'}, {a: 2, b: 'def'}]
-                            },
-                            key: {
-                                $if: {value1: 5, $comparator: '==', value2: 5},
-                                then: 'b'
-                            },
-                            value: {$select: ['val']}
-                        }
-                    },
-                    {val: 'def'}
-                )).toStrictEqual(true)
-            }
-        )
-    })
-
-    testEach(
-        'evaluate operator expressions',
-        evaluate,
-        [true, {operand: false, $operator: '!'}],
-        [false, {operand: true, $operator: '!'}],
-        [true, {operand: true, $operator: '!!'}],
-        [true, {operand: 0, $operator: '!'}],
-        [false, {operand: 1, $operator: '!'}],
-        [false, {operand: 0, $operator: '!!'}],
-        [true, {operand: 1, $operator: '!!'}],
-
-        [0, {operand1: 0, $operator: '+', operand2: 0}],
-        [1, {operand1: 0, $operator: '+', operand2: 1}],
-        [2, {operand1: 1, $operator: '+', operand2: 1}],
-
-        [0, {operand1: 0, $operator: '-', operand2: 0}],
-        [-1, {operand1: 0, $operator: '-', operand2: 1}],
-        [1, {operand1: 2, $operator: '-', operand2: 1}],
-
-        [0, {operand1: 0, $operator: '*', operand2: 0}],
-        [0, {operand1: 0, $operator: '*', operand2: 1}],
-        [6, {operand1: 2, $operator: '*', operand2: 3}],
-
-        [0, {operand1: 0, $operator: '/', operand2: 1}],
-        [1, {operand1: 1, $operator: '/', operand2: 1}],
-        [2, {operand1: 4, $operator: '/', operand2: 2}],
-
-        [0, {operand1: 0, $operator: '**', operand2: 1}],
-        [1, {operand1: 1, $operator: '**', operand2: 1}],
-        [8, {operand1: 2, $operator: '**', operand2: 3}]
-    )
 
     testEach(
         'evaluate condition expressions',
@@ -464,6 +323,38 @@ describe('Evaluators', () => {
             true,
             {value1: new Set(['a']), $comparator: '==', value2: new Set(['a'])}
         ]
+    )
+
+    testEach(
+        'evaluate operator expressions',
+        evaluate,
+        [true, {operand: false, $operator: '!'}],
+        [false, {operand: true, $operator: '!'}],
+        [true, {operand: true, $operator: '!!'}],
+        [true, {operand: 0, $operator: '!'}],
+        [false, {operand: 1, $operator: '!'}],
+        [false, {operand: 0, $operator: '!!'}],
+        [true, {operand: 1, $operator: '!!'}],
+
+        [0, {operand1: 0, $operator: '+', operand2: 0}],
+        [1, {operand1: 0, $operator: '+', operand2: 1}],
+        [2, {operand1: 1, $operator: '+', operand2: 1}],
+
+        [0, {operand1: 0, $operator: '-', operand2: 0}],
+        [-1, {operand1: 0, $operator: '-', operand2: 1}],
+        [1, {operand1: 2, $operator: '-', operand2: 1}],
+
+        [0, {operand1: 0, $operator: '*', operand2: 0}],
+        [0, {operand1: 0, $operator: '*', operand2: 1}],
+        [6, {operand1: 2, $operator: '*', operand2: 3}],
+
+        [0, {operand1: 0, $operator: '/', operand2: 1}],
+        [1, {operand1: 1, $operator: '/', operand2: 1}],
+        [2, {operand1: 4, $operator: '/', operand2: 2}],
+
+        [0, {operand1: 0, $operator: '**', operand2: 1}],
+        [1, {operand1: 1, $operator: '**', operand2: 1}],
+        [8, {operand1: 2, $operator: '**', operand2: 3}]
     )
 
     testEach(
@@ -857,6 +748,115 @@ describe('Evaluators', () => {
             }
         ]
     )
+    describe('evaluateArrayContains', () => {
+        test(
+            `
+                when input is an array of primitive values, evaluates to true
+                when array contains the specified value
+            `.trim(),
+            () => {
+                expect(evaluate({$arrayContains: {value: 2}}, [1, 2, 3]))
+                    .toStrictEqual(true)
+            }
+        )
+
+        test(
+            `
+                when input is an array of objects, evaluates to true when array
+                contains the specified key and value
+            `.trim(),
+            () => {
+                expect(evaluate(
+                    {$arrayContains: {key: 'b', value: 'foo'}},
+                    [{a: 1, b: 'foo'}, {a: 2, b: 'bar'}]
+                )).toStrictEqual(true)
+            }
+        )
+
+        test(
+            `
+                when input is an array of objects, evaluates to false when
+                array does not contain the specified value
+            `.trim(),
+            () => {
+                expect(evaluate(
+                    {$arrayContains: {key: 'b', value: 'baz'}},
+                    [{a: 1, b: 'foo'}, {a: 2, b: 'bar'}]
+                )).toStrictEqual(false)
+            }
+        )
+
+        test(
+            `
+                when input is an array of objects, evaluates to false when
+                array does not contain the specified key
+            `.trim(),
+            () => {
+                expect(evaluate(
+                    {$arrayContains: {key: 'c', value: 'foo'}},
+                    [{a: 1, b: 'foo'}, {a: 2, b: 'bar'}]
+                )).toStrictEqual(false)
+            }
+        )
+
+        test('when input is a nested object, traverses to the array', () => {
+            expect(evaluate(
+                {
+                    $arrayContains: {
+                        target: {$select: ['foo', 'bar']},
+                        key: 'b',
+                        value: 'abc'
+                    }
+                },
+                {foo: {bar: [{a: 1, b: 'abc'}, {a: 2, b: 'def'}]}}
+            )).toStrictEqual(true)
+        })
+
+        test('when key and value are expressions, returns true', () => {
+            expect(evaluate(
+                {
+                    $arrayContains: {
+                        target: {$select: ['foo', 'bar']},
+                        key: {
+                            $if: {value1: 5, $comparator: '==', value2: 5},
+                            then: 'b'
+                        },
+                        value: {$select: ['val']}
+                    }
+                },
+                {foo: {bar: [{a: 1, b: 'abc'}, {a: 2, b: 'def'}]}, val: 'def'}
+            )).toStrictEqual(true)
+        })
+
+        test(
+            `
+                when selector is an expression that returns the array, returns
+                true
+            `.trim(),
+            () => {
+                expect(evaluate(
+                    {
+                        $arrayContains: {
+                            target: {
+                                $if: {
+                                    value1: 5,
+                                    $comparator: '==',
+                                    value2: 5
+                                },
+                                then: [{a: 1, b: 'abc'}, {a: 2, b: 'def'}]
+                            },
+                            key: {
+                                $if: {value1: 5, $comparator: '==', value2: 5},
+                                then: 'b'
+                            },
+                            value: {$select: ['val']}
+                        }
+                    },
+                    {val: 'def'}
+                )).toStrictEqual(true)
+            }
+        )
+    })
 
     test(
         `

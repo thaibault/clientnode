@@ -48,6 +48,28 @@ const TEST_ENVIRONMENT: string = (
 if (TEST_ENVIRONMENT !== 'node') {
     const divElement = document.createElement('div')
 
+
+    test.each([
+        [null, '<div></div>', 'p'],
+        ['DIV', '<div></div>', 'div'],
+        [null, '<div></div>', 'div', true],
+        ['DIV', '<div><div id="start"></div></div>', 'div'],
+        ['P', '<div><p><a id="start"></a></p></div>', 'p'],
+        ['DIV', '<div><p><a id="start"></a></p></div>', 'div']
+    ])(
+        '%o === closest(%o, %s, %b)',
+        (expected, domNodes, selector, startWithParent = false) => {
+            const rootNode = createDomNodes<Element>(domNodes)
+
+            expect(
+                closest(
+                    rootNode.querySelector('#start') as Node | null || rootNode,
+                    selector,
+                    startWithParent
+                )?.nodeName || null
+            ).toEqual(expected)
+        }
+    )
     test('createDomNodes', () => {
         const document = createDomNodes('<div></div>')
 
@@ -72,28 +94,6 @@ if (TEST_ENVIRONMENT !== 'node') {
         getAll,
 
         [[divElement], divElement]
-    )
-
-    test.each([
-        [null, '<div></div>', 'p'],
-        ['DIV', '<div></div>', 'div'],
-        [null, '<div></div>', 'div', true],
-        ['DIV', '<div><div id="start"></div></div>', 'div'],
-        ['P', '<div><p><a id="start"></a></p></div>', 'p'],
-        ['DIV', '<div><p><a id="start"></a></p></div>', 'div']
-    ])(
-        '%o === closest(%o, %s, %b)',
-        (expected, domNodes, selector, startWithParent = false) => {
-            const rootNode = createDomNodes<Element>(domNodes)
-
-            expect(
-                closest(
-                    rootNode.querySelector('#start') as Node | null || rootNode,
-                    selector,
-                    startWithParent
-                )?.nodeName || null
-            ).toEqual(expected)
-        }
     )
 
     test.each([
@@ -268,26 +268,6 @@ if (TEST_ENVIRONMENT !== 'node') {
             .toStrictEqual(true)
     })
 
-    test('wrap', () => {
-        const domNode = createDomNodes('<div></div>')
-        const wrapper = createDomNodes<HTMLElement>('<wrapper></wrapper>')
-
-        wrap(domNode, wrapper)
-
-        expect(isEquivalent(wrapper, '<wrapper><div></div></wrapper>'))
-            .toStrictEqual(true)
-
-        const boundWrapper = createDomNodes<HTMLElement>('<wrapper></wrapper>')
-
-        document.body.appendChild(boundWrapper)
-
-        wrap(wrapper, boundWrapper)
-
-        expect(isEquivalent(
-            boundWrapper, '<wrapper><wrapper><div></div></wrapper></wrapper>'
-        )).toStrictEqual(true)
-    })
-
     test.each(
         [
             ['<div><wrapper><p></p></wrapper></div>', '<div><p></p></div>', 1],
@@ -329,5 +309,25 @@ if (TEST_ENVIRONMENT !== 'node') {
 
         expect(isEquivalent(boundWrapperContext, '<div><div></div></div>'))
             .toStrictEqual(true)
+    })
+
+    test('wrap', () => {
+        const domNode = createDomNodes('<div></div>')
+        const wrapper = createDomNodes<HTMLElement>('<wrapper></wrapper>')
+
+        wrap(domNode, wrapper)
+
+        expect(isEquivalent(wrapper, '<wrapper><div></div></wrapper>'))
+            .toStrictEqual(true)
+
+        const boundWrapper = createDomNodes<HTMLElement>('<wrapper></wrapper>')
+
+        document.body.appendChild(boundWrapper)
+
+        wrap(wrapper, boundWrapper)
+
+        expect(isEquivalent(
+            boundWrapper, '<wrapper><wrapper><div></div></wrapper></wrapper>'
+        )).toStrictEqual(true)
     })
 }

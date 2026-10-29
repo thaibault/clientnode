@@ -657,6 +657,14 @@ testEach(
         {returnReasonIfNotEqual: true}
     ]
 )
+testEachResolvedPromise(
+    'evaluateAsyncDynamicData',
+    evaluateAsyncDynamicData,
+
+    [4, {__async_evaluate__: 'Promise.resolve(1 + 3)'}],
+    [[1], [{__async_evaluate__: 'Promise.resolve(1)'}]],
+    [['1'], [{__async_evaluate__: `Promise.resolve('1')`}]]
+)
 testEach(
     'evaluateDynamicData',
     evaluateDynamicData,
@@ -940,14 +948,6 @@ testEach(
             b: {__evaluate__: '{a: 1, b: 2, c: 3}'}
         }
     ]
-)
-testEachResolvedPromise(
-    'evaluateAsyncDynamicData',
-    evaluateAsyncDynamicData,
-
-    [4, {__async_evaluate__: 'Promise.resolve(1 + 3)'}],
-    [[1], [{__async_evaluate__: 'Promise.resolve(1)'}]],
-    [['1'], [{__async_evaluate__: `Promise.resolve('1')`}]]
 )
 testEach(
     'removeKeysInEvaluation',

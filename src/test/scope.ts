@@ -19,6 +19,25 @@ import {expect, test} from '@jest/globals'
 
 import {determineUniqueScopeName, isolateScope} from '../scope'
 
+test('determineUniqueScopeName', (): void => {
+    expect(determineUniqueScopeName())
+        .toStrictEqual(expect.stringMatching(/^callback/))
+    expect(determineUniqueScopeName('hans'))
+        .toStrictEqual(expect.stringMatching(/^hans/))
+    expect(determineUniqueScopeName('hans', '', {}))
+        .toStrictEqual(expect.stringMatching(/^hans/))
+    expect(determineUniqueScopeName('hans', '', {}, 'peter'))
+        .toStrictEqual('peter')
+    expect(
+        determineUniqueScopeName('hans', '', {peter: 2}, 'peter')
+    ).toStrictEqual(expect.stringMatching(/^hans/))
+    const name: string = determineUniqueScopeName(
+        'hans', 'klaus', {peter: 2}, 'peter'
+    )
+    expect(name).toStrictEqual(expect.stringMatching(/^hans/))
+    expect(name).toStrictEqual(expect.stringMatching(/klaus$/))
+    expect(name.length).toBeGreaterThan('hans'.length + 'klaus'.length)
+})
 test('isolateScope', (): void => {
     expect(isolateScope({})).toStrictEqual({})
     expect(isolateScope({a: 2})).toStrictEqual({a: 2})
@@ -66,23 +85,4 @@ test('isolateScope', (): void => {
 
     expect(finalScope).toStrictEqual({a: 2, b: 3})
     expect(isolateScope(new Scope())).toStrictEqual({a: 2, b: undefined})
-})
-test('determineUniqueScopeName', (): void => {
-    expect(determineUniqueScopeName())
-        .toStrictEqual(expect.stringMatching(/^callback/))
-    expect(determineUniqueScopeName('hans'))
-        .toStrictEqual(expect.stringMatching(/^hans/))
-    expect(determineUniqueScopeName('hans', '', {}))
-        .toStrictEqual(expect.stringMatching(/^hans/))
-    expect(determineUniqueScopeName('hans', '', {}, 'peter'))
-        .toStrictEqual('peter')
-    expect(
-        determineUniqueScopeName('hans', '', {peter: 2}, 'peter')
-    ).toStrictEqual(expect.stringMatching(/^hans/))
-    const name: string = determineUniqueScopeName(
-        'hans', 'klaus', {peter: 2}, 'peter'
-    )
-    expect(name).toStrictEqual(expect.stringMatching(/^hans/))
-    expect(name).toStrictEqual(expect.stringMatching(/klaus$/))
-    expect(name.length).toBeGreaterThan('hans'.length + 'klaus'.length)
 })

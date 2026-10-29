@@ -62,44 +62,6 @@ import {testEach, testEachAgainstSameExpectation} from '../test-helper'
 declare const TARGET_TECHNOLOGY: string
 
 testEach(
-    'EscapeRegularExpressions',
-    escapeRegularExpressions,
-
-    ['', ''],
-    [`that's no regex: \\.\\*\\$`, `that's no regex: .*$`],
-    ['\\-\\\\[\\]\\(\\)\\^\\$\\*\\+\\.}\\-', '-\\[]()^$*+.}-', ['}']],
-    [
-        '\\-\\[]()^$*+.{\\}\\-',
-        '-\\[]()^$*+.{}-',
-        ['[', ']', '(', ')', '^', '$', '*', '+', '.', '{']
-    ],
-    ['\\-', '-', ['\\']]
-)
-testEach(
-    'convertToValidVariableName',
-    convertToValidVariableName,
-
-    ['', ''],
-    ['a', 'a'],
-    ['_a', '_a'],
-    ['_a_a', '_a_a'],
-    ['_aA', '_a-a'],
-    ['aA', '-a-a'],
-    ['aA', '-a--a'],
-    ['aA', '--a--a']
-)
-//// region url handling
-testEach(
-    'encodeURIComponentExtended',
-    encodeURIComponentExtended,
-
-    ['', ''],
-    ['+', ' '],
-    ['%20', ' ', true],
-    ['@:$,+', '@:$, '],
-    ['%2B', '+']
-)
-testEach(
     'addSeparatorToPath',
     addSeparatorToPath,
 
@@ -111,27 +73,16 @@ testEach(
     ['/a/bb|', '/a/bb', '|'],
     ['/a/bb/|', '/a/bb/', '|']
 )
-testEachAgainstSameExpectation(
-    'hasPathPrefix',
-    hasPathPrefix,
-    true,
+//// region url handling
+testEach(
+    'encodeURIComponentExtended',
+    encodeURIComponentExtended,
 
-    ['/admin', '/admin'],
-    ['test', 'test'],
     ['', ''],
-    ['a', 'a/b'],
-    ['a/', 'a/b'],
-    ['/admin', '/admin#test', '#']
-)
-testEachAgainstSameExpectation(
-    'hasPathPrefix',
-    hasPathPrefix,
-    false,
-
-    ['b', 'a/b'],
-    ['b/', 'a/b'],
-    ['/admin/', '/admin/test', '#'],
-    ['/admin', '/admin/test', '#']
+    ['+', ' '],
+    ['%20', ' ', true],
+    ['@:$,+', '@:$, '],
+    ['%2B', '+']
 )
 testEach(
     'getDomainName',
@@ -303,6 +254,51 @@ testEach(
     ]
 )
 testEachAgainstSameExpectation(
+    'hasPathPrefix',
+    hasPathPrefix,
+    true,
+
+    ['/admin', '/admin'],
+    ['test', 'test'],
+    ['', ''],
+    ['a', 'a/b'],
+    ['a/', 'a/b'],
+    ['/admin', '/admin#test', '#']
+)
+testEachAgainstSameExpectation(
+    'hasPathPrefix',
+    hasPathPrefix,
+    false,
+
+    ['b', 'a/b'],
+    ['b/', 'a/b'],
+    ['/admin/', '/admin/test', '#'],
+    ['/admin', '/admin/test', '#']
+)
+testEach(
+    'normalizeURL',
+    normalizeURL,
+
+    ['http://www.test.com', 'www.test.com'],
+    ['http://test', 'test'],
+    ['http://test', 'http://test'],
+    ['https://test', 'https://test']
+)
+testEach(
+    'representURL',
+    representURL,
+
+    ['www.test.com', 'http://www.test.com'],
+    ['ftp://www.test.com', 'ftp://www.test.com'],
+    ['www.test.com', 'https://www.test.com'],
+    ['', undefined],
+    ['', null],
+    ['', false],
+    ['', true],
+    ['', ''],
+    ['', ' ']
+)
+testEachAgainstSameExpectation(
     'serviceURLEquals',
     serviceURLEquals,
     true,
@@ -407,29 +403,6 @@ testEachAgainstSameExpectation(
         'https://www.test.de/site/subSite?param=value#hash'
     ]
 )
-testEach(
-    'normalizeURL',
-    normalizeURL,
-
-    ['http://www.test.com', 'www.test.com'],
-    ['http://test', 'test'],
-    ['http://test', 'http://test'],
-    ['https://test', 'https://test']
-)
-testEach(
-    'representURL',
-    representURL,
-
-    ['www.test.com', 'http://www.test.com'],
-    ['ftp://www.test.com', 'ftp://www.test.com'],
-    ['www.test.com', 'https://www.test.com'],
-    ['', undefined],
-    ['', null],
-    ['', false],
-    ['', true],
-    ['', ''],
-    ['', ' ']
-)
 //// endregion
 testEach(
     'camelCaseToDelimited',
@@ -459,57 +432,6 @@ testEach(
     ['AA', 'AA'],
     ['Aa', 'Aa'],
     ['Aa', 'aa']
-)
-testEach(
-    'compressStyleValue',
-    compressStyleValue,
-
-    ['', ''],
-    ['border:1px solid red', ' border: 1px  solid red;'],
-    ['border:1px solid red', 'border : 1px solid red '],
-    ['border:1px solid red', 'border : 1px  solid red ;'],
-    ['border:1px solid red', 'border : 1px  solid red   ; '],
-    ['height:1px;width:2px', 'height: 1px ; width:2px ; '],
-    ['height:1px;width:2px', ';;height: 1px ; width:2px ; ;'],
-    ['height:1px;width:2px', ' ;;height: 1px ; width:2px ; ;'],
-    ['height:1px;width:2px', ';height: 1px ; width:2px ; ']
-)
-testEach(
-    'decodeHTMLEntities',
-    decodeHTMLEntities,
-
-    [globalContext.document ? '' : null, ''],
-    [globalContext.document ? '<div></div>' : null, '<div></div>'],
-    [globalContext.document ? '<div>&</div>' : null, '<div>&amp;</div>'],
-    [
-        globalContext.document ? '<div>&äÄüÜöÖ</div>' : null,
-        '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>'
-    ]
-)
-testEach(
-    'delimitedToCamelCase',
-    delimitedToCamelCase,
-
-    ['hansPeter', 'hans-peter'],
-    ['hansPeter', 'hans|peter', '|'],
-    ['', ''],
-    ['h', 'h'],
-    ['hansPeter', 'hans-peter'],
-    ['hans-Peter', 'hans--peter'],
-    ['HansPeter', 'Hans-Peter'],
-    ['-HansPeter', '-Hans-Peter'],
-    ['-', '-'],
-    ['hans-peter', 'hans-peter', '_'],
-    ['hansPeter', 'hans_peter', '_'],
-    ['hansID', 'hans_id', '_'],
-    ['urlHANSId', 'url_hans_id', '_', ['hans']],
-    ['urlHans1', 'url_hans_1', '_'],
-    ['hansUrl1', 'hansUrl1', '-', ['url'], true],
-    ['hansURL', 'hans-url', '-', ['url'], true],
-    ['hansUrl', 'hans-Url', '-', ['url'], true],
-    ['hansURL', 'hans-Url', '-', ['url'], false],
-    ['hansUrl', 'hans-Url', '-', [], false],
-    ['hansUrl', 'hans--Url', '-', [], false, true]
 )
 test.each([
     ['function', 'null', {scope: []}],
@@ -838,12 +760,6 @@ test.each(([
                     .toStrictEqual(expected)
     }
 )
-test('evaluateOrThrowError', () => {
-    expect(() => {
-        evaluateOrThrowError('notExistingVariable')
-    })
-        .toThrow()
-})
 test.each(([
     [
         '`test \\${test} value \\${test}`',
@@ -933,6 +849,90 @@ test.each(([
         POLYFILL_TEMPLATE_STRINGS.value = backup
     }
 )
+test('evaluateOrThrowError', () => {
+    expect(() => {
+        evaluateOrThrowError('notExistingVariable')
+    })
+        .toThrow()
+})
+testEach(
+    'compressStyleValue',
+    compressStyleValue,
+
+    ['', ''],
+    ['border:1px solid red', ' border: 1px  solid red;'],
+    ['border:1px solid red', 'border : 1px solid red '],
+    ['border:1px solid red', 'border : 1px  solid red ;'],
+    ['border:1px solid red', 'border : 1px  solid red   ; '],
+    ['height:1px;width:2px', 'height: 1px ; width:2px ; '],
+    ['height:1px;width:2px', ';;height: 1px ; width:2px ; ;'],
+    ['height:1px;width:2px', ' ;;height: 1px ; width:2px ; ;'],
+    ['height:1px;width:2px', ';height: 1px ; width:2px ; ']
+)
+testEach(
+    'convertToValidVariableName',
+    convertToValidVariableName,
+
+    ['', ''],
+    ['a', 'a'],
+    ['_a', '_a'],
+    ['_a_a', '_a_a'],
+    ['_aA', '_a-a'],
+    ['aA', '-a-a'],
+    ['aA', '-a--a'],
+    ['aA', '--a--a']
+)
+testEach(
+    'decodeHTMLEntities',
+    decodeHTMLEntities,
+
+    [globalContext.document ? '' : null, ''],
+    [globalContext.document ? '<div></div>' : null, '<div></div>'],
+    [globalContext.document ? '<div>&</div>' : null, '<div>&amp;</div>'],
+    [
+        globalContext.document ? '<div>&äÄüÜöÖ</div>' : null,
+        '<div>&amp;&auml;&Auml;&uuml;&Uuml;&ouml;&Ouml;</div>'
+    ]
+)
+testEach(
+    'delimitedToCamelCase',
+    delimitedToCamelCase,
+
+    ['hansPeter', 'hans-peter'],
+    ['hansPeter', 'hans|peter', '|'],
+    ['', ''],
+    ['h', 'h'],
+    ['hansPeter', 'hans-peter'],
+    ['hans-Peter', 'hans--peter'],
+    ['HansPeter', 'Hans-Peter'],
+    ['-HansPeter', '-Hans-Peter'],
+    ['-', '-'],
+    ['hans-peter', 'hans-peter', '_'],
+    ['hansPeter', 'hans_peter', '_'],
+    ['hansID', 'hans_id', '_'],
+    ['urlHANSId', 'url_hans_id', '_', ['hans']],
+    ['urlHans1', 'url_hans_1', '_'],
+    ['hansUrl1', 'hansUrl1', '-', ['url'], true],
+    ['hansURL', 'hans-url', '-', ['url'], true],
+    ['hansUrl', 'hans-Url', '-', ['url'], true],
+    ['hansURL', 'hans-Url', '-', ['url'], false],
+    ['hansUrl', 'hans-Url', '-', [], false],
+    ['hansUrl', 'hans--Url', '-', [], false, true]
+)
+testEach(
+    'EscapeRegularExpressions',
+    escapeRegularExpressions,
+
+    ['', ''],
+    [`that's no regex: \\.\\*\\$`, `that's no regex: .*$`],
+    ['\\-\\\\[\\]\\(\\)\\^\\$\\*\\+\\.}\\-', '-\\[]()^$*+.}-', ['}']],
+    [
+        '\\-\\[]()^$*+.{\\}\\-',
+        '-\\[]()^$*+.{}-',
+        ['[', ']', '(', ')', '^', '$', '*', '+', '.', '{']
+    ],
+    ['\\-', '-', ['\\']]
+)
 ///// endregion
 //// endregion
 testEach(
@@ -1007,13 +1007,14 @@ testEach(
     [4, 'beer', 'hans']
 )
 testEach(
-    'maskForRegularExpression',
-    maskForRegularExpression,
+    'limit',
+    limit,
 
-    [`that's no regex: \\.\\*\\$`, `that's no regex: .*$`],
     ['', ''],
-    ['\\-\\[\\]\\(\\)\\^\\$\\*\\+\\.\\}\\-\\\\', '-[]()^$*+.}-\\'],
-    ['\\-', '-']
+    ['test', 'test'],
+    ['test ', 'test '],
+    ['12345...', '123456789excess', 8],
+    ['1...', '123456789excess', 4]
 )
 
 testEach(
@@ -1305,6 +1306,33 @@ testEach(
     ]
 )
 testEach(
+    'maskForRegularExpression',
+    maskForRegularExpression,
+
+    [`that's no regex: \\.\\*\\$`, `that's no regex: .*$`],
+    ['', ''],
+    ['\\-\\[\\]\\(\\)\\^\\$\\*\\+\\.\\}\\-\\\\', '-[]()^$*+.}-\\'],
+    ['\\-', '-']
+)
+testEach(
+    'normalizeDomNodeSelector',
+    normalizeDomNodeSelector,
+
+    ['body div', 'div', 'body'],
+    ['body div p', 'div p', 'body'],
+    ['body div', 'body div', 'body'],
+    ['body div p', 'body div p', 'body'],
+    ['body', '', 'body']
+)
+testEach(
+    'normalizeDomNodeSelector',
+    normalizeDomNodeSelector,
+
+    ['', ''],
+    ['div', 'div'],
+    ['div, p', 'div, p']
+)
+testEach(
     'normalizePhoneNumber',
     normalizePhoneNumber,
 
@@ -1388,14 +1416,6 @@ if (TARGET_TECHNOLOGY === 'node')
         [{a: 2}, Buffer.from('{a: scope.a}').toString('base64'), {a: 2}]
     )
 testEach(
-    'sliceAllExceptNumberAndLastSeparator',
-    sliceAllExceptNumberAndLastSeparator,
-
-    ['1234-56', '12-34-56'],
-    ['123456', '12 34 56'],
-    ['123456', '123456']
-)
-testEach(
     'representPhoneNumber',
     representPhoneNumber,
 
@@ -1411,30 +1431,10 @@ testEach(
     ['', ' ']
 )
 testEach(
-    'normalizeDomNodeSelector',
-    normalizeDomNodeSelector,
+    'sliceAllExceptNumberAndLastSeparator',
+    sliceAllExceptNumberAndLastSeparator,
 
-    ['body div', 'div', 'body'],
-    ['body div p', 'div p', 'body'],
-    ['body div', 'body div', 'body'],
-    ['body div p', 'body div p', 'body'],
-    ['body', '', 'body']
-)
-testEach(
-    'normalizeDomNodeSelector',
-    normalizeDomNodeSelector,
-
-    ['', ''],
-    ['div', 'div'],
-    ['div, p', 'div, p']
-)
-testEach(
-    'limit',
-    limit,
-
-    ['', ''],
-    ['test', 'test'],
-    ['test ', 'test '],
-    ['12345...', '123456789excess', 8],
-    ['1...', '123456789excess', 4]
+    ['1234-56', '12-34-56'],
+    ['123456', '12 34 56'],
+    ['123456', '123456']
 )
