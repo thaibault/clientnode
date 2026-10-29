@@ -38,16 +38,6 @@ export const determineGlobalContext = (): Partial<typeof globalThis> => {
 }
 const globalContext = determineGlobalContext()
 
-export const isImportSyntaxSupported = (): boolean => {
-    try {
-        // eslint-disable-next-line @typescript-eslint/no-implied-eval
-        new Function('import("data:text/javascript,")')
-        return true
-    } catch {
-        return false
-    }
-}
-
 export let currentRequire =
     typeof globalContext.require === 'undefined' ?
         null :
@@ -65,6 +55,18 @@ export const setOptionalRequire = (
     }
 }
 setOptionalRequire(currentRequire)
+
+export const clearRequireCache = (
+    cache: typeof require.cache = currentRequire?.cache || require.cache
+): typeof require.cache => {
+    const backup: typeof require.cache = {}
+    for (const [key, module] of Object.entries(cache)) {
+        backup[key] = module
+        delete cache[key]
+    }
+
+    return backup
+}
 // Make preprocessed require function available at runtime.
 export const getCurrentRequire = async (): Promise<null | typeof require> => {
     if (currentRequire)
@@ -93,25 +95,14 @@ export const getCurrentRequire = async (): Promise<null | typeof require> => {
         return null
     }
 }
-export const clearRequireCache = (
-    cache: typeof require.cache = currentRequire?.cache || require.cache
-): typeof require.cache => {
-    const backup: typeof require.cache = {}
-    for (const [key, module] of Object.entries(cache)) {
-        backup[key] = module
-        delete cache[key]
+export const isImportSyntaxSupported = (): boolean => {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        new Function('import("data:text/javascript,")')
+        return true
+    } catch {
+        return false
     }
-
-    return backup
-}
-const restoreRequireCache = (
-    cache: typeof require.cache = currentRequire?.cache || require.cache,
-    backup: typeof require.cache
-) => {
-    clearRequireCache()
-
-    for (const [key, module] of Object.entries(backup))
-        cache[key] = module
 }
 export const isolatedRequire = (
     path: FirstParameter<typeof require>,
@@ -129,7 +120,6 @@ export const isolatedRequire = (
         restoreRequireCache(requireFunction.cache, backup)
     }
 }
-
 export const optionalImport = async <T = unknown>(
     id: string, options = {}
 ): Promise<null | T> => {
@@ -154,4 +144,13 @@ export const optionalImport = async <T = unknown>(
         // console.error('OptionalImport failed for', id, error)
         return await Promise.resolve(null)
     }
+}
+const restoreRequireCache = (
+    cache: typeof require.cache = currentRequire?.cache || require.cache,
+    backup: typeof require.cache
+) => {
+    clearRequireCache()
+
+    for (const [key, module] of Object.entries(backup))
+        cache[key] = module
 }

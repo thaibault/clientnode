@@ -26,6 +26,28 @@ import type {
 import {globalContext, NOOP} from './context'
 import {timeout} from './utility'
 
+export const STOP_AUTO_SCROLLING = {value: NOOP}
+export const MANUAL_SCROLL_EVENT_NAMES: Array<KnownEventName> = [
+    'DOMMouseScroll',
+
+    'keydown',
+
+    'mousedown',
+    'mousewheel',
+    'wheel',
+
+    'touchstart',
+    'touchmove'
+]
+export const SCROLL_EVENT_NAMES: Array<KnownEventName> =
+    (['scroll'] as Array<KnownEventName>).concat(MANUAL_SCROLL_EVENT_NAMES)
+
+export const closest = (
+    node: Node, selector: string, startWithParent = false
+): Element | null =>
+    'closest' in node && !startWithParent ?
+        (node as Element).closest(selector) :
+        node.parentElement?.closest(selector) || null
 export const createDomNodes = <Type extends Node = Node>(
     html: string
 ): Type => {
@@ -102,21 +124,47 @@ export const fadeIn = (domNode: HTMLElement, intervalInMilliseconds = 200) =>
 export const fadeOut = (domNode: HTMLElement, intervalInMilliseconds = 200) =>
     fade(domNode, intervalInMilliseconds)
 
-export const STOP_AUTO_SCROLLING = {value: NOOP}
-export const MANUAL_SCROLL_EVENT_NAMES: Array<KnownEventName> = [
-    'DOMMouseScroll',
+export const getAll = (root: Node) => {
+    if (!globalContext.document)
+        return []
 
-    'keydown',
+    const nodes: Array<Node> = []
+    // SHOW_ALL includes elements, text, and comments
+    const walker =
+        globalContext.document.createTreeWalker(root, NodeFilter.SHOW_ALL, null)
 
-    'mousedown',
-    'mousewheel',
-    'wheel',
+    let currentNode: Node | null = walker.currentNode
+    while (currentNode) {
+        nodes.push(currentNode)
+        currentNode = walker.nextNode()
+    }
 
-    'touchstart',
-    'touchmove'
-]
-export const SCROLL_EVENT_NAMES: Array<KnownEventName> =
-    (['scroll'] as Array<KnownEventName>).concat(MANUAL_SCROLL_EVENT_NAMES)
+    return nodes
+}
+export const getParents = (node: Node): Array<Node> => {
+    const result: Array<Node> = []
+    while (node.parentNode) {
+        result.push(node.parentNode)
+        node = node.parentNode
+    }
+
+    return result
+}
+export const getText = (root: Node, recursive = false): Array<string> => {
+    if (root.nodeType === Node.TEXT_NODE) {
+        const content = root.nodeValue?.trim()
+        if (content)
+            return [content]
+    }
+
+    const result: Array<string> = []
+    for (const domNode of root.childNodes)
+        if (recursive || domNode.nodeType === Node.TEXT_NODE)
+            result.push(...getText(domNode))
+
+    return result
+}
+
 /**
  * Smoothly scrolls both horizontally and vertically to a target DOM node.
  * Cancels instantly if the user interacts with the mouse, touch, or keys.
@@ -298,52 +346,6 @@ export const scrollTo = (
     globalContext.window?.scrollTo({left, top, behavior})
 }
 
-export const getAll = (root: Node) => {
-    if (!globalContext.document)
-        return []
-
-    const nodes: Array<Node> = []
-    // SHOW_ALL includes elements, text, and comments
-    const walker =
-        globalContext.document.createTreeWalker(root, NodeFilter.SHOW_ALL, null)
-
-    let currentNode: Node | null = walker.currentNode
-    while (currentNode) {
-        nodes.push(currentNode)
-        currentNode = walker.nextNode()
-    }
-
-    return nodes
-}
-export const closest = (
-    node: Node, selector: string, startWithParent = false
-): Element | null =>
-    'closest' in node && !startWithParent ?
-        (node as Element).closest(selector) :
-        node.parentElement?.closest(selector) || null
-export const getParents = (node: Node): Array<Node> => {
-    const result: Array<Node> = []
-    while (node.parentNode) {
-        result.push(node.parentNode)
-        node = node.parentNode
-    }
-
-    return result
-}
-export const getText = (root: Node, recursive = false): Array<string> => {
-    if (root.nodeType === Node.TEXT_NODE) {
-        const content = root.nodeValue?.trim()
-        if (content)
-            return [content]
-    }
-
-    const result: Array<string> = []
-    for (const domNode of root.childNodes)
-        if (recursive || domNode.nodeType === Node.TEXT_NODE)
-            result.push(...getText(domNode))
-
-    return result
-}
 /**
  * Checks whether given html or text strings are equal.
  * @param first - First html, selector to dom node or text to compare.
@@ -483,22 +485,6 @@ export const replace = (
     domNodeToReplace.remove()
 }
 
-export const wrap = (
-    domNodes: Node | NodeListOf<Node>, wrapper: HTMLElement
-) => {
-    const domNodeList = (domNodes as NodeListOf<Node>).length ?
-        Array.from(domNodes as NodeListOf<Node>) :
-        [domNodes as Node]
-
-    // Use the first element's position as the anchor point
-    const first = domNodeList[0]
-
-    if (first.parentNode)
-        first.parentNode.insertBefore(wrapper, first)
-
-    for (const domNode of domNodeList)
-        wrapper.appendChild(domNode)
-}
 /**
  * Moves the content of a given dom node one level up and removes the given
  * node.
@@ -521,4 +507,20 @@ export const unwrap = (domNode: HTMLElement): Array<ChildNode> => {
         parent.removeChild(domNode)
 
     return result
+}
+export const wrap = (
+    domNodes: Node | NodeListOf<Node>, wrapper: HTMLElement
+) => {
+    const domNodeList = (domNodes as NodeListOf<Node>).length ?
+        Array.from(domNodes as NodeListOf<Node>) :
+        [domNodes as Node]
+
+    // Use the first element's position as the anchor point
+    const first = domNodeList[0]
+
+    if (first.parentNode)
+        first.parentNode.insertBefore(wrapper, first)
+
+    for (const domNode of domNodeList)
+        wrapper.appendChild(domNode)
 }

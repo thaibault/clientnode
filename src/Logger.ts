@@ -279,7 +279,7 @@ export class Logger {
     critical(
         object: unknown = '', ...additionalArguments: Array<unknown>
     ): Promise<void> {
-        return this.log(object, true, false, 'warn', ...additionalArguments)
+        return this.log(object, true, false, 'critical', ...additionalArguments)
     }
     /**
      * Wrapper method for the native console method usually provided by

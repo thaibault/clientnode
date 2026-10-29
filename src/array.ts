@@ -604,26 +604,6 @@ export const permuteLength = <T = unknown>(
     return result
 }
 /**
- * Sums up given property of given item list.
- * @param data - The objects with specified property to sum up.
- * @param propertyName - Property name to sum up its value.
- * @returns The aggregated value.
- */
-export const sumUpProperty = (data: unknown, propertyName: string): number => {
-    let result = 0
-
-    if (Array.isArray(data) && data.length)
-        for (const item of data)
-            if (Object.prototype.hasOwnProperty.call(item, propertyName))
-                result += parseFloat(
-                    ((item as Mapping)[propertyName] || 0) as
-                        unknown as
-                        string
-                )
-
-    return result
-}
-/**
  * Removes given target on given list.
  * @param list - Array to splice.
  * @param target - Target to remove from given list.
@@ -726,6 +706,26 @@ export const sortTopological = (
     }
 
     return sorted
+}
+/**
+ * Sums up given property of given item list.
+ * @param data - The objects with specified property to sum up.
+ * @param propertyName - Property name to sum up its value.
+ * @returns The aggregated value.
+ */
+export const sumUpProperty = (data: unknown, propertyName: string): number => {
+    let result = 0
+
+    if (Array.isArray(data) && data.length)
+        for (const item of data)
+            if (Object.prototype.hasOwnProperty.call(item, propertyName))
+                result += parseFloat(
+                    ((item as Mapping)[propertyName] || 0) as
+                        unknown as
+                        string
+                )
+
+    return result
 }
 /**
  * Makes all values in given iterable unique by removing duplicates (The first

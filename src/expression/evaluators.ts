@@ -292,21 +292,6 @@ export const evaluateCondition = <ScopeType extends BasicScopeType>(
     }
 }
 
-export const evaluateUnaryOperation = <ScopeType extends BasicScopeType>(
-    operation: UnaryOperation,
-    scope: ScopeType,
-    options: Partial<Options<ScopeType>>
-): boolean => {
-    const operand = evaluateExpression(operation.operand, scope, options)
-
-    switch (operation.$operator) {
-    case '!':
-        return !operand
-    case '!!':
-        return Boolean(operand)
-    }
-}
-
 export const evaluateOperation = <ScopeType extends BasicScopeType>(
     operation: Operation,
     scope: ScopeType,
@@ -326,6 +311,21 @@ export const evaluateOperation = <ScopeType extends BasicScopeType>(
         return operand1 ** operand2
     case '/':
         return operand1 / operand2
+    }
+}
+
+export const evaluateUnaryOperation = <ScopeType extends BasicScopeType>(
+    operation: UnaryOperation,
+    scope: ScopeType,
+    options: Partial<Options<ScopeType>>
+): boolean => {
+    const operand = evaluateExpression(operation.operand, scope, options)
+
+    switch (operation.$operator) {
+    case '!':
+        return !operand
+    case '!!':
+        return Boolean(operand)
     }
 }
 
