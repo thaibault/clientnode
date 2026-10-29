@@ -27,6 +27,75 @@ import {
     testEachSingleParameterAgainstSameExpectation
 } from '../test-helper'
 
+testEachAgainstSameExpectation(
+    'isAnyMatching',
+    isAnyMatching,
+    true,
+
+    ['', ['']],
+    ['test', [/test/]],
+    ['test', [/a/, /b/, /es/]],
+    ['test', ['', 'test']]
+)
+testEachAgainstSameExpectation(
+    'isAnyMatching',
+    isAnyMatching,
+    false,
+
+    ['', []],
+    ['test', [/tes$/]],
+    ['test', [/^est/]],
+    ['test', [/^est$/]],
+    ['test', ['a']]
+)
+test('isArrayLike', async (): Promise<void> => {
+    const browser: InitializedBrowser = await getInitializedBrowser()
+    for (const value of [
+        [], browser.window.document.querySelectorAll('*')
+    ])
+        expect(isArrayLike(value)).toStrictEqual(true)
+})
+testEachSingleParameterAgainstSameExpectation(
+    'isArrayLike',
+    isArrayLike,
+    false,
+
+    {},
+    null,
+    undefined,
+    false,
+    true,
+    /a/
+)
+testEachSingleParameterAgainstSameExpectation(
+    'isFunction',
+    isFunction,
+    true,
+
+    Object,
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    new Function('return 1'),
+    function() {
+        // Do nothing.
+    },
+    NOOP,
+    async (): Promise<void> => {
+        // Do nothing.
+    }
+)
+testEachSingleParameterAgainstSameExpectation(
+    'isFunction',
+    isFunction,
+    false,
+
+    null,
+    false,
+    0,
+    1,
+    undefined,
+    {},
+    new Boolean()
+)
 testEachSingleParameterAgainstSameExpectation(
     'isNumeric',
     isNumeric,
@@ -60,54 +129,6 @@ testEachSingleParameterAgainstSameExpectation(
     '7.2acdgs',
     NaN,
     Infinity
-)
-test('isWindow', async (): Promise<void> => {
-    const browser: InitializedBrowser = await getInitializedBrowser()
-
-    expect(isWindow(browser.window)).toStrictEqual(true)
-
-    for (const value of [null, {}, browser])
-        expect(isWindow(value)).toStrictEqual(false)
-})
-test('isArrayLike', async (): Promise<void> => {
-    const browser: InitializedBrowser = await getInitializedBrowser()
-    for (const value of [
-        [], browser.window.document.querySelectorAll('*')
-    ])
-        expect(isArrayLike(value)).toStrictEqual(true)
-})
-testEachSingleParameterAgainstSameExpectation(
-    'isArrayLike',
-    isArrayLike,
-    false,
-
-    {},
-    null,
-    undefined,
-    false,
-    true,
-    /a/
-)
-testEachAgainstSameExpectation(
-    'isAnyMatching',
-    isAnyMatching,
-    true,
-
-    ['', ['']],
-    ['test', [/test/]],
-    ['test', [/a/, /b/, /es/]],
-    ['test', ['', 'test']]
-)
-testEachAgainstSameExpectation(
-    'isAnyMatching',
-    isAnyMatching,
-    false,
-
-    ['', []],
-    ['test', [/tes$/]],
-    ['test', [/^est/]],
-    ['test', [/^est$/]],
-    ['test', ['a']]
 )
 /*
     NOTE: Simulates a plain object created in another realm (a vm context used
@@ -147,32 +168,11 @@ testEachSingleParameterAgainstSameExpectation(
     true,
     undefined
 )
-testEachSingleParameterAgainstSameExpectation(
-    'isFunction',
-    isFunction,
-    true,
+test('isWindow', async (): Promise<void> => {
+    const browser: InitializedBrowser = await getInitializedBrowser()
 
-    Object,
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
-    new Function('return 1'),
-    function() {
-        // Do nothing.
-    },
-    NOOP,
-    async (): Promise<void> => {
-        // Do nothing.
-    }
-)
-testEachSingleParameterAgainstSameExpectation(
-    'isFunction',
-    isFunction,
-    false,
+    expect(isWindow(browser.window)).toStrictEqual(true)
 
-    null,
-    false,
-    0,
-    1,
-    undefined,
-    {},
-    new Boolean()
-)
+    for (const value of [null, {}, browser])
+        expect(isWindow(value)).toStrictEqual(false)
+})

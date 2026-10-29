@@ -314,14 +314,6 @@ testEach(
     ]
 )
 testEach(
-    'sumUpProperty',
-    sumUpProperty,
-
-    [5, [{a: 2}, {a: 3}], 'a'],
-    [2, [{a: 2}, {b: 3}], 'a'],
-    [0, [{a: 2}, {b: 3}], 'c']
-)
-testEach(
     'removeArrayItem',
     removeArrayItem,
 
@@ -356,6 +348,14 @@ testEachSingleParameterAgainstSameExpectation(
     {a: 'a'},
     {a: 'b', b: 'a'},
     {a: 'b', b: 'c', c: 'a'}
+)
+testEach(
+    'sumUpProperty',
+    sumUpProperty,
+
+    [5, [{a: 2}, {a: 3}], 'a'],
+    [2, [{a: 2}, {b: 3}], 'a'],
+    [0, [{a: 2}, {b: 3}], 'c']
 )
 testEach(
     'unique',
