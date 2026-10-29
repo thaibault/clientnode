@@ -224,6 +224,9 @@ testEachSingleParameterAgainstSameExpectation(
     isProxy,
     false,
 
+    null,
+    undefined,
+    0,
     {},
     [],
     {__target__: null},
