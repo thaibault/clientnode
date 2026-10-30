@@ -5613,9 +5613,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:4.0.1523":
-  version: 4.0.1523
-  resolution: "clientnode@npm:4.0.1523"
+"clientnode@npm:4.0.1526":
+  version: 4.0.1526
+  resolution: "clientnode@npm:4.0.1526"
   peerDependencies:
     "@types/prop-types": "*"
     node-fetch: "*"
@@ -5627,7 +5627,7 @@ __metadata:
       optional: true
     prop-types:
       optional: true
-  checksum: 10c0/43fc4332bb1a947d1a6db23f8f370d2650e550cff96d779ab0fd509355aefc8a3d4efe901161ae07e8221f4e9d3e8910134d20698ad40ff90a2c3b73fe363caf
+  checksum: 10c0/b10896f94204c4526b585db0d66affa37788ca97ac3f1445c1bec23605dc2b5f891a5732a7043f218cd5cd76aec5c7cd37b34466cbaf0ed7d8cc9a9abd5b0ee2
   languageName: node
   linkType: hard
 
