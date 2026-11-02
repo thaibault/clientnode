@@ -74,19 +74,8 @@ export const getCurrentRequire = async (): Promise<null | typeof require> => {
 
     try {
         const {createRequire} =
-            /*
-                eslint-disable
-                @typescript-eslint/no-implied-eval,
-                @typescript-eslint/no-unsafe-call
-            */
-            await new Function('return import("node:module")')()
-        /*
-            eslint-enable
-            @typescript-eslint/no-implied-eval,
-            @typescript-eslint/no-unsafe-call
-        */
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        currentRequire = createRequire(import.meta.url) as typeof require
+            await import(/* webpackIgnore: true */ 'node:module')
+        currentRequire = createRequire(import.meta.url)
         setOptionalRequire(currentRequire)
         return currentRequire
     } catch (error) {
@@ -124,21 +113,17 @@ export const optionalImport = async <T = unknown>(
     id: string, options = {}
 ): Promise<null | T> => {
     try {
+        /*
+            NOTE: Avoid compiling the import expression at runtime (e.g. via
+            "new Function"): Sandboxes like jest's vm modules bind such
+            imports to the first context which compiled the surrounding
+            module, so they fail in all subsequently created contexts.
+            The magic comment avoids bundling given request.
+        */
         return isImportSyntaxSupported() ?
-            /*
-                eslint-disable
-                @typescript-eslint/no-implied-eval,
-                @typescript-eslint/no-unsafe-call
-            */
-            await ((new Function(
-                'options', `return import('${id}', options)`
-            ))(options) as Promise<T>) :
+            await (import(/* webpackIgnore: true */ id, options) as
+                Promise<T>) :
             await Promise.resolve(null)
-            /*
-                eslint-enable
-                @typescript-eslint/no-implied-eval,
-                @typescript-eslint/no-unsafe-call
-            */
     } catch /* (error)*/ {
         // NOTE: Use for debugging only:
         // console.error('OptionalImport failed for', id, error)
