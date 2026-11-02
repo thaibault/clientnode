@@ -90,7 +90,7 @@
     "babel-plugin-polyfill-corejs3": "^1.0.0",
     "babel-plugin-transform-rewrite-imports": "^1.5.4",
     "clientnode": "workspace:.",
-    "eslint": "^10.13.0",
+    "eslint": "^10.14.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-jsdoc": "^65.4.2",
     "favicons-webpack-plugin": "^6.0.1",
@@ -101,7 +101,7 @@
     "prop-types": "^15.8.1",
     "typescript-eslint": "^8.72.1",
     "web-documentation": "^1.0.68",
-    "weboptimizer": "^4.0.96",
+    "weboptimizer": "^4.0.97",
     "webpack-dev-server": "^6.1.0"
   },
   "peerDependencies": {
