@@ -177,26 +177,10 @@ export class Logger {
                 (level === 'critical' ? 'error' : level) as keyof Console
 
             if (messages.length)
-                if (
-                    !(
-                        globalContext.console &&
-                        consoleMethodName in globalContext.console
-                    ) ||
-                    (globalContext.console[consoleMethodName] === NOOP)
-                ) {
-                    if (
-                        Object.prototype.hasOwnProperty.call(
-                            globalContext, 'window'
-                        ) &&
-                        Object.prototype.hasOwnProperty.call(
-                            globalContext.window, 'alert'
-                        )
-                    )
-                        globalContext.window?.alert(messages.join(' '))
                 /*
                     eslint-disable @typescript-eslint/no-unnecessary-condition
                 */
-                } else if (typeof process !== 'undefined' && process.stdout)
+                if (typeof process !== 'undefined' && process.stdout)
                 /*
                     eslint-enable @typescript-eslint/no-unnecessary-condition
                 */
@@ -223,7 +207,23 @@ export class Logger {
                                 }
                             )
                         })
-                else
+                else if (
+                    !(
+                        globalContext.console &&
+                        consoleMethodName in globalContext.console
+                    ) ||
+                    (globalContext.console[consoleMethodName] === NOOP)
+                ) {
+                    if (
+                        Object.prototype.hasOwnProperty.call(
+                            globalContext, 'window'
+                        ) &&
+                        Object.prototype.hasOwnProperty.call(
+                            globalContext.window, 'alert'
+                        )
+                    )
+                        globalContext.window?.alert(messages.join(' '))
+                } else
                     (globalContext.console[consoleMethodName] as
                         Console['log']
                     )(...messages)
