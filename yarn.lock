@@ -5642,9 +5642,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:4.0.1526":
-  version: 4.0.1526
-  resolution: "clientnode@npm:4.0.1526"
+"clientnode@npm:4.0.1529":
+  version: 4.0.1529
+  resolution: "clientnode@npm:4.0.1529"
   peerDependencies:
     "@types/prop-types": "*"
     node-fetch: "*"
@@ -5656,7 +5656,7 @@ __metadata:
       optional: true
     prop-types:
       optional: true
-  checksum: 10c0/b10896f94204c4526b585db0d66affa37788ca97ac3f1445c1bec23605dc2b5f891a5732a7043f218cd5cd76aec5c7cd37b34466cbaf0ed7d8cc9a9abd5b0ee2
+  checksum: 10c0/f644a590e81acd7d10389e97129c138b07ee2ad05893dff3e1fac2996bb74c4454707b7688d2ae772bad52039a7f730a72bf8f5157786459bf82ced892224b5f
   languageName: node
   linkType: hard
 
@@ -5693,7 +5693,7 @@ __metadata:
     prop-types: "npm:^15.8.1"
     typescript-eslint: "npm:^8.72.1"
     web-documentation: "npm:^1.0.68"
-    weboptimizer: "npm:^4.0.99"
+    weboptimizer: "npm:^4.0.100"
     webpack-dev-server: "npm:^6.1.0"
   peerDependencies:
     "@types/prop-types": "*"
@@ -10832,9 +10832,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"weboptimizer@npm:^4.0.99":
-  version: 4.0.99
-  resolution: "weboptimizer@npm:4.0.99"
+"weboptimizer@npm:^4.0.100":
+  version: 4.0.100
+  resolution: "weboptimizer@npm:4.0.100"
   dependencies:
     "@babel/core": "npm:^8.0.10"
     "@babel/plugin-proposal-decorators": "npm:^8.0.2"
@@ -10979,7 +10979,7 @@ __metadata:
       optional: true
   bin:
     weboptimizer: dist/index.js
-  checksum: 10c0/4c9b79b88188592f9201768de59a6f86bbd86398e74f7954ccb3980df921ed00ccc5114f9c2ec068ddfa660abb16173691c7b225687c3c17e28a28603dbac942
+  checksum: 10c0/ca14987946194ba30f7c502ecd922d643d5bc24c0dea200751d98541305cf0845001a1b96b6fe643b48c34429bb641ccec3897f9b4d4e6772a7b7c2c61d1bf9e
   languageName: node
   linkType: hard
 
