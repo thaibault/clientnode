@@ -72,7 +72,7 @@
     "watch": "weboptimizer build --watch"
   },
   "devDependencies": {
-    "@babel/cli": "^8.0.6",
+    "@babel/cli": "^8.1.0",
     "@babel/eslint-parser": "^8.0.7",
     "@babel/plugin-transform-class-properties": "^8.0.1",
     "@babel/preset-env": "^8.0.7",
@@ -100,8 +100,8 @@
     "node-fetch": "^3.3.2",
     "prop-types": "^15.8.1",
     "typescript-eslint": "^8.72.1",
-    "web-documentation": "^1.0.68",
-    "weboptimizer": "^4.0.100",
+    "web-documentation": "^1.0.71",
+    "weboptimizer": "^4.0.103",
     "webpack-dev-server": "^6.1.0"
   },
   "peerDependencies": {
