@@ -92,7 +92,7 @@
     "clientnode": "workspace:.",
     "eslint": "^10.14.0",
     "eslint-config-google": "^0.14.0",
-    "eslint-plugin-jsdoc": "^65.4.2",
+    "eslint-plugin-jsdoc": "^65.4.3",
     "favicons-webpack-plugin": "^6.0.1",
     "image-minimizer-webpack-plugin": "^5.0.0",
     "jest": "^30.5.2",
@@ -100,8 +100,8 @@
     "node-fetch": "^3.3.2",
     "prop-types": "^15.8.1",
     "typescript-eslint": "^8.72.1",
-    "web-documentation": "^1.0.71",
-    "weboptimizer": "^4.0.103",
+    "web-documentation": "^1.0.72",
+    "weboptimizer": "^4.0.105",
     "webpack-dev-server": "^6.1.0"
   },
   "peerDependencies": {
