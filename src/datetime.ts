@@ -588,7 +588,7 @@ export const interpretDateTime = (
     return null
 }
 /**
- * Interprets a date object from given artefact.
+ * Interprets a date object from given artifact.
  * @param value - To interpret.
  * @param interpretAsUTC - Identifies if given date should be interpreted as
  * utc. If not set given strings will be interpreted as it is dependent on

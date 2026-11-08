@@ -112,7 +112,7 @@ if (TARGET_TECHNOLOGY === 'node') {
         ))
         /*
             NOTE: A race condition was identified here. So we need an
-            additional digest loop to have this test artefact placed here.
+            additional digest loop to have this test artifact placed here.
         */
         await timeout()
         await unlink(`./test.copyFile.${TEST_ENVIRONMENT}.compiled.js`)
