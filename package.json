@@ -135,8 +135,9 @@
   },
   "webDocumentation": {
     "languages": [
+      "enUS",
       "deDE",
-      "enUS"
+      "frFR"
     ],
     "tagline": "Utilities for your JavaScript environment.<!--deDE:Hilfsfunktionen für Ihre JavaScript-Umgebung.-->"
   },
