@@ -527,10 +527,12 @@ export const paginate = (
                                 first: 1,
                                 last: numberOfPages
                             }[item as string] ??
-                            item === 'next' ?
-                                Math.min(page + 1, numberOfPages) :
-                                // NOTE: Is "previous" type.
-                                Math.max(page - 1, 1)
+                            (
+                                item === 'next' ?
+                                    Math.min(page + 1, numberOfPages) :
+                                    // NOTE: Is "previous" type.
+                                    Math.max(page - 1, 1)
+                            )
                     }
                 )
             }
