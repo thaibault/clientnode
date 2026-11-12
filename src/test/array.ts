@@ -249,6 +249,24 @@ testEach(
             siblingCount: 1,
             total: 500
         }
+    ],
+    [
+        [
+            {disabled: false, page: 1, selected: false, type: 'first'},
+            {disabled: false, page: 1, selected: false, type: 'previous'},
+            {disabled: false, page: 1, selected: false, type: 'page'},
+            {disabled: false, page: 2, selected: true, type: 'page'},
+            {disabled: false, page: 3, selected: false, type: 'page'},
+            {disabled: false, page: 3, selected: false, type: 'next'},
+            {disabled: false, page: 3, selected: false, type: 'last'}
+        ],
+        {
+            page: 2,
+            showFirstButton: true,
+            showLastButton: true,
+            siblingCount: 1,
+            total: 15
+        }
     ]
 )
 testEach(
