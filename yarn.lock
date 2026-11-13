@@ -5666,6 +5666,7 @@ __metadata:
   resolution: "clientnode@workspace:."
   dependencies:
     "@babel/cli": "npm:^8.1.0"
+    "@babel/core": "npm:^8.1.0"
     "@babel/eslint-parser": "npm:^8.0.7"
     "@babel/plugin-transform-class-properties": "npm:^8.0.1"
     "@babel/preset-env": "npm:^8.0.7"
