@@ -73,8 +73,8 @@
   },
   "devDependencies": {
     "@babel/cli": "^8.1.0",
-    "@babel/core": "^8.1.0",
-    "@babel/eslint-parser": "^8.0.7",
+    "@babel/core": "^8.1.2",
+    "@babel/eslint-parser": "^8.1.2",
     "@babel/plugin-transform-class-properties": "^8.0.1",
     "@babel/preset-env": "^8.0.7",
     "@babel/preset-typescript": "^8.0.7",
@@ -86,8 +86,8 @@
     "@types/node": "^26.6.6",
     "@types/prop-types": "^15.7.15",
     "@types/webpack-env": "^1.18.8",
-    "@typescript-eslint/eslint-plugin": "^8.72.1",
-    "@typescript-eslint/parser": "^8.72.1",
+    "@typescript-eslint/eslint-plugin": "^8.72.2",
+    "@typescript-eslint/parser": "^8.72.2",
     "babel-plugin-polyfill-corejs3": "^1.0.0",
     "babel-plugin-transform-rewrite-imports": "^1.5.4",
     "clientnode": "workspace:.",
@@ -101,9 +101,9 @@
     "jsdoc": "^4.0.5",
     "node-fetch": "^3.3.2",
     "prop-types": "^15.8.1",
-    "typescript-eslint": "^8.72.1",
+    "typescript-eslint": "^8.72.2",
     "web-documentation": "^1.0.74",
-    "weboptimizer": "^4.0.109",
+    "weboptimizer": "^4.0.115",
     "webpack-dev-server": "^6.1.0"
   },
   "peerDependencies": {
